@@ -18,8 +18,12 @@ from fastapi.responses import ORJSONResponse
 from context_graph.adapters.neo4j.store import Neo4jGraphStore
 from context_graph.adapters.redis.store import RedisEventStore
 from context_graph.api.middleware import register_middleware
+from context_graph.api.routes.context import router as context_router
+from context_graph.api.routes.entities import router as entities_router
 from context_graph.api.routes.events import router as events_router
 from context_graph.api.routes.health import router as health_router
+from context_graph.api.routes.lineage import router as lineage_router
+from context_graph.api.routes.query import router as query_router
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
@@ -72,5 +76,9 @@ def create_app() -> FastAPI:
 
     app.include_router(events_router, prefix="/v1")
     app.include_router(health_router, prefix="/v1")
+    app.include_router(context_router, prefix="/v1")
+    app.include_router(query_router, prefix="/v1")
+    app.include_router(lineage_router, prefix="/v1")
+    app.include_router(entities_router, prefix="/v1")
 
     return app

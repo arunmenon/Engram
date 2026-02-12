@@ -9,19 +9,34 @@ Source: ADR-0003, ADR-0005, ADR-0009
 
 from __future__ import annotations
 
+import time
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
 from neo4j import AsyncGraphDatabase
 
 from context_graph.adapters.neo4j import queries
-from context_graph.domain.models import EdgeType
+from context_graph.domain.intent import classify_intent, get_edge_weights
+from context_graph.domain.lineage import validate_traversal_bounds
+from context_graph.domain.models import (
+    AtlasEdge,
+    AtlasNode,
+    AtlasResponse,
+    EdgeType,
+    NodeScores,
+    Pagination,
+    Provenance,
+    QueryCapacity,
+    QueryMeta,
+)
+from context_graph.domain.scoring import score_node
+from context_graph.settings import INTENT_WEIGHTS
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
 
     from context_graph.domain.models import (
-        AtlasResponse,
         Edge,
         EntityNode,
         EventNode,
@@ -221,16 +236,67 @@ class Neo4jGraphStore:
         logger.info("ensured_constraints", count=len(queries.ALL_CONSTRAINTS))
 
     # ------------------------------------------------------------------
-    # Phase 3+ stubs
+    # Phase 3: Query methods
     # ------------------------------------------------------------------
 
-    async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
-        """Execute an intent-aware subgraph query."""
-        raise NotImplementedError("Implemented in Phase 3")
+    def _build_atlas_node(
+        self,
+        record_props: dict[str, Any],
+        scores: NodeScores,
+        retrieval_reason: str = "direct",
+    ) -> AtlasNode:
+        """Convert Neo4j record properties to an AtlasNode with provenance."""
+        event_id = record_props.get("event_id", "")
+        occurred_at_raw = record_props.get("occurred_at")
+        if isinstance(occurred_at_raw, str):
+            occurred_at = datetime.fromisoformat(occurred_at_raw)
+        else:
+            occurred_at = datetime.now(UTC)
 
-    async def get_lineage(self, query: LineageQuery) -> AtlasResponse:
-        """Traverse lineage (CAUSED_BY chains) from a node."""
-        raise NotImplementedError("Implemented in Phase 3")
+        provenance = Provenance(
+            event_id=event_id,
+            global_position=record_props.get("global_position", ""),
+            source="neo4j",
+            occurred_at=occurred_at,
+            session_id=record_props.get("session_id", ""),
+            agent_id=record_props.get("agent_id", ""),
+            trace_id=record_props.get("trace_id", ""),
+        )
+
+        attributes = {
+            k: v
+            for k, v in record_props.items()
+            if k
+            not in {
+                "event_id",
+                "global_position",
+                "session_id",
+                "agent_id",
+                "trace_id",
+            }
+        }
+
+        return AtlasNode(
+            node_id=event_id,
+            node_type="Event",
+            attributes=attributes,
+            provenance=provenance,
+            scores=scores,
+            retrieval_reason=retrieval_reason,
+        )
+
+    async def _bump_access_counts(self, event_ids: list[str]) -> None:
+        """Increment access_count for a batch of event nodes."""
+        if not event_ids:
+            return
+        now_iso = datetime.now(UTC).isoformat()
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(
+                lambda tx: tx.run(
+                    queries.BATCH_UPDATE_ACCESS_COUNT,
+                    {"event_ids": event_ids, "now": now_iso},
+                )
+            )
 
     async def get_context(
         self,
@@ -239,11 +305,286 @@ class Neo4jGraphStore:
         query: str | None = None,
     ) -> AtlasResponse:
         """Assemble working memory context for a session."""
-        raise NotImplementedError("Implemented in Phase 3")
+        start_ms = time.monotonic_ns()
+
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(
+                queries.GET_SESSION_EVENTS,
+                {"session_id": session_id, "limit": max_nodes},
+            )
+            records = [record async for record in result]
+
+        nodes: dict[str, AtlasNode] = {}
+        scored_entries: list[tuple[str, dict[str, Any], NodeScores]] = []
+
+        for record in records:
+            props = dict(record["e"])
+            event_id = props.get("event_id", "")
+            scores = score_node(props)
+            scored_entries.append((event_id, props, scores))
+
+        # Sort by composite decay_score descending, take top max_nodes
+        scored_entries.sort(key=lambda x: x[2].decay_score, reverse=True)
+        scored_entries = scored_entries[:max_nodes]
+
+        for event_id, props, scores in scored_entries:
+            nodes[event_id] = self._build_atlas_node(props, scores)
+
+        # Bump access counts
+        event_ids = [eid for eid, _, _ in scored_entries]
+        await self._bump_access_counts(event_ids)
+
+        elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
+
+        meta = QueryMeta(
+            query_ms=elapsed_ms,
+            nodes_returned=len(nodes),
+            truncated=len(records) >= max_nodes,
+            capacity=QueryCapacity(
+                max_nodes=max_nodes,
+                used_nodes=len(nodes),
+                max_depth=1,
+            ),
+        )
+
+        return AtlasResponse(
+            nodes=nodes,
+            edges=[],
+            pagination=Pagination(),
+            meta=meta,
+        )
+
+    async def get_lineage(self, query: LineageQuery) -> AtlasResponse:
+        """Traverse lineage (CAUSED_BY chains) from a node."""
+        start_ms = time.monotonic_ns()
+
+        clamped_depth, clamped_nodes, _timeout = validate_traversal_bounds(
+            max_depth=query.max_depth,
+            max_nodes=query.max_nodes,
+            timeout_ms=5000,
+        )
+
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(
+                queries.GET_LINEAGE,
+                {
+                    "node_id": query.node_id,
+                    "max_depth": clamped_depth,
+                    "max_nodes": clamped_nodes,
+                },
+            )
+            records = [record async for record in result]
+
+        nodes: dict[str, AtlasNode] = {}
+        edges: list[AtlasEdge] = []
+        seen_edges: set[tuple[str, str]] = set()
+
+        for record in records:
+            chain_nodes = record["chain_nodes"]
+            chain_rels = record["chain_rels"]
+
+            for neo_node in chain_nodes:
+                props = dict(neo_node)
+                event_id = props.get("event_id", "")
+                if event_id and event_id not in nodes:
+                    scores = score_node(props)
+                    nodes[event_id] = self._build_atlas_node(props, scores)
+
+            for rel in chain_rels:
+                start_eid = dict(rel.start_node).get("event_id", "")
+                end_eid = dict(rel.end_node).get("event_id", "")
+                edge_key = (start_eid, end_eid)
+                if edge_key not in seen_edges:
+                    seen_edges.add(edge_key)
+                    edges.append(
+                        AtlasEdge(
+                            source=start_eid,
+                            target=end_eid,
+                            edge_type="CAUSED_BY",
+                            properties=dict(rel),
+                        )
+                    )
+
+        await self._bump_access_counts(list(nodes.keys()))
+
+        elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
+
+        meta = QueryMeta(
+            query_ms=elapsed_ms,
+            nodes_returned=len(nodes),
+            truncated=len(nodes) >= clamped_nodes,
+            capacity=QueryCapacity(
+                max_nodes=clamped_nodes,
+                used_nodes=len(nodes),
+                max_depth=clamped_depth,
+            ),
+        )
+
+        return AtlasResponse(
+            nodes=nodes,
+            edges=edges,
+            pagination=Pagination(),
+            meta=meta,
+        )
+
+    async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
+        """Execute an intent-aware subgraph query."""
+        start_ms = time.monotonic_ns()
+
+        # Classify intent from the query text
+        inferred_intents = classify_intent(query.query)
+
+        # If explicit intent override, use that
+        if query.intent is not None:
+            inferred_intents = {str(query.intent): 1.0}
+
+        # Get edge weights based on intents
+        edge_weights = get_edge_weights(inferred_intents, INTENT_WEIGHTS)
+
+        # Get seed events from the session
+        async with self._driver.session(database=self._database) as session:
+            seed_result = await session.run(
+                queries.GET_SUBGRAPH_SEED_EVENTS,
+                {"session_id": query.session_id, "seed_limit": min(10, query.max_nodes)},
+            )
+            seed_records = [record async for record in seed_result]
+
+        nodes: dict[str, AtlasNode] = {}
+        edges: list[AtlasEdge] = []
+        seen_edges: set[tuple[str, str, str]] = set()
+        seed_node_ids: list[str] = []
+
+        # Process seed events
+        for record in seed_records:
+            props = dict(record["e"])
+            event_id = props.get("event_id", "")
+            if event_id:
+                seed_node_ids.append(event_id)
+                scores = score_node(props)
+                nodes[event_id] = self._build_atlas_node(props, scores)
+
+        # For each seed, traverse neighbors
+        async with self._driver.session(database=self._database) as session:
+            for seed_eid in seed_node_ids:
+                neighbor_result = await session.run(
+                    queries.GET_EVENT_NEIGHBORS,
+                    {"event_id": seed_eid},
+                )
+                neighbor_records = [record async for record in neighbor_result]
+
+                for nrec in neighbor_records:
+                    rel_type = nrec.get("rel_type")
+                    if rel_type is None:
+                        continue
+
+                    neighbor_eid = nrec.get("neighbor_event_id")
+                    neighbor_entity_id = nrec.get("neighbor_entity_id")
+                    neighbor_id = neighbor_eid or neighbor_entity_id or ""
+                    if not neighbor_id:
+                        continue
+
+                    # Apply edge weight as a score boost
+                    weight = edge_weights.get(rel_type, 1.0)
+
+                    if neighbor_eid and neighbor_eid not in nodes:
+                        neighbor_props = nrec.get("neighbor_props", {}) or {}
+                        nscores = score_node(neighbor_props)
+                        # Boost the decay score by edge weight relevance
+                        boosted_score = min(
+                            1.0,
+                            nscores.decay_score * (1.0 + weight * 0.1),
+                        )
+                        boosted_scores = NodeScores(
+                            decay_score=round(boosted_score, 6),
+                            relevance_score=nscores.relevance_score,
+                            importance_score=nscores.importance_score,
+                        )
+                        nodes[neighbor_eid] = self._build_atlas_node(
+                            neighbor_props,
+                            boosted_scores,
+                            retrieval_reason="proactive",
+                        )
+
+                    edge_key = (seed_eid, neighbor_id, rel_type)
+                    if edge_key not in seen_edges:
+                        seen_edges.add(edge_key)
+                        rel_props = nrec.get("rel_props", {}) or {}
+                        edges.append(
+                            AtlasEdge(
+                                source=seed_eid,
+                                target=neighbor_id,
+                                edge_type=rel_type,
+                                properties=rel_props,
+                            )
+                        )
+
+        # Sort all nodes by score, take top max_nodes
+        sorted_node_ids = sorted(
+            nodes.keys(),
+            key=lambda nid: nodes[nid].scores.decay_score,
+            reverse=True,
+        )
+        if len(sorted_node_ids) > query.max_nodes:
+            keep_set = set(sorted_node_ids[: query.max_nodes])
+            nodes = {k: v for k, v in nodes.items() if k in keep_set}
+
+        # Bump access counts for event nodes only
+        event_ids = [nid for nid in nodes if nid.startswith("evt")]
+        await self._bump_access_counts(event_ids)
+
+        elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
+
+        proactive_count = sum(1 for n in nodes.values() if n.retrieval_reason == "proactive")
+
+        meta = QueryMeta(
+            query_ms=elapsed_ms,
+            nodes_returned=len(nodes),
+            truncated=len(sorted_node_ids) > query.max_nodes,
+            inferred_intents=inferred_intents,
+            seed_nodes=seed_node_ids,
+            proactive_nodes_count=proactive_count,
+            capacity=QueryCapacity(
+                max_nodes=query.max_nodes,
+                used_nodes=len(nodes),
+                max_depth=query.max_depth,
+            ),
+        )
+
+        return AtlasResponse(
+            nodes=nodes,
+            edges=edges,
+            pagination=Pagination(),
+            meta=meta,
+        )
 
     async def get_entity(self, entity_id: str) -> dict[str, Any] | None:
         """Retrieve an entity and its connected events."""
-        raise NotImplementedError("Implemented in Phase 3")
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(
+                queries.GET_ENTITY_WITH_EVENTS,
+                {"entity_id": entity_id, "limit": 100},
+            )
+            records = [record async for record in result]
+
+        if not records:
+            return None
+
+        # First record always has the entity
+        entity_props = dict(records[0]["ent"])
+
+        connected_events: list[dict[str, Any]] = []
+        for record in records:
+            evt = record.get("evt")
+            if evt is not None:
+                evt_dict = dict(evt)
+                ref_props = record.get("ref_props", {}) or {}
+                evt_dict["ref_props"] = ref_props
+                connected_events.append(evt_dict)
+
+        return {
+            "entity": entity_props,
+            "connected_events": connected_events,
+        }
 
     # ------------------------------------------------------------------
     # Lifecycle

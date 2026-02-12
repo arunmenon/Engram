@@ -9,7 +9,13 @@ import pytest
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
 
-    from context_graph.domain.models import Event, EventQuery
+    from context_graph.domain.models import (
+        AtlasResponse,
+        Event,
+        EventQuery,
+        LineageQuery,
+        SubgraphQuery,
+    )
 
 
 class InMemoryEventStore:
@@ -57,16 +63,41 @@ class InMemoryEventStore:
 
 
 class StubGraphStore:
-    """Minimal stub GraphStore for health check tests."""
+    """Stub GraphStore for unit tests — satisfies the protocol for health checks + queries."""
 
     def __init__(self, healthy: bool = True) -> None:
         self._healthy = healthy
         # Simulate driver/database for health check access
         self._driver = _StubDriver(healthy)
         self._database = "neo4j"
+        # Configurable entity lookup response
+        self._entities: dict[str, dict[str, object]] = {}
 
     async def ensure_constraints(self) -> None:
         pass
+
+    async def get_context(
+        self,
+        session_id: str,
+        max_nodes: int = 100,
+        query: str | None = None,
+    ) -> AtlasResponse:
+        from context_graph.domain.models import AtlasResponse
+
+        return AtlasResponse()
+
+    async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
+        from context_graph.domain.models import AtlasResponse
+
+        return AtlasResponse()
+
+    async def get_lineage(self, query: LineageQuery) -> AtlasResponse:
+        from context_graph.domain.models import AtlasResponse
+
+        return AtlasResponse()
+
+    async def get_entity(self, entity_id: str) -> dict[str, object] | None:
+        return self._entities.get(entity_id)
 
     async def close(self) -> None:
         pass
@@ -120,27 +151,43 @@ def in_memory_event_store() -> InMemoryEventStore:
 
 
 @pytest.fixture()
-def test_client(in_memory_event_store: InMemoryEventStore) -> TestClient:
+def stub_graph_store() -> StubGraphStore:
+    """Return a fresh stub graph store."""
+    return StubGraphStore(healthy=True)
+
+
+@pytest.fixture()
+def test_client(
+    in_memory_event_store: InMemoryEventStore,
+    stub_graph_store: StubGraphStore,
+) -> TestClient:
     """FastAPI TestClient with in-memory stores (no Redis/Neo4j needed)."""
     from fastapi import FastAPI
     from fastapi.responses import ORJSONResponse
     from fastapi.testclient import TestClient as _TestClient
 
     from context_graph.api.middleware import register_middleware
+    from context_graph.api.routes.context import router as context_router
+    from context_graph.api.routes.entities import router as entities_router
     from context_graph.api.routes.events import router as events_router
     from context_graph.api.routes.health import router as health_router
+    from context_graph.api.routes.lineage import router as lineage_router
+    from context_graph.api.routes.query import router as query_router
 
     app = FastAPI(default_response_class=ORJSONResponse)
     register_middleware(app)
     app.include_router(events_router, prefix="/v1")
     app.include_router(health_router, prefix="/v1")
+    app.include_router(context_router, prefix="/v1")
+    app.include_router(query_router, prefix="/v1")
+    app.include_router(lineage_router, prefix="/v1")
+    app.include_router(entities_router, prefix="/v1")
 
     store = in_memory_event_store
-    graph_store = StubGraphStore(healthy=True)
 
     # Wire stubs into app state
     app.state.event_store = store
-    app.state.graph_store = graph_store
+    app.state.graph_store = stub_graph_store
     # Health check accesses _client directly
     store._client = _StubRedisClient(healthy=True)  # type: ignore[attr-defined]
 

@@ -219,6 +219,71 @@ SET r += edge.props
 """.strip()
 
 # ---------------------------------------------------------------------------
+# Phase 3: Traversal and context queries
+# ---------------------------------------------------------------------------
+
+GET_SESSION_EVENTS = """
+MATCH (e:Event {session_id: $session_id})
+RETURN e ORDER BY e.occurred_at DESC LIMIT $limit
+""".strip()
+
+GET_SESSION_EVENT_COUNT = """
+MATCH (e:Event {session_id: $session_id})
+RETURN count(e) AS cnt
+""".strip()
+
+GET_LINEAGE = """
+MATCH path = (start:Event {event_id: $node_id})-[:CAUSED_BY*1..10]->(ancestor)
+WITH start, nodes(path) AS chain_nodes, relationships(path) AS chain_rels,
+     length(path) AS depth
+WHERE depth <= $max_depth
+RETURN start, chain_nodes, chain_rels
+LIMIT $max_nodes
+""".strip()
+
+GET_EVENT_NEIGHBORS = """
+MATCH (e:Event {event_id: $event_id})
+OPTIONAL MATCH (e)-[r]->(neighbor)
+RETURN e, type(r) AS rel_type, properties(r) AS rel_props,
+       labels(neighbor) AS neighbor_labels, properties(neighbor) AS neighbor_props,
+       neighbor.event_id AS neighbor_event_id,
+       neighbor.entity_id AS neighbor_entity_id,
+       neighbor.summary_id AS neighbor_summary_id
+""".strip()
+
+GET_ENTITY_WITH_EVENTS = """
+MATCH (ent:Entity {entity_id: $entity_id})
+OPTIONAL MATCH (evt:Event)-[r:REFERENCES]->(ent)
+RETURN ent, evt, properties(r) AS ref_props
+ORDER BY evt.occurred_at DESC
+LIMIT $limit
+""".strip()
+
+UPDATE_ACCESS_COUNT = """
+MATCH (e:Event {event_id: $event_id})
+SET e.access_count = coalesce(e.access_count, 0) + 1,
+    e.last_accessed_at = $now
+""".strip()
+
+BATCH_UPDATE_ACCESS_COUNT = """
+UNWIND $event_ids AS eid
+MATCH (e:Event {event_id: eid})
+SET e.access_count = coalesce(e.access_count, 0) + 1,
+    e.last_accessed_at = $now
+""".strip()
+
+UPDATE_EVENT_ENRICHMENT = """
+MATCH (e:Event {event_id: $event_id})
+SET e.keywords = $keywords,
+    e.importance_score = $importance_score
+""".strip()
+
+GET_SUBGRAPH_SEED_EVENTS = """
+MATCH (e:Event {session_id: $session_id})
+RETURN e ORDER BY e.occurred_at DESC LIMIT $seed_limit
+""".strip()
+
+# ---------------------------------------------------------------------------
 # Cleanup (for testing)
 # ---------------------------------------------------------------------------
 

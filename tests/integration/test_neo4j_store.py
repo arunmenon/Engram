@@ -410,25 +410,37 @@ class TestEnsureConstraints:
 
 
 @pytest.mark.integration
-class TestPhase3Stubs:
-    async def test_get_subgraph_not_implemented(self, neo4j_store: Neo4jGraphStore) -> None:
-        from context_graph.domain.models import SubgraphQuery
+class TestPhase3Methods:
+    """Verify Phase 3 query methods return proper types (basic smoke tests)."""
+
+    async def test_get_subgraph_returns_atlas_response(
+        self, neo4j_store: Neo4jGraphStore
+    ) -> None:
+        from context_graph.domain.models import AtlasResponse, SubgraphQuery
 
         query = SubgraphQuery(query="test", session_id="s", agent_id="a", max_nodes=10)
-        with pytest.raises(NotImplementedError, match="Phase 3"):
-            await neo4j_store.get_subgraph(query)
+        result = await neo4j_store.get_subgraph(query)
+        assert isinstance(result, AtlasResponse)
 
-    async def test_get_lineage_not_implemented(self, neo4j_store: Neo4jGraphStore) -> None:
-        from context_graph.domain.models import LineageQuery
+    async def test_get_lineage_returns_atlas_response(
+        self, neo4j_store: Neo4jGraphStore
+    ) -> None:
+        from context_graph.domain.models import AtlasResponse, LineageQuery
 
-        query = LineageQuery(node_id="n")
-        with pytest.raises(NotImplementedError, match="Phase 3"):
-            await neo4j_store.get_lineage(query)
+        query = LineageQuery(node_id="nonexistent")
+        result = await neo4j_store.get_lineage(query)
+        assert isinstance(result, AtlasResponse)
 
-    async def test_get_context_not_implemented(self, neo4j_store: Neo4jGraphStore) -> None:
-        with pytest.raises(NotImplementedError, match="Phase 3"):
-            await neo4j_store.get_context("sess-001")
+    async def test_get_context_returns_atlas_response(
+        self, neo4j_store: Neo4jGraphStore
+    ) -> None:
+        from context_graph.domain.models import AtlasResponse
 
-    async def test_get_entity_not_implemented(self, neo4j_store: Neo4jGraphStore) -> None:
-        with pytest.raises(NotImplementedError, match="Phase 3"):
-            await neo4j_store.get_entity("entity-001")
+        result = await neo4j_store.get_context("sess-001")
+        assert isinstance(result, AtlasResponse)
+
+    async def test_get_entity_returns_none_when_missing(
+        self, neo4j_store: Neo4jGraphStore
+    ) -> None:
+        result = await neo4j_store.get_entity("nonexistent-entity")
+        assert result is None
