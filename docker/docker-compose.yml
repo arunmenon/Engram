@@ -1,0 +1,45 @@
+services:
+  redis:
+    image: redis/redis-stack:latest
+    container_name: engram-redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"  # RedisInsight
+    volumes:
+      - redis-data:/data
+      - ./redis/redis.conf:/redis-stack.conf
+    environment:
+      - REDIS_ARGS=--include /redis-stack.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: engram-neo4j
+    ports:
+      - "7687:7687"  # Bolt
+      - "7474:7474"  # Browser
+    volumes:
+      - neo4j-data:/data
+      - ./neo4j/constraints.cypher:/var/lib/neo4j/constraints/constraints.cypher
+      - ./neo4j/init.sh:/docker-entrypoint-initdb.d/init.sh
+    environment:
+      - NEO4J_AUTH=neo4j/engram-dev-password
+      - NEO4J_PLUGINS=[]
+      - NEO4J_server_memory_heap_initial__size=256m
+      - NEO4J_server_memory_heap_max__size=512m
+      - NEO4J_server_memory_pagecache_size=128m
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  redis-data:
+  neo4j-data:
