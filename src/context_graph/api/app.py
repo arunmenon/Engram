@@ -18,6 +18,7 @@ from fastapi.responses import ORJSONResponse
 from context_graph.adapters.neo4j.store import Neo4jGraphStore
 from context_graph.adapters.redis.store import RedisEventStore
 from context_graph.api.middleware import register_middleware
+from context_graph.api.routes.admin import router as admin_router
 from context_graph.api.routes.context import router as context_router
 from context_graph.api.routes.entities import router as entities_router
 from context_graph.api.routes.events import router as events_router
@@ -80,5 +81,6 @@ def create_app() -> FastAPI:
     app.include_router(query_router, prefix="/v1")
     app.include_router(lineage_router, prefix="/v1")
     app.include_router(entities_router, prefix="/v1")
+    app.include_router(admin_router, prefix="/v1")
 
     return app
