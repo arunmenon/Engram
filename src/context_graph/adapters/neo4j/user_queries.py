@@ -124,7 +124,11 @@ MATCH (e:Event {event_id: $event_id})
 MERGE (source)-[r:DERIVED_FROM]->(e)
 SET r.method = $method,
     r.session_id = $session_id,
-    r.extracted_at = $now
+    r.extracted_at = $now,
+    r.model_id = $model_id,
+    r.prompt_version = $prompt_version,
+    r.evidence_quote = $evidence_quote,
+    r.source_turn_index = $source_turn_index
 """.strip()
 
 _MERGE_SKILL = """
@@ -142,7 +146,9 @@ MERGE (e)-[r:HAS_SKILL]->(s)
 SET r.proficiency = $proficiency,
     r.confidence = $confidence,
     r.source = $source,
-    r.updated_at = $now
+    r.updated_at = $now,
+    r.last_assessed_at = $now,
+    r.assessment_count = coalesce(r.assessment_count, 0) + 1
 """.strip()
 
 _MERGE_INTERESTED_IN = """
@@ -175,8 +181,14 @@ WITH DISTINCT e
 OPTIONAL MATCH (e)-[:EXHIBITS_PATTERN]->(bp:BehavioralPattern)
 DETACH DELETE bp
 WITH DISTINCT e
-OPTIONAL MATCH (e)-[:HAS_SKILL]->(s:Skill)
-DETACH DELETE s
+OPTIONAL MATCH (e)-[r_skill:HAS_SKILL]->(:Skill)
+DELETE r_skill
+WITH DISTINCT e
+OPTIONAL MATCH (e)-[r_interest:INTERESTED_IN]->(:Entity)
+DELETE r_interest
+WITH DISTINCT e
+OPTIONAL MATCH (e)-[r_same:SAME_AS]-(:Entity)
+DELETE r_same
 WITH DISTINCT e
 SET e.name = 'REDACTED',
     e.entity_type = 'user'
@@ -211,6 +223,26 @@ RETURN target.entity_id AS entity_id,
        target.entity_type AS entity_type,
        r.weight AS weight,
        r.source AS source
+""".strip()
+
+_EXPORT_USER_DERIVED_FROM = """
+MATCH (e:Entity {entity_id: $user_id})-[:HAS_PREFERENCE]->(p:Preference)
+MATCH (p)-[r:DERIVED_FROM]->(evt:Event)
+RETURN p.preference_id AS source_id,
+       'Preference' AS source_type,
+       evt.event_id AS event_id,
+       r.method AS method,
+       r.session_id AS session_id,
+       r.extracted_at AS extracted_at
+UNION ALL
+MATCH (e:Entity {entity_id: $user_id})-[:HAS_SKILL]->(s:Skill)
+MATCH (s)-[r:DERIVED_FROM]->(evt:Event)
+RETURN s.skill_id AS source_id,
+       'Skill' AS source_type,
+       evt.event_id AS event_id,
+       r.method AS method,
+       r.session_id AS session_id,
+       r.extracted_at AS extracted_at
 """.strip()
 
 
@@ -414,6 +446,10 @@ async def write_preference_with_edges(
                         "method": derivation_info.get("method", "llm_extraction"),
                         "session_id": derivation_info.get("session_id", ""),
                         "now": now,
+                        "model_id": derivation_info.get("model_id"),
+                        "prompt_version": derivation_info.get("prompt_version"),
+                        "evidence_quote": derivation_info.get("evidence_quote"),
+                        "source_turn_index": derivation_info.get("source_turn_index"),
                     },
                 )
 
@@ -488,6 +524,10 @@ async def write_skill_with_edges(
                         "method": derivation_info.get("method", "llm_extraction"),
                         "session_id": derivation_info.get("session_id", ""),
                         "now": now,
+                        "model_id": derivation_info.get("model_id"),
+                        "prompt_version": derivation_info.get("prompt_version"),
+                        "evidence_quote": derivation_info.get("evidence_quote"),
+                        "source_turn_index": derivation_info.get("source_turn_index"),
                     },
                 )
 
@@ -552,6 +592,40 @@ async def write_interest_edge(
     )
 
 
+async def write_derived_from_edge(
+    driver: AsyncDriver,
+    database: str,
+    source_node_id: str,
+    source_id_field: str,
+    event_id: str,
+    method: str,
+    session_id: str,
+) -> None:
+    """Write a single DERIVED_FROM edge from a source node to an event."""
+    now = datetime.now(UTC).isoformat()
+    query = _MERGE_DERIVED_FROM % source_id_field
+
+    async with driver.session(database=database) as session:
+
+        async def _write(tx: Any) -> None:
+            await tx.run(
+                query,
+                {
+                    "source_id": source_node_id,
+                    "event_id": event_id,
+                    "method": method,
+                    "session_id": session_id,
+                    "now": now,
+                    "model_id": None,
+                    "prompt_version": None,
+                    "evidence_quote": None,
+                    "source_turn_index": None,
+                },
+            )
+
+        await session.execute_write(_write)
+
+
 # ---------------------------------------------------------------------------
 # GDPR Functions
 # ---------------------------------------------------------------------------
@@ -599,6 +673,7 @@ async def export_user_data(
         "skills": [],
         "patterns": [],
         "interests": [],
+        "provenance_chains": [],
     }
 
     async with driver.session(database=database) as session:
@@ -637,6 +712,21 @@ async def export_user_data(
             for r in interest_records
         ]
 
+        # Provenance chains (DERIVED_FROM)
+        derived_result = await session.run(_EXPORT_USER_DERIVED_FROM, {"user_id": user_id})
+        derived_records = [record async for record in derived_result]
+        export["provenance_chains"] = [
+            {
+                "source_id": r["source_id"],
+                "source_type": r["source_type"],
+                "event_id": r["event_id"],
+                "method": r["method"],
+                "session_id": r["session_id"],
+                "extracted_at": r["extracted_at"],
+            }
+            for r in derived_records
+        ]
+
     log.info(
         "gdpr_export_user_data",
         user_id=user_id,
@@ -644,5 +734,6 @@ async def export_user_data(
         skills=len(export["skills"]),
         patterns=len(export["patterns"]),
         interests=len(export["interests"]),
+        provenance_chains=len(export["provenance_chains"]),
     )
     return export

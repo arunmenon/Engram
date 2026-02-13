@@ -271,3 +271,117 @@ class TestLLMExtractionClient:
             "interests",
         }
         assert expected_keys.issubset(set(result.keys()))
+
+
+# ---------------------------------------------------------------------------
+# XML conversation wrapper (Fix 4)
+# ---------------------------------------------------------------------------
+
+
+class TestPromptXmlWrapper:
+    def test_prompt_has_xml_conversation_wrapper(self) -> None:
+        events = make_session_events(n=2)
+        prompt = build_extraction_prompt(events, existing_entities=[])
+        assert "<conversation>" in prompt
+        assert "</conversation>" in prompt
+
+
+# ---------------------------------------------------------------------------
+# Degenerate output detection (Fix 5)
+# ---------------------------------------------------------------------------
+
+
+class TestDegenerateOutputDetection:
+    def test_degenerate_output_detected(self) -> None:
+        from context_graph.adapters.llm.client import detect_degenerate_output
+
+        result = SessionExtractionResult(
+            session_id="s1",
+            agent_id="a1",
+            entities=[
+                ExtractedEntity(name="a", entity_type="concept", confidence=0.5, source_quote="q1"),
+                ExtractedEntity(name="b", entity_type="concept", confidence=0.5, source_quote="q2"),
+                ExtractedEntity(
+                    name="c", entity_type="concept", confidence=0.51, source_quote="q3"
+                ),
+            ],
+        )
+        assert detect_degenerate_output(result) is True
+
+    def test_non_degenerate_output_passes(self) -> None:
+        from context_graph.adapters.llm.client import detect_degenerate_output
+
+        result = SessionExtractionResult(
+            session_id="s1",
+            agent_id="a1",
+            entities=[
+                ExtractedEntity(name="a", entity_type="concept", confidence=0.3, source_quote="q1"),
+                ExtractedEntity(name="b", entity_type="concept", confidence=0.9, source_quote="q2"),
+            ],
+        )
+        assert detect_degenerate_output(result) is False
+
+    def test_single_extraction_not_degenerate(self) -> None:
+        from context_graph.adapters.llm.client import detect_degenerate_output
+
+        result = SessionExtractionResult(
+            session_id="s1",
+            agent_id="a1",
+            entities=[
+                ExtractedEntity(name="a", entity_type="concept", confidence=0.5, source_quote="q1"),
+            ],
+        )
+        assert detect_degenerate_output(result) is False
+
+
+# ---------------------------------------------------------------------------
+# Confidence gating (Fix 3)
+# ---------------------------------------------------------------------------
+
+
+class TestConfidenceGating:
+    def test_confidence_gating_rejects_low_confidence(self) -> None:
+        result = SessionExtractionResult(
+            session_id="s1",
+            agent_id="a1",
+            preferences=[
+                ExtractedPreference(
+                    category="tool",
+                    key="vim",
+                    polarity="positive",
+                    strength=0.8,
+                    confidence=0.2,
+                    source="implicit_unintentional",
+                    source_quote="using vim",
+                ),
+            ],
+        )
+        conversation = "I was using vim for editing"
+        min_thresholds = {
+            "implicit_unintentional": 0.3,
+        }
+        validated = validate_extraction(result, conversation, min_thresholds=min_thresholds)
+        assert len(validated.preferences) == 0
+
+    def test_confidence_gating_accepts_above_threshold(self) -> None:
+        result = SessionExtractionResult(
+            session_id="s1",
+            agent_id="a1",
+            preferences=[
+                ExtractedPreference(
+                    category="tool",
+                    key="vim",
+                    polarity="positive",
+                    strength=0.8,
+                    confidence=0.5,
+                    source="explicit",
+                    source_quote="I prefer vim",
+                ),
+            ],
+        )
+        conversation = "I always say I prefer vim for coding"
+        min_thresholds = {
+            "explicit": 0.3,
+        }
+        validated = validate_extraction(result, conversation, min_thresholds=min_thresholds)
+        assert len(validated.preferences) == 1

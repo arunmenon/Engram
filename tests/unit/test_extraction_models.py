@@ -463,3 +463,39 @@ class TestApplyConfidencePrior:
         assert "observed" in CONFIDENCE_CEILINGS
         assert "declared" in CONFIDENCE_CEILINGS
         assert "inferred" in CONFIDENCE_CEILINGS
+
+
+# ---------------------------------------------------------------------------
+# Source quote threshold regression (0.85)
+# ---------------------------------------------------------------------------
+
+
+class TestSourceQuoteThreshold085:
+    """Source quote validation uses 0.85 threshold (not 0.80)."""
+
+    def test_ratio_084_rejected(self):
+        """A match with ratio ~0.84 should be rejected."""
+        text = "hello world xyz extra padding here"
+        assert validate_source_quote("hello world abc", text) is False
+
+    def test_ratio_086_accepted(self):
+        """A near-exact match should still be accepted."""
+        text = "I prefer using Python for analysis tasks"
+        assert validate_source_quote("I prefer using Python for analysis", text) is True
+
+
+# ---------------------------------------------------------------------------
+# Entailment stub
+# ---------------------------------------------------------------------------
+
+
+class TestEntailmentStub:
+    def test_entailment_stub_returns_true(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        assert verify_entailment("Python is fast", "Python is a fast programming language") is True
+
+    def test_entailment_stub_always_true(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        assert verify_entailment("cats are dogs", "fish swim in water") is True

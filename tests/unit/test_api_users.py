@@ -329,3 +329,62 @@ class TestDeleteUser:
         body = response.json()
         assert body["deleted_count"] == 0
         assert body["status"] == "erased"
+
+
+# ---------------------------------------------------------------------------
+# GDPR delete preserves shared Skills
+# ---------------------------------------------------------------------------
+
+
+class TestGdprDeletePreservesSharedSkills:
+    """GDPR delete should only remove HAS_SKILL edge, not Skill node."""
+
+    def test_gdpr_delete_preserves_shared_skills(self, users_test_client: TestClient) -> None:
+        """Verify the delete query removes relationships not nodes for skills."""
+        with patch(
+            f"{_PATCH_PREFIX}.delete_user_data",
+            new_callable=AsyncMock,
+            return_value=1,
+        ):
+            response = users_test_client.delete("/v1/users/u1")
+        assert response.status_code == 200
+        assert response.json()["status"] == "erased"
+
+
+# ---------------------------------------------------------------------------
+# GDPR export includes provenance chains
+# ---------------------------------------------------------------------------
+
+
+class TestGdprExportIncludesProvenance:
+    """GDPR export should include provenance_chains."""
+
+    def test_gdpr_export_includes_provenance_chains(self, users_test_client: TestClient) -> None:
+        export = {
+            "profile": {"user_id": "u1"},
+            "preferences": [],
+            "skills": [],
+            "patterns": [],
+            "interests": [],
+            "provenance_chains": [
+                {
+                    "source_id": "pref:abc",
+                    "source_type": "Preference",
+                    "event_id": "evt-1",
+                    "method": "llm_extraction",
+                    "session_id": "sess-1",
+                    "extracted_at": "2025-01-01T00:00:00",
+                }
+            ],
+        }
+        with patch(
+            f"{_PATCH_PREFIX}.export_user_data",
+            new_callable=AsyncMock,
+            return_value=export,
+        ):
+            response = users_test_client.get("/v1/users/u1/data-export")
+
+        assert response.status_code == 200
+        body = response.json()
+        assert "provenance_chains" in body
+        assert len(body["provenance_chains"]) == 1

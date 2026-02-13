@@ -1,8 +1,9 @@
 -- Atomic event ingestion with dedup.
 --
--- KEYS[1] = stream key     (e.g. "events:__global__")
--- KEYS[2] = json key       (e.g. "evt:{event_id}")
--- KEYS[3] = dedup sorted set (e.g. "dedup:events")
+-- KEYS[1] = stream key         (e.g. "events:__global__")
+-- KEYS[2] = json key           (e.g. "evt:{event_id}")
+-- KEYS[3] = dedup sorted set   (e.g. "dedup:events")
+-- KEYS[4] = session stream key (e.g. "events:session:{session_id}")
 --
 -- ARGV[1] = event_id (string UUID)
 -- ARGV[2] = event JSON payload (string)
@@ -10,7 +11,7 @@
 --
 -- Returns: stream entry ID (string)
 --   - If the event already exists (dedup hit), returns the previously stored entry ID.
---   - If the event is new, atomically writes to all three keys and returns the new entry ID.
+--   - If the event is new, atomically writes to all keys and returns the new entry ID.
 
 local stream_key = KEYS[1]
 local json_key   = KEYS[2]
@@ -37,8 +38,13 @@ if existing_score then
     return "DEDUP"
 end
 
--- Step 2: XADD to the global stream — Redis auto-assigns the entry ID
+-- Step 2a: XADD to the global stream — Redis auto-assigns the entry ID
 local entry_id = redis.call('XADD', stream_key, '*', 'event_id', event_id)
+
+-- Step 2b: XADD to the per-session stream
+if KEYS[4] then
+    redis.call('XADD', KEYS[4], '*', 'event_id', event_id)
+end
 
 -- Step 3: Inject the global_position into the JSON before storing
 -- We patch the JSON string by replacing the global_position field

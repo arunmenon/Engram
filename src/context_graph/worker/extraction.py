@@ -56,14 +56,40 @@ class ExtractionConsumer(BaseConsumer):
         self._llm_client = llm_client
         self._settings = settings
         self._event_key_prefix = settings.redis.event_key_prefix
+        self._session_turn_counts: dict[str, int] = {}
+        self._mid_session_interval: int = getattr(settings, "mid_session_extraction_interval", 50)
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a stream entry: check for session_end and trigger extraction."""
         event_type = data.get("event_type", "")
+
+        # Track per-session turn counts for mid-session extraction
+        session_id = data.get("session_id")
+        if event_type and not event_type.startswith("system.") and session_id:
+            self._session_turn_counts[session_id] = self._session_turn_counts.get(session_id, 0) + 1
+            if self._session_turn_counts[session_id] % self._mid_session_interval == 0:
+                log.info(
+                    "mid_session_extraction_triggered",
+                    session_id=session_id,
+                    turn_count=self._session_turn_counts[session_id],
+                )
+                agent_id = data.get("agent_id", "unknown")
+                events = await self._collect_session_events(session_id)
+                if events:
+                    source_event_ids = [str(e.event_id) for e in events]
+                    result = await self._llm_client.extract_from_session(
+                        events=events,
+                        session_id=session_id,
+                        agent_id=agent_id,
+                    )
+                    await self._write_extraction_results(
+                        session_id, agent_id, result, source_event_ids
+                    )
+                return
+
         if event_type != "system.session_end":
             return
 
-        session_id = data.get("session_id")
         agent_id = data.get("agent_id", "unknown")
         if not session_id:
             log.warning(
@@ -87,13 +113,15 @@ class ExtractionConsumer(BaseConsumer):
             )
             return
 
+        source_event_ids = [str(e.event_id) for e in events]
+
         result = await self._llm_client.extract_from_session(
             events=events,
             session_id=session_id,
             agent_id=agent_id,
         )
 
-        await self._write_extraction_results(session_id, agent_id, result)
+        await self._write_extraction_results(session_id, agent_id, result, source_event_ids)
 
         log.info(
             "extraction_completed",
@@ -166,6 +194,7 @@ class ExtractionConsumer(BaseConsumer):
         session_id: str,
         agent_id: str,
         result: dict[str, Any],
+        source_event_ids: list[str],
     ) -> None:
         """Write extraction results to Neo4j via user_queries module."""
         from context_graph.adapters.neo4j import user_queries as uq
@@ -179,7 +208,7 @@ class ExtractionConsumer(BaseConsumer):
                 database=self._neo4j_database,
                 user_entity_id=user_entity_id,
                 preference_data=pref_data,
-                source_event_ids=[],
+                source_event_ids=source_event_ids,
                 derivation_info={
                     "method": "llm_extraction",
                     "session_id": session_id,
@@ -194,7 +223,7 @@ class ExtractionConsumer(BaseConsumer):
                 database=self._neo4j_database,
                 user_entity_id=user_entity_id,
                 skill_data=skill_data,
-                source_event_ids=[],
+                source_event_ids=source_event_ids,
                 derivation_info={
                     "method": "llm_extraction",
                     "session_id": session_id,
@@ -212,6 +241,18 @@ class ExtractionConsumer(BaseConsumer):
                 weight=interest_data.get("weight", 0.5),
                 source=interest_data.get("source", "inferred"),
             )
+            # Write DERIVED_FROM edges for interests
+            interest_entity_id = f"entity:{interest_data.get('entity_name', '')}"
+            for event_id in source_event_ids:
+                await uq.write_derived_from_edge(
+                    driver=self._neo4j_driver,
+                    database=self._neo4j_database,
+                    source_node_id=interest_entity_id,
+                    source_id_field="entity_id",
+                    event_id=event_id,
+                    method="llm_extraction",
+                    session_id=session_id,
+                )
 
         log.info(
             "extraction_results_written",

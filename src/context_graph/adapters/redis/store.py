@@ -153,16 +153,22 @@ class RedisEventStore:
         if self._script_sha is None:
             await self._register_script()
 
+        session_stream_key = f"events:session:{event.session_id}"
         result = await self._client.evalsha(  # type: ignore[misc]
             self._script_sha,  # type: ignore[arg-type]
-            3,  # number of KEYS
+            4,  # number of KEYS
             self._settings.global_stream,
             json_key,
             self._settings.dedup_set,
+            session_stream_key,
             event_id_str,
             event_json,
             str(occurred_at_epoch_ms),
         )
+
+        # Conditional WAIT for replica acknowledgment
+        if self._settings.replica_wait:
+            await self._client.execute_command("WAIT", 1, 100)  # type: ignore[no-untyped-call]
 
         global_position = result.decode() if isinstance(result, bytes) else str(result)
         log.debug(
@@ -179,6 +185,33 @@ class RedisEventStore:
             position = await self.append(event)
             positions.append(position)
         return positions
+
+    async def cleanup_dedup_set(self, retention_ms: int | None = None) -> int:
+        """Remove old entries from the dedup sorted set.
+
+        Removes entries with scores (epoch_ms) older than retention_ms.
+        Defaults to retention_ceiling_days converted to ms.
+        Returns the number of removed entries.
+        """
+        if retention_ms is None:
+            retention_ms = self._settings.retention_ceiling_days * 86_400_000
+
+        import time
+
+        now_ms = int(time.time() * 1000)
+        cutoff_ms = now_ms - retention_ms
+
+        removed: int = await self._client.zremrangebyscore(
+            self._settings.dedup_set,
+            "-inf",
+            cutoff_ms,
+        )
+        log.info(
+            "dedup_set_cleaned",
+            removed=removed,
+            cutoff_ms=cutoff_ms,
+        )
+        return removed
 
     # -- read operations ----------------------------------------------------
 

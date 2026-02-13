@@ -25,17 +25,21 @@ def compute_recency_score(
     s_base: float = 168.0,
     s_boost: float = 24.0,
     now: datetime | None = None,
+    last_accessed_at: datetime | None = None,
 ) -> float:
     """Ebbinghaus forgetting curve: R = e^(-t / S).
 
     S = s_base + (access_count * s_boost) — stability grows with repeated access.
-    t = hours since occurred_at.
+    t = hours since the most recent of occurred_at and last_accessed_at.
 
     Returns a value in [0.0, 1.0].
     """
     if now is None:
         now = datetime.now(UTC)
-    t_hours = max(0.0, (now - occurred_at).total_seconds() / 3600.0)
+    effective_time = occurred_at
+    if last_accessed_at is not None:
+        effective_time = max(occurred_at, last_accessed_at)
+    t_hours = max(0.0, (now - effective_time).total_seconds() / 3600.0)
     stability = s_base + (access_count * s_boost)
     if stability <= 0:
         return 0.0
@@ -64,16 +68,16 @@ def compute_relevance_score(
 ) -> float:
     """Cosine similarity between query and node embeddings.
 
-    Returns 0.0 if either embedding is empty or dimensions mismatch.
-    Result is clamped to [0.0, 1.0].
+    Returns 0.5 when either embedding is empty, dimensions mismatch,
+    or vectors are zero. Result is clamped to [0.0, 1.0].
     """
     if not query_embedding or not node_embedding or len(query_embedding) != len(node_embedding):
-        return 0.0
+        return 0.5
     dot_product = sum(a * b for a, b in zip(query_embedding, node_embedding, strict=True))
     norm_query = math.sqrt(sum(a * a for a in query_embedding))
     norm_node = math.sqrt(sum(b * b for b in node_embedding))
     if norm_query == 0.0 or norm_node == 0.0:
-        return 0.0
+        return 0.5
     return max(0.0, min(1.0, dot_product / (norm_query * norm_node)))
 
 
@@ -137,8 +141,21 @@ def score_node(
     in_degree = node_data.get("in_degree", 0)
     user_affinity = node_data.get("user_affinity", 0.0)
 
+    # Parse last_accessed_at for recency boost
+    last_accessed_raw = node_data.get("last_accessed_at")
+    last_accessed_at: datetime | None = None
+    if isinstance(last_accessed_raw, str):
+        last_accessed_at = datetime.fromisoformat(last_accessed_raw)
+    elif isinstance(last_accessed_raw, datetime):
+        last_accessed_at = last_accessed_raw
+
     recency = compute_recency_score(
-        occurred_at, access_count=access_count, s_base=s_base, s_boost=s_boost, now=now
+        occurred_at,
+        access_count=access_count,
+        s_base=s_base,
+        s_boost=s_boost,
+        now=now,
+        last_accessed_at=last_accessed_at,
     )
     importance = compute_importance_score(
         importance_hint=importance_hint, access_count=access_count, in_degree=in_degree
@@ -163,3 +180,17 @@ def score_node(
         relevance_score=round(relevance, 6),
         importance_score=importance_int,
     )
+
+
+def compute_user_affinity(
+    session_proximity: float = 0.0,
+    retrieval_recurrence: float = 0.0,
+    entity_overlap: float = 0.0,
+) -> float:
+    """Compute user affinity from sub-components (ADR-0008).
+
+    Weighted average: 0.4*proximity + 0.3*recurrence + 0.3*overlap.
+    All inputs should be in [0.0, 1.0]. Result is clamped to [0.0, 1.0].
+    """
+    raw = 0.4 * session_proximity + 0.3 * retrieval_recurrence + 0.3 * entity_overlap
+    return max(0.0, min(1.0, raw))

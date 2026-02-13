@@ -47,6 +47,9 @@ class RedisSettings(BaseSettings):
     # RediSearch index name
     event_index: str = "idx:events"
 
+    # Replica acknowledgment — if True, WAIT for 1 replica after writes
+    replica_wait: bool = False
+
     # Hot tier window (days) — stream entries trimmed after this
     hot_window_days: int = 7
 

@@ -97,6 +97,25 @@ CALL {
 RETURN rel_type, cnt
 """.strip()
 
+_GET_ARCHIVE_EVENT_IDS = """
+MATCH (e:Event)
+WHERE e.occurred_at < $cutoff_iso
+RETURN e.event_id AS event_id
+""".strip()
+
+_UPDATE_IMPORTANCE_FROM_CENTRALITY = """
+MATCH (e:Event)
+WITH e, size([(x)-[]->(e) | x]) AS in_degree
+WHERE in_degree > 0
+SET e.importance_score = CASE
+    WHEN in_degree >= 10 THEN 10
+    WHEN in_degree >= 5 THEN 8
+    WHEN in_degree >= 3 THEN 6
+    ELSE coalesce(e.importance_score, 5)
+END
+RETURN count(e) AS updated_count
+""".strip()
+
 _MERGE_SUMMARY_NODE = """
 MERGE (s:Summary {summary_id: $summary_id})
 SET s.scope = $scope,
@@ -339,3 +358,51 @@ async def write_summary_with_edges(
         event_count=event_count,
         edge_count=len(event_ids),
     )
+
+
+async def get_archive_event_ids(
+    driver: AsyncDriver,
+    database: str,
+    max_age_hours: int,
+) -> list[str]:
+    """Get event IDs older than the specified age for archive-tier pruning.
+
+    Returns a list of event_id strings.
+    """
+    from datetime import UTC, datetime, timedelta
+
+    cutoff = datetime.now(UTC) - timedelta(hours=max_age_hours)
+    cutoff_iso = cutoff.isoformat()
+
+    async with driver.session(database=database) as session:
+        result = await session.run(_GET_ARCHIVE_EVENT_IDS, {"cutoff_iso": cutoff_iso})
+        records = [record async for record in result]
+
+    return [r["event_id"] for r in records]
+
+
+async def update_importance_from_centrality(
+    driver: AsyncDriver,
+    database: str,
+) -> int:
+    """Recompute importance scores based on in-degree centrality.
+
+    Events with higher in-degree get boosted importance scores:
+    - in_degree >= 10: importance = 10
+    - in_degree >= 5: importance = 8
+    - in_degree >= 3: importance = 6
+    - otherwise: keep existing or default to 5
+
+    Returns the number of updated nodes.
+    """
+    async with driver.session(database=database) as session:
+
+        async def _update(tx: Any) -> int:
+            result = await tx.run(_UPDATE_IMPORTANCE_FROM_CENTRALITY)
+            record = await result.single()
+            return record["updated_count"] if record else 0
+
+        updated: int = await session.execute_write(_update)
+
+    log.info("updated_importance_from_centrality", updated_count=updated)
+    return updated

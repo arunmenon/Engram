@@ -26,6 +26,7 @@ async def get_session_context(
     session_id: str,
     graph_store: GraphStoreDep,
     max_nodes: int = Query(default=100, ge=1, le=500),
+    max_depth: int = Query(default=3, ge=1, le=10),
     query: str | None = Query(default=None),
 ) -> AtlasResponse:
     """Assemble working memory context for a session, ranked by decay score."""

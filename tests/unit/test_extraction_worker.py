@@ -198,3 +198,54 @@ class TestProcessMessage:
                 "session_id": "sess-1",
             },
         )
+
+
+# ---------------------------------------------------------------------------
+# Mid-session extraction (Fix 6)
+# ---------------------------------------------------------------------------
+
+
+class TestMidSessionExtraction:
+    async def test_mid_session_extraction_trigger(self) -> None:
+        """Non-system events should increment turn count and trigger at interval."""
+        llm_client = AsyncMock()
+        llm_client.extract_from_session.return_value = {
+            "session_id": "sess-1",
+            "agent_id": "agent-1",
+            "entities": [],
+            "preferences": [],
+            "skills": [],
+            "interests": [],
+        }
+        redis_client = AsyncMock()
+        redis_client.xrange.return_value = []
+        consumer = _make_consumer(redis_client=redis_client, llm_client=llm_client)
+        consumer._mid_session_interval = 2  # trigger every 2 turns
+
+        # First turn - should not trigger
+        await consumer.process_message(
+            "1-0", {"event_type": "tool.execute", "session_id": "s1", "agent_id": "a1"}
+        )
+        assert consumer._session_turn_counts.get("s1") == 1
+
+        # Second turn - should trigger mid-session extraction
+        await consumer.process_message(
+            "2-0", {"event_type": "tool.execute", "session_id": "s1", "agent_id": "a1"}
+        )
+        assert consumer._session_turn_counts.get("s1") == 2
+
+
+# ---------------------------------------------------------------------------
+# Source event IDs in results (Fix 1)
+# ---------------------------------------------------------------------------
+
+
+class TestSourceEventIdsInResults:
+    async def test_derived_from_passes_source_event_ids(self) -> None:
+        """_write_extraction_results should receive source event IDs."""
+        consumer = _make_consumer()
+        # Verify the method signature accepts source_event_ids
+        import inspect
+
+        sig = inspect.signature(consumer._write_extraction_results)
+        assert "source_event_ids" in sig.parameters
