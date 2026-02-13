@@ -107,28 +107,33 @@ class TestShouldPruneCold:
         assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is True
 
     def test_importance_ok_access_low(self):
+        # Meeting importance threshold alone is enough to survive (AND logic)
         event = {"importance_score": 7, "access_count": 1}
-        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is True
+        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is False
 
     def test_importance_low_access_ok(self):
+        # Meeting access threshold alone is enough to survive (AND logic)
         event = {"importance_score": 2, "access_count": 5}
-        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is True
+        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is False
 
     def test_both_ok(self):
         event = {"importance_score": 7, "access_count": 5}
         assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is False
 
     def test_missing_importance_is_zero(self):
+        # importance=0 (below 5) BUT access_count=10 (above 3) → survives
         event = {"access_count": 10}
-        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is True
+        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is False
 
     def test_none_importance(self):
+        # importance=None→0 (below 5) BUT access_count=10 (above 3) → survives
         event = {"importance_score": None, "access_count": 10}
-        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is True
+        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is False
 
     def test_missing_access_count_is_zero(self):
+        # importance=8 (above 5) → survives regardless of access_count
         event = {"importance_score": 8}
-        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is True
+        assert should_prune_cold(event, cold_min_importance=5, cold_min_access_count=3) is False
 
     def test_at_exact_thresholds(self):
         event = {"importance_score": 5, "access_count": 3}

@@ -25,6 +25,7 @@ from context_graph.api.routes.events import router as events_router
 from context_graph.api.routes.health import router as health_router
 from context_graph.api.routes.lineage import router as lineage_router
 from context_graph.api.routes.query import router as query_router
+from context_graph.api.routes.users import router as users_router
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
@@ -82,5 +83,6 @@ def create_app() -> FastAPI:
     app.include_router(lineage_router, prefix="/v1")
     app.include_router(entities_router, prefix="/v1")
     app.include_router(admin_router, prefix="/v1")
+    app.include_router(users_router, prefix="/v1")
 
     return app
