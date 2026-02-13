@@ -43,6 +43,9 @@ DOMAIN_ALIAS_DICT: dict[str, list[str]] = {
     "amazon web services": ["aws"],
     "google cloud platform": ["gcp"],
     "microsoft azure": ["azure"],
+    "usps": ["us postal service", "united states postal service"],
+    "fedex": ["federal express"],
+    "csv": ["comma separated values", "comma-separated values"],
 }
 
 # Build reverse lookup: alias -> canonical name
@@ -176,7 +179,7 @@ def resolve_close_match(
     if best_entity is not None and best_score >= threshold:
         existing_canonical = resolve_alias(best_entity.get("name", ""))
         if best_entity.get("entity_type", "") == entity_type:
-            action = EntityResolutionAction.MERGE
+            action = EntityResolutionAction.SAME_AS
         else:
             action = EntityResolutionAction.RELATED_TO
         return EntityResolutionResult(

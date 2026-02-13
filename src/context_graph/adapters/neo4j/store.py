@@ -256,7 +256,7 @@ class Neo4jGraphStore:
         provenance = Provenance(
             event_id=event_id,
             global_position=record_props.get("global_position", ""),
-            source="neo4j",
+            source="redis",
             occurred_at=occurred_at,
             session_id=record_props.get("session_id", ""),
             agent_id=record_props.get("agent_id", ""),
@@ -463,6 +463,23 @@ class Neo4jGraphStore:
                 scores = score_node(props)
                 nodes[event_id] = self._build_atlas_node(props, scores)
 
+        # Override with user-provided seed_nodes if specified
+        if query.seed_nodes:
+            seed_node_ids = list(query.seed_nodes)
+            # Fetch properties for user-provided seeds
+            for seed_id in query.seed_nodes:
+                if seed_id not in nodes:
+                    async with self._driver.session(database=self._database) as session:
+                        result = await session.run(
+                            "MATCH (e:Event {event_id: $eid}) RETURN e",
+                            {"eid": seed_id},
+                        )
+                        seed_record = await result.single()
+                    if seed_record is not None:
+                        props = dict(seed_record["e"])
+                        scores = score_node(props)
+                        nodes[seed_id] = self._build_atlas_node(props, scores)
+
         # For each seed, traverse neighbors
         async with self._driver.session(database=self._database) as session:
             for seed_eid in seed_node_ids:
@@ -499,11 +516,20 @@ class Neo4jGraphStore:
                             relevance_score=nscores.relevance_score,
                             importance_score=nscores.importance_score,
                         )
-                        nodes[neighbor_eid] = self._build_atlas_node(
+                        proactive_signal = {
+                            "REFERENCES": "entity_context",
+                            "SIMILAR_TO": "recurring_pattern",
+                            "CAUSED_BY": "causal_chain",
+                            "FOLLOWS": "temporal_sequence",
+                            "SUMMARIZES": "summary_context",
+                        }.get(rel_type, "related_context")
+                        atlas_node = self._build_atlas_node(
                             neighbor_props,
                             boosted_scores,
                             retrieval_reason="proactive",
                         )
+                        atlas_node.proactive_signal = proactive_signal
+                        nodes[neighbor_eid] = atlas_node
 
                     edge_key = (seed_eid, neighbor_id, rel_type)
                     if edge_key not in seen_edges:
@@ -541,6 +567,7 @@ class Neo4jGraphStore:
             nodes_returned=len(nodes),
             truncated=len(sorted_node_ids) > query.max_nodes,
             inferred_intents=inferred_intents,
+            intent_override=str(query.intent) if query.intent is not None else None,
             seed_nodes=seed_node_ids,
             proactive_nodes_count=proactive_count,
             capacity=QueryCapacity(

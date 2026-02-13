@@ -92,6 +92,46 @@ class BaseConsumer:
             stream=self._stream_key,
         )
 
+        # Drain pending messages (PEL recovery) before reading new ones
+        while not self._stopped:
+            pending = await self._redis.xreadgroup(
+                groupname=self._group_name,
+                consumername=self._consumer_name,
+                streams={self._stream_key: "0"},
+                count=self._batch_size,
+                block=0,
+            )
+            if not pending or not any(entries for _, entries in pending):
+                break
+            for _stream_name, entries in pending:
+                for entry_id_raw, data in entries:
+                    entry_id = (
+                        entry_id_raw.decode()
+                        if isinstance(entry_id_raw, bytes)
+                        else str(entry_id_raw)
+                    )
+                    decoded_data = {
+                        (k.decode() if isinstance(k, bytes) else k): (
+                            v.decode() if isinstance(v, bytes) else v
+                        )
+                        for k, v in data.items()
+                    }
+                    try:
+                        await self.process_message(entry_id, decoded_data)
+                        await self._redis.xack(
+                            self._stream_key,
+                            self._group_name,
+                            entry_id,
+                        )
+                    except Exception:
+                        log.exception(
+                            "pending_message_processing_failed",
+                            entry_id=entry_id,
+                            group=self._group_name,
+                        )
+
+        log.info("pending_drain_completed", group=self._group_name)
+
         while not self._stopped:
             messages = await self._redis.xreadgroup(
                 groupname=self._group_name,

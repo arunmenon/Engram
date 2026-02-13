@@ -118,24 +118,24 @@ class TestComputeRelevanceScore:
         assert abs(score - 0.0) < 1e-6
 
     def test_empty_query(self) -> None:
-        """Empty query embedding should return 0.0."""
+        """Empty query embedding should return 0.5."""
         score = compute_relevance_score([], [1.0, 0.0])
-        assert score == 0.0
+        assert score == 0.5
 
     def test_empty_node(self) -> None:
-        """Empty node embedding should return 0.0."""
+        """Empty node embedding should return 0.5."""
         score = compute_relevance_score([1.0, 0.0], [])
-        assert score == 0.0
+        assert score == 0.5
 
     def test_dimension_mismatch(self) -> None:
-        """Mismatched dimensions should return 0.0."""
+        """Mismatched dimensions should return 0.5."""
         score = compute_relevance_score([1.0, 0.0], [1.0, 0.0, 0.0])
-        assert score == 0.0
+        assert score == 0.5
 
     def test_zero_vectors(self) -> None:
-        """Zero vectors should return 0.0."""
+        """Zero vectors should return 0.5."""
         score = compute_relevance_score([0.0, 0.0], [0.0, 0.0])
-        assert score == 0.0
+        assert score == 0.5
 
     def test_similar_vectors(self) -> None:
         """Slightly different but similar vectors should score high."""
@@ -241,3 +241,77 @@ class TestScoreNode:
         now = datetime.now(UTC)
         result = score_node({}, now=now)
         assert isinstance(result, NodeScores)
+
+    def test_last_accessed_at_boosts_recency(self) -> None:
+        """last_accessed_at in node_data should boost recency when more recent."""
+        now = datetime.now(UTC)
+        occurred = now - timedelta(hours=200)
+        last_accessed = now - timedelta(hours=5)
+        node_with = {
+            "occurred_at": occurred.isoformat(),
+            "last_accessed_at": last_accessed.isoformat(),
+        }
+        node_without = {"occurred_at": occurred.isoformat()}
+        score_with = score_node(node_with, now=now)
+        score_without = score_node(node_without, now=now)
+        assert score_with.decay_score > score_without.decay_score
+
+
+class TestComputeRecencyWithLastAccessed:
+    def test_last_accessed_after_occurred(self):
+        """last_accessed_at after occurred_at should use last_accessed_at."""
+        now = datetime.now(UTC)
+        occurred = now - timedelta(hours=100)
+        last_accessed = now - timedelta(hours=10)
+        score = compute_recency_score(occurred, last_accessed_at=last_accessed, now=now)
+        score_without = compute_recency_score(occurred, now=now)
+        assert score > score_without
+
+    def test_last_accessed_before_occurred(self):
+        """last_accessed_at before occurred_at should use occurred_at (max)."""
+        now = datetime.now(UTC)
+        occurred = now - timedelta(hours=10)
+        last_accessed = now - timedelta(hours=100)
+        score = compute_recency_score(occurred, last_accessed_at=last_accessed, now=now)
+        score_without = compute_recency_score(occurred, now=now)
+        assert abs(score - score_without) < 1e-6
+
+    def test_last_accessed_none_unchanged(self):
+        """None last_accessed_at should behave like original function."""
+        now = datetime.now(UTC)
+        occurred = now - timedelta(hours=50)
+        score = compute_recency_score(occurred, last_accessed_at=None, now=now)
+        score_without = compute_recency_score(occurred, now=now)
+        assert abs(score - score_without) < 1e-6
+
+
+class TestComputeRelevanceEmptyFallback:
+    def test_empty_embeddings_returns_half(self):
+        """Empty query embedding should return 0.5 (not 0.0)."""
+        assert compute_relevance_score([], [1.0, 0.0]) == 0.5
+
+    def test_dimension_mismatch_returns_half(self):
+        """Mismatched dimensions should return 0.5."""
+        assert compute_relevance_score([1.0], [1.0, 0.0]) == 0.5
+
+    def test_zero_vectors_returns_half(self):
+        """Zero norm vectors should return 0.5."""
+        assert compute_relevance_score([0.0, 0.0], [0.0, 0.0]) == 0.5
+
+
+class TestComputeUserAffinity:
+    def test_all_zeros(self):
+        from context_graph.domain.scoring import compute_user_affinity
+
+        assert compute_user_affinity(0.0, 0.0, 0.0) == 0.0
+
+    def test_all_ones(self):
+        from context_graph.domain.scoring import compute_user_affinity
+
+        assert compute_user_affinity(1.0, 1.0, 1.0) == 1.0
+
+    def test_weighted_average(self):
+        from context_graph.domain.scoring import compute_user_affinity
+
+        score = compute_user_affinity(1.0, 0.0, 0.0)
+        assert abs(score - 0.4) < 1e-6

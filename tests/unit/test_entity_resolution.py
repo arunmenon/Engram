@@ -197,7 +197,7 @@ class TestResolveCloseMatch:
     def test_close_match_found(self):
         result = resolve_close_match("QuickBooks Onlin", "tool", self._entities(), threshold=0.85)
         assert result is not None
-        assert result.action == EntityResolutionAction.MERGE
+        assert result.action == EntityResolutionAction.SAME_AS
 
     def test_close_match_not_found(self):
         result = resolve_close_match("Terraform", "tool", self._entities(), threshold=0.9)
@@ -218,3 +218,43 @@ class TestResolveCloseMatch:
         # Very high threshold should reject moderate matches
         result = resolve_close_match("QuickBook", "tool", self._entities(), threshold=0.99)
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Regression: close match returns SAME_AS not MERGE (Fix 3, ADR-0011)
+# ---------------------------------------------------------------------------
+
+
+class TestCloseMatchReturnsSameAs:
+    """ADR-0011: MUST NOT auto-merge at close/related level."""
+
+    def test_close_match_same_type_returns_same_as(self):
+        entities = [{"name": "QuickBooks Online", "entity_type": "tool"}]
+        result = resolve_close_match("QuickBooks Onlin", "tool", entities, threshold=0.85)
+        assert result is not None
+        assert result.action == EntityResolutionAction.SAME_AS
+
+    def test_close_match_different_type_returns_related_to(self):
+        entities = [{"name": "QuickBooks Online", "entity_type": "tool"}]
+        result = resolve_close_match("QuickBooks Onlin", "service", entities, threshold=0.85)
+        assert result is not None
+        assert result.action == EntityResolutionAction.RELATED_TO
+
+
+# ---------------------------------------------------------------------------
+# Regression: new alias entries (Fix 8)
+# ---------------------------------------------------------------------------
+
+
+class TestAliasResolutionNewEntries:
+    def test_alias_usps(self):
+        assert resolve_alias("US Postal Service") == "usps"
+
+    def test_alias_fedex(self):
+        assert resolve_alias("Federal Express") == "fedex"
+
+    def test_alias_csv(self):
+        assert resolve_alias("comma separated values") == "csv"
+
+    def test_alias_csv_hyphenated(self):
+        assert resolve_alias("comma-separated values") == "csv"

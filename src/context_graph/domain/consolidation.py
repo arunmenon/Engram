@@ -23,13 +23,13 @@ if TYPE_CHECKING:
     from context_graph.settings import RetentionSettings
 
 
-def should_reconsolidate(event_count: int, threshold: int = 150) -> bool:
-    """Check whether a session's event count exceeds the reflection threshold.
+def should_reconsolidate(importance_sum: float, threshold: float = 150.0) -> bool:
+    """Check whether a session's importance sum exceeds the reflection threshold.
 
-    Returns True when the session has accumulated enough events to warrant
-    a re-consolidation pass (creating summaries and pruning).
+    Returns True when the session has accumulated enough total importance
+    to warrant a re-consolidation pass (creating summaries and pruning).
     """
-    return event_count >= threshold
+    return importance_sum >= threshold
 
 
 def group_events_into_episodes(
@@ -103,7 +103,7 @@ def create_summary_from_events(
 
     start_str = timestamps[0].isoformat() if timestamps else "?"
     end_str = timestamps[-1].isoformat() if timestamps else "?"
-    content = f"{len(events)} events ({', '.join(event_types)}) " f"from {start_str} to {end_str}"
+    content = f"{len(events)} events ({', '.join(event_types)}) from {start_str} to {end_str}"
 
     return SummaryNode(
         summary_id=summary_id,

@@ -12,11 +12,12 @@ Source: ADR-0008 Stage 3, ADR-0013 Consumer 4
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from context_graph.adapters.neo4j import maintenance
+from context_graph.adapters.neo4j.queries import GET_SESSION_EVENTS
 from context_graph.adapters.redis.trimmer import delete_expired_events, trim_stream
 from context_graph.domain.consolidation import (
     create_summary_from_events,
@@ -86,10 +87,11 @@ class ConsolidationConsumer(BaseConsumer):
         )
 
         threshold = self._settings.decay.reflection_threshold
+        # Use count*5 as a rough importance sum proxy (average importance of 5 on 1-10 scale)
         sessions_to_consolidate = {
             sid: count
             for sid, count in session_counts.items()
-            if should_reconsolidate(count, threshold)
+            if should_reconsolidate(float(count * 5), float(threshold))
         }
 
         if sessions_to_consolidate:
@@ -102,6 +104,57 @@ class ConsolidationConsumer(BaseConsumer):
         # Step 2: Consolidate qualifying sessions
         for session_id, event_count in sessions_to_consolidate.items():
             await self._consolidate_session(session_id, event_count)
+
+        # Step 2b: Create agent-level summaries
+        agent_sessions: dict[str, list[str]] = {}
+        for session_id in sessions_to_consolidate:
+            async with self._neo4j_driver.session(database=self._neo4j_database) as session:
+                result = await session.run(
+                    "MATCH (e:Event {session_id: $sid}) "
+                    "RETURN DISTINCT e.agent_id AS agent_id LIMIT 1",
+                    {"sid": session_id},
+                )
+                record = await result.single()
+            if record:
+                agent_id = record["agent_id"]
+                agent_sessions.setdefault(agent_id, []).append(session_id)
+
+        for agent_id, sids in agent_sessions.items():
+            all_agent_events: list[dict[str, Any]] = []
+            for sid in sids:
+                async with self._neo4j_driver.session(database=self._neo4j_database) as session:
+                    result = await session.run(
+                        GET_SESSION_EVENTS,
+                        {"session_id": sid, "limit": 1000},
+                    )
+                    records = [record async for record in result]
+                all_agent_events.extend(dict(r["e"]) for r in records)
+
+            if all_agent_events:
+                agent_summary = create_summary_from_events(
+                    events=all_agent_events,
+                    scope="agent",
+                    scope_id=agent_id,
+                )
+                agent_event_ids = [
+                    e.get("event_id", "") for e in all_agent_events if e.get("event_id")
+                ]
+                await maintenance.write_summary_with_edges(
+                    driver=self._neo4j_driver,
+                    database=self._neo4j_database,
+                    summary_id=agent_summary.summary_id,
+                    scope=agent_summary.scope,
+                    scope_id=agent_summary.scope_id,
+                    content=agent_summary.content,
+                    created_at=agent_summary.created_at.isoformat(),
+                    event_count=agent_summary.event_count,
+                    time_range=[dt.isoformat() for dt in agent_summary.time_range],
+                    event_ids=agent_event_ids,
+                )
+                log.info("agent_summary_created", agent_id=agent_id, sessions=len(sids))
+
+        # Step 2c: Recompute importance from centrality
+        await self._recompute_importance_from_centrality()
 
         # Step 3: Run forgetting (retention tier enforcement)
         await self._run_forgetting()
@@ -118,8 +171,6 @@ class ConsolidationConsumer(BaseConsumer):
         )
 
         # Fetch session events from Neo4j
-        from context_graph.adapters.neo4j.queries import GET_SESSION_EVENTS
-
         async with self._neo4j_driver.session(database=self._neo4j_database) as session:
             result = await session.run(
                 GET_SESSION_EVENTS,
@@ -190,9 +241,26 @@ class ConsolidationConsumer(BaseConsumer):
             episode_summaries=len(episodes),
         )
 
+    async def _recompute_importance_from_centrality(self) -> int:
+        """Recompute importance scores based on in-degree centrality."""
+        updated = await maintenance.update_importance_from_centrality(
+            driver=self._neo4j_driver,
+            database=self._neo4j_database,
+        )
+        log.info("importance_recomputed_from_centrality", updated_count=updated)
+        return updated
+
     async def _run_forgetting(self) -> None:
         """Apply retention tier enforcement across the graph."""
         retention = self._settings.retention
+
+        # Step 0: Ensure summaries exist for sessions with pruneable events
+        session_counts = await maintenance.get_session_event_counts(
+            self._neo4j_driver, self._neo4j_database
+        )
+        for session_id, event_count in session_counts.items():
+            if event_count >= self._settings.decay.reflection_threshold:
+                await self._consolidate_session(session_id, event_count)
 
         # Step 1: Prune low-similarity SIMILAR_TO edges in warm tier
         deleted_edges = await maintenance.delete_edges_by_type_and_age(
@@ -211,10 +279,26 @@ class ConsolidationConsumer(BaseConsumer):
             min_access_count=retention.cold_min_access_count,
         )
 
+        # Step 3: Delete archive-tier events (beyond cold retention)
+        archive_events = await maintenance.get_archive_event_ids(
+            driver=self._neo4j_driver,
+            database=self._neo4j_database,
+            max_age_hours=retention.cold_hours,
+        )
+        if archive_events:
+            deleted_archive = await maintenance.delete_archive_events(
+                driver=self._neo4j_driver,
+                database=self._neo4j_database,
+                event_ids=archive_events,
+            )
+        else:
+            deleted_archive = 0
+
         log.info(
             "forgetting_completed",
             deleted_edges=deleted_edges,
             deleted_cold_events=deleted_cold,
+            deleted_archive_events=deleted_archive,
         )
 
     async def _trim_redis(self) -> None:

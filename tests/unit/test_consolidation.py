@@ -23,20 +23,20 @@ from context_graph.settings import RetentionSettings
 
 class TestShouldReconsolidate:
     def test_below_threshold(self):
-        assert should_reconsolidate(100, threshold=150) is False
+        assert should_reconsolidate(100.0, threshold=150.0) is False
 
     def test_at_threshold(self):
-        assert should_reconsolidate(150, threshold=150) is True
+        assert should_reconsolidate(150.0, threshold=150.0) is True
 
     def test_above_threshold(self):
-        assert should_reconsolidate(200, threshold=150) is True
+        assert should_reconsolidate(200.0, threshold=150.0) is True
 
-    def test_zero_events(self):
-        assert should_reconsolidate(0) is False
+    def test_zero_importance(self):
+        assert should_reconsolidate(0.0) is False
 
     def test_custom_threshold(self):
-        assert should_reconsolidate(50, threshold=50) is True
-        assert should_reconsolidate(49, threshold=50) is False
+        assert should_reconsolidate(50.0, threshold=50.0) is True
+        assert should_reconsolidate(49.0, threshold=50.0) is False
 
 
 # ---------------------------------------------------------------------------
@@ -293,3 +293,22 @@ class TestSelectEventsForPruning:
         ]
         result = select_events_for_pruning(events, RetentionTier.COLD, self._make_retention())
         assert "e1" in result
+
+
+# ---------------------------------------------------------------------------
+# should_reconsolidate with importance sum (regression tests)
+# ---------------------------------------------------------------------------
+
+
+class TestShouldReconsolidateImportanceSum:
+    def test_importance_sum_below_threshold(self):
+        assert should_reconsolidate(100.0, threshold=150.0) is False
+
+    def test_importance_sum_at_threshold(self):
+        assert should_reconsolidate(150.0, threshold=150.0) is True
+
+    def test_importance_sum_above_threshold(self):
+        assert should_reconsolidate(200.5, threshold=150.0) is True
+
+    def test_float_threshold(self):
+        assert should_reconsolidate(149.9, threshold=150.0) is False

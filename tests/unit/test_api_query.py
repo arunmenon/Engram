@@ -194,3 +194,32 @@ class TestGetEntity:
     def test_get_entity_has_timing_header(self, test_client: TestClient) -> None:
         response = test_client.get("/v1/entities/some-entity")
         assert "x-request-time-ms" in response.headers
+
+
+# ---------------------------------------------------------------------------
+# Regression: max_depth on context endpoint (Fix 6)
+# ---------------------------------------------------------------------------
+
+
+class TestContextEndpointMaxDepth:
+    def test_context_endpoint_accepts_max_depth(self, test_client: TestClient) -> None:
+        """max_depth parameter should be accepted."""
+        response = test_client.get("/v1/context/test-session?max_depth=5")
+        assert response.status_code == 200
+
+    def test_context_endpoint_rejects_invalid_max_depth(self, test_client: TestClient) -> None:
+        """max_depth > 10 should be rejected."""
+        response = test_client.get("/v1/context/test-session?max_depth=20")
+        assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Regression: lineage default intent (Fix 7)
+# ---------------------------------------------------------------------------
+
+
+class TestLineageDefaultIntent:
+    def test_lineage_default_intent_is_why(self, test_client: TestClient) -> None:
+        """Default intent should be 'why' for lineage queries."""
+        response = test_client.get("/v1/nodes/test-id/lineage")
+        assert response.status_code == 200

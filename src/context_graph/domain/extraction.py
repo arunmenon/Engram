@@ -62,18 +62,27 @@ def validate_source_quote(quote: str, conversation_text: str) -> bool:
     # Sliding-window fuzzy match for short quotes
     window_size = len(normalized_quote)
     if window_size > len(normalized_text):
-        return SequenceMatcher(None, normalized_quote, normalized_text).ratio() >= 0.8
+        return SequenceMatcher(None, normalized_quote, normalized_text).ratio() >= 0.85
 
     best_ratio = 0.0
     step = max(1, window_size // 4)
     for start in range(0, len(normalized_text) - window_size + 1, step):
         window = normalized_text[start : start + window_size]
         ratio = SequenceMatcher(None, normalized_quote, window).ratio()
-        if ratio >= 0.8:
+        if ratio >= 0.85:
             return True
         best_ratio = max(best_ratio, ratio)
 
-    return best_ratio >= 0.8
+    return best_ratio >= 0.85
+
+
+def verify_entailment(claim: str, evidence: str) -> bool:
+    """Verify that *claim* is entailed by *evidence*.
+
+    TODO: Integrate DeBERTa-v3 NLI model for real entailment checking.
+    Currently returns True as a pass-through stub.
+    """
+    return True
 
 
 # ---------------------------------------------------------------------------

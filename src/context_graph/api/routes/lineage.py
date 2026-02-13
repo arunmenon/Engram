@@ -30,7 +30,7 @@ async def get_lineage(
     graph_store: GraphStoreDep,
     max_depth: int = Query(default=3, ge=1, le=10),
     max_nodes: int = Query(default=100, ge=1, le=500),
-    intent: str | None = Query(default=None),
+    intent: str | None = Query(default="why"),
 ) -> AtlasResponse:
     """Traverse lineage (CAUSED_BY chains) from a node."""
     intent_type = IntentType(intent) if intent else None

@@ -111,7 +111,10 @@ def build_extraction_prompt(
                 + "\n".join(f"- {name}" for name in entity_names)
             )
 
-    prompt_parts.append("\n## Conversation\n" + build_conversation_text(events))
+    conversation_body = build_conversation_text(events)
+    prompt_parts.append(
+        "\n## Conversation\n<conversation>\n" + conversation_body + "\n</conversation>"
+    )
 
     return "\n\n".join(prompt_parts)
 
@@ -146,12 +149,15 @@ def build_conversation_text(events: list[Event]) -> str:
 def validate_extraction(
     result: SessionExtractionResult,
     conversation_text: str,
+    min_thresholds: dict[str, float] | None = None,
 ) -> SessionExtractionResult:
-    """Apply confidence priors and validate source quotes.
+    """Apply confidence priors, validate source quotes, and gate on min thresholds.
 
     Filters out extractions whose source_quote cannot be found in the
     conversation text and applies per-source-type confidence ceilings
-    (ADR-0013 §7).
+    (ADR-0013 §7). When *min_thresholds* is provided, extractions whose
+    adjusted confidence falls below the threshold for their source type
+    are also dropped.
     """
     valid_entities = []
     for entity in result.entities:
@@ -174,6 +180,16 @@ def validate_extraction(
             )
             continue
         adjusted_confidence = apply_confidence_prior(pref.confidence, pref.source)
+        if min_thresholds:
+            min_conf = min_thresholds.get(pref.source, 0.0)
+            if adjusted_confidence < min_conf:
+                log.debug(
+                    "preference_below_min_threshold",
+                    key=pref.key,
+                    confidence=adjusted_confidence,
+                    min=min_conf,
+                )
+                continue
         valid_preferences.append(pref.model_copy(update={"confidence": adjusted_confidence}))
 
     valid_skills = []
@@ -186,6 +202,16 @@ def validate_extraction(
             )
             continue
         adjusted_confidence = apply_confidence_prior(skill.confidence, skill.source)
+        if min_thresholds:
+            min_conf = min_thresholds.get(skill.source, 0.0)
+            if adjusted_confidence < min_conf:
+                log.debug(
+                    "skill_below_min_threshold",
+                    name=skill.name,
+                    confidence=adjusted_confidence,
+                    min=min_conf,
+                )
+                continue
         valid_skills.append(skill.model_copy(update={"confidence": adjusted_confidence}))
 
     valid_interests = []
@@ -198,6 +224,16 @@ def validate_extraction(
             )
             continue
         adjusted_confidence = apply_confidence_prior(interest.weight, interest.source)
+        if min_thresholds:
+            min_conf = min_thresholds.get(interest.source, 0.0)
+            if adjusted_confidence < min_conf:
+                log.debug(
+                    "interest_below_min_threshold",
+                    entity_name=interest.entity_name,
+                    confidence=adjusted_confidence,
+                    min=min_conf,
+                )
+                continue
         valid_interests.append(interest.model_copy(update={"weight": adjusted_confidence}))
 
     return result.model_copy(
@@ -261,6 +297,31 @@ class LLMExtractionClient:
             event_count=len(events),
         )
         return _empty_result(session_id, agent_id)
+
+
+def detect_degenerate_output(result: SessionExtractionResult) -> bool:
+    """Check if extraction output is degenerate (all confidences nearly identical).
+
+    Returns True if the standard deviation of all confidence scores is < 0.05,
+    which suggests the model is not discriminating between extractions.
+    """
+    confidences: list[float] = []
+    for entity in result.entities:
+        confidences.append(entity.confidence)
+    for pref in result.preferences:
+        confidences.append(pref.confidence)
+    for skill in result.skills:
+        confidences.append(skill.confidence)
+    for interest in result.interests:
+        confidences.append(interest.weight)
+
+    if len(confidences) < 2:
+        return False
+
+    mean = sum(confidences) / len(confidences)
+    variance = sum((c - mean) ** 2 for c in confidences) / len(confidences)
+    std_dev = variance**0.5
+    return bool(std_dev < 0.05)
 
 
 def _empty_result(session_id: str, agent_id: str) -> dict[str, Any]:
