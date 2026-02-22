@@ -12,11 +12,12 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
 import structlog
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
 
 from context_graph.adapters.neo4j.store import Neo4jGraphStore
 from context_graph.adapters.redis.store import RedisEventStore
+from context_graph.api.dependencies import require_admin_key, require_api_key
 from context_graph.api.middleware import register_middleware
 from context_graph.api.routes.admin import router as admin_router
 from context_graph.api.routes.context import router as context_router
@@ -76,13 +77,20 @@ def create_app() -> FastAPI:
 
     register_middleware(app)
 
-    app.include_router(events_router, prefix="/v1")
+    # Standard endpoints: require API key (disabled when CG_AUTH_API_KEY unset)
+    api_key_deps = [Depends(require_api_key)]
+    app.include_router(events_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(context_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(query_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(lineage_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(entities_router, prefix="/v1", dependencies=api_key_deps)
+
+    # Admin + GDPR endpoints: require admin key
+    admin_key_deps = [Depends(require_admin_key)]
+    app.include_router(admin_router, prefix="/v1", dependencies=admin_key_deps)
+    app.include_router(users_router, prefix="/v1", dependencies=admin_key_deps)
+
+    # Health endpoint: no auth (used by load balancers / orchestrators)
     app.include_router(health_router, prefix="/v1")
-    app.include_router(context_router, prefix="/v1")
-    app.include_router(query_router, prefix="/v1")
-    app.include_router(lineage_router, prefix="/v1")
-    app.include_router(entities_router, prefix="/v1")
-    app.include_router(admin_router, prefix="/v1")
-    app.include_router(users_router, prefix="/v1")
 
     return app

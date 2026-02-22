@@ -227,7 +227,8 @@ async def prune(
 
     retention = settings.retention
 
-    # Fetch events from Neo4j with their properties
+    # Fetch events from Neo4j with their properties (bounded to prevent OOM)
+    prune_batch_limit = 10_000
     async with graph_store._driver.session(database=graph_store._database) as neo_session:
         result = await neo_session.run(
             "MATCH (e:Event) "
@@ -235,7 +236,9 @@ async def prune(
             "e.importance_score AS importance_score, "
             "coalesce(e.access_count, 0) AS access_count, "
             "e.similarity_score AS similarity_score "
-            "ORDER BY e.occurred_at",
+            "ORDER BY e.occurred_at "
+            "LIMIT $batch_limit",
+            {"batch_limit": prune_batch_limit},
         )
         records = [record async for record in result]
 
@@ -301,6 +304,7 @@ async def prune(
             "pruned_nodes": pruned_nodes,
             "dry_run": prune_req.dry_run,
             "details": details,
+            "truncated": len(event_dicts) >= prune_batch_limit,
         },
     )
 

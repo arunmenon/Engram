@@ -9,7 +9,7 @@ Source: ADR-0008 (Stage 2), ADR-0013 (Consumer 3)
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import orjson
 import structlog
@@ -87,8 +87,9 @@ class EnrichmentConsumer(BaseConsumer):
 
         # Update Neo4j node
         async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-            await session.execute_write(
-                lambda tx: tx.run(
+
+            async def _update_enrichment(tx: Any) -> None:
+                await tx.run(
                     queries.UPDATE_EVENT_ENRICHMENT,
                     {
                         "event_id": event_id,
@@ -96,7 +97,8 @@ class EnrichmentConsumer(BaseConsumer):
                         "importance_score": importance_score,
                     },
                 )
-            )
+
+            await session.execute_write(_update_enrichment)
 
         log.debug(
             "event_enriched",

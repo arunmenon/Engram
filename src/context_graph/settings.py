@@ -268,6 +268,22 @@ OTEL_TO_EVENT_TYPE: dict[str, str] = {
 }
 
 
+class AuthSettings(BaseSettings):
+    """API authentication settings.
+
+    When api_key is set, all endpoints (except /health) require
+    ``Authorization: Bearer <api_key>``.  Admin and GDPR endpoints
+    additionally require the admin_key.
+
+    Set both to None (default) to disable auth (development mode).
+    """
+
+    model_config = {"env_prefix": "CG_AUTH_"}
+
+    api_key: str | None = None
+    admin_key: str | None = None
+
+
 class Settings(BaseSettings):
     """Root application settings."""
 
@@ -285,3 +301,4 @@ class Settings(BaseSettings):
     retention: RetentionSettings = Field(default_factory=RetentionSettings)
     query: QuerySettings = Field(default_factory=QuerySettings)
     preference: PreferenceSettings = Field(default_factory=PreferenceSettings)
+    auth: AuthSettings = Field(default_factory=AuthSettings)

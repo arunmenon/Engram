@@ -183,9 +183,12 @@ def test_client(
     app.include_router(lineage_router, prefix="/v1")
     app.include_router(entities_router, prefix="/v1")
 
+    from context_graph.settings import Settings
+
     store = in_memory_event_store
 
-    # Wire stubs into app state
+    # Wire stubs into app state (settings needed for auth dependency)
+    app.state.settings = Settings()
     app.state.event_store = store
     app.state.graph_store = stub_graph_store
     # Health check accesses _client directly

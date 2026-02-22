@@ -56,10 +56,13 @@ def users_test_client() -> TestClient:
     from context_graph.api.middleware import register_middleware
     from context_graph.api.routes.users import router as users_router
 
+    from context_graph.settings import Settings
+
     app = FastAPI(default_response_class=ORJSONResponse)
     register_middleware(app)
     app.include_router(users_router, prefix="/v1")
 
+    app.state.settings = Settings()
     app.state.graph_store = _StubGraphStore()
 
     return _TestClient(app)

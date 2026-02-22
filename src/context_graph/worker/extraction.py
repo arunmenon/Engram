@@ -135,27 +135,36 @@ class ExtractionConsumer(BaseConsumer):
     async def _collect_session_events(self, session_id: str) -> list[Event]:
         """Collect all events for a session from Redis JSON store.
 
-        Scans Redis keys matching the event key prefix pattern, filtering
-        by session_id. Falls back to an empty list if no events found.
+        Reads from the per-session stream ``events:session:{session_id}``
+        (created by the Lua ingestion script) instead of scanning the
+        entire global stream. Each entry contains the event_id which is
+        used to fetch the full JSON document.
         """
         events: list[Event] = []
 
-        # Use XRANGE on the global stream to find entries for this session
-        all_entries = await self._redis.xrange(
-            self._settings.redis.global_stream,
-            min="-",
-            max="+",
-        )
+        # Read from the per-session stream (bounded to this session only)
+        session_stream_key = f"events:session:{session_id}"
+        try:
+            session_entries = await self._redis.xrange(
+                session_stream_key,
+                min="-",
+                max="+",
+            )
+        except Exception:
+            log.warning(
+                "session_stream_read_failed",
+                session_id=session_id,
+                stream_key=session_stream_key,
+            )
+            return events
 
-        for _entry_id, entry_data in all_entries:
+        for _entry_id, entry_data in session_entries:
             decoded = {
                 (k.decode() if isinstance(k, bytes) else k): (
                     v.decode() if isinstance(v, bytes) else v
                 )
                 for k, v in entry_data.items()
             }
-            if decoded.get("session_id") != session_id:
-                continue
 
             event_id = decoded.get("event_id")
             if not event_id:
