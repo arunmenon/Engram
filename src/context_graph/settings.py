@@ -277,6 +277,8 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
 
+    cors_origins: list[str] = Field(default=["http://localhost:5173"])
+
     redis: RedisSettings = Field(default_factory=RedisSettings)
     neo4j: Neo4jSettings = Field(default_factory=Neo4jSettings)
     decay: DecaySettings = Field(default_factory=DecaySettings)

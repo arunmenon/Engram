@@ -40,6 +40,48 @@ services:
       retries: 10
       start_period: 30s
 
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - CG_REDIS_URL=redis://redis:6379
+      - CG_NEO4J_URI=bolt://neo4j:7687
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/v1/health\")'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  orchestrator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.orchestrator
+    ports:
+      - "8100:8100"
+    environment:
+      - CG_API_URL=http://api:8000
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+      - DEMO_LLM_MODEL=${DEMO_LLM_MODEL:-claude-sonnet-4-5-20250929}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8100/api/health\")'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 volumes:
   redis-data:
   neo4j-data:

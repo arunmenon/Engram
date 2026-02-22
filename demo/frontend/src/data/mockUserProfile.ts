@@ -88,3 +88,74 @@ export const sarahPatterns: UserPattern[] = [
     ],
   },
 ];
+
+// Enhanced patterns matching EnhancedPattern from types/behavioral.ts
+import type { EnhancedPattern } from '../types/behavioral';
+
+export const sarahEnhancedPatterns: EnhancedPattern[] = [
+  {
+    id: 'pattern-escalation',
+    name: 'Escalation Tendency',
+    description: 'References competitor products when escalating issues, indicating churn risk',
+    status: 'active',
+    confidence: 0.75,
+    confidence_history: [
+      { date: '2024-03-01', confidence: 0.30 },
+      { date: '2024-03-08', confidence: 0.55 },
+      { date: '2024-03-22', confidence: 0.75 },
+    ],
+    observations: [
+      { timestamp: '2024-03-08T14:09:00Z', session_id: 'session-2', description: 'Mentioned evaluating Taskflow as alternative', confidence_delta: 0.25 },
+      { timestamp: '2024-03-22T09:05:00Z', session_id: 'session-3', description: 'Referenced switching due to data loss', confidence_delta: 0.15 },
+      { timestamp: '2024-03-22T09:12:00Z', session_id: 'session-3', description: 'Requested senior follow-up for critical issue', confidence_delta: 0.05 },
+    ],
+    recommendations: [
+      { action: 'Assign dedicated account manager', rationale: 'Proactive outreach reduces churn risk', priority: 'high' },
+      { action: 'Prioritize swimlane feature delivery', rationale: 'Address competitive pressure from Taskflow', priority: 'high' },
+      { action: 'Schedule quarterly business review', rationale: 'Address concerns early before escalation', priority: 'medium' },
+    ],
+    session_ids: ['session-2', 'session-3'],
+  },
+  {
+    id: 'pattern-communication',
+    name: 'Communication Preference',
+    description: 'Consistently requests email-based follow-up, avoids phone contact',
+    status: 'active',
+    confidence: 0.95,
+    confidence_history: [
+      { date: '2024-03-01', confidence: 0.80 },
+      { date: '2024-03-08', confidence: 0.90 },
+      { date: '2024-03-22', confidence: 0.95 },
+    ],
+    observations: [
+      { timestamp: '2024-03-01T10:08:00Z', session_id: 'session-1', description: 'Explicitly requested email over phone', confidence_delta: 0.80 },
+      { timestamp: '2024-03-08T14:11:00Z', session_id: 'session-2', description: 'Agent confirmed email follow-up preference', confidence_delta: 0.10 },
+      { timestamp: '2024-03-22T09:12:00Z', session_id: 'session-3', description: 'Requested email follow-up for postmortem', confidence_delta: 0.05 },
+    ],
+    recommendations: [
+      { action: 'Default to email communication', rationale: 'Customer has explicitly preferred email in all sessions', priority: 'high' },
+      { action: 'Include detailed written summaries', rationale: 'Engineering leads value written documentation', priority: 'medium' },
+    ],
+    session_ids: ['session-1', 'session-2', 'session-3'],
+  },
+  {
+    id: 'pattern-technical-depth',
+    name: 'Technical Sophistication',
+    description: 'Uses precise technical terminology and expects detailed explanations',
+    status: 'emerging',
+    confidence: 0.60,
+    confidence_history: [
+      { date: '2024-03-08', confidence: 0.40 },
+      { date: '2024-03-22', confidence: 0.60 },
+    ],
+    observations: [
+      { timestamp: '2024-03-08T14:04:00Z', session_id: 'session-2', description: 'Detailed swimlane workflow requirements', confidence_delta: 0.40 },
+      { timestamp: '2024-03-22T09:00:00Z', session_id: 'session-3', description: 'Precise description of data loss scenario', confidence_delta: 0.20 },
+    ],
+    recommendations: [
+      { action: 'Provide technical root cause analysis', rationale: 'Customer expects engineering-level detail in incident reports', priority: 'medium' },
+      { action: 'Skip basic troubleshooting', rationale: 'Go directly to advanced diagnostics', priority: 'low' },
+    ],
+    session_ids: ['session-2', 'session-3'],
+  },
+];

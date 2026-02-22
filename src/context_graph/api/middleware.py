@@ -10,10 +10,12 @@ import time
 from typing import TYPE_CHECKING, Any
 
 import structlog
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from context_graph.domain.validation import ValidationError
+from context_graph.settings import Settings
 
 if TYPE_CHECKING:
     from fastapi import FastAPI, Request, Response
@@ -80,8 +82,17 @@ class RequestTimingMiddleware(BaseHTTPMiddleware):
 # ---------------------------------------------------------------------------
 
 
-def register_middleware(app: FastAPI) -> None:
+def register_middleware(app: FastAPI, settings: Settings | None = None) -> None:
     """Attach all middleware and exception handlers to the app."""
+    if settings is None:
+        settings = Settings()
     app.add_exception_handler(ValidationError, _validation_error_handler)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, _generic_error_handler)
     app.add_middleware(RequestTimingMiddleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )

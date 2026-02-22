@@ -1,3 +1,10 @@
+export interface TraversalStep {
+  nodeId: string;
+  edgeId?: string;
+  retrieval_reason: 'direct' | 'proactive' | 'traversal' | 'similar';
+  label: string;
+}
+
 export interface ChatMessage {
   id: string;
   session_id: string;
@@ -7,6 +14,7 @@ export interface ChatMessage {
   tools_used?: string[];
   provenance_node_ids?: string[];
   context_nodes_used?: number;
+  traversal_trace?: TraversalStep[];
 }
 
 export interface Session {

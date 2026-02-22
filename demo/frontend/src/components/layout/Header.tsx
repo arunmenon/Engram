@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Play, Pause, Brain } from 'lucide-react';
 import { useSessionStore } from '../../stores/sessionStore';
+import { getDataMode, setDataMode } from '../../api/mode';
 
 export function Header() {
   const sessions = useSessionStore(s => s.sessions);
@@ -12,16 +13,34 @@ export function Header() {
   const playbackSpeed = useSessionStore(s => s.playbackSpeed);
   const play = useSessionStore(s => s.play);
   const pause = useSessionStore(s => s.pause);
-  const stepForward = useSessionStore(s => s.stepForward);
 
-  // Auto-play timer
+  const [mode, setMode] = useState(getDataMode());
+  const [healthy, setHealthy] = useState(false);
+
+  // Health check polling in live mode
+  useEffect(() => {
+    if (mode !== 'live') return;
+    const check = async () => {
+      try {
+        const r = await fetch('/v1/health');
+        setHealthy(r.ok);
+      } catch {
+        setHealthy(false);
+      }
+    };
+    check();
+    const interval = setInterval(check, 10000);
+    return () => clearInterval(interval);
+  }, [mode]);
+
+  // Auto-play timer — uses getState() to avoid stale closure on stepForward
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
-      stepForward();
+      useSessionStore.getState().stepForward();
     }, 2000 / playbackSpeed);
     return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, stepForward]);
+  }, [isPlaying, playbackSpeed]);
 
   return (
     <header className="h-12 bg-surface-dark border-b border-muted-dark/30 flex items-center justify-between px-4 shrink-0">
@@ -38,6 +57,7 @@ export function Header() {
           <button
             key={session.id}
             onClick={() => setCurrentSession(session.id)}
+            aria-current={session.id === currentSessionId ? 'true' : undefined}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
               session.id === currentSessionId
                 ? 'bg-surface-hover text-gray-100 ring-1 ring-muted-dark'
@@ -55,8 +75,33 @@ export function Header() {
         )}
       </div>
 
-      {/* Right: User + Controls */}
+      {/* Right: Mode Toggle + User + Controls */}
       <div className="flex items-center gap-3">
+        {/* Demo / Live toggle pill */}
+        <div className="flex items-center gap-1 bg-surface-hover rounded-full p-0.5">
+          <button
+            onClick={() => { setDataMode('mock'); setMode('mock'); window.location.reload(); }}
+            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
+              mode === 'mock' ? 'bg-accent-blue text-white' : 'text-muted-light hover:text-gray-200'
+            }`}
+          >
+            Demo
+          </button>
+          <button
+            onClick={() => { setDataMode('live'); setMode('live'); window.location.reload(); }}
+            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
+              mode === 'live' ? 'bg-accent-green text-white' : 'text-muted-light hover:text-gray-200'
+            }`}
+          >
+            Live
+          </button>
+        </div>
+        {mode === 'live' && (
+          <div
+            className={`w-2 h-2 rounded-full ${healthy ? 'bg-green-400' : 'bg-red-400'}`}
+            title={healthy ? 'Backend healthy' : 'Backend unreachable'}
+          />
+        )}
         <span className="text-xs text-muted-light">Sarah Chen</span>
         <div className="w-6 h-6 rounded-full bg-accent-purple/30 flex items-center justify-center text-[10px] text-accent-purple font-medium">
           SC

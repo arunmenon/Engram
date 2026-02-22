@@ -11,6 +11,9 @@ import type { NodeType, EdgeType } from '../../types/atlas';
 import NodeDiamondProgram from './programs/node-diamond';
 import NodeSquareProgram from './programs/node-square';
 import NodeTriangleProgram from './programs/node-triangle';
+import { useAnimationStore, RETRIEVAL_COLORS } from '../../stores/animationStore';
+import { useTraversalAnimation } from '../../hooks/useTraversalAnimation';
+import { tracker } from '../../analytics/tracker';
 
 /**
  * Shape mapping by node type:
@@ -63,6 +66,7 @@ export function GraphVisualization() {
   const rendererRef = useRef<Sigma | null>(null);
   const graphRef = useRef<Graph | null>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+  const hoverStartRef = useRef<{ nodeId: string; time: number } | null>(null);
 
   const nodes = useGraphStore((s) => s.nodes);
   const edges = useGraphStore((s) => s.edges);
@@ -76,6 +80,11 @@ export function GraphVisualization() {
   const setInsightActiveTab = useInsightStore((s) => s.setActiveTab);
   const highlightedNodeIds = useSessionStore((s) => s.highlightedNodeIds);
 
+  const animatedNodeIds = useAnimationStore((s) => s.animatedNodeIds);
+  const animatedEdgeIds = useAnimationStore((s) => s.animatedEdgeIds);
+
+  useTraversalAnimation();
+
   // O(1) node lookups instead of O(N) .find() in reducers
   const nodeMap = useMemo(() => {
     const map = new Map<string, GraphNode>();
@@ -86,6 +95,17 @@ export function GraphVisualization() {
   }, [nodes]);
   const nodeMapRef = useRef(nodeMap);
   nodeMapRef.current = nodeMap;
+
+  // O(1) edge lookups instead of O(N) .find() in edgeReducer
+  const edgeMap = useMemo(() => {
+    const map = new Map<string, (typeof edges)[0]>();
+    for (const edge of edges) {
+      map.set(edge.id, edge);
+    }
+    return map;
+  }, [edges]);
+  const edgeMapRef = useRef(edgeMap);
+  edgeMapRef.current = edgeMap;
 
   const handleClickNode = useCallback(
     ({ node }: { node: string }) => {
@@ -178,6 +198,24 @@ export function GraphVisualization() {
         const res = { ...data };
         const graphState = useGraphStore.getState();
         const sessionState = useSessionStore.getState();
+        const animState = useAnimationStore.getState();
+
+        // Animation mode: highlight animated nodes, dim everything else
+        if (animState.isAnimating || animState.animatedNodeIds.size > 0) {
+          if (animState.animatedNodeIds.has(node)) {
+            const step = animState.activeTrace.find((s) => s.nodeId === node);
+            if (step) {
+              res.color = RETRIEVAL_COLORS[step.retrieval_reason] || '#3b82f6';
+              res.highlighted = true;
+              res.zIndex = 10;
+            }
+          } else {
+            res.color = '#1a1a22';
+            res.label = '';
+            res.zIndex = 0;
+          }
+          return res;
+        }
 
         // O(1) lookup via map ref
         const nodeData = nodeMapRef.current.get(node);
@@ -216,7 +254,23 @@ export function GraphVisualization() {
       edgeReducer: (edge, data) => {
         const res = { ...data };
         const graphState = useGraphStore.getState();
-        const edgeData = graphState.edges.find((e) => e.id === edge);
+        const animState = useAnimationStore.getState();
+
+        // Animation mode: highlight animated edges, dim everything else
+        if (animState.isAnimating || animState.animatedNodeIds.size > 0) {
+          if (animState.animatedEdgeIds.has(edge)) {
+            res.color = '#f59e0b';
+            res.size = 2.5;
+            res.zIndex = 10;
+          } else {
+            res.color = '#0d0d10';
+            res.size = 0.3;
+          }
+          return res;
+        }
+
+        // O(1) edge lookup via map ref
+        const edgeData = edgeMapRef.current.get(edge);
 
         // Hide edges of hidden types
         if (edgeData && !graphState.visibleEdgeTypes.has(edgeData.edge_type)) {
@@ -257,6 +311,7 @@ export function GraphVisualization() {
     });
 
     rendererRef.current = renderer;
+    useGraphStore.getState().setSigmaRenderer(renderer);
 
     // Event handlers
     renderer.on('clickNode', handleClickNode);
@@ -278,15 +333,28 @@ export function GraphVisualization() {
           attributes: nodeData.attributes,
         });
       }
+      hoverStartRef.current = { nodeId: node, time: Date.now() };
     });
 
     renderer.on('leaveNode', () => {
       setTooltip(null);
+      if (hoverStartRef.current) {
+        const duration = Date.now() - hoverStartRef.current.time;
+        const nodeData = nodeMapRef.current.get(hoverStartRef.current.nodeId);
+        tracker.track({
+          type: 'node.hover',
+          nodeId: hoverStartRef.current.nodeId,
+          nodeType: nodeData?.node_type ?? '',
+          durationMs: duration,
+        });
+        hoverStartRef.current = null;
+      }
     });
 
     return () => {
       renderer.off('clickNode', handleClickNode);
       renderer.off('clickStage', handleClickStage);
+      useGraphStore.getState().setSigmaRenderer(null);
       renderer.kill();
       rendererRef.current = null;
       graphRef.current = null;
@@ -295,12 +363,12 @@ export function GraphVisualization() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, edges]);
 
-  // Refresh renderer when visual state changes (selection, filters, highlights)
+  // Refresh renderer when visual state changes (selection, filters, highlights, animation)
   useEffect(() => {
     if (rendererRef.current) {
       rendererRef.current.refresh();
     }
-  }, [selectedNodeId, visibleNodeTypes, visibleEdgeTypes, sessionFilter, highlightedNodeIds]);
+  }, [selectedNodeId, visibleNodeTypes, visibleEdgeTypes, sessionFilter, highlightedNodeIds, animatedNodeIds, animatedEdgeIds]);
 
   // Re-run layout when layoutType changes
   useEffect(() => {
@@ -372,6 +440,8 @@ export function GraphVisualization() {
       <div
         ref={containerRef}
         className="w-full h-full"
+        tabIndex={0}
+        aria-label="Interactive knowledge graph. Use mouse to pan and zoom."
         style={{ background: '#0a0a0c' }}
       />
 
