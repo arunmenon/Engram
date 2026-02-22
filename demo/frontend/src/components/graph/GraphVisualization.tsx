@@ -313,11 +313,8 @@ export function GraphVisualization() {
     rendererRef.current = renderer;
     useGraphStore.getState().setSigmaRenderer(renderer);
 
-    // Event handlers
-    renderer.on('clickNode', handleClickNode);
-    renderer.on('clickStage', handleClickStage);
-
-    renderer.on('enterNode', ({ node }) => {
+    // Event handlers — named references for proper cleanup
+    const handleEnterNode = ({ node }: { node: string }) => {
       const nodePosition = renderer.getNodeDisplayData(node);
       const nodeData = nodeMapRef.current.get(node);
       if (nodePosition && nodeData) {
@@ -334,9 +331,9 @@ export function GraphVisualization() {
         });
       }
       hoverStartRef.current = { nodeId: node, time: Date.now() };
-    });
+    };
 
-    renderer.on('leaveNode', () => {
+    const handleLeaveNode = () => {
       setTooltip(null);
       if (hoverStartRef.current) {
         const duration = Date.now() - hoverStartRef.current.time;
@@ -349,11 +346,18 @@ export function GraphVisualization() {
         });
         hoverStartRef.current = null;
       }
-    });
+    };
+
+    renderer.on('clickNode', handleClickNode);
+    renderer.on('clickStage', handleClickStage);
+    renderer.on('enterNode', handleEnterNode);
+    renderer.on('leaveNode', handleLeaveNode);
 
     return () => {
       renderer.off('clickNode', handleClickNode);
       renderer.off('clickStage', handleClickStage);
+      renderer.off('enterNode', handleEnterNode);
+      renderer.off('leaveNode', handleLeaveNode);
       useGraphStore.getState().setSigmaRenderer(null);
       renderer.kill();
       rendererRef.current = null;

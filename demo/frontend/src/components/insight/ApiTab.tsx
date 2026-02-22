@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { mockApiCalls } from '../../data/mockApiCalls';
+import { useApiLogStore } from '../../stores/apiLogStore';
+import { isLiveMode } from '../../api/mode';
 
 const methodColors: Record<string, string> = {
   GET: 'bg-accent-blue/20 text-accent-blue',
@@ -17,13 +19,53 @@ const statusColors: Record<string, string> = {
   '500': 'text-accent-red',
 };
 
+interface UnifiedCall {
+  id: string;
+  method: string;
+  endpoint: string;
+  latencyMs?: number;
+  status?: number;
+  request?: unknown;
+  response?: unknown;
+}
+
+function useCalls(): UnifiedCall[] {
+  const liveCalls = useApiLogStore(s => s.calls);
+
+  if (isLiveMode()) {
+    return liveCalls.map(c => ({
+      id: c.id,
+      method: c.method,
+      endpoint: c.url,
+      latencyMs: c.durationMs,
+      status: c.status,
+      request: c.requestBody,
+      response: c.responseBody,
+    }));
+  }
+
+  return mockApiCalls.map(c => ({
+    id: c.id,
+    method: c.method,
+    endpoint: c.endpoint,
+    latencyMs: c.latency_ms,
+    status: c.status,
+    request: c.request,
+    response: c.response,
+  }));
+}
+
 export function ApiTab() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const calls = useCalls();
 
   return (
     <div className="space-y-1.5">
       <h3 className="text-sm font-medium text-gray-100 mb-3">API Call Log</h3>
-      {mockApiCalls.map((call, index) => {
+      {calls.length === 0 && (
+        <p className="text-xs text-muted text-center py-4">No API calls recorded yet.</p>
+      )}
+      {calls.map((call, index) => {
         const isExpanded = expandedId === call.id;
         const rowBg = index % 2 === 0 ? 'bg-surface-card' : 'bg-surface-darker/50';
         return (
@@ -32,14 +74,18 @@ export function ApiTab() {
               onClick={() => setExpandedId(isExpanded ? null : call.id)}
               className="w-full flex items-center gap-2 p-2.5 text-left hover:bg-surface-hover transition-colors"
             >
-              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${methodColors[call.method]}`}>
+              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${methodColors[call.method] ?? 'bg-surface-hover text-muted'}`}>
                 {call.method}
               </span>
               <span className="text-xs text-gray-200 font-mono truncate flex-1">{call.endpoint}</span>
-              <span className="text-[10px] text-muted font-mono">{call.latency_ms}ms</span>
-              <span className={`text-[10px] font-medium ${statusColors[String(call.status)] || 'text-muted'}`}>
-                {call.status}
-              </span>
+              {call.latencyMs != null && (
+                <span className="text-[10px] text-muted font-mono">{call.latencyMs}ms</span>
+              )}
+              {call.status != null && (
+                <span className={`text-[10px] font-medium ${statusColors[String(call.status)] ?? 'text-muted'}`}>
+                  {call.status}
+                </span>
+              )}
               <ChevronDown className={`w-3 h-3 text-muted transition-transform ${isExpanded ? 'rotate-0' : '-rotate-90'}`} />
             </button>
 
@@ -53,19 +99,19 @@ export function ApiTab() {
                   className="overflow-hidden"
                 >
                   <div className="px-2.5 pb-2.5 space-y-2">
-                    {call.request && (
+                    {call.request != null && (
                       <div>
                         <p className="text-[10px] text-muted uppercase tracking-wider mb-1">Request</p>
                         <pre className="text-[11px] text-accent-green/80 bg-surface-darker rounded p-2 overflow-x-auto font-mono leading-relaxed">
-                          {JSON.stringify(call.request, null, 2)}
+                          {String(JSON.stringify(call.request, null, 2))}
                         </pre>
                       </div>
                     )}
-                    {call.response && (
+                    {call.response != null && (
                       <div>
                         <p className="text-[10px] text-muted uppercase tracking-wider mb-1">Response</p>
                         <pre className="text-[11px] text-accent-blue/80 bg-surface-darker rounded p-2 overflow-x-auto font-mono leading-relaxed">
-                          {JSON.stringify(call.response, null, 2)}
+                          {String(JSON.stringify(call.response, null, 2))}
                         </pre>
                       </div>
                     )}

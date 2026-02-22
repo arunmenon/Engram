@@ -1,10 +1,16 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useSessionStore, selectCurrentMessages } from '../../stores/sessionStore';
+import { useChatStore } from '../../stores/chatStore';
+import { isLiveMode } from '../../api/mode';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
+import { ScenarioPicker } from './ScenarioPicker';
 
 export function ChatPanel() {
+  const live = isLiveMode();
+
+  // Mock-mode state
   const sessions = useSessionStore(s => s.sessions);
   const currentSessionId = useSessionStore(s => s.currentSessionId);
   const setCurrentSession = useSessionStore(s => s.setCurrentSession);
@@ -12,6 +18,10 @@ export function ChatPanel() {
   const visibleMessagesPerSession = useSessionStore(s => s.visibleMessagesPerSession);
   const allCurrentMessages = useSessionStore(selectCurrentMessages);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Live-mode state
+  const liveMessages = useChatStore(s => s.messages);
+  const activeScenario = useChatStore(s => s.activeScenario);
 
   const visibleMessages = useMemo(() => {
     if (!autoPlayStarted) return allCurrentMessages;
@@ -23,8 +33,46 @@ export function ChatPanel() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [currentSessionId, visibleMessages.length]);
+  }, [currentSessionId, visibleMessages.length, liveMessages.length]);
 
+  // Live mode: show scenario picker or live chat
+  if (live) {
+    return (
+      <div className="w-[400px] shrink-0 bg-surface border-r border-muted-dark/30 flex flex-col">
+        {activeScenario ? (
+          <>
+            <div className="p-2 border-b border-muted-dark/30 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: activeScenario.color }} />
+              <span className="text-xs font-medium text-gray-200">{activeScenario.title}</span>
+              <span className="text-[10px] text-muted ml-auto">{activeScenario.persona_name}</span>
+            </div>
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
+              <AnimatePresence mode="popLayout">
+                {liveMessages.map(msg => (
+                  <ChatMessage
+                    key={msg.id}
+                    message={{
+                      id: msg.id,
+                      session_id: '',
+                      role: msg.role,
+                      content: msg.content,
+                      timestamp: msg.timestamp,
+                      context_nodes_used: msg.context_used,
+                    }}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+            <ChatInput />
+          </>
+        ) : (
+          <ScenarioPicker />
+        )}
+      </div>
+    );
+  }
+
+  // Demo mode: existing mock playback
   return (
     <div className="w-[400px] shrink-0 bg-surface border-r border-muted-dark/30 flex flex-col">
       {/* Session Tabs */}
