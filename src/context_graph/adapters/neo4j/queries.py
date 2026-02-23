@@ -278,6 +278,13 @@ SET e.keywords = $keywords,
     e.importance_score = $importance_score
 """.strip()
 
+GET_SESSION_EDGES = """
+MATCH (a:Event {session_id: $session_id})-[r]->(b:Event {session_id: $session_id})
+WHERE a.event_id IN $event_ids AND b.event_id IN $event_ids
+RETURN a.event_id AS source, b.event_id AS target,
+       type(r) AS edge_type, properties(r) AS props
+""".strip()
+
 GET_SUBGRAPH_SEED_EVENTS = """
 MATCH (e:Event {session_id: $session_id})
 RETURN e ORDER BY e.occurred_at DESC LIMIT $seed_limit

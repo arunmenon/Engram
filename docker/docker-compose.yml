@@ -40,6 +40,26 @@ services:
       retries: 10
       start_period: 30s
 
+  # -----------------------------------------------------------------------
+  # GCS Emulator — cold-tier archive storage (ADR-0014)
+  # -----------------------------------------------------------------------
+
+  fake-gcs:
+    image: fsouza/fake-gcs-server:1.50
+    container_name: engram-fake-gcs
+    ports:
+      - "4443:4443"
+    command: ["-scheme", "http", "-port", "4443"]
+    volumes:
+      - gcs-data:/data
+      - ./gcs/init:/data/engram-archives  # pre-creates the bucket
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4443/storage/v1/b"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   api:
     build:
       context: ..
@@ -47,7 +67,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CG_REDIS_URL=redis://redis:6379
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
       - CG_NEO4J_URI=bolt://neo4j:7687
     depends_on:
       redis:
@@ -61,6 +82,90 @@ services:
       retries: 5
       start_period: 15s
 
+  # -----------------------------------------------------------------------
+  # Consumer Workers — read from Redis Streams, project into Neo4j
+  # -----------------------------------------------------------------------
+
+  worker-projection:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    command: ["--consumer", "projection"]
+    environment:
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
+      - CG_NEO4J_URI=bolt://neo4j:7687
+      - CG_LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker-enrichment:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    command: ["--consumer", "enrichment"]
+    environment:
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
+      - CG_NEO4J_URI=bolt://neo4j:7687
+      - CG_LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker-extraction:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    command: ["--consumer", "extraction"]
+    environment:
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
+      - CG_NEO4J_URI=bolt://neo4j:7687
+      - CG_LLM_MODEL_ID=${CG_LLM_MODEL_ID:-gpt-5.2-2025-12-11}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CG_LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker-consolidation:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    command: ["--consumer", "consolidation"]
+    environment:
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
+      - CG_NEO4J_URI=bolt://neo4j:7687
+      - CG_LOG_LEVEL=INFO
+      - CG_ARCHIVE_BACKEND=gcs
+      - CG_ARCHIVE_GCS_BUCKET=engram-archives
+      - CG_ARCHIVE_GCS_PREFIX=engram/archives
+      - CG_ARCHIVE_GCS_ENDPOINT=http://fake-gcs:4443
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      fake-gcs:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------------
+  # Orchestrator — demo chat UI backend (calls API + LLM)
+  # -----------------------------------------------------------------------
+
   orchestrator:
     build:
       context: ..
@@ -70,8 +175,9 @@ services:
     environment:
       - CG_API_URL=http://api:8000
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-      - DEMO_LLM_MODEL=${DEMO_LLM_MODEL:-claude-sonnet-4-5-20250929}
+      - DEMO_LLM_MODEL=${DEMO_LLM_MODEL:-gpt-4o-mini}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     depends_on:
       api:
         condition: service_healthy
@@ -85,3 +191,4 @@ services:
 volumes:
   redis-data:
   neo4j-data:
+  gcs-data:

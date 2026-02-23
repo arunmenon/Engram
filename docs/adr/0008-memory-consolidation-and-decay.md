@@ -321,3 +321,16 @@ Where:
 **When user context is unavailable** (e.g., anonymous queries, system-level admin queries): `user_affinity` falls back to `0.0`, and scoring degrades gracefully to the original three-factor formula.
 
 **Impact on reconsolidation on retrieval (Section: Reconsolidation on Retrieval):** The existing side-effects (increment `access_count`, update `last_accessed_at`, recalculate `stability`) are unchanged. The `retrieval_recurrence` sub-factor of `user_affinity` reads these values but does not write additional state beyond what the existing reconsolidation already tracks.
+
+### 2026-02-23: Consolidation Scheduling & Archival (ADR-0014)
+
+**Scheduling**: ConsolidationConsumer now self-triggers via asyncio timer every
+`reconsolidation_interval_hours` (default 6h), in addition to accepting manual
+`consolidation_trigger` stream messages. Concurrent runs guarded by asyncio.Lock.
+
+**Archive-before-delete**: The `_trim_redis()` step now exports events to an
+ArchiveStore (GCS/filesystem) before deleting expired JSON documents. The archive
+preserves raw event data beyond the 90-day Redis retention ceiling.
+
+**Dedup maintenance**: `cleanup_dedup_set()` is now invoked during every trim cycle.
+Session streams are cleaned up after `session_stream_retention_hours`.

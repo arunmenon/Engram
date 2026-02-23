@@ -3,14 +3,18 @@
 Manages the hot tier of the dual-store architecture:
 - Trims stream entries older than the hot window
 - Deletes expired JSON documents past the retention ceiling
+- Cleans up stale session streams (ADR-0014)
+- Archives events before deletion (ADR-0014)
+- Maintains dedup sorted set (ADR-0014)
 
-Source: ADR-0008, ADR-0010
+Source: ADR-0008, ADR-0010, ADR-0014
 """
 
 from __future__ import annotations
 
+import time
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -133,3 +137,211 @@ async def delete_expired_events(
         deleted_count=deleted_count,
     )
     return deleted_count
+
+
+# ---------------------------------------------------------------------------
+# ADR-0014: Session stream cleanup
+# ---------------------------------------------------------------------------
+
+
+async def cleanup_session_streams(
+    redis_client: Redis,
+    prefix: str = "events:session:",
+    max_age_hours: int = 168,
+    batch_size: int = 100,
+) -> int:
+    """Delete per-session streams whose newest entry is older than max_age_hours.
+
+    Scans for keys matching ``{prefix}*`` and checks each stream's newest
+    entry via XREVRANGE ... + COUNT 1. Streams with no entries or whose
+    newest entry is older than the cutoff are deleted.
+
+    Returns the number of deleted session streams.
+    """
+    cutoff_ms = int((time.time() - max_age_hours * 3600) * 1000)
+    deleted_count = 0
+    cursor = 0
+    scan_pattern = f"{prefix}*"
+
+    while True:
+        cursor, keys = await redis_client.scan(
+            cursor=cursor,
+            match=scan_pattern,
+            count=batch_size,
+        )
+
+        for key in keys:
+            key_str = key.decode() if isinstance(key, bytes) else key
+
+            # Get the newest entry in the stream
+            entries = await redis_client.xrevrange(key_str, count=1)
+
+            if not entries:
+                # Empty stream — delete it
+                await redis_client.delete(key_str)
+                deleted_count += 1
+                continue
+
+            # Entry ID format: "<milliseconds>-<seq>"
+            entry_id = entries[0][0]
+            if isinstance(entry_id, bytes):
+                entry_id = entry_id.decode()
+            entry_ms = int(entry_id.split("-")[0])
+
+            if entry_ms < cutoff_ms:
+                await redis_client.delete(key_str)
+                deleted_count += 1
+
+        if cursor == 0:
+            break
+
+    log.info(
+        "session_streams_cleaned",
+        prefix=prefix,
+        max_age_hours=max_age_hours,
+        deleted_count=deleted_count,
+    )
+    return deleted_count
+
+
+# ---------------------------------------------------------------------------
+# ADR-0014: Archive-before-delete
+# ---------------------------------------------------------------------------
+
+
+async def archive_and_delete_expired_events(
+    redis_client: Redis,
+    key_prefix: str,
+    max_age_days: int,
+    archive_store: Any,
+    batch_size: int = 100,
+) -> tuple[int, int]:
+    """Archive expired events to the archive store, then delete from Redis.
+
+    Scans for expired JSON documents (same logic as delete_expired_events),
+    but archives them via the ArchiveStore before deletion. If archiving
+    fails for a batch, those events are NOT deleted (data safety).
+
+    Args:
+        redis_client: Redis async client.
+        key_prefix: Event key prefix (e.g. "evt:").
+        max_age_days: Events older than this are archived and deleted.
+        archive_store: An ArchiveStore implementation.
+        batch_size: SCAN batch size.
+
+    Returns:
+        Tuple of (archived_count, deleted_count).
+    """
+    cutoff = datetime.now(UTC) - timedelta(days=max_age_days)
+    cutoff_ms = int(cutoff.timestamp() * 1000)
+
+    archived_count = 0
+    deleted_count = 0
+    cursor = 0
+    scan_pattern = f"{key_prefix}*"
+
+    while True:
+        cursor, keys = await redis_client.scan(
+            cursor=cursor,
+            match=scan_pattern,
+            count=batch_size,
+        )
+
+        if keys:
+            # Fetch full JSON docs for all keys in this batch
+            pipe = redis_client.pipeline(transaction=False)
+            for key in keys:
+                key_str = key.decode() if isinstance(key, bytes) else key
+                pipe.execute_command("JSON.GET", key_str, "$")
+            results = await pipe.execute()
+
+            expired_events: list[dict[str, Any]] = []
+            expired_keys: list[str] = []
+
+            for key, raw_value in zip(keys, results, strict=True):
+                key_str = key.decode() if isinstance(key, bytes) else key
+                if raw_value is None:
+                    continue
+
+                value_str = raw_value.decode() if isinstance(raw_value, bytes) else raw_value
+
+                try:
+                    import orjson
+
+                    parsed = orjson.loads(value_str)
+                    doc = parsed[0] if isinstance(parsed, list) else parsed
+                    epoch_ms = doc.get("occurred_at_epoch_ms")
+                    if isinstance(epoch_ms, int | float) and epoch_ms < cutoff_ms:
+                        expired_events.append(doc)
+                        expired_keys.append(key_str)
+                except (ValueError, TypeError, IndexError, AttributeError):
+                    continue
+
+            if expired_events:
+                # Archive first — if this fails, events are NOT deleted
+                partition_key = datetime.now(UTC).strftime("%Y/%m/%d")
+                try:
+                    await archive_store.archive_events(expired_events, partition_key)
+                    archived_count += len(expired_events)
+                except Exception:
+                    log.exception(
+                        "archive_failed_skipping_delete",
+                        event_count=len(expired_events),
+                    )
+                    # Skip deletion for this batch — data safety
+                    if cursor == 0:
+                        break
+                    continue
+
+                # Archive succeeded — now delete from Redis
+                delete_pipe = redis_client.pipeline(transaction=False)
+                for key_str in expired_keys:
+                    delete_pipe.delete(key_str)
+                await delete_pipe.execute()
+                deleted_count += len(expired_keys)
+
+        if cursor == 0:
+            break
+
+    log.info(
+        "archive_and_delete_completed",
+        key_prefix=key_prefix,
+        max_age_days=max_age_days,
+        archived_count=archived_count,
+        deleted_count=deleted_count,
+    )
+    return archived_count, deleted_count
+
+
+# ---------------------------------------------------------------------------
+# ADR-0014: Dedup set maintenance
+# ---------------------------------------------------------------------------
+
+
+async def cleanup_dedup_set(
+    redis_client: Redis,
+    dedup_key: str,
+    retention_ceiling_days: int = 90,
+) -> int:
+    """Remove old entries from the dedup sorted set.
+
+    Removes entries with scores (epoch_ms) older than retention_ceiling_days.
+    This prevents the dedup set from growing unbounded.
+
+    Returns the number of removed entries.
+    """
+    cutoff_ms = int((time.time() - retention_ceiling_days * 86400) * 1000)
+
+    removed: int = await redis_client.zremrangebyscore(
+        dedup_key,
+        "-inf",
+        cutoff_ms,
+    )
+    log.info(
+        "dedup_set_cleaned",
+        dedup_key=dedup_key,
+        retention_ceiling_days=retention_ceiling_days,
+        cutoff_ms=cutoff_ms,
+        removed=removed,
+    )
+    return removed

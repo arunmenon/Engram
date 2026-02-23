@@ -271,3 +271,24 @@ Use Redis Streams as the sole data structure, without RedisJSON documents or Red
 - [Redis Streams Documentation](https://redis.io/docs/latest/develop/data-types/streams/)
 - [Redis 8.6 Idempotent Streams](https://redis.io/blog/announcing-redis-86-performance-improvements-streams/)
 - [Building an Event Store with Redis Streams](https://oneuptime.com/blog/post/2026-01-21-redis-event-store-streams/view)
+
+## Amendments
+
+### 2026-02-23: Stream Capping & Lifecycle Hardening (ADR-0014)
+
+**Stream capping**: XADD in the Lua ingestion script now accepts an optional
+MAXLEN parameter (approximate, configurable via `CG_REDIS_GLOBAL_STREAM_MAXLEN`,
+default 0 = uncapped). This bounds stream memory growth independently of XTRIM.
+
+**Session stream cleanup**: Per-session streams (`events:session:{session_id}`)
+are now cleaned up by the consolidation worker when the newest entry is older
+than `session_stream_retention_hours` (default 168h).
+
+**Lua script fix**: The `string.gsub` JSON patching for `global_position` has
+been replaced with a two-step `JSON.SET`: first the full document, then a path
+set on `$.global_position`. This eliminates the risk of matching `global_position`
+inside nested payload data.
+
+**Batch optimization**: `append_batch()` now uses `asyncio.gather()` with a
+semaphore of 50 for concurrent event ingestion, reducing batch latency from
+O(n * RTT) to O(RTT).

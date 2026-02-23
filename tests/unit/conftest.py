@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -25,7 +25,11 @@ class InMemoryEventStore:
         self._events: dict[str, Event] = {}
         self._counter: int = 0
 
-    async def append(self, event: Event) -> str:
+    async def append(
+        self,
+        event: Event,
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         event_id_str = str(event.event_id)
         if event_id_str in self._events:
             return f"0-{self._counter}"
@@ -34,10 +38,15 @@ class InMemoryEventStore:
         self._events[event_id_str] = event
         return position
 
-    async def append_batch(self, events: list[Event]) -> list[str]:
+    async def append_batch(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[str]:
         positions: list[str] = []
-        for event in events:
-            position = await self.append(event)
+        for idx, event in enumerate(events):
+            event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+            position = await self.append(event, payload=event_payload)
             positions.append(position)
         return positions
 

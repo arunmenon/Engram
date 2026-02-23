@@ -334,6 +334,25 @@ class Neo4jGraphStore:
         event_ids = [eid for eid, _, _ in scored_entries]
         await self._bump_access_counts(event_ids)
 
+        # Fetch edges between session events
+        edges: list[AtlasEdge] = []
+        if event_ids:
+            async with self._driver.session(database=self._database) as session:
+                edge_result = await session.run(
+                    queries.GET_SESSION_EDGES,
+                    {"session_id": session_id, "event_ids": event_ids},
+                )
+                edge_records = [record async for record in edge_result]
+            for erec in edge_records:
+                edges.append(
+                    AtlasEdge(
+                        source=erec["source"],
+                        target=erec["target"],
+                        edge_type=erec["edge_type"],
+                        properties=dict(erec["props"]) if erec["props"] else {},
+                    )
+                )
+
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
 
         meta = QueryMeta(
@@ -349,7 +368,7 @@ class Neo4jGraphStore:
 
         return AtlasResponse(
             nodes=nodes,
-            edges=[],
+            edges=edges,
             pagination=Pagination(),
             meta=meta,
         )

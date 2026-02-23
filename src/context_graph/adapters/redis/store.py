@@ -12,9 +12,10 @@ Sources: ADR-0004, ADR-0010
 
 from __future__ import annotations
 
+import asyncio
 import importlib.resources
 from datetime import UTC
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import orjson
 import structlog
@@ -70,10 +71,21 @@ def _event_to_epoch_ms(event: Event) -> int:
     return int(timestamp.timestamp() * 1000)
 
 
-def _event_to_json_bytes(event: Event, occurred_at_epoch_ms: int) -> bytes:
-    """Serialize an event to JSON bytes with the epoch_ms field injected."""
+def _event_to_json_bytes(
+    event: Event,
+    occurred_at_epoch_ms: int,
+    payload: dict[str, Any] | None = None,
+) -> bytes:
+    """Serialize an event to JSON bytes with the epoch_ms field injected.
+
+    When *payload* is provided it is stored alongside the event fields in the
+    Redis JSON document.  ``Event.model_validate()`` silently ignores the extra
+    key on read (``extra="ignore"``), so existing deserialization is unaffected.
+    """
     data = orjson.loads(event.model_dump_json())
     data["occurred_at_epoch_ms"] = occurred_at_epoch_ms
+    if payload is not None:
+        data["payload"] = payload
     return orjson.dumps(data)
 
 
@@ -140,15 +152,21 @@ class RedisEventStore:
 
     # -- write operations ---------------------------------------------------
 
-    async def append(self, event: Event) -> str:
+    async def append(
+        self,
+        event: Event,
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         """Append a single event. Returns the global_position (stream entry ID).
 
         Idempotent: duplicate event_id submissions return the existing position.
+        When *payload* is given it is persisted in the JSON document alongside
+        the event fields so the extraction worker can access conversation content.
         """
         event_id_str = str(event.event_id)
         json_key = f"{self._settings.event_key_prefix}{event_id_str}"
         occurred_at_epoch_ms = _event_to_epoch_ms(event)
-        event_json = _event_to_json_bytes(event, occurred_at_epoch_ms)
+        event_json = _event_to_json_bytes(event, occurred_at_epoch_ms, payload=payload)
 
         if self._script_sha is None:
             await self._register_script()
@@ -164,6 +182,7 @@ class RedisEventStore:
             event_id_str,
             event_json,
             str(occurred_at_epoch_ms),
+            str(self._settings.global_stream_maxlen),
         )
 
         # Conditional WAIT for replica acknowledgment
@@ -178,13 +197,27 @@ class RedisEventStore:
         )
         return global_position
 
-    async def append_batch(self, events: list[Event]) -> list[str]:
-        """Append multiple events. Each is individually atomic via Lua."""
-        positions: list[str] = []
-        for event in events:
-            position = await self.append(event)
-            positions.append(position)
-        return positions
+    async def append_batch(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[str]:
+        """Append multiple events concurrently. Each is individually atomic via Lua.
+
+        Uses asyncio.gather with a semaphore to limit concurrency to 50,
+        reducing batch latency from O(n * RTT) to O(RTT) (ADR-0014).
+        """
+        semaphore = asyncio.Semaphore(50)
+
+        async def _append_one(idx: int, event: Event) -> str:
+            async with semaphore:
+                event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+                return await self.append(event, payload=event_payload)
+
+        positions = await asyncio.gather(
+            *(_append_one(idx, event) for idx, event in enumerate(events))
+        )
+        return list(positions)
 
     async def cleanup_dedup_set(self, retention_ms: int | None = None) -> int:
         """Remove old entries from the dedup sorted set.

@@ -1,0 +1,1 @@
+"""Filesystem archive adapter package."""
