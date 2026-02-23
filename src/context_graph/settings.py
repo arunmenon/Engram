@@ -56,6 +56,12 @@ class RedisSettings(BaseSettings):
     # Total retention ceiling (days) — JSON docs deleted after this
     retention_ceiling_days: int = 90
 
+    # Approximate MAXLEN for global stream XADD (0 = uncapped) — ADR-0014
+    global_stream_maxlen: int = 0
+
+    # Session stream retention (hours) — streams older than this are deleted
+    session_stream_retention_hours: int = 168  # 7 days
+
 
 class Neo4jSettings(BaseSettings):
     """Neo4j connection settings."""
@@ -90,8 +96,8 @@ class DecaySettings(BaseSettings):
     # Reflection trigger threshold (ADR-0008)
     reflection_threshold: int = 150
 
-    # Re-consolidation interval (hours)
-    reconsolidation_interval_hours: int = 6
+    # Re-consolidation interval (hours) — supports fractional for testing
+    reconsolidation_interval_hours: float = 6.0
 
 
 class RetentionSettings(BaseSettings):
@@ -110,6 +116,9 @@ class RetentionSettings(BaseSettings):
     # Cold tier thresholds
     cold_min_importance: int = 5
     cold_min_access_count: int = 3
+
+    # Orphan cleanup batch size (nodes per transaction) — ADR-0014 Amendment
+    orphan_cleanup_batch_size: int = 500
 
 
 class QuerySettings(BaseSettings):
@@ -268,6 +277,44 @@ OTEL_TO_EVENT_TYPE: dict[str, str] = {
 }
 
 
+class EmbeddingSettings(BaseSettings):
+    """Embedding service settings for semantic entity matching (Tier 2b).
+
+    Controls the sentence-transformer model, HNSW index parameters,
+    and similarity thresholds for SAME_AS / RELATED_TO edge creation.
+    """
+
+    model_config = {"env_prefix": "CG_EMBEDDING_"}
+
+    model_name: str = "all-MiniLM-L6-v2"
+    dimensions: int = 384
+    device: str = "cpu"
+    entity_embedding_prefix: str = "entity_emb:"
+    entity_embedding_index: str = "idx:entity_embeddings"
+    hnsw_m: int = 16
+    hnsw_ef_construction: int = 200
+    hnsw_ef_runtime: int = 100
+    same_as_threshold: float = 0.90
+    related_to_threshold: float = 0.75
+    knn_k: int = 10
+    batch_size: int = 64
+
+
+class LLMSettings(BaseSettings):
+    """LLM extraction settings (ADR-0013).
+
+    OPENAI_API_KEY is read by litellm from env automatically.
+    """
+
+    model_config = {"env_prefix": "CG_LLM_"}
+
+    model_id: str = "gpt-5.2-2025-12-11"
+    temperature: float = 0.1
+    max_tokens: int = 4096
+    timeout_seconds: int = 60
+    max_retries: int = 2
+
+
 class AuthSettings(BaseSettings):
     """API authentication settings.
 
@@ -282,6 +329,25 @@ class AuthSettings(BaseSettings):
 
     api_key: str | None = None
     admin_key: str | None = None
+
+
+class ArchiveSettings(BaseSettings):
+    """Archive storage settings (ADR-0014).
+
+    Controls where expired events are archived before deletion from Redis.
+    Supports local filesystem (dev/testing) and GCS (production).
+    Set gcs_endpoint for emulator (fake-gcs-server) in local dev.
+    """
+
+    model_config = {"env_prefix": "CG_ARCHIVE_"}
+
+    backend: str = "fs"  # "fs" or "gcs"
+    enabled: bool = True
+    fs_base_path: str = "/tmp/engram-archives"
+    gcs_bucket: str = ""
+    gcs_prefix: str = "engram/archives"
+    gcs_endpoint: str = ""  # e.g. "http://fake-gcs:4443" for emulator
+    batch_size: int = 1000
 
 
 class Settings(BaseSettings):
@@ -301,4 +367,7 @@ class Settings(BaseSettings):
     retention: RetentionSettings = Field(default_factory=RetentionSettings)
     query: QuerySettings = Field(default_factory=QuerySettings)
     preference: PreferenceSettings = Field(default_factory=PreferenceSettings)
+    embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
+    llm: LLMSettings = Field(default_factory=LLMSettings)
     auth: AuthSettings = Field(default_factory=AuthSettings)
+    archive: ArchiveSettings = Field(default_factory=ArchiveSettings)

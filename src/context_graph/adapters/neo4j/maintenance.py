@@ -103,6 +103,29 @@ WHERE e.occurred_at < $cutoff_iso
 RETURN e.event_id AS event_id
 """.strip()
 
+# ADR-0014 Amendment: Orphan node cleanup (Gap 8)
+_GET_ORPHAN_ENTITY_IDS = """
+MATCH (n:Entity)
+WHERE NOT (n)--()
+RETURN n.entity_id AS entity_id
+LIMIT $batch_size
+""".strip()
+
+_DELETE_ORPHAN_ENTITIES_BY_IDS = """
+UNWIND $entity_ids AS eid
+MATCH (n:Entity {entity_id: eid})
+DETACH DELETE n
+RETURN count(n) AS deleted_count
+""".strip()
+
+_DELETE_ORPHAN_NODES_BY_LABEL = """
+MATCH (n:{label})
+WHERE NOT (n)--()
+WITH n LIMIT $batch_size
+DELETE n
+RETURN count(n) AS deleted_count
+""".strip()
+
 _UPDATE_IMPORTANCE_FROM_CENTRALITY = """
 MATCH (e:Event)
 WITH e, size([(x)-[]->(e) | x]) AS in_degree
@@ -379,6 +402,124 @@ async def get_archive_event_ids(
         records = [record async for record in result]
 
     return [r["event_id"] for r in records]
+
+
+async def _delete_orphan_entities(
+    driver: AsyncDriver,
+    database: str,
+    batch_size: int,
+) -> tuple[int, list[str]]:
+    """Collect orphan Entity IDs, delete them, return total + IDs."""
+    total_deleted = 0
+    all_entity_ids: list[str] = []
+
+    while True:
+        async with driver.session(database=database) as session:
+
+            async def _get_ids(tx: Any) -> list[str]:
+                result = await tx.run(
+                    _GET_ORPHAN_ENTITY_IDS,
+                    {"batch_size": batch_size},
+                )
+                records = [r async for r in result]
+                return [r["entity_id"] for r in records]
+
+            entity_ids: list[str] = await session.execute_read(_get_ids)
+
+        if not entity_ids:
+            break
+
+        all_entity_ids.extend(entity_ids)
+
+        async with driver.session(database=database) as session:
+
+            async def _delete(tx: Any, ids: list[str] = entity_ids) -> int:
+                result = await tx.run(
+                    _DELETE_ORPHAN_ENTITIES_BY_IDS,
+                    {"entity_ids": ids},
+                )
+                record = await result.single()
+                return record["deleted_count"] if record else 0
+
+            batch_deleted: int = await session.execute_write(_delete)
+
+        total_deleted += batch_deleted
+
+        if batch_deleted < batch_size:
+            break
+
+    return total_deleted, all_entity_ids
+
+
+async def _delete_orphan_nodes_for_label(
+    driver: AsyncDriver,
+    database: str,
+    label: str,
+    batch_size: int,
+) -> int:
+    """Delete orphan nodes for a single non-Entity label. Returns total deleted."""
+    query = _DELETE_ORPHAN_NODES_BY_LABEL.replace("{label}", label)
+    total_deleted = 0
+
+    while True:
+        async with driver.session(database=database) as session:
+
+            async def _delete_batch(tx: Any, q: str = query) -> int:
+                result = await tx.run(q, {"batch_size": batch_size})
+                record = await result.single()
+                return record["deleted_count"] if record else 0
+
+            batch_deleted: int = await session.execute_write(_delete_batch)
+
+        total_deleted += batch_deleted
+
+        if batch_deleted == 0:
+            break
+
+    return total_deleted
+
+
+async def delete_orphan_nodes(
+    driver: AsyncDriver,
+    database: str,
+    batch_size: int = 500,
+) -> tuple[dict[str, int], list[str]]:
+    """Delete orphaned nodes (no relationships) and return counts + deleted entity IDs.
+
+    Processes 5 orphan-eligible labels: Entity, Preference, Skill, Workflow,
+    BehavioralPattern. UserProfile and Summary are exempt (ADR-0014 Amendment).
+
+    For Entity nodes, entity_ids are collected before deletion so callers
+    can clean up associated embeddings (Gap 9).
+
+    Returns a tuple of:
+      - dict mapping label -> total deleted count
+      - list of deleted entity IDs (for embedding cleanup)
+    """
+    counts: dict[str, int] = {}
+    deleted_entity_ids: list[str] = []
+
+    # Entity orphan cleanup: collect IDs first for embedding cleanup
+    entity_total, entity_ids = await _delete_orphan_entities(driver, database, batch_size)
+    counts["Entity"] = entity_total
+    deleted_entity_ids.extend(entity_ids)
+
+    # Non-Entity orphan-eligible labels
+    for label in ("Preference", "Skill", "Workflow", "BehavioralPattern"):
+        counts[label] = await _delete_orphan_nodes_for_label(driver, database, label, batch_size)
+
+    total = sum(counts.values())
+    if total > 0:
+        log.info(
+            "orphan_nodes_deleted",
+            counts=counts,
+            total=total,
+            entity_ids_for_embedding_cleanup=len(deleted_entity_ids),
+        )
+    else:
+        log.debug("no_orphan_nodes_found")
+
+    return counts, deleted_entity_ids
 
 
 async def update_importance_from_centrality(

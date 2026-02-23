@@ -1,24 +1,35 @@
-"""Consumer 4: Consolidation worker (ADR-0008, ADR-0013).
+"""Consumer 4: Consolidation worker (ADR-0008, ADR-0013, ADR-0014).
 
 Scheduled consumer that runs re-consolidation and forgetting:
 1. Check session event counts against reflection threshold
 2. For qualifying sessions: group into episodes, create summaries
 3. Write summary nodes + SUMMARIZES edges to Neo4j
 4. Run retention tier enforcement (prune warm edges, cold nodes, archive)
-5. Trim Redis hot-tier stream and expired JSON docs
+5. Trim Redis hot-tier stream, archive + delete expired docs, clean dedup/sessions
 
-Source: ADR-0008 Stage 3, ADR-0013 Consumer 4
+Self-triggers via asyncio timer every `reconsolidation_interval_hours`
+(default 6h) in addition to accepting manual consolidation_trigger messages.
+
+Source: ADR-0008 Stage 3, ADR-0013 Consumer 4, ADR-0014
 """
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from context_graph.adapters.neo4j import maintenance
 from context_graph.adapters.neo4j.queries import GET_SESSION_EVENTS
-from context_graph.adapters.redis.trimmer import delete_expired_events, trim_stream
+from context_graph.adapters.redis.trimmer import (
+    archive_and_delete_expired_events,
+    cleanup_dedup_set,
+    cleanup_session_streams,
+    delete_expired_events,
+    trim_stream,
+)
 from context_graph.domain.consolidation import (
     create_summary_from_events,
     group_events_into_episodes,
@@ -38,12 +49,11 @@ log = structlog.get_logger(__name__)
 class ConsolidationConsumer(BaseConsumer):
     """Consumer 4: Periodic consolidation and forgetting.
 
-    Unlike other consumers that process individual stream messages, this
-    consumer uses stream messages as triggers to run batch operations.
-    Each received message triggers a full consolidation cycle.
+    Self-triggers via an in-process asyncio timer every
+    ``reconsolidation_interval_hours`` (default 6h). Also accepts
+    ``consolidation_trigger`` stream messages for manual triggers.
 
-    In production, a scheduler (cron or similar) posts a trigger message
-    to the stream at the configured interval (default 6h).
+    Concurrency guard: an ``asyncio.Lock`` prevents overlapping cycles.
     """
 
     def __init__(
@@ -51,6 +61,8 @@ class ConsolidationConsumer(BaseConsumer):
         redis_client: Redis,
         neo4j_driver: AsyncDriver,
         settings: Settings,
+        archive_store: Any = None,
+        embedding_store: Any = None,
     ) -> None:
         super().__init__(
             redis_client=redis_client,
@@ -63,6 +75,40 @@ class ConsolidationConsumer(BaseConsumer):
         self._neo4j_database = settings.neo4j.database
         self._settings = settings
         self._event_key_prefix = settings.redis.event_key_prefix
+        self._archive_store = archive_store
+        self._embedding_store = embedding_store
+        self._consolidation_lock = asyncio.Lock()
+
+    # -- lifecycle ----------------------------------------------------------
+
+    async def run(self) -> None:
+        """Start the timer loop alongside the base XREADGROUP consumer loop."""
+        timer_task = asyncio.create_task(self._timer_loop())
+        try:
+            await super().run()
+        finally:
+            timer_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await timer_task
+
+    async def _timer_loop(self) -> None:
+        """Periodically trigger consolidation cycles (ADR-0014)."""
+        interval_hours = self._settings.decay.reconsolidation_interval_hours
+        interval_seconds = interval_hours * 3600
+
+        log.info(
+            "consolidation_timer_started",
+            interval_hours=interval_hours,
+        )
+
+        while not self._stopped:
+            await asyncio.sleep(interval_seconds)
+            if self._stopped:
+                break
+            log.info("consolidation_timer_fired")
+            await self._run_consolidation_cycle_guarded(source="timer")
+
+    # -- message processing -------------------------------------------------
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a consolidation trigger message.
@@ -74,9 +120,28 @@ class ConsolidationConsumer(BaseConsumer):
         if message_type != "consolidation_trigger":
             return
 
-        log.info("consolidation_cycle_started", entry_id=entry_id)
-        await self._run_consolidation_cycle()
-        log.info("consolidation_cycle_completed", entry_id=entry_id)
+        log.info("consolidation_trigger_received", entry_id=entry_id)
+        await self._run_consolidation_cycle_guarded(source="stream")
+
+    # -- consolidation cycle ------------------------------------------------
+
+    async def _run_consolidation_cycle_guarded(self, source: str = "unknown") -> None:
+        """Run a consolidation cycle with concurrency guard.
+
+        If a cycle is already in progress, this invocation is skipped.
+        """
+        if self._consolidation_lock.locked():
+            log.warning("consolidation_cycle_skipped_already_running", source=source)
+            return
+
+        async with self._consolidation_lock:
+            log.info("consolidation_cycle_started", source=source)
+            try:
+                await self._run_consolidation_cycle()
+            except Exception:
+                log.exception("consolidation_cycle_failed", source=source)
+            else:
+                log.info("consolidation_cycle_completed", source=source)
 
     async def _run_consolidation_cycle(self) -> None:
         """Execute a full consolidation cycle."""
@@ -159,7 +224,7 @@ class ConsolidationConsumer(BaseConsumer):
         # Step 3: Run forgetting (retention tier enforcement)
         await self._run_forgetting()
 
-        # Step 4: Trim Redis hot tier
+        # Step 4: Trim Redis hot tier + lifecycle cleanup
         await self._trim_redis()
 
     async def _consolidate_session(self, session_id: str, event_count: int) -> None:
@@ -294,31 +359,79 @@ class ConsolidationConsumer(BaseConsumer):
         else:
             deleted_archive = 0
 
+        # Step 4: Clean up orphaned nodes (ADR-0014 Amendment, Gap 8)
+        orphan_counts, deleted_entity_ids = await maintenance.delete_orphan_nodes(
+            driver=self._neo4j_driver,
+            database=self._neo4j_database,
+            batch_size=self._settings.retention.orphan_cleanup_batch_size,
+        )
+
+        # Step 5: Clean up zombie embeddings for deleted entities (Gap 9)
+        embedding_zombies_cleaned = 0
+        if self._embedding_store is not None and deleted_entity_ids:
+            for entity_id in deleted_entity_ids:
+                if await self._embedding_store.delete_embedding(entity_id):
+                    embedding_zombies_cleaned += 1
+            log.info("embedding_zombies_cleaned", count=embedding_zombies_cleaned)
+
         log.info(
             "forgetting_completed",
             deleted_edges=deleted_edges,
             deleted_cold_events=deleted_cold,
             deleted_archive_events=deleted_archive,
+            orphan_counts=orphan_counts,
+            embedding_zombies_cleaned=embedding_zombies_cleaned,
         )
 
     async def _trim_redis(self) -> None:
-        """Trim the Redis hot-tier stream and delete expired JSON docs."""
+        """Trim Redis hot-tier stream, archive + delete expired docs, clean up.
+
+        ADR-0014 hardening: archive-before-delete, dedup cleanup, session stream cleanup.
+        """
         redis_settings = self._settings.redis
 
+        # 1. Trim global stream (hot window)
         trimmed = await trim_stream(
             redis_client=self._redis,
             stream_key=redis_settings.global_stream,
             max_age_days=redis_settings.hot_window_days,
         )
 
-        deleted = await delete_expired_events(
+        # 2. Archive and delete expired JSON docs, or plain delete if no archive store
+        if self._archive_store is not None:
+            archived, deleted = await archive_and_delete_expired_events(
+                redis_client=self._redis,
+                key_prefix=redis_settings.event_key_prefix,
+                max_age_days=redis_settings.retention_ceiling_days,
+                archive_store=self._archive_store,
+            )
+        else:
+            archived = 0
+            deleted = await delete_expired_events(
+                redis_client=self._redis,
+                key_prefix=redis_settings.event_key_prefix,
+                max_age_days=redis_settings.retention_ceiling_days,
+            )
+
+        # 3. Clean up dedup sorted set (ADR-0014)
+        dedup_removed = await cleanup_dedup_set(
             redis_client=self._redis,
-            key_prefix=redis_settings.event_key_prefix,
-            max_age_days=redis_settings.retention_ceiling_days,
+            dedup_key=redis_settings.dedup_set,
+            retention_ceiling_days=redis_settings.retention_ceiling_days,
+        )
+
+        # 4. Clean up stale session streams (ADR-0014)
+        session_streams_deleted = await cleanup_session_streams(
+            redis_client=self._redis,
+            prefix="events:session:",
+            max_age_hours=redis_settings.session_stream_retention_hours,
         )
 
         log.info(
             "redis_trimmed",
             stream_entries_trimmed=trimmed,
+            events_archived=archived,
             expired_docs_deleted=deleted,
+            dedup_entries_removed=dedup_removed,
+            session_streams_deleted=session_streams_deleted,
         )
