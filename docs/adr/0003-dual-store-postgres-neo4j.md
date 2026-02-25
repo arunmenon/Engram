@@ -1,4 +1,4 @@
-# ADR-0003: Dual Store with Postgres Source of Truth and Neo4j Projection
+# ADR-0003: Dual Store with Postgres Source of Truth and Neo4j Projection [Updated: Redis replaced Postgres — see ADR-0010]
 
 Status: **Accepted — Amended 2026-02-11**
 Date: 2026-02-07
@@ -19,8 +19,10 @@ Non-goals for MVP:
 
 Use Postgres + Neo4j in a dual-store architecture.
 
-Postgres MUST be the source of truth for immutable context events.  
-Neo4j MUST hold a query-optimized projection built from Postgres events.  
+> **Note (2026-02):** Postgres was replaced by Redis Stack as the source of truth per ADR-0010. All references to "Postgres" below should be read as "Redis".
+
+Postgres MUST be the source of truth for immutable context events.
+Neo4j MUST hold a query-optimized projection built from Postgres events.
 The projection model MUST support replay/rebuild from Postgres.
 
 ## Consequences
@@ -47,7 +49,7 @@ Rejected because append-only ledger and replay semantics are better anchored in 
 **What changed:** Status promoted from Proposed to Accepted. The dual-store architecture is now validated by nine research papers (ADR-0007) as mapping to the Complementary Learning Systems model from cognitive neuroscience.
 
 **Role clarification:** ADR-0007 assigns specific cognitive roles to each store:
-- **Postgres** = episodic memory (hippocampus): rapid encoding, immutable detailed traces, temporal ordering
+- **Postgres** = episodic memory (hippocampus): rapid encoding, immutable detailed traces, temporal ordering [See ADR-0010 amendment for updated Redis mapping]
 - **Neo4j** = semantic memory (neocortex): consolidated relational knowledge, query-optimized, multi-hop traversal
 - **Projection worker** = systems consolidation: async replay writing structure from episodic to semantic store
 

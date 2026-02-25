@@ -53,7 +53,8 @@ SET n.name = $name,
     n.entity_type = $entity_type,
     n.first_seen = $first_seen,
     n.last_seen = $last_seen,
-    n.mention_count = $mention_count
+    n.mention_count = $mention_count,
+    n.embedding = $embedding
 """.strip()
 
 MERGE_SUMMARY_NODE = """
@@ -278,6 +279,24 @@ SET e.keywords = $keywords,
     e.importance_score = $importance_score
 """.strip()
 
+UPDATE_EVENT_EMBEDDING = """
+MATCH (e:Event {event_id: $event_id})
+SET e.embedding = $embedding
+""".strip()
+
+# ---------------------------------------------------------------------------
+# Neo4j vector index search (entity embeddings)
+# ---------------------------------------------------------------------------
+
+SEARCH_SIMILAR_ENTITIES = """
+CALL db.index.vector.queryNodes('entity_embedding_idx', $top_k, $query_embedding)
+YIELD node, score
+WHERE score >= $threshold
+RETURN node.entity_id AS entity_id, node.name AS name,
+       node.entity_type AS entity_type, score
+ORDER BY score DESC
+""".strip()
+
 GET_SESSION_EDGES = """
 MATCH (a:Event {session_id: $session_id})-[r]->(b:Event {session_id: $session_id})
 WHERE a.event_id IN $event_ids AND b.event_id IN $event_ids
@@ -288,6 +307,68 @@ RETURN a.event_id AS source, b.event_id AS target,
 GET_SUBGRAPH_SEED_EVENTS = """
 MATCH (e:Event {session_id: $session_id})
 RETURN e ORDER BY e.occurred_at DESC LIMIT $seed_limit
+""".strip()
+
+# ---------------------------------------------------------------------------
+# Intent-based seed selection strategies (Phase 1.2)
+# ---------------------------------------------------------------------------
+
+GET_SEED_CAUSAL_ROOTS = """
+MATCH (e:Event {session_id: $session_id})
+WHERE (e)<-[:CAUSED_BY]-()
+WITH e, size([(x)-[:CAUSED_BY]->(e) | x]) AS caused_count
+RETURN e ORDER BY caused_count DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_ENTITY_HUBS = """
+MATCH (e:Event {session_id: $session_id})-[:REFERENCES]->(ent:Entity)
+WITH e, count(ent) AS entity_count
+RETURN e ORDER BY entity_count DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_TEMPORAL_ANCHORS = """
+MATCH (e:Event {session_id: $session_id})
+WHERE e.importance_score IS NOT NULL
+RETURN e ORDER BY e.importance_score DESC, e.occurred_at ASC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_USER_PROFILE = """
+MATCH (e:Event {session_id: $session_id})-[:REFERENCES]->(ent:Entity)
+WHERE (ent)-[:HAS_PROFILE]->() OR (ent)-[:HAS_PREFERENCE]->()
+WITH e, count(ent) AS profile_links
+RETURN e ORDER BY profile_links DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_SIMILAR_CLUSTER = """
+MATCH (e:Event {session_id: $session_id})
+OPTIONAL MATCH (e)-[:SIMILAR_TO]-(other:Event)
+WITH e, count(other) AS sim_count
+RETURN e ORDER BY sim_count DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_WORKFLOW_PATTERN = """
+MATCH (e:Event {session_id: $session_id})
+WHERE e.event_type STARTS WITH 'tool.' OR e.event_type STARTS WITH 'workflow.'
+RETURN e ORDER BY e.occurred_at ASC
+LIMIT $seed_limit
+""".strip()
+
+# ---------------------------------------------------------------------------
+# Cross-session entity retrieval (Phase 1.3)
+# ---------------------------------------------------------------------------
+
+GET_ENTITY_CROSS_SESSION_EVENTS = """
+MATCH (e:Event {session_id: $session_id})-[:REFERENCES]->(ent:Entity)
+WITH DISTINCT ent
+MATCH (other:Event)-[:REFERENCES]->(ent)
+WHERE other.session_id <> $session_id
+RETURN other AS e ORDER BY other.occurred_at DESC
+LIMIT $limit
 """.strip()
 
 # ---------------------------------------------------------------------------

@@ -90,6 +90,7 @@ class StubGraphStore:
         session_id: str,
         max_nodes: int = 100,
         query: str | None = None,
+        max_depth: int = 3,
     ) -> AtlasResponse:
         from context_graph.domain.models import AtlasResponse
 

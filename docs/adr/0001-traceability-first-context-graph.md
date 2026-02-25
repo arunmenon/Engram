@@ -50,16 +50,16 @@ The MVP SHOULD:
 
 6. **Start with Postgres as the sole data store** for both event ledger and graph queries (using recursive CTEs or Apache AGE). Defer Neo4j to a later phase when graph query latency demonstrably exceeds Postgres capabilities. This cuts infrastructure from 3 components (Postgres + Neo4j + projector) to 1, reducing time-to-first-value from 8-12 weeks to 4-6 weeks
 7. **Accept OTel spans as the primary ingestion format** via an OTLP adapter, mapping GenAI semantic conventions to the internal event schema. This covers the widest framework surface (AutoGen, CrewAI, Semantic Kernel, LangChain) with a single adapter
-8. **Minimize required event fields** to lower producer friction. Required: `event_id`, `event_type`, `occurred_at`, `session_id`, `trace_id`. Optional but recommended: `agent_id`, `parent_event_id`, `tool_name`, `payload_ref`, `ended_at`, `status`, `schema_version`
+8. **Minimize required event fields** to lower producer friction. Required: `event_id`, `event_type`, `occurred_at`, `session_id`, `agent_id`, `trace_id`, `payload_ref`, `global_position` (auto-assigned). Optional: `parent_event_id`, `tool_name`, `ended_at`, `status`, `schema_version`, `importance_hint`
 9. **Enforce bounded queries** from day one — all graph/lineage queries MUST have `max_depth` (default 3), `max_nodes` (default 100), and `timeout_ms` (default 5000) limits
 
 ### Standards Alignment
 
 The system SHOULD:
 
-10. **Adopt W3C PROV-DM vocabulary** for graph edge types: `GENERATED_BY`, `USED`, `DERIVED_FROM`, `ATTRIBUTED_TO`, `INFORMED_BY` — rather than inventing ad-hoc relationship names
+10. [Superseded — see amendment below] **Adopt W3C PROV-DM vocabulary** for graph edge types: `GENERATED_BY`, `USED`, `DERIVED_FROM`, `ATTRIBUTED_TO`, `INFORMED_BY` — rather than inventing ad-hoc relationship names
 11. **Align event type namespace with OpenInference span kinds**: `agent.invoke`, `tool.execute`, `llm.generate`, `retriever.query`, `chain.run` — maintaining compatibility with the emerging OTel GenAI conventions
-12. **Use `global_position` (BIGSERIAL)** for total event ordering, following EventStoreDB's `$all` stream pattern, enabling deterministic projection replay
+12. [Superseded by ADR-0010 — now Redis Stream entry ID] **Use `global_position` (BIGSERIAL)** for total event ordering, following EventStoreDB's `$all` stream pattern, enabling deterministic projection replay
 
 ### Phased Store Evolution
 
@@ -148,3 +148,13 @@ This decision is informed by four research reports:
 - **Core Commitments (items 1-5)**: Unchanged. Append-only events, causal lineage, provenance pointers, deterministic replay, and Forgettable Payloads are all preserved with Redis implementations.
 - **Complexity Constraint item 6**: Superseded. The event store is now Redis-only instead of Postgres.
 - **Phased Store Evolution**: Updated. Phase 1 is Redis + Neo4j. Phase 2 adds enrichment pipeline. Phase 3 adds Redis Cluster for horizontal scaling.
+
+### 2026-02-25: Deferred Features
+
+**Forgettable Payloads (item 5)**: The Forgettable Payloads pattern for PII separation
+is deferred. GDPR compliance is currently handled via Neo4j cascade deletion
+(`adapters/neo4j/user_queries.py`) which anonymizes Entity nodes and removes all
+associated UserProfile, Preference, Skill, and BehavioralPattern nodes.
+
+**OTLP Adapter (item 7)**: OTel span ingestion via OTLP adapter is deferred. Events
+are ingested via REST API at `POST /v1/events` and `POST /v1/events/batch`.

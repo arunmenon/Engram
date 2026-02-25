@@ -48,7 +48,7 @@ The event store uses three Redis data structures in concert:
 
 1. **Redis Streams** — append-only event log providing total ordering and consumer group delivery
 2. **RedisJSON documents** — structured event records enabling rich secondary queries
-3. **RediSearch indexes** — secondary indexes on session_id, agent_id, trace_id, event_type, and time ranges
+3. **RediSearch indexes** — secondary indexes on session_id, agent_id, trace_id, event_type, tool_name (TagField), importance_hint (NumericField), and time ranges
 
 Events are written atomically to all three structures via a Lua script that also performs deduplication.
 
@@ -56,18 +56,20 @@ Events are written atomically to all three structures via a Lua script that also
 
 **Global stream** (`events:__global__`): Receives every event. Provides total ordering (equivalent to `global_position`). Consumer groups for the projection worker read from this stream.
 
-**Per-session streams** (`events:{session_id}`): One stream per session for efficient session-scoped reads without scanning the global stream.
+**Per-session streams** (`events:session:{session_id}`): One stream per session for efficient session-scoped reads without scanning the global stream.
 
 **JSON documents** (`evt:{event_id}`): One document per event, indexed by RediSearch for field-based queries.
 
-**Dedup set** (`dedup:events`): Sorted set of event_id values with TTL-based cleanup, enabling idempotent ingestion.
+**Dedup set** (`dedup:events`): Sorted set of event_id values (scored by ingestion timestamp) with `ZREMRANGEBYSCORE`-based cleanup of entries older than the retention window, enabling idempotent ingestion.
 
 ### Idempotent Ingestion
 
 Ingestion MUST be idempotent. A Lua script atomically:
-1. Checks the dedup sorted set for the `event_id`
-2. If absent, writes to the global stream, session stream, and JSON document in a single atomic operation
-3. Returns the auto-assigned stream entry ID (the new `global_position`)
+1. Checks the dedup sorted set via `ZSCORE` for the `event_id`
+2. If absent, `XADD` to the global stream (`events:__global__`) with optional `MAXLEN` cap
+3. `XADD` to the per-session stream (`events:session:{session_id}`)
+4. `JSON.SET` the full event document (`evt:{event_id}`), then path-set `$.global_position` with the stream entry ID; `ZADD` the event_id to the dedup sorted set scored by ingestion timestamp
+5. Returns the auto-assigned stream entry ID (the new `global_position`)
 
 Duplicates are rejected without side effects, providing semantics equivalent to Postgres `ON CONFLICT (event_id) DO NOTHING`.
 
@@ -86,7 +88,7 @@ The `provenance.global_position` field in API responses (ADR-0006 Atlas pattern)
 
 The projection worker (ADR-0005) MUST use Redis consumer groups instead of Postgres polling:
 
-- `XREADGROUP GROUP projection worker-1 BLOCK 5000 STREAMS events:__global__ >` for push-based delivery
+- `XREADGROUP GROUP graph-projection projection-1 BLOCK 5000 STREAMS events:__global__ >` for push-based delivery
 - `XACK` after successful Neo4j projection
 - Pending Entry List provides automatic crash recovery
 - No application-level cursor table required (consumer group tracks position)
@@ -99,7 +101,7 @@ The RediSearch index on JSON documents supports all query patterns currently ser
 
 | Query | Implementation |
 |-------|---------------|
-| Events by session | `FT.SEARCH idx:events "@session_id:{sess-abc}"` or `XRANGE events:sess-abc - +` |
+| Events by session | `FT.SEARCH idx:events "@session_id:{sess-abc}"` or `XRANGE events:session:sess-abc - +` |
 | Events by agent | `FT.SEARCH idx:events "@agent_id:{agent-1}"` |
 | Events by trace | `FT.SEARCH idx:events "@trace_id:{trace-xyz}"` |
 | Time range | `FT.SEARCH idx:events "@occurred_at_epoch_ms:[start end]"` or `XRANGE events:__global__ start end` |

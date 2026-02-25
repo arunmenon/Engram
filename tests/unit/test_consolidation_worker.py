@@ -358,11 +358,15 @@ class TestConcurrencyGuard:
         mock_guarded.assert_not_called()
 
 
-# ── TestOrphanAndEmbeddingCleanup ──────────────────────────────────────
+# ── TestOrphanCleanup ─────────────────────────────────────────────────
 
 
-class TestOrphanAndEmbeddingCleanup:
-    """Tests for ADR-0014 Amendment orphan + embedding cleanup wiring."""
+class TestOrphanCleanup:
+    """Tests for ADR-0014 Amendment orphan cleanup wiring.
+
+    Embedding zombie cleanup is no longer needed — Neo4j DETACH DELETE
+    auto-removes embedding properties when the node is deleted.
+    """
 
     @pytest.mark.asyncio()
     async def test_forgetting_calls_orphan_cleanup(self, consumer, mock_settings):
@@ -412,104 +416,8 @@ class TestOrphanAndEmbeddingCleanup:
         )
 
     @pytest.mark.asyncio()
-    async def test_embedding_cleanup_called_with_deleted_ids(
-        self, mock_redis, mock_neo4j, mock_settings
-    ):
-        """delete_embedding should be called for each deleted entity ID."""
-        embedding_store = AsyncMock()
-        embedding_store.delete_embedding = AsyncMock(return_value=True)
-
-        consumer_with_emb = ConsolidationConsumer(
-            redis_client=mock_redis,
-            neo4j_driver=mock_neo4j,
-            settings=mock_settings,
-            embedding_store=embedding_store,
-        )
-
-        with (
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_session_event_counts",
-                new_callable=AsyncMock,
-                return_value={},
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_edges_by_type_and_age",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_cold_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_archive_event_ids",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_orphan_nodes",
-                new_callable=AsyncMock,
-                return_value=({"Entity": 3}, ["ent-a", "ent-b", "ent-c"]),
-            ),
-        ):
-            await consumer_with_emb._run_forgetting()
-
-        assert embedding_store.delete_embedding.call_count == 3
-        embedding_store.delete_embedding.assert_any_call("ent-a")
-        embedding_store.delete_embedding.assert_any_call("ent-b")
-        embedding_store.delete_embedding.assert_any_call("ent-c")
-
-    @pytest.mark.asyncio()
-    async def test_embedding_cleanup_skipped_when_no_store(self, consumer, mock_settings):
-        """No error when embedding_store is None."""
-        assert consumer._embedding_store is None
-
-        with (
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_session_event_counts",
-                new_callable=AsyncMock,
-                return_value={},
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_edges_by_type_and_age",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_cold_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_archive_event_ids",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_orphan_nodes",
-                new_callable=AsyncMock,
-                return_value=({"Entity": 1}, ["ent-x"]),
-            ),
-        ):
-            # Should not raise even though embedding_store is None
-            await consumer._run_forgetting()
-
-    @pytest.mark.asyncio()
-    async def test_embedding_cleanup_skipped_when_no_ids(
-        self, mock_redis, mock_neo4j, mock_settings
-    ):
-        """delete_embedding not called when no entity IDs were deleted."""
-        embedding_store = AsyncMock()
-        embedding_store.delete_embedding = AsyncMock(return_value=True)
-
-        consumer_with_emb = ConsolidationConsumer(
-            redis_client=mock_redis,
-            neo4j_driver=mock_neo4j,
-            settings=mock_settings,
-            embedding_store=embedding_store,
-        )
-
+    async def test_forgetting_no_error_with_empty_orphans(self, consumer, mock_settings):
+        """No error when no orphan entities are deleted."""
         with (
             patch(
                 "context_graph.worker.consolidation.maintenance.get_session_event_counts",
@@ -537,6 +445,4 @@ class TestOrphanAndEmbeddingCleanup:
                 return_value=({"Entity": 0}, []),
             ),
         ):
-            await consumer_with_emb._run_forgetting()
-
-        embedding_store.delete_embedding.assert_not_called()
+            await consumer._run_forgetting()

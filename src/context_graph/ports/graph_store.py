@@ -62,6 +62,7 @@ class GraphStore(Protocol):
         session_id: str,
         max_nodes: int = 100,
         query: str | None = None,
+        max_depth: int = 3,
     ) -> AtlasResponse:
         """Assemble working memory context for a session.
 

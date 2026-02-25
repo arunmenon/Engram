@@ -44,7 +44,23 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     event_store = await RedisEventStore.create(settings.redis)
     await event_store.ensure_indexes()
 
-    graph_store = Neo4jGraphStore(settings.neo4j)
+    # Optional: embedding service for query-time relevance scoring
+    embedding_service = None
+    try:
+        from context_graph.adapters.embedding.service import SentenceTransformerEmbedder
+
+        embedding_service = SentenceTransformerEmbedder(
+            model_name=settings.embedding.model_name,
+            device=settings.embedding.device,
+        )
+        logger.info(
+            "embedding_service_initialized",
+            model=settings.embedding.model_name,
+        )
+    except ImportError:
+        logger.info("embedding_service_unavailable", hint="relevance_score will default to 0.5")
+
+    graph_store = Neo4jGraphStore(settings.neo4j, embedding_service=embedding_service)
     await graph_store.ensure_constraints()
 
     app.state.settings = settings

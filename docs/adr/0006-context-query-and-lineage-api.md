@@ -63,7 +63,7 @@ Rejected because it defers user-visible value and validation of graph usefulness
 - Reconsolidation side-effects (incrementing `access_count`, updating `last_accessed_at`) SHOULD be performed asynchronously to preserve GET semantics
 
 **`POST /v1/query/subgraph`** (moderate):
-- New request body field: `intent` (enum: `why`, `when`, `what`, `related`, `general`; default `general`) per ADR-0009
+- New request body field: `intent` (enum: `why`, `when`, `what`, `related`, `general`; default `general`) per ADR-0009 (Extended to 8 intents in ADR-0009/ADR-0012: adds `who_is`, `how_does`, `personalize`)
 - Intent parameter determines edge-type weighting during traversal (see ADR-0009 intent weight matrix)
 
 **`GET /v1/nodes/{node_id}/lineage`** (moderate):
@@ -103,8 +103,9 @@ All additions are backward-compatible (new optional fields):
 }
 ```
 
-Known edge types: `FOLLOWS` (temporal), `CAUSED_BY` (causal), `SIMILAR_TO` (semantic), `REFERENCES` (entity), `SUMMARIZES` (hierarchical).
+Known edge types: `FOLLOWS` (temporal), `CAUSED_BY` (causal), `SIMILAR_TO` (semantic), `REFERENCES` (entity), `SUMMARIZES` (hierarchical). (Extended to 16 edge types -- see ADR-0011, ADR-0012 for complete list)
 
+<!-- Superseded: see amendment below for inferred_intents dict format -->
 **Expanded `meta` field**:
 ```json
 {

@@ -215,6 +215,8 @@ CREATE EDGE TYPE DERIVED_FROM (
   | FROM Skill TO Event
   | FROM Workflow TO Event
 
+> Implementation note: In code, these are stored as `method` and `extracted_at` respectively (see `adapters/neo4j/user_queries.py`).
+
 CREATE EDGE TYPE EXHIBITS_PATTERN ()
   FROM Entity TO BehavioralPattern
   -- Constraint: Entity.entity_type = "user"
@@ -670,6 +672,8 @@ CREATE CONSTRAINT behavioralpattern_id_not_null FOR (b:BehavioralPattern) REQUIR
 CREATE CONSTRAINT behavioralpattern_type_not_null FOR (b:BehavioralPattern) REQUIRE b.pattern_type IS NOT NULL;
 CREATE CONSTRAINT behavioralpattern_confidence_not_null FOR (b:BehavioralPattern) REQUIRE b.confidence IS NOT NULL;
 ```
+
+> Note: Uniqueness constraints for UserProfile, Preference, Skill, Workflow, and BehavioralPattern are defined in `docker/neo4j/constraints.cypher`.
 
 **Projection worker validation** (application-level, not enforceable by Neo4j):
 

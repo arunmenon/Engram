@@ -17,7 +17,7 @@ import structlog
 from neo4j import AsyncGraphDatabase
 
 from context_graph.adapters.neo4j import queries
-from context_graph.domain.intent import classify_intent, get_edge_weights
+from context_graph.domain.intent import classify_intent, get_edge_weights, select_seed_strategy
 from context_graph.domain.lineage import validate_traversal_bounds
 from context_graph.domain.models import (
     AtlasEdge,
@@ -30,7 +30,7 @@ from context_graph.domain.models import (
     QueryCapacity,
     QueryMeta,
 )
-from context_graph.domain.scoring import score_node
+from context_graph.domain.scoring import score_entity_node, score_node
 from context_graph.settings import INTENT_WEIGHTS
 
 if TYPE_CHECKING:
@@ -44,6 +44,7 @@ if TYPE_CHECKING:
         SubgraphQuery,
         SummaryNode,
     )
+    from context_graph.ports.embedding import EmbeddingService
     from context_graph.settings import Neo4jSettings
 
 logger = structlog.get_logger(__name__)
@@ -74,6 +75,17 @@ _BATCH_EDGE_QUERIES: dict[str, str] = {
     EdgeType.CAUSED_BY: queries.BATCH_MERGE_CAUSED_BY,
 }
 
+# Map seed strategy name -> Cypher seed query
+_SEED_STRATEGY_QUERIES: dict[str, str] = {
+    "causal_roots": queries.GET_SEED_CAUSAL_ROOTS,
+    "entity_hubs": queries.GET_SEED_ENTITY_HUBS,
+    "temporal_anchors": queries.GET_SEED_TEMPORAL_ANCHORS,
+    "user_profile": queries.GET_SEED_USER_PROFILE,
+    "similar_cluster": queries.GET_SEED_SIMILAR_CLUSTER,
+    "workflow_pattern": queries.GET_SEED_WORKFLOW_PATTERN,
+    "general": queries.GET_SUBGRAPH_SEED_EVENTS,
+}
+
 
 class Neo4jGraphStore:
     """Neo4j implementation of the GraphStore protocol.
@@ -84,7 +96,11 @@ class Neo4jGraphStore:
     Phase 3+ methods raise NotImplementedError.
     """
 
-    def __init__(self, settings: Neo4jSettings) -> None:
+    def __init__(
+        self,
+        settings: Neo4jSettings,
+        embedding_service: EmbeddingService | None = None,
+    ) -> None:
         self._settings = settings
         self._driver: AsyncDriver = AsyncGraphDatabase.driver(
             settings.uri,
@@ -92,6 +108,7 @@ class Neo4jGraphStore:
             max_connection_pool_size=settings.max_connection_pool_size,
         )
         self._database = settings.database
+        self._embedding_service = embedding_service
 
     # ------------------------------------------------------------------
     # Node operations
@@ -129,6 +146,7 @@ class Neo4jGraphStore:
             "first_seen": node.first_seen.isoformat(),
             "last_seen": node.last_seen.isoformat(),
             "mention_count": node.mention_count,
+            "embedding": node.embedding,
         }
         async with self._driver.session(database=self._database) as session:
             await session.execute_write(lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params))
@@ -228,12 +246,56 @@ class Neo4jGraphStore:
     # Schema management
     # ------------------------------------------------------------------
 
+    async def search_similar_entities(
+        self,
+        query_embedding: list[float],
+        top_k: int = 10,
+        threshold: float = 0.75,
+    ) -> list[dict[str, Any]]:
+        """Search for similar entities using the Neo4j vector index.
+
+        Returns a list of dicts with entity_id, name, entity_type, score.
+        Score is cosine similarity in [0, 1].
+        """
+        params = {
+            "query_embedding": query_embedding,
+            "top_k": top_k,
+            "threshold": threshold,
+        }
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(queries.SEARCH_SIMILAR_ENTITIES, params)
+            records = [record async for record in result]
+        return [
+            {
+                "entity_id": r["entity_id"],
+                "name": r["name"],
+                "entity_type": r["entity_type"],
+                "score": r["score"],
+            }
+            for r in records
+        ]
+
     async def ensure_constraints(self) -> None:
         """Create uniqueness constraints if they do not exist."""
         async with self._driver.session(database=self._database) as session:
             for constraint_query in queries.ALL_CONSTRAINTS:
                 await session.run(constraint_query)
+        await self.ensure_vector_indexes()
         logger.info("ensured_constraints", count=len(queries.ALL_CONSTRAINTS))
+
+    async def ensure_vector_indexes(self) -> None:
+        """Create vector indexes for embedding search if they do not exist."""
+        vector_index_query = (
+            "CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS "
+            "FOR (n:Entity) ON (n.embedding) "
+            "OPTIONS {indexConfig: {"
+            "`vector.dimensions`: 384, "
+            "`vector.similarity_function`: 'cosine'"
+            "}}"
+        )
+        async with self._driver.session(database=self._database) as session:
+            await session.run(vector_index_query)
+        logger.info("ensured_vector_indexes")
 
     # ------------------------------------------------------------------
     # Phase 3: Query methods
@@ -285,6 +347,16 @@ class Neo4jGraphStore:
             retrieval_reason=retrieval_reason,
         )
 
+    async def _embed_query(self, query_text: str | None) -> list[float] | None:
+        """Embed query text if embedding service is available."""
+        if self._embedding_service is None or not query_text:
+            return None
+        try:
+            return await self._embedding_service.embed_text(query_text)
+        except Exception:
+            logger.warning("query_embedding_failed", query=query_text[:50])
+            return None
+
     async def _bump_access_counts(self, event_ids: list[str]) -> None:
         """Increment access_count for a batch of event nodes."""
         if not event_ids:
@@ -303,9 +375,13 @@ class Neo4jGraphStore:
         session_id: str,
         max_nodes: int = 100,
         query: str | None = None,
+        max_depth: int = 3,
     ) -> AtlasResponse:
         """Assemble working memory context for a session."""
         start_ms = time.monotonic_ns()
+
+        # Embed query text for relevance scoring
+        query_embedding = await self._embed_query(query)
 
         async with self._driver.session(database=self._database) as session:
             result = await session.run(
@@ -320,7 +396,7 @@ class Neo4jGraphStore:
         for record in records:
             props = dict(record["e"])
             event_id = props.get("event_id", "")
-            scores = score_node(props)
+            scores = score_node(props, query_embedding=query_embedding)
             scored_entries.append((event_id, props, scores))
 
         # Sort by composite decay_score descending, take top max_nodes
@@ -362,7 +438,7 @@ class Neo4jGraphStore:
             capacity=QueryCapacity(
                 max_nodes=max_nodes,
                 used_nodes=len(nodes),
-                max_depth=1,
+                max_depth=max_depth,
             ),
         )
 
@@ -373,9 +449,14 @@ class Neo4jGraphStore:
             meta=meta,
         )
 
-    async def get_lineage(self, query: LineageQuery) -> AtlasResponse:
+    async def get_lineage(
+        self, query: LineageQuery, query_text: str | None = None
+    ) -> AtlasResponse:
         """Traverse lineage (CAUSED_BY chains) from a node."""
         start_ms = time.monotonic_ns()
+
+        # Embed query text for relevance scoring
+        query_embedding = await self._embed_query(query_text)
 
         clamped_depth, clamped_nodes, _timeout = validate_traversal_bounds(
             max_depth=query.max_depth,
@@ -406,7 +487,7 @@ class Neo4jGraphStore:
                 props = dict(neo_node)
                 event_id = props.get("event_id", "")
                 if event_id and event_id not in nodes:
-                    scores = score_node(props)
+                    scores = score_node(props, query_embedding=query_embedding)
                     nodes[event_id] = self._build_atlas_node(props, scores)
 
             for rel in chain_rels:
@@ -450,6 +531,9 @@ class Neo4jGraphStore:
         """Execute an intent-aware subgraph query."""
         start_ms = time.monotonic_ns()
 
+        # Embed query text for relevance scoring
+        query_embedding = await self._embed_query(query.query)
+
         # Classify intent from the query text
         inferred_intents = classify_intent(query.query)
 
@@ -460,13 +544,27 @@ class Neo4jGraphStore:
         # Get edge weights based on intents
         edge_weights = get_edge_weights(inferred_intents, INTENT_WEIGHTS)
 
-        # Get seed events from the session
+        # Select seed strategy based on dominant intent
+        seed_strategy = select_seed_strategy(inferred_intents)
+        seed_query = _SEED_STRATEGY_QUERIES.get(seed_strategy, queries.GET_SUBGRAPH_SEED_EVENTS)
+        seed_limit = min(10, query.max_nodes)
+
+        # Get seed events using the strategy-specific query
         async with self._driver.session(database=self._database) as session:
             seed_result = await session.run(
-                queries.GET_SUBGRAPH_SEED_EVENTS,
-                {"session_id": query.session_id, "seed_limit": min(10, query.max_nodes)},
+                seed_query,
+                {"session_id": query.session_id, "seed_limit": seed_limit},
             )
             seed_records = [record async for record in seed_result]
+
+        # Fallback to general (recency) if strategy-specific query returned nothing
+        if not seed_records and seed_strategy != "general":
+            async with self._driver.session(database=self._database) as session:
+                seed_result = await session.run(
+                    queries.GET_SUBGRAPH_SEED_EVENTS,
+                    {"session_id": query.session_id, "seed_limit": seed_limit},
+                )
+                seed_records = [record async for record in seed_result]
 
         nodes: dict[str, AtlasNode] = {}
         edges: list[AtlasEdge] = []
@@ -479,7 +577,7 @@ class Neo4jGraphStore:
             event_id = props.get("event_id", "")
             if event_id:
                 seed_node_ids.append(event_id)
-                scores = score_node(props)
+                scores = score_node(props, query_embedding=query_embedding)
                 nodes[event_id] = self._build_atlas_node(props, scores)
 
         # Override with user-provided seed_nodes if specified
@@ -496,8 +594,31 @@ class Neo4jGraphStore:
                         seed_record = await result.single()
                     if seed_record is not None:
                         props = dict(seed_record["e"])
-                        scores = score_node(props)
+                        scores = score_node(props, query_embedding=query_embedding)
                         nodes[seed_id] = self._build_atlas_node(props, scores)
+
+        # Cross-session entity expansion for relevant intents
+        _cross_session_intents = {"who_is", "personalize", "related"}
+        dominant_intent = max(inferred_intents, key=lambda k: inferred_intents[k])
+        if dominant_intent in _cross_session_intents:
+            cross_limit = max(1, query.max_nodes // 5)  # budget: 20% of max_nodes
+            async with self._driver.session(database=self._database) as session:
+                cross_result = await session.run(
+                    queries.GET_ENTITY_CROSS_SESSION_EVENTS,
+                    {
+                        "session_id": query.session_id,
+                        "limit": cross_limit,
+                    },
+                )
+                cross_records = [record async for record in cross_result]
+            for record in cross_records:
+                props = dict(record["e"])
+                event_id = props.get("event_id", "")
+                if event_id and event_id not in nodes:
+                    scores = score_node(props, query_embedding=query_embedding)
+                    atlas_node = self._build_atlas_node(props, scores, retrieval_reason="proactive")
+                    atlas_node.proactive_signal = "cross_session"
+                    nodes[event_id] = atlas_node
 
         # For each seed, traverse neighbors
         async with self._driver.session(database=self._database) as session:
@@ -524,7 +645,7 @@ class Neo4jGraphStore:
 
                     if neighbor_eid and neighbor_eid not in nodes:
                         neighbor_props = nrec.get("neighbor_props", {}) or {}
-                        nscores = score_node(neighbor_props)
+                        nscores = score_node(neighbor_props, query_embedding=query_embedding)
                         # Boost the decay score by edge weight relevance
                         boosted_score = min(
                             1.0,
@@ -549,6 +670,31 @@ class Neo4jGraphStore:
                         )
                         atlas_node.proactive_signal = proactive_signal
                         nodes[neighbor_eid] = atlas_node
+
+                    elif neighbor_entity_id and neighbor_entity_id not in nodes:
+                        neighbor_props = nrec.get("neighbor_props", {}) or {}
+                        nscores = score_entity_node(neighbor_props, query_embedding=query_embedding)
+                        boosted_score = min(
+                            1.0,
+                            nscores.decay_score * (1.0 + weight * 0.1),
+                        )
+                        boosted_scores = NodeScores(
+                            decay_score=round(boosted_score, 6),
+                            relevance_score=nscores.relevance_score,
+                            importance_score=nscores.importance_score,
+                        )
+                        neighbor_labels = nrec.get("neighbor_labels", []) or []
+                        node_type = neighbor_labels[0] if neighbor_labels else "Entity"
+                        nodes[neighbor_entity_id] = AtlasNode(
+                            node_id=neighbor_entity_id,
+                            node_type=node_type,
+                            attributes={
+                                k: v for k, v in neighbor_props.items() if k != "embedding"
+                            },
+                            scores=boosted_scores,
+                            retrieval_reason="proactive",
+                            proactive_signal="entity_context",
+                        )
 
                     edge_key = (seed_eid, neighbor_id, rel_type)
                     if edge_key not in seen_edges:
@@ -588,6 +734,7 @@ class Neo4jGraphStore:
             inferred_intents=inferred_intents,
             intent_override=str(query.intent) if query.intent is not None else None,
             seed_nodes=seed_node_ids,
+            seed_strategy=seed_strategy,
             proactive_nodes_count=proactive_count,
             capacity=QueryCapacity(
                 max_nodes=query.max_nodes,

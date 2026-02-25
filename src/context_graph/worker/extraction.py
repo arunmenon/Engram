@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from redis.asyncio import Redis
 
     from context_graph.adapters.llm.client import LLMExtractionClient
-    from context_graph.adapters.redis.embedding_store import EntityEmbeddingStore, SemanticMatch
+    from context_graph.adapters.neo4j.store import Neo4jGraphStore
     from context_graph.ports.embedding import EmbeddingService
     from context_graph.settings import Settings
 
@@ -54,7 +54,7 @@ class ExtractionConsumer(BaseConsumer):
         llm_client: LLMExtractionClient,
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
-        embedding_store: EntityEmbeddingStore | None = None,
+        graph_store: Neo4jGraphStore | None = None,
     ) -> None:
         super().__init__(
             redis_client=redis_client,
@@ -71,7 +71,7 @@ class ExtractionConsumer(BaseConsumer):
         self._session_turn_counts: dict[str, int] = {}
         self._mid_session_interval: int = getattr(settings, "mid_session_extraction_interval", 50)
         self._embedding_service = embedding_service
-        self._embedding_store = embedding_store
+        self._graph_store = graph_store
 
     async def _fetch_event_doc(self, event_id: str) -> dict[str, Any] | None:
         """Fetch the full event JSON document from Redis."""
@@ -339,11 +339,13 @@ class ExtractionConsumer(BaseConsumer):
             ):
                 # Create new entity and link via SAME_AS or RELATED_TO
                 entity_id = f"entity:{entity_name}"
+                embedding = await self._compute_entity_embedding(entity_name)
                 await self._merge_entity_node(
                     entity_id=entity_id,
                     name=entity_name,
                     entity_type=entity_type,
                     now=now,
+                    embedding=embedding,
                 )
                 canonical_id = f"entity:{resolution.canonical_name}"
                 await self._merge_resolution_edge(
@@ -362,14 +364,14 @@ class ExtractionConsumer(BaseConsumer):
             else:
                 # CREATE — brand new entity
                 entity_id = f"entity:{entity_name}"
+                embedding = await self._compute_entity_embedding(entity_name)
                 await self._merge_entity_node(
                     entity_id=entity_id,
                     name=entity_name,
                     entity_type=entity_type,
                     now=now,
+                    embedding=embedding,
                 )
-                # Store embedding for future semantic lookups
-                await self._store_entity_embedding(entity_id, entity_name, entity_type)
                 # Add to existing entities for subsequent dedup in this batch
                 existing_entities.append(
                     {"entity_id": entity_id, "name": entity_name, "entity_type": entity_type}
@@ -449,22 +451,22 @@ class ExtractionConsumer(BaseConsumer):
         self,
         entity_name: str,
         entity_type: str,
-    ) -> tuple[Any | None, list[SemanticMatch]]:
-        """Tier 2b: Embed entity name and search for semantic matches.
+    ) -> tuple[Any | None, list[dict[str, Any]]]:
+        """Tier 2b: Embed entity name and search for semantic matches via Neo4j.
 
         Returns (resolution_result, raw_matches) where raw_matches can be
         used for logging / diagnostics.  Returns (None, []) if embedding
-        service is not configured or no match exceeds the threshold.
+        service or graph store is not configured or no match exceeds the threshold.
         """
-        if self._embedding_service is None or self._embedding_store is None:
+        if self._embedding_service is None or self._graph_store is None:
             return None, []
 
         embedding_settings = self._settings.embedding
         query_vec = await self._embedding_service.embed_text(entity_name)
-        raw_matches = await self._embedding_store.search_similar(
+        raw_matches = await self._graph_store.search_similar_entities(
             query_embedding=query_vec,
-            k=embedding_settings.knn_k,
-            entity_type_filter=None,
+            top_k=embedding_settings.knn_k,
+            threshold=embedding_settings.related_to_threshold,
         )
 
         if not raw_matches:
@@ -472,10 +474,10 @@ class ExtractionConsumer(BaseConsumer):
 
         candidates = [
             SemanticCandidate(
-                name=m.name,
-                entity_type=m.entity_type,
-                entity_id=m.entity_id,
-                similarity=m.similarity,
+                name=m["name"],
+                entity_type=m["entity_type"],
+                entity_id=m["entity_id"],
+                similarity=m["score"],
             )
             for m in raw_matches
         ]
@@ -489,23 +491,18 @@ class ExtractionConsumer(BaseConsumer):
         )
         return resolution, raw_matches
 
-    async def _store_entity_embedding(
+    async def _compute_entity_embedding(
         self,
-        entity_id: str,
         entity_name: str,
-        entity_type: str,
-    ) -> None:
-        """Store a new entity's embedding for future semantic lookups."""
-        if self._embedding_service is None or self._embedding_store is None:
-            return
-        embedding = await self._embedding_service.embed_text(entity_name)
-        await self._embedding_store.store_embedding(
-            entity_id=entity_id,
-            name=entity_name,
-            entity_type=entity_type,
-            embedding=embedding,
-        )
-        log.debug("entity_embedding_stored", entity_id=entity_id, name=entity_name)
+    ) -> list[float]:
+        """Compute embedding for an entity name. Returns empty list on failure."""
+        if self._embedding_service is None:
+            return []
+        try:
+            return await self._embedding_service.embed_text(entity_name)
+        except Exception:
+            log.warning("entity_embedding_failed", name=entity_name)
+            return []
 
     async def _merge_entity_node(
         self,
@@ -513,8 +510,9 @@ class ExtractionConsumer(BaseConsumer):
         name: str,
         entity_type: str,
         now: str,
+        embedding: list[float] | None = None,
     ) -> None:
-        """MERGE an Entity node in Neo4j."""
+        """MERGE an Entity node in Neo4j with optional embedding."""
         from context_graph.adapters.neo4j.queries import MERGE_ENTITY_NODE
 
         params = {
@@ -524,6 +522,7 @@ class ExtractionConsumer(BaseConsumer):
             "first_seen": now,
             "last_seen": now,
             "mention_count": 1,
+            "embedding": embedding or [],
         }
         async with self._neo4j_driver.session(database=self._neo4j_database) as session:
 

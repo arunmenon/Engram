@@ -547,23 +547,31 @@ class LLMExtractionClient:
 
                 # Per-item validation with enum coercion (GAP 8 + GAP 9)
                 entities = _parse_items_individually(
-                    parsed.get("entities", []), ExtractedEntity,
-                    label="entity", session_id=session_id,
+                    parsed.get("entities", []),
+                    ExtractedEntity,
+                    label="entity",
+                    session_id=session_id,
                 )
                 preferences = _parse_items_individually(
-                    parsed.get("preferences", []), ExtractedPreference,
+                    parsed.get("preferences", []),
+                    ExtractedPreference,
                     coerce_fn=_coerce_preference,
-                    label="preference", session_id=session_id,
+                    label="preference",
+                    session_id=session_id,
                 )
                 skills = _parse_items_individually(
-                    parsed.get("skills", []), ExtractedSkill,
+                    parsed.get("skills", []),
+                    ExtractedSkill,
                     coerce_fn=_coerce_skill,
-                    label="skill", session_id=session_id,
+                    label="skill",
+                    session_id=session_id,
                 )
                 interests = _parse_items_individually(
-                    parsed.get("interests", []), ExtractedInterest,
+                    parsed.get("interests", []),
+                    ExtractedInterest,
                     coerce_fn=_coerce_interest,
-                    label="interest", session_id=session_id,
+                    label="interest",
+                    session_id=session_id,
                 )
 
                 raw_result = SessionExtractionResult(

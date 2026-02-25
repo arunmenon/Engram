@@ -489,12 +489,12 @@ async def delete_orphan_nodes(
     Processes 5 orphan-eligible labels: Entity, Preference, Skill, Workflow,
     BehavioralPattern. UserProfile and Summary are exempt (ADR-0014 Amendment).
 
-    For Entity nodes, entity_ids are collected before deletion so callers
-    can clean up associated embeddings (Gap 9).
+    Entity embeddings are stored as Neo4j node properties and are automatically
+    removed when nodes are deleted via DETACH DELETE.
 
     Returns a tuple of:
       - dict mapping label -> total deleted count
-      - list of deleted entity IDs (for embedding cleanup)
+      - list of deleted entity IDs (for caller logging/auditing)
     """
     counts: dict[str, int] = {}
     deleted_entity_ids: list[str] = []
@@ -514,7 +514,7 @@ async def delete_orphan_nodes(
             "orphan_nodes_deleted",
             counts=counts,
             total=total,
-            entity_ids_for_embedding_cleanup=len(deleted_entity_ids),
+            deleted_entity_ids_count=len(deleted_entity_ids),
         )
     else:
         log.debug("no_orphan_nodes_found")

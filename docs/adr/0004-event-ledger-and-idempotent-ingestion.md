@@ -63,13 +63,13 @@ Required fields:
 - `agent_id` (STRING)
 - `trace_id` (STRING)
 - `payload_ref` (STRING)
-- `global_position` (BIGSERIAL, auto-assigned — total ordering for deterministic replay per ADR-0001)
+- `global_position` (BIGSERIAL, auto-assigned — total ordering for deterministic replay per ADR-0001) [Superseded by ADR-0010 — now Redis Stream entry ID (string)]
 
 Optional fields:
 - `tool_name` (STRING)
 - `parent_event_id` (UUID FK — enables CAUSED_BY edges per ADR-0009)
 - `ended_at` (TIMESTAMPTZ — for span-style events with duration)
-- `status` (STRING — event outcome: success, failure, timeout, etc.)
+- `status` (STRING — EventStatus enum: `pending`, `running`, `completed`, `failed`, `timeout`)
 - `schema_version` (INTEGER — enables upcasting middleware for schema evolution)
 - `importance_hint` (SMALLINT, 1-10, DEFAULT NULL — caller-supplied importance estimate per ADR-0007)
 

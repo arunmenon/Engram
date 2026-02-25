@@ -62,7 +62,6 @@ class ConsolidationConsumer(BaseConsumer):
         neo4j_driver: AsyncDriver,
         settings: Settings,
         archive_store: Any = None,
-        embedding_store: Any = None,
     ) -> None:
         super().__init__(
             redis_client=redis_client,
@@ -76,7 +75,6 @@ class ConsolidationConsumer(BaseConsumer):
         self._settings = settings
         self._event_key_prefix = settings.redis.event_key_prefix
         self._archive_store = archive_store
-        self._embedding_store = embedding_store
         self._consolidation_lock = asyncio.Lock()
 
     # -- lifecycle ----------------------------------------------------------
@@ -360,19 +358,12 @@ class ConsolidationConsumer(BaseConsumer):
             deleted_archive = 0
 
         # Step 4: Clean up orphaned nodes (ADR-0014 Amendment, Gap 8)
-        orphan_counts, deleted_entity_ids = await maintenance.delete_orphan_nodes(
+        # Neo4j DETACH DELETE auto-removes embedding properties — no zombie cleanup needed
+        orphan_counts, _deleted_entity_ids = await maintenance.delete_orphan_nodes(
             driver=self._neo4j_driver,
             database=self._neo4j_database,
             batch_size=self._settings.retention.orphan_cleanup_batch_size,
         )
-
-        # Step 5: Clean up zombie embeddings for deleted entities (Gap 9)
-        embedding_zombies_cleaned = 0
-        if self._embedding_store is not None and deleted_entity_ids:
-            for entity_id in deleted_entity_ids:
-                if await self._embedding_store.delete_embedding(entity_id):
-                    embedding_zombies_cleaned += 1
-            log.info("embedding_zombies_cleaned", count=embedding_zombies_cleaned)
 
         log.info(
             "forgetting_completed",
@@ -380,7 +371,6 @@ class ConsolidationConsumer(BaseConsumer):
             deleted_cold_events=deleted_cold,
             deleted_archive_events=deleted_archive,
             orphan_counts=orphan_counts,
-            embedding_zombies_cleaned=embedding_zombies_cleaned,
         )
 
     async def _trim_redis(self) -> None:

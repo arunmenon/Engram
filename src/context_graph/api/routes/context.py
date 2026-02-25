@@ -30,4 +30,4 @@ async def get_session_context(
     query: str | None = Query(default=None),
 ) -> AtlasResponse:
     """Assemble working memory context for a session, ranked by decay score."""
-    return await graph_store.get_context(session_id, max_nodes, query)
+    return await graph_store.get_context(session_id, max_nodes, query, max_depth)

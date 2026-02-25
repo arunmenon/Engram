@@ -8,7 +8,7 @@ Amended-by: ADR-0010 (Redis replaces Postgres)
 
 ## Context
 
-The projection worker (ADR-0005) currently performs a single-pass transformation: poll Postgres events, MERGE into Neo4j. Research reveals this is only the first stage of a richer consolidation lifecycle. The biological model -- hippocampal replay during rest gradually writing structure into the neocortex -- maps to a multi-stage consolidation process with active forgetting.
+The projection worker (ADR-0005) currently performs a single-pass transformation: read Redis Stream events via consumer groups, MERGE into Neo4j. Research reveals this is only the first stage of a richer consolidation lifecycle. The biological model -- hippocampal replay during rest gradually writing structure into the neocortex -- maps to a multi-stage consolidation process with active forgetting.
 
 Without decay and consolidation, the graph grows unboundedly. Every event is projected with equal weight, query performance degrades over time, and the semantic store loses its ability to surface what matters. The research consensus is clear: forgetting is a feature, not a bug.
 
@@ -104,6 +104,8 @@ score(node, query, t_now) = w_r * recency(node, t_now)
                           + w_v * relevance(node, query)
 ```
 
+> Implementation note: The composite score is normalized by dividing by the sum of all weights, producing values in the [0, 1] range.
+
 Where:
 
 **Recency** (Ebbinghaus-inspired with access reinforcement):
@@ -111,7 +113,7 @@ Where:
 recency(node, t_now) = e^(-t_elapsed / S)
 ```
 - `t_elapsed` = hours since `max(node.occurred_at, node.last_accessed_at)`
-- `S` = stability factor, starting at `S_base` (default 168 = 1 week half-life) and increasing by `S_boost` (default 24 hours) on each query access
+- `S` = stability factor, starting at `S_base` (default 168 = 1 week time constant, half-life ~4.85 days) and increasing by `S_boost` (default 24 hours) on each query access
 - Using `last_accessed_at` means frequently queried nodes decay slower -- "use it or lose it"
 
 **Importance** (normalized 0-1):

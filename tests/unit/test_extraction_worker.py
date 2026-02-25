@@ -93,9 +93,7 @@ class TestProcessMessage:
     async def test_ignores_non_session_end_events(self) -> None:
         llm_client = AsyncMock()
         redis_client = AsyncMock()
-        redis_client.execute_command.return_value = _mock_json_doc(
-            "evt-001", "tool.execute", "s1"
-        )
+        redis_client.execute_command.return_value = _mock_json_doc("evt-001", "tool.execute", "s1")
 
         consumer = _make_consumer(redis_client=redis_client, llm_client=llm_client)
 
@@ -301,3 +299,132 @@ class TestSourceEventIdsInResults:
 
         sig = inspect.signature(consumer._write_extraction_results)
         assert "source_event_ids" in sig.parameters
+
+
+# ---------------------------------------------------------------------------
+# Neo4j-based entity embedding and semantic resolution
+# ---------------------------------------------------------------------------
+
+
+class TestEntityEmbeddingOnNeo4j:
+    async def test_merge_entity_node_passes_embedding(self) -> None:
+        """_merge_entity_node should pass embedding param to Neo4j."""
+        consumer = _make_consumer()
+        mock_session = AsyncMock()
+        mock_tx = AsyncMock()
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock(return_value=False)
+
+        async def capture_write(fn):
+            return await fn(mock_tx)
+
+        mock_session.execute_write = capture_write
+        # session() is a sync method returning an async context manager
+        consumer._neo4j_driver.session = MagicMock(return_value=mock_session)
+
+        await consumer._merge_entity_node(
+            entity_id="entity:test",
+            name="test",
+            entity_type="concept",
+            now="2026-01-01T00:00:00Z",
+            embedding=[0.1, 0.2, 0.3],
+        )
+
+        # Verify tx.run was called with embedding in params
+        mock_tx.run.assert_called_once()
+        call_params = mock_tx.run.call_args[0][1]
+        assert call_params["embedding"] == [0.1, 0.2, 0.3]
+
+    async def test_merge_entity_node_default_empty_embedding(self) -> None:
+        """_merge_entity_node with no embedding should pass empty list."""
+        consumer = _make_consumer()
+        mock_session = AsyncMock()
+        mock_tx = AsyncMock()
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock(return_value=False)
+
+        async def capture_write(fn):
+            return await fn(mock_tx)
+
+        mock_session.execute_write = capture_write
+        # session() is a sync method returning an async context manager
+        consumer._neo4j_driver.session = MagicMock(return_value=mock_session)
+
+        await consumer._merge_entity_node(
+            entity_id="entity:test",
+            name="test",
+            entity_type="concept",
+            now="2026-01-01T00:00:00Z",
+        )
+
+        call_params = mock_tx.run.call_args[0][1]
+        assert call_params["embedding"] == []
+
+    async def test_semantic_resolution_uses_graph_store(self) -> None:
+        """_resolve_semantic should call graph_store.search_similar_entities."""
+        embedding_service = AsyncMock()
+        embedding_service.embed_text.return_value = [0.1, 0.2, 0.3]
+
+        graph_store = AsyncMock()
+        graph_store.search_similar_entities.return_value = []
+
+        settings = _make_settings()
+        settings.embedding.knn_k = 10
+        settings.embedding.same_as_threshold = 0.90
+        settings.embedding.related_to_threshold = 0.75
+
+        consumer = ExtractionConsumer(
+            redis_client=AsyncMock(),
+            neo4j_driver=AsyncMock(),
+            neo4j_database="neo4j",
+            llm_client=AsyncMock(),
+            settings=settings,
+            embedding_service=embedding_service,
+            graph_store=graph_store,
+        )
+
+        result, matches = await consumer._resolve_semantic("test entity", "concept")
+
+        graph_store.search_similar_entities.assert_called_once_with(
+            query_embedding=[0.1, 0.2, 0.3],
+            top_k=10,
+            threshold=0.75,
+        )
+        assert result is None
+        assert matches == []
+
+    async def test_semantic_resolution_skipped_without_graph_store(self) -> None:
+        """_resolve_semantic returns (None, []) when graph_store is None."""
+        consumer = _make_consumer()
+        consumer._embedding_service = AsyncMock()
+        consumer._graph_store = None
+
+        result, matches = await consumer._resolve_semantic("test", "concept")
+        assert result is None
+        assert matches == []
+
+    async def test_compute_entity_embedding_returns_vector(self) -> None:
+        """_compute_entity_embedding should return the embedding from the service."""
+        consumer = _make_consumer()
+        consumer._embedding_service = AsyncMock()
+        consumer._embedding_service.embed_text.return_value = [0.5, 0.5]
+
+        result = await consumer._compute_entity_embedding("test")
+        assert result == [0.5, 0.5]
+
+    async def test_compute_entity_embedding_returns_empty_on_failure(self) -> None:
+        """_compute_entity_embedding should return [] on service failure."""
+        consumer = _make_consumer()
+        consumer._embedding_service = AsyncMock()
+        consumer._embedding_service.embed_text.side_effect = RuntimeError("fail")
+
+        result = await consumer._compute_entity_embedding("test")
+        assert result == []
+
+    async def test_compute_entity_embedding_returns_empty_without_service(self) -> None:
+        """_compute_entity_embedding should return [] when no service."""
+        consumer = _make_consumer()
+        consumer._embedding_service = None
+
+        result = await consumer._compute_entity_embedding("test")
+        assert result == []

@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from neo4j import AsyncDriver
     from redis.asyncio import Redis
 
+    from context_graph.ports.embedding import EmbeddingService
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -43,6 +44,7 @@ class EnrichmentConsumer(BaseConsumer):
         redis_client: Redis,
         neo4j_driver: AsyncDriver,
         settings: Settings,
+        embedding_service: EmbeddingService | None = None,
     ) -> None:
         super().__init__(
             redis_client=redis_client,
@@ -54,6 +56,7 @@ class EnrichmentConsumer(BaseConsumer):
         self._neo4j_driver = neo4j_driver
         self._neo4j_database = settings.neo4j.database
         self._event_key_prefix = settings.redis.event_key_prefix
+        self._embedding_service = embedding_service
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a single stream entry: extract keywords and update Neo4j."""
@@ -107,9 +110,56 @@ class EnrichmentConsumer(BaseConsumer):
             importance_score=importance_score,
         )
 
-        # TODO: Embedding computation (requires sentence-transformers, Phase 3+)
-        # TODO: SIMILAR_TO edge creation (requires embeddings)
-        # TODO: Entity extraction for REFERENCES edges
+        # Compute and store event embedding on Neo4j node
+        await self._compute_and_store_event_embedding(event_id, event_type, doc)
+
+    async def _compute_and_store_event_embedding(
+        self,
+        event_id: str,
+        event_type: str,
+        doc: dict[str, Any],
+    ) -> None:
+        """Compute embedding for an event and store it on the Neo4j node.
+
+        Gracefully degrades: if embedding_service is None or raises, the
+        event is still enriched with keywords and importance — just no embedding.
+        """
+        if self._embedding_service is None:
+            return
+
+        tool_name = doc.get("tool_name")
+        keywords = extract_keywords(event_type, tool_name)
+        text = build_event_text(event_type, tool_name, keywords)
+
+        try:
+            embedding = await self._embedding_service.embed_text(text)
+        except Exception:
+            log.warning("event_embedding_failed", event_id=event_id)
+            return
+
+        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
+
+            async def _update_embedding(tx: Any) -> None:
+                await tx.run(
+                    queries.UPDATE_EVENT_EMBEDDING,
+                    {"event_id": event_id, "embedding": embedding},
+                )
+
+            await session.execute_write(_update_embedding)
+
+        log.debug("event_embedding_stored", event_id=event_id)
+
+
+def build_event_text(event_type: str, tool_name: str | None, keywords: list[str]) -> str:
+    """Build a text representation of an event for embedding.
+
+    Format: "{event_type} {tool_name} {keywords}"
+    """
+    parts = [event_type]
+    if tool_name:
+        parts.append(tool_name)
+    parts.extend(k for k in keywords if k not in parts)
+    return " ".join(parts)
 
 
 def extract_keywords(event_type: str, tool_name: str | None = None) -> list[str]:

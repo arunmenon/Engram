@@ -64,13 +64,15 @@ The archive store is defined by an `ArchiveStore` protocol in `ports/archive.py`
 
 ```python
 class ArchiveStore(Protocol):
-    async def export_events(self, events: list[dict], partition_key: str) -> str: ...
-    async def list_partitions(self, prefix: str) -> list[str]: ...
+    async def archive_events(self, events: list[dict], partition_key: str) -> str: ...
+    async def list_archives(self, prefix: str) -> list[str]: ...
+    async def restore_archive(self, archive_id: str) -> list[dict[str, Any]]: ...
+    async def close(self) -> None: ...
 ```
 
 Two adapters implement this protocol:
-- `adapters/archive/filesystem.py` — local filesystem (development)
-- `adapters/archive/gcs.py` — Google Cloud Storage (production, future)
+- `adapters/fs/archive.py` — local filesystem (development)
+- `adapters/gcs/archive.py` — Google Cloud Storage (production, future)
 
 The trim cycle in the consolidation worker becomes: **query expired events -> export to archive -> delete from Redis**. If the archive export fails, the deletion MUST NOT proceed.
 
@@ -233,16 +235,15 @@ Node types exempt from orphan cleanup: UserProfile, Summary.
 UserProfile nodes are long-lived identity anchors. Summary nodes are
 the intended survivors of event deletion.
 
-#### Gap 9: Entity Embedding Lifecycle
+#### Gap 9: Entity Embedding Lifecycle (Resolved)
 
-`entity_emb:{entity_id}` keys in Redis are created by the extraction
-worker but never deleted. When Entity nodes are pruned from Neo4j
-(cold deletion or orphan cleanup), their corresponding embeddings
-become zombies in the vector index.
+Entity embeddings are stored as properties on Neo4j Entity nodes (`embedding`
+field), not in a separate Redis index. When Entity nodes are `DETACH DELETE`d
+during orphan cleanup (Gap 8), their embedding properties are automatically
+removed. No separate embedding cleanup step is needed.
 
-**Decision**: After orphan cleanup, collect the deleted entity IDs and
-call `EntityEmbeddingStore.delete_embedding()` for each. If the embedding
-store is not available (optional dependency), skip silently.
+This gap was resolved by the Neo4j-only embedding migration (see ADR-0009
+amendment, 2026-02-25).
 
 #### Gap 10: Neo4j Event Property Export Before Graph Deletion
 

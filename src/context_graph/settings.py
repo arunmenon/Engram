@@ -81,7 +81,7 @@ class DecaySettings(BaseSettings):
     model_config = {"env_prefix": "CG_DECAY_"}
 
     # Stability factor defaults (hours)
-    s_base: float = 168.0  # 1 week half-life
+    s_base: float = 168.0  # 1 week time constant (half-life ~4.85 days)
     s_boost: float = 24.0  # Each access adds 24h of stability
 
     # Scoring weights: score = w_r*recency + w_i*importance + w_v*relevance + w_u*user_affinity
@@ -280,8 +280,11 @@ OTEL_TO_EVENT_TYPE: dict[str, str] = {
 class EmbeddingSettings(BaseSettings):
     """Embedding service settings for semantic entity matching (Tier 2b).
 
-    Controls the sentence-transformer model, HNSW index parameters,
+    Controls the sentence-transformer model, Neo4j vector index parameters,
     and similarity thresholds for SAME_AS / RELATED_TO edge creation.
+
+    Embeddings are stored exclusively on Neo4j node properties and searched
+    via the Neo4j vector index (entity_embedding_idx).
     """
 
     model_config = {"env_prefix": "CG_EMBEDDING_"}
@@ -289,11 +292,6 @@ class EmbeddingSettings(BaseSettings):
     model_name: str = "all-MiniLM-L6-v2"
     dimensions: int = 384
     device: str = "cpu"
-    entity_embedding_prefix: str = "entity_emb:"
-    entity_embedding_index: str = "idx:entity_embeddings"
-    hnsw_m: int = 16
-    hnsw_ef_construction: int = 200
-    hnsw_ef_runtime: int = 100
     same_as_threshold: float = 0.90
     related_to_threshold: float = 0.75
     knn_k: int = 10

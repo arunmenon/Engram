@@ -233,7 +233,7 @@ CREATE NODE TYPE Event (
   session_id       STRING NOT NULL,
   agent_id         STRING NOT NULL,
   trace_id         STRING NOT NULL,
-  global_position  INTEGER NOT NULL,
+  global_position  STRING NOT NULL,
   tool_name        STRING,
   keywords         LIST<STRING>,
   summary          STRING,
@@ -249,7 +249,8 @@ CREATE NODE TYPE Entity (
   entity_type STRING NOT NULL,
   first_seen  ZONED DATETIME NOT NULL,
   last_seen   ZONED DATETIME NOT NULL,
-  mention_count INTEGER DEFAULT 1
+  mention_count INTEGER DEFAULT 1,
+  embedding   LIST<FLOAT>
 )
 
 CREATE NODE TYPE Summary (

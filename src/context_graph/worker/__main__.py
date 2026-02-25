@@ -62,16 +62,36 @@ async def _build_consumer(
             max_connection_pool_size=settings.neo4j.max_connection_pool_size,
         )
         closeables.append(neo4j_driver)
+
+        # Optional embedding service for event embeddings
+        embedding_service = None
+        try:
+            from context_graph.adapters.embedding.service import SentenceTransformerEmbedder
+
+            emb_settings = settings.embedding
+            embedding_service = SentenceTransformerEmbedder(
+                model_name=emb_settings.model_name,
+                device=emb_settings.device,
+            )
+            log.info("enrichment_embedding_service_initialized", model=emb_settings.model_name)
+        except ImportError:
+            log.warning(
+                "enrichment_embedding_service_unavailable",
+                hint="Install sentence-transformers for event embeddings",
+            )
+
         return EnrichmentConsumer(
             redis_client=redis_client,
             neo4j_driver=neo4j_driver,
             settings=settings,
+            embedding_service=embedding_service,
         ), closeables
 
     if consumer_type == "extraction":
         from neo4j import AsyncGraphDatabase
 
         from context_graph.adapters.llm.client import LLMExtractionClient
+        from context_graph.adapters.neo4j.store import Neo4jGraphStore
         from context_graph.worker.extraction import ExtractionConsumer
 
         neo4j_driver = AsyncGraphDatabase.driver(
@@ -88,33 +108,22 @@ async def _build_consumer(
         )
         closeables.append(neo4j_driver)
 
-        # Tier 2b: Semantic entity matching via embedding service + vector store
+        # Tier 2b: Semantic entity matching via embedding service + Neo4j vector index
         embedding_service = None
-        embedding_store = None
+        extraction_graph_store = None
         try:
             from context_graph.adapters.embedding.service import SentenceTransformerEmbedder
-            from context_graph.adapters.redis.embedding_store import EntityEmbeddingStore
-            from context_graph.adapters.redis.indexes import ensure_entity_embedding_index
 
             emb_settings = settings.embedding
             embedding_service = SentenceTransformerEmbedder(
                 model_name=emb_settings.model_name,
                 device=emb_settings.device,
             )
-            embedding_store = EntityEmbeddingStore(
-                redis_client=redis_client,
-                prefix=emb_settings.entity_embedding_prefix,
-                index_name=emb_settings.entity_embedding_index,
+            extraction_graph_store = Neo4jGraphStore(
+                settings.neo4j, embedding_service=embedding_service
             )
-            await ensure_entity_embedding_index(
-                client=redis_client,
-                index_name=emb_settings.entity_embedding_index,
-                prefix=emb_settings.entity_embedding_prefix,
-                dimensions=emb_settings.dimensions,
-                hnsw_m=emb_settings.hnsw_m,
-                hnsw_ef_construction=emb_settings.hnsw_ef_construction,
-                hnsw_ef_runtime=emb_settings.hnsw_ef_runtime,
-            )
+            await extraction_graph_store.ensure_constraints()
+            closeables.append(extraction_graph_store)
             log.info("embedding_service_initialized", model=emb_settings.model_name)
         except ImportError:
             log.warning(
@@ -129,7 +138,7 @@ async def _build_consumer(
             llm_client=llm_client,
             settings=settings,
             embedding_service=embedding_service,
-            embedding_store=embedding_store,
+            graph_store=extraction_graph_store,
         ), closeables
 
     if consumer_type == "consolidation":
@@ -183,30 +192,11 @@ async def _build_consumer(
                     path=archive_settings.fs_base_path,
                 )
 
-        # Bootstrap embedding store for orphan embedding cleanup (ADR-0014 Amendment)
-        consol_embedding_store: Any = None
-        try:
-            from context_graph.adapters.redis.embedding_store import EntityEmbeddingStore
-
-            emb_settings = settings.embedding
-            consol_embedding_store = EntityEmbeddingStore(
-                redis_client=redis_client,
-                prefix=emb_settings.entity_embedding_prefix,
-                index_name=emb_settings.entity_embedding_index,
-            )
-            log.info("consolidation_embedding_store_initialized")
-        except ImportError:
-            log.info(
-                "consolidation_embedding_store_unavailable",
-                hint="EntityEmbeddingStore not available; zombie embeddings will not be cleaned",
-            )
-
         return ConsolidationConsumer(
             redis_client=redis_client,
             neo4j_driver=neo4j_driver,
             settings=settings,
             archive_store=archive_store,
-            embedding_store=consol_embedding_store,
         ), closeables
 
     msg = f"Unknown consumer type: {consumer_type}"
