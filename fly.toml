@@ -1,0 +1,57 @@
+# Fly.io deployment configuration for Engram Context Graph API
+#
+# Prerequisites:
+#   1. Install flyctl: https://fly.io/docs/flyctl/install/
+#   2. Run: fly auth login
+#   3. Run: fly apps create engram-api  (or your preferred name)
+#   4. Deploy Redis & Neo4j first (see fly/deploy.sh)
+#   5. Set secrets: fly secrets set CG_REDIS_PASSWORD=... CG_NEO4J_PASSWORD=...
+#   6. Deploy: fly deploy
+
+app = "engram-api"
+primary_region = "sjc"
+
+[build]
+
+[env]
+  CG_LOG_LEVEL = "INFO"
+  CG_REDIS_HOST = "engram-redis.internal"
+  CG_REDIS_PORT = "6379"
+  CG_NEO4J_URI = "bolt://engram-neo4j.internal:7687"
+  CG_NEO4J_USERNAME = "neo4j"
+
+[processes]
+  api = "uvicorn context_graph.api.app:create_app --factory --host 0.0.0.0 --port 8000 --workers 2"
+  worker = "python -m context_graph.worker"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["api"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "15s"
+  method = "GET"
+  path = "/v1/health"
+  timeout = "5s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+  processes = ["api"]
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
+  processes = ["worker"]

@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Python artifacts
+__pycache__
+*.py[cod]
+*.egg-info
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv
+venv
+env
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Test / Dev
+tests/
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment files
+.env
+.env.local
+
+# Docs and meta
+docs/
+*.md
+LICENSE
+
+# Claude
+.claude/
+
+# Fly deployment configs (not needed inside the image)
+fly/

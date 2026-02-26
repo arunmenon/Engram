@@ -1,0 +1,99 @@
+# Production docker-compose — runs the full Engram stack.
+#
+# Usage:
+#   docker compose -f docker/docker-compose.prod.yml up -d
+#
+# Required env vars (set via .env or export):
+#   CG_REDIS_PASSWORD      — Redis auth password
+#   CG_NEO4J_PASSWORD      — Neo4j auth password
+
+services:
+  redis:
+    image: redis/redis-stack:latest
+    container_name: engram-redis
+    volumes:
+      - redis-data:/data
+      - ./redis/redis.conf:/redis-stack.conf
+    environment:
+      - REDIS_ARGS=--include /redis-stack.conf --requirepass ${CG_REDIS_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${CG_REDIS_PASSWORD:-changeme}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: engram-neo4j
+    volumes:
+      - neo4j-data:/data
+      - ./neo4j/constraints.cypher:/var/lib/neo4j/constraints/constraints.cypher
+      - ./neo4j/init.sh:/docker-entrypoint-initdb.d/init.sh
+    environment:
+      - NEO4J_AUTH=neo4j/${CG_NEO4J_PASSWORD:-changeme}
+      - NEO4J_PLUGINS=[]
+      - NEO4J_server_memory_heap_initial__size=256m
+      - NEO4J_server_memory_heap_max__size=512m
+      - NEO4J_server_memory_pagecache_size=128m
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: engram-api
+    ports:
+      - "8000:8000"
+    environment:
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
+      - CG_REDIS_PASSWORD=${CG_REDIS_PASSWORD:-changeme}
+      - CG_NEO4J_URI=bolt://neo4j:7687
+      - CG_NEO4J_USERNAME=neo4j
+      - CG_NEO4J_PASSWORD=${CG_NEO4J_PASSWORD:-changeme}
+      - CG_LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: engram-worker
+    command: ["python", "-m", "context_graph.worker"]
+    environment:
+      - CG_REDIS_HOST=redis
+      - CG_REDIS_PORT=6379
+      - CG_REDIS_PASSWORD=${CG_REDIS_PASSWORD:-changeme}
+      - CG_NEO4J_URI=bolt://neo4j:7687
+      - CG_NEO4J_USERNAME=neo4j
+      - CG_NEO4J_PASSWORD=${CG_NEO4J_PASSWORD:-changeme}
+      - CG_LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  neo4j-data:

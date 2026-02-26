@@ -1,0 +1,33 @@
+# Fly.io configuration for Redis Stack
+# Deploy: fly deploy --config fly/redis.toml
+
+app = "engram-redis"
+primary_region = "sjc"
+
+[build]
+  image = "redis/redis-stack:latest"
+
+[env]
+  REDIS_ARGS = "--appendonly yes --appendfsync everysec --maxmemory-policy noeviction --requirepass ${REDIS_PASSWORD}"
+
+[mounts]
+  source = "redis_data"
+  destination = "/data"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 6379
+
+  [[services.ports]]
+    port = 6379
+    handlers = []
+
+  [[services.tcp_checks]]
+    grace_period = "10s"
+    interval = "15s"
+    timeout = "5s"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

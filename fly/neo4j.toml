@@ -1,0 +1,36 @@
+# Fly.io configuration for Neo4j Community
+# Deploy: fly deploy --config fly/neo4j.toml
+
+app = "engram-neo4j"
+primary_region = "sjc"
+
+[build]
+  image = "neo4j:5-community"
+
+[env]
+  NEO4J_PLUGINS = "[]"
+  NEO4J_server_memory_heap_initial__size = "256m"
+  NEO4J_server_memory_heap_max__size = "512m"
+  NEO4J_server_memory_pagecache_size = "128m"
+
+[mounts]
+  source = "neo4j_data"
+  destination = "/data"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 7687
+
+  [[services.ports]]
+    port = 7687
+    handlers = []
+
+  [[services.tcp_checks]]
+    grace_period = "30s"
+    interval = "15s"
+    timeout = "5s"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
