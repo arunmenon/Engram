@@ -126,6 +126,63 @@ class TestHealthNoAuth:
         assert resp.status_code == 200
 
 
+class TestTimingSafeComparison:
+    """Verify that auth uses hmac.compare_digest for timing-safe comparison."""
+
+    def test_api_key_uses_hmac_compare_digest(self, auth_test_client: TestClient) -> None:
+        with patch("context_graph.api.dependencies.hmac") as mock_hmac:
+            mock_hmac.compare_digest.return_value = False
+            resp = auth_test_client.post(
+                "/v1/events",
+                json={"event_type": "test"},
+                headers={"Authorization": "Bearer wrong-key"},
+            )
+            assert resp.status_code == 401
+            mock_hmac.compare_digest.assert_called_once_with("wrong-key", "test-api-key")
+
+    def test_admin_key_uses_hmac_compare_digest(self, auth_test_client: TestClient) -> None:
+        with patch("context_graph.api.dependencies.hmac") as mock_hmac:
+            mock_hmac.compare_digest.return_value = False
+            resp = auth_test_client.get(
+                "/v1/users/u1/profile",
+                headers={"Authorization": "Bearer wrong-key"},
+            )
+            assert resp.status_code == 401
+            mock_hmac.compare_digest.assert_called_once_with("wrong-key", "test-admin-key")
+
+
+class TestAuthFailureLogging:
+    """Verify that failed auth attempts are logged."""
+
+    def test_failed_api_key_logs_warning(self, auth_test_client: TestClient) -> None:
+        with patch("context_graph.api.dependencies.logger") as mock_logger:
+            auth_test_client.post(
+                "/v1/events",
+                json={"event_type": "test"},
+                headers={"Authorization": "Bearer bad-key"},
+            )
+            mock_logger.warning.assert_called_once_with(
+                "auth_failed", path="/v1/events", guard="api_key"
+            )
+
+    def test_failed_admin_key_logs_warning(self, auth_test_client: TestClient) -> None:
+        with patch("context_graph.api.dependencies.logger") as mock_logger:
+            auth_test_client.get(
+                "/v1/users/u1/profile",
+                headers={"Authorization": "Bearer bad-key"},
+            )
+            mock_logger.warning.assert_called_once_with(
+                "auth_failed", path="/v1/users/u1/profile", guard="admin_key"
+            )
+
+    def test_missing_token_logs_warning(self, auth_test_client: TestClient) -> None:
+        with patch("context_graph.api.dependencies.logger") as mock_logger:
+            auth_test_client.post("/v1/events", json={"event_type": "test"})
+            mock_logger.warning.assert_called_once_with(
+                "auth_failed", path="/v1/events", guard="api_key"
+            )
+
+
 class TestAuthDisabled:
     """When auth keys are None, all requests pass through."""
 

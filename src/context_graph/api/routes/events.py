@@ -23,6 +23,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from context_graph.adapters.redis.store import RedisEventStore  # noqa: TCH001 — runtime: Depends()
 from context_graph.api.dependencies import get_event_store
+from context_graph.api.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
 from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model_validate
 from context_graph.domain.validation import ValidationError, validate_event
 
@@ -111,6 +112,7 @@ async def ingest_event(
         )
 
     global_position = await event_store.append(event, payload=event_payload)
+    EVENTS_INGESTED_TOTAL.inc()
 
     logger.info(
         "event_ingested",
@@ -216,6 +218,8 @@ async def ingest_event_batch(
                     "global_position": position,
                 }
             )
+        EVENTS_INGESTED_TOTAL.inc(len(results))
+        EVENTS_BATCH_SIZE.observe(len(raw_events))
 
     logger.info(
         "batch_ingested",

@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 import structlog
 from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
+from prometheus_client import make_asgi_app as make_metrics_app
 
 from context_graph.adapters.neo4j.store import Neo4jGraphStore
 from context_graph.adapters.redis.store import RedisEventStore
@@ -108,5 +109,9 @@ def create_app() -> FastAPI:
 
     # Health endpoint: no auth (used by load balancers / orchestrators)
     app.include_router(health_router, prefix="/v1")
+
+    # Prometheus metrics endpoint
+    metrics_app = make_metrics_app()
+    app.mount("/metrics", metrics_app)
 
     return app

@@ -17,6 +17,7 @@ import structlog
 from neo4j import AsyncGraphDatabase
 
 from context_graph.adapters.neo4j import queries
+from context_graph.api.metrics import GRAPH_QUERY_DURATION
 from context_graph.domain.intent import classify_intent, get_edge_weights, select_seed_strategy
 from context_graph.domain.lineage import validate_traversal_bounds
 from context_graph.domain.models import (
@@ -430,6 +431,7 @@ class Neo4jGraphStore:
                 )
 
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
+        GRAPH_QUERY_DURATION.labels(query_type="context").observe(elapsed_ms / 1000.0)
 
         meta = QueryMeta(
             query_ms=elapsed_ms,
@@ -508,6 +510,7 @@ class Neo4jGraphStore:
         await self._bump_access_counts(list(nodes.keys()))
 
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
+        GRAPH_QUERY_DURATION.labels(query_type="lineage").observe(elapsed_ms / 1000.0)
 
         meta = QueryMeta(
             query_ms=elapsed_ms,
@@ -724,6 +727,7 @@ class Neo4jGraphStore:
         await self._bump_access_counts(event_ids)
 
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
+        GRAPH_QUERY_DURATION.labels(query_type="subgraph").observe(elapsed_ms / 1000.0)
 
         proactive_count = sum(1 for n in nodes.values() if n.retrieval_reason == "proactive")
 

@@ -8,9 +8,13 @@ Includes API key authentication guards for securing endpoints.
 
 from __future__ import annotations
 
+import hmac
 from typing import TYPE_CHECKING
 
+import structlog
 from fastapi import HTTPException, Request  # noqa: TCH002 — runtime: FastAPI dependency injection
+
+logger = structlog.get_logger(__name__)
 
 if TYPE_CHECKING:
     from context_graph.adapters.neo4j.store import Neo4jGraphStore
@@ -58,7 +62,8 @@ async def require_api_key(request: Request) -> None:
         return  # auth disabled in development mode
 
     token = _extract_bearer_token(request)
-    if token is None or token != expected_key:
+    if token is None or not hmac.compare_digest(token, expected_key):
+        logger.warning("auth_failed", path=str(request.url.path), guard="api_key")
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 
@@ -75,5 +80,6 @@ async def require_admin_key(request: Request) -> None:
         return  # auth disabled in development mode
 
     token = _extract_bearer_token(request)
-    if token is None or token != expected_key:
+    if token is None or not hmac.compare_digest(token, expected_key):
+        logger.warning("auth_failed", path=str(request.url.path), guard="admin_key")
         raise HTTPException(status_code=401, detail="Invalid or missing admin key")

@@ -5,10 +5,9 @@ GET /v1/health — reports status of Redis and Neo4j dependencies.
 
 from __future__ import annotations
 
-from typing import Any
-
 import structlog
 from fastapi import APIRouter, Request
+from fastapi.responses import ORJSONResponse
 
 logger = structlog.get_logger(__name__)
 
@@ -16,12 +15,12 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
-async def health_check(request: Request) -> dict[str, Any]:
+async def health_check(request: Request) -> ORJSONResponse:
     """Service health check.
 
     Pings Redis and Neo4j to determine overall service health.
-    Returns "healthy" when both are reachable, "degraded" when only one
-    is reachable, and "unhealthy" when neither responds.
+    Returns "healthy" (200) when both are reachable, "degraded" (503) when
+    only one is reachable, and "unhealthy" (503) when neither responds.
     """
     redis_ok = False
     neo4j_ok = False
@@ -52,9 +51,11 @@ async def health_check(request: Request) -> dict[str, Any]:
     else:
         status = "unhealthy"
 
-    return {
+    content = {
         "status": status,
         "redis": redis_ok,
         "neo4j": neo4j_ok,
         "version": "0.1.0",
     }
+    status_code = 200 if status == "healthy" else 503
+    return ORJSONResponse(status_code=status_code, content=content)

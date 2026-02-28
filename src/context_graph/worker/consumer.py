@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING
 
 import structlog
 
+from context_graph.api.metrics import CONSUMER_MESSAGE_ERRORS, CONSUMER_MESSAGES_PROCESSED
+
 if TYPE_CHECKING:
     from redis.asyncio import Redis
 
@@ -123,7 +125,9 @@ class BaseConsumer:
                             self._group_name,
                             entry_id,
                         )
+                        CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
                     except Exception:
+                        CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
                         log.exception(
                             "pending_message_processing_failed",
                             entry_id=entry_id,
@@ -166,7 +170,9 @@ class BaseConsumer:
                             self._group_name,
                             entry_id,
                         )
+                        CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
                     except Exception:
+                        CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
                         # Message stays in PEL for retry on next read cycle
                         log.exception(
                             "message_processing_failed",
