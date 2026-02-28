@@ -470,18 +470,23 @@ class TestApplyConfidencePrior:
 # ---------------------------------------------------------------------------
 
 
-class TestSourceQuoteThreshold085:
-    """Source quote validation uses 0.85 threshold (not 0.80)."""
+class TestSourceQuoteThreshold060:
+    """Source quote validation uses 0.6 threshold to tolerate LLM paraphrasing."""
 
-    def test_ratio_084_rejected(self):
-        """A match with ratio ~0.84 should be rejected."""
-        text = "hello world xyz extra padding here"
-        assert validate_source_quote("hello world abc", text) is False
+    def test_completely_unrelated_rejected(self):
+        """A quote with no word overlap should be rejected."""
+        text = "deploying application to production servers"
+        assert validate_source_quote("quantum physics experiment results", text) is False
 
     def test_ratio_086_accepted(self):
         """A near-exact match should still be accepted."""
         text = "I prefer using Python for analysis tasks"
         assert validate_source_quote("I prefer using Python for analysis", text) is True
+
+    def test_paraphrased_quote_accepted(self):
+        """A paraphrased quote with significant word overlap passes."""
+        text = "hello world xyz extra padding here"
+        assert validate_source_quote("hello world abc", text) is True
 
 
 # ---------------------------------------------------------------------------

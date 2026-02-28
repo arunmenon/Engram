@@ -11,16 +11,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from context_graph.adapters.neo4j.store import Neo4jGraphStore  # noqa: TCH001 — runtime: Depends()
 from context_graph.api.dependencies import get_graph_store
 from context_graph.domain.models import (  # noqa: TCH001 — runtime: type annotation + response_model
     AtlasResponse,
     SubgraphQuery,
 )
+from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runtime: Depends()
 
 router = APIRouter(tags=["query"])
 
-GraphStoreDep = Annotated[Neo4jGraphStore, Depends(get_graph_store)]
+GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
 
 
 @router.post("/query/subgraph", response_model=AtlasResponse)

@@ -11,6 +11,7 @@ import pytest
 
 from context_graph.adapters.llm.client import (
     LLMExtractionClient,
+    _try_parse_inline_payload,
     build_conversation_text,
     build_extraction_prompt,
     validate_extraction,
@@ -95,6 +96,50 @@ class TestBuildConversationText:
     def test_empty_events_returns_empty(self) -> None:
         text = build_conversation_text([])
         assert text == ""
+
+    def test_includes_payload_from_doc(self) -> None:
+        """When payload dict is present in event doc, content is included."""
+        events = [make_event(payload_ref="payload:abc")]
+        event_payloads = [
+            {"event_id": str(events[0].event_id), "payload": {"content": "hello world"}}
+        ]
+        text = build_conversation_text(events, event_payloads=event_payloads)
+        assert "hello world" in text
+
+    def test_inline_payload_ref_fallback(self) -> None:
+        """When no payload field, payload_ref inline JSON is used as fallback."""
+        inline_json = '{"content": "I love Python"}'
+        events = [make_event(payload_ref=inline_json)]
+        # No event_payloads provided — triggers fallback
+        text = build_conversation_text(events)
+        assert "I love Python" in text
+
+
+# ---------------------------------------------------------------------------
+# _try_parse_inline_payload
+# ---------------------------------------------------------------------------
+
+
+class TestTryParseInlinePayload:
+    def test_valid_json_object(self) -> None:
+        result = _try_parse_inline_payload('{"content": "hello"}')
+        assert result == {"content": "hello"}
+
+    def test_plain_ref_string(self) -> None:
+        result = _try_parse_inline_payload("payload:abc123")
+        assert result is None
+
+    def test_empty_string(self) -> None:
+        result = _try_parse_inline_payload("")
+        assert result is None
+
+    def test_json_array(self) -> None:
+        result = _try_parse_inline_payload("[1, 2, 3]")
+        assert result is None
+
+    def test_malformed_json(self) -> None:
+        result = _try_parse_inline_payload("{invalid json}")
+        assert result is None
 
 
 # ---------------------------------------------------------------------------

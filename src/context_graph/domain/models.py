@@ -316,6 +316,7 @@ class EntityNode(BaseModel):
     first_seen: datetime
     last_seen: datetime
     mention_count: int = 1
+    embedding: list[float] = Field(default_factory=list)
 
 
 class SummaryNode(BaseModel):
@@ -489,6 +490,7 @@ class QueryMeta(BaseModel):
     inferred_intents: dict[str, float] = Field(default_factory=dict)
     intent_override: str | None = None
     seed_nodes: list[str] = Field(default_factory=list)
+    seed_strategy: str | None = None
     proactive_nodes_count: int = 0
     scoring_weights: dict[str, float] = Field(
         default_factory=lambda: {"recency": 1.0, "importance": 1.0, "relevance": 1.0}
@@ -548,6 +550,7 @@ class SubgraphQuery(BaseModel):
     timeout_ms: int = Field(default=5000, ge=100, le=30000)
     intent: IntentType | None = None
     seed_nodes: list[str] | None = None
+    cursor: str | None = None
 
 
 class LineageQuery(BaseModel):
@@ -557,3 +560,4 @@ class LineageQuery(BaseModel):
     max_depth: int = Field(default=3, ge=1, le=10)
     max_nodes: int = Field(default=100, ge=1, le=500)
     intent: IntentType | None = None
+    cursor: str | None = None

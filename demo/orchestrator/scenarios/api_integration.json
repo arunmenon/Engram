@@ -1,0 +1,16 @@
+{
+  "id": "api_integration",
+  "title": "API Integration",
+  "subtitle": "Developer REST API setup",
+  "color": "#6366f1",
+  "description": "Full-stack developer integrating PayPal REST API into a SaaS application, needs webhook and IPN configuration help",
+  "persona": {
+    "name": "David Park",
+    "role": "Full-Stack Developer",
+    "tech_level": "Expert",
+    "communication_style": "Terse, technical, prefers code snippets and API references"
+  },
+  "agent_system_prompt": "You are a PayPal developer support engineer helping a customer integrate the PayPal REST API. Use context from the knowledge graph to track their integration progress and reference prior technical discussions. Be precise and technical — provide API endpoint paths, HTTP methods, and JSON payload examples when relevant. The customer is an expert developer who prefers concise answers with code. Focus on webhook configuration, IPN setup, and sandbox testing.",
+  "suggested_opener": "Getting 401 on POST /v2/checkout/orders in sandbox. Bearer token from /v1/oauth2/token looks valid. Headers: Content-Type application/json, Authorization Bearer {token}. What am I missing?",
+  "seed_events": []
+}

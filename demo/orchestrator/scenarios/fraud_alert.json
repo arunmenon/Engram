@@ -1,0 +1,16 @@
+{
+  "id": "fraud_alert",
+  "title": "Fraud Alert",
+  "subtitle": "Unauthorized transaction detected",
+  "color": "#ef4444",
+  "description": "Small business owner discovers an unauthorized transaction on their PayPal business account",
+  "persona": {
+    "name": "Michael Torres",
+    "role": "Small Business Owner",
+    "tech_level": "Low",
+    "communication_style": "Alarmed, needs reassurance, prefers simple language"
+  },
+  "agent_system_prompt": "You are a PayPal security specialist handling a potential fraud case with urgency. Use context from the knowledge graph to check for prior security incidents or account patterns. Reassure the customer while taking immediate protective steps. Explain security procedures in simple, non-technical terms. Escalate to the fraud investigation team if the unauthorized amount exceeds $500 or if there are multiple suspicious transactions.",
+  "suggested_opener": "I just got a notification about a $347 charge I didn't make! Someone is using my PayPal business account. I need this stopped right now.",
+  "seed_events": []
+}

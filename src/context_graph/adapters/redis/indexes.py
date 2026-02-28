@@ -1,7 +1,10 @@
 """RediSearch index definitions for event documents.
 
-Creates a secondary index on JSON documents stored at ``evt:*`` keys,
-enabling filtered search and sorted retrieval via the FT.SEARCH command.
+Creates secondary indexes on JSON documents:
+- ``evt:*`` keys for event search (ADR-0010)
+
+Entity embeddings are stored on Neo4j node properties and searched
+via the Neo4j vector index (entity_embedding_idx). See ADR-0009 amendment.
 
 Source: ADR-0010
 """

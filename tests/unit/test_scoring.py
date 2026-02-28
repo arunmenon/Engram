@@ -299,6 +299,63 @@ class TestComputeRelevanceEmptyFallback:
         assert compute_relevance_score([0.0, 0.0], [0.0, 0.0]) == 0.5
 
 
+class TestScoreEntityNode:
+    """Tests for score_entity_node with real embeddings."""
+
+    def test_entity_node_with_real_embedding(self) -> None:
+        """Non-empty embedding should produce relevance_score != 0.5."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 3,
+            "embedding": [1.0, 0.0, 0.0],
+        }
+        result = score_entity_node(entity_data, query_embedding=[1.0, 0.0, 0.0], now=now)
+        assert result.relevance_score > 0.99
+        assert result.relevance_score != 0.5
+
+    def test_entity_node_empty_embedding(self) -> None:
+        """Empty embedding should preserve 0.5 default relevance."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 1,
+            "embedding": [],
+        }
+        result = score_entity_node(entity_data, query_embedding=[1.0, 0.0, 0.0], now=now)
+        assert result.relevance_score == 0.5
+
+    def test_entity_node_orthogonal_embedding(self) -> None:
+        """Orthogonal embedding should produce relevance_score of 0.0."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 2,
+            "embedding": [0.0, 1.0, 0.0],
+        }
+        result = score_entity_node(entity_data, query_embedding=[1.0, 0.0, 0.0], now=now)
+        assert abs(result.relevance_score) < 1e-6
+
+    def test_entity_node_no_query_embedding(self) -> None:
+        """No query embedding should give 0.5 relevance regardless of node embedding."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 5,
+            "embedding": [1.0, 0.0, 0.0],
+        }
+        result = score_entity_node(entity_data, now=now)
+        assert result.relevance_score == 0.5
+
+
 class TestComputeUserAffinity:
     def test_all_zeros(self):
         from context_graph.domain.scoring import compute_user_affinity

@@ -12,7 +12,7 @@ Sources:
 
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings
 
 from context_graph.domain.models import EdgeType, IntentType
@@ -26,7 +26,7 @@ class RedisSettings(BaseSettings):
     host: str = "localhost"
     port: int = 6379
     db: int = 0
-    password: str | None = None
+    password: SecretStr | None = None
 
     # Stream keys
     global_stream: str = "events:__global__"
@@ -56,6 +56,12 @@ class RedisSettings(BaseSettings):
     # Total retention ceiling (days) — JSON docs deleted after this
     retention_ceiling_days: int = 90
 
+    # Approximate MAXLEN for global stream XADD (0 = uncapped) — ADR-0014
+    global_stream_maxlen: int = 0
+
+    # Session stream retention (hours) — streams older than this are deleted
+    session_stream_retention_hours: int = 168  # 7 days
+
 
 class Neo4jSettings(BaseSettings):
     """Neo4j connection settings."""
@@ -64,7 +70,7 @@ class Neo4jSettings(BaseSettings):
 
     uri: str = "bolt://localhost:7687"
     username: str = "neo4j"
-    password: str = "engram-dev-password"
+    password: SecretStr = SecretStr("engram-dev-password")
     database: str = "neo4j"
     max_connection_pool_size: int = 50
 
@@ -75,7 +81,7 @@ class DecaySettings(BaseSettings):
     model_config = {"env_prefix": "CG_DECAY_"}
 
     # Stability factor defaults (hours)
-    s_base: float = 168.0  # 1 week half-life
+    s_base: float = 168.0  # 1 week time constant (half-life ~4.85 days)
     s_boost: float = 24.0  # Each access adds 24h of stability
 
     # Scoring weights: score = w_r*recency + w_i*importance + w_v*relevance + w_u*user_affinity
@@ -90,8 +96,8 @@ class DecaySettings(BaseSettings):
     # Reflection trigger threshold (ADR-0008)
     reflection_threshold: int = 150
 
-    # Re-consolidation interval (hours)
-    reconsolidation_interval_hours: int = 6
+    # Re-consolidation interval (hours) — supports fractional for testing
+    reconsolidation_interval_hours: float = 6.0
 
 
 class RetentionSettings(BaseSettings):
@@ -111,6 +117,9 @@ class RetentionSettings(BaseSettings):
     cold_min_importance: int = 5
     cold_min_access_count: int = 3
 
+    # Orphan cleanup batch size (nodes per transaction) — ADR-0014 Amendment
+    orphan_cleanup_batch_size: int = 500
+
 
 class QuerySettings(BaseSettings):
     """Bounded query limits (ADR-0001, ADR-0009)."""
@@ -127,6 +136,9 @@ class QuerySettings(BaseSettings):
 
     # Multi-intent confidence threshold
     intent_confidence_threshold: float = 0.3
+
+    # Maximum neighbors returned per seed node in subgraph traversal
+    default_neighbor_limit: int = 50
 
 
 class PreferenceSettings(BaseSettings):
@@ -268,6 +280,114 @@ OTEL_TO_EVENT_TYPE: dict[str, str] = {
 }
 
 
+class EmbeddingSettings(BaseSettings):
+    """Embedding service settings for semantic entity matching (Tier 2b).
+
+    Controls the sentence-transformer model, Neo4j vector index parameters,
+    and similarity thresholds for SAME_AS / RELATED_TO edge creation.
+
+    Embeddings are stored exclusively on Neo4j node properties and searched
+    via the Neo4j vector index (entity_embedding_idx).
+    """
+
+    model_config = {"env_prefix": "CG_EMBEDDING_"}
+
+    model_name: str = "all-MiniLM-L6-v2"
+    dimensions: int = 384
+    device: str = "cpu"
+    same_as_threshold: float = 0.90
+    related_to_threshold: float = 0.75
+    knn_k: int = 10
+    batch_size: int = 64
+
+
+class LLMSettings(BaseSettings):
+    """LLM extraction settings (ADR-0013).
+
+    OPENAI_API_KEY is read by litellm from env automatically.
+    """
+
+    model_config = {"env_prefix": "CG_LLM_"}
+
+    model_id: str = "gpt-5.2-2025-12-11"
+    temperature: float = 0.1
+    max_tokens: int = 4096
+    timeout_seconds: int = 60
+    max_retries: int = 2
+
+
+class RateLimitSettings(BaseSettings):
+    """Token bucket rate limiting settings.
+
+    Controls per-client request rate limits for standard and admin tiers.
+    Health and metrics endpoints are exempt.
+    """
+
+    model_config = {"env_prefix": "CG_RATELIMIT_"}
+
+    enabled: bool = True
+    standard_rpm: int = 120  # requests per minute for standard endpoints
+    admin_rpm: int = 30  # requests per minute for admin endpoints
+    max_clients: int = 10000  # LRU size for client tracking
+
+
+class AuthSettings(BaseSettings):
+    """API authentication settings.
+
+    When api_key is set, all endpoints (except /health) require
+    ``Authorization: Bearer <api_key>``.  Admin and GDPR endpoints
+    additionally require the admin_key.
+
+    Set both to None (default) to disable auth (development mode).
+    """
+
+    model_config = {"env_prefix": "CG_AUTH_"}
+
+    api_key: str | None = None
+    admin_key: str | None = None
+
+
+class ArchiveSettings(BaseSettings):
+    """Archive storage settings (ADR-0014).
+
+    Controls where expired events are archived before deletion from Redis.
+    Supports local filesystem (dev/testing) and GCS (production).
+    Set gcs_endpoint for emulator (fake-gcs-server) in local dev.
+    """
+
+    model_config = {"env_prefix": "CG_ARCHIVE_"}
+
+    backend: str = "fs"  # "fs" or "gcs"
+    enabled: bool = True
+    fs_base_path: str = "/tmp/engram-archives"
+    gcs_bucket: str = ""
+    gcs_prefix: str = "engram/archives"
+    gcs_endpoint: str = ""  # e.g. "http://fake-gcs:4443" for emulator
+    batch_size: int = 1000
+
+
+class ConsumerSettings(BaseSettings):
+    """Consumer resilience settings (H4, H5).
+
+    Controls orphaned message claiming (XAUTOCLAIM) and dead-letter queue
+    behavior for all Redis Stream consumer workers.
+    """
+
+    model_config = {"env_prefix": "CG_CONSUMER_"}
+
+    # H4: Min idle time (ms) before claiming orphaned messages from other consumers
+    claim_idle_ms: int = 300_000  # 5 minutes
+
+    # H4: Max messages to claim per XAUTOCLAIM call
+    claim_batch_size: int = 100
+
+    # H5: Max delivery attempts before dead-lettering a message
+    max_retries: int = 5
+
+    # H5: DLQ stream suffix — appended to the source stream key
+    dlq_stream_suffix: str = ":dlq"
+
+
 class Settings(BaseSettings):
     """Root application settings."""
 
@@ -277,9 +397,17 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
 
+    cors_origins: list[str] = Field(default=["http://localhost:5173"])
+
     redis: RedisSettings = Field(default_factory=RedisSettings)
     neo4j: Neo4jSettings = Field(default_factory=Neo4jSettings)
     decay: DecaySettings = Field(default_factory=DecaySettings)
     retention: RetentionSettings = Field(default_factory=RetentionSettings)
     query: QuerySettings = Field(default_factory=QuerySettings)
     preference: PreferenceSettings = Field(default_factory=PreferenceSettings)
+    embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
+    llm: LLMSettings = Field(default_factory=LLMSettings)
+    auth: AuthSettings = Field(default_factory=AuthSettings)
+    archive: ArchiveSettings = Field(default_factory=ArchiveSettings)
+    consumer: ConsumerSettings = Field(default_factory=ConsumerSettings)
+    rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)

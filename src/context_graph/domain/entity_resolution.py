@@ -1,8 +1,12 @@
 """Three-tier entity resolution (ADR-0011 section 3).
 
-Provides exact-match, alias-lookup, and fuzzy-match resolution for entities
-extracted from conversation sessions.  Results map to MERGE / SAME_AS /
-RELATED_TO / CREATE actions in the Neo4j graph projection.
+Provides exact-match, alias-lookup, fuzzy-match, and semantic-match
+resolution for entities extracted from conversation sessions.  Results map
+to MERGE / SAME_AS / RELATED_TO / CREATE actions in the Neo4j graph projection.
+
+Tier 1:  Exact match (normalization + alias dict)
+Tier 2a: Fuzzy match (SequenceMatcher >= 0.9)
+Tier 2b: Semantic match (embedding cosine similarity)
 
 Pure Python + stdlib — ZERO framework imports.
 """
@@ -192,3 +196,77 @@ def resolve_close_match(
             ),
         )
     return None
+
+
+# ---------------------------------------------------------------------------
+# Tier 2b: Semantic match (embedding-based)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class SemanticCandidate:
+    """A candidate entity returned by vector similarity search.
+
+    Pure domain object — no adapter dependencies.  The adapter layer
+    converts its internal ``SemanticMatch`` into this structure before
+    passing it to the domain resolver.
+    """
+
+    name: str
+    entity_type: str
+    entity_id: str
+    similarity: float
+
+
+def resolve_semantic_match(
+    name: str,
+    entity_type: str,
+    candidates: list[SemanticCandidate],
+    same_as_threshold: float = 0.90,
+    related_to_threshold: float = 0.75,
+) -> EntityResolutionResult | None:
+    """Tier 2b: Resolve an entity via pre-computed embedding similarity.
+
+    Takes a list of ``SemanticCandidate`` objects (produced by the adapter
+    layer's KNN search) and returns the best resolution result.
+
+    **Key rule**: Semantic matches NEVER produce MERGE — only SAME_AS
+    (>= ``same_as_threshold``) or RELATED_TO (>= ``related_to_threshold``).
+    Below ``related_to_threshold``, returns ``None`` (fall through to CREATE).
+
+    Parameters
+    ----------
+    name:
+        The new entity name being resolved.
+    entity_type:
+        The new entity's type label.
+    candidates:
+        Pre-sorted (highest similarity first) semantic matches.
+    same_as_threshold:
+        Cosine similarity at or above which to emit SAME_AS.
+    related_to_threshold:
+        Cosine similarity at or above which to emit RELATED_TO.
+    """
+    if not candidates:
+        return None
+
+    best = candidates[0]
+
+    if best.similarity < related_to_threshold:
+        return None
+
+    if best.similarity >= same_as_threshold:
+        action = EntityResolutionAction.SAME_AS
+    else:
+        action = EntityResolutionAction.RELATED_TO
+
+    return EntityResolutionResult(
+        action=action,
+        canonical_name=best.name,
+        entity_type=best.entity_type,
+        confidence=round(best.similarity, 4),
+        justification=(
+            f"Semantic match '{normalize_entity_name(name)}' ~ "
+            f"'{best.name}' (cosine={best.similarity:.4f})"
+        ),
+    )

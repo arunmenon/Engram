@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -19,13 +19,17 @@ if TYPE_CHECKING:
 
 
 class InMemoryEventStore:
-    """Minimal in-memory EventStore that satisfies the protocol for unit tests."""
+    """Minimal in-memory EventStore + EventStoreAdmin that satisfies protocols for unit tests."""
 
     def __init__(self) -> None:
         self._events: dict[str, Event] = {}
         self._counter: int = 0
 
-    async def append(self, event: Event) -> str:
+    async def append(
+        self,
+        event: Event,
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         event_id_str = str(event.event_id)
         if event_id_str in self._events:
             return f"0-{self._counter}"
@@ -34,10 +38,15 @@ class InMemoryEventStore:
         self._events[event_id_str] = event
         return position
 
-    async def append_batch(self, events: list[Event]) -> list[str]:
+    async def append_batch(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[str]:
         positions: list[str] = []
-        for event in events:
-            position = await self.append(event)
+        for idx, event in enumerate(events):
+            event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+            position = await self.append(event, payload=event_payload)
             positions.append(position)
         return positions
 
@@ -61,15 +70,19 @@ class InMemoryEventStore:
     async def close(self) -> None:
         pass
 
+    # EventStoreAdmin protocol
+    async def health_ping(self) -> bool:
+        return True
+
+    async def stream_length(self) -> int:
+        return self._counter
+
 
 class StubGraphStore:
-    """Stub GraphStore for unit tests — satisfies the protocol for health checks + queries."""
+    """Stub GraphStore satisfying GraphStore + HealthCheckable + GraphMaintenance + UserStore."""
 
     def __init__(self, healthy: bool = True) -> None:
         self._healthy = healthy
-        # Simulate driver/database for health check access
-        self._driver = _StubDriver(healthy)
-        self._database = "neo4j"
         # Configurable entity lookup response
         self._entities: dict[str, dict[str, object]] = {}
 
@@ -81,6 +94,8 @@ class StubGraphStore:
         session_id: str,
         max_nodes: int = 100,
         query: str | None = None,
+        max_depth: int = 3,
+        cursor: str | None = None,
     ) -> AtlasResponse:
         from context_graph.domain.models import AtlasResponse
 
@@ -102,46 +117,117 @@ class StubGraphStore:
     async def close(self) -> None:
         pass
 
+    # HealthCheckable protocol
+    async def health_ping(self) -> bool:
+        return self._healthy
 
-class _StubDriver:
-    """Stub Neo4j driver for health checks."""
+    # GraphMaintenance protocol
+    async def get_session_event_counts(self) -> dict[str, int]:
+        return {}
 
-    def __init__(self, healthy: bool) -> None:
-        self._healthy = healthy
+    async def get_graph_stats(self) -> dict[str, Any]:
+        return {"nodes": {}, "edges": {}, "total_nodes": 0, "total_edges": 0}
 
-    def session(self, database: str | None = None) -> _StubSession:
-        return _StubSession(self._healthy)
-
-
-class _StubSession:
-    """Stub Neo4j session."""
-
-    def __init__(self, healthy: bool) -> None:
-        self._healthy = healthy
-
-    async def __aenter__(self) -> _StubSession:
-        return self
-
-    async def __aexit__(self, *args: object) -> None:
+    async def write_summary_with_edges(
+        self,
+        summary_id: str,
+        scope: str,
+        scope_id: str,
+        content: str,
+        created_at: str,
+        event_count: int,
+        time_range: list[str],
+        event_ids: list[str],
+    ) -> None:
         pass
 
-    async def run(self, query: str, *args: object, **kwargs: object) -> None:
-        if not self._healthy:
-            msg = "Neo4j unavailable"
-            raise ConnectionError(msg)
+    async def delete_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+        return 0
 
+    async def delete_cold_events(
+        self, max_age_hours: int, min_importance: int, min_access_count: int
+    ) -> int:
+        return 0
 
-class _StubRedisClient:
-    """Stub Redis client for health check PING."""
+    async def delete_archive_events(self, event_ids: list[str]) -> int:
+        return 0
 
-    def __init__(self, healthy: bool = True) -> None:
-        self._healthy = healthy
+    async def get_archive_event_ids(self, max_age_hours: int) -> list[str]:
+        return []
 
-    async def ping(self) -> bool:
-        if not self._healthy:
-            msg = "Redis unavailable"
-            raise ConnectionError(msg)
-        return True
+    async def delete_orphan_nodes(self, batch_size: int = 500) -> tuple[dict[str, int], list[str]]:
+        return {}, []
+
+    async def update_importance_from_centrality(self) -> int:
+        return 0
+
+    async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
+        return []
+
+    # UserStore protocol
+    async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
+        return None
+
+    async def get_user_preferences(
+        self, user_id: str, active_only: bool = True
+    ) -> list[dict[str, Any]]:
+        return []
+
+    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+        return []
+
+    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+        return []
+
+    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+        return []
+
+    async def delete_user_data(self, user_id: str) -> int:
+        return 0
+
+    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+        return {}
+
+    async def write_user_profile(self, profile_data: dict[str, Any]) -> None:
+        pass
+
+    async def write_preference_with_edges(
+        self,
+        user_entity_id: str,
+        preference_data: dict[str, Any],
+        source_event_ids: list[str],
+        derivation_info: dict[str, Any],
+    ) -> None:
+        pass
+
+    async def write_skill_with_edges(
+        self,
+        user_entity_id: str,
+        skill_data: dict[str, Any],
+        source_event_ids: list[str],
+        derivation_info: dict[str, Any],
+    ) -> None:
+        pass
+
+    async def write_interest_edge(
+        self,
+        user_entity_id: str,
+        entity_name: str,
+        entity_type: str,
+        weight: float,
+        source: str,
+    ) -> None:
+        pass
+
+    async def write_derived_from_edge(
+        self,
+        source_node_id: str,
+        source_id_field: str,
+        event_id: str,
+        method: str,
+        session_id: str,
+    ) -> None:
+        pass
 
 
 @pytest.fixture()
@@ -183,12 +269,11 @@ def test_client(
     app.include_router(lineage_router, prefix="/v1")
     app.include_router(entities_router, prefix="/v1")
 
-    store = in_memory_event_store
+    from context_graph.settings import Settings
 
-    # Wire stubs into app state
-    app.state.event_store = store
+    # Wire stubs into app state (settings needed for auth dependency)
+    app.state.settings = Settings()
+    app.state.event_store = in_memory_event_store
     app.state.graph_store = stub_graph_store
-    # Health check accesses _client directly
-    store._client = _StubRedisClient(healthy=True)  # type: ignore[attr-defined]
 
     return _TestClient(app)

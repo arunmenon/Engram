@@ -18,7 +18,7 @@ async def neo4j_driver():
     settings = Neo4jSettings()
     driver = AsyncGraphDatabase.driver(
         settings.uri,
-        auth=(settings.username, settings.password),
+        auth=(settings.username, settings.password.get_secret_value()),
     )
 
     # Create constraints for test stability

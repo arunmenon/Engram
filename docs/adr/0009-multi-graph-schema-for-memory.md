@@ -50,7 +50,7 @@ All projected nodes share a base property set, with type-specific extensions:
 **Event Node** (`:Event`)
 ```
 Properties:
-  event_id         : STRING (PK, from Postgres)
+  event_id         : STRING (PK, from Redis)
   event_type       : STRING (dot-namespaced: agent.invoke, tool.execute, etc.)
   occurred_at      : DATETIME
   session_id       : STRING
@@ -77,6 +77,7 @@ Properties:
   first_seen  : DATETIME
   last_seen   : DATETIME
   mention_count : INTEGER
+  embedding   : LIST<FLOAT>  // Entity embedding for semantic search (384-dim)
 ```
 
 **Summary Node** (`:Summary`) -- created during re-consolidation
@@ -148,7 +149,7 @@ Properties:
 - Created in Stage 3 (re-consolidation)
 - Links summary nodes to the events or lower-level summaries they compress
 - Enables hierarchical retrieval: query a summary, drill down to source events
-- Preserves provenance: summary -> event -> Postgres source
+- Preserves provenance: summary -> event -> Redis source
 
 ### Intent-Aware Retrieval
 
@@ -209,7 +210,7 @@ During Stage 2 enrichment (ADR-0008), event nodes MUST be annotated with derived
 
 | A-MEM Field | Neo4j Property | Derivation |
 |-------------|---------------|------------|
-| Content | (event payload via `payload_ref`) | Not stored in Neo4j; dereference to Postgres |
+| Content | (event payload via `payload_ref`) | Not stored in Neo4j; dereference to Redis |
 | Timestamp | `occurred_at` | Direct from event |
 | Keywords | `keywords` | NLP extraction from payload content |
 | Tags | `event_type` (dot-namespaced) | Direct from event |
@@ -250,10 +251,10 @@ The `scores` field is new -- it enables clients to understand why particular nod
 Because Neo4j is a derived projection (ADR-0003), schema changes do NOT require data migration:
 
 1. Update projection logic to produce new edge types / node properties
-2. Trigger full re-projection from Postgres events
+2. Trigger full re-projection from Redis events
 3. Neo4j rebuilds with the new schema
 
-This is a unique advantage over systems where the graph is the primary store. The immutable Postgres ledger means we can re-project with different schemas, enrichment strategies, or edge-creation thresholds without losing data.
+This is a unique advantage over systems where the graph is the primary store. The immutable Redis ledger means we can re-project with different schemas, enrichment strategies, or edge-creation thresholds without losing data.
 
 ## Consequences
 
@@ -264,7 +265,7 @@ This is a unique advantage over systems where the graph is the primary store. Th
 - **Token efficiency**: Intent-aware traversal surfaces relevant nodes first, reducing context size passed to agents (MAGMA reports 95% token reduction)
 - **Cross-session entity tracking**: Entity nodes solve the object permanence problem -- the same tool across sessions is one node
 - **Hierarchical navigation**: Summary nodes enable agents to browse at the right granularity, drilling down when needed
-- **Provenance preserved**: Every graph element traces back to immutable Postgres events via `event_id`
+- **Provenance preserved**: Every graph element traces back to immutable Redis events via `event_id`
 - **Schema evolution via re-projection**: No migration required; change projection logic and rebuild
 
 ### Negative
@@ -292,7 +293,7 @@ Rejected. A single `RELATES_TO` edge with type metadata requires filtering at qu
 Rejected. MAGMA's four views are orthogonal but share the same node set. Separate databases would require cross-database joins. A single Neo4j database with typed edges achieves the same logical separation with better query performance.
 
 ### 3. External vector database for semantic edges
-Deferred. Storing embeddings as Neo4j node properties is sufficient at our expected scale. If embedding search latency exceeds acceptable thresholds (benchmark at 100K events), we can add a dedicated vector index (Neo4j's built-in vector index or an external Pinecone/Qdrant) without changing the graph schema.
+Deferred. Storing embeddings as Neo4j node properties is sufficient at our expected scale. If embedding search latency exceeds acceptable thresholds (benchmark at 100K events), we can add a dedicated vector index (Neo4j's built-in vector index or an external Pinecone/Qdrant) without changing the graph schema. (Note: Neo4j vector index `entity_embedding_idx` is now implemented for Entity embeddings -- see 2026-02-25 amendment.)
 
 ### 4. Full knowledge graph extraction (NER + relation extraction)
 Deferred for MVP. Full KG extraction from event payloads is high-value but high-complexity. Start with entity nodes (agents, tools, sessions) derived from event metadata fields. Expand to payload-content-based entities in a future phase.
@@ -320,7 +321,7 @@ The graph structure itself determines what's relevant — nodes with many connec
 | Query routing | Caller declares intent → static weight matrix | Extract entities from query → seed PPR on matched Entity/Event nodes |
 | Edge weighting | Per-intent static weights (hand-tuned) | Edge types could still have base weights (teleport probability modifiers), but topology dominates |
 | Multi-hop | Limited by max_depth (default 3) and heuristic weights | Natural — PPR propagates through arbitrary path lengths with diminishing relevance |
-| Scalability | O(edges traversed) per query | O(edges * iterations) but converges fast; Neo4j has native graph algorithms library (GDS) with PPR implementation |
+| Scalability | O(edges traversed) per query | O(edges * iterations) but converges fast; Neo4j has native graph algorithms library (GDS) with PPR implementation (Note: GDS library is not available on Neo4j Community Edition. Centrality is computed via plain Cypher.) |
 | Explainability | "This node was returned because CAUSED_BY edges had weight 5.0 for your 'why' intent" | "This node accumulated relevance 0.73 through 3 paths from your seed nodes" — less interpretable |
 | Intent sensitivity | Very sensitive — different intents produce very different results | Less sensitive to declared intent; more sensitive to query content and graph structure |
 
@@ -512,3 +513,53 @@ This preserves the traceability-first principle: the caller always knows *how* t
 | Multi-intent traversal increases query latency | Parallel traversals (not sequential); enforce per-intent timeout budget that sums to total `timeout_ms` |
 | Proactive context is noise rather than signal | Mark proactive nodes clearly; start conservative (only surface recurring patterns with high confidence); collect feedback metrics |
 | Entity extraction from query text is unreliable | Use embedding similarity as fallback when keyword matching fails; degrade gracefully to `general` intent with user's entity node as sole seed |
+
+### 2026-02-25: Neo4j-Only Embedding Storage
+
+All embeddings are stored exclusively as Neo4j node properties:
+
+- **Entity embeddings** (384-dim): Stored on Entity.embedding, populated
+  by Consumer 2 (extraction). Used for both KNN entity resolution
+  (via Neo4j vector index) and query-time relevance scoring.
+
+- **Event embeddings** (384-dim): Stored on Event.embedding, populated
+  by Consumer 3 (enrichment). Used for query-time relevance scoring.
+
+Neo4j vector index `entity_embedding_idx` provides O(log n) approximate
+nearest neighbor search for entity resolution, replacing the previously
+planned Redis HNSW index.
+
+This aligns with the original non-goal statement: "Vector database as
+a separate component (embeddings stored as Neo4j node properties)."
+
+### 2026-02-28: Batched Neighbor Traversal and Per-Seed Neighbor Limit
+
+**What changed:** The subgraph neighbor traversal now uses a single batched Cypher query (`UNWIND`) instead of per-seed sequential queries (N+1 fix). A `neighbor_limit` setting (default 50) bounds the total neighbors returned by the batch query, preventing hub node explosion.
+
+**Rationale:** With 10 seed nodes and unbounded neighbor queries, the subgraph endpoint could produce 10 sequential roundtrips each returning hundreds of rows. The batch query reduces this to a single roundtrip with a bounded result set. The 50-neighbor default is sufficient for intent-weighted traversal -- the top-scoring nodes are kept after decay scoring anyway.
+
+**Setting:** `CG_QUERY_DEFAULT_NEIGHBOR_LIMIT` (default 50). Applied as `LIMIT` in the `GET_EVENT_NEIGHBORS_BATCH` Cypher query.
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Graph operations described in this ADR are now accessed exclusively through port protocols, enforcing hexagonal architecture boundaries between API routes and the Neo4j adapter.
+
+**Protocol boundaries for graph operations:**
+
+| Operation Category | Protocol | Key Methods |
+|--------------------|----------|-------------|
+| Subgraph query, lineage, context retrieval | `GraphStore` (`ports/graph_store.py`) | `get_subgraph`, `get_lineage`, `get_context`, `get_entity` |
+| Node/edge projection (MERGE) | `GraphStore` | `merge_event_node`, `merge_entity_node`, `create_edge` |
+| Maintenance (pruning, summarization, centrality) | `GraphMaintenance` (`ports/maintenance.py`) | `delete_edges_by_type_and_age`, `delete_cold_events`, `write_summary_with_edges`, `update_importance_from_centrality` |
+| User subgraph (profiles, preferences, skills) | `UserStore` (`ports/user_store.py`) | `get_user_profile`, `get_user_preferences`, `get_user_skills`, `write_preference_with_edges` |
+| Health checks | `HealthCheckable` (`ports/health.py`) | `health_ping` |
+
+**Route hexagonal purity:** All 7 API route files import only from `ports/`, never from `adapters/`. The `dependencies.py` module returns protocol types via DI functions (e.g., `get_graph_store() -> GraphStore`). The concrete `Neo4jGraphStore` adapter satisfies `GraphStore`, `GraphMaintenance`, `UserStore`, and `HealthCheckable` protocols through ~25 delegation methods.
+
+**Impact on this ADR:**
+
+- The intent-weighted traversal and node enrichment schema defined here remain unchanged. The protocol boundary sits at the API-to-adapter layer, not the graph schema or Cypher query layer.
+- The four edge types, eight node types, and intent weight matrix are schema concerns that live below the protocol boundary inside the Neo4j adapter.
+- Query responses still use the Atlas pattern with provenance pointers; the protocol methods return `AtlasResponse` domain models, not raw Neo4j records.

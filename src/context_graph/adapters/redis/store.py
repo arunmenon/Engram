@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import importlib.resources
 from datetime import UTC
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import orjson
 import structlog
@@ -70,10 +70,21 @@ def _event_to_epoch_ms(event: Event) -> int:
     return int(timestamp.timestamp() * 1000)
 
 
-def _event_to_json_bytes(event: Event, occurred_at_epoch_ms: int) -> bytes:
-    """Serialize an event to JSON bytes with the epoch_ms field injected."""
+def _event_to_json_bytes(
+    event: Event,
+    occurred_at_epoch_ms: int,
+    payload: dict[str, Any] | None = None,
+) -> bytes:
+    """Serialize an event to JSON bytes with the epoch_ms field injected.
+
+    When *payload* is provided it is stored alongside the event fields in the
+    Redis JSON document.  ``Event.model_validate()`` silently ignores the extra
+    key on read (``extra="ignore"``), so existing deserialization is unaffected.
+    """
     data = orjson.loads(event.model_dump_json())
     data["occurred_at_epoch_ms"] = occurred_at_epoch_ms
+    if payload is not None:
+        data["payload"] = payload
     return orjson.dumps(data)
 
 
@@ -112,7 +123,7 @@ class RedisEventStore:
             host=settings.host,
             port=settings.port,
             db=settings.db,
-            password=settings.password,
+            password=settings.password.get_secret_value() if settings.password else None,
             decode_responses=False,
         )
         store = cls(client=client, settings=settings)
@@ -133,6 +144,19 @@ class RedisEventStore:
             self._settings.event_key_prefix,
         )
 
+    async def health_ping(self) -> bool:
+        """Return True if Redis is reachable."""
+        try:
+            result = await self._client.ping()  # type: ignore[misc]
+            return bool(result)
+        except Exception:
+            return False
+
+    async def stream_length(self) -> int:
+        """Return the number of entries in the global event stream."""
+        result = await self._client.xlen(self._settings.global_stream)
+        return int(result)
+
     async def close(self) -> None:
         """Release the Redis connection."""
         await self._client.aclose()
@@ -140,15 +164,21 @@ class RedisEventStore:
 
     # -- write operations ---------------------------------------------------
 
-    async def append(self, event: Event) -> str:
+    async def append(
+        self,
+        event: Event,
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         """Append a single event. Returns the global_position (stream entry ID).
 
         Idempotent: duplicate event_id submissions return the existing position.
+        When *payload* is given it is persisted in the JSON document alongside
+        the event fields so the extraction worker can access conversation content.
         """
         event_id_str = str(event.event_id)
         json_key = f"{self._settings.event_key_prefix}{event_id_str}"
         occurred_at_epoch_ms = _event_to_epoch_ms(event)
-        event_json = _event_to_json_bytes(event, occurred_at_epoch_ms)
+        event_json = _event_to_json_bytes(event, occurred_at_epoch_ms, payload=payload)
 
         if self._script_sha is None:
             await self._register_script()
@@ -164,6 +194,7 @@ class RedisEventStore:
             event_id_str,
             event_json,
             str(occurred_at_epoch_ms),
+            str(self._settings.global_stream_maxlen),
         )
 
         # Conditional WAIT for replica acknowledgment
@@ -178,12 +209,52 @@ class RedisEventStore:
         )
         return global_position
 
-    async def append_batch(self, events: list[Event]) -> list[str]:
-        """Append multiple events. Each is individually atomic via Lua."""
+    async def append_batch(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[str]:
+        """Append multiple events in a single Redis pipeline round-trip.
+
+        Each event is individually atomic via the Lua ingestion script.
+        Pipelining reduces batch latency from O(n * RTT) to O(RTT).
+        """
+        if not events:
+            return []
+
+        if self._script_sha is None:
+            await self._register_script()
+
+        pipe = self._client.pipeline(transaction=False)
+        for idx, event in enumerate(events):
+            event_id_str = str(event.event_id)
+            json_key = f"{self._settings.event_key_prefix}{event_id_str}"
+            occurred_at_epoch_ms = _event_to_epoch_ms(event)
+            event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+            event_json = _event_to_json_bytes(event, occurred_at_epoch_ms, payload=event_payload)
+            session_stream_key = f"events:session:{event.session_id}"
+
+            pipe.evalsha(
+                self._script_sha,  # type: ignore[arg-type]
+                4,  # number of KEYS
+                self._settings.global_stream,
+                json_key,
+                self._settings.dedup_set,
+                session_stream_key,
+                event_id_str,
+                event_json,
+                str(occurred_at_epoch_ms),
+                str(self._settings.global_stream_maxlen),
+            )
+
+        results = await pipe.execute()
+
         positions: list[str] = []
-        for event in events:
-            position = await self.append(event)
-            positions.append(position)
+        for result in results:
+            global_position = result.decode() if isinstance(result, bytes) else str(result)
+            positions.append(global_position)
+
+        log.debug("batch_appended", count=len(events))
         return positions
 
     async def cleanup_dedup_set(self, retention_ms: int | None = None) -> int:

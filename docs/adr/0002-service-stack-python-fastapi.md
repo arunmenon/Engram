@@ -44,7 +44,7 @@ Rejected as premature; adds architecture overhead before validating product shap
 | Capability | Required By | Likely Dependency | Impact |
 |------------|-------------|-------------------|--------|
 | Embedding generation | ADR-0008 Stage 2, ADR-0009 | `sentence-transformers` or `fastembed` | 384-dim (all-MiniLM-L6-v2); PyTorch dependency adds ~2GB to container |
-| Keyword/entity extraction | ADR-0008 Stage 2, ADR-0009 | `spacy` or lightweight NLP pipeline | Entity extraction from event payloads |
+| Keyword/entity extraction | ADR-0008 Stage 2, ADR-0009 | LLM API client (`litellm`) | Entity extraction from event payloads |
 | Summarization | ADR-0008 Stage 3, ADR-0009 | LLM API client (e.g., `litellm`) | Summary generation for re-consolidation |
 
 **Multi-process deployment model:** The enrichment pipeline introduces CPU-bound workloads (embedding computation, NLP extraction) alongside the existing I/O-bound workloads (API handling, database queries). The service SHOULD be deployed as multiple processes:

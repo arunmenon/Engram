@@ -182,6 +182,48 @@ def score_node(
     )
 
 
+def score_entity_node(
+    entity_data: dict[str, Any],
+    query_embedding: list[float] | None = None,
+    now: datetime | None = None,
+) -> NodeScores:
+    """Score an Entity node for retrieval ranking.
+
+    Entities don't have occurred_at or access_count like events.
+    Uses last_seen for recency, mention_count for importance,
+    and embedding similarity for relevance.
+    """
+    # Recency from last_seen
+    last_seen_raw = entity_data.get("last_seen")
+    if isinstance(last_seen_raw, str):
+        last_seen = datetime.fromisoformat(last_seen_raw)
+    elif isinstance(last_seen_raw, datetime):
+        last_seen = last_seen_raw
+    else:
+        last_seen = datetime.now(UTC) if now is None else now
+
+    recency = compute_recency_score(last_seen, s_base=336.0, now=now)
+
+    # Importance from mention_count
+    mention_count = entity_data.get("mention_count", 1)
+    importance = compute_importance_score(
+        importance_hint=min(10, mention_count), access_count=mention_count
+    )
+
+    # Relevance from embedding
+    node_embedding = entity_data.get("embedding", [])
+    relevance = compute_relevance_score(query_embedding or [], node_embedding)
+
+    composite = compute_composite_score(recency, importance, relevance)
+    importance_int = min(10, max(1, mention_count))
+
+    return NodeScores(
+        decay_score=round(composite, 6),
+        relevance_score=round(relevance, 6),
+        importance_score=importance_int,
+    )
+
+
 def compute_user_affinity(
     session_proximity: float = 0.0,
     retrieval_recurrence: float = 0.0,

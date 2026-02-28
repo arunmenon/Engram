@@ -13,6 +13,8 @@ dependencies = [
     "orjson>=3.10",
     "structlog>=24.4",
     "prometheus-client>=0.21",
+    "litellm>=1.40",
+    "openai>=1.30",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +26,13 @@ dev = [
     "mypy>=1.13",
     "pre-commit>=4.0",
     "httpx>=0.28",
+]
+embedding = [
+    "sentence-transformers>=2.6",
+    "numpy>=1.26",
+]
+gcs = [
+    "google-cloud-storage>=2.14",
 ]
 infra-test = [
     "redis>=5.0",
@@ -71,7 +80,7 @@ warn_unused_configs = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["redis.*", "neo4j.*"]
+module = ["redis.*", "neo4j.*", "litellm", "litellm.*", "sentence_transformers", "sentence_transformers.*", "google.cloud.*", "google.auth.*", "google.api_core.*"]
 ignore_missing_imports = true
 
 [tool.coverage.run]

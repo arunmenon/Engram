@@ -62,6 +62,7 @@ def _unique_prefix(test_number: int) -> str:
 # Helper: build an event-shaped JSON document
 # ---------------------------------------------------------------------------
 
+
 def _make_event(
     event_id: str = "evt-test-001",
     event_type: str = "tool.execute",
@@ -92,6 +93,7 @@ def _make_event(
 # Test 1 — Streams: XADD + auto-generated IDs
 # ---------------------------------------------------------------------------
 
+
 async def test_01_stream_xadd_auto_id(redis_client: aioredis.Redis):
     """XADD to a stream with auto-generated ID; confirm {ms}-{seq} format."""
     prefix = _unique_prefix(1)
@@ -103,9 +105,9 @@ async def test_01_stream_xadd_auto_id(redis_client: aioredis.Redis):
             {"event_id": "evt-001", "event_type": "tool.execute"},
         )
         assert entry_id is not None, "XADD returned None"
-        assert STREAM_ID_PATTERN.match(entry_id), (
-            f"Stream entry ID '{entry_id}' does not match {{ms}}-{{seq}} format"
-        )
+        assert STREAM_ID_PATTERN.match(
+            entry_id
+        ), f"Stream entry ID '{entry_id}' does not match {{ms}}-{{seq}} format"
 
         # Verify the entry can be read back
         entries = await redis_client.xrange(stream_key, "-", "+")
@@ -125,9 +127,10 @@ async def test_01_stream_xadd_auto_id(redis_client: aioredis.Redis):
         # Second entry should have an equal or greater ID
         ms1, seq1 = entry_id.split("-")
         ms2, seq2 = entry_id_2.split("-")
-        assert (int(ms2), int(seq2)) >= (int(ms1), int(seq1)), (
-            "Second stream entry ID is not >= first"
-        )
+        assert (int(ms2), int(seq2)) >= (
+            int(ms1),
+            int(seq1),
+        ), "Second stream entry ID is not >= first"
 
         print(f"  Stream entry IDs: {entry_id}, {entry_id_2}")
     finally:
@@ -137,6 +140,7 @@ async def test_01_stream_xadd_auto_id(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 2 — Consumer groups: XREADGROUP + XACK + PEL tracking
 # ---------------------------------------------------------------------------
+
 
 async def test_02_consumer_group_readgroup_ack(redis_client: aioredis.Redis):
     """Create group, read with BLOCK, ACK, verify PEL tracking."""
@@ -173,9 +177,9 @@ async def test_02_consumer_group_readgroup_ack(redis_client: aioredis.Redis):
 
         # Check PEL — all 3 entries should be pending (unacknowledged)
         pending_info = await redis_client.xpending(stream_key, group_name)
-        assert pending_info["pending"] == 3, (
-            f"Expected 3 pending entries, got {pending_info['pending']}"
-        )
+        assert (
+            pending_info["pending"] == 3
+        ), f"Expected 3 pending entries, got {pending_info['pending']}"
 
         # ACK two of three entries
         acked = await redis_client.xack(stream_key, group_name, ids[0], ids[1])
@@ -183,9 +187,9 @@ async def test_02_consumer_group_readgroup_ack(redis_client: aioredis.Redis):
 
         # Check PEL again — only 1 should remain
         pending_info = await redis_client.xpending(stream_key, group_name)
-        assert pending_info["pending"] == 1, (
-            f"Expected 1 pending entry after ACK, got {pending_info['pending']}"
-        )
+        assert (
+            pending_info["pending"] == 1
+        ), f"Expected 1 pending entry after ACK, got {pending_info['pending']}"
 
         # ACK the last one
         acked = await redis_client.xack(stream_key, group_name, ids[2])
@@ -206,6 +210,7 @@ async def test_02_consumer_group_readgroup_ack(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 3 — Multiple consumer groups on one stream (ADR-0013: 4 consumers)
 # ---------------------------------------------------------------------------
+
 
 async def test_03_multiple_consumer_groups(redis_client: aioredis.Redis):
     """Create 4 groups on the same stream; each gets all messages independently."""
@@ -241,16 +246,16 @@ async def test_03_multiple_consumer_groups(redis_client: aioredis.Redis):
             )
             assert result is not None and len(result) > 0
             _, messages = result[0]
-            assert len(messages) == 5, (
-                f"Group {group_name} expected 5 messages, got {len(messages)}"
-            )
+            assert (
+                len(messages) == 5
+            ), f"Group {group_name} expected 5 messages, got {len(messages)}"
 
         # Verify each group has 5 pending entries independently
         for group_name in group_names:
             pending_info = await redis_client.xpending(stream_key, group_name)
-            assert pending_info["pending"] == 5, (
-                f"Group {group_name}: expected 5 pending, got {pending_info['pending']}"
-            )
+            assert (
+                pending_info["pending"] == 5
+            ), f"Group {group_name}: expected 5 pending, got {pending_info['pending']}"
 
         # ACK all for group 1 only; others should remain pending
         result_g1 = await redis_client.xreadgroup(
@@ -269,9 +274,7 @@ async def test_03_multiple_consumer_groups(redis_client: aioredis.Redis):
 
         for group_name in group_names[1:]:
             pending = await redis_client.xpending(stream_key, group_name)
-            assert pending["pending"] == 5, (
-                f"Group {group_name} should still have 5 pending"
-            )
+            assert pending["pending"] == 5, f"Group {group_name} should still have 5 pending"
 
         print("  4 consumer groups verified: independent delivery and PEL tracking")
     finally:
@@ -286,6 +289,7 @@ async def test_03_multiple_consumer_groups(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 4 — RedisJSON: JSON.SET + JSON.GET (event-shaped documents)
 # ---------------------------------------------------------------------------
+
 
 async def test_04_redisjson_set_get(redis_client: aioredis.Redis):
     """Store event-shaped JSON documents and retrieve nested fields."""
@@ -345,6 +349,7 @@ async def test_04_redisjson_set_get(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 5 — RediSearch: FT.CREATE + FT.SEARCH on JSON documents
 # ---------------------------------------------------------------------------
+
 
 async def test_05_redisearch_create_search(redis_client: aioredis.Redis):
     """Create index on JSON docs; search by session_id, agent_id, time range, composite."""
@@ -422,41 +427,27 @@ async def test_05_redisearch_create_search(redis_client: aioredis.Redis):
         # Search by session_id
         query = Query("@session_id:{sess\\-alpha}").no_content()
         result = await redis_client.ft(index_name).search(query)
-        assert result.total == 2, (
-            f"Expected 2 results for sess-alpha, got {result.total}"
-        )
+        assert result.total == 2, f"Expected 2 results for sess-alpha, got {result.total}"
 
         # Search by agent_id
         query = Query("@agent_id:{agent\\-A}").no_content()
         result = await redis_client.ft(index_name).search(query)
-        assert result.total == 3, (
-            f"Expected 3 results for agent-A, got {result.total}"
-        )
+        assert result.total == 3, f"Expected 3 results for agent-A, got {result.total}"
 
         # Search by time range
-        query = Query(
-            "@occurred_at_epoch_ms:[1770808200000 1770808201000]"
-        ).no_content()
+        query = Query("@occurred_at_epoch_ms:[1770808200000 1770808201000]").no_content()
         result = await redis_client.ft(index_name).search(query)
-        assert result.total == 2, (
-            f"Expected 2 results in time range, got {result.total}"
-        )
+        assert result.total == 2, f"Expected 2 results in time range, got {result.total}"
 
         # Composite search: session_id + event_type
-        query = Query(
-            "@session_id:{sess\\-alpha} @event_type:{tool\\.execute}"
-        ).no_content()
+        query = Query("@session_id:{sess\\-alpha} @event_type:{tool\\.execute}").no_content()
         result = await redis_client.ft(index_name).search(query)
-        assert result.total == 1, (
-            f"Expected 1 result for composite query, got {result.total}"
-        )
+        assert result.total == 1, f"Expected 1 result for composite query, got {result.total}"
 
         # Search by tool_name
         query = Query("@tool_name:{web_search}").no_content()
         result = await redis_client.ft(index_name).search(query)
-        assert result.total == 2, (
-            f"Expected 2 results for web_search tool, got {result.total}"
-        )
+        assert result.total == 2, f"Expected 2 results for web_search tool, got {result.total}"
 
         print("  RediSearch: index created, queried by session, agent, time, composite")
     finally:
@@ -471,6 +462,7 @@ async def test_05_redisearch_create_search(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 6 — RediSearch: SORTBY on numeric field (replay ordering)
 # ---------------------------------------------------------------------------
+
 
 async def test_06_redisearch_sortby_numeric(redis_client: aioredis.Redis):
     """FT.SEARCH with SORTBY occurred_at_epoch_ms ASC; verify ordering."""
@@ -564,6 +556,7 @@ async def test_06_redisearch_sortby_numeric(redis_client: aioredis.Redis):
 # Test 7 — Lua scripting: EVALSHA (atomic Stream + JSON write)
 # ---------------------------------------------------------------------------
 
+
 async def test_07_lua_atomic_stream_json(redis_client: aioredis.Redis):
     """Load and execute a Lua script that writes to Stream + JSON atomically."""
     prefix = _unique_prefix(7)
@@ -602,9 +595,9 @@ async def test_07_lua_atomic_stream_json(redis_client: aioredis.Redis):
         )
 
         # Verify stream entry
-        assert STREAM_ID_PATTERN.match(stream_id), (
-            f"Lua returned stream ID '{stream_id}' does not match format"
-        )
+        assert STREAM_ID_PATTERN.match(
+            stream_id
+        ), f"Lua returned stream ID '{stream_id}' does not match format"
         entries = await redis_client.xrange(stream_key, "-", "+")
         assert len(entries) == 1
         assert entries[0][1]["event_id"] == "evt-lua-001"
@@ -624,6 +617,7 @@ async def test_07_lua_atomic_stream_json(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 8 — Lua: dedup pattern (ADR-0010 idempotent ingestion)
 # ---------------------------------------------------------------------------
+
 
 async def test_08_lua_dedup_pattern(redis_client: aioredis.Redis):
     """Lua dedup: check sorted set, write if absent, return existing if present."""
@@ -669,9 +663,14 @@ async def test_08_lua_dedup_pattern(redis_client: aioredis.Redis):
 
         # First ingestion: should succeed
         result_1 = await redis_client.evalsha(
-            sha, 3,
-            stream_key, dedup_key, doc_key_1,
-            "evt-dedup-001", event_1_json, now_ms,
+            sha,
+            3,
+            stream_key,
+            dedup_key,
+            doc_key_1,
+            "evt-dedup-001",
+            event_1_json,
+            now_ms,
         )
         assert result_1.startswith("NEW:"), f"Expected NEW, got: {result_1}"
         stream_id_1 = result_1.split(":", 1)[1]
@@ -679,15 +678,18 @@ async def test_08_lua_dedup_pattern(redis_client: aioredis.Redis):
 
         # Second ingestion of the same event: should be rejected as duplicate
         result_2 = await redis_client.evalsha(
-            sha, 3,
-            stream_key, dedup_key, doc_key_1,
-            "evt-dedup-001", event_1_json, now_ms,
+            sha,
+            3,
+            stream_key,
+            dedup_key,
+            doc_key_1,
+            "evt-dedup-001",
+            event_1_json,
+            now_ms,
         )
         assert result_2.startswith("DUPLICATE:"), f"Expected DUPLICATE, got: {result_2}"
         returned_stream_id = result_2.split(":", 1)[1]
-        assert returned_stream_id == stream_id_1, (
-            "Duplicate should return the original stream ID"
-        )
+        assert returned_stream_id == stream_id_1, "Duplicate should return the original stream ID"
 
         # Verify only 1 entry in stream (dedup worked)
         entries = await redis_client.xrange(stream_key, "-", "+")
@@ -697,9 +699,14 @@ async def test_08_lua_dedup_pattern(redis_client: aioredis.Redis):
         event_2 = _make_event(event_id="evt-dedup-002", event_type="tool.result")
         event_2_json = json.dumps(event_2)
         result_3 = await redis_client.evalsha(
-            sha, 3,
-            stream_key, dedup_key, doc_key_2,
-            "evt-dedup-002", event_2_json, now_ms,
+            sha,
+            3,
+            stream_key,
+            dedup_key,
+            doc_key_2,
+            "evt-dedup-002",
+            event_2_json,
+            now_ms,
         )
         assert result_3.startswith("NEW:"), f"Expected NEW for evt-002, got: {result_3}"
 
@@ -723,6 +730,7 @@ async def test_08_lua_dedup_pattern(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 9 — XTRIM with MINID (stream trimming for cold tier)
 # ---------------------------------------------------------------------------
+
 
 async def test_09_xtrim_minid(redis_client: aioredis.Redis):
     """Trim stream entries older than a given ID; verify remaining entries."""
@@ -753,9 +761,7 @@ async def test_09_xtrim_minid(redis_client: aioredis.Redis):
 
         # Verify remaining entries
         length_after = await redis_client.xlen(stream_key)
-        assert length_after == 3, (
-            f"Expected 3 entries after XTRIM MINID, got {length_after}"
-        )
+        assert length_after == 3, f"Expected 3 entries after XTRIM MINID, got {length_after}"
 
         remaining = await redis_client.xrange(stream_key, "-", "+")
         remaining_ids = [entry[0] for entry in remaining]
@@ -778,6 +784,7 @@ async def test_09_xtrim_minid(redis_client: aioredis.Redis):
 # ---------------------------------------------------------------------------
 # Test 10 — Stream + JSON independence (cold tier: trim stream, JSON persists)
 # ---------------------------------------------------------------------------
+
 
 async def test_10_stream_json_independence(redis_client: aioredis.Redis):
     """XTRIM stream, verify JSON docs still exist and are searchable."""
@@ -838,17 +845,15 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
 
         query = Query("@session_id:{sess\\-independence}").no_content()
         result_before = await redis_client.ft(index_name).search(query)
-        assert result_before.total == 5, (
-            f"Expected 5 searchable docs before trim, got {result_before.total}"
-        )
+        assert (
+            result_before.total == 5
+        ), f"Expected 5 searchable docs before trim, got {result_before.total}"
 
         # Trim the stream aggressively: keep only the last 2 entries
         trim_minid = stream_ids[3]  # Keep entries 3 and 4 only
         await redis_client.xtrim(stream_key, minid=trim_minid, approximate=False)
         stream_length = await redis_client.xlen(stream_key)
-        assert stream_length == 2, (
-            f"Expected 2 stream entries after trim, got {stream_length}"
-        )
+        assert stream_length == 2, f"Expected 2 stream entries after trim, got {stream_length}"
 
         # Verify all 5 JSON documents still exist
         for doc_key in doc_keys:
@@ -857,9 +862,9 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
 
         # Verify all 5 events are still searchable via RediSearch
         result_after = await redis_client.ft(index_name).search(query)
-        assert result_after.total == 5, (
-            f"Expected 5 searchable docs after trim, got {result_after.total}"
-        )
+        assert (
+            result_after.total == 5
+        ), f"Expected 5 searchable docs after trim, got {result_after.total}"
 
         # Verify sorted search still works on cold data
         sorted_query = (
@@ -877,9 +882,9 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
                 returned_timestamps.append(int(ts_val))
 
         expected = [base_ts + i * 1000 for i in range(5)]
-        assert returned_timestamps == expected, (
-            f"Sorted cold query returned wrong order: {returned_timestamps}"
-        )
+        assert (
+            returned_timestamps == expected
+        ), f"Sorted cold query returned wrong order: {returned_timestamps}"
 
         print(
             f"  Stream/JSON independence verified: "
@@ -900,6 +905,7 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
 # Test 11 — MODULE LIST: confirm ReJSON and Search modules are loaded
 # ---------------------------------------------------------------------------
 
+
 async def test_11_module_list(redis_client: aioredis.Redis):
     """Confirm that ReJSON and search modules are loaded in Redis Stack."""
     modules = await redis_client.module_list()
@@ -908,21 +914,11 @@ async def test_11_module_list(redis_client: aioredis.Redis):
     # Redis Stack module names can vary by version:
     # ReJSON might be listed as "ReJSON" or "rejson"
     # Search might be listed as "search" or "ft"
-    has_json = any(
-        name in module_names
-        for name in ("rejson", "redisjson", "json")
-    )
-    has_search = any(
-        name in module_names
-        for name in ("search", "ft", "redisearch")
-    )
+    has_json = any(name in module_names for name in ("rejson", "redisjson", "json"))
+    has_search = any(name in module_names for name in ("search", "ft", "redisearch"))
 
-    assert has_json, (
-        f"ReJSON module not found. Loaded modules: {module_names}"
-    )
-    assert has_search, (
-        f"Search module not found. Loaded modules: {module_names}"
-    )
+    assert has_json, f"ReJSON module not found. Loaded modules: {module_names}"
+    assert has_search, f"Search module not found. Loaded modules: {module_names}"
 
     # Print module details
     for module in modules:

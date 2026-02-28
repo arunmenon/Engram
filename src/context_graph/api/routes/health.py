@@ -1,14 +1,21 @@
 """Health check endpoint.
 
-GET /v1/health — reports status of Redis and Neo4j dependencies.
+GET /v1/health -- reports status of Redis and Neo4j dependencies.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated
 
 import structlog
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends
+from fastapi.responses import ORJSONResponse
+
+from context_graph.api.dependencies import (  # noqa: TCH001 — runtime: Depends()
+    get_event_health,
+    get_graph_health,
+)
+from context_graph.ports.health import HealthCheckable  # noqa: TCH001 — runtime: Depends()
 
 logger = structlog.get_logger(__name__)
 
@@ -16,32 +23,26 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
-async def health_check(request: Request) -> dict[str, Any]:
+async def health_check(
+    event_health: Annotated[HealthCheckable, Depends(get_event_health)],
+    graph_health: Annotated[HealthCheckable, Depends(get_graph_health)],
+) -> ORJSONResponse:
     """Service health check.
 
     Pings Redis and Neo4j to determine overall service health.
-    Returns "healthy" when both are reachable, "degraded" when only one
-    is reachable, and "unhealthy" when neither responds.
+    Returns "healthy" (200) when both are reachable, "degraded" (503) when
+    only one is reachable, and "unhealthy" (503) when neither responds.
     """
     redis_ok = False
     neo4j_ok = False
 
-    # Check Redis connectivity
     try:
-        event_store = request.app.state.event_store
-        await event_store._client.ping()
-        redis_ok = True
+        redis_ok = await event_health.health_ping()
     except Exception:
         logger.warning("health_check_redis_failed")
 
-    # Check Neo4j connectivity
     try:
-        graph_store = request.app.state.graph_store
-        async with graph_store._driver.session(
-            database=graph_store._database,
-        ) as session:
-            await session.run("RETURN 1")
-        neo4j_ok = True
+        neo4j_ok = await graph_health.health_ping()
     except Exception:
         logger.warning("health_check_neo4j_failed")
 
@@ -52,9 +53,11 @@ async def health_check(request: Request) -> dict[str, Any]:
     else:
         status = "unhealthy"
 
-    return {
+    content = {
         "status": status,
         "redis": redis_ok,
         "neo4j": neo4j_ok,
         "version": "0.1.0",
     }
+    status_code = 200 if status == "healthy" else 503
+    return ORJSONResponse(status_code=status_code, content=content)
