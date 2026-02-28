@@ -61,7 +61,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     except ImportError:
         logger.info("embedding_service_unavailable", hint="relevance_score will default to 0.5")
 
-    graph_store = Neo4jGraphStore(settings.neo4j, embedding_service=embedding_service)
+    graph_store = Neo4jGraphStore(
+        settings.neo4j,
+        embedding_service=embedding_service,
+        query_settings=settings.query,
+    )
     await graph_store.ensure_constraints()
 
     app.state.settings = settings

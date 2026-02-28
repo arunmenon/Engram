@@ -294,3 +294,29 @@ inside nested payload data.
 **Batch optimization**: `append_batch()` now uses `asyncio.gather()` with a
 semaphore of 50 for concurrent event ingestion, reducing batch latency from
 O(n * RTT) to O(RTT).
+
+### 2026-02-28: Credential Handling
+
+**What changed:** `RedisSettings.password` changed from `str | None` to `SecretStr | None` to prevent accidental credential logging. Callers must use `.get_secret_value()` when the password is set.
+
+**Impact:** Code creating Redis connections must check `if settings.password` and then call `.get_secret_value()`. Env var format unchanged (`CG_REDIS_PASSWORD=<value>`).
+
+### 2026-02-28: XAUTOCLAIM and Dead-Letter Queue (H4, H5)
+
+**XAUTOCLAIM for orphaned PEL messages:** Consumer workers now use
+`XAUTOCLAIM` (Redis 6.2+) on startup to claim messages that have been idle
+in the PEL longer than a configurable threshold (default: 5 minutes). This
+recovers messages from crashed consumer instances without manual
+intervention. The `XAUTOCLAIM` command atomically combines `XPENDING` +
+`XCLAIM` and also returns delivery counts.
+
+**Dead-letter queue streams:** Messages that fail processing after
+`max_retries` delivery attempts (default: 5) are written to a DLQ stream
+(`<source_stream>:dlq`) and ACKed from the source stream. DLQ entries
+include the original stream, entry ID, consumer group, consumer name, and
+delivery count for debugging. For example, the global stream DLQ is
+`events:__global__:dlq`.
+
+**DLQ streams are NOT indexed or consumed** automatically. They serve as a
+debugging and manual recovery mechanism. Operators can inspect DLQ entries
+via `XRANGE <stream>:dlq - +` and replay individual messages if needed.

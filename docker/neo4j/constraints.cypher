@@ -30,6 +30,9 @@ CREATE CONSTRAINT workflow_pk IF NOT EXISTS FOR (w:Workflow) REQUIRE w.workflow_
 // BehavioralPattern node — uniqueness (ADR-0012)
 CREATE CONSTRAINT behavioralpattern_pk IF NOT EXISTS FOR (b:BehavioralPattern) REQUIRE b.pattern_id IS UNIQUE;
 
+// Performance indexes
+CREATE INDEX event_session_id IF NOT EXISTS FOR (e:Event) ON (e.session_id);
+
 // Vector indexes for embedding-based similarity search (Neo4j 5.26+)
 CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS
 FOR (n:Entity) ON (n.embedding)

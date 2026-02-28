@@ -12,7 +12,7 @@ Sources:
 
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings
 
 from context_graph.domain.models import EdgeType, IntentType
@@ -26,7 +26,7 @@ class RedisSettings(BaseSettings):
     host: str = "localhost"
     port: int = 6379
     db: int = 0
-    password: str | None = None
+    password: SecretStr | None = None
 
     # Stream keys
     global_stream: str = "events:__global__"
@@ -70,7 +70,7 @@ class Neo4jSettings(BaseSettings):
 
     uri: str = "bolt://localhost:7687"
     username: str = "neo4j"
-    password: str = "engram-dev-password"
+    password: SecretStr = SecretStr("engram-dev-password")
     database: str = "neo4j"
     max_connection_pool_size: int = 50
 
@@ -136,6 +136,9 @@ class QuerySettings(BaseSettings):
 
     # Multi-intent confidence threshold
     intent_confidence_threshold: float = 0.3
+
+    # Maximum neighbors returned per seed node in subgraph traversal
+    default_neighbor_limit: int = 50
 
 
 class PreferenceSettings(BaseSettings):
@@ -348,6 +351,28 @@ class ArchiveSettings(BaseSettings):
     batch_size: int = 1000
 
 
+class ConsumerSettings(BaseSettings):
+    """Consumer resilience settings (H4, H5).
+
+    Controls orphaned message claiming (XAUTOCLAIM) and dead-letter queue
+    behavior for all Redis Stream consumer workers.
+    """
+
+    model_config = {"env_prefix": "CG_CONSUMER_"}
+
+    # H4: Min idle time (ms) before claiming orphaned messages from other consumers
+    claim_idle_ms: int = 300_000  # 5 minutes
+
+    # H4: Max messages to claim per XAUTOCLAIM call
+    claim_batch_size: int = 100
+
+    # H5: Max delivery attempts before dead-lettering a message
+    max_retries: int = 5
+
+    # H5: DLQ stream suffix — appended to the source stream key
+    dlq_stream_suffix: str = ":dlq"
+
+
 class Settings(BaseSettings):
     """Root application settings."""
 
@@ -369,3 +394,4 @@ class Settings(BaseSettings):
     llm: LLMSettings = Field(default_factory=LLMSettings)
     auth: AuthSettings = Field(default_factory=AuthSettings)
     archive: ArchiveSettings = Field(default_factory=ArchiveSettings)
+    consumer: ConsumerSettings = Field(default_factory=ConsumerSettings)

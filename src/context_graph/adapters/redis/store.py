@@ -124,7 +124,7 @@ class RedisEventStore:
             host=settings.host,
             port=settings.port,
             db=settings.db,
-            password=settings.password,
+            password=settings.password.get_secret_value() if settings.password else None,
             decode_responses=False,
         )
         store = cls(client=client, settings=settings)

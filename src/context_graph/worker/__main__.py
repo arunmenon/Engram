@@ -58,7 +58,7 @@ async def _build_consumer(
 
         neo4j_driver = AsyncGraphDatabase.driver(
             settings.neo4j.uri,
-            auth=(settings.neo4j.username, settings.neo4j.password),
+            auth=(settings.neo4j.username, settings.neo4j.password.get_secret_value()),
             max_connection_pool_size=settings.neo4j.max_connection_pool_size,
         )
         closeables.append(neo4j_driver)
@@ -96,7 +96,7 @@ async def _build_consumer(
 
         neo4j_driver = AsyncGraphDatabase.driver(
             settings.neo4j.uri,
-            auth=(settings.neo4j.username, settings.neo4j.password),
+            auth=(settings.neo4j.username, settings.neo4j.password.get_secret_value()),
             max_connection_pool_size=settings.neo4j.max_connection_pool_size,
         )
         llm_client = LLMExtractionClient(
@@ -148,7 +148,7 @@ async def _build_consumer(
 
         neo4j_driver = AsyncGraphDatabase.driver(
             settings.neo4j.uri,
-            auth=(settings.neo4j.username, settings.neo4j.password),
+            auth=(settings.neo4j.username, settings.neo4j.password.get_secret_value()),
             max_connection_pool_size=settings.neo4j.max_connection_pool_size,
         )
         closeables.append(neo4j_driver)
@@ -226,7 +226,7 @@ async def run_worker(consumer_type: str) -> None:
         host=settings.redis.host,
         port=settings.redis.port,
         db=settings.redis.db,
-        password=settings.redis.password,
+        password=settings.redis.password.get_secret_value() if settings.redis.password else None,
         decode_responses=False,
     )
 

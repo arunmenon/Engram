@@ -67,3 +67,15 @@ This resolves the earlier tension with ADR-0001's Phase 1 Postgres-only plan. AD
 - **Projection worker** = systems consolidation: Redis consumer groups replace Postgres polling (push-based delivery, built-in crash recovery via Pending Entry List)
 
 **Impact:** Postgres is no longer part of the dual-store architecture. References to "Postgres source of truth" in this ADR are superseded by Redis as the operational event store. The architecture is a true dual-store: Redis (episodic) + Neo4j (semantic). The core principle -- immutable event durability separate from query-optimized graph projection -- remains unchanged.
+
+### 2026-02-28: Credential Handling
+
+**What changed:** Store credentials now use Pydantic `SecretStr` to prevent accidental logging. `Neo4jSettings.password` changed from `str` to `SecretStr`; callers must use `.get_secret_value()` when passing credentials to drivers.
+
+### 2026-02-28: Performance Index on Event.session_id
+
+**What changed:** Added `CREATE INDEX event_session_id IF NOT EXISTS FOR (e:Event) ON (e.session_id)` to `constraints.cypher` and programmatic `ensure_constraints()`.
+
+**Rationale:** All session-scoped queries (GET_SESSION_EVENTS, seed strategies, cross-session retrieval) filter on `Event.session_id`. Without an index, these queries perform full label scans on `:Event` nodes. At scale (>10K events), this is the single largest performance bottleneck for the query layer.
+
+**Impact:** All code that creates Neo4j driver connections must access the password via `.get_secret_value()`. Env var format is unchanged (`CG_NEO4J_PASSWORD=<value>`).

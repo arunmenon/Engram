@@ -207,3 +207,9 @@ Values: `"direct"` (matched query intent), `"proactive"` (system-surfaced contex
 #### Backward Compatibility
 
 Callers that currently pass `intent` and `seed_nodes` explicitly continue to work unchanged — these fields are respected as overrides. The new behavior only activates when these fields are omitted. This is a backward-compatible expansion, not a breaking change.
+
+### 2026-02-28: Neo4j Query Timeout Enforcement
+
+**What changed:** The `default_timeout_ms` from `QuerySettings` is now passed to the Neo4j driver as a transaction-level timeout on all read queries. Previously this setting existed but was not wired to the database layer.
+
+**Impact:** Queries exceeding the timeout (default 5s, max 30s) will be terminated by Neo4j and return a timeout error to the API layer. This prevents runaway traversals from blocking the connection pool.

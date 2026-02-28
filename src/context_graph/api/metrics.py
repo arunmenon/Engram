@@ -54,6 +54,12 @@ CONSUMER_MESSAGE_ERRORS = Counter(
     ["consumer"],
 )
 
+CONSUMER_MESSAGES_DEAD_LETTERED = Counter(
+    "engram_consumer_messages_dead_lettered_total",
+    "Messages moved to dead-letter queue after max retries",
+    ["consumer"],
+)
+
 CONSUMER_LAG = Gauge(
     "engram_consumer_lag_messages",
     "Consumer group lag",

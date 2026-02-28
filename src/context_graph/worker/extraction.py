@@ -56,12 +56,17 @@ class ExtractionConsumer(BaseConsumer):
         embedding_service: EmbeddingService | None = None,
         graph_store: Neo4jGraphStore | None = None,
     ) -> None:
+        consumer_settings = settings.consumer
         super().__init__(
             redis_client=redis_client,
             group_name=settings.redis.group_extraction,
             consumer_name="extraction-1",
             stream_key=settings.redis.global_stream,
             block_timeout_ms=settings.redis.block_timeout_ms,
+            max_retries=consumer_settings.max_retries,
+            claim_idle_ms=consumer_settings.claim_idle_ms,
+            claim_batch_size=consumer_settings.claim_batch_size,
+            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
         self._neo4j_driver = neo4j_driver
         self._neo4j_database = neo4j_database

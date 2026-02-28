@@ -46,7 +46,7 @@ if TYPE_CHECKING:
         SummaryNode,
     )
     from context_graph.ports.embedding import EmbeddingService
-    from context_graph.settings import Neo4jSettings
+    from context_graph.settings import Neo4jSettings, QuerySettings
 
 logger = structlog.get_logger(__name__)
 
@@ -101,15 +101,20 @@ class Neo4jGraphStore:
         self,
         settings: Neo4jSettings,
         embedding_service: EmbeddingService | None = None,
+        query_settings: QuerySettings | None = None,
     ) -> None:
         self._settings = settings
         self._driver: AsyncDriver = AsyncGraphDatabase.driver(
             settings.uri,
-            auth=(settings.username, settings.password),
+            auth=(settings.username, settings.password.get_secret_value()),
             max_connection_pool_size=settings.max_connection_pool_size,
         )
         self._database = settings.database
         self._embedding_service = embedding_service
+        self._query_timeout_s: float = (
+            (query_settings.default_timeout_ms / 1000.0) if query_settings else 5.0
+        )
+        self._neighbor_limit: int = query_settings.default_neighbor_limit if query_settings else 50
 
     # ------------------------------------------------------------------
     # Node operations
@@ -264,7 +269,9 @@ class Neo4jGraphStore:
             "threshold": threshold,
         }
         async with self._driver.session(database=self._database) as session:
-            result = await session.run(queries.SEARCH_SIMILAR_ENTITIES, params)
+            result = await session.run(
+                queries.SEARCH_SIMILAR_ENTITIES, params, timeout=self._query_timeout_s
+            )
             records = [record async for record in result]
         return [
             {
@@ -277,12 +284,17 @@ class Neo4jGraphStore:
         ]
 
     async def ensure_constraints(self) -> None:
-        """Create uniqueness constraints if they do not exist."""
+        """Create uniqueness constraints and performance indexes if they do not exist."""
         async with self._driver.session(database=self._database) as session:
             for constraint_query in queries.ALL_CONSTRAINTS:
                 await session.run(constraint_query)
+            for index_query in queries.ALL_INDEXES:
+                await session.run(index_query)
         await self.ensure_vector_indexes()
-        logger.info("ensured_constraints", count=len(queries.ALL_CONSTRAINTS))
+        logger.info(
+            "ensured_constraints",
+            count=len(queries.ALL_CONSTRAINTS) + len(queries.ALL_INDEXES),
+        )
 
     async def ensure_vector_indexes(self) -> None:
         """Create vector indexes for embedding search if they do not exist."""
@@ -388,6 +400,7 @@ class Neo4jGraphStore:
             result = await session.run(
                 queries.GET_SESSION_EVENTS,
                 {"session_id": session_id, "limit": max_nodes},
+                timeout=self._query_timeout_s,
             )
             records = [record async for record in result]
 
@@ -418,6 +431,7 @@ class Neo4jGraphStore:
                 edge_result = await session.run(
                     queries.GET_SESSION_EDGES,
                     {"session_id": session_id, "event_ids": event_ids},
+                    timeout=self._query_timeout_s,
                 )
                 edge_records = [record async for record in edge_result]
             for erec in edge_records:
@@ -474,6 +488,7 @@ class Neo4jGraphStore:
                     "max_depth": clamped_depth,
                     "max_nodes": clamped_nodes,
                 },
+                timeout=self._query_timeout_s,
             )
             records = [record async for record in result]
 
@@ -557,6 +572,7 @@ class Neo4jGraphStore:
             seed_result = await session.run(
                 seed_query,
                 {"session_id": query.session_id, "seed_limit": seed_limit},
+                timeout=self._query_timeout_s,
             )
             seed_records = [record async for record in seed_result]
 
@@ -566,6 +582,7 @@ class Neo4jGraphStore:
                 seed_result = await session.run(
                     queries.GET_SUBGRAPH_SEED_EVENTS,
                     {"session_id": query.session_id, "seed_limit": seed_limit},
+                    timeout=self._query_timeout_s,
                 )
                 seed_records = [record async for record in seed_result]
 
@@ -593,6 +610,7 @@ class Neo4jGraphStore:
                         result = await session.run(
                             "MATCH (e:Event {event_id: $eid}) RETURN e",
                             {"eid": seed_id},
+                            timeout=self._query_timeout_s,
                         )
                         seed_record = await result.single()
                     if seed_record is not None:
@@ -612,6 +630,7 @@ class Neo4jGraphStore:
                         "session_id": query.session_id,
                         "limit": cross_limit,
                     },
+                    timeout=self._query_timeout_s,
                 )
                 cross_records = [record async for record in cross_result]
             for record in cross_records:
@@ -623,94 +642,99 @@ class Neo4jGraphStore:
                     atlas_node.proactive_signal = "cross_session"
                     nodes[event_id] = atlas_node
 
-        # For each seed, traverse neighbors
-        async with self._driver.session(database=self._database) as session:
-            for seed_eid in seed_node_ids:
+        # Batch neighbor traversal for all seeds (single roundtrip)
+        if seed_node_ids:
+            async with self._driver.session(database=self._database) as session:
                 neighbor_result = await session.run(
-                    queries.GET_EVENT_NEIGHBORS,
-                    {"event_id": seed_eid},
+                    queries.GET_EVENT_NEIGHBORS_BATCH,
+                    {
+                        "event_ids": seed_node_ids,
+                        "neighbor_limit": self._neighbor_limit,
+                    },
+                    timeout=self._query_timeout_s,
                 )
                 neighbor_records = [record async for record in neighbor_result]
+        else:
+            neighbor_records = []
 
-                for nrec in neighbor_records:
-                    rel_type = nrec.get("rel_type")
-                    if rel_type is None:
-                        continue
+        for nrec in neighbor_records:
+            seed_eid = nrec.get("seed_event_id")
+            rel_type = nrec.get("rel_type")
+            if rel_type is None or seed_eid is None:
+                continue
 
-                    neighbor_eid = nrec.get("neighbor_event_id")
-                    neighbor_entity_id = nrec.get("neighbor_entity_id")
-                    neighbor_id = neighbor_eid or neighbor_entity_id or ""
-                    if not neighbor_id:
-                        continue
+            neighbor_eid = nrec.get("neighbor_event_id")
+            neighbor_entity_id = nrec.get("neighbor_entity_id")
+            neighbor_id = neighbor_eid or neighbor_entity_id or ""
+            if not neighbor_id:
+                continue
 
-                    # Apply edge weight as a score boost
-                    weight = edge_weights.get(rel_type, 1.0)
+            # Apply edge weight as a score boost
+            weight = edge_weights.get(rel_type, 1.0)
 
-                    if neighbor_eid and neighbor_eid not in nodes:
-                        neighbor_props = nrec.get("neighbor_props", {}) or {}
-                        nscores = score_node(neighbor_props, query_embedding=query_embedding)
-                        # Boost the decay score by edge weight relevance
-                        boosted_score = min(
-                            1.0,
-                            nscores.decay_score * (1.0 + weight * 0.1),
-                        )
-                        boosted_scores = NodeScores(
-                            decay_score=round(boosted_score, 6),
-                            relevance_score=nscores.relevance_score,
-                            importance_score=nscores.importance_score,
-                        )
-                        proactive_signal = {
-                            "REFERENCES": "entity_context",
-                            "SIMILAR_TO": "recurring_pattern",
-                            "CAUSED_BY": "causal_chain",
-                            "FOLLOWS": "temporal_sequence",
-                            "SUMMARIZES": "summary_context",
-                        }.get(rel_type, "related_context")
-                        atlas_node = self._build_atlas_node(
-                            neighbor_props,
-                            boosted_scores,
-                            retrieval_reason="proactive",
-                        )
-                        atlas_node.proactive_signal = proactive_signal
-                        nodes[neighbor_eid] = atlas_node
+            if neighbor_eid and neighbor_eid not in nodes:
+                neighbor_props = nrec.get("neighbor_props", {}) or {}
+                nscores = score_node(neighbor_props, query_embedding=query_embedding)
+                # Boost the decay score by edge weight relevance
+                boosted_score = min(
+                    1.0,
+                    nscores.decay_score * (1.0 + weight * 0.1),
+                )
+                boosted_scores = NodeScores(
+                    decay_score=round(boosted_score, 6),
+                    relevance_score=nscores.relevance_score,
+                    importance_score=nscores.importance_score,
+                )
+                proactive_signal = {
+                    "REFERENCES": "entity_context",
+                    "SIMILAR_TO": "recurring_pattern",
+                    "CAUSED_BY": "causal_chain",
+                    "FOLLOWS": "temporal_sequence",
+                    "SUMMARIZES": "summary_context",
+                }.get(rel_type, "related_context")
+                atlas_node = self._build_atlas_node(
+                    neighbor_props,
+                    boosted_scores,
+                    retrieval_reason="proactive",
+                )
+                atlas_node.proactive_signal = proactive_signal
+                nodes[neighbor_eid] = atlas_node
 
-                    elif neighbor_entity_id and neighbor_entity_id not in nodes:
-                        neighbor_props = nrec.get("neighbor_props", {}) or {}
-                        nscores = score_entity_node(neighbor_props, query_embedding=query_embedding)
-                        boosted_score = min(
-                            1.0,
-                            nscores.decay_score * (1.0 + weight * 0.1),
-                        )
-                        boosted_scores = NodeScores(
-                            decay_score=round(boosted_score, 6),
-                            relevance_score=nscores.relevance_score,
-                            importance_score=nscores.importance_score,
-                        )
-                        neighbor_labels = nrec.get("neighbor_labels", []) or []
-                        node_type = neighbor_labels[0] if neighbor_labels else "Entity"
-                        nodes[neighbor_entity_id] = AtlasNode(
-                            node_id=neighbor_entity_id,
-                            node_type=node_type,
-                            attributes={
-                                k: v for k, v in neighbor_props.items() if k != "embedding"
-                            },
-                            scores=boosted_scores,
-                            retrieval_reason="proactive",
-                            proactive_signal="entity_context",
-                        )
+            elif neighbor_entity_id and neighbor_entity_id not in nodes:
+                neighbor_props = nrec.get("neighbor_props", {}) or {}
+                nscores = score_entity_node(neighbor_props, query_embedding=query_embedding)
+                boosted_score = min(
+                    1.0,
+                    nscores.decay_score * (1.0 + weight * 0.1),
+                )
+                boosted_scores = NodeScores(
+                    decay_score=round(boosted_score, 6),
+                    relevance_score=nscores.relevance_score,
+                    importance_score=nscores.importance_score,
+                )
+                neighbor_labels = nrec.get("neighbor_labels", []) or []
+                node_type = neighbor_labels[0] if neighbor_labels else "Entity"
+                nodes[neighbor_entity_id] = AtlasNode(
+                    node_id=neighbor_entity_id,
+                    node_type=node_type,
+                    attributes={k: v for k, v in neighbor_props.items() if k != "embedding"},
+                    scores=boosted_scores,
+                    retrieval_reason="proactive",
+                    proactive_signal="entity_context",
+                )
 
-                    edge_key = (seed_eid, neighbor_id, rel_type)
-                    if edge_key not in seen_edges:
-                        seen_edges.add(edge_key)
-                        rel_props = nrec.get("rel_props", {}) or {}
-                        edges.append(
-                            AtlasEdge(
-                                source=seed_eid,
-                                target=neighbor_id,
-                                edge_type=rel_type,
-                                properties=rel_props,
-                            )
-                        )
+            edge_key = (seed_eid, neighbor_id, rel_type)
+            if edge_key not in seen_edges:
+                seen_edges.add(edge_key)
+                rel_props = nrec.get("rel_props", {}) or {}
+                edges.append(
+                    AtlasEdge(
+                        source=seed_eid,
+                        target=neighbor_id,
+                        edge_type=rel_type,
+                        properties=rel_props,
+                    )
+                )
 
         # Sort all nodes by score, take top max_nodes
         sorted_node_ids = sorted(
@@ -760,6 +784,7 @@ class Neo4jGraphStore:
             result = await session.run(
                 queries.GET_ENTITY_WITH_EVENTS,
                 {"entity_id": entity_id, "limit": 100},
+                timeout=self._query_timeout_s,
             )
             records = [record async for record in result]
 

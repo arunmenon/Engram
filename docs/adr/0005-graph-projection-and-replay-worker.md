@@ -59,3 +59,29 @@ Rejected because latency may be too high for interactive agent workflows.
 ### 2026-02-11: Redis Streams Replace Postgres Polling
 
 **What changed:** Postgres polling replaced by Redis consumer groups (XREADGROUP) per ADR-0010. Push-based delivery eliminates polling lag. Consumer group tracks position automatically. Crash recovery via Pending Entry List (PEL) replaces application-level cursor.
+
+### 2026-02-28: Orphaned Message Recovery and Dead-Letter Queue (H4, H5)
+
+**Orphaned message claiming (H4):** Before the PEL drain loop, the consumer
+now calls `XAUTOCLAIM` to claim messages that have been idle in the PEL for
+longer than `claim_idle_ms` (default: 5 minutes). This recovers messages
+from crashed consumer instances. `XAUTOCLAIM` (Redis 6.2+) combines
+`XPENDING` + `XCLAIM` atomically and returns the claimed entries along
+with their delivery counts.
+
+**Dead-letter queue (H5):** During the PEL drain loop, each message's
+delivery count is checked via `XPENDING ... <consumer>`. If a message has
+been delivered more than `max_retries` times (default: 5), it is written to
+a DLQ stream (`<stream>:dlq`) with metadata (original stream, entry ID,
+group, consumer, delivery count) and then ACKed from the source stream.
+This prevents permanently-failing messages from blocking the PEL drain on
+every restart.
+
+**Configuration:** New `ConsumerSettings` class with env prefix `CG_CONSUMER_`:
+- `claim_idle_ms` (default 300000) -- min idle time before claiming
+- `claim_batch_size` (default 100) -- max messages per XAUTOCLAIM
+- `max_retries` (default 5) -- delivery attempts before dead-lettering
+- `dlq_stream_suffix` (default `:dlq`) -- appended to source stream key
+
+**Metric:** `engram_consumer_messages_dead_lettered_total{consumer}` counts
+messages moved to the DLQ.

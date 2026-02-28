@@ -531,3 +531,11 @@ planned Redis HNSW index.
 
 This aligns with the original non-goal statement: "Vector database as
 a separate component (embeddings stored as Neo4j node properties)."
+
+### 2026-02-28: Batched Neighbor Traversal and Per-Seed Neighbor Limit
+
+**What changed:** The subgraph neighbor traversal now uses a single batched Cypher query (`UNWIND`) instead of per-seed sequential queries (N+1 fix). A `neighbor_limit` setting (default 50) bounds the total neighbors returned by the batch query, preventing hub node explosion.
+
+**Rationale:** With 10 seed nodes and unbounded neighbor queries, the subgraph endpoint could produce 10 sequential roundtrips each returning hundreds of rows. The batch query reduces this to a single roundtrip with a bounded result set. The 50-neighbor default is sufficient for intent-weighted traversal -- the top-scoring nodes are kept after decay scoring anyway.
+
+**Setting:** `CG_QUERY_DEFAULT_NEIGHBOR_LIMIT` (default 50). Applied as `LIMIT` in the `GET_EVENT_NEIGHBORS_BATCH` Cypher query.

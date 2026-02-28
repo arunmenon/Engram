@@ -28,6 +28,16 @@ CONSTRAINT_SUMMARY_PK = (
 ALL_CONSTRAINTS = [CONSTRAINT_EVENT_PK, CONSTRAINT_ENTITY_PK, CONSTRAINT_SUMMARY_PK]
 
 # ---------------------------------------------------------------------------
+# Performance indexes
+# ---------------------------------------------------------------------------
+
+INDEX_EVENT_SESSION_ID = (
+    "CREATE INDEX event_session_id IF NOT EXISTS FOR (e:Event) ON (e.session_id)"
+)
+
+ALL_INDEXES = [INDEX_EVENT_SESSION_ID]
+
+# ---------------------------------------------------------------------------
 # Node MERGE queries
 # ---------------------------------------------------------------------------
 
@@ -250,6 +260,20 @@ RETURN e, type(r) AS rel_type, properties(r) AS rel_props,
        neighbor.event_id AS neighbor_event_id,
        neighbor.entity_id AS neighbor_entity_id,
        neighbor.summary_id AS neighbor_summary_id
+LIMIT $neighbor_limit
+""".strip()
+
+GET_EVENT_NEIGHBORS_BATCH = """
+UNWIND $event_ids AS eid
+MATCH (e:Event {event_id: eid})
+OPTIONAL MATCH (e)-[r]->(neighbor)
+RETURN e.event_id AS seed_event_id,
+       type(r) AS rel_type, properties(r) AS rel_props,
+       labels(neighbor) AS neighbor_labels, properties(neighbor) AS neighbor_props,
+       neighbor.event_id AS neighbor_event_id,
+       neighbor.entity_id AS neighbor_entity_id,
+       neighbor.summary_id AS neighbor_summary_id
+LIMIT $neighbor_limit
 """.strip()
 
 GET_ENTITY_WITH_EVENTS = """
