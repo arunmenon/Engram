@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from context_graph.adapters.llm.client import LLMExtractionClient
     from context_graph.adapters.neo4j.store import Neo4jGraphStore
     from context_graph.ports.embedding import EmbeddingService
+    from context_graph.ports.user_store import UserStore
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -55,6 +56,7 @@ class ExtractionConsumer(BaseConsumer):
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
         graph_store: Neo4jGraphStore | None = None,
+        user_store: UserStore | None = None,
     ) -> None:
         consumer_settings = settings.consumer
         super().__init__(
@@ -77,6 +79,7 @@ class ExtractionConsumer(BaseConsumer):
         self._mid_session_interval: int = getattr(settings, "mid_session_extraction_interval", 50)
         self._embedding_service = embedding_service
         self._graph_store = graph_store
+        self._user_store = user_store
 
     async def _fetch_event_doc(self, event_id: str) -> dict[str, Any] | None:
         """Fetch the full event JSON document from Redis."""
@@ -277,15 +280,14 @@ class ExtractionConsumer(BaseConsumer):
         result: dict[str, Any],
         source_event_ids: list[str],
     ) -> None:
-        """Write extraction results to Neo4j via user_queries module."""
-        from context_graph.adapters.neo4j import user_queries as uq
-
+        """Write extraction results to Neo4j via UserStore protocol."""
+        us = self._user_store
         user_entity_id = f"user:{agent_id}"
         now = datetime.now(UTC).isoformat()
 
         # --- Write UserProfile from persona data ---
         persona_data = result.get("persona")
-        if isinstance(persona_data, dict) and any(persona_data.values()):
+        if us is not None and isinstance(persona_data, dict) and any(persona_data.values()):
             profile_data = {
                 "user_id": user_entity_id,
                 "display_name": persona_data.get("name") or agent_id,
@@ -294,15 +296,10 @@ class ExtractionConsumer(BaseConsumer):
                 "communication_style": persona_data.get("communication_style"),
                 "technical_level": persona_data.get("tech_level"),
             }
-            # Include role as part of display_name if name is present
             role = persona_data.get("role")
             if role and persona_data.get("name"):
                 profile_data["display_name"] = f"{persona_data['name']} ({role})"
-            await uq.write_user_profile(
-                driver=self._neo4j_driver,
-                database=self._neo4j_database,
-                profile_data=profile_data,
-            )
+            await us.write_user_profile(profile_data=profile_data)
             log.info(
                 "extraction_wrote_user_profile",
                 session_id=session_id,
@@ -319,7 +316,7 @@ class ExtractionConsumer(BaseConsumer):
             if not entity_name:
                 continue
 
-            # Run entity resolution cascade: Tier 1 → 2a → 2b
+            # Run entity resolution cascade: Tier 1 -> 2a -> 2b
             resolution = resolve_exact_match(entity_name, entity_type, existing_entities)
             if resolution is None:
                 resolution = resolve_close_match(
@@ -331,7 +328,6 @@ class ExtractionConsumer(BaseConsumer):
                 )
 
             if resolution is not None and resolution.action == EntityResolutionAction.MERGE:
-                # Use existing entity — just add REFERENCES edges
                 entity_id = f"entity:{resolution.canonical_name}"
                 log.debug(
                     "entity_resolved_merge",
@@ -342,7 +338,6 @@ class ExtractionConsumer(BaseConsumer):
                 EntityResolutionAction.SAME_AS,
                 EntityResolutionAction.RELATED_TO,
             ):
-                # Create new entity and link via SAME_AS or RELATED_TO
                 entity_id = f"entity:{entity_name}"
                 embedding = await self._compute_entity_embedding(entity_name)
                 await self._merge_entity_node(
@@ -367,7 +362,6 @@ class ExtractionConsumer(BaseConsumer):
                     canonical=resolution.canonical_name,
                 )
             else:
-                # CREATE — brand new entity
                 entity_id = f"entity:{entity_name}"
                 embedding = await self._compute_entity_embedding(entity_name)
                 await self._merge_entity_node(
@@ -377,13 +371,11 @@ class ExtractionConsumer(BaseConsumer):
                     now=now,
                     embedding=embedding,
                 )
-                # Add to existing entities for subsequent dedup in this batch
                 existing_entities.append(
                     {"entity_id": entity_id, "name": entity_name, "entity_type": entity_type}
                 )
                 log.debug("entity_created", name=entity_name, entity_id=entity_id)
 
-            # Create REFERENCES edges from source events to entity
             for event_id in source_event_ids:
                 await self._merge_references_edge(
                     event_id=event_id,
@@ -391,60 +383,54 @@ class ExtractionConsumer(BaseConsumer):
                 )
 
         # --- Write preferences ---
-        for pref_data in result.get("preferences", []):
-            source_quote = pref_data.get("source_quote", "")
-            await uq.write_preference_with_edges(
-                driver=self._neo4j_driver,
-                database=self._neo4j_database,
-                user_entity_id=user_entity_id,
-                preference_data=pref_data,
-                source_event_ids=source_event_ids,
-                derivation_info={
-                    "method": "llm_extraction",
-                    "session_id": session_id,
-                    "source_quote": source_quote,
-                },
-            )
+        if us is not None:
+            for pref_data in result.get("preferences", []):
+                source_quote = pref_data.get("source_quote", "")
+                await us.write_preference_with_edges(
+                    user_entity_id=user_entity_id,
+                    preference_data=pref_data,
+                    source_event_ids=source_event_ids,
+                    derivation_info={
+                        "method": "llm_extraction",
+                        "session_id": session_id,
+                        "source_quote": source_quote,
+                    },
+                )
 
         # --- Write skills ---
-        for skill_data in result.get("skills", []):
-            source_quote = skill_data.get("source_quote", "")
-            await uq.write_skill_with_edges(
-                driver=self._neo4j_driver,
-                database=self._neo4j_database,
-                user_entity_id=user_entity_id,
-                skill_data=skill_data,
-                source_event_ids=source_event_ids,
-                derivation_info={
-                    "method": "llm_extraction",
-                    "session_id": session_id,
-                    "source_quote": source_quote,
-                },
-            )
+        if us is not None:
+            for skill_data in result.get("skills", []):
+                source_quote = skill_data.get("source_quote", "")
+                await us.write_skill_with_edges(
+                    user_entity_id=user_entity_id,
+                    skill_data=skill_data,
+                    source_event_ids=source_event_ids,
+                    derivation_info={
+                        "method": "llm_extraction",
+                        "session_id": session_id,
+                        "source_quote": source_quote,
+                    },
+                )
 
         # --- Write interests ---
-        for interest_data in result.get("interests", []):
-            await uq.write_interest_edge(
-                driver=self._neo4j_driver,
-                database=self._neo4j_database,
-                user_entity_id=user_entity_id,
-                entity_name=interest_data.get("entity_name", ""),
-                entity_type=interest_data.get("entity_type", "concept"),
-                weight=interest_data.get("weight", 0.5),
-                source=interest_data.get("source", "inferred"),
-            )
-            # Write DERIVED_FROM edges for interests
-            interest_entity_id = f"entity:{interest_data.get('entity_name', '')}"
-            for event_id in source_event_ids:
-                await uq.write_derived_from_edge(
-                    driver=self._neo4j_driver,
-                    database=self._neo4j_database,
-                    source_node_id=interest_entity_id,
-                    source_id_field="entity_id",
-                    event_id=event_id,
-                    method="llm_extraction",
-                    session_id=session_id,
+        if us is not None:
+            for interest_data in result.get("interests", []):
+                await us.write_interest_edge(
+                    user_entity_id=user_entity_id,
+                    entity_name=interest_data.get("entity_name", ""),
+                    entity_type=interest_data.get("entity_type", "concept"),
+                    weight=interest_data.get("weight", 0.5),
+                    source=interest_data.get("source", "inferred"),
                 )
+                interest_entity_id = f"entity:{interest_data.get('entity_name', '')}"
+                for event_id in source_event_ids:
+                    await us.write_derived_from_edge(
+                        source_node_id=interest_entity_id,
+                        source_id_field="entity_id",
+                        event_id=event_id,
+                        method="llm_extraction",
+                        session_id=session_id,
+                    )
 
         log.info(
             "extraction_results_written",

@@ -4,6 +4,9 @@ Extracts shared resources from ``app.state`` so route handlers can
 declare them via ``Depends()``.
 
 Includes API key authentication guards for securing endpoints.
+
+All return types use port protocols, not concrete adapters, to enforce
+hexagonal architecture boundaries (routes never import from adapters/).
 """
 
 from __future__ import annotations
@@ -17,8 +20,11 @@ from fastapi import HTTPException, Request  # noqa: TCH002 — runtime: FastAPI 
 logger = structlog.get_logger(__name__)
 
 if TYPE_CHECKING:
-    from context_graph.adapters.neo4j.store import Neo4jGraphStore
-    from context_graph.adapters.redis.store import RedisEventStore
+    from context_graph.ports.event_store import EventStore, EventStoreAdmin
+    from context_graph.ports.graph_store import GraphStore
+    from context_graph.ports.health import HealthCheckable
+    from context_graph.ports.maintenance import GraphMaintenance
+    from context_graph.ports.user_store import UserStore
     from context_graph.settings import Settings
 
 
@@ -27,13 +33,38 @@ def get_settings(request: Request) -> Settings:
     return request.app.state.settings  # type: ignore[no-any-return]
 
 
-def get_event_store(request: Request) -> RedisEventStore:
-    """Return the Redis event store from app state."""
+def get_event_store(request: Request) -> EventStore:
+    """Return the event store from app state."""
     return request.app.state.event_store  # type: ignore[no-any-return]
 
 
-def get_graph_store(request: Request) -> Neo4jGraphStore:
-    """Return the Neo4j graph store from app state."""
+def get_graph_store(request: Request) -> GraphStore:
+    """Return the graph store from app state."""
+    return request.app.state.graph_store  # type: ignore[no-any-return]
+
+
+def get_event_store_admin(request: Request) -> EventStoreAdmin:
+    """Return the event store (admin view) from app state."""
+    return request.app.state.event_store  # type: ignore[no-any-return]
+
+
+def get_graph_maintenance(request: Request) -> GraphMaintenance:
+    """Return the graph maintenance service from app state."""
+    return request.app.state.graph_store  # type: ignore[no-any-return]
+
+
+def get_user_store(request: Request) -> UserStore:
+    """Return the user store from app state."""
+    return request.app.state.graph_store  # type: ignore[no-any-return]
+
+
+def get_event_health(request: Request) -> HealthCheckable:
+    """Return the event store for health checks."""
+    return request.app.state.event_store  # type: ignore[no-any-return]
+
+
+def get_graph_health(request: Request) -> HealthCheckable:
+    """Return the graph store for health checks."""
     return request.app.state.graph_store  # type: ignore[no-any-return]
 
 

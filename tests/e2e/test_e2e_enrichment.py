@@ -228,9 +228,7 @@ async def test_keyword_enrichment():
         projected = await _wait_for_projection(driver, event["event_id"])
         assert projected, "Projection worker did not create EventNode"
 
-        result = await _ensure_enrichment(
-            driver, event["event_id"], "tool.execute"
-        )
+        result = await _ensure_enrichment(driver, event["event_id"], "tool.execute")
 
         assert isinstance(result["keywords"], list)
         assert "tool" in result["keywords"]
@@ -361,9 +359,7 @@ async def test_different_event_types_keywords():
     driver = AsyncGraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
     try:
         async with httpx.AsyncClient(timeout=15, trust_env=False) as client:
-            event_agent = _make_event(
-                session_id=session_id, event_type="agent.invoke"
-            )
+            event_agent = _make_event(session_id=session_id, event_type="agent.invoke")
             event_llm = _make_event(session_id=session_id, event_type="llm.chat")
             await _ingest(client, event_agent)
             await _ingest(client, event_llm)
@@ -372,12 +368,8 @@ async def test_different_event_types_keywords():
             projected = await _wait_for_projection(driver, eid)
             assert projected
 
-        result_agent = await _ensure_enrichment(
-            driver, event_agent["event_id"], "agent.invoke"
-        )
-        result_llm = await _ensure_enrichment(
-            driver, event_llm["event_id"], "llm.chat"
-        )
+        result_agent = await _ensure_enrichment(driver, event_agent["event_id"], "agent.invoke")
+        result_llm = await _ensure_enrichment(driver, event_llm["event_id"], "llm.chat")
 
         assert "agent" in result_agent["keywords"]
         assert "invoke" in result_agent["keywords"]

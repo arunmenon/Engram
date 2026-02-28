@@ -621,3 +621,32 @@ With prompt caching (90% savings on system prompt + schema, ~60% of input tokens
 - StructEval (2025): LLM structured output benchmarks
 - CISC (ACL Findings 2025): Confidence-informed self-consistency
 - Instructor library: Pydantic-based structured LLM output with automatic retry
+
+## Amendments
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Consumer workers described in this ADR now accept port protocol types for graph operations instead of raw Neo4j `AsyncDriver` references. This enforces hexagonal boundaries and enables testing consumers with protocol-conformant stubs.
+
+**Consumer constructor changes:**
+
+| Consumer | Constructor Parameter | Before | After |
+|----------|----------------------|--------|-------|
+| Consumer 2 (`ExtractionConsumer`) | `user_store` | N/A (direct Neo4j writes) | `UserStore` protocol (`ports/user_store.py`) — optional, for writing preferences, skills, interests, and profiles |
+| Consumer 4 (`ConsolidationConsumer`) | `graph_maintenance` | `AsyncDriver` (raw Neo4j) | `GraphMaintenance` protocol (`ports/maintenance.py`) — for session counts, summaries, forgetting, centrality |
+| Consumer 1 (`ProjectionConsumer`) | `graph_store` | `Neo4jGraphStore` (concrete) | `GraphStore` protocol (`ports/graph_store.py`) — for MERGE operations |
+| Consumer 3 (`EnrichmentConsumer`) | `neo4j_driver` | `AsyncDriver` | `AsyncDriver` (unchanged — still uses raw driver for direct Cypher; protocol migration deferred) |
+
+**New protocols used by consumers:**
+
+- `UserStore` (`ports/user_store.py`): 14 methods covering user profile CRUD, preference/skill/interest writes with provenance edges, and GDPR delete/export. Used by Consumer 2 for writing extraction results.
+- `GraphMaintenance` (`ports/maintenance.py`): 11 methods covering session event counts, summary writes, retention tier enforcement (warm edge pruning, cold event deletion, archive cleanup), orphan node cleanup, and centrality-based importance updates. Used by Consumer 4 for all consolidation and forgetting operations.
+- `EventStoreAdmin` (`ports/event_store.py`): Admin operations (`health_ping`, `stream_length`) used by health and admin routes; not directly used by consumers.
+
+**Impact on this ADR:**
+
+- Section 4 (Consumer 2) graph writes now go through `UserStore.write_preference_with_edges`, `write_skill_with_edges`, `write_interest_edge`, and `write_user_profile` instead of direct Cypher. Consumer 2 still uses raw `AsyncDriver` for entity node MERGE and REFERENCES edge creation (partial migration).
+- Section 6 (Consumer 4) maintenance operations now go through `GraphMaintenance.get_session_event_counts`, `write_summary_with_edges`, `delete_edges_by_type_and_age`, `delete_cold_events`, `delete_archive_events`, `delete_orphan_nodes`, and `update_importance_from_centrality`.
+- The API routes (`/v1/users/`) use `UserStore` via DI (`dependencies.py: get_user_store() -> UserStore`), never importing from `adapters/neo4j/`.

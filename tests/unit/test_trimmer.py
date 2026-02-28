@@ -12,10 +12,13 @@ import orjson
 import pytest
 
 from context_graph.adapters.redis.trimmer import (
+    _stream_id_sort_key,
     archive_and_delete_expired_events,
     cleanup_dedup_set,
     cleanup_session_streams,
+    compute_safe_trim_id,
     delete_expired_events,
+    get_consumer_group_progress,
     trim_stream,
 )
 
@@ -396,3 +399,149 @@ class TestCleanupDedupSet:
         expected_ms = int((time.time() - 30 * 86400) * 1000)
         # Allow 1 second tolerance for test execution time
         assert abs(cutoff_ms - expected_ms) < 1000
+
+
+# ---------------------------------------------------------------------------
+# PEL-safe stream trimming helpers
+# ---------------------------------------------------------------------------
+
+
+class TestStreamIdSortKey:
+    def test_basic_sort_key(self):
+        assert _stream_id_sort_key("1707644400000-0") == (1707644400000, 0)
+
+    def test_sort_key_with_seq(self):
+        assert _stream_id_sort_key("1707644400000-5") == (1707644400000, 5)
+
+    def test_sort_ordering(self):
+        ids = ["1707644400000-1", "1707644300000-0", "1707644400000-0"]
+        sorted_ids = sorted(ids, key=_stream_id_sort_key)
+        assert sorted_ids == ["1707644300000-0", "1707644400000-0", "1707644400000-1"]
+
+    def test_no_seq_part(self):
+        """Handles IDs without a sequence number (single numeric part)."""
+        assert _stream_id_sort_key("1707644400000") == (1707644400000, 0)
+
+
+class TestComputeSafeTrimId:
+    def test_no_groups_returns_age_cutoff(self):
+        result = compute_safe_trim_id("1707644400000-0", {})
+        assert result == "1707644400000-0"
+
+    def test_lagging_group_limits_trim_point(self):
+        """When a group is behind the cutoff, trim is limited to that group's position."""
+        group_progress = {
+            "graph-projection": "1707644300000-0",  # behind cutoff
+            "enrichment": "1707644500000-0",  # ahead of cutoff
+        }
+        result = compute_safe_trim_id("1707644400000-0", group_progress)
+        assert result == "1707644300000-0"
+
+    def test_all_groups_ahead_uses_age_cutoff(self):
+        """When all groups are ahead of the cutoff, the cutoff is used."""
+        group_progress = {
+            "graph-projection": "1707644500000-0",
+            "enrichment": "1707644600000-0",
+        }
+        result = compute_safe_trim_id("1707644400000-0", group_progress)
+        assert result == "1707644400000-0"
+
+    def test_multiple_lagging_groups_uses_oldest(self):
+        """The oldest lagging group determines the safe trim point."""
+        group_progress = {
+            "group-a": "1707644100000-0",
+            "group-b": "1707644200000-0",
+            "group-c": "1707644500000-0",
+        }
+        result = compute_safe_trim_id("1707644400000-0", group_progress)
+        assert result == "1707644100000-0"
+
+    def test_equal_cutoff_uses_cutoff(self):
+        """When group progress equals cutoff, the cutoff is used."""
+        group_progress = {"group-a": "1707644400000-0"}
+        result = compute_safe_trim_id("1707644400000-0", group_progress)
+        assert result == "1707644400000-0"
+
+
+class TestGetConsumerGroupProgress:
+    @pytest.fixture()
+    def mock_redis(self):
+        return AsyncMock()
+
+    async def test_returns_pending_min_when_available(self, mock_redis):
+        mock_redis.xinfo_groups = AsyncMock(
+            return_value=[{"name": "graph-projection", "last-delivered-id": "1707644500000-0"}]
+        )
+        mock_redis.xpending = AsyncMock(
+            return_value={"min": "1707644300000-0", "max": "1707644400000-0"}
+        )
+
+        result = await get_consumer_group_progress(mock_redis, "events:__global__")
+
+        assert result == {"graph-projection": "1707644300000-0"}
+
+    async def test_falls_back_to_last_delivered(self, mock_redis):
+        mock_redis.xinfo_groups = AsyncMock(
+            return_value=[{"name": "enrichment", "last-delivered-id": "1707644500000-0"}]
+        )
+        mock_redis.xpending = AsyncMock(return_value={"min": None, "max": None})
+
+        result = await get_consumer_group_progress(mock_redis, "events:__global__")
+
+        assert result == {"enrichment": "1707644500000-0"}
+
+    async def test_xinfo_groups_error_returns_empty(self, mock_redis):
+        mock_redis.xinfo_groups = AsyncMock(side_effect=Exception("NOGROUP"))
+
+        result = await get_consumer_group_progress(mock_redis, "events:__global__")
+
+        assert result == {}
+
+    async def test_xpending_error_falls_back_to_last_delivered(self, mock_redis):
+        mock_redis.xinfo_groups = AsyncMock(
+            return_value=[{"name": "consolidation", "last-delivered-id": "1707644500000-0"}]
+        )
+        mock_redis.xpending = AsyncMock(side_effect=Exception("error"))
+
+        result = await get_consumer_group_progress(mock_redis, "events:__global__")
+
+        assert result == {"consolidation": "1707644500000-0"}
+
+    async def test_handles_bytes_group_name(self, mock_redis):
+        mock_redis.xinfo_groups = AsyncMock(
+            return_value=[{"name": b"graph-projection", "last-delivered-id": b"1707644500000-0"}]
+        )
+        mock_redis.xpending = AsyncMock(return_value={"min": None})
+
+        result = await get_consumer_group_progress(mock_redis, "events:__global__")
+
+        assert result == {"graph-projection": "1707644500000-0"}
+
+
+class TestTrimStreamWithConsumerGroups:
+    @pytest.fixture()
+    def mock_redis(self):
+        redis = AsyncMock()
+        redis.xlen = AsyncMock(side_effect=[1000, 800])
+        redis.xtrim = AsyncMock(return_value=200)
+        redis.xinfo_groups = AsyncMock(return_value=[])
+        return redis
+
+    async def test_trim_with_consumer_groups_calls_progress(self, mock_redis):
+        """When consumer_groups is provided, get_consumer_group_progress is called."""
+        mock_redis.xinfo_groups = AsyncMock(return_value=[])
+
+        await trim_stream(
+            mock_redis,
+            "events:__global__",
+            max_age_days=7,
+            consumer_groups=["graph-projection", "enrichment"],
+        )
+
+        mock_redis.xinfo_groups.assert_called_once_with("events:__global__")
+
+    async def test_trim_without_consumer_groups_skips_progress(self, mock_redis):
+        """When consumer_groups is None, no PEL check is done."""
+        await trim_stream(mock_redis, "events:__global__", max_age_days=7)
+
+        mock_redis.xinfo_groups.assert_not_called()

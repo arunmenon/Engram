@@ -7,7 +7,11 @@ request ID middleware generates / propagates X-Request-ID headers.
 from __future__ import annotations
 
 import uuid
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, patch
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 import pytest
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram
@@ -125,10 +129,12 @@ def _mock_stores():
     mock_event_store = AsyncMock()
     mock_event_store.ensure_indexes = AsyncMock()
     mock_event_store.close = AsyncMock()
+    mock_event_store.health_ping = AsyncMock(return_value=True)
 
     mock_graph_store = AsyncMock()
     mock_graph_store.ensure_constraints = AsyncMock()
     mock_graph_store.close = AsyncMock()
+    mock_graph_store.health_ping = AsyncMock(return_value=True)
 
     with (
         patch(
@@ -145,12 +151,13 @@ def _mock_stores():
 
 
 @pytest.fixture()
-def client(_mock_stores: None) -> TestClient:
-    """Create a TestClient against the real app factory."""
+def client(_mock_stores: None) -> Generator[TestClient, None, None]:
+    """Create a TestClient against the real app factory (enters lifespan)."""
     from context_graph.api.app import create_app
 
     app = create_app()
-    return TestClient(app)
+    with TestClient(app) as tc:
+        yield tc
 
 
 class TestRequestIDMiddleware:

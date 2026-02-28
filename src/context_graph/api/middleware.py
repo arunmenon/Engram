@@ -15,7 +15,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from context_graph.api.metrics import HTTP_REQUEST_DURATION, HTTP_REQUESTS_TOTAL
+from context_graph.api.metrics import (
+    HTTP_REQUEST_DURATION,
+    HTTP_REQUESTS_TOTAL,
+    RATE_LIMIT_EXCEEDED,
+)
+from context_graph.api.rate_limit import RateLimiterStore, resolve_tier
 from context_graph.domain.validation import ValidationError
 from context_graph.settings import Settings
 
@@ -111,6 +116,60 @@ class RequestTimingMiddleware(BaseHTTPMiddleware):
 
 
 # ---------------------------------------------------------------------------
+# Rate limit middleware
+# ---------------------------------------------------------------------------
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Per-client token bucket rate limiting.
+
+    Three tiers: exempt (health/metrics), standard, admin.
+    Returns 429 with Retry-After header when the bucket is empty.
+    """
+
+    def __init__(self, app: Any, settings: Settings) -> None:
+        super().__init__(app)
+        self._settings = settings.rate_limit
+        self._store = RateLimiterStore(max_clients=self._settings.max_clients)
+
+    async def dispatch(self, request: Request, call_next: Any) -> Response:
+        if not self._settings.enabled:
+            resp: Response = await call_next(request)
+            return resp
+
+        tier = resolve_tier(request.url.path, request.method)
+        if tier == "exempt":
+            resp_exempt: Response = await call_next(request)
+            return resp_exempt
+
+        rpm = self._settings.admin_rpm if tier == "admin" else self._settings.standard_rpm
+
+        capacity = float(rpm)
+        refill_rate = rpm / 60.0  # per second
+
+        client_id = request.client.host if request.client else "unknown"
+        bucket = self._store.get_or_create(f"{tier}:{client_id}", capacity, refill_rate)
+
+        if not bucket.consume():
+            retry_after = bucket.time_until_available()
+            RATE_LIMIT_EXCEEDED.labels(tier=tier).inc()
+            return ORJSONResponse(
+                status_code=429,
+                content={"detail": "Rate limit exceeded", "retry_after": round(retry_after, 1)},
+                headers={
+                    "Retry-After": str(int(retry_after) + 1),
+                    "X-RateLimit-Limit": str(rpm),
+                    "X-RateLimit-Remaining": "0",
+                },
+            )
+
+        response: Response = await call_next(request)
+        response.headers["X-RateLimit-Limit"] = str(rpm)
+        response.headers["X-RateLimit-Remaining"] = str(int(bucket.tokens))
+        return response
+
+
+# ---------------------------------------------------------------------------
 # Registration
 # ---------------------------------------------------------------------------
 
@@ -123,6 +182,7 @@ def register_middleware(app: FastAPI, settings: Settings | None = None) -> None:
     app.add_exception_handler(Exception, _generic_error_handler)
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(RequestTimingMiddleware)
+    app.add_middleware(RateLimitMiddleware, settings=settings)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

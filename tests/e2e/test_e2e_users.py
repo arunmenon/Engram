@@ -76,9 +76,7 @@ async def neo4j_driver():
 @pytest.fixture
 async def http_client():
     """Function-scoped async HTTP client."""
-    async with httpx.AsyncClient(
-        base_url=API_URL, timeout=15.0, trust_env=False
-    ) as client:
+    async with httpx.AsyncClient(base_url=API_URL, timeout=15.0, trust_env=False) as client:
         yield client
 
 
@@ -783,11 +781,13 @@ async def test_multiple_preferences(neo4j_driver, http_client):
     await create_user_entity(neo4j_driver, user_id, "Multi Pref User")
 
     pref_ids = []
-    for i, (cat, key) in enumerate([
-        ("tool", "vim"),
-        ("ui", "dark-mode"),
-        ("language", "python"),
-    ]):
+    for i, (cat, key) in enumerate(
+        [
+            ("tool", "vim"),
+            ("ui", "dark-mode"),
+            ("language", "python"),
+        ]
+    ):
         pref_id = f"{PREFIX}pref-multi-{i}-{uuid.uuid4().hex[:8]}"
         pref_ids.append(pref_id)
         await create_preference(

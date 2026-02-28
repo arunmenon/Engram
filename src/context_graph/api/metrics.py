@@ -24,6 +24,12 @@ HTTP_REQUEST_DURATION = Histogram(
     ["method", "endpoint"],
 )
 
+RATE_LIMIT_EXCEEDED = Counter(
+    "engram_rate_limit_exceeded_total",
+    "Rate limited requests",
+    ["tier"],
+)
+
 # ---------------------------------------------------------------------------
 # Event ingestion
 # ---------------------------------------------------------------------------

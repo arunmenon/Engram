@@ -141,9 +141,7 @@ async def http_client():
 
 @pytest.fixture
 async def neo4j_driver():
-    driver = AsyncGraphDatabase.driver(
-        NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD)
-    )
+    driver = AsyncGraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
     yield driver
     await driver.close()
 
@@ -182,9 +180,7 @@ async def test_session_context_retrieval(http_client, neo4j_driver):
         # Verify each ingested event is present
         ingested_ids = {e["event_id"] for e in events}
         returned_ids = set(nodes.keys())
-        assert ingested_ids.issubset(returned_ids), (
-            f"Missing events: {ingested_ids - returned_ids}"
-        )
+        assert ingested_ids.issubset(returned_ids), f"Missing events: {ingested_ids - returned_ids}"
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -207,12 +203,12 @@ async def test_scores_populated(http_client, neo4j_driver):
 
         for node_id, node in nodes.items():
             scores = node.get("scores", {})
-            assert scores.get("decay_score", 0) > 0, (
-                f"Node {node_id} has decay_score <= 0: {scores}"
-            )
-            assert scores.get("importance_score", 0) >= 1, (
-                f"Node {node_id} has importance_score < 1: {scores}"
-            )
+            assert (
+                scores.get("decay_score", 0) > 0
+            ), f"Node {node_id} has decay_score <= 0: {scores}"
+            assert (
+                scores.get("importance_score", 0) >= 1
+            ), f"Node {node_id} has importance_score < 1: {scores}"
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -254,12 +250,12 @@ async def test_recency_ordering(http_client, neo4j_driver):
         mid_score = nodes.get(event_mid["event_id"], {}).get("scores", {}).get("decay_score", 0)
         new_score = nodes.get(event_new["event_id"], {}).get("scores", {}).get("decay_score", 0)
 
-        assert new_score > mid_score, (
-            f"Newest ({new_score}) should have higher decay_score than mid ({mid_score})"
-        )
-        assert mid_score > old_score, (
-            f"Mid ({mid_score}) should have higher decay_score than old ({old_score})"
-        )
+        assert (
+            new_score > mid_score
+        ), f"Newest ({new_score}) should have higher decay_score than mid ({mid_score})"
+        assert (
+            mid_score > old_score
+        ), f"Mid ({mid_score}) should have higher decay_score than old ({old_score})"
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -428,15 +424,13 @@ async def test_lineage_traversal(http_client, neo4j_driver):
         node_ids = set(nodes.keys())
 
         # At minimum, we expect the lineage to contain C and its parent B
-        assert event_c["event_id"] in node_ids or len(nodes) >= 1, (
-            f"Expected lineage chain, got nodes: {node_ids}"
-        )
+        assert (
+            event_c["event_id"] in node_ids or len(nodes) >= 1
+        ), f"Expected lineage chain, got nodes: {node_ids}"
 
         if len(edges) > 0:
             edge_types = {e["edge_type"] for e in edges}
-            assert "CAUSED_BY" in edge_types, (
-                f"Expected CAUSED_BY edges, got: {edge_types}"
-            )
+            assert "CAUSED_BY" in edge_types, f"Expected CAUSED_BY edges, got: {edge_types}"
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -487,9 +481,7 @@ async def test_entity_retrieval(http_client, neo4j_driver):
 @pytest.mark.asyncio
 async def test_empty_session(http_client):
     """GET /v1/context/nonexistent-session returns empty nodes/edges."""
-    resp = await http_client.get(
-        f"{API_URL}/v1/context/nonexistent-session-{uuid.uuid4().hex[:8]}"
-    )
+    resp = await http_client.get(f"{API_URL}/v1/context/nonexistent-session-{uuid.uuid4().hex[:8]}")
     assert resp.status_code == 200
     data = resp.json()
 
@@ -568,18 +560,22 @@ async def test_composite_score_ordering(http_client, neo4j_driver):
         assert data is not None
         nodes = data["nodes"]
 
-        score_hr = nodes.get(event_high_recent["event_id"], {}).get("scores", {}).get("decay_score", 0)
-        score_lr = nodes.get(event_low_recent["event_id"], {}).get("scores", {}).get("decay_score", 0)
+        score_hr = (
+            nodes.get(event_high_recent["event_id"], {}).get("scores", {}).get("decay_score", 0)
+        )
+        score_lr = (
+            nodes.get(event_low_recent["event_id"], {}).get("scores", {}).get("decay_score", 0)
+        )
         score_ho = nodes.get(event_high_old["event_id"], {}).get("scores", {}).get("decay_score", 0)
 
         # High importance + recent should beat low importance + recent
-        assert score_hr > score_lr, (
-            f"High importance recent ({score_hr}) should beat low importance recent ({score_lr})"
-        )
+        assert (
+            score_hr > score_lr
+        ), f"High importance recent ({score_hr}) should beat low importance recent ({score_lr})"
         # High importance + recent should beat high importance + old
-        assert score_hr > score_ho, (
-            f"High importance recent ({score_hr}) should beat high importance old ({score_ho})"
-        )
+        assert (
+            score_hr > score_ho
+        ), f"High importance recent ({score_hr}) should beat high importance old ({score_ho})"
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -587,9 +583,7 @@ async def test_composite_score_ordering(http_client, neo4j_driver):
 @pytest.mark.asyncio
 async def test_entity_not_found(http_client):
     """GET /v1/entities/{nonexistent} returns 404."""
-    resp = await http_client.get(
-        f"{API_URL}/v1/entities/nonexistent-entity-{uuid.uuid4().hex[:8]}"
-    )
+    resp = await http_client.get(f"{API_URL}/v1/entities/nonexistent-entity-{uuid.uuid4().hex[:8]}")
     assert resp.status_code == 404
 
 

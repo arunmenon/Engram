@@ -7,7 +7,7 @@ and the correct Bearer token is not provided.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -37,11 +37,9 @@ def auth_test_client() -> TestClient:
     app.state.settings = settings
 
     # Stub stores
-    from tests.unit.conftest import InMemoryEventStore, StubGraphStore, _StubRedisClient
+    from tests.unit.conftest import InMemoryEventStore, StubGraphStore
 
-    store = InMemoryEventStore()
-    store._client = _StubRedisClient(healthy=True)  # type: ignore[attr-defined]
-    app.state.event_store = store
+    app.state.event_store = InMemoryEventStore()
     app.state.graph_store = StubGraphStore(healthy=True)
 
     # Wire routers with auth guards (matches app.py pattern)
@@ -104,16 +102,11 @@ class TestAdminKeyAuth:
         assert resp.status_code == 401
 
     def test_accepts_admin_key(self, auth_test_client: TestClient) -> None:
-        with patch(
-            "context_graph.api.routes.users.user_queries.get_user_profile",
-            new_callable=AsyncMock,
-            return_value=None,
-        ):
-            resp = auth_test_client.get(
-                "/v1/users/u1/profile",
-                headers={"Authorization": "Bearer test-admin-key"},
-            )
-        # 404 = user not found (expected, mock returns None)
+        resp = auth_test_client.get(
+            "/v1/users/u1/profile",
+            headers={"Authorization": "Bearer test-admin-key"},
+        )
+        # 404 = user not found (StubGraphStore.get_user_profile returns None)
         # The point is it got PAST the auth guard
         assert resp.status_code == 404
 

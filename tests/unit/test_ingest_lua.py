@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -122,17 +121,30 @@ class TestLuaArgvHandling:
         assert positional[9] == "100000"
 
     @pytest.mark.asyncio()
-    async def test_batch_uses_gather(self, mock_redis_client, default_redis_settings, sample_event):
-        """append_batch should use asyncio.gather for concurrent execution."""
+    async def test_batch_uses_pipeline(
+        self, mock_redis_client, default_redis_settings, sample_event
+    ):
+        """append_batch should use a Redis pipeline for single-roundtrip batching."""
+        mock_pipe = MagicMock()
+        mock_pipe.evalsha = MagicMock()
+        mock_pipe.execute = AsyncMock(
+            return_value=[b"1707644400000-0", b"1707644400001-0", b"1707644400002-0"]
+        )
+        mock_redis_client.pipeline = MagicMock(return_value=mock_pipe)
+
         store = RedisEventStore(client=mock_redis_client, settings=default_redis_settings)
         store._script_sha = "abc123sha"
 
         events = [sample_event, sample_event, sample_event]
+        results = await store.append_batch(events)
 
-        with patch("asyncio.gather", wraps=asyncio.gather) as mock_gather:
-            await store.append_batch(events)
-
-        mock_gather.assert_called_once()
+        # Verify pipeline was created without transaction
+        mock_redis_client.pipeline.assert_called_once_with(transaction=False)
+        # Verify evalsha was queued for each event
+        assert mock_pipe.evalsha.call_count == 3
+        # Verify single execute call (one round-trip)
+        mock_pipe.execute.assert_called_once()
+        assert len(results) == 3
 
     def test_no_string_gsub_in_lua(self):
         """The Lua ingest script must NOT call string.gsub for JSON patching (ADR-0014).

@@ -1,8 +1,22 @@
-"""Tests for the health check endpoint — 200 healthy, 503 degraded/unhealthy."""
+"""Tests for the health check endpoint -- 200 healthy, 503 degraded/unhealthy."""
 
 from __future__ import annotations
 
-from tests.unit.conftest import InMemoryEventStore, StubGraphStore, _StubRedisClient
+from tests.unit.conftest import InMemoryEventStore, StubGraphStore
+
+
+class _UnhealthyEventStore(InMemoryEventStore):
+    """Event store that reports unhealthy for health checks."""
+
+    async def health_ping(self) -> bool:
+        return False
+
+
+class _UnhealthyGraphStore(StubGraphStore):
+    """Graph store that reports unhealthy for health checks."""
+
+    async def health_ping(self) -> bool:
+        return False
 
 
 def _make_health_client(redis_healthy: bool = True, neo4j_healthy: bool = True):
@@ -16,11 +30,13 @@ def _make_health_client(redis_healthy: bool = True, neo4j_healthy: bool = True):
 
     app = FastAPI(default_response_class=ORJSONResponse)
     app.include_router(health_router, prefix="/v1")
-    store = InMemoryEventStore()
-    store._client = _StubRedisClient(healthy=redis_healthy)  # type: ignore[attr-defined]
+
+    event_store = InMemoryEventStore() if redis_healthy else _UnhealthyEventStore()
+    graph_store = StubGraphStore(healthy=neo4j_healthy) if neo4j_healthy else _UnhealthyGraphStore()
+
     app.state.settings = Settings()
-    app.state.event_store = store
-    app.state.graph_store = StubGraphStore(healthy=neo4j_healthy)
+    app.state.event_store = event_store
+    app.state.graph_store = graph_store
     return TestClient(app)
 
 
@@ -50,7 +66,7 @@ class TestHealthCheckHealthy:
 
 
 class TestHealthCheckRedisDown:
-    """When only Redis is unreachable — degraded."""
+    """When only Redis is unreachable -- degraded."""
 
     def test_returns_503(self) -> None:
         client = _make_health_client(redis_healthy=False, neo4j_healthy=True)
@@ -70,7 +86,7 @@ class TestHealthCheckRedisDown:
 
 
 class TestHealthCheckNeo4jDown:
-    """When only Neo4j is unreachable — degraded."""
+    """When only Neo4j is unreachable -- degraded."""
 
     def test_returns_503(self) -> None:
         client = _make_health_client(redis_healthy=True, neo4j_healthy=False)
@@ -90,7 +106,7 @@ class TestHealthCheckNeo4jDown:
 
 
 class TestHealthCheckBothDown:
-    """When both Redis and Neo4j are unreachable — unhealthy."""
+    """When both Redis and Neo4j are unreachable -- unhealthy."""
 
     def test_returns_503(self) -> None:
         client = _make_health_client(redis_healthy=False, neo4j_healthy=False)

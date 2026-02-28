@@ -21,8 +21,6 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from context_graph.adapters.neo4j import maintenance
-from context_graph.adapters.neo4j.queries import GET_SESSION_EVENTS
 from context_graph.adapters.redis.trimmer import (
     archive_and_delete_expired_events,
     cleanup_dedup_set,
@@ -38,9 +36,9 @@ from context_graph.domain.consolidation import (
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from neo4j import AsyncDriver
     from redis.asyncio import Redis
 
+    from context_graph.ports.maintenance import GraphMaintenance
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -59,7 +57,7 @@ class ConsolidationConsumer(BaseConsumer):
     def __init__(
         self,
         redis_client: Redis,
-        neo4j_driver: AsyncDriver,
+        graph_maintenance: GraphMaintenance,
         settings: Settings,
         archive_store: Any = None,
     ) -> None:
@@ -75,8 +73,7 @@ class ConsolidationConsumer(BaseConsumer):
             claim_batch_size=consumer_settings.claim_batch_size,
             dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
-        self._neo4j_driver = neo4j_driver
-        self._neo4j_database = settings.neo4j.database
+        self._graph_maintenance = graph_maintenance
         self._settings = settings
         self._event_key_prefix = settings.redis.event_key_prefix
         self._archive_store = archive_store
@@ -148,11 +145,10 @@ class ConsolidationConsumer(BaseConsumer):
 
     async def _run_consolidation_cycle(self) -> None:
         """Execute a full consolidation cycle."""
+        gm = self._graph_maintenance
+
         # Step 1: Get session event counts
-        session_counts = await maintenance.get_session_event_counts(
-            self._neo4j_driver,
-            self._neo4j_database,
-        )
+        session_counts = await gm.get_session_event_counts()
 
         threshold = self._settings.decay.reflection_threshold
         # Use count*5 as a rough importance sum proxy (average importance of 5 on 1-10 scale)
@@ -176,27 +172,23 @@ class ConsolidationConsumer(BaseConsumer):
         # Step 2b: Create agent-level summaries
         agent_sessions: dict[str, list[str]] = {}
         for session_id in sessions_to_consolidate:
-            async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-                result = await session.run(
-                    "MATCH (e:Event {session_id: $sid}) "
-                    "RETURN DISTINCT e.agent_id AS agent_id LIMIT 1",
-                    {"sid": session_id},
-                )
-                record = await result.single()
-            if record:
-                agent_id = record["agent_id"]
+            records = await gm.run_session_query(
+                "MATCH (e:Event {session_id: $sid}) RETURN DISTINCT e.agent_id AS agent_id LIMIT 1",
+                {"sid": session_id},
+            )
+            if records:
+                agent_id = records[0]["agent_id"]
                 agent_sessions.setdefault(agent_id, []).append(session_id)
 
         for agent_id, sids in agent_sessions.items():
             all_agent_events: list[dict[str, Any]] = []
             for sid in sids:
-                async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-                    result = await session.run(
-                        GET_SESSION_EVENTS,
-                        {"session_id": sid, "limit": 1000},
-                    )
-                    records = [record async for record in result]
-                all_agent_events.extend(dict(r["e"]) for r in records)
+                records = await gm.run_session_query(
+                    "MATCH (e:Event {session_id: $session_id}) "
+                    "RETURN e ORDER BY e.occurred_at LIMIT $limit",
+                    {"session_id": sid, "limit": 1000},
+                )
+                all_agent_events.extend(dict(r.get("e", r)) for r in records)
 
             if all_agent_events:
                 agent_summary = create_summary_from_events(
@@ -207,9 +199,7 @@ class ConsolidationConsumer(BaseConsumer):
                 agent_event_ids = [
                     e.get("event_id", "") for e in all_agent_events if e.get("event_id")
                 ]
-                await maintenance.write_summary_with_edges(
-                    driver=self._neo4j_driver,
-                    database=self._neo4j_database,
+                await gm.write_summary_with_edges(
                     summary_id=agent_summary.summary_id,
                     scope=agent_summary.scope,
                     scope_id=agent_summary.scope_id,
@@ -232,21 +222,22 @@ class ConsolidationConsumer(BaseConsumer):
 
     async def _consolidate_session(self, session_id: str, event_count: int) -> None:
         """Run consolidation for a single session."""
+        gm = self._graph_maintenance
+
         log.info(
             "consolidating_session",
             session_id=session_id,
             event_count=event_count,
         )
 
-        # Fetch session events from Neo4j
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-            result = await session.run(
-                GET_SESSION_EVENTS,
-                {"session_id": session_id, "limit": event_count},
-            )
-            records = [record async for record in result]
+        # Fetch session events from Neo4j via protocol
+        records = await gm.run_session_query(
+            "MATCH (e:Event {session_id: $session_id}) "
+            "RETURN e ORDER BY e.occurred_at LIMIT $limit",
+            {"session_id": session_id, "limit": event_count},
+        )
 
-        events = [dict(record["e"]) for record in records]
+        events = [dict(r.get("e", r)) for r in records]
         if not events:
             return
 
@@ -270,9 +261,7 @@ class ConsolidationConsumer(BaseConsumer):
             event_ids = [e.get("event_id", "") for e in episode if e.get("event_id")]
 
             # Write summary + SUMMARIZES edges to Neo4j
-            await maintenance.write_summary_with_edges(
-                driver=self._neo4j_driver,
-                database=self._neo4j_database,
+            await gm.write_summary_with_edges(
                 summary_id=summary.summary_id,
                 scope=summary.scope,
                 scope_id=summary.scope_id,
@@ -290,9 +279,7 @@ class ConsolidationConsumer(BaseConsumer):
             scope_id=session_id,
         )
         all_event_ids = [e.get("event_id", "") for e in events if e.get("event_id")]
-        await maintenance.write_summary_with_edges(
-            driver=self._neo4j_driver,
-            database=self._neo4j_database,
+        await gm.write_summary_with_edges(
             summary_id=session_summary.summary_id,
             scope=session_summary.scope,
             scope_id=session_summary.scope_id,
@@ -311,62 +298,45 @@ class ConsolidationConsumer(BaseConsumer):
 
     async def _recompute_importance_from_centrality(self) -> int:
         """Recompute importance scores based on in-degree centrality."""
-        updated = await maintenance.update_importance_from_centrality(
-            driver=self._neo4j_driver,
-            database=self._neo4j_database,
-        )
+        updated = await self._graph_maintenance.update_importance_from_centrality()
         log.info("importance_recomputed_from_centrality", updated_count=updated)
         return updated
 
     async def _run_forgetting(self) -> None:
         """Apply retention tier enforcement across the graph."""
+        gm = self._graph_maintenance
         retention = self._settings.retention
 
         # Step 0: Ensure summaries exist for sessions with pruneable events
-        session_counts = await maintenance.get_session_event_counts(
-            self._neo4j_driver, self._neo4j_database
-        )
+        session_counts = await gm.get_session_event_counts()
         for session_id, event_count in session_counts.items():
             if event_count >= self._settings.decay.reflection_threshold:
                 await self._consolidate_session(session_id, event_count)
 
         # Step 1: Prune low-similarity SIMILAR_TO edges in warm tier
-        deleted_edges = await maintenance.delete_edges_by_type_and_age(
-            driver=self._neo4j_driver,
-            database=self._neo4j_database,
+        deleted_edges = await gm.delete_edges_by_type_and_age(
             min_score=retention.warm_min_similarity_score,
             max_age_hours=retention.hot_hours,
         )
 
         # Step 2: Delete cold-tier events that don't meet retention criteria
-        deleted_cold = await maintenance.delete_cold_events(
-            driver=self._neo4j_driver,
-            database=self._neo4j_database,
+        deleted_cold = await gm.delete_cold_events(
             max_age_hours=retention.warm_hours,
             min_importance=retention.cold_min_importance,
             min_access_count=retention.cold_min_access_count,
         )
 
         # Step 3: Delete archive-tier events (beyond cold retention)
-        archive_events = await maintenance.get_archive_event_ids(
-            driver=self._neo4j_driver,
-            database=self._neo4j_database,
+        archive_events = await gm.get_archive_event_ids(
             max_age_hours=retention.cold_hours,
         )
         if archive_events:
-            deleted_archive = await maintenance.delete_archive_events(
-                driver=self._neo4j_driver,
-                database=self._neo4j_database,
-                event_ids=archive_events,
-            )
+            deleted_archive = await gm.delete_archive_events(event_ids=archive_events)
         else:
             deleted_archive = 0
 
         # Step 4: Clean up orphaned nodes (ADR-0014 Amendment, Gap 8)
-        # Neo4j DETACH DELETE auto-removes embedding properties — no zombie cleanup needed
-        orphan_counts, _deleted_entity_ids = await maintenance.delete_orphan_nodes(
-            driver=self._neo4j_driver,
-            database=self._neo4j_database,
+        orphan_counts, _deleted_entity_ids = await gm.delete_orphan_nodes(
             batch_size=self._settings.retention.orphan_cleanup_batch_size,
         )
 
@@ -385,11 +355,17 @@ class ConsolidationConsumer(BaseConsumer):
         """
         redis_settings = self._settings.redis
 
-        # 1. Trim global stream (hot window)
+        # 1. Trim global stream (hot window) — PEL-safe
         trimmed = await trim_stream(
             redis_client=self._redis,
             stream_key=redis_settings.global_stream,
             max_age_days=redis_settings.hot_window_days,
+            consumer_groups=[
+                redis_settings.group_projection,
+                redis_settings.group_extraction,
+                redis_settings.group_enrichment,
+                redis_settings.group_consolidation,
+            ],
         )
 
         # 2. Archive and delete expired JSON docs, or plain delete if no archive store

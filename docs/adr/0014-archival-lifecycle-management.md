@@ -258,3 +258,47 @@ centrality-based scores) that are not in the Redis document.
 - Summary nodes already capture the semantic essence of deleted events
 
 This is an explicit non-goal to keep the architecture simple.
+
+### 2026-02-28: Rate Limiting & PEL-Safe Trimming (Tier 1)
+
+_Date: 2026-02-28_
+
+Stream trimming is now PEL-safe, and the API surface is rate-limited to
+prevent burst ingestion from overwhelming lifecycle management.
+
+**PEL-safe stream trimming (new):**
+
+`trim_stream()` in `adapters/redis/trimmer.py` now accepts an optional
+`consumer_groups` parameter. Two new helper functions support this:
+
+- `get_consumer_group_progress(redis_client, stream_key)` — queries
+  `XINFO GROUPS` to enumerate all consumer groups on the stream, then
+  `XPENDING` for each group to find the oldest pending (unacknowledged)
+  entry. Falls back to `last-delivered-id` when no entries are pending.
+  Returns `dict[str, str]` mapping group name to oldest unprocessed ID.
+
+- `compute_safe_trim_id(age_cutoff_id, group_progress)` — returns
+  `min(age_cutoff_id, oldest_unprocessed_across_all_groups)`. When a
+  consumer group is lagging behind the age cutoff, the trim point is moved
+  forward to preserve unprocessed entries. A warning is logged with the
+  identity and position of each lagging group.
+
+The consolidation worker (`worker/consolidation.py`) passes all 4 consumer
+group names to `trim_stream()` during the `_trim_redis()` step:
+`graph-projection`, `session-extraction`, `enrichment`, `consolidation`.
+
+**Rate limiting (new):**
+
+A token bucket rate limiter (`api/rate_limit.py`) with LRU-bounded per-client
+tracking protects ingestion endpoints. Standard tier: 120 RPM; admin tier:
+30 RPM; health/metrics: exempt. Configurable via `CG_RATELIMIT_*` env vars.
+`RateLimitMiddleware` returns 429 with `Retry-After` header on exhaustion.
+
+New Prometheus counter: `engram_rate_limit_exceeded_total{tier}`.
+
+**Impact on this ADR:**
+- Gap 3 (stream capping) is further hardened: even with MAXLEN on XADD, the
+  periodic XTRIM now respects consumer group progress, ensuring no entry is
+  trimmed before all 4 consumer groups have processed it.
+- The rate limiter bounds burst ingestion volume, reducing the risk that
+  stream capping or trim cycles fall behind during traffic spikes.

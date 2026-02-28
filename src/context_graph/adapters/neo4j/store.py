@@ -9,6 +9,7 @@ Source: ADR-0003, ADR-0005, ADR-0009
 
 from __future__ import annotations
 
+import base64
 import time
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -31,6 +32,7 @@ from context_graph.domain.models import (
     QueryCapacity,
     QueryMeta,
 )
+from context_graph.domain.pagination import decode_cursor, encode_cursor
 from context_graph.domain.scoring import score_entity_node, score_node
 from context_graph.settings import INTENT_WEIGHTS
 
@@ -389,6 +391,7 @@ class Neo4jGraphStore:
         max_nodes: int = 100,
         query: str | None = None,
         max_depth: int = 3,
+        cursor: str | None = None,
     ) -> AtlasResponse:
         """Assemble working memory context for a session."""
         start_ms = time.monotonic_ns()
@@ -396,13 +399,38 @@ class Neo4jGraphStore:
         # Embed query text for relevance scoring
         query_embedding = await self._embed_query(query)
 
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(
-                queries.GET_SESSION_EVENTS,
-                {"session_id": session_id, "limit": max_nodes},
-                timeout=self._query_timeout_s,
+        # Decode cursor for keyset pagination
+        cursor_ts: str | None = None
+        cursor_id: str | None = None
+        if cursor:
+            cursor_ts, cursor_id = decode_cursor(cursor)
+
+        # Build Cypher with optional cursor WHERE clause
+        fetch_limit = max_nodes + 1  # fetch one extra to detect has_more
+        if cursor_ts:
+            cypher = (
+                "MATCH (e:Event {session_id: $session_id}) "
+                "WHERE e.occurred_at > $cursor_ts "
+                "   OR (e.occurred_at = $cursor_ts AND e.event_id > $cursor_id) "
+                "RETURN e ORDER BY e.occurred_at ASC LIMIT $limit"
             )
+            params: dict[str, Any] = {
+                "session_id": session_id,
+                "cursor_ts": cursor_ts,
+                "cursor_id": cursor_id,
+                "limit": fetch_limit,
+            }
+        else:
+            cypher = queries.GET_SESSION_EVENTS
+            params = {"session_id": session_id, "limit": fetch_limit}
+
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(cypher, params, timeout=self._query_timeout_s)
             records = [record async for record in result]
+
+        has_more = len(records) > max_nodes
+        if has_more:
+            records = records[:max_nodes]
 
         nodes: dict[str, AtlasNode] = {}
         scored_entries: list[tuple[str, dict[str, Any], NodeScores]] = []
@@ -444,13 +472,22 @@ class Neo4jGraphStore:
                     )
                 )
 
+        # Build pagination cursor from last record
+        next_cursor: str | None = None
+        if has_more and records:
+            last_props = dict(records[-1]["e"])
+            last_ts = last_props.get("occurred_at", "")
+            last_eid = last_props.get("event_id", "")
+            if last_ts and last_eid:
+                next_cursor = encode_cursor(str(last_ts), str(last_eid))
+
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
         GRAPH_QUERY_DURATION.labels(query_type="context").observe(elapsed_ms / 1000.0)
 
         meta = QueryMeta(
             query_ms=elapsed_ms,
             nodes_returned=len(nodes),
-            truncated=len(records) >= max_nodes,
+            truncated=has_more,
             capacity=QueryCapacity(
                 max_nodes=max_nodes,
                 used_nodes=len(nodes),
@@ -461,7 +498,7 @@ class Neo4jGraphStore:
         return AtlasResponse(
             nodes=nodes,
             edges=edges,
-            pagination=Pagination(),
+            pagination=Pagination(cursor=next_cursor, has_more=has_more),
             meta=meta,
         )
 
@@ -480,17 +517,35 @@ class Neo4jGraphStore:
             timeout_ms=5000,
         )
 
+        # Decode cursor as offset for lineage pagination
+        offset = 0
+        if query.cursor:
+            try:
+                offset = int(base64.urlsafe_b64decode(query.cursor.encode()).decode())
+            except (ValueError, Exception):
+                offset = 0
+
+        fetch_limit = clamped_nodes + 1
+
         async with self._driver.session(database=self._database) as session:
             result = await session.run(
                 queries.GET_LINEAGE,
                 {
                     "node_id": query.node_id,
                     "max_depth": clamped_depth,
-                    "max_nodes": clamped_nodes,
+                    "max_nodes": fetch_limit,
                 },
                 timeout=self._query_timeout_s,
             )
             records = [record async for record in result]
+
+        # Apply offset for pagination
+        if offset > 0:
+            records = records[offset:]
+
+        has_more = len(records) > clamped_nodes
+        if has_more:
+            records = records[:clamped_nodes]
 
         nodes: dict[str, AtlasNode] = {}
         edges: list[AtlasEdge] = []
@@ -524,13 +579,19 @@ class Neo4jGraphStore:
 
         await self._bump_access_counts(list(nodes.keys()))
 
+        # Build next cursor (offset-based)
+        next_cursor: str | None = None
+        if has_more:
+            next_offset = offset + clamped_nodes
+            next_cursor = base64.urlsafe_b64encode(str(next_offset).encode()).decode()
+
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
         GRAPH_QUERY_DURATION.labels(query_type="lineage").observe(elapsed_ms / 1000.0)
 
         meta = QueryMeta(
             query_ms=elapsed_ms,
             nodes_returned=len(nodes),
-            truncated=len(nodes) >= clamped_nodes,
+            truncated=has_more,
             capacity=QueryCapacity(
                 max_nodes=clamped_nodes,
                 used_nodes=len(nodes),
@@ -541,7 +602,7 @@ class Neo4jGraphStore:
         return AtlasResponse(
             nodes=nodes,
             edges=edges,
-            pagination=Pagination(),
+            pagination=Pagination(cursor=next_cursor, has_more=has_more),
             meta=meta,
         )
 
@@ -736,19 +797,38 @@ class Neo4jGraphStore:
                     )
                 )
 
-        # Sort all nodes by score, take top max_nodes
+        # Sort all nodes by score, take top max_nodes with offset pagination
         sorted_node_ids = sorted(
             nodes.keys(),
             key=lambda nid: nodes[nid].scores.decay_score,
             reverse=True,
         )
-        if len(sorted_node_ids) > query.max_nodes:
-            keep_set = set(sorted_node_ids[: query.max_nodes])
-            nodes = {k: v for k, v in nodes.items() if k in keep_set}
+
+        # Decode cursor as offset for subgraph pagination
+        sg_offset = 0
+        if query.cursor:
+            try:
+                sg_offset = int(base64.urlsafe_b64decode(query.cursor.encode()).decode())
+            except (ValueError, Exception):
+                sg_offset = 0
+
+        # Apply offset then take max_nodes + 1 to detect has_more
+        paged_ids = sorted_node_ids[sg_offset:]
+        has_more_sg = len(paged_ids) > query.max_nodes
+        paged_ids = paged_ids[: query.max_nodes]
+
+        keep_set = set(paged_ids)
+        nodes = {k: v for k, v in nodes.items() if k in keep_set}
 
         # Bump access counts for event nodes only
         event_ids = [nid for nid in nodes if nid.startswith("evt")]
         await self._bump_access_counts(event_ids)
+
+        # Build next cursor (offset-based)
+        next_cursor_sg: str | None = None
+        if has_more_sg:
+            next_off = sg_offset + query.max_nodes
+            next_cursor_sg = base64.urlsafe_b64encode(str(next_off).encode()).decode()
 
         elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
         GRAPH_QUERY_DURATION.labels(query_type="subgraph").observe(elapsed_ms / 1000.0)
@@ -758,7 +838,7 @@ class Neo4jGraphStore:
         meta = QueryMeta(
             query_ms=elapsed_ms,
             nodes_returned=len(nodes),
-            truncated=len(sorted_node_ids) > query.max_nodes,
+            truncated=has_more_sg,
             inferred_intents=inferred_intents,
             intent_override=str(query.intent) if query.intent is not None else None,
             seed_nodes=seed_node_ids,
@@ -774,7 +854,7 @@ class Neo4jGraphStore:
         return AtlasResponse(
             nodes=nodes,
             edges=edges,
-            pagination=Pagination(),
+            pagination=Pagination(cursor=next_cursor_sg, has_more=has_more_sg),
             meta=meta,
         )
 
@@ -807,6 +887,253 @@ class Neo4jGraphStore:
             "entity": entity_props,
             "connected_events": connected_events,
         }
+
+    # ------------------------------------------------------------------
+    # HealthCheckable protocol
+    # ------------------------------------------------------------------
+
+    async def health_ping(self) -> bool:
+        """Return True if Neo4j is reachable."""
+        try:
+            await self._driver.verify_connectivity()
+            return True
+        except Exception:
+            return False
+
+    # ------------------------------------------------------------------
+    # GraphMaintenance protocol — delegates to maintenance module
+    # ------------------------------------------------------------------
+
+    async def get_session_event_counts(self) -> dict[str, int]:
+        """Count events per session in the graph."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.get_session_event_counts(self._driver, self._database)
+
+    async def get_graph_stats(self) -> dict[str, Any]:
+        """Get node and edge counts by type."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.get_graph_stats(self._driver, self._database)
+
+    async def write_summary_with_edges(
+        self,
+        summary_id: str,
+        scope: str,
+        scope_id: str,
+        content: str,
+        created_at: str,
+        event_count: int,
+        time_range: list[str],
+        event_ids: list[str],
+    ) -> None:
+        """Write a summary node and SUMMARIZES edges."""
+        from context_graph.adapters.neo4j import maintenance
+
+        await maintenance.write_summary_with_edges(
+            driver=self._driver,
+            database=self._database,
+            summary_id=summary_id,
+            scope=scope,
+            scope_id=scope_id,
+            content=content,
+            created_at=created_at,
+            event_count=event_count,
+            time_range=time_range,
+            event_ids=event_ids,
+        )
+
+    async def delete_edges_by_type_and_age(
+        self,
+        min_score: float,
+        max_age_hours: int,
+    ) -> int:
+        """Delete SIMILAR_TO edges below a score threshold."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.delete_edges_by_type_and_age(
+            self._driver, self._database, min_score, max_age_hours
+        )
+
+    async def delete_cold_events(
+        self,
+        max_age_hours: int,
+        min_importance: int,
+        min_access_count: int,
+    ) -> int:
+        """Delete cold-tier event nodes."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.delete_cold_events(
+            self._driver, self._database, max_age_hours, min_importance, min_access_count
+        )
+
+    async def delete_archive_events(self, event_ids: list[str]) -> int:
+        """Delete archived event nodes by their IDs."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.delete_archive_events(self._driver, self._database, event_ids)
+
+    async def get_archive_event_ids(self, max_age_hours: int) -> list[str]:
+        """Get event IDs older than the specified age."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.get_archive_event_ids(self._driver, self._database, max_age_hours)
+
+    async def delete_orphan_nodes(self, batch_size: int = 500) -> tuple[dict[str, int], list[str]]:
+        """Delete orphaned nodes."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.delete_orphan_nodes(self._driver, self._database, batch_size)
+
+    async def update_importance_from_centrality(self) -> int:
+        """Recompute importance scores from in-degree centrality."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.update_importance_from_centrality(self._driver, self._database)
+
+    async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
+        """Run an arbitrary read query and return records as dicts."""
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(cypher, params)
+            records = [record async for record in result]
+        return [dict(r) for r in records]
+
+    # ------------------------------------------------------------------
+    # UserStore protocol — delegates to user_queries module
+    # ------------------------------------------------------------------
+
+    async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
+        """Fetch a user's profile node."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.get_user_profile(self._driver, self._database, user_id)
+
+    async def get_user_preferences(
+        self, user_id: str, active_only: bool = True
+    ) -> list[dict[str, Any]]:
+        """Fetch a user's preferences."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.get_user_preferences(
+            self._driver, self._database, user_id, active_only=active_only
+        )
+
+    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+        """Fetch a user's skills."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.get_user_skills(self._driver, self._database, user_id)
+
+    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+        """Fetch a user's behavioral patterns."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.get_user_patterns(self._driver, self._database, user_id)
+
+    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+        """Fetch a user's interests."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.get_user_interests(self._driver, self._database, user_id)
+
+    async def delete_user_data(self, user_id: str) -> int:
+        """GDPR cascade delete."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.delete_user_data(self._driver, self._database, user_id)
+
+    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+        """GDPR export."""
+        from context_graph.adapters.neo4j import user_queries
+
+        return await user_queries.export_user_data(self._driver, self._database, user_id)
+
+    async def write_user_profile(self, profile_data: dict[str, Any]) -> None:
+        """Create or update a user profile."""
+        from context_graph.adapters.neo4j import user_queries
+
+        await user_queries.write_user_profile(self._driver, self._database, profile_data)
+
+    async def write_preference_with_edges(
+        self,
+        user_entity_id: str,
+        preference_data: dict[str, Any],
+        source_event_ids: list[str],
+        derivation_info: dict[str, Any],
+    ) -> None:
+        """Write a Preference node with edges."""
+        from context_graph.adapters.neo4j import user_queries
+
+        await user_queries.write_preference_with_edges(
+            self._driver,
+            self._database,
+            user_entity_id,
+            preference_data,
+            source_event_ids,
+            derivation_info,
+        )
+
+    async def write_skill_with_edges(
+        self,
+        user_entity_id: str,
+        skill_data: dict[str, Any],
+        source_event_ids: list[str],
+        derivation_info: dict[str, Any],
+    ) -> None:
+        """Write a Skill node with edges."""
+        from context_graph.adapters.neo4j import user_queries
+
+        await user_queries.write_skill_with_edges(
+            self._driver,
+            self._database,
+            user_entity_id,
+            skill_data,
+            source_event_ids,
+            derivation_info,
+        )
+
+    async def write_interest_edge(
+        self,
+        user_entity_id: str,
+        entity_name: str,
+        entity_type: str,
+        weight: float,
+        source: str,
+    ) -> None:
+        """Create an INTERESTED_IN edge."""
+        from context_graph.adapters.neo4j import user_queries
+
+        await user_queries.write_interest_edge(
+            self._driver,
+            self._database,
+            user_entity_id,
+            entity_name,
+            entity_type,
+            weight,
+            source,
+        )
+
+    async def write_derived_from_edge(
+        self,
+        source_node_id: str,
+        source_id_field: str,
+        event_id: str,
+        method: str,
+        session_id: str,
+    ) -> None:
+        """Write a single DERIVED_FROM edge."""
+        from context_graph.adapters.neo4j import user_queries
+
+        await user_queries.write_derived_from_edge(
+            self._driver,
+            self._database,
+            source_node_id,
+            source_id_field,
+            event_id,
+            method,
+            session_id,
+        )
 
     # ------------------------------------------------------------------
     # Lifecycle

@@ -293,9 +293,7 @@ async def test_concurrent_ingestion_stress(client: httpx.AsyncClient):
 
     # All should succeed with 201
     for i, resp in enumerate(responses):
-        assert resp.status_code == 201, (
-            f"Event {i} failed with {resp.status_code}: {resp.text}"
-        )
+        assert resp.status_code == 201, f"Event {i} failed with {resp.status_code}: {resp.text}"
 
     # Collect all global_positions and verify uniqueness
     positions = set()

@@ -28,6 +28,7 @@ async def trim_stream(
     redis_client: Redis,
     stream_key: str,
     max_age_days: int,
+    consumer_groups: list[str] | None = None,
 ) -> int:
     """Trim stream entries older than max_age_days.
 
@@ -36,11 +37,19 @@ async def trim_stream(
     are ``<milliseconds-epoch>-<seq>``, so we construct a MINID from the
     cutoff timestamp.
 
+    When *consumer_groups* is provided, the trim point is adjusted to
+    avoid removing entries that have not yet been processed (PEL-safe).
+
     Returns the approximate number of trimmed entries.
     """
     cutoff = datetime.now(UTC) - timedelta(days=max_age_days)
     cutoff_ms = int(cutoff.timestamp() * 1000)
     min_id = f"{cutoff_ms}-0"
+
+    # PEL-safe: adjust trim point if consumer groups are provided
+    if consumer_groups:
+        group_progress = await get_consumer_group_progress(redis_client, stream_key)
+        min_id = compute_safe_trim_id(min_id, group_progress)
 
     # Get stream length before trim for reporting
     stream_len_before = await redis_client.xlen(stream_key)
@@ -316,6 +325,88 @@ async def archive_and_delete_expired_events(
 # ---------------------------------------------------------------------------
 # ADR-0014: Dedup set maintenance
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# PEL-safe stream trimming helpers
+# ---------------------------------------------------------------------------
+
+
+def _stream_id_sort_key(stream_id: str) -> tuple[int, int]:
+    """Convert stream ID like '1707644400000-0' to sortable tuple."""
+    parts = stream_id.split("-", 1)
+    return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+
+
+async def get_consumer_group_progress(
+    redis_client: Redis,
+    stream_key: str,
+) -> dict[str, str]:
+    """Get oldest unprocessed entry ID per consumer group.
+
+    Uses XINFO GROUPS to enumerate groups and XPENDING to find
+    the oldest pending (unacknowledged) entry for each group.
+    Falls back to last-delivered-id when there are no pending entries.
+    """
+    progress: dict[str, str] = {}
+    try:
+        groups = await redis_client.xinfo_groups(stream_key)
+    except Exception:
+        return progress
+
+    for group in groups:
+        group_name = group.get("name", "")
+        if isinstance(group_name, bytes):
+            group_name = group_name.decode()
+
+        last_delivered = group.get("last-delivered-id", "0-0")
+        if isinstance(last_delivered, bytes):
+            last_delivered = last_delivered.decode()
+
+        # Check for pending entries (oldest unacked)
+        try:
+            pending = await redis_client.xpending(stream_key, group_name)
+            pending_min = pending.get("min") if pending else None
+            if pending_min:
+                if isinstance(pending_min, bytes):
+                    pending_min = pending_min.decode()
+                progress[group_name] = pending_min
+            else:
+                progress[group_name] = last_delivered
+        except Exception:
+            progress[group_name] = last_delivered
+
+    return progress
+
+
+def compute_safe_trim_id(
+    age_cutoff_id: str,
+    group_progress: dict[str, str],
+) -> str:
+    """Return the minimum of age cutoff and oldest unprocessed across all groups.
+
+    If a consumer group is lagging behind the age cutoff, the trim point
+    is moved forward to avoid removing unprocessed entries.
+    """
+    if not group_progress:
+        return age_cutoff_id
+
+    oldest_group_id = min(group_progress.values(), key=_stream_id_sort_key)
+
+    if _stream_id_sort_key(oldest_group_id) < _stream_id_sort_key(age_cutoff_id):
+        lagging = {
+            k: v
+            for k, v in group_progress.items()
+            if _stream_id_sort_key(v) < _stream_id_sort_key(age_cutoff_id)
+        }
+        log.warning(
+            "consumer_groups_lagging",
+            lagging_groups=lagging,
+            age_cutoff=age_cutoff_id,
+        )
+        return oldest_group_id
+
+    return age_cutoff_id
 
 
 async def cleanup_dedup_set(

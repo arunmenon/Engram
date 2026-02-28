@@ -21,11 +21,11 @@ from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
-from context_graph.adapters.redis.store import RedisEventStore  # noqa: TCH001 — runtime: Depends()
 from context_graph.api.dependencies import get_event_store
 from context_graph.api.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
 from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model_validate
 from context_graph.domain.validation import ValidationError, validate_event
+from context_graph.ports.event_store import EventStore  # noqa: TCH001 — runtime: Depends()
 
 logger = structlog.get_logger(__name__)
 
@@ -65,7 +65,7 @@ class BatchResponse(BaseModel):
 # Helpers
 # ---------------------------------------------------------------------------
 
-EventStoreDep = Annotated[RedisEventStore, Depends(get_event_store)]
+EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
 
 
 def _parse_event(data: dict[str, Any]) -> Event:

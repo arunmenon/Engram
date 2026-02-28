@@ -539,3 +539,27 @@ a separate component (embeddings stored as Neo4j node properties)."
 **Rationale:** With 10 seed nodes and unbounded neighbor queries, the subgraph endpoint could produce 10 sequential roundtrips each returning hundreds of rows. The batch query reduces this to a single roundtrip with a bounded result set. The 50-neighbor default is sufficient for intent-weighted traversal -- the top-scoring nodes are kept after decay scoring anyway.
 
 **Setting:** `CG_QUERY_DEFAULT_NEIGHBOR_LIMIT` (default 50). Applied as `LIMIT` in the `GET_EVENT_NEIGHBORS_BATCH` Cypher query.
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Graph operations described in this ADR are now accessed exclusively through port protocols, enforcing hexagonal architecture boundaries between API routes and the Neo4j adapter.
+
+**Protocol boundaries for graph operations:**
+
+| Operation Category | Protocol | Key Methods |
+|--------------------|----------|-------------|
+| Subgraph query, lineage, context retrieval | `GraphStore` (`ports/graph_store.py`) | `get_subgraph`, `get_lineage`, `get_context`, `get_entity` |
+| Node/edge projection (MERGE) | `GraphStore` | `merge_event_node`, `merge_entity_node`, `create_edge` |
+| Maintenance (pruning, summarization, centrality) | `GraphMaintenance` (`ports/maintenance.py`) | `delete_edges_by_type_and_age`, `delete_cold_events`, `write_summary_with_edges`, `update_importance_from_centrality` |
+| User subgraph (profiles, preferences, skills) | `UserStore` (`ports/user_store.py`) | `get_user_profile`, `get_user_preferences`, `get_user_skills`, `write_preference_with_edges` |
+| Health checks | `HealthCheckable` (`ports/health.py`) | `health_ping` |
+
+**Route hexagonal purity:** All 7 API route files import only from `ports/`, never from `adapters/`. The `dependencies.py` module returns protocol types via DI functions (e.g., `get_graph_store() -> GraphStore`). The concrete `Neo4jGraphStore` adapter satisfies `GraphStore`, `GraphMaintenance`, `UserStore`, and `HealthCheckable` protocols through ~25 delegation methods.
+
+**Impact on this ADR:**
+
+- The intent-weighted traversal and node enrichment schema defined here remain unchanged. The protocol boundary sits at the API-to-adapter layer, not the graph schema or Cypher query layer.
+- The four edge types, eight node types, and intent weight matrix are schema concerns that live below the protocol boundary inside the Neo4j adapter.
+- Query responses still use the Atlas pattern with provenance pointers; the protocol methods return `AtlasResponse` domain models, not raw Neo4j records.

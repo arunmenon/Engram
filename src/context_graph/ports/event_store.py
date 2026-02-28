@@ -8,7 +8,7 @@ Source: ADR-0004, ADR-0010
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from context_graph.domain.models import Event, EventQuery
@@ -17,14 +17,23 @@ if TYPE_CHECKING:
 class EventStore(Protocol):
     """Protocol for the event store (Redis implementation)."""
 
-    async def append(self, event: Event) -> str:
+    async def append(
+        self,
+        event: Event,
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         """Append a single event. Returns the global_position (stream entry ID).
 
         Must be idempotent — duplicate event_id submissions are no-ops.
+        When *payload* is given it is persisted alongside the event fields.
         """
         ...
 
-    async def append_batch(self, events: list[Event]) -> list[str]:
+    async def append_batch(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[str]:
         """Append multiple events. Returns list of global_positions.
 
         Each event is individually idempotent.
@@ -56,4 +65,17 @@ class EventStore(Protocol):
 
     async def close(self) -> None:
         """Release connections."""
+        ...
+
+
+@runtime_checkable
+class EventStoreAdmin(Protocol):
+    """Protocol for admin-level event store operations."""
+
+    async def health_ping(self) -> bool:
+        """Return True if the event store is reachable."""
+        ...
+
+    async def stream_length(self) -> int:
+        """Return the number of entries in the global event stream."""
         ...

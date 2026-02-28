@@ -12,7 +12,6 @@ Sources: ADR-0004, ADR-0010
 
 from __future__ import annotations
 
-import asyncio
 import importlib.resources
 from datetime import UTC
 from typing import TYPE_CHECKING, Any
@@ -145,6 +144,19 @@ class RedisEventStore:
             self._settings.event_key_prefix,
         )
 
+    async def health_ping(self) -> bool:
+        """Return True if Redis is reachable."""
+        try:
+            result = await self._client.ping()  # type: ignore[misc]
+            return bool(result)
+        except Exception:
+            return False
+
+    async def stream_length(self) -> int:
+        """Return the number of entries in the global event stream."""
+        result = await self._client.xlen(self._settings.global_stream)
+        return int(result)
+
     async def close(self) -> None:
         """Release the Redis connection."""
         await self._client.aclose()
@@ -202,22 +214,48 @@ class RedisEventStore:
         events: list[Event],
         payloads: list[dict[str, Any] | None] | None = None,
     ) -> list[str]:
-        """Append multiple events concurrently. Each is individually atomic via Lua.
+        """Append multiple events in a single Redis pipeline round-trip.
 
-        Uses asyncio.gather with a semaphore to limit concurrency to 50,
-        reducing batch latency from O(n * RTT) to O(RTT) (ADR-0014).
+        Each event is individually atomic via the Lua ingestion script.
+        Pipelining reduces batch latency from O(n * RTT) to O(RTT).
         """
-        semaphore = asyncio.Semaphore(50)
+        if not events:
+            return []
 
-        async def _append_one(idx: int, event: Event) -> str:
-            async with semaphore:
-                event_payload = payloads[idx] if payloads and idx < len(payloads) else None
-                return await self.append(event, payload=event_payload)
+        if self._script_sha is None:
+            await self._register_script()
 
-        positions = await asyncio.gather(
-            *(_append_one(idx, event) for idx, event in enumerate(events))
-        )
-        return list(positions)
+        pipe = self._client.pipeline(transaction=False)
+        for idx, event in enumerate(events):
+            event_id_str = str(event.event_id)
+            json_key = f"{self._settings.event_key_prefix}{event_id_str}"
+            occurred_at_epoch_ms = _event_to_epoch_ms(event)
+            event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+            event_json = _event_to_json_bytes(event, occurred_at_epoch_ms, payload=event_payload)
+            session_stream_key = f"events:session:{event.session_id}"
+
+            pipe.evalsha(
+                self._script_sha,  # type: ignore[arg-type]
+                4,  # number of KEYS
+                self._settings.global_stream,
+                json_key,
+                self._settings.dedup_set,
+                session_stream_key,
+                event_id_str,
+                event_json,
+                str(occurred_at_epoch_ms),
+                str(self._settings.global_stream_maxlen),
+            )
+
+        results = await pipe.execute()
+
+        positions: list[str] = []
+        for result in results:
+            global_position = result.decode() if isinstance(result, bytes) else str(result)
+            positions.append(global_position)
+
+        log.debug("batch_appended", count=len(events))
+        return positions
 
     async def cleanup_dedup_set(self, retention_ms: int | None = None) -> int:
         """Remove old entries from the dedup sorted set.

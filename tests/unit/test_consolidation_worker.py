@@ -14,6 +14,9 @@ from context_graph.worker.consolidation import ConsolidationConsumer
 @pytest.fixture()
 def mock_settings():
     settings = MagicMock()
+    settings.redis.group_projection = "graph-projection"
+    settings.redis.group_extraction = "session-extraction"
+    settings.redis.group_enrichment = "enrichment"
     settings.redis.group_consolidation = "consolidation"
     settings.redis.global_stream = "events:__global__"
     settings.redis.block_timeout_ms = 100
@@ -40,25 +43,25 @@ def mock_redis():
 
 
 @pytest.fixture()
-def mock_neo4j():
+def mock_graph_maintenance():
     return AsyncMock()
 
 
 @pytest.fixture()
-def consumer(mock_redis, mock_neo4j, mock_settings):
+def consumer(mock_redis, mock_graph_maintenance, mock_settings):
     return ConsolidationConsumer(
         redis_client=mock_redis,
-        neo4j_driver=mock_neo4j,
+        graph_maintenance=mock_graph_maintenance,
         settings=mock_settings,
     )
 
 
 @pytest.fixture()
-def consumer_with_archive(mock_redis, mock_neo4j, mock_settings):
+def consumer_with_archive(mock_redis, mock_graph_maintenance, mock_settings):
     archive_store = AsyncMock()
     return ConsolidationConsumer(
         redis_client=mock_redis,
-        neo4j_driver=mock_neo4j,
+        graph_maintenance=mock_graph_maintenance,
         settings=mock_settings,
         archive_store=archive_store,
     )
@@ -193,6 +196,42 @@ class TestTrimRedisWiring:
             dedup_key=mock_settings.redis.dedup_set,
             retention_ceiling_days=mock_settings.redis.retention_ceiling_days,
         )
+
+    @pytest.mark.asyncio()
+    async def test_trim_passes_consumer_groups_to_trim_stream(self, consumer, mock_settings):
+        """_trim_redis should pass consumer group names to trim_stream for PEL-safe trimming."""
+        with (
+            patch(
+                "context_graph.worker.consolidation.trim_stream",
+                new_callable=AsyncMock,
+                return_value=0,
+            ) as mock_trim,
+            patch(
+                "context_graph.worker.consolidation.delete_expired_events",
+                new_callable=AsyncMock,
+                return_value=0,
+            ),
+            patch(
+                "context_graph.worker.consolidation.cleanup_dedup_set",
+                new_callable=AsyncMock,
+                return_value=0,
+            ),
+            patch(
+                "context_graph.worker.consolidation.cleanup_session_streams",
+                new_callable=AsyncMock,
+                return_value=0,
+            ),
+        ):
+            await consumer._trim_redis()
+
+        mock_trim.assert_called_once()
+        call_kwargs = mock_trim.call_args.kwargs
+        assert "consumer_groups" in call_kwargs
+        groups = call_kwargs["consumer_groups"]
+        assert "graph-projection" in groups
+        assert "session-extraction" in groups
+        assert "enrichment" in groups
+        assert "consolidation" in groups
 
     @pytest.mark.asyncio()
     async def test_trim_calls_session_cleanup(self, consumer, mock_settings):
@@ -364,85 +403,43 @@ class TestConcurrencyGuard:
 class TestOrphanCleanup:
     """Tests for ADR-0014 Amendment orphan cleanup wiring.
 
-    Embedding zombie cleanup is no longer needed — Neo4j DETACH DELETE
+    Embedding zombie cleanup is no longer needed -- Neo4j DETACH DELETE
     auto-removes embedding properties when the node is deleted.
     """
 
     @pytest.mark.asyncio()
     async def test_forgetting_calls_orphan_cleanup(self, consumer, mock_settings):
         """_run_forgetting should call delete_orphan_nodes after archive deletion."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_session_event_counts",
-                new_callable=AsyncMock,
-                return_value={},
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_edges_by_type_and_age",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_cold_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_archive_event_ids",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_orphan_nodes",
-                new_callable=AsyncMock,
-                return_value=(
-                    {
-                        "Entity": 2,
-                        "Preference": 0,
-                        "Skill": 0,
-                        "Workflow": 0,
-                        "BehavioralPattern": 0,
-                    },
-                    ["ent-1", "ent-2"],
-                ),
-            ) as mock_orphan,
-        ):
-            await consumer._run_forgetting()
+        gm = consumer._graph_maintenance
+        gm.get_session_event_counts.return_value = {}
+        gm.delete_edges_by_type_and_age.return_value = 0
+        gm.delete_cold_events.return_value = 0
+        gm.get_archive_event_ids.return_value = []
+        gm.delete_orphan_nodes.return_value = (
+            {
+                "Entity": 2,
+                "Preference": 0,
+                "Skill": 0,
+                "Workflow": 0,
+                "BehavioralPattern": 0,
+            },
+            ["ent-1", "ent-2"],
+        )
 
-        mock_orphan.assert_called_once_with(
-            driver=consumer._neo4j_driver,
-            database=consumer._neo4j_database,
+        await consumer._run_forgetting()
+
+        gm.delete_orphan_nodes.assert_called_once_with(
             batch_size=mock_settings.retention.orphan_cleanup_batch_size,
         )
 
     @pytest.mark.asyncio()
     async def test_forgetting_no_error_with_empty_orphans(self, consumer, mock_settings):
         """No error when no orphan entities are deleted."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_session_event_counts",
-                new_callable=AsyncMock,
-                return_value={},
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_edges_by_type_and_age",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_cold_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.get_archive_event_ids",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch(
-                "context_graph.worker.consolidation.maintenance.delete_orphan_nodes",
-                new_callable=AsyncMock,
-                return_value=({"Entity": 0}, []),
-            ),
-        ):
-            await consumer._run_forgetting()
+        gm = consumer._graph_maintenance
+        gm.get_session_event_counts.return_value = {}
+        gm.delete_edges_by_type_and_age.return_value = 0
+        gm.delete_cold_events.return_value = 0
+        gm.get_archive_event_ids.return_value = []
+        gm.delete_orphan_nodes.return_value = ({"Entity": 0}, [])
+
+        await consumer._run_forgetting()

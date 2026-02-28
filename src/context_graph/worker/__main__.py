@@ -131,6 +131,15 @@ async def _build_consumer(
                 hint="Install sentence-transformers: pip install context-graph[embedding]",
             )
 
+        # The Neo4jGraphStore satisfies the UserStore protocol
+        user_store = extraction_graph_store if extraction_graph_store is not None else None
+        if user_store is None:
+            # Create a basic graph store (no embedding) for UserStore protocol
+            user_graph_store = Neo4jGraphStore(settings.neo4j)
+            await user_graph_store.ensure_constraints()
+            closeables.append(user_graph_store)
+            user_store = user_graph_store
+
         return ExtractionConsumer(
             redis_client=redis_client,
             neo4j_driver=neo4j_driver,
@@ -139,19 +148,16 @@ async def _build_consumer(
             settings=settings,
             embedding_service=embedding_service,
             graph_store=extraction_graph_store,
+            user_store=user_store,
         ), closeables
 
     if consumer_type == "consolidation":
-        from neo4j import AsyncGraphDatabase
-
+        from context_graph.adapters.neo4j.store import Neo4jGraphStore
         from context_graph.worker.consolidation import ConsolidationConsumer
 
-        neo4j_driver = AsyncGraphDatabase.driver(
-            settings.neo4j.uri,
-            auth=(settings.neo4j.username, settings.neo4j.password.get_secret_value()),
-            max_connection_pool_size=settings.neo4j.max_connection_pool_size,
-        )
-        closeables.append(neo4j_driver)
+        graph_store = Neo4jGraphStore(settings.neo4j)
+        await graph_store.ensure_constraints()
+        closeables.append(graph_store)
 
         # Bootstrap archive store based on settings (ADR-0014)
         archive_store: Any = None
@@ -194,7 +200,7 @@ async def _build_consumer(
 
         return ConsolidationConsumer(
             redis_client=redis_client,
-            neo4j_driver=neo4j_driver,
+            graph_maintenance=graph_store,
             settings=settings,
             archive_store=archive_store,
         ), closeables

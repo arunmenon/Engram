@@ -316,6 +316,21 @@ class LLMSettings(BaseSettings):
     max_retries: int = 2
 
 
+class RateLimitSettings(BaseSettings):
+    """Token bucket rate limiting settings.
+
+    Controls per-client request rate limits for standard and admin tiers.
+    Health and metrics endpoints are exempt.
+    """
+
+    model_config = {"env_prefix": "CG_RATELIMIT_"}
+
+    enabled: bool = True
+    standard_rpm: int = 120  # requests per minute for standard endpoints
+    admin_rpm: int = 30  # requests per minute for admin endpoints
+    max_clients: int = 10000  # LRU size for client tracking
+
+
 class AuthSettings(BaseSettings):
     """API authentication settings.
 
@@ -395,3 +410,4 @@ class Settings(BaseSettings):
     auth: AuthSettings = Field(default_factory=AuthSettings)
     archive: ArchiveSettings = Field(default_factory=ArchiveSettings)
     consumer: ConsumerSettings = Field(default_factory=ConsumerSettings)
+    rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)

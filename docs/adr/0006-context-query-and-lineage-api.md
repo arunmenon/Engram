@@ -213,3 +213,42 @@ Callers that currently pass `intent` and `seed_nodes` explicitly continue to wor
 **What changed:** The `default_timeout_ms` from `QuerySettings` is now passed to the Neo4j driver as a transaction-level timeout on all read queries. Previously this setting existed but was not wired to the database layer.
 
 **Impact:** Queries exceeding the timeout (default 5s, max 30s) will be terminated by Neo4j and return a timeout error to the API layer. This prevents runaway traversals from blocking the connection pool.
+
+### 2026-02-28: Cursor-Based Pagination (Tier 1)
+
+_Date: 2026-02-28_
+
+All graph query endpoints now support cursor-based pagination. Previously,
+the `Pagination` model in Atlas responses was a placeholder (`cursor: null`,
+`has_more: false`). Pagination is now fully wired end-to-end.
+
+**Changes:**
+
+- **Pagination model updated:** `Pagination` has two fields: `cursor: str | None`
+  (opaque Base64-encoded string) and `has_more: bool`. Clients pass the returned
+  cursor as a query parameter to fetch the next page.
+- **Keyset pagination for context:** `GET /v1/context/{session_id}` uses keyset
+  pagination on `(occurred_at, event_id)`. The cursor encodes both values as a
+  pipe-delimited Base64 string (`domain/pagination.py`). The Cypher query uses
+  `WHERE e.occurred_at > $cursor_ts OR (e.occurred_at = $cursor_ts AND e.event_id > $cursor_id)`
+  for stable, gap-free pagination.
+- **Offset pagination for lineage and subgraph:** `GET /v1/nodes/{node_id}/lineage`
+  and `POST /v1/query/subgraph` use offset-based cursors (integer offset encoded
+  as Base64). This is simpler than keyset for graph traversal results that are
+  already sorted by score.
+- **N+1 fetch pattern:** All paginated queries fetch `max_nodes + 1` rows from
+  the database. If more than `max_nodes` rows are returned, `has_more` is set to
+  `true` and the extra row is discarded. This avoids a separate COUNT query.
+- **Query model extensions:** `SubgraphQuery` and `LineageQuery` gain a
+  `cursor: str | None = None` field. The `?cursor=` query parameter is accepted
+  on `/v1/context/{session_id}` and `/v1/nodes/{node_id}/lineage`.
+
+**Impact on this ADR:**
+
+- The Atlas response `pagination` field is now populated with real cursor values
+  instead of the previous static defaults.
+- The `meta.truncated` field is set to `true` when `has_more` is `true`, providing
+  backward-compatible truncation detection for clients that check `truncated`.
+- Clients SHOULD treat cursor strings as opaque and not parse their internal
+  format. The encoding scheme (keyset vs. offset) is an implementation detail
+  that may change.

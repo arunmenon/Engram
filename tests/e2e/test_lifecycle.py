@@ -96,9 +96,9 @@ async def test_1_ingest_and_verify_redis():
         raw = await redis.execute_command("JSON.GET", f"evt:{event['event_id']}", "$")
         assert raw is not None, "Event not found in Redis JSON"
         doc = orjson.loads(raw)[0]
-        assert doc["global_position"] == global_pos, (
-            f"global_position mismatch: {doc['global_position']} != {global_pos}"
-        )
+        assert (
+            doc["global_position"] == global_pos
+        ), f"global_position mismatch: {doc['global_position']} != {global_pos}"
         print(f"  Redis JSON verified: global_position={doc['global_position']}")
 
         # Verify no string.gsub corruption

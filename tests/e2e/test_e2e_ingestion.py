@@ -243,7 +243,9 @@ async def test_redis_stream_entry(http_client, redis_client, neo4j_driver):
         global_position = resp.json()["global_position"]
 
         # XRANGE with exact position should return the entry
-        entries = await redis_client.xrange("events:__global__", min=global_position, max=global_position)
+        entries = await redis_client.xrange(
+            "events:__global__", min=global_position, max=global_position
+        )
         assert len(entries) >= 1, f"No entry at position {global_position}"
 
         # The stream entry should carry the event_id field
@@ -284,10 +286,7 @@ async def test_dedup_idempotency(http_client, redis_client, neo4j_driver):
 async def test_batch_ingest(http_client, redis_client, neo4j_driver):
     """POST /v1/events/batch with 10 events returns all accepted with unique positions."""
     session_id = f"e2e-ingest-batch-{uuid.uuid4().hex[:8]}"
-    events = [
-        make_event(session_id=session_id)
-        for _ in range(10)
-    ]
+    events = [make_event(session_id=session_id) for _ in range(10)]
     event_ids = [e["event_id"] for e in events]
 
     try:
@@ -407,10 +406,7 @@ async def test_follows_edge_creation(http_client, redis_client, neo4j_driver):
 async def test_session_stream_populated(http_client, redis_client, neo4j_driver):
     """Ingest events in a session, verify events:session:{session_id} stream exists."""
     session_id = f"e2e-ingest-stream-{uuid.uuid4().hex[:8]}"
-    events = [
-        make_event(session_id=session_id)
-        for _ in range(3)
-    ]
+    events = [make_event(session_id=session_id) for _ in range(3)]
     event_ids = [e["event_id"] for e in events]
 
     try:
@@ -459,9 +455,9 @@ async def test_importance_hint_preserved(http_client, redis_client, neo4j_driver
         # Poll Neo4j - importance_hint is stored as importance_score on the node
         node = await poll_neo4j_event(neo4j_driver, event_id)
         assert node is not None, f"Event not projected to Neo4j within {POLL_TIMEOUT}s"
-        assert node.get("importance_score") == 9, (
-            f"Expected importance_score=9, got {node.get('importance_score')}"
-        )
+        assert (
+            node.get("importance_score") == 9
+        ), f"Expected importance_score=9, got {node.get('importance_score')}"
     finally:
         await cleanup_event(redis_client, neo4j_driver, event_id, event["session_id"])
 

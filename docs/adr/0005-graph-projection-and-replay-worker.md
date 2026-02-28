@@ -85,3 +85,59 @@ every restart.
 
 **Metric:** `engram_consumer_messages_dead_lettered_total{consumer}` counts
 messages moved to the DLQ.
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Worker constructors now accept port protocol types instead of raw infrastructure drivers, enforcing hexagonal architecture boundaries. This decouples workers from concrete adapter implementations and enables testing with any protocol-conformant stub.
+
+**Protocol-based worker constructors:**
+
+| Worker | Before | After |
+|--------|--------|-------|
+| `ProjectionConsumer` | `Neo4jGraphStore` (concrete) | `GraphStore` (protocol from `ports/graph_store.py`) |
+| `ConsolidationConsumer` | `AsyncDriver` (raw Neo4j) | `GraphMaintenance` (protocol from `ports/maintenance.py`) |
+| `EnrichmentConsumer` | `AsyncDriver` (raw Neo4j) | `AsyncDriver` (unchanged — enrichment still uses raw driver for direct Cypher queries; protocol migration deferred) |
+
+**New port protocols relevant to this ADR:**
+
+- `GraphStore` (`ports/graph_store.py`): Covers `merge_event_node`, `create_edge`, `get_subgraph`, `get_lineage` — used by Consumer 1 (projection).
+- `GraphMaintenance` (`ports/maintenance.py`): Covers `get_session_event_counts`, `write_summary_with_edges`, `delete_edges_by_type_and_age`, `delete_cold_events`, `delete_archive_events`, `update_importance_from_centrality` — used by Consumer 4 (consolidation).
+- `HealthCheckable` (`ports/health.py`): Covers `health_ping` — used by health route for both stores.
+
+**Dependency injection:** `api/dependencies.py` returns protocol types (not concrete adapters) to route handlers. DI functions like `get_graph_store() -> GraphStore` and `get_graph_maintenance() -> GraphMaintenance` ensure route files never import from `adapters/`.
+
+**Impact on this ADR:**
+
+- The "projector worker" described in the Decision section now receives its graph store via the `GraphStore` protocol, not a direct Neo4j driver reference.
+- Replay support is unchanged — the `BaseConsumer` XREADGROUP lifecycle and PEL recovery still apply. The protocol boundary is at the graph write layer, not the stream read layer.
+- The Stage 1/2/3 pipeline from the 2026-02-11 amendment now has explicit protocol boundaries: Stage 1 uses `GraphStore`, Stage 3 uses `GraphMaintenance`.
+
+### Amendment: PEL-Safe Stream Trimming (Tier 1)
+
+_Date: 2026-02-28_
+
+Consumer 4 (consolidation) now performs PEL-safe stream trimming that
+protects all consumer groups from data loss during `XTRIM`.
+
+**What changed:** The `trim_stream()` function in `adapters/redis/trimmer.py`
+accepts an optional `consumer_groups` parameter. When provided, it calls
+`get_consumer_group_progress()` to find the oldest unprocessed entry across
+all specified groups (via `XINFO GROUPS` + `XPENDING`), then computes
+`min(age_cutoff, oldest_unprocessed)` as the safe trim point via
+`compute_safe_trim_id()`.
+
+The consolidation worker passes all 4 consumer group names:
+`graph-projection`, `session-extraction`, `enrichment`, `consolidation`.
+
+**Why this matters for ADR-0005:** The original Redis Streams amendment
+(2026-02-11) established that crash recovery relies on the Pending Entry
+List (PEL). If `XTRIM` removes entries that are still in a consumer group's
+PEL, those entries are silently lost — the consumer will never process them
+and cannot recover them. PEL-safe trimming closes this gap by ensuring the
+trim point never advances past unprocessed entries for any group.
+
+A warning is logged when consumer groups lag behind the age cutoff,
+providing an early signal for operator intervention before the lag becomes
+critical.

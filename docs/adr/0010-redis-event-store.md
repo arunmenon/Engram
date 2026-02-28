@@ -320,3 +320,43 @@ delivery count for debugging. For example, the global stream DLQ is
 **DLQ streams are NOT indexed or consumed** automatically. They serve as a
 debugging and manual recovery mechanism. Operators can inspect DLQ entries
 via `XRANGE <stream>:dlq - +` and replay individual messages if needed.
+
+### 2026-02-28: Pipeline Batching & Protocol Extensions (Tier 1)
+
+_Date: 2026-02-28_
+
+The previous amendment (2026-02-23) documented `append_batch()` as using
+`asyncio.gather()` with a semaphore of 50 concurrent EVALSHA calls. This
+has been superseded by a Redis pipeline implementation.
+
+**Changes:**
+
+- **Pipeline-based batch ingestion:** `append_batch()` now uses
+  `redis.pipeline(transaction=False)` to queue all EVALSHA calls into a
+  single pipeline and execute them in one network round-trip. This reduces
+  batch latency from O(n * RTT) to O(RTT) without the concurrency
+  complexity of gather + semaphore. Each event remains individually atomic
+  via the Lua ingestion script.
+- **Payload parameter on append methods:** Both `append(event, payload=)`
+  and `append_batch(events, payloads=)` now accept optional payload dicts.
+  Payloads are stored alongside event fields in the Redis JSON document
+  (under `$.payload`) so the extraction worker (Consumer 2, ADR-0013) can
+  access conversation content without a separate lookup. The `EventStore`
+  protocol in `ports/event_store.py` has been updated to include these
+  parameters.
+- **EventStoreAdmin protocol:** A new `EventStoreAdmin` protocol is
+  defined in `ports/event_store.py` with `health_ping() -> bool` and
+  `stream_length() -> int` methods, used by the health check and admin
+  endpoints. This is separate from the core `EventStore` protocol.
+- **Dedup set cleanup:** `cleanup_dedup_set(retention_ms=)` removes
+  entries from the dedup sorted set older than the retention window via
+  `ZREMRANGEBYSCORE`, preventing unbounded memory growth of the dedup set.
+
+**Impact on this ADR:**
+
+- The "Batch optimization" bullet in the 2026-02-23 amendment is
+  superseded: pipeline replaces gather+semaphore.
+- The Idempotent Ingestion section's description of the Lua script remains
+  accurate; pipeline simply batches multiple EVALSHA invocations.
+- The Data Model section's JSON document schema effectively gains an
+  optional `payload` field at `$.payload`.
