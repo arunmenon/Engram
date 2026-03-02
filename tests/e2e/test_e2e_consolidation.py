@@ -217,12 +217,12 @@ async def test_detailed_health(http_client: httpx.AsyncClient):
     # Detailed body should have richer content than basic
     # Basic health returns simple booleans for redis/neo4j;
     # detailed health returns nested dicts with connection info + stats
-    assert isinstance(
-        detailed_body["redis"], dict
-    ), "Detailed redis should be a dict, not a simple value"
-    assert isinstance(
-        detailed_body["neo4j"], dict
-    ), "Detailed neo4j should be a dict, not a simple value"
+    assert isinstance(detailed_body["redis"], dict), (
+        "Detailed redis should be a dict, not a simple value"
+    )
+    assert isinstance(detailed_body["neo4j"], dict), (
+        "Detailed neo4j should be a dict, not a simple value"
+    )
     # Basic health has simple boolean values for redis/neo4j
     assert not isinstance(basic_body.get("redis"), dict) or len(detailed_body["redis"]) > len(
         basic_body.get("redis", {})
@@ -348,15 +348,15 @@ async def test_dedup_set_cleanup(redis_client: Redis):
     )
 
     assert removed == 2, f"Expected 2 removed, got {removed}"
-    assert (
-        await redis_client.zscore(test_key, "fresh-event") is not None
-    ), "Fresh event should be preserved"
-    assert (
-        await redis_client.zscore(test_key, "old-event-1") is None
-    ), "Old event 1 should be removed"
-    assert (
-        await redis_client.zscore(test_key, "old-event-2") is None
-    ), "Old event 2 should be removed"
+    assert await redis_client.zscore(test_key, "fresh-event") is not None, (
+        "Fresh event should be preserved"
+    )
+    assert await redis_client.zscore(test_key, "old-event-1") is None, (
+        "Old event 1 should be removed"
+    )
+    assert await redis_client.zscore(test_key, "old-event-2") is None, (
+        "Old event 2 should be removed"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -374,8 +374,7 @@ async def test_orphan_node_cleanup(neo4j_driver):
     # Create an isolated Entity node (no edges)
     async with neo4j_driver.session(database=NEO4J_DATABASE) as session:
         await session.run(
-            "CREATE (e:Entity {entity_id: $entity_id, name: 'orphan-test', "
-            "entity_type: 'test'})",
+            "CREATE (e:Entity {entity_id: $entity_id, name: 'orphan-test', entity_type: 'test'})",
             {"entity_id": entity_id},
         )
 
@@ -487,9 +486,9 @@ async def test_archive_before_delete(redis_client: Redis):
 
     assert archived >= 1, f"Expected at least 1 archived, got {archived}"
     assert deleted >= 1, f"Expected at least 1 deleted, got {deleted}"
-    assert not await redis_client.exists(
-        redis_key
-    ), "Old event should be deleted from Redis after archival"
+    assert not await redis_client.exists(redis_key), (
+        "Old event should be deleted from Redis after archival"
+    )
 
     # Verify archive is readable
     archives = await archive_store.list_archives()
@@ -706,15 +705,15 @@ async def test_reconsolidate_with_events(
     assert resp.status_code == 200, f"Reconsolidate failed: {resp.text}"
 
     body = resp.json()
-    assert (
-        body["sessions_processed"] == 1
-    ), f"Expected 1 session processed, got {body['sessions_processed']}"
-    assert (
-        body["events_processed"] == 15
-    ), f"Expected 15 events processed, got {body['events_processed']}"
-    assert (
-        body["summaries_created"] >= 1
-    ), f"Expected at least 1 summary created, got {body['summaries_created']}"
+    assert body["sessions_processed"] == 1, (
+        f"Expected 1 session processed, got {body['sessions_processed']}"
+    )
+    assert body["events_processed"] == 15, (
+        f"Expected 15 events processed, got {body['events_processed']}"
+    )
+    assert body["summaries_created"] >= 1, (
+        f"Expected at least 1 summary created, got {body['summaries_created']}"
+    )
 
     # Verify Summary nodes exist in Neo4j with SUMMARIZES edges
     async with neo4j_driver.session(database=NEO4J_DATABASE) as neo_session:

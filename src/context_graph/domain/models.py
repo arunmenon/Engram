@@ -450,6 +450,7 @@ class NodeScores(BaseModel):
     decay_score: float = 0.0
     relevance_score: float = 0.0
     importance_score: int = 0
+    ppr_score: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
 class AtlasNode(BaseModel):
@@ -495,6 +496,7 @@ class QueryMeta(BaseModel):
     scoring_weights: dict[str, float] = Field(
         default_factory=lambda: {"recency": 1.0, "importance": 1.0, "relevance": 1.0}
     )
+    retrieval_channels: dict[str, int] = Field(default_factory=dict)
     capacity: QueryCapacity | None = None
 
 
@@ -551,6 +553,7 @@ class SubgraphQuery(BaseModel):
     intent: IntentType | None = None
     seed_nodes: list[str] | None = None
     cursor: str | None = None
+    use_hyde: bool = Field(default=False)
 
 
 class LineageQuery(BaseModel):

@@ -196,9 +196,9 @@ async def test_context_retrieval_has_query_ms(http_client, neo4j_driver):
 
         meta = data.get("meta", {})
         assert "query_ms" in meta, "meta.query_ms is missing from response"
-        assert isinstance(
-            meta["query_ms"], int | float
-        ), f"query_ms should be a number, got {type(meta['query_ms'])}"
+        assert isinstance(meta["query_ms"], int | float), (
+            f"query_ms should be a number, got {type(meta['query_ms'])}"
+        )
         assert meta["query_ms"] > 0, f"query_ms should be positive, got {meta['query_ms']}"
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
@@ -486,9 +486,9 @@ async def test_context_node_has_scores(http_client, neo4j_driver):
             scores = node.get("scores")
             assert scores is not None, f"Node {node_id} missing scores"
             missing = required_score_fields - set(scores.keys())
-            assert (
-                not missing
-            ), f"Node {node_id} scores missing fields: {missing}. Got: {set(scores.keys())}"
+            assert not missing, (
+                f"Node {node_id} scores missing fields: {missing}. Got: {set(scores.keys())}"
+            )
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -552,8 +552,8 @@ async def test_lineage_returns_causal_chain(http_client, neo4j_driver):
         # If edges are present, verify CAUSED_BY edges exist
         if len(edges) > 0:
             edge_types = {e["edge_type"] for e in edges}
-            assert (
-                "CAUSED_BY" in edge_types
-            ), f"Expected CAUSED_BY edges in lineage, got: {edge_types}"
+            assert "CAUSED_BY" in edge_types, (
+                f"Expected CAUSED_BY edges in lineage, got: {edge_types}"
+            )
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)

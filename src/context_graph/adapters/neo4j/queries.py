@@ -284,6 +284,27 @@ ORDER BY evt.occurred_at DESC
 LIMIT $limit
 """.strip()
 
+GET_ENTITY_WITH_CLUSTER = """
+MATCH (ent:Entity {entity_id: $entity_id})
+OPTIONAL MATCH (ent)-[:SAME_AS*0..3]-(related:Entity)
+WITH DISTINCT related
+OPTIONAL MATCH (evt:Event)-[r:REFERENCES]->(related)
+RETURN related AS ent, evt, properties(r) AS ref_props
+ORDER BY evt.occurred_at DESC
+LIMIT $limit
+""".strip()
+
+CONSOLIDATE_ENTITY_CLUSTER = """
+UNWIND $member_ids AS mid
+MATCH (member:Entity {entity_id: mid})
+MATCH (canonical:Entity {entity_id: $canonical_id})
+WHERE member <> canonical
+MERGE (member)-[r:SAME_AS]->(canonical)
+SET r.confidence = 1.0,
+    r.justification = 'transitive_closure',
+    r.resolved_at = $resolved_at
+""".strip()
+
 UPDATE_ACCESS_COUNT = """
 MATCH (e:Event {event_id: $event_id})
 SET e.access_count = coalesce(e.access_count, 0) + 1,

@@ -21,8 +21,8 @@ from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
+from context_graph.adapters.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
 from context_graph.api.dependencies import get_event_store
-from context_graph.api.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
 from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model_validate
 from context_graph.domain.validation import ValidationError, validate_event
 from context_graph.ports.event_store import EventStore  # noqa: TCH001 — runtime: Depends()

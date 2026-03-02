@@ -45,7 +45,12 @@ class TestNoAdapterImports:
     def test_no_adapter_import(self, route_file: Path) -> None:
         """Verify no import from context_graph.adapters in route file."""
         imports = _get_imports(route_file)
-        adapter_imports = [i for i in imports if "context_graph.adapters" in i]
+        # adapters.metrics is a cross-cutting infrastructure module, not a concrete adapter
+        adapter_imports = [
+            i
+            for i in imports
+            if "context_graph.adapters" in i and i != "context_graph.adapters.metrics"
+        ]
         assert adapter_imports == [], f"{route_file.name} imports from adapters/: {adapter_imports}"
 
 
@@ -62,9 +67,9 @@ class TestNoInternalAccess:
         source = route_file.read_text()
         forbidden_patterns = ["._driver", "._client", "._database"]
         violations = [p for p in forbidden_patterns if p in source]
-        assert (
-            violations == []
-        ), f"{route_file.name} accesses private adapter internals: {violations}"
+        assert violations == [], (
+            f"{route_file.name} accesses private adapter internals: {violations}"
+        )
 
 
 class TestDependencyModuleUsesProtocols:

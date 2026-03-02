@@ -122,16 +122,16 @@ async def test_cors_response_headers(client: httpx.AsyncClient):
     # Verify Access-Control-Allow-Methods
     allow_methods = resp.headers.get("access-control-allow-methods", "")
     for method in ["GET", "POST", "DELETE", "OPTIONS"]:
-        assert (
-            method in allow_methods
-        ), f"Missing {method} in Access-Control-Allow-Methods: {allow_methods}"
+        assert method in allow_methods, (
+            f"Missing {method} in Access-Control-Allow-Methods: {allow_methods}"
+        )
 
     # Verify Access-Control-Allow-Headers
     allow_headers = resp.headers.get("access-control-allow-headers", "").lower()
     for header in ["authorization", "content-type", "x-request-id"]:
-        assert (
-            header in allow_headers
-        ), f"Missing {header} in Access-Control-Allow-Headers: {allow_headers}"
+        assert header in allow_headers, (
+            f"Missing {header} in Access-Control-Allow-Headers: {allow_headers}"
+        )
 
 
 @pytest.mark.asyncio
@@ -150,9 +150,9 @@ async def test_error_response_no_exception_type(client: httpx.AsyncClient):
     # Pydantic/FastAPI sometimes adds "type" to validation error details
     body_text = resp.text
     for dangerous_type in ["ValidationError", "RequestValidationError", "TypeError", "ValueError"]:
-        assert (
-            dangerous_type not in body_text or body_text.count(dangerous_type) == 0
-        ), f"Exception class name '{dangerous_type}' leaked in error response"
+        assert dangerous_type not in body_text or body_text.count(dangerous_type) == 0, (
+            f"Exception class name '{dangerous_type}' leaked in error response"
+        )
 
 
 @pytest.mark.asyncio
@@ -189,9 +189,9 @@ async def test_health_response_no_credentials(client: httpx.AsyncClient):
 
     body_text = resp.text
     for credential in CREDENTIAL_STRINGS:
-        assert (
-            credential not in body_text
-        ), f"Credential string '{credential}' found in health response"
+        assert credential not in body_text, (
+            f"Credential string '{credential}' found in health response"
+        )
 
 
 @pytest.mark.asyncio
@@ -203,17 +203,17 @@ async def test_error_responses_no_credentials(client: httpx.AsyncClient):
 
     body_text = resp.text
     for credential in CREDENTIAL_STRINGS:
-        assert (
-            credential not in body_text
-        ), f"Credential string '{credential}' found in error response"
+        assert credential not in body_text, (
+            f"Credential string '{credential}' found in error response"
+        )
 
     # Trigger a 404 error
     resp_404 = await client.get("/v1/entities/nonexistent-entity-security-test")
     body_404_text = resp_404.text
     for credential in CREDENTIAL_STRINGS:
-        assert (
-            credential not in body_404_text
-        ), f"Credential string '{credential}' found in 404 response"
+        assert credential not in body_404_text, (
+            f"Credential string '{credential}' found in 404 response"
+        )
 
 
 # ---------------------------------------------------------------------------

@@ -105,9 +105,9 @@ async def test_01_stream_xadd_auto_id(redis_client: aioredis.Redis):
             {"event_id": "evt-001", "event_type": "tool.execute"},
         )
         assert entry_id is not None, "XADD returned None"
-        assert STREAM_ID_PATTERN.match(
-            entry_id
-        ), f"Stream entry ID '{entry_id}' does not match {{ms}}-{{seq}} format"
+        assert STREAM_ID_PATTERN.match(entry_id), (
+            f"Stream entry ID '{entry_id}' does not match {{ms}}-{{seq}} format"
+        )
 
         # Verify the entry can be read back
         entries = await redis_client.xrange(stream_key, "-", "+")
@@ -177,9 +177,9 @@ async def test_02_consumer_group_readgroup_ack(redis_client: aioredis.Redis):
 
         # Check PEL — all 3 entries should be pending (unacknowledged)
         pending_info = await redis_client.xpending(stream_key, group_name)
-        assert (
-            pending_info["pending"] == 3
-        ), f"Expected 3 pending entries, got {pending_info['pending']}"
+        assert pending_info["pending"] == 3, (
+            f"Expected 3 pending entries, got {pending_info['pending']}"
+        )
 
         # ACK two of three entries
         acked = await redis_client.xack(stream_key, group_name, ids[0], ids[1])
@@ -187,9 +187,9 @@ async def test_02_consumer_group_readgroup_ack(redis_client: aioredis.Redis):
 
         # Check PEL again — only 1 should remain
         pending_info = await redis_client.xpending(stream_key, group_name)
-        assert (
-            pending_info["pending"] == 1
-        ), f"Expected 1 pending entry after ACK, got {pending_info['pending']}"
+        assert pending_info["pending"] == 1, (
+            f"Expected 1 pending entry after ACK, got {pending_info['pending']}"
+        )
 
         # ACK the last one
         acked = await redis_client.xack(stream_key, group_name, ids[2])
@@ -246,16 +246,16 @@ async def test_03_multiple_consumer_groups(redis_client: aioredis.Redis):
             )
             assert result is not None and len(result) > 0
             _, messages = result[0]
-            assert (
-                len(messages) == 5
-            ), f"Group {group_name} expected 5 messages, got {len(messages)}"
+            assert len(messages) == 5, (
+                f"Group {group_name} expected 5 messages, got {len(messages)}"
+            )
 
         # Verify each group has 5 pending entries independently
         for group_name in group_names:
             pending_info = await redis_client.xpending(stream_key, group_name)
-            assert (
-                pending_info["pending"] == 5
-            ), f"Group {group_name}: expected 5 pending, got {pending_info['pending']}"
+            assert pending_info["pending"] == 5, (
+                f"Group {group_name}: expected 5 pending, got {pending_info['pending']}"
+            )
 
         # ACK all for group 1 only; others should remain pending
         result_g1 = await redis_client.xreadgroup(
@@ -595,9 +595,9 @@ async def test_07_lua_atomic_stream_json(redis_client: aioredis.Redis):
         )
 
         # Verify stream entry
-        assert STREAM_ID_PATTERN.match(
-            stream_id
-        ), f"Lua returned stream ID '{stream_id}' does not match format"
+        assert STREAM_ID_PATTERN.match(stream_id), (
+            f"Lua returned stream ID '{stream_id}' does not match format"
+        )
         entries = await redis_client.xrange(stream_key, "-", "+")
         assert len(entries) == 1
         assert entries[0][1]["event_id"] == "evt-lua-001"
@@ -768,9 +768,7 @@ async def test_09_xtrim_minid(redis_client: aioredis.Redis):
 
         # The remaining entries should be entries 2, 3, 4
         assert remaining_ids == entry_ids[2:], (
-            f"Remaining IDs mismatch.\n"
-            f"  Expected: {entry_ids[2:]}\n"
-            f"  Got:      {remaining_ids}"
+            f"Remaining IDs mismatch.\n  Expected: {entry_ids[2:]}\n  Got:      {remaining_ids}"
         )
 
         print(
@@ -845,9 +843,9 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
 
         query = Query("@session_id:{sess\\-independence}").no_content()
         result_before = await redis_client.ft(index_name).search(query)
-        assert (
-            result_before.total == 5
-        ), f"Expected 5 searchable docs before trim, got {result_before.total}"
+        assert result_before.total == 5, (
+            f"Expected 5 searchable docs before trim, got {result_before.total}"
+        )
 
         # Trim the stream aggressively: keep only the last 2 entries
         trim_minid = stream_ids[3]  # Keep entries 3 and 4 only
@@ -862,9 +860,9 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
 
         # Verify all 5 events are still searchable via RediSearch
         result_after = await redis_client.ft(index_name).search(query)
-        assert (
-            result_after.total == 5
-        ), f"Expected 5 searchable docs after trim, got {result_after.total}"
+        assert result_after.total == 5, (
+            f"Expected 5 searchable docs after trim, got {result_after.total}"
+        )
 
         # Verify sorted search still works on cold data
         sorted_query = (
@@ -882,9 +880,9 @@ async def test_10_stream_json_independence(redis_client: aioredis.Redis):
                 returned_timestamps.append(int(ts_val))
 
         expected = [base_ts + i * 1000 for i in range(5)]
-        assert (
-            returned_timestamps == expected
-        ), f"Sorted cold query returned wrong order: {returned_timestamps}"
+        assert returned_timestamps == expected, (
+            f"Sorted cold query returned wrong order: {returned_timestamps}"
+        )
 
         print(
             f"  Stream/JSON independence verified: "

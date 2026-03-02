@@ -106,3 +106,11 @@ def select_seed_strategy(intents: dict[str, float]) -> str:
         return "general"
     dominant = max(intents, key=lambda k: intents[k])
     return _SEED_STRATEGIES.get(dominant, "general")
+
+
+class KeywordIntentClassifier:
+    """Keyword-based intent classifier conforming to IntentClassifier protocol."""
+
+    async def classify(self, query: str) -> dict[str, float]:
+        """Classify a query using keyword matching."""
+        return classify_intent(query)

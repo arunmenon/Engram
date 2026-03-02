@@ -96,9 +96,9 @@ async def test_1_ingest_and_verify_redis():
         raw = await redis.execute_command("JSON.GET", f"evt:{event['event_id']}", "$")
         assert raw is not None, "Event not found in Redis JSON"
         doc = orjson.loads(raw)[0]
-        assert (
-            doc["global_position"] == global_pos
-        ), f"global_position mismatch: {doc['global_position']} != {global_pos}"
+        assert doc["global_position"] == global_pos, (
+            f"global_position mismatch: {doc['global_position']} != {global_pos}"
+        )
         print(f"  Redis JSON verified: global_position={doc['global_position']}")
 
         # Verify no string.gsub corruption
@@ -162,7 +162,7 @@ async def test_3_batch_ingestion():
     assert len(results) == 20
     positions = [r["global_position"] for r in results]
     assert len(set(positions)) == 20, "All events should have unique positions"
-    print(f"  Ingested 20 events in {elapsed:.2f}s ({elapsed/20*1000:.1f}ms/event)")
+    print(f"  Ingested 20 events in {elapsed:.2f}s ({elapsed / 20 * 1000:.1f}ms/event)")
     print("  PASSED")
 
 

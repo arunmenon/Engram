@@ -187,18 +187,18 @@ async def test_consumer_groups_exist(redis_client: Redis):
     group_names = [
         g[b"name"].decode() if isinstance(g[b"name"], bytes) else g[b"name"] for g in groups
     ]
-    assert (
-        PROJECTION_GROUP in group_names
-    ), f"Expected '{PROJECTION_GROUP}' group, found: {group_names}"
+    assert PROJECTION_GROUP in group_names, (
+        f"Expected '{PROJECTION_GROUP}' group, found: {group_names}"
+    )
 
 
 @pytest.mark.asyncio
 async def test_consumer_group_has_consumers(redis_client: Redis):
     """The graph-projection group has at least 1 consumer registered."""
     consumers = await redis_client.xinfo_consumers(GLOBAL_STREAM, PROJECTION_GROUP)
-    assert (
-        len(consumers) >= 1
-    ), f"Expected at least 1 consumer in '{PROJECTION_GROUP}', got {len(consumers)}"
+    assert len(consumers) >= 1, (
+        f"Expected at least 1 consumer in '{PROJECTION_GROUP}', got {len(consumers)}"
+    )
 
 
 @pytest.mark.asyncio
@@ -236,9 +236,9 @@ async def test_consumer_lag_reasonable(
         lag = projection_group.get(b"lag")
         if lag is not None:
             lag_value = int(lag)
-            assert (
-                lag_value < 100
-            ), f"Consumer lag for '{PROJECTION_GROUP}' is {lag_value}, expected < 100"
+            assert lag_value < 100, (
+                f"Consumer lag for '{PROJECTION_GROUP}' is {lag_value}, expected < 100"
+            )
     finally:
         await cleanup_events(redis_client, neo4j_driver, [event_id], session_id)
 
@@ -325,9 +325,9 @@ async def test_dlq_metric_defined(http_client: httpx.AsyncClient):
     assert resp.status_code == 200, f"GET /metrics returned {resp.status_code}"
 
     text = resp.text
-    assert (
-        "engram_consumer_messages_dead_lettered_total" in text
-    ), "Expected 'engram_consumer_messages_dead_lettered_total' in /metrics output"
+    assert "engram_consumer_messages_dead_lettered_total" in text, (
+        "Expected 'engram_consumer_messages_dead_lettered_total' in /metrics output"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -470,9 +470,9 @@ async def test_context_retrieval_after_pipeline(
                     break
             await asyncio.sleep(POLL_INTERVAL)
 
-        assert (
-            context_data is not None
-        ), f"Context endpoint did not return >= 3 nodes within {POLL_TIMEOUT}s"
+        assert context_data is not None, (
+            f"Context endpoint did not return >= 3 nodes within {POLL_TIMEOUT}s"
+        )
 
         # Verify Atlas format
         assert "nodes" in context_data
@@ -500,12 +500,12 @@ async def test_consumer_settings_defaults():
     settings = ConsumerSettings()
 
     assert settings.max_retries == 5, f"Expected max_retries=5, got {settings.max_retries}"
-    assert (
-        settings.claim_idle_ms == 300_000
-    ), f"Expected claim_idle_ms=300000, got {settings.claim_idle_ms}"
-    assert (
-        settings.claim_batch_size == 100
-    ), f"Expected claim_batch_size=100, got {settings.claim_batch_size}"
-    assert (
-        settings.dlq_stream_suffix == ":dlq"
-    ), f"Expected dlq_stream_suffix=':dlq', got {settings.dlq_stream_suffix!r}"
+    assert settings.claim_idle_ms == 300_000, (
+        f"Expected claim_idle_ms=300000, got {settings.claim_idle_ms}"
+    )
+    assert settings.claim_batch_size == 100, (
+        f"Expected claim_batch_size=100, got {settings.claim_batch_size}"
+    )
+    assert settings.dlq_stream_suffix == ":dlq", (
+        f"Expected dlq_stream_suffix=':dlq', got {settings.dlq_stream_suffix!r}"
+    )

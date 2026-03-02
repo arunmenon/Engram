@@ -203,12 +203,12 @@ async def test_scores_populated(http_client, neo4j_driver):
 
         for node_id, node in nodes.items():
             scores = node.get("scores", {})
-            assert (
-                scores.get("decay_score", 0) > 0
-            ), f"Node {node_id} has decay_score <= 0: {scores}"
-            assert (
-                scores.get("importance_score", 0) >= 1
-            ), f"Node {node_id} has importance_score < 1: {scores}"
+            assert scores.get("decay_score", 0) > 0, (
+                f"Node {node_id} has decay_score <= 0: {scores}"
+            )
+            assert scores.get("importance_score", 0) >= 1, (
+                f"Node {node_id} has importance_score < 1: {scores}"
+            )
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -250,12 +250,12 @@ async def test_recency_ordering(http_client, neo4j_driver):
         mid_score = nodes.get(event_mid["event_id"], {}).get("scores", {}).get("decay_score", 0)
         new_score = nodes.get(event_new["event_id"], {}).get("scores", {}).get("decay_score", 0)
 
-        assert (
-            new_score > mid_score
-        ), f"Newest ({new_score}) should have higher decay_score than mid ({mid_score})"
-        assert (
-            mid_score > old_score
-        ), f"Mid ({mid_score}) should have higher decay_score than old ({old_score})"
+        assert new_score > mid_score, (
+            f"Newest ({new_score}) should have higher decay_score than mid ({mid_score})"
+        )
+        assert mid_score > old_score, (
+            f"Mid ({mid_score}) should have higher decay_score than old ({old_score})"
+        )
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 
@@ -424,9 +424,9 @@ async def test_lineage_traversal(http_client, neo4j_driver):
         node_ids = set(nodes.keys())
 
         # At minimum, we expect the lineage to contain C and its parent B
-        assert (
-            event_c["event_id"] in node_ids or len(nodes) >= 1
-        ), f"Expected lineage chain, got nodes: {node_ids}"
+        assert event_c["event_id"] in node_ids or len(nodes) >= 1, (
+            f"Expected lineage chain, got nodes: {node_ids}"
+        )
 
         if len(edges) > 0:
             edge_types = {e["edge_type"] for e in edges}
@@ -569,13 +569,13 @@ async def test_composite_score_ordering(http_client, neo4j_driver):
         score_ho = nodes.get(event_high_old["event_id"], {}).get("scores", {}).get("decay_score", 0)
 
         # High importance + recent should beat low importance + recent
-        assert (
-            score_hr > score_lr
-        ), f"High importance recent ({score_hr}) should beat low importance recent ({score_lr})"
+        assert score_hr > score_lr, (
+            f"High importance recent ({score_hr}) should beat low importance recent ({score_lr})"
+        )
         # High importance + recent should beat high importance + old
-        assert (
-            score_hr > score_ho
-        ), f"High importance recent ({score_hr}) should beat high importance old ({score_ho})"
+        assert score_hr > score_ho, (
+            f"High importance recent ({score_hr}) should beat high importance old ({score_ho})"
+        )
     finally:
         await cleanup_neo4j_session(neo4j_driver, session_id)
 

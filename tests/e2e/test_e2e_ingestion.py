@@ -455,9 +455,9 @@ async def test_importance_hint_preserved(http_client, redis_client, neo4j_driver
         # Poll Neo4j - importance_hint is stored as importance_score on the node
         node = await poll_neo4j_event(neo4j_driver, event_id)
         assert node is not None, f"Event not projected to Neo4j within {POLL_TIMEOUT}s"
-        assert (
-            node.get("importance_score") == 9
-        ), f"Expected importance_score=9, got {node.get('importance_score')}"
+        assert node.get("importance_score") == 9, (
+            f"Expected importance_score=9, got {node.get('importance_score')}"
+        )
     finally:
         await cleanup_event(redis_client, neo4j_driver, event_id, event["session_id"])
 

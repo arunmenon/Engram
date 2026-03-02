@@ -84,6 +84,10 @@ class DecaySettings(BaseSettings):
     s_base: float = 168.0  # 1 week time constant (half-life ~4.85 days)
     s_boost: float = 24.0  # Each access adds 24h of stability
 
+    # Entity-specific stability (entities persist longer than events)
+    entity_s_base: float = 336.0  # 2-week time constant (half-life ~9.7 days)
+    entity_s_boost: float = 24.0  # Each mention adds 24h of stability
+
     # Scoring weights: score = w_r*recency + w_i*importance + w_v*relevance + w_u*user_affinity
     weight_recency: float = 1.0
     weight_importance: float = 1.0
@@ -316,6 +320,43 @@ class LLMSettings(BaseSettings):
     max_retries: int = 2
 
 
+class IntentSettings(BaseSettings):
+    """Intent classification settings (ADR-0009 amendment).
+
+    When use_llm is True, the LLMIntentClassifier is used for intent
+    classification with automatic fallback to keyword-based classification
+    on any error.
+    """
+
+    model_config = {"env_prefix": "CG_INTENT_"}
+
+    use_llm: bool = False
+    fallback_on_error: bool = True
+    timeout_seconds: int = 5
+
+
+class HyDESettings(BaseSettings):
+    """HyDE query expansion settings (L6)."""
+
+    model_config = {"env_prefix": "CG_HYDE_"}
+
+    enabled: bool = False
+    temperature: float = 0.7
+    max_tokens: int = 256
+
+
+class PPRSettings(BaseSettings):
+    """Personalized PageRank settings (L5)."""
+
+    model_config = {"env_prefix": "CG_PPR_"}
+
+    enabled: bool = False
+    damping: float = 0.85
+    iterations: int = 5
+    max_subgraph_size: int = 500
+    blend_weight: float = 0.3
+
+
 class RateLimitSettings(BaseSettings):
     """Token bucket rate limiting settings.
 
@@ -410,4 +451,7 @@ class Settings(BaseSettings):
     auth: AuthSettings = Field(default_factory=AuthSettings)
     archive: ArchiveSettings = Field(default_factory=ArchiveSettings)
     consumer: ConsumerSettings = Field(default_factory=ConsumerSettings)
+    intent: IntentSettings = Field(default_factory=IntentSettings)
+    hyde: HyDESettings = Field(default_factory=HyDESettings)
+    ppr: PPRSettings = Field(default_factory=PPRSettings)
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)

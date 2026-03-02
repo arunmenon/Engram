@@ -252,3 +252,33 @@ the `Pagination` model in Atlas responses was a placeholder (`cursor: null`,
 - Clients SHOULD treat cursor strings as opaque and not parse their internal
   format. The encoding scheme (keyset vs. offset) is an implementation detail
   that may change.
+
+### 2026-03-02: Multi-Channel Hybrid Retrieval (L4)
+
+**What changed:** Subgraph retrieval now uses three parallel seed channels fused via Reciprocal Rank Fusion (RRF), replacing the previous single graph-based seed strategy.
+
+**Retrieval Channels:**
+
+| Channel | Source | Ranking Signal |
+|---------|--------|----------------|
+| Graph | Neo4j intent-aware seed queries | Graph topology, edge type weights |
+| Vector | Neo4j entity embedding cosine similarity | Semantic similarity |
+| BM25 | RediSearch full-text on `summary` + `keywords` | Lexical relevance |
+
+All three channels run concurrently via `asyncio.gather`. Failed channels are gracefully excluded. Results are fused using RRF with k=60 (Cormack et al., 2009).
+
+**Response changes:** `meta.retrieval_channels` (new optional field) reports how many seeds each channel contributed:
+
+```json
+{
+  "meta": {
+    "retrieval_channels": {"graph": 5, "vector": 3, "bm25": 4}
+  }
+}
+```
+
+**New RediSearch fields:** The event index adds `summary` (weight 2.0) and `keywords` (weight 1.5) as `TextField` entries for BM25 scoring.
+
+**New EventStore method:** `search_bm25(query_text, session_id, limit)` added to the EventStore protocol for full-text retrieval.
+
+**Impact:** This is backward-compatible. Existing callers see improved retrieval quality. The `event_store` dependency is optional; when absent, only graph and vector channels are active.

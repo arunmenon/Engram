@@ -186,6 +186,12 @@ def score_entity_node(
     entity_data: dict[str, Any],
     query_embedding: list[float] | None = None,
     now: datetime | None = None,
+    s_base: float = 336.0,
+    s_boost: float = 24.0,
+    w_recency: float = 1.0,
+    w_importance: float = 1.0,
+    w_relevance: float = 1.0,
+    w_user_affinity: float = 0.5,
 ) -> NodeScores:
     """Score an Entity node for retrieval ranking.
 
@@ -202,7 +208,7 @@ def score_entity_node(
     else:
         last_seen = datetime.now(UTC) if now is None else now
 
-    recency = compute_recency_score(last_seen, s_base=336.0, now=now)
+    recency = compute_recency_score(last_seen, s_base=s_base, s_boost=s_boost, now=now)
 
     # Importance from mention_count
     mention_count = entity_data.get("mention_count", 1)
@@ -214,7 +220,15 @@ def score_entity_node(
     node_embedding = entity_data.get("embedding", [])
     relevance = compute_relevance_score(query_embedding or [], node_embedding)
 
-    composite = compute_composite_score(recency, importance, relevance)
+    composite = compute_composite_score(
+        recency,
+        importance,
+        relevance,
+        w_recency=w_recency,
+        w_importance=w_importance,
+        w_relevance=w_relevance,
+        w_user_affinity=w_user_affinity,
+    )
     importance_int = min(10, max(1, mention_count))
 
     return NodeScores(

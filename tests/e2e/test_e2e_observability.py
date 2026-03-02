@@ -215,9 +215,9 @@ async def test_metrics_contains_http_requests_total(client: httpx.AsyncClient):
 
     resp = await client.get("/metrics")
     assert resp.status_code == 200
-    assert metric_exists(
-        resp.text, "engram_http_requests_total"
-    ), "engram_http_requests_total not found in /metrics output"
+    assert metric_exists(resp.text, "engram_http_requests_total"), (
+        "engram_http_requests_total not found in /metrics output"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -233,9 +233,9 @@ async def test_metrics_contains_http_request_duration(client: httpx.AsyncClient)
 
     resp = await client.get("/metrics")
     assert resp.status_code == 200
-    assert metric_exists(
-        resp.text, "engram_http_request_duration_seconds"
-    ), "engram_http_request_duration_seconds not found in /metrics output"
+    assert metric_exists(resp.text, "engram_http_request_duration_seconds"), (
+        "engram_http_request_duration_seconds not found in /metrics output"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -255,13 +255,13 @@ async def test_metrics_events_ingested_increments(client: httpx.AsyncClient):
     resp = await client.get("/metrics")
     assert resp.status_code == 200
 
-    assert metric_exists(
-        resp.text, "engram_events_ingested_total"
-    ), "engram_events_ingested_total not found in /metrics"
+    assert metric_exists(resp.text, "engram_events_ingested_total"), (
+        "engram_events_ingested_total not found in /metrics"
+    )
     total = metric_value(resp.text, "engram_events_ingested_total")
-    assert (
-        total is not None and total > 0
-    ), f"Expected engram_events_ingested_total > 0, got {total}"
+    assert total is not None and total > 0, (
+        f"Expected engram_events_ingested_total > 0, got {total}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -281,14 +281,14 @@ async def test_metrics_batch_size_recorded(client: httpx.AsyncClient):
     resp = await client.get("/metrics")
     assert resp.status_code == 200
 
-    assert metric_exists(
-        resp.text, "engram_events_batch_size"
-    ), "engram_events_batch_size not found in /metrics"
+    assert metric_exists(resp.text, "engram_events_batch_size"), (
+        "engram_events_batch_size not found in /metrics"
+    )
     # The _count suffix indicates how many observations the histogram has
     count = metric_value(resp.text, "engram_events_batch_size_count")
-    assert (
-        count is not None and count > 0
-    ), f"Expected engram_events_batch_size_count > 0, got {count}"
+    assert count is not None and count > 0, (
+        f"Expected engram_events_batch_size_count > 0, got {count}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -301,9 +301,9 @@ async def test_metrics_contains_consumer_counters(client: httpx.AsyncClient):
     """GET /metrics contains engram_consumer_messages_processed_total (may be 0)."""
     resp = await client.get("/metrics")
     assert resp.status_code == 200
-    assert metric_exists(
-        resp.text, "engram_consumer_messages_processed_total"
-    ), "engram_consumer_messages_processed_total not found in /metrics"
+    assert metric_exists(resp.text, "engram_consumer_messages_processed_total"), (
+        "engram_consumer_messages_processed_total not found in /metrics"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -321,9 +321,9 @@ async def test_metrics_contains_graph_query_duration(client: httpx.AsyncClient):
 
     resp = await client.get("/metrics")
     assert resp.status_code == 200
-    assert metric_exists(
-        resp.text, "engram_graph_query_duration_seconds"
-    ), "engram_graph_query_duration_seconds not found in /metrics"
+    assert metric_exists(resp.text, "engram_graph_query_duration_seconds"), (
+        "engram_graph_query_duration_seconds not found in /metrics"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -375,9 +375,9 @@ async def test_metrics_use_route_template_not_resolved_path(client: httpx.AsyncC
         "not resolved path. Metrics:\n" + metrics_text[:2000]
     )
     # Should NOT see the resolved path as a label value
-    assert (
-        'endpoint="/v1/context/test-session-xyz"' not in metrics_text
-    ), "Found resolved path in metric labels — high cardinality risk"
+    assert 'endpoint="/v1/context/test-session-xyz"' not in metrics_text, (
+        "Found resolved path in metric labels — high cardinality risk"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -443,12 +443,12 @@ async def test_health_redis_and_neo4j_booleans(client: httpx.AsyncClient):
     assert resp.status_code == 200
 
     body = resp.json()
-    assert isinstance(
-        body["redis"], bool
-    ), f"Expected 'redis' to be bool, got {type(body['redis']).__name__}"
-    assert isinstance(
-        body["neo4j"], bool
-    ), f"Expected 'neo4j' to be bool, got {type(body['neo4j']).__name__}"
+    assert isinstance(body["redis"], bool), (
+        f"Expected 'redis' to be bool, got {type(body['redis']).__name__}"
+    )
+    assert isinstance(body["neo4j"], bool), (
+        f"Expected 'neo4j' to be bool, got {type(body['neo4j']).__name__}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -502,5 +502,5 @@ async def test_request_id_echoed_back(client: httpx.AsyncClient):
 
     returned_id = resp.headers.get("x-request-id")
     assert returned_id == custom_id, (
-        f"Expected echoed X-Request-ID '{custom_id}', " f"got '{returned_id}'"
+        f"Expected echoed X-Request-ID '{custom_id}', got '{returned_id}'"
     )

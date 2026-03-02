@@ -472,6 +472,11 @@ class LLMExtractionClient:
         self._max_retries = max_retries
         self._prompt_version = prompt_version
 
+    async def generate_text(self, prompt: str) -> str | None:
+        """Generate text from a prompt. Used for HyDE and other expansions."""
+        # TODO: Implement actual LLM call via litellm
+        return None
+
     async def _call_llm(self, system_prompt: str) -> str:
         """Call the LLM via litellm and return raw response text.
 

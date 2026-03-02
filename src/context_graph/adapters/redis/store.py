@@ -358,6 +358,75 @@ class RedisEventStore:
         query_str = " ".join(filters) if filters else "*"
         return await self._ft_search(query_str, limit=query.limit, offset=query.offset)
 
+    async def search_bm25(
+        self,
+        query_text: str,
+        session_id: str | None = None,
+        limit: int = 50,
+    ) -> list[Event]:
+        """Full-text search events using RediSearch BM25 scoring.
+
+        Searches across the ``summary`` and ``keywords`` text fields.
+        Optionally filters by session_id. Results are ordered by BM25
+        relevance (RediSearch default for text queries).
+        """
+        if not query_text or not query_text.strip():
+            return []
+
+        # Sanitize query text for RediSearch: escape special chars
+        sanitized = query_text.strip()
+        for ch in r"@{}\[]()|-!~*:^/\"'<>=;,$&+":
+            sanitized = sanitized.replace(ch, f"\\{ch}")
+
+        # Build query: full-text search on summary/keywords
+        parts: list[str] = [sanitized]
+        if session_id:
+            escaped_session = _escape_tag_value(session_id)
+            parts.append(f"@session_id:{{{escaped_session}}}")
+
+        query_str = " ".join(parts)
+
+        # Use FT.SEARCH with SCORER BM25 (default) — no SORTBY so results
+        # are ordered by relevance score.
+        index_name = self._settings.event_index
+        raw_result = await self._client.execute_command(  # type: ignore[no-untyped-call]
+            "FT.SEARCH",
+            index_name,
+            query_str,
+            "LIMIT",
+            "0",
+            str(limit),
+        )
+
+        if not raw_result or raw_result[0] == 0:
+            return []
+
+        events: list[Event] = []
+        idx = 1
+        while idx < len(raw_result) - 1:
+            _key = raw_result[idx]
+            fields = raw_result[idx + 1]
+            idx += 2
+
+            json_doc = None
+            for field_idx in range(0, len(fields) - 1, 2):
+                field_name = fields[field_idx]
+                if isinstance(field_name, bytes):
+                    field_name = field_name.decode()
+                if field_name == "$":
+                    json_doc = fields[field_idx + 1]
+                    break
+
+            if json_doc is not None:
+                if isinstance(json_doc, bytes):
+                    json_doc = json_doc.decode()
+                parsed = orjson.loads(json_doc)
+                doc = parsed[0] if isinstance(parsed, list) and len(parsed) > 0 else parsed
+                doc.pop("occurred_at_epoch_ms", None)
+                events.append(Event.model_validate(doc, strict=False))
+
+        return events
+
     # -- internal search helper ---------------------------------------------
 
     async def _ft_search(

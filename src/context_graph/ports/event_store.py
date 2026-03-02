@@ -63,6 +63,15 @@ class EventStore(Protocol):
         """Search events using RediSearch secondary indexes."""
         ...
 
+    async def search_bm25(
+        self,
+        query_text: str,
+        session_id: str | None = None,
+        limit: int = 50,
+    ) -> list[Event]:
+        """Full-text BM25 search across event summaries and keywords."""
+        ...
+
     async def close(self) -> None:
         """Release connections."""
         ...

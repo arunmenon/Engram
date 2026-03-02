@@ -563,3 +563,92 @@ Graph operations described in this ADR are now accessed exclusively through port
 - The intent-weighted traversal and node enrichment schema defined here remain unchanged. The protocol boundary sits at the API-to-adapter layer, not the graph schema or Cypher query layer.
 - The four edge types, eight node types, and intent weight matrix are schema concerns that live below the protocol boundary inside the Neo4j adapter.
 - Query responses still use the Atlas pattern with provenance pointers; the protocol methods return `AtlasResponse` domain models, not raw Neo4j records.
+
+### Amendment: LLM-Based Intent Classification with Keyword Fallback
+
+_Date: 2026-03-02_
+
+**What changed:** Intent classification now supports an optional LLM-based classifier (`LLMIntentClassifier`) in addition to the existing keyword-based heuristic. The `IntentClassifier` protocol (`ports/intent.py`) defines the interface. The LLM classifier uses few-shot prompting with examples for all 8 intent types and automatically falls back to keyword-based `classify_intent()` on any error (timeout, parse failure, API error).
+
+**Configuration:** Controlled by `IntentSettings` in `settings.py`:
+- `CG_INTENT_USE_LLM` (default: `false`) -- enable LLM-based classification
+- `CG_INTENT_FALLBACK_ON_ERROR` (default: `true`) -- fall back to keywords on LLM failure
+- `CG_INTENT_TIMEOUT_SECONDS` (default: `5`) -- LLM call timeout
+
+**Architecture:** The `Neo4jGraphStore` constructor accepts an optional `intent_classifier: IntentClassifier` parameter. When provided, `get_subgraph()` uses it instead of the direct `classify_intent()` function call. The `KeywordIntentClassifier` wraps the existing function for protocol conformance.
+
+**Rationale:** The keyword heuristic is fast and interpretable but cannot handle nuanced or ambiguous queries (e.g., "Why do my customers' payments keep failing?" has causal, temporal, and entity aspects). An LLM classifier captures multi-intent queries more accurately while the keyword fallback ensures reliability. This aligns with the risk mitigation noted in the original ADR: "Pre-classify common query patterns; cache intent for repeated queries; make intent optional."
+
+### Amendment: HyDE Query Expansion (L6)
+
+_Date: 2026-03-02_
+
+**What changed:** Subgraph queries now support optional Hypothetical Document Embeddings (HyDE) query expansion. When `use_hyde: true` is set on a `SubgraphQuery` and an LLM client is available, the system generates a hypothetical answer passage via the LLM, then combines it with the original query text before embedding. This produces an embedding that captures both the query intent and the expected answer context, improving semantic retrieval for vague or short queries.
+
+**Configuration:** Controlled by `HyDESettings` in `settings.py`:
+- `CG_HYDE_ENABLED` (default: `false`) -- global enable flag
+- `CG_HYDE_TEMPERATURE` (default: `0.7`) -- LLM temperature for hypothetical document generation
+- `CG_HYDE_MAX_TOKENS` (default: `256`) -- max tokens for the generated passage
+
+**Architecture:** The pure domain module `domain/query_expansion.py` provides `build_hyde_prompt()`, `combine_query_with_hyde()`, and `expand_query()` functions with zero framework dependencies. The `Neo4jGraphStore` constructor accepts an optional `llm_client` parameter. In `get_subgraph()`, when `query.use_hyde` is true and `llm_client` is available, the system calls `llm_client.generate_text()` with a HyDE prompt and expands the query text before embedding. On any failure, it falls back to the original query text silently.
+
+**Rationale:** Short or vague queries like "payment issues" produce poor embeddings because the query text lacks the specificity needed for cosine similarity matching. HyDE (Gao et al., 2022) addresses this by generating a hypothetical answer that contains the vocabulary and concepts likely present in relevant documents, dramatically improving retrieval quality. The opt-in `use_hyde` flag ensures no latency penalty for queries that don't need expansion.
+
+**References:**
+- Gao et al. (2022). "Precise Zero-Shot Dense Retrieval without Relevance Labels." arXiv:2212.10496
+
+### Amendment: Multi-Channel Hybrid Retrieval with RRF Fusion (L4)
+
+_Date: 2026-03-02_
+
+**What changed:** Subgraph seed selection now uses three parallel retrieval channels fused via Reciprocal Rank Fusion (RRF), replacing the previous single graph-based seed strategy. This implements a hybrid retrieval pattern that combines structured (graph), semantic (vector), and lexical (BM25) signals.
+
+**Retrieval channels:**
+
+| Channel | Source Store | Signal Type | Ranking |
+|---------|------------|-------------|---------|
+| Graph | Neo4j (seed strategy queries) | Structural — topology, edge types, intent weights | Rank position from Cypher ORDER BY |
+| Vector | Neo4j (entity embedding vector index) | Semantic — cosine similarity to query embedding | Cosine similarity score |
+| BM25 | RediSearch (full-text on `summary` + `keywords`) | Lexical — term frequency / inverse document frequency | BM25 relevance score |
+
+All three channels run concurrently via `asyncio.gather(return_exceptions=True)`. Failed channels are gracefully excluded from fusion. The fused seed list is then used as the starting point for the existing neighbor traversal pipeline.
+
+**RRF fusion formula:** For each item appearing in one or more ranked lists: `score(item) = sum over lists of 1 / (k + rank_in_list)` where k=60 (the canonical value from Cormack, Clarke, and Buettcher, 2009). Items appearing in multiple channels naturally receive higher fused scores, providing multi-signal confirmation.
+
+**New domain module:** `domain/reranking.py` provides `reciprocal_rank_fusion()` and `maximal_marginal_relevance()` as pure functions with zero framework dependencies.
+
+**New RediSearch fields:** The event index (`adapters/redis/indexes.py`) adds two `TextField` entries for BM25 scoring:
+- `$.summary` (weight 2.0) — event summary text from enrichment
+- `$.keywords` (weight 1.5) — extracted keywords from enrichment
+
+**New EventStore method:** `search_bm25(query_text, session_id, limit)` added to the EventStore protocol (`ports/event_store.py`) and implemented in `RedisEventStore` (`adapters/redis/store.py`).
+
+**Architecture:** The `Neo4jGraphStore` constructor accepts an optional `event_store: EventStore` parameter for BM25 access. Three private methods `_get_graph_seeds()`, `_get_vector_seeds()`, and `_get_bm25_seeds()` encapsulate each channel. The `get_subgraph()` method orchestrates parallel execution and fusion.
+
+**Response extension:** `QueryMeta.retrieval_channels` (new optional dict field) reports how many seeds each channel contributed, e.g., `{"graph": 5, "vector": 3, "bm25": 4}`.
+
+**Rationale:** Single-channel retrieval (graph-only) misses semantically relevant results that aren't directly connected to seed nodes in the graph topology. BM25 captures lexical matches in event summaries (important for exact term matching), while vector similarity captures semantic relatedness. The combination addresses the vocabulary mismatch problem: graph and BM25 handle known terms, vectors handle conceptual similarity.
+
+**References:**
+- Cormack, Clarke, Buettcher (2009). "Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods." SIGIR 2009.
+- Carbonell, Goldstein (1998). "The Use of MMR, Diversity-Based Reranking." SIGIR 1998.
+
+### Amendment: Personalized PageRank Approximation (L5)
+
+_Date: 2026-03-02_
+
+**What changed:** Subgraph retrieval now optionally applies Personalized PageRank (PPR) as a post-processing step between neighbor traversal and final sorting/pagination. PPR re-ranks nodes based on structural importance relative to the seed nodes, complementing the existing decay-based scoring.
+
+**Algorithm:** Iterative power method with configurable damping factor (default 0.85) and iteration count (default 5). The implementation is pure Python with zero external dependencies (no Neo4j GDS required), operating on a local adjacency list built from the already-fetched nodes and edges.
+
+**Score blending:** PPR scores are normalized by graph size (multiplied by N, clamped to [0, 1]) and blended into the existing `decay_score` using a configurable weight: `blended = (1 - blend_w) * decay_score + blend_w * ppr_clamped` (default blend_weight=0.3). The raw PPR score is preserved in `NodeScores.ppr_score` for transparency.
+
+**New domain module:** `domain/ppr.py` provides `approximate_ppr()` as a pure function: `approximate_ppr(adjacency, seeds, damping, iterations) -> dict[str, float]`.
+
+**New model field:** `NodeScores.ppr_score` (float, default 0.0, range [0, 1]) added to the Atlas response.
+
+**Configuration:** `PPRSettings` (env prefix `CG_PPR_`) controls: `enabled` (default False), `damping` (0.85), `iterations` (5), `max_subgraph_size` (500, skip PPR for very large result sets), `blend_weight` (0.3).
+
+**Guard rails:** PPR is skipped when disabled, when the subgraph exceeds `max_subgraph_size` nodes, or when there are no valid seed nodes.
+
+**Rationale:** Decay scoring captures temporal relevance but misses structural importance. Nodes that are highly connected or sit at bridge positions in the graph topology may be structurally important for understanding context, even if they have lower recency scores. PPR surfaces these structurally important nodes by propagating probability mass through the graph edges, biased toward the seed nodes that the intent-aware retrieval selected.

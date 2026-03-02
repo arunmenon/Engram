@@ -17,9 +17,9 @@ from typing import TYPE_CHECKING, Any
 import structlog
 from neo4j import AsyncGraphDatabase
 
+from context_graph.adapters.metrics import GRAPH_QUERY_DURATION
 from context_graph.adapters.neo4j import queries
-from context_graph.api.metrics import GRAPH_QUERY_DURATION
-from context_graph.domain.intent import classify_intent, get_edge_weights, select_seed_strategy
+from context_graph.adapters.neo4j.retrieval import RetrievalDeps, RetrievalPipeline
 from context_graph.domain.lineage import validate_traversal_bounds
 from context_graph.domain.models import (
     AtlasEdge,
@@ -33,8 +33,7 @@ from context_graph.domain.models import (
     QueryMeta,
 )
 from context_graph.domain.pagination import decode_cursor, encode_cursor
-from context_graph.domain.scoring import score_entity_node, score_node
-from context_graph.settings import INTENT_WEIGHTS
+from context_graph.domain.scoring import score_node
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -48,7 +47,10 @@ if TYPE_CHECKING:
         SummaryNode,
     )
     from context_graph.ports.embedding import EmbeddingService
-    from context_graph.settings import Neo4jSettings, QuerySettings
+    from context_graph.ports.event_store import EventStore
+    from context_graph.ports.intent import IntentClassifier
+    from context_graph.ports.llm import LLMClient
+    from context_graph.settings import DecaySettings, Neo4jSettings, PPRSettings, QuerySettings
 
 logger = structlog.get_logger(__name__)
 
@@ -78,17 +80,6 @@ _BATCH_EDGE_QUERIES: dict[str, str] = {
     EdgeType.CAUSED_BY: queries.BATCH_MERGE_CAUSED_BY,
 }
 
-# Map seed strategy name -> Cypher seed query
-_SEED_STRATEGY_QUERIES: dict[str, str] = {
-    "causal_roots": queries.GET_SEED_CAUSAL_ROOTS,
-    "entity_hubs": queries.GET_SEED_ENTITY_HUBS,
-    "temporal_anchors": queries.GET_SEED_TEMPORAL_ANCHORS,
-    "user_profile": queries.GET_SEED_USER_PROFILE,
-    "similar_cluster": queries.GET_SEED_SIMILAR_CLUSTER,
-    "workflow_pattern": queries.GET_SEED_WORKFLOW_PATTERN,
-    "general": queries.GET_SUBGRAPH_SEED_EVENTS,
-}
-
 
 class Neo4jGraphStore:
     """Neo4j implementation of the GraphStore protocol.
@@ -104,6 +95,11 @@ class Neo4jGraphStore:
         settings: Neo4jSettings,
         embedding_service: EmbeddingService | None = None,
         query_settings: QuerySettings | None = None,
+        decay_settings: DecaySettings | None = None,
+        intent_classifier: IntentClassifier | None = None,
+        llm_client: LLMClient | None = None,
+        event_store: EventStore | None = None,
+        ppr_settings: PPRSettings | None = None,
     ) -> None:
         self._settings = settings
         self._driver: AsyncDriver = AsyncGraphDatabase.driver(
@@ -113,10 +109,36 @@ class Neo4jGraphStore:
         )
         self._database = settings.database
         self._embedding_service = embedding_service
+        self._llm_client = llm_client
+        self._event_store = event_store
         self._query_timeout_s: float = (
             (query_settings.default_timeout_ms / 1000.0) if query_settings else 5.0
         )
         self._neighbor_limit: int = query_settings.default_neighbor_limit if query_settings else 50
+        if decay_settings is None:
+            from context_graph.settings import DecaySettings as _DecaySettings
+
+            decay_settings = _DecaySettings()
+        self._decay = decay_settings
+        self._intent_classifier = intent_classifier
+        self._ppr_settings = ppr_settings
+
+        # Wire up the retrieval pipeline (separated for SRP)
+        self._retrieval = RetrievalPipeline(
+            RetrievalDeps(
+                driver=self._driver,
+                database=self._database,
+                embedding_service=embedding_service,
+                intent_classifier=intent_classifier,
+                llm_client=llm_client,
+                event_store=event_store,
+                decay=self._decay,
+                ppr_settings=ppr_settings,
+                query_timeout_s=self._query_timeout_s,
+                neighbor_limit=self._neighbor_limit,
+                search_similar_entities=self.search_similar_entities,
+            )
+        )
 
     # ------------------------------------------------------------------
     # Node operations
@@ -438,7 +460,16 @@ class Neo4jGraphStore:
         for record in records:
             props = dict(record["e"])
             event_id = props.get("event_id", "")
-            scores = score_node(props, query_embedding=query_embedding)
+            scores = score_node(
+                props,
+                query_embedding=query_embedding,
+                s_base=self._decay.s_base,
+                s_boost=self._decay.s_boost,
+                w_recency=self._decay.weight_recency,
+                w_importance=self._decay.weight_importance,
+                w_relevance=self._decay.weight_relevance,
+                w_user_affinity=self._decay.weight_user_affinity,
+            )
             scored_entries.append((event_id, props, scores))
 
         # Sort by composite decay_score descending, take top max_nodes
@@ -559,7 +590,16 @@ class Neo4jGraphStore:
                 props = dict(neo_node)
                 event_id = props.get("event_id", "")
                 if event_id and event_id not in nodes:
-                    scores = score_node(props, query_embedding=query_embedding)
+                    scores = score_node(
+                        props,
+                        query_embedding=query_embedding,
+                        s_base=self._decay.s_base,
+                        s_boost=self._decay.s_boost,
+                        w_recency=self._decay.weight_recency,
+                        w_importance=self._decay.weight_importance,
+                        w_relevance=self._decay.weight_relevance,
+                        w_user_affinity=self._decay.weight_user_affinity,
+                    )
                     nodes[event_id] = self._build_atlas_node(props, scores)
 
             for rel in chain_rels:
@@ -607,256 +647,8 @@ class Neo4jGraphStore:
         )
 
     async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
-        """Execute an intent-aware subgraph query."""
-        start_ms = time.monotonic_ns()
-
-        # Embed query text for relevance scoring
-        query_embedding = await self._embed_query(query.query)
-
-        # Classify intent from the query text
-        inferred_intents = classify_intent(query.query)
-
-        # If explicit intent override, use that
-        if query.intent is not None:
-            inferred_intents = {str(query.intent): 1.0}
-
-        # Get edge weights based on intents
-        edge_weights = get_edge_weights(inferred_intents, INTENT_WEIGHTS)
-
-        # Select seed strategy based on dominant intent
-        seed_strategy = select_seed_strategy(inferred_intents)
-        seed_query = _SEED_STRATEGY_QUERIES.get(seed_strategy, queries.GET_SUBGRAPH_SEED_EVENTS)
-        seed_limit = min(10, query.max_nodes)
-
-        # Get seed events using the strategy-specific query
-        async with self._driver.session(database=self._database) as session:
-            seed_result = await session.run(
-                seed_query,
-                {"session_id": query.session_id, "seed_limit": seed_limit},
-                timeout=self._query_timeout_s,
-            )
-            seed_records = [record async for record in seed_result]
-
-        # Fallback to general (recency) if strategy-specific query returned nothing
-        if not seed_records and seed_strategy != "general":
-            async with self._driver.session(database=self._database) as session:
-                seed_result = await session.run(
-                    queries.GET_SUBGRAPH_SEED_EVENTS,
-                    {"session_id": query.session_id, "seed_limit": seed_limit},
-                    timeout=self._query_timeout_s,
-                )
-                seed_records = [record async for record in seed_result]
-
-        nodes: dict[str, AtlasNode] = {}
-        edges: list[AtlasEdge] = []
-        seen_edges: set[tuple[str, str, str]] = set()
-        seed_node_ids: list[str] = []
-
-        # Process seed events
-        for record in seed_records:
-            props = dict(record["e"])
-            event_id = props.get("event_id", "")
-            if event_id:
-                seed_node_ids.append(event_id)
-                scores = score_node(props, query_embedding=query_embedding)
-                nodes[event_id] = self._build_atlas_node(props, scores)
-
-        # Override with user-provided seed_nodes if specified
-        if query.seed_nodes:
-            seed_node_ids = list(query.seed_nodes)
-            # Fetch properties for user-provided seeds
-            for seed_id in query.seed_nodes:
-                if seed_id not in nodes:
-                    async with self._driver.session(database=self._database) as session:
-                        result = await session.run(
-                            "MATCH (e:Event {event_id: $eid}) RETURN e",
-                            {"eid": seed_id},
-                            timeout=self._query_timeout_s,
-                        )
-                        seed_record = await result.single()
-                    if seed_record is not None:
-                        props = dict(seed_record["e"])
-                        scores = score_node(props, query_embedding=query_embedding)
-                        nodes[seed_id] = self._build_atlas_node(props, scores)
-
-        # Cross-session entity expansion for relevant intents
-        _cross_session_intents = {"who_is", "personalize", "related"}
-        dominant_intent = max(inferred_intents, key=lambda k: inferred_intents[k])
-        if dominant_intent in _cross_session_intents:
-            cross_limit = max(1, query.max_nodes // 5)  # budget: 20% of max_nodes
-            async with self._driver.session(database=self._database) as session:
-                cross_result = await session.run(
-                    queries.GET_ENTITY_CROSS_SESSION_EVENTS,
-                    {
-                        "session_id": query.session_id,
-                        "limit": cross_limit,
-                    },
-                    timeout=self._query_timeout_s,
-                )
-                cross_records = [record async for record in cross_result]
-            for record in cross_records:
-                props = dict(record["e"])
-                event_id = props.get("event_id", "")
-                if event_id and event_id not in nodes:
-                    scores = score_node(props, query_embedding=query_embedding)
-                    atlas_node = self._build_atlas_node(props, scores, retrieval_reason="proactive")
-                    atlas_node.proactive_signal = "cross_session"
-                    nodes[event_id] = atlas_node
-
-        # Batch neighbor traversal for all seeds (single roundtrip)
-        if seed_node_ids:
-            async with self._driver.session(database=self._database) as session:
-                neighbor_result = await session.run(
-                    queries.GET_EVENT_NEIGHBORS_BATCH,
-                    {
-                        "event_ids": seed_node_ids,
-                        "neighbor_limit": self._neighbor_limit,
-                    },
-                    timeout=self._query_timeout_s,
-                )
-                neighbor_records = [record async for record in neighbor_result]
-        else:
-            neighbor_records = []
-
-        for nrec in neighbor_records:
-            seed_eid = nrec.get("seed_event_id")
-            rel_type = nrec.get("rel_type")
-            if rel_type is None or seed_eid is None:
-                continue
-
-            neighbor_eid = nrec.get("neighbor_event_id")
-            neighbor_entity_id = nrec.get("neighbor_entity_id")
-            neighbor_id = neighbor_eid or neighbor_entity_id or ""
-            if not neighbor_id:
-                continue
-
-            # Apply edge weight as a score boost
-            weight = edge_weights.get(rel_type, 1.0)
-
-            if neighbor_eid and neighbor_eid not in nodes:
-                neighbor_props = nrec.get("neighbor_props", {}) or {}
-                nscores = score_node(neighbor_props, query_embedding=query_embedding)
-                # Boost the decay score by edge weight relevance
-                boosted_score = min(
-                    1.0,
-                    nscores.decay_score * (1.0 + weight * 0.1),
-                )
-                boosted_scores = NodeScores(
-                    decay_score=round(boosted_score, 6),
-                    relevance_score=nscores.relevance_score,
-                    importance_score=nscores.importance_score,
-                )
-                proactive_signal = {
-                    "REFERENCES": "entity_context",
-                    "SIMILAR_TO": "recurring_pattern",
-                    "CAUSED_BY": "causal_chain",
-                    "FOLLOWS": "temporal_sequence",
-                    "SUMMARIZES": "summary_context",
-                }.get(rel_type, "related_context")
-                atlas_node = self._build_atlas_node(
-                    neighbor_props,
-                    boosted_scores,
-                    retrieval_reason="proactive",
-                )
-                atlas_node.proactive_signal = proactive_signal
-                nodes[neighbor_eid] = atlas_node
-
-            elif neighbor_entity_id and neighbor_entity_id not in nodes:
-                neighbor_props = nrec.get("neighbor_props", {}) or {}
-                nscores = score_entity_node(neighbor_props, query_embedding=query_embedding)
-                boosted_score = min(
-                    1.0,
-                    nscores.decay_score * (1.0 + weight * 0.1),
-                )
-                boosted_scores = NodeScores(
-                    decay_score=round(boosted_score, 6),
-                    relevance_score=nscores.relevance_score,
-                    importance_score=nscores.importance_score,
-                )
-                neighbor_labels = nrec.get("neighbor_labels", []) or []
-                node_type = neighbor_labels[0] if neighbor_labels else "Entity"
-                nodes[neighbor_entity_id] = AtlasNode(
-                    node_id=neighbor_entity_id,
-                    node_type=node_type,
-                    attributes={k: v for k, v in neighbor_props.items() if k != "embedding"},
-                    scores=boosted_scores,
-                    retrieval_reason="proactive",
-                    proactive_signal="entity_context",
-                )
-
-            edge_key = (seed_eid, neighbor_id, rel_type)
-            if edge_key not in seen_edges:
-                seen_edges.add(edge_key)
-                rel_props = nrec.get("rel_props", {}) or {}
-                edges.append(
-                    AtlasEdge(
-                        source=seed_eid,
-                        target=neighbor_id,
-                        edge_type=rel_type,
-                        properties=rel_props,
-                    )
-                )
-
-        # Sort all nodes by score, take top max_nodes with offset pagination
-        sorted_node_ids = sorted(
-            nodes.keys(),
-            key=lambda nid: nodes[nid].scores.decay_score,
-            reverse=True,
-        )
-
-        # Decode cursor as offset for subgraph pagination
-        sg_offset = 0
-        if query.cursor:
-            try:
-                sg_offset = int(base64.urlsafe_b64decode(query.cursor.encode()).decode())
-            except (ValueError, Exception):
-                sg_offset = 0
-
-        # Apply offset then take max_nodes + 1 to detect has_more
-        paged_ids = sorted_node_ids[sg_offset:]
-        has_more_sg = len(paged_ids) > query.max_nodes
-        paged_ids = paged_ids[: query.max_nodes]
-
-        keep_set = set(paged_ids)
-        nodes = {k: v for k, v in nodes.items() if k in keep_set}
-
-        # Bump access counts for event nodes only
-        event_ids = [nid for nid in nodes if nid.startswith("evt")]
-        await self._bump_access_counts(event_ids)
-
-        # Build next cursor (offset-based)
-        next_cursor_sg: str | None = None
-        if has_more_sg:
-            next_off = sg_offset + query.max_nodes
-            next_cursor_sg = base64.urlsafe_b64encode(str(next_off).encode()).decode()
-
-        elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
-        GRAPH_QUERY_DURATION.labels(query_type="subgraph").observe(elapsed_ms / 1000.0)
-
-        proactive_count = sum(1 for n in nodes.values() if n.retrieval_reason == "proactive")
-
-        meta = QueryMeta(
-            query_ms=elapsed_ms,
-            nodes_returned=len(nodes),
-            truncated=has_more_sg,
-            inferred_intents=inferred_intents,
-            intent_override=str(query.intent) if query.intent is not None else None,
-            seed_nodes=seed_node_ids,
-            seed_strategy=seed_strategy,
-            proactive_nodes_count=proactive_count,
-            capacity=QueryCapacity(
-                max_nodes=query.max_nodes,
-                used_nodes=len(nodes),
-                max_depth=query.max_depth,
-            ),
-        )
-
-        return AtlasResponse(
-            nodes=nodes,
-            edges=edges,
-            pagination=Pagination(cursor=next_cursor_sg, has_more=has_more_sg),
-            meta=meta,
-        )
+        """Delegate to the retrieval pipeline for subgraph queries."""
+        return await self._retrieval.get_subgraph(query)
 
     async def get_entity(self, entity_id: str) -> dict[str, Any] | None:
         """Retrieve an entity and its connected events."""
@@ -885,6 +677,80 @@ class Neo4jGraphStore:
 
         return {
             "entity": entity_props,
+            "connected_events": connected_events,
+        }
+
+    # ------------------------------------------------------------------
+    # Entity cluster consolidation (transitive closure)
+    # ------------------------------------------------------------------
+
+    async def consolidate_entity_cluster(self, cluster_ids: list[str], canonical_id: str) -> None:
+        """Ensure all entities in a cluster have SAME_AS edges to the canonical.
+
+        Uses MERGE for idempotent edge creation. Members that are already
+        linked via SAME_AS are unaffected (MERGE is a no-op).
+        """
+        if not cluster_ids or not canonical_id:
+            return
+
+        # Filter out the canonical itself; self-edges are not needed
+        member_ids = [mid for mid in cluster_ids if mid != canonical_id]
+        if not member_ids:
+            return
+
+        now_iso = datetime.now(UTC).isoformat()
+        params: dict[str, Any] = {
+            "member_ids": member_ids,
+            "canonical_id": canonical_id,
+            "resolved_at": now_iso,
+        }
+
+        async with self._driver.session(database=self._database) as session:
+
+            async def _write(tx: Any) -> None:
+                await tx.run(queries.CONSOLIDATE_ENTITY_CLUSTER, params)
+
+            await session.execute_write(_write)
+
+        logger.debug(
+            "consolidated_entity_cluster",
+            canonical_id=canonical_id,
+            member_count=len(member_ids),
+        )
+
+    async def get_entity_with_cluster(self, entity_id: str) -> dict[str, Any] | None:
+        """Retrieve an entity, its SAME_AS cluster, and connected events."""
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(
+                queries.GET_ENTITY_WITH_CLUSTER,
+                {"entity_id": entity_id, "limit": 100},
+                timeout=self._query_timeout_s,
+            )
+            records = [record async for record in result]
+
+        if not records:
+            return None
+
+        entities: dict[str, dict[str, Any]] = {}
+        connected_events: list[dict[str, Any]] = []
+
+        for record in records:
+            ent = record.get("ent")
+            if ent is not None:
+                ent_dict = dict(ent)
+                eid = ent_dict.get("entity_id", "")
+                if eid and eid not in entities:
+                    entities[eid] = ent_dict
+
+            evt = record.get("evt")
+            if evt is not None:
+                evt_dict = dict(evt)
+                ref_props = record.get("ref_props", {}) or {}
+                evt_dict["ref_props"] = ref_props
+                connected_events.append(evt_dict)
+
+        return {
+            "entities": entities,
             "connected_events": connected_events,
         }
 

@@ -1,4 +1,4 @@
-"""Prometheus metrics definitions for the Context Graph API.
+"""Prometheus metrics definitions for the Context Graph service.
 
 Defines all application-level metrics collected by the service:
 HTTP layer, event ingestion, consumer workers, and graph queries.

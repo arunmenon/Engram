@@ -61,10 +61,41 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     except ImportError:
         logger.info("embedding_service_unavailable", hint="relevance_score will default to 0.5")
 
+    # Optional: LLM intent classifier
+    intent_classifier = None
+    if settings.intent.use_llm:
+        from context_graph.adapters.llm.intent_classifier import LLMIntentClassifier
+
+        intent_classifier = LLMIntentClassifier(
+            model_id=settings.llm.model_id,
+            timeout_seconds=settings.intent.timeout_seconds,
+            fallback_on_error=settings.intent.fallback_on_error,
+        )
+        logger.info("llm_intent_classifier_initialized")
+
+    # Optional: LLM client for HyDE and other expansions
+    llm_client = None
+    try:
+        from context_graph.adapters.llm.client import LLMExtractionClient
+
+        llm_client = LLMExtractionClient(
+            model_id=settings.llm.model_id,
+            temperature=settings.hyde.temperature,
+            max_tokens=settings.hyde.max_tokens,
+        )
+        logger.info("llm_client_initialized")
+    except ImportError:
+        logger.info("llm_client_unavailable")
+
     graph_store = Neo4jGraphStore(
         settings.neo4j,
         embedding_service=embedding_service,
         query_settings=settings.query,
+        decay_settings=settings.decay,
+        intent_classifier=intent_classifier,
+        llm_client=llm_client,
+        event_store=event_store,
+        ppr_settings=settings.ppr,
     )
     await graph_store.ensure_constraints()
 

@@ -558,3 +558,46 @@ Rejected. Existing standards (PROV-O, schema.org, SEM, PG-Schema) cover 80% of o
 ### Neuroscience
 - McClelland, McNaughton & O'Reilly (1995). "Why There Are Complementary Learning Systems in the Hippocampus and Neocortex." Psychological Review
 - Kumaran, Hassabis & McClelland (2016). "What Learning Systems do Intelligent Agents Need?" Trends in Cognitive Sciences
+
+---
+
+## Amendment 1: Transitive Closure for Entity Resolution (2026-03-02)
+
+### Context
+
+The original entity resolution strategy (Section 3) produces pairwise SAME_AS edges but does not guarantee transitive consistency. If entity A is SAME_AS B and B is SAME_AS C, the graph may lack the A-to-C edge. This creates incomplete clusters that break entity-centric queries: retrieving all events for entity A would miss events connected only to C.
+
+### Decision
+
+Entity resolution MUST compute transitive closure over SAME_AS edges after the pairwise resolution loop completes. The implementation uses a Union-Find (disjoint-set) data structure to efficiently merge connected components.
+
+#### Algorithm
+
+1. **Collect**: During the entity resolution cascade, collect all pairwise SAME_AS edges as `(source_id, target_id)` tuples.
+2. **Cluster**: Run Union-Find over the collected edges to identify connected components.
+3. **Canonical selection**: For each cluster, select the canonical entity as the member with the highest `mention_count` (ties broken alphabetically by entity_id).
+4. **Consolidate**: For each non-canonical member in a cluster, MERGE a SAME_AS edge to the canonical entity. This ensures star-topology connectivity within each cluster.
+
+#### Query Impact
+
+Entity retrieval queries (`GET_ENTITY_WITH_CLUSTER`) now follow SAME_AS chains up to depth 3 to aggregate events across all cluster members:
+
+```cypher
+MATCH (ent:Entity {entity_id: $entity_id})
+OPTIONAL MATCH (ent)-[:SAME_AS*0..3]-(related:Entity)
+WITH DISTINCT related
+OPTIONAL MATCH (evt:Event)-[r:REFERENCES]->(related)
+RETURN related AS ent, evt, properties(r) AS ref_props
+```
+
+#### Files Modified
+
+- `src/context_graph/domain/entity_resolution.py`: Added `_UnionFind` class and `compute_transitive_closure()` function
+- `src/context_graph/worker/extraction.py`: Wired transitive closure after entity resolution loop
+- `src/context_graph/adapters/neo4j/queries.py`: Added `GET_ENTITY_WITH_CLUSTER` and `CONSOLIDATE_ENTITY_CLUSTER` queries
+- `src/context_graph/adapters/neo4j/store.py`: Added `consolidate_entity_cluster()` and `get_entity_with_cluster()` methods
+
+### Consequences
+
+- **Positive**: Entity-centric queries now return complete results across transitively linked entities. The star topology (all members point to canonical) keeps traversal depth bounded.
+- **Negative**: Additional write overhead at extraction time (one MERGE per non-canonical member per cluster). Mitigated by MERGE idempotency -- re-running produces no duplicates.

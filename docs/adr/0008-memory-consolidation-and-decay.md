@@ -384,3 +384,29 @@ enabling operators to detect processing delays before they cause data loss.
 - PEL-safe trimming ensures the `_trim_redis()` step in the consolidation
   cycle cannot remove unprocessed entries, closing a potential data loss
   window between ingestion and projection.
+
+### 2026-03-02: Runtime-Configurable Decay Parameters
+
+_Date: 2026-03-02_
+
+All decay scoring parameters (`s_base`, `s_boost`, `weight_recency`,
+`weight_importance`, `weight_relevance`, `weight_user_affinity`) are now
+runtime-configurable via `DecaySettings` (env prefix `CG_DECAY_`).
+
+Previously, `score_entity_node()` hardcoded `s_base=336.0` and used default
+composite weights, ignoring the `DecaySettings` configuration class. The
+`Neo4jGraphStore` did not accept or propagate decay settings to scoring calls.
+
+**Changes:**
+
+- `score_entity_node()` now accepts `s_base`, `s_boost`, `w_recency`,
+  `w_importance`, `w_relevance`, `w_user_affinity` keyword parameters
+  (defaults: `s_base=336.0`, others matching `DecaySettings` defaults).
+- `Neo4jGraphStore.__init__()` accepts an optional `decay_settings` parameter
+  and propagates its values to all `score_node()` and `score_entity_node()`
+  call sites (7 total across `get_context`, `get_lineage`, `get_subgraph`).
+- The API lifespan (`api/app.py`) passes `settings.decay` to the graph store.
+
+**Impact:** Operators can now tune all decay parameters at deployment time via
+environment variables without code changes. This closes the gap between the
+configurable `DecaySettings` class and the previously hardcoded scoring calls.

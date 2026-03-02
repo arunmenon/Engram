@@ -270,3 +270,98 @@ def resolve_semantic_match(
             f"'{best.name}' (cosine={best.similarity:.4f})"
         ),
     )
+
+
+# ---------------------------------------------------------------------------
+# Transitive closure via Union-Find (connected-component clustering)
+# ---------------------------------------------------------------------------
+
+
+class _UnionFind:
+    """Disjoint-set / union-find data structure for entity clustering."""
+
+    def __init__(self) -> None:
+        self._parent: dict[str, str] = {}
+        self._rank: dict[str, int] = {}
+
+    def find(self, x: str) -> str:
+        """Find root with path compression."""
+        if x not in self._parent:
+            self._parent[x] = x
+            self._rank[x] = 0
+        while self._parent[x] != x:
+            self._parent[x] = self._parent[self._parent[x]]  # path halving
+            x = self._parent[x]
+        return x
+
+    def union(self, a: str, b: str) -> None:
+        """Union by rank."""
+        root_a = self.find(a)
+        root_b = self.find(b)
+        if root_a == root_b:
+            return
+        if self._rank[root_a] < self._rank[root_b]:
+            root_a, root_b = root_b, root_a
+        self._parent[root_b] = root_a
+        if self._rank[root_a] == self._rank[root_b]:
+            self._rank[root_a] += 1
+
+
+def compute_transitive_closure(
+    edges: list[tuple[str, str]],
+    mention_counts: dict[str, int] | None = None,
+) -> dict[str, list[str]]:
+    """Compute connected-component clusters from pairwise SAME_AS edges.
+
+    Uses Union-Find to group transitively connected entities into clusters.
+    The canonical entity for each cluster is the one with the highest
+    ``mention_count`` (ties broken alphabetically).
+
+    Parameters
+    ----------
+    edges:
+        List of ``(entity_id_a, entity_id_b)`` SAME_AS pairs.
+    mention_counts:
+        Optional mapping of ``entity_id -> mention_count``.  When ``None``,
+        the canonical is chosen alphabetically.
+
+    Returns
+    -------
+    dict mapping ``canonical_id`` to the full list of cluster member IDs
+    (including the canonical itself).  Singleton entities (those appearing
+    in ``edges`` with no partner beyond themselves) are included if they
+    appear in the edge list.
+    """
+    if not edges:
+        return {}
+
+    counts = mention_counts or {}
+    uf = _UnionFind()
+
+    for a, b in edges:
+        if a == b:
+            # Self-edges are no-ops but ensure the node exists in UF
+            uf.find(a)
+            continue
+        uf.union(a, b)
+
+    # Gather clusters keyed by root
+    clusters: dict[str, list[str]] = {}
+    seen: set[str] = set()
+    for a, b in edges:
+        for node in (a, b):
+            if node not in seen:
+                seen.add(node)
+                root = uf.find(node)
+                clusters.setdefault(root, []).append(node)
+
+    # Re-key clusters by canonical (highest mention_count, then alphabetical)
+    result: dict[str, list[str]] = {}
+    for members in clusters.values():
+        canonical = min(
+            members,
+            key=lambda m: (-counts.get(m, 0), m),
+        )
+        result[canonical] = sorted(members)
+
+    return result

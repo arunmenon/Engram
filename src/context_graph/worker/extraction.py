@@ -19,6 +19,7 @@ import structlog
 from context_graph.domain.entity_resolution import (
     EntityResolutionAction,
     SemanticCandidate,
+    compute_transitive_closure,
     resolve_close_match,
     resolve_exact_match,
     resolve_semantic_match,
@@ -310,6 +311,11 @@ class ExtractionConsumer(BaseConsumer):
 
         # --- Write extracted entities + REFERENCES edges ---
         existing_entities = await self._fetch_existing_entities()
+        same_as_edges: list[tuple[str, str]] = []
+        mention_counts: dict[str, int] = {
+            e["entity_id"]: 1 for e in existing_entities if "entity_id" in e
+        }
+
         for entity_data in result.get("entities", []):
             entity_name = entity_data.get("name", "")
             entity_type = entity_data.get("entity_type", "concept")
@@ -329,6 +335,7 @@ class ExtractionConsumer(BaseConsumer):
 
             if resolution is not None and resolution.action == EntityResolutionAction.MERGE:
                 entity_id = f"entity:{resolution.canonical_name}"
+                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
                 log.debug(
                     "entity_resolved_merge",
                     name=entity_name,
@@ -355,6 +362,10 @@ class ExtractionConsumer(BaseConsumer):
                     confidence=resolution.confidence,
                     justification=resolution.justification,
                 )
+                if resolution.action == EntityResolutionAction.SAME_AS:
+                    same_as_edges.append((entity_id, canonical_id))
+                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
+                mention_counts[canonical_id] = mention_counts.get(canonical_id, 0) + 1
                 log.debug(
                     "entity_resolved_link",
                     name=entity_name,
@@ -374,6 +385,7 @@ class ExtractionConsumer(BaseConsumer):
                 existing_entities.append(
                     {"entity_id": entity_id, "name": entity_name, "entity_type": entity_type}
                 )
+                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
                 log.debug("entity_created", name=entity_name, entity_id=entity_id)
 
             for event_id in source_event_ids:
@@ -381,6 +393,21 @@ class ExtractionConsumer(BaseConsumer):
                     event_id=event_id,
                     entity_id=entity_id,
                 )
+
+        # --- Transitive closure: consolidate SAME_AS clusters ---
+        if same_as_edges and self._graph_store is not None:
+            clusters = compute_transitive_closure(same_as_edges, mention_counts)
+            for canonical_id, members in clusters.items():
+                if len(members) > 1:
+                    await self._graph_store.consolidate_entity_cluster(
+                        cluster_ids=members, canonical_id=canonical_id
+                    )
+            log.info(
+                "transitive_closure_applied",
+                session_id=session_id,
+                edge_count=len(same_as_edges),
+                cluster_count=len(clusters),
+            )
 
         # --- Write preferences ---
         if us is not None:

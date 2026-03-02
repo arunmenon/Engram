@@ -17,7 +17,7 @@ import pytest
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram
 from starlette.testclient import TestClient
 
-from context_graph.api.metrics import (
+from context_graph.adapters.metrics import (
     CONSUMER_LAG,
     CONSUMER_MESSAGE_ERRORS,
     CONSUMER_MESSAGES_PROCESSED,
