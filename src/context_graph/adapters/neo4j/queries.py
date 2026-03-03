@@ -25,7 +25,38 @@ CONSTRAINT_SUMMARY_PK = (
     "CREATE CONSTRAINT summary_pk IF NOT EXISTS FOR (s:Summary) REQUIRE s.summary_id IS UNIQUE"
 )
 
-ALL_CONSTRAINTS = [CONSTRAINT_EVENT_PK, CONSTRAINT_ENTITY_PK, CONSTRAINT_SUMMARY_PK]
+CONSTRAINT_USERPROFILE_PK = (
+    "CREATE CONSTRAINT userprofile_pk IF NOT EXISTS FOR (u:UserProfile) REQUIRE u.user_id IS UNIQUE"
+)
+
+CONSTRAINT_PREFERENCE_PK = (
+    "CREATE CONSTRAINT preference_pk IF NOT EXISTS "
+    "FOR (p:Preference) REQUIRE p.preference_id IS UNIQUE"
+)
+
+CONSTRAINT_SKILL_PK = (
+    "CREATE CONSTRAINT skill_pk IF NOT EXISTS FOR (s:Skill) REQUIRE s.skill_id IS UNIQUE"
+)
+
+CONSTRAINT_WORKFLOW_PK = (
+    "CREATE CONSTRAINT workflow_pk IF NOT EXISTS FOR (w:Workflow) REQUIRE w.workflow_id IS UNIQUE"
+)
+
+CONSTRAINT_BEHAVIORALPATTERN_PK = (
+    "CREATE CONSTRAINT behavioralpattern_pk IF NOT EXISTS "
+    "FOR (b:BehavioralPattern) REQUIRE b.pattern_id IS UNIQUE"
+)
+
+ALL_CONSTRAINTS = [
+    CONSTRAINT_EVENT_PK,
+    CONSTRAINT_ENTITY_PK,
+    CONSTRAINT_SUMMARY_PK,
+    CONSTRAINT_USERPROFILE_PK,
+    CONSTRAINT_PREFERENCE_PK,
+    CONSTRAINT_SKILL_PK,
+    CONSTRAINT_WORKFLOW_PK,
+    CONSTRAINT_BEHAVIORALPATTERN_PK,
+]
 
 # ---------------------------------------------------------------------------
 # Performance indexes
@@ -36,6 +67,21 @@ INDEX_EVENT_SESSION_ID = (
 )
 
 ALL_INDEXES = [INDEX_EVENT_SESSION_ID]
+
+# ---------------------------------------------------------------------------
+# Vector indexes
+# ---------------------------------------------------------------------------
+
+VECTOR_INDEX_ENTITY_EMBEDDING = (
+    "CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS "
+    "FOR (n:Entity) ON (n.embedding) "
+    "OPTIONS {indexConfig: {"
+    "`vector.dimensions`: 384, "
+    "`vector.similarity_function`: 'cosine'"
+    "}}"
+)
+
+ALL_VECTOR_INDEXES = [VECTOR_INDEX_ENTITY_EMBEDDING]
 
 # ---------------------------------------------------------------------------
 # Node MERGE queries
