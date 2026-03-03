@@ -85,16 +85,15 @@ def _make_enrichment_consumer(
     from context_graph.worker.enrichment import EnrichmentConsumer
 
     redis_client = AsyncMock()
-    neo4j_driver = AsyncMock()
+    graph_store = AsyncMock()
     settings = MagicMock()
     settings.redis.group_enrichment = "enrichment"
     settings.redis.global_stream = "events:__global__"
     settings.redis.block_timeout_ms = 100
     settings.redis.event_key_prefix = "evt:"
-    settings.neo4j.database = "neo4j"
     return EnrichmentConsumer(
         redis_client=redis_client,
-        neo4j_driver=neo4j_driver,
+        graph_store=graph_store,
         settings=settings,
         embedding_service=embedding_service,
     )
@@ -109,19 +108,6 @@ class TestEventEmbeddingComputation:
 
         consumer = _make_enrichment_consumer(embedding_service=embedding_service)
 
-        # Mock the Neo4j session to capture the embedding write
-        mock_session = AsyncMock()
-        mock_tx = AsyncMock()
-        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session.__aexit__ = AsyncMock(return_value=False)
-
-        async def capture_write(fn: Any) -> Any:
-            return await fn(mock_tx)
-
-        mock_session.execute_write = capture_write
-        # session() is a sync method returning an async context manager
-        consumer._neo4j_driver.session = MagicMock(return_value=mock_session)
-
         await consumer._compute_and_store_event_embedding(
             event_id="evt-1",
             event_type="tool.execute",
@@ -129,11 +115,9 @@ class TestEventEmbeddingComputation:
         )
 
         embedding_service.embed_text.assert_called_once()
-        # tx.run should have been called with the embedding
-        assert mock_tx.run.call_count == 1
-        call_args = mock_tx.run.call_args
-        assert call_args[0][1]["embedding"] == [0.1, 0.2, 0.3]
-        assert call_args[0][1]["event_id"] == "evt-1"
+        consumer._graph_store.store_event_embedding.assert_called_once_with(
+            "evt-1", [0.1, 0.2, 0.3]
+        )
 
     @pytest.mark.asyncio()
     async def test_embedding_skipped_when_no_service(self) -> None:

@@ -278,9 +278,7 @@ class TestFallbackDisabled:
         self, _mock_litellm_module: MagicMock
     ) -> None:
         """When fallback is disabled and LLM returns a non-dict, should return general:0.5."""
-        _mock_litellm_module.acompletion = AsyncMock(
-            return_value=_mock_response("[1, 2, 3]")
-        )
+        _mock_litellm_module.acompletion = AsyncMock(return_value=_mock_response("[1, 2, 3]"))
         classifier = LLMIntentClassifier(fallback_on_error=False)
         result = await classifier.classify("Why did this happen?")
         # JSON is valid but not a dict -> fallback_on_error=False path returns general:0.5
