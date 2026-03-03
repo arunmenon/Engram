@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, Any
 import structlog
 from neo4j import AsyncGraphDatabase
 
-from context_graph.adapters.metrics import GRAPH_QUERY_DURATION
 from context_graph.adapters.neo4j import queries
 from context_graph.adapters.neo4j.retrieval import RetrievalDeps, RetrievalPipeline
 from context_graph.domain.lineage import validate_traversal_bounds
@@ -34,6 +33,7 @@ from context_graph.domain.models import (
 )
 from context_graph.domain.pagination import decode_cursor, encode_cursor
 from context_graph.domain.scoring import score_node
+from context_graph.metrics import GRAPH_QUERY_DURATION
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -322,17 +322,10 @@ class Neo4jGraphStore:
 
     async def ensure_vector_indexes(self) -> None:
         """Create vector indexes for embedding search if they do not exist."""
-        vector_index_query = (
-            "CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS "
-            "FOR (n:Entity) ON (n.embedding) "
-            "OPTIONS {indexConfig: {"
-            "`vector.dimensions`: 384, "
-            "`vector.similarity_function`: 'cosine'"
-            "}}"
-        )
         async with self._driver.session(database=self._database) as session:
-            await session.run(vector_index_query)
-        logger.info("ensured_vector_indexes")
+            for vindex_query in queries.ALL_VECTOR_INDEXES:
+                await session.run(vindex_query)
+        logger.info("ensured_vector_indexes", count=len(queries.ALL_VECTOR_INDEXES))
 
     # ------------------------------------------------------------------
     # Phase 3: Query methods
@@ -864,6 +857,84 @@ class Neo4jGraphStore:
             result = await session.run(cypher, params)
             records = [record async for record in result]
         return [dict(r) for r in records]
+
+    # ------------------------------------------------------------------
+    # GraphStore protocol extensions (hexagonal boundary compliance)
+    # ------------------------------------------------------------------
+
+    async def update_event_enrichment(
+        self, event_id: str, keywords: list[str], importance_score: int
+    ) -> None:
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(
+                lambda tx: tx.run(
+                    queries.UPDATE_EVENT_ENRICHMENT,
+                    {
+                        "event_id": event_id,
+                        "keywords": keywords,
+                        "importance_score": importance_score,
+                    },
+                )
+            )
+
+    async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(
+                lambda tx: tx.run(
+                    queries.UPDATE_EVENT_EMBEDDING,
+                    {
+                        "event_id": event_id,
+                        "embedding": embedding,
+                    },
+                )
+            )
+
+    async def merge_entity_node_raw(
+        self,
+        entity_id: str,
+        name: str,
+        entity_type: str,
+        first_seen: str,
+        last_seen: str,
+        mention_count: int,
+        embedding: list[float] | None = None,
+    ) -> None:
+        params = {
+            "entity_id": entity_id,
+            "name": name,
+            "entity_type": entity_type,
+            "first_seen": first_seen,
+            "last_seen": last_seen,
+            "mention_count": mention_count,
+            "embedding": embedding or [],
+        }
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params))
+
+    async def merge_typed_edge(
+        self, source_id: str, target_id: str, edge_type: str, props: dict[str, Any] | None = None
+    ) -> None:
+        query = _EDGE_QUERIES.get(edge_type)
+        if query is None:
+            msg = f"Unknown edge type: {edge_type}"
+            raise ValueError(msg)
+        params = {"source_id": source_id, "target_id": target_id, "props": props or {}}
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(query, params))
+
+    async def get_entities(self, limit: int = 1000) -> list[dict[str, Any]]:
+        query = (
+            "MATCH (n:Entity) "
+            "RETURN n.entity_id AS entity_id, n.name AS name, "
+            "n.entity_type AS entity_type LIMIT $limit"
+        )
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(query, {"limit": limit})
+            records = [record async for record in result]
+        return [
+            {"entity_id": r["entity_id"], "name": r["name"], "entity_type": r["entity_type"]}
+            for r in records
+        ]
 
     # ------------------------------------------------------------------
     # UserStore protocol — delegates to user_queries module

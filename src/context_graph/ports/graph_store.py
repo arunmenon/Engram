@@ -75,6 +75,58 @@ class GraphStore(Protocol):
         """Retrieve an entity and its connected events."""
         ...
 
+    async def update_event_enrichment(
+        self, event_id: str, keywords: list[str], importance_score: int
+    ) -> None:
+        """Update keywords and importance on an Event node."""
+        ...
+
+    async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
+        """Store embedding vector on an Event node."""
+        ...
+
+    async def merge_entity_node_raw(
+        self,
+        entity_id: str,
+        name: str,
+        entity_type: str,
+        first_seen: str,
+        last_seen: str,
+        mention_count: int,
+        embedding: list[float] | None = None,
+    ) -> None:
+        """MERGE an Entity node from raw parameters (no domain model)."""
+        ...
+
+    async def merge_typed_edge(
+        self, source_id: str, target_id: str, edge_type: str, props: dict[str, Any] | None = None
+    ) -> None:
+        """MERGE a typed edge between two nodes."""
+        ...
+
+    async def get_entities(self, limit: int = 1000) -> list[dict[str, Any]]:
+        """Fetch Entity nodes for deduplication."""
+        ...
+
+    async def search_similar_entities(
+        self,
+        query_embedding: list[float],
+        top_k: int = 10,
+        threshold: float = 0.75,
+    ) -> list[dict[str, Any]]:
+        """Search for similar entities using vector index."""
+        ...
+
+    async def consolidate_entity_cluster(
+        self, cluster_ids: list[str], canonical_id: str
+    ) -> None:
+        """Ensure all entities in a cluster have SAME_AS edges to the canonical."""
+        ...
+
+    async def ensure_constraints(self) -> None:
+        """Create uniqueness constraints and indexes if they do not exist."""
+        ...
+
     async def close(self) -> None:
         """Release connections."""
         ...
