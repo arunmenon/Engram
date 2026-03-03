@@ -19,8 +19,10 @@ from pydantic import BaseModel, Field
 
 from context_graph.api.dependencies import (
     get_event_health,
+    get_event_store,
     get_event_store_admin,
     get_graph_maintenance,
+    get_graph_store,
     get_settings,
 )
 from context_graph.domain.consolidation import (
@@ -29,7 +31,11 @@ from context_graph.domain.consolidation import (
     should_reconsolidate,
 )
 from context_graph.domain.forgetting import get_pruning_actions
-from context_graph.ports.event_store import EventStoreAdmin  # noqa: TCH001 — runtime: Depends
+from context_graph.ports.event_store import (  # noqa: TCH001 — runtime: Depends
+    EventStore,
+    EventStoreAdmin,
+)
+from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runtime: Depends
 from context_graph.ports.health import HealthCheckable  # noqa: TCH001 — runtime: Depends
 from context_graph.ports.maintenance import GraphMaintenance  # noqa: TCH001 — runtime: Depends
 from context_graph.settings import Settings  # noqa: TCH001 — runtime: Depends
@@ -44,6 +50,8 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 MaintenanceDep = Annotated[GraphMaintenance, Depends(get_graph_maintenance)]
 EventStoreAdminDep = Annotated[EventStoreAdmin, Depends(get_event_store_admin)]
+EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
+GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 EventHealthDep = Annotated[HealthCheckable, Depends(get_event_health)]
 
@@ -81,6 +89,23 @@ class PruneResponse(BaseModel):
     pruned_nodes: int = 0
     dry_run: bool = True
     details: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class ReplayRequest(BaseModel):
+    """Body for the replay endpoint."""
+
+    confirm: bool = Field(
+        ...,
+        description="Must be true to confirm destructive rebuild",
+    )
+
+
+class ReplayResponse(BaseModel):
+    """Result of a replay operation."""
+
+    events_replayed: int = 0
+    nodes_created: int = 0
+    edges_created: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -280,6 +305,84 @@ async def prune(
             "dry_run": prune_req.dry_run,
             "details": details,
             "truncated": len(event_dicts) >= prune_batch_limit,
+        },
+    )
+
+
+@router.post("/replay")
+async def replay(
+    body: ReplayRequest,
+    graph_maint: MaintenanceDep,
+    event_store: EventStoreDep,
+    graph_store: GraphStoreDep,
+) -> ORJSONResponse:
+    """Rebuild the Neo4j graph projection from Redis event ledger.
+
+    Destructive operation: clears the entire Neo4j graph, re-creates
+    constraints, then replays all events from the Redis global stream
+    through the projection logic.
+
+    Requires ``confirm: true`` in the request body.
+    """
+    if not body.confirm:
+        return ORJSONResponse(
+            status_code=400,
+            content={"error": "Set confirm=true to proceed with destructive replay"},
+        )
+
+    from context_graph.domain.models import EventQuery
+    from context_graph.domain.projection import project_event
+
+    logger.warning("replay_started")
+
+    # Step 1: Clear the graph
+    await graph_maint.run_session_query("MATCH (n) DETACH DELETE n", {})
+
+    # Step 2: Re-create constraints via graph store
+    await graph_store.ensure_constraints()
+
+    # Step 3: Read all events from Redis and replay
+    events_replayed = 0
+    nodes_created = 0
+    edges_created = 0
+    batch_size = 100
+    prev_event = None
+
+    while True:
+        query = EventQuery(limit=batch_size, after=prev_event.occurred_at if prev_event else None)
+        events = await event_store.search(query)
+
+        if not events:
+            break
+
+        for event in events:
+            projection = project_event(event, prev_event)
+
+            await graph_store.merge_event_node(projection.node)
+            nodes_created += 1
+
+            for edge in projection.edges:
+                await graph_store.create_edge(edge)
+                edges_created += 1
+
+            events_replayed += 1
+            prev_event = event
+
+        if len(events) < batch_size:
+            break
+
+    logger.warning(
+        "replay_completed",
+        events_replayed=events_replayed,
+        nodes_created=nodes_created,
+        edges_created=edges_created,
+    )
+
+    return ORJSONResponse(
+        content={
+            "events_replayed": events_replayed,
+            "nodes_created": nodes_created,
+            "edges_created": edges_created,
         },
     )
 
