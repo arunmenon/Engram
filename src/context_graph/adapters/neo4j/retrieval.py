@@ -20,7 +20,6 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from context_graph.adapters.metrics import GRAPH_QUERY_DURATION
 from context_graph.adapters.neo4j import queries
 from context_graph.domain.intent import classify_intent, get_edge_weights, select_seed_strategy
 from context_graph.domain.models import (
@@ -37,6 +36,7 @@ from context_graph.domain.ppr import approximate_ppr
 from context_graph.domain.query_expansion import build_hyde_prompt, expand_query
 from context_graph.domain.reranking import reciprocal_rank_fusion
 from context_graph.domain.scoring import score_entity_node, score_node
+from context_graph.metrics import GRAPH_QUERY_DURATION
 from context_graph.settings import INTENT_WEIGHTS
 
 if TYPE_CHECKING:

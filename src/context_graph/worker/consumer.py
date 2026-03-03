@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 import structlog
 
-from context_graph.adapters.metrics import (
+from context_graph.metrics import (
     CONSUMER_MESSAGE_ERRORS,
     CONSUMER_MESSAGES_DEAD_LETTERED,
     CONSUMER_MESSAGES_PROCESSED,

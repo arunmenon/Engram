@@ -1,83 +1,18 @@
-"""Prometheus metrics definitions for the Context Graph service.
+"""Re-export shim for backwards compatibility.
 
-Defines all application-level metrics collected by the service:
-HTTP layer, event ingestion, consumer workers, and graph queries.
+Metrics have been relocated to context_graph.metrics (top-level shared module)
+to avoid hex boundary violations when imported from api/ and worker/ layers.
 """
 
-from __future__ import annotations
-
-from prometheus_client import Counter, Gauge, Histogram
-
-# ---------------------------------------------------------------------------
-# HTTP layer
-# ---------------------------------------------------------------------------
-
-HTTP_REQUESTS_TOTAL = Counter(
-    "engram_http_requests_total",
-    "Total HTTP requests",
-    ["method", "endpoint", "status"],
-)
-
-HTTP_REQUEST_DURATION = Histogram(
-    "engram_http_request_duration_seconds",
-    "HTTP request duration",
-    ["method", "endpoint"],
-)
-
-RATE_LIMIT_EXCEEDED = Counter(
-    "engram_rate_limit_exceeded_total",
-    "Rate limited requests",
-    ["tier"],
-)
-
-# ---------------------------------------------------------------------------
-# Event ingestion
-# ---------------------------------------------------------------------------
-
-EVENTS_INGESTED_TOTAL = Counter(
-    "engram_events_ingested_total",
-    "Total events ingested",
-)
-
-EVENTS_BATCH_SIZE = Histogram(
-    "engram_events_batch_size",
-    "Batch ingestion size",
-)
-
-# ---------------------------------------------------------------------------
-# Consumer workers
-# ---------------------------------------------------------------------------
-
-CONSUMER_MESSAGES_PROCESSED = Counter(
-    "engram_consumer_messages_processed_total",
-    "Messages processed by consumers",
-    ["consumer"],
-)
-
-CONSUMER_MESSAGE_ERRORS = Counter(
-    "engram_consumer_message_errors_total",
-    "Consumer processing errors",
-    ["consumer"],
-)
-
-CONSUMER_MESSAGES_DEAD_LETTERED = Counter(
-    "engram_consumer_messages_dead_lettered_total",
-    "Messages moved to dead-letter queue after max retries",
-    ["consumer"],
-)
-
-CONSUMER_LAG = Gauge(
-    "engram_consumer_lag_messages",
-    "Consumer group lag",
-    ["group"],
-)
-
-# ---------------------------------------------------------------------------
-# Graph queries
-# ---------------------------------------------------------------------------
-
-GRAPH_QUERY_DURATION = Histogram(
-    "engram_graph_query_duration_seconds",
-    "Neo4j query duration",
-    ["query_type"],
+from context_graph.metrics import (  # noqa: F401
+    CONSUMER_LAG,
+    CONSUMER_MESSAGE_ERRORS,
+    CONSUMER_MESSAGES_DEAD_LETTERED,
+    CONSUMER_MESSAGES_PROCESSED,
+    EVENTS_BATCH_SIZE,
+    EVENTS_INGESTED_TOTAL,
+    GRAPH_QUERY_DURATION,
+    HTTP_REQUEST_DURATION,
+    HTTP_REQUESTS_TOTAL,
+    RATE_LIMIT_EXCEEDED,
 )
