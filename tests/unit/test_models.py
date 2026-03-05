@@ -14,12 +14,18 @@ from pydantic import ValidationError
 
 from context_graph.domain.models import (
     AtlasResponse,
+    BeliefCategory,
+    BeliefNode,
     EdgeType,
     EntityType,
+    EpisodeNode,
+    EpisodeType,
     Event,
     EventQuery,
     EventStatus,
     EventType,
+    GoalNode,
+    GoalStatus,
     IntentType,
     LineageQuery,
     NodeScores,
@@ -199,9 +205,9 @@ class TestEnumCompleteness:
         expected = {"AGENT", "USER", "SERVICE", "TOOL", "RESOURCE", "CONCEPT"}
         assert {m.name for m in EntityType} == expected
 
-    def test_edge_type_has_sixteen_members(self) -> None:
-        """EdgeType must have exactly 16 members (5 core + 2 entity + 9 personalization)."""
-        assert len(EdgeType) == 16
+    def test_edge_type_has_twenty_members(self) -> None:
+        """EdgeType: 5 core + 4 new + 2 entity + 9 personalization = 20."""
+        assert len(EdgeType) == 20
 
     def test_intent_type_has_eight_members(self) -> None:
         """IntentType must have all 8 intent categories."""
@@ -218,9 +224,9 @@ class TestEnumCompleteness:
         }
         assert {m.name for m in IntentType} == expected
 
-    def test_node_type_has_eight_members(self) -> None:
-        """NodeType must have 3 core + 5 personalization types."""
-        assert len(NodeType) == 8
+    def test_node_type_has_eleven_members(self) -> None:
+        """NodeType must have 3 core + 5 personalization + 3 episodic/belief/goal types."""
+        assert len(NodeType) == 11
 
     def test_event_status_values(self) -> None:
         """EventStatus must have the five lifecycle states."""
@@ -393,3 +399,170 @@ class TestProvenance:
         )
         assert prov.source == "redis"
         assert prov.event_id == "evt-123"
+
+
+# ---------------------------------------------------------------------------
+# New enum completeness
+# ---------------------------------------------------------------------------
+
+
+class TestNewEnums:
+    """Tests for BeliefCategory, GoalStatus, EpisodeType enums."""
+
+    def test_belief_category_has_three_members(self) -> None:
+        assert len(BeliefCategory) == 3
+        expected = {"USER_MODEL", "WORLD_MODEL", "CAPABILITY"}
+        assert {m.name for m in BeliefCategory} == expected
+
+    def test_goal_status_has_four_members(self) -> None:
+        assert len(GoalStatus) == 4
+        expected = {"ACTIVE", "COMPLETED", "ABANDONED", "SUPERSEDED"}
+        assert {m.name for m in GoalStatus} == expected
+
+    def test_episode_type_has_three_members(self) -> None:
+        assert len(EpisodeType) == 3
+        expected = {"TEMPORAL", "CAUSAL", "THEMATIC"}
+        assert {m.name for m in EpisodeType} == expected
+
+    def test_new_node_types_exist(self) -> None:
+        assert NodeType.BELIEF == "Belief"
+        assert NodeType.GOAL == "Goal"
+        assert NodeType.EPISODE == "Episode"
+
+    def test_new_edge_types_exist(self) -> None:
+        assert EdgeType.CONTAINS == "CONTAINS"
+        assert EdgeType.CONTRADICTS == "CONTRADICTS"
+        assert EdgeType.PURSUES == "PURSUES"
+        assert EdgeType.SUPERSEDES == "SUPERSEDES"
+
+
+# ---------------------------------------------------------------------------
+# New node models
+# ---------------------------------------------------------------------------
+
+
+class TestBeliefNode:
+    """Tests for BeliefNode model."""
+
+    def test_valid_belief_node(self) -> None:
+        now = datetime.now(UTC)
+        node = BeliefNode(
+            belief_id="belief-1",
+            belief_text="User prefers dark mode",
+            confidence=0.85,
+            category=BeliefCategory.USER_MODEL,
+            created_at=now,
+            last_confirmed_at=now,
+        )
+        assert node.belief_id == "belief-1"
+        assert node.confidence == 0.85
+        assert node.confirmation_count == 1
+        assert node.superseded_by is None
+
+    def test_belief_node_confidence_bounds(self) -> None:
+        now = datetime.now(UTC)
+        with pytest.raises(ValidationError):
+            BeliefNode(
+                belief_id="b1",
+                belief_text="text",
+                confidence=1.5,
+                category=BeliefCategory.WORLD_MODEL,
+                created_at=now,
+                last_confirmed_at=now,
+            )
+
+    def test_belief_node_with_superseded_by(self) -> None:
+        now = datetime.now(UTC)
+        node = BeliefNode(
+            belief_id="belief-old",
+            belief_text="User likes light mode",
+            confidence=0.3,
+            category=BeliefCategory.USER_MODEL,
+            created_at=now,
+            last_confirmed_at=now,
+            superseded_by="belief-new",
+        )
+        assert node.superseded_by == "belief-new"
+
+
+class TestGoalNode:
+    """Tests for GoalNode model."""
+
+    def test_valid_goal_node(self) -> None:
+        now = datetime.now(UTC)
+        node = GoalNode(
+            goal_id="goal-1",
+            description="Complete project setup",
+            status=GoalStatus.ACTIVE,
+            created_at=now,
+            last_active_at=now,
+        )
+        assert node.goal_id == "goal-1"
+        assert node.status == GoalStatus.ACTIVE
+        assert node.priority is None
+        assert node.evidence_count == 1
+
+    def test_goal_node_priority_bounds(self) -> None:
+        now = datetime.now(UTC)
+        with pytest.raises(ValidationError):
+            GoalNode(
+                goal_id="g1",
+                description="test",
+                status=GoalStatus.ACTIVE,
+                created_at=now,
+                last_active_at=now,
+                priority=0,
+            )
+        with pytest.raises(ValidationError):
+            GoalNode(
+                goal_id="g1",
+                description="test",
+                status=GoalStatus.ACTIVE,
+                created_at=now,
+                last_active_at=now,
+                priority=11,
+            )
+
+    def test_goal_node_valid_priority(self) -> None:
+        now = datetime.now(UTC)
+        node = GoalNode(
+            goal_id="g1",
+            description="test",
+            status=GoalStatus.COMPLETED,
+            created_at=now,
+            last_active_at=now,
+            priority=5,
+        )
+        assert node.priority == 5
+
+
+class TestEpisodeNode:
+    """Tests for EpisodeNode model."""
+
+    def test_valid_episode_node(self) -> None:
+        now = datetime.now(UTC)
+        node = EpisodeNode(
+            episode_id="ep-1",
+            session_id="session-1",
+            start_time=now,
+            end_time=now,
+            episode_type=EpisodeType.TEMPORAL,
+        )
+        assert node.episode_id == "ep-1"
+        assert node.event_count == 0
+        assert node.summary_id is None
+
+    def test_episode_node_with_summary(self) -> None:
+        now = datetime.now(UTC)
+        node = EpisodeNode(
+            episode_id="ep-2",
+            session_id="session-1",
+            start_time=now,
+            end_time=now,
+            event_count=15,
+            episode_type=EpisodeType.CAUSAL,
+            summary_id="summary-abc",
+        )
+        assert node.event_count == 15
+        assert node.summary_id == "summary-abc"
+        assert node.episode_type == EpisodeType.CAUSAL

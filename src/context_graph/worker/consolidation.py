@@ -21,14 +21,8 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from context_graph.adapters.redis.trimmer import (
-    archive_and_delete_expired_events,
-    cleanup_dedup_set,
-    cleanup_session_streams,
-    delete_expired_events,
-    trim_stream,
-)
 from context_graph.domain.consolidation import (
+    build_summary_prompt,
     create_summary_from_events,
     group_events_into_episodes,
     should_reconsolidate,
@@ -38,7 +32,9 @@ from context_graph.worker.consumer import BaseConsumer
 if TYPE_CHECKING:
     from redis.asyncio import Redis
 
+    from context_graph.adapters.llm.client import LLMExtractionClient
     from context_graph.ports.maintenance import GraphMaintenance
+    from context_graph.ports.retention import RetentionManager
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -58,8 +54,10 @@ class ConsolidationConsumer(BaseConsumer):
         self,
         redis_client: Redis,
         graph_maintenance: GraphMaintenance,
+        retention_manager: RetentionManager,
         settings: Settings,
         archive_store: Any = None,
+        llm_client: LLMExtractionClient | None = None,
     ) -> None:
         consumer_settings = settings.consumer
         super().__init__(
@@ -74,9 +72,11 @@ class ConsolidationConsumer(BaseConsumer):
             dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
         self._graph_maintenance = graph_maintenance
+        self._retention_manager = retention_manager
         self._settings = settings
         self._event_key_prefix = settings.redis.event_key_prefix
         self._archive_store = archive_store
+        self._llm_client = llm_client
         self._consolidation_lock = asyncio.Lock()
 
     # -- lifecycle ----------------------------------------------------------
@@ -252,10 +252,16 @@ class ConsolidationConsumer(BaseConsumer):
 
         # Create summaries for each episode
         for idx, episode in enumerate(episodes):
+            llm_summary_text: str | None = None
+            if self._llm_client is not None:
+                prompt = build_summary_prompt(episode)
+                llm_summary_text = await self._llm_client.generate_text(prompt)
+
             summary = create_summary_from_events(
                 events=episode,
                 scope="episode",
                 scope_id=f"{session_id}-ep{idx}",
+                llm_summary_text=llm_summary_text,
             )
 
             event_ids = [e.get("event_id", "") for e in episode if e.get("event_id")]
@@ -273,10 +279,16 @@ class ConsolidationConsumer(BaseConsumer):
             )
 
         # Create a session-level summary covering all events
+        session_llm_text: str | None = None
+        if self._llm_client is not None:
+            session_prompt = build_summary_prompt(events)
+            session_llm_text = await self._llm_client.generate_text(session_prompt)
+
         session_summary = create_summary_from_events(
             events=events,
             scope="session",
             scope_id=session_id,
+            llm_summary_text=session_llm_text,
         )
         all_event_ids = [e.get("event_id", "") for e in events if e.get("event_id")]
         await gm.write_summary_with_edges(
@@ -356,8 +368,7 @@ class ConsolidationConsumer(BaseConsumer):
         redis_settings = self._settings.redis
 
         # 1. Trim global stream (hot window) — PEL-safe
-        trimmed = await trim_stream(
-            redis_client=self._redis,
+        trimmed = await self._retention_manager.trim_stream(
             stream_key=redis_settings.global_stream,
             max_age_days=redis_settings.hot_window_days,
             consumer_groups=[
@@ -370,30 +381,26 @@ class ConsolidationConsumer(BaseConsumer):
 
         # 2. Archive and delete expired JSON docs, or plain delete if no archive store
         if self._archive_store is not None:
-            archived, deleted = await archive_and_delete_expired_events(
-                redis_client=self._redis,
+            archived, deleted = await self._retention_manager.archive_and_delete_expired_events(
                 key_prefix=redis_settings.event_key_prefix,
                 max_age_days=redis_settings.retention_ceiling_days,
                 archive_store=self._archive_store,
             )
         else:
             archived = 0
-            deleted = await delete_expired_events(
-                redis_client=self._redis,
+            deleted = await self._retention_manager.delete_expired_events(
                 key_prefix=redis_settings.event_key_prefix,
                 max_age_days=redis_settings.retention_ceiling_days,
             )
 
         # 3. Clean up dedup sorted set (ADR-0014)
-        dedup_removed = await cleanup_dedup_set(
-            redis_client=self._redis,
+        dedup_removed = await self._retention_manager.cleanup_dedup_set(
             dedup_key=redis_settings.dedup_set,
             retention_ceiling_days=redis_settings.retention_ceiling_days,
         )
 
         # 4. Clean up stale session streams (ADR-0014)
-        session_streams_deleted = await cleanup_session_streams(
-            redis_client=self._redis,
+        session_streams_deleted = await self._retention_manager.cleanup_session_streams(
             prefix="events:session:",
             max_age_hours=redis_settings.session_stream_retention_hours,
         )

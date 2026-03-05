@@ -15,13 +15,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from context_graph.adapters.metrics import (
+from context_graph.api.rate_limit import RateLimiterStore, resolve_tier
+from context_graph.domain.validation import ValidationError
+from context_graph.metrics import (
     HTTP_REQUEST_DURATION,
     HTTP_REQUESTS_TOTAL,
     RATE_LIMIT_EXCEEDED,
 )
-from context_graph.api.rate_limit import RateLimiterStore, resolve_tier
-from context_graph.domain.validation import ValidationError
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:

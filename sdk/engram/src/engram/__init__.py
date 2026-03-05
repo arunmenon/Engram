@@ -29,17 +29,28 @@ from engram.models import (
     AtlasNode,
     AtlasResponse,
     BatchResult,
+    BehavioralPatternNode,
+    DetailedHealthResponse,
+    EntityResponse,
     Event,
+    GDPRDeleteResponse,
+    GDPRExportResponse,
     HealthStatus,
     IngestResult,
+    InterestNode,
+    Memory,
     Pagination,
+    PreferenceNode,
     Provenance,
+    PruneResponse,
     QueryMeta,
+    ReconsolidateResponse,
+    SkillNode,
     SubgraphQuery,
     UserProfile,
 )
 from engram.sessions import SessionManager
-from engram.simple import recall, record, trace
+from engram.simple import aclose, add, recall, record, search, trace
 from engram.sync_client import EngramSyncClient
 
 __version__ = "0.1.0"
@@ -50,6 +61,9 @@ __all__ = [
     "record",
     "recall",
     "trace",
+    "add",
+    "search",
+    "aclose",
     # Client
     "EngramClient",
     "EngramSyncClient",
@@ -68,6 +82,17 @@ __all__ = [
     "SubgraphQuery",
     "HealthStatus",
     "UserProfile",
+    "Memory",
+    "PreferenceNode",
+    "SkillNode",
+    "BehavioralPatternNode",
+    "InterestNode",
+    "EntityResponse",
+    "GDPRExportResponse",
+    "GDPRDeleteResponse",
+    "ReconsolidateResponse",
+    "PruneResponse",
+    "DetailedHealthResponse",
     # Exceptions
     "EngramError",
     "TransportError",

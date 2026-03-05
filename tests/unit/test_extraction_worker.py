@@ -31,20 +31,19 @@ def _make_settings() -> Any:
 
 def _make_consumer(
     redis_client: Any = None,
-    neo4j_driver: Any = None,
     llm_client: Any = None,
+    graph_store: Any = None,
 ) -> ExtractionConsumer:
     """Create an ExtractionConsumer with mocked dependencies."""
     redis_client = redis_client or AsyncMock()
-    neo4j_driver = neo4j_driver or AsyncMock()
     llm_client = llm_client or AsyncMock()
+    graph_store = graph_store or AsyncMock()
     settings = _make_settings()
     return ExtractionConsumer(
         redis_client=redis_client,
-        neo4j_driver=neo4j_driver,
-        neo4j_database="neo4j",
         llm_client=llm_client,
         settings=settings,
+        graph_store=graph_store,
     )
 
 
@@ -308,20 +307,8 @@ class TestSourceEventIdsInResults:
 
 class TestEntityEmbeddingOnNeo4j:
     async def test_merge_entity_node_passes_embedding(self) -> None:
-        """_merge_entity_node should pass embedding param to Neo4j."""
+        """_merge_entity_node should pass embedding param to GraphStore."""
         consumer = _make_consumer()
-        mock_session = AsyncMock()
-        mock_tx = AsyncMock()
-        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session.__aexit__ = AsyncMock(return_value=False)
-
-        async def capture_write(fn):
-            return await fn(mock_tx)
-
-        mock_session.execute_write = capture_write
-        # session() is a sync method returning an async context manager
-        consumer._neo4j_driver.session = MagicMock(return_value=mock_session)
-
         await consumer._merge_entity_node(
             entity_id="entity:test",
             name="test",
@@ -329,36 +316,34 @@ class TestEntityEmbeddingOnNeo4j:
             now="2026-01-01T00:00:00Z",
             embedding=[0.1, 0.2, 0.3],
         )
-
-        # Verify tx.run was called with embedding in params
-        mock_tx.run.assert_called_once()
-        call_params = mock_tx.run.call_args[0][1]
-        assert call_params["embedding"] == [0.1, 0.2, 0.3]
+        consumer._graph_store.merge_entity_node_raw.assert_called_once_with(
+            entity_id="entity:test",
+            name="test",
+            entity_type="concept",
+            first_seen="2026-01-01T00:00:00Z",
+            last_seen="2026-01-01T00:00:00Z",
+            mention_count=1,
+            embedding=[0.1, 0.2, 0.3],
+        )
 
     async def test_merge_entity_node_default_empty_embedding(self) -> None:
         """_merge_entity_node with no embedding should pass empty list."""
         consumer = _make_consumer()
-        mock_session = AsyncMock()
-        mock_tx = AsyncMock()
-        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session.__aexit__ = AsyncMock(return_value=False)
-
-        async def capture_write(fn):
-            return await fn(mock_tx)
-
-        mock_session.execute_write = capture_write
-        # session() is a sync method returning an async context manager
-        consumer._neo4j_driver.session = MagicMock(return_value=mock_session)
-
         await consumer._merge_entity_node(
             entity_id="entity:test",
             name="test",
             entity_type="concept",
             now="2026-01-01T00:00:00Z",
         )
-
-        call_params = mock_tx.run.call_args[0][1]
-        assert call_params["embedding"] == []
+        consumer._graph_store.merge_entity_node_raw.assert_called_once_with(
+            entity_id="entity:test",
+            name="test",
+            entity_type="concept",
+            first_seen="2026-01-01T00:00:00Z",
+            last_seen="2026-01-01T00:00:00Z",
+            mention_count=1,
+            embedding=None,
+        )
 
     async def test_semantic_resolution_uses_graph_store(self) -> None:
         """_resolve_semantic should call graph_store.search_similar_entities."""
@@ -375,8 +360,6 @@ class TestEntityEmbeddingOnNeo4j:
 
         consumer = ExtractionConsumer(
             redis_client=AsyncMock(),
-            neo4j_driver=AsyncMock(),
-            neo4j_database="neo4j",
             llm_client=AsyncMock(),
             settings=settings,
             embedding_service=embedding_service,

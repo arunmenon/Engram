@@ -91,9 +91,17 @@ class EdgeType(enum.StrEnum):
     REFERENCES = "REFERENCES"
     SUMMARIZES = "SUMMARIZES"
 
+    # Episodic + belief edges
+    CONTAINS = "CONTAINS"
+    CONTRADICTS = "CONTRADICTS"
+
     # Entity resolution (ADR-0011)
     SAME_AS = "SAME_AS"
     RELATED_TO = "RELATED_TO"
+
+    # Goal + belief evolution edges
+    PURSUES = "PURSUES"
+    SUPERSEDES = "SUPERSEDES"
 
     # User personalization (ADR-0012)
     HAS_PROFILE = "HAS_PROFILE"
@@ -140,8 +148,11 @@ class NodeType(enum.StrEnum):
     User personalization (ADR-0012): UserProfile, Preference, Skill, Workflow, BehavioralPattern
     """
 
+    BELIEF = "Belief"
     EVENT = "Event"
     ENTITY = "Entity"
+    EPISODE = "Episode"
+    GOAL = "Goal"
     SUMMARY = "Summary"
     USER_PROFILE = "UserProfile"
     PREFERENCE = "Preference"
@@ -243,6 +254,31 @@ class CausalMechanism(enum.StrEnum):
 
     DIRECT = "direct"
     INFERRED = "inferred"
+
+
+class BeliefCategory(enum.StrEnum):
+    """Belief category — user model vs world model vs capability."""
+
+    USER_MODEL = "user_model"
+    WORLD_MODEL = "world_model"
+    CAPABILITY = "capability"
+
+
+class GoalStatus(enum.StrEnum):
+    """Goal lifecycle status."""
+
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    ABANDONED = "abandoned"
+    SUPERSEDED = "superseded"
+
+
+class EpisodeType(enum.StrEnum):
+    """Episode grouping type."""
+
+    TEMPORAL = "temporal"
+    CAUSAL = "causal"
+    THEMATIC = "thematic"
 
 
 # ---------------------------------------------------------------------------
@@ -411,6 +447,48 @@ class BehavioralPatternNode(BaseModel):
     last_confirmed_at: datetime
     access_count: int = 0
     stability: float = 336.0
+
+
+# ---------------------------------------------------------------------------
+# Episodic / Belief / Goal Node Models
+# ---------------------------------------------------------------------------
+
+
+class BeliefNode(BaseModel):
+    """Belief node — an inferred or stated belief about the user, world, or capabilities."""
+
+    belief_id: str
+    belief_text: str
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    category: BeliefCategory
+    created_at: datetime
+    last_confirmed_at: datetime
+    confirmation_count: int = 1
+    superseded_by: str | None = None
+
+
+class GoalNode(BaseModel):
+    """Goal node — a tracked user or agent goal."""
+
+    goal_id: str
+    description: str
+    status: GoalStatus
+    created_at: datetime
+    last_active_at: datetime
+    priority: int | None = Field(default=None, ge=1, le=10)
+    evidence_count: int = 1
+
+
+class EpisodeNode(BaseModel):
+    """Episode node — a coherent group of events within a session."""
+
+    episode_id: str
+    session_id: str
+    start_time: datetime
+    end_time: datetime
+    event_count: int = 0
+    episode_type: EpisodeType
+    summary_id: str | None = None
 
 
 # ---------------------------------------------------------------------------

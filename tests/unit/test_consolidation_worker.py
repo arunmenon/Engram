@@ -48,20 +48,41 @@ def mock_graph_maintenance():
 
 
 @pytest.fixture()
-def consumer(mock_redis, mock_graph_maintenance, mock_settings):
+def mock_retention_manager():
+    return AsyncMock()
+
+
+@pytest.fixture()
+def consumer(mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings):
     return ConsolidationConsumer(
         redis_client=mock_redis,
         graph_maintenance=mock_graph_maintenance,
+        retention_manager=mock_retention_manager,
         settings=mock_settings,
     )
 
 
 @pytest.fixture()
-def consumer_with_archive(mock_redis, mock_graph_maintenance, mock_settings):
+def consumer_with_llm(mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings):
+    llm_client = AsyncMock()
+    return ConsolidationConsumer(
+        redis_client=mock_redis,
+        graph_maintenance=mock_graph_maintenance,
+        retention_manager=mock_retention_manager,
+        settings=mock_settings,
+        llm_client=llm_client,
+    )
+
+
+@pytest.fixture()
+def consumer_with_archive(
+    mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings
+):
     archive_store = AsyncMock()
     return ConsolidationConsumer(
         redis_client=mock_redis,
         graph_maintenance=mock_graph_maintenance,
+        retention_manager=mock_retention_manager,
         settings=mock_settings,
         archive_store=archive_store,
     )
@@ -165,67 +186,34 @@ class TestTrimRedisWiring:
     """Tests for _trim_redis method's calls to trimmer functions."""
 
     @pytest.mark.asyncio()
-    async def test_trim_calls_dedup_cleanup(self, consumer, mock_settings):
+    async def test_trim_calls_dedup_cleanup(self, consumer, mock_retention_manager, mock_settings):
         """_trim_redis should call cleanup_dedup_set."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.trim_stream",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.delete_expired_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_dedup_set",
-                new_callable=AsyncMock,
-                return_value=5,
-            ) as mock_dedup,
-            patch(
-                "context_graph.worker.consolidation.cleanup_session_streams",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-        ):
-            await consumer._trim_redis()
+        mock_retention_manager.trim_stream.return_value = 0
+        mock_retention_manager.delete_expired_events.return_value = 0
+        mock_retention_manager.cleanup_dedup_set.return_value = 5
+        mock_retention_manager.cleanup_session_streams.return_value = 0
 
-        mock_dedup.assert_called_once_with(
-            redis_client=consumer._redis,
+        await consumer._trim_redis()
+
+        mock_retention_manager.cleanup_dedup_set.assert_called_once_with(
             dedup_key=mock_settings.redis.dedup_set,
             retention_ceiling_days=mock_settings.redis.retention_ceiling_days,
         )
 
     @pytest.mark.asyncio()
-    async def test_trim_passes_consumer_groups_to_trim_stream(self, consumer, mock_settings):
+    async def test_trim_passes_consumer_groups_to_trim_stream(
+        self, consumer, mock_retention_manager, mock_settings
+    ):
         """_trim_redis should pass consumer group names to trim_stream for PEL-safe trimming."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.trim_stream",
-                new_callable=AsyncMock,
-                return_value=0,
-            ) as mock_trim,
-            patch(
-                "context_graph.worker.consolidation.delete_expired_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_dedup_set",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_session_streams",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-        ):
-            await consumer._trim_redis()
+        mock_retention_manager.trim_stream.return_value = 0
+        mock_retention_manager.delete_expired_events.return_value = 0
+        mock_retention_manager.cleanup_dedup_set.return_value = 0
+        mock_retention_manager.cleanup_session_streams.return_value = 0
 
-        mock_trim.assert_called_once()
-        call_kwargs = mock_trim.call_args.kwargs
+        await consumer._trim_redis()
+
+        mock_retention_manager.trim_stream.assert_called_once()
+        call_kwargs = mock_retention_manager.trim_stream.call_args.kwargs
         assert "consumer_groups" in call_kwargs
         groups = call_kwargs["consumer_groups"]
         assert "graph-projection" in groups
@@ -234,103 +222,53 @@ class TestTrimRedisWiring:
         assert "consolidation" in groups
 
     @pytest.mark.asyncio()
-    async def test_trim_calls_session_cleanup(self, consumer, mock_settings):
+    async def test_trim_calls_session_cleanup(
+        self, consumer, mock_retention_manager, mock_settings
+    ):
         """_trim_redis should call cleanup_session_streams."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.trim_stream",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.delete_expired_events",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_dedup_set",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_session_streams",
-                new_callable=AsyncMock,
-                return_value=3,
-            ) as mock_session,
-        ):
-            await consumer._trim_redis()
+        mock_retention_manager.trim_stream.return_value = 0
+        mock_retention_manager.delete_expired_events.return_value = 0
+        mock_retention_manager.cleanup_dedup_set.return_value = 0
+        mock_retention_manager.cleanup_session_streams.return_value = 3
 
-        mock_session.assert_called_once_with(
-            redis_client=consumer._redis,
+        await consumer._trim_redis()
+
+        mock_retention_manager.cleanup_session_streams.assert_called_once_with(
             prefix="events:session:",
             max_age_hours=mock_settings.redis.session_stream_retention_hours,
         )
 
     @pytest.mark.asyncio()
     async def test_trim_uses_archive_store_when_available(
-        self, consumer_with_archive, mock_settings
+        self, consumer_with_archive, mock_retention_manager, mock_settings
     ):
         """When archive_store is set, _trim_redis should call archive_and_delete_expired_events."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.trim_stream",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.archive_and_delete_expired_events",
-                new_callable=AsyncMock,
-                return_value=(10, 10),
-            ) as mock_archive,
-            patch(
-                "context_graph.worker.consolidation.cleanup_dedup_set",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_session_streams",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-        ):
-            await consumer_with_archive._trim_redis()
+        mock_retention_manager.trim_stream.return_value = 0
+        mock_retention_manager.archive_and_delete_expired_events.return_value = (10, 10)
+        mock_retention_manager.cleanup_dedup_set.return_value = 0
+        mock_retention_manager.cleanup_session_streams.return_value = 0
 
-        mock_archive.assert_called_once_with(
-            redis_client=consumer_with_archive._redis,
+        await consumer_with_archive._trim_redis()
+
+        mock_retention_manager.archive_and_delete_expired_events.assert_called_once_with(
             key_prefix=mock_settings.redis.event_key_prefix,
             max_age_days=mock_settings.redis.retention_ceiling_days,
             archive_store=consumer_with_archive._archive_store,
         )
 
     @pytest.mark.asyncio()
-    async def test_trim_uses_plain_delete_when_no_archive(self, consumer, mock_settings):
+    async def test_trim_uses_plain_delete_when_no_archive(
+        self, consumer, mock_retention_manager, mock_settings
+    ):
         """When no archive_store, _trim_redis should call delete_expired_events."""
-        with (
-            patch(
-                "context_graph.worker.consolidation.trim_stream",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.delete_expired_events",
-                new_callable=AsyncMock,
-                return_value=7,
-            ) as mock_delete,
-            patch(
-                "context_graph.worker.consolidation.cleanup_dedup_set",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-            patch(
-                "context_graph.worker.consolidation.cleanup_session_streams",
-                new_callable=AsyncMock,
-                return_value=0,
-            ),
-        ):
-            await consumer._trim_redis()
+        mock_retention_manager.trim_stream.return_value = 0
+        mock_retention_manager.delete_expired_events.return_value = 7
+        mock_retention_manager.cleanup_dedup_set.return_value = 0
+        mock_retention_manager.cleanup_session_streams.return_value = 0
 
-        mock_delete.assert_called_once_with(
-            redis_client=consumer._redis,
+        await consumer._trim_redis()
+
+        mock_retention_manager.delete_expired_events.assert_called_once_with(
             key_prefix=mock_settings.redis.event_key_prefix,
             max_age_days=mock_settings.redis.retention_ceiling_days,
         )
@@ -443,3 +381,94 @@ class TestOrphanCleanup:
         gm.delete_orphan_nodes.return_value = ({"Entity": 0}, [])
 
         await consumer._run_forgetting()
+
+
+# ── TestLLMConsolidationWiring ────────────────────────────────────────
+
+
+class TestLLMConsolidationWiring:
+    """Tests for LLM-powered summary generation in consolidation."""
+
+    @pytest.mark.asyncio()
+    async def test_llm_client_called_for_episode_summary(self, consumer_with_llm, mock_settings):
+        """When llm_client is provided, generate_text is called for each episode."""
+        gm = consumer_with_llm._graph_maintenance
+        llm = consumer_with_llm._llm_client
+
+        llm.generate_text.return_value = "Agent searched files and found results."
+
+        # Simulate session events: 2 events in 1 episode
+        gm.run_session_query.return_value = [
+            {
+                "e": {
+                    "event_id": "evt-1",
+                    "occurred_at": "2025-01-01T12:00:00+00:00",
+                    "event_type": "tool.execute",
+                }
+            },
+            {
+                "e": {
+                    "event_id": "evt-2",
+                    "occurred_at": "2025-01-01T12:01:00+00:00",
+                    "event_type": "agent.invoke",
+                }
+            },
+        ]
+        gm.write_summary_with_edges.return_value = None
+
+        await consumer_with_llm._consolidate_session("sess-1", 2)
+
+        # generate_text called for episode + session summaries
+        assert llm.generate_text.call_count == 2
+        # Summaries should use LLM text
+        calls = gm.write_summary_with_edges.call_args_list
+        for call in calls:
+            assert call.kwargs["content"] == "Agent searched files and found results."
+
+    @pytest.mark.asyncio()
+    async def test_fallback_when_llm_returns_none(self, consumer_with_llm, mock_settings):
+        """When LLM returns None, fall back to template summary."""
+        gm = consumer_with_llm._graph_maintenance
+        llm = consumer_with_llm._llm_client
+
+        llm.generate_text.return_value = None
+
+        gm.run_session_query.return_value = [
+            {
+                "e": {
+                    "event_id": "evt-1",
+                    "occurred_at": "2025-01-01T12:00:00+00:00",
+                    "event_type": "tool.execute",
+                }
+            },
+        ]
+        gm.write_summary_with_edges.return_value = None
+
+        await consumer_with_llm._consolidate_session("sess-1", 1)
+
+        # Should still write summaries, using template content
+        calls = gm.write_summary_with_edges.call_args_list
+        for call in calls:
+            assert "1 events" in call.kwargs["content"]
+
+    @pytest.mark.asyncio()
+    async def test_no_llm_client_uses_template(self, consumer, mock_settings):
+        """When no llm_client, episode summaries use deterministic template."""
+        gm = consumer._graph_maintenance
+
+        gm.run_session_query.return_value = [
+            {
+                "e": {
+                    "event_id": "evt-1",
+                    "occurred_at": "2025-01-01T12:00:00+00:00",
+                    "event_type": "tool.execute",
+                }
+            },
+        ]
+        gm.write_summary_with_edges.return_value = None
+
+        await consumer._consolidate_session("sess-1", 1)
+
+        calls = gm.write_summary_with_edges.call_args_list
+        for call in calls:
+            assert "1 events" in call.kwargs["content"]

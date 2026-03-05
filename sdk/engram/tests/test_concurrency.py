@@ -156,6 +156,7 @@ class TestSimpleModuleRaceConditions:
     def _reset(self):
         reset_config()
         import engram.simple as simple_mod
+
         simple_mod._default_client = None
         simple_mod._default_session = None
         yield
@@ -387,9 +388,7 @@ class TestSyncClientThreadSafety:
 
         instances = []
         for _ in range(5):
-            instances.append(
-                EngramSyncClient(config=EngramConfig(base_url="http://test:8000"))
-            )
+            instances.append(EngramSyncClient(config=EngramConfig(base_url="http://test:8000")))
 
         # Each has a distinct loop
         loops = {inst._loop for inst in instances}
@@ -435,9 +434,7 @@ class TestSyncClientThreadSafety:
         """Coroutine that never resolves — future.result() has timeout."""
         from engram.sync_client import EngramSyncClient
 
-        client = EngramSyncClient(
-            config=EngramConfig(base_url="http://test:8000", timeout=0.5)
-        )
+        client = EngramSyncClient(config=EngramConfig(base_url="http://test:8000", timeout=0.5))
 
         async def never_resolve():
             await asyncio.sleep(999)
@@ -470,6 +467,7 @@ class TestPageIteratorConcurrency:
             nonlocal call_count
             call_count += 1
             from engram.models import Pagination, QueryMeta
+
             return AtlasResponse(
                 pagination=Pagination(cursor=None, has_more=False),
                 meta=QueryMeta(nodes_returned=0),

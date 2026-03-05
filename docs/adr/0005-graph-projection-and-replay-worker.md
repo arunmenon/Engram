@@ -141,3 +141,48 @@ trim point never advances past unprocessed entries for any group.
 A warning is logged when consumer groups lag behind the age cutoff,
 providing an early signal for operator intervention before the lag becomes
 critical.
+
+### Amendment: Micro-Batching, Deferred ACK, and Operational Enhancements (2026-03-04)
+
+_Date: 2026-03-04_
+
+The ProjectionConsumer has been enhanced with micro-batching, deferred
+acknowledgment, session memory bounding, batch graph writes, and lag metric
+sampling. These changes improve throughput, correctness, and resource usage.
+
+**1. Micro-batching:**
+
+ProjectionConsumer buffers up to 50 events (`_BATCH_SIZE`) or 100ms
+(`_BATCH_TIMEOUT_MS`) before flushing as one batch to Neo4j. This amortizes
+write overhead across multiple events. On flush, a single batch UNWIND query
+replaces N individual MERGE calls, significantly reducing Neo4j round-trips
+under load.
+
+**2. Deferred ACK pattern:**
+
+ProjectionConsumer sets `deferred_ack = True`, preventing the BaseConsumer
+from ACKing each message after `process_message`. Instead, XACK is issued
+for all buffered entry IDs after the batch Neo4j write succeeds. This ensures
+at-least-once delivery: if a crash occurs mid-batch, all buffered messages
+remain in the PEL and are reprocessed on restart.
+
+**3. Session memory bounding:**
+
+The per-session last-event cache (`_session_last_event`) uses an `OrderedDict`
+with LRU eviction, capped at 10,000 sessions (`_MAX_SESSION_CACHE`). Sessions
+are explicitly removed on `system.session_end` events. This prevents unbounded
+memory growth over long-running projection workers.
+
+**4. Batch protocol method:**
+
+The `GraphStore` protocol now includes `merge_event_nodes_batch(nodes)`
+alongside the single-event `merge_event_node()`. The projection consumer
+checks for the batch method via `hasattr` and falls back to sequential single
+writes for backward compatibility.
+
+**5. Lag metric sampling:**
+
+The `CONSUMER_LAG` Prometheus gauge is updated every 50 loop iterations
+(`_LAG_METRIC_INTERVAL`) via Redis `XINFO GROUPS`. This balances metric
+freshness against Redis command overhead. The implementation guards against
+`-1` values returned by Redis when lag is unknown.

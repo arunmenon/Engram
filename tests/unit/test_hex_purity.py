@@ -45,12 +45,7 @@ class TestNoAdapterImports:
     def test_no_adapter_import(self, route_file: Path) -> None:
         """Verify no import from context_graph.adapters in route file."""
         imports = _get_imports(route_file)
-        # adapters.metrics is a cross-cutting infrastructure module, not a concrete adapter
-        adapter_imports = [
-            i
-            for i in imports
-            if "context_graph.adapters" in i and i != "context_graph.adapters.metrics"
-        ]
+        adapter_imports = [i for i in imports if "context_graph.adapters" in i]
         assert adapter_imports == [], f"{route_file.name} imports from adapters/: {adapter_imports}"
 
 
@@ -92,6 +87,7 @@ class TestProtocolModulesExist:
             "context_graph.ports.graph_store",
             "context_graph.ports.health",
             "context_graph.ports.maintenance",
+            "context_graph.ports.retention",
             "context_graph.ports.user_store",
         ],
     )
@@ -127,3 +123,15 @@ class TestProtocolClassesExist:
         assert hasattr(UserStore, "get_user_profile")
         assert hasattr(UserStore, "delete_user_data")
         assert hasattr(UserStore, "export_user_data")
+
+
+class TestRetentionPortExists:
+    """Verify RetentionManager port protocol exists."""
+
+    def test_retention_manager_importable(self) -> None:
+        from context_graph.ports.retention import RetentionManager
+
+        assert hasattr(RetentionManager, "trim_stream")
+        assert hasattr(RetentionManager, "delete_expired_events")
+        assert hasattr(RetentionManager, "cleanup_dedup_set")
+        assert hasattr(RetentionManager, "cleanup_session_streams")

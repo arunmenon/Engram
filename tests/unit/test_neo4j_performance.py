@@ -20,6 +20,19 @@ from context_graph.adapters.neo4j import queries
 # ---------------------------------------------------------------------------
 
 
+class TestConstraintCompleteness:
+    """Tests for constraint list completeness."""
+
+    def test_all_constraints_has_eleven_entries(self) -> None:
+        """ALL_CONSTRAINTS must have 11 entries (8 original + 3 new: Belief, Goal, Episode)."""
+        assert len(queries.ALL_CONSTRAINTS) == 11
+
+    def test_new_constraints_in_all_constraints(self) -> None:
+        assert queries.CONSTRAINT_BELIEF_PK in queries.ALL_CONSTRAINTS
+        assert queries.CONSTRAINT_GOAL_PK in queries.ALL_CONSTRAINTS
+        assert queries.CONSTRAINT_EPISODE_PK in queries.ALL_CONSTRAINTS
+
+
 class TestSessionIdIndex:
     """Tests for the session_id performance index."""
 

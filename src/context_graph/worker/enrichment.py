@@ -14,14 +14,13 @@ from typing import TYPE_CHECKING, Any
 import orjson
 import structlog
 
-from context_graph.adapters.neo4j import queries
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from neo4j import AsyncDriver
     from redis.asyncio import Redis
 
     from context_graph.ports.embedding import EmbeddingService
+    from context_graph.ports.graph_store import GraphStore
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -42,7 +41,7 @@ class EnrichmentConsumer(BaseConsumer):
     def __init__(
         self,
         redis_client: Redis,
-        neo4j_driver: AsyncDriver,
+        graph_store: GraphStore,
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
     ) -> None:
@@ -58,8 +57,7 @@ class EnrichmentConsumer(BaseConsumer):
             claim_batch_size=consumer_settings.claim_batch_size,
             dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
-        self._neo4j_driver = neo4j_driver
-        self._neo4j_database = settings.neo4j.database
+        self._graph_store = graph_store
         self._event_key_prefix = settings.redis.event_key_prefix
         self._embedding_service = embedding_service
 
@@ -94,19 +92,7 @@ class EnrichmentConsumer(BaseConsumer):
         importance_score = importance_hint if importance_hint is not None else DEFAULT_IMPORTANCE
 
         # Update Neo4j node
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-
-            async def _update_enrichment(tx: Any) -> None:
-                await tx.run(
-                    queries.UPDATE_EVENT_ENRICHMENT,
-                    {
-                        "event_id": event_id,
-                        "keywords": keywords,
-                        "importance_score": importance_score,
-                    },
-                )
-
-            await session.execute_write(_update_enrichment)
+        await self._graph_store.update_event_enrichment(event_id, keywords, importance_score)
 
         log.debug(
             "event_enriched",
@@ -142,16 +128,7 @@ class EnrichmentConsumer(BaseConsumer):
             log.warning("event_embedding_failed", event_id=event_id)
             return
 
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-
-            async def _update_embedding(tx: Any) -> None:
-                await tx.run(
-                    queries.UPDATE_EVENT_EMBEDDING,
-                    {"event_id": event_id, "embedding": embedding},
-                )
-
-            await session.execute_write(_update_embedding)
-
+        await self._graph_store.store_event_embedding(event_id, embedding)
         log.debug("event_embedding_stored", event_id=event_id)
 
 

@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # --- Enums (subset used by SDK clients) ---
 
@@ -157,6 +157,49 @@ class AtlasResponse(BaseModel):
     pagination: Pagination = Field(default_factory=Pagination)
     meta: QueryMeta = Field(default_factory=QueryMeta)
 
+    # --- Convenience accessors ---
+
+    _TEXT_KEYS = (
+        "content",
+        "payload_ref",
+        "summary",
+        "text",
+        "belief_text",
+        "description",
+        "name",
+    )
+
+    @property
+    def node_ids(self) -> list[str]:
+        """Return all node IDs in insertion order."""
+        return list(self.nodes.keys())
+
+    def texts(self) -> list[str]:
+        """Extract the primary text from each node."""
+        result: list[str] = []
+        for node in self.nodes.values():
+            for key in self._TEXT_KEYS:
+                val = node.attributes.get(key)
+                if val and isinstance(val, str):
+                    result.append(val)
+                    break
+        return result
+
+    def as_context_string(self, separator: str = "\n---\n") -> str:
+        """Format nodes as a single string suitable for LLM context injection."""
+        parts: list[str] = []
+        for node in self.nodes.values():
+            text = ""
+            for key in self._TEXT_KEYS:
+                val = node.attributes.get(key)
+                if val and isinstance(val, str):
+                    text = val
+                    break
+            if text:
+                score = node.scores.decay_score
+                parts.append(f"[{node.node_type}] {text} (score: {score:.2f})")
+        return separator.join(parts)
+
 
 # --- Subgraph query input ---
 
@@ -228,3 +271,120 @@ class StatsResponse(BaseModel):
     total_nodes: int = 0
     total_edges: int = 0
     redis: dict[str, Any] = Field(default_factory=dict)
+
+
+# --- User sub-models (preferences, skills, patterns, interests) ---
+
+
+class PreferenceNode(BaseModel):
+    """User preference from GET /v1/users/{user_id}/preferences."""
+
+    model_config = ConfigDict(extra="allow")
+
+    preference_id: str = ""
+    category: str = ""
+    key: str = ""
+    value: str = ""
+    polarity: str = "positive"
+    confidence: float = 0.0
+
+
+class SkillNode(BaseModel):
+    """User skill from GET /v1/users/{user_id}/skills."""
+
+    model_config = ConfigDict(extra="allow")
+
+    skill_id: str = ""
+    name: str = ""
+    level: str = ""
+    confidence: float = 0.0
+
+
+class BehavioralPatternNode(BaseModel):
+    """Behavioral pattern from GET /v1/users/{user_id}/patterns."""
+
+    model_config = ConfigDict(extra="allow")
+
+    pattern_id: str = ""
+    pattern_type: str = ""
+    description: str = ""
+    frequency: int = 0
+    confidence: float = 0.0
+
+
+class InterestNode(BaseModel):
+    """User interest from GET /v1/users/{user_id}/interests."""
+
+    model_config = ConfigDict(extra="allow")
+
+    entity_id: str = ""
+    name: str = ""
+    entity_type: str = ""
+    strength: float = 0.0
+
+
+# --- GDPR response models ---
+
+
+class GDPRExportResponse(BaseModel):
+    """GDPR data export response from GET /v1/users/{user_id}/data-export."""
+
+    model_config = ConfigDict(extra="allow")
+
+    events: list[dict[str, Any]] = Field(default_factory=list)
+    entities: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class GDPRDeleteResponse(BaseModel):
+    """GDPR cascade erasure response from DELETE /v1/users/{user_id}."""
+
+    model_config = ConfigDict(extra="allow")
+
+    deleted_nodes: int = 0
+    deleted_edges: int = 0
+
+
+# --- Admin response models ---
+
+
+class ReconsolidateResponse(BaseModel):
+    """Response from POST /v1/admin/reconsolidate."""
+
+    model_config = ConfigDict(extra="allow")
+
+    status: str = ""
+
+
+class PruneResponse(BaseModel):
+    """Response from POST /v1/admin/prune."""
+
+    model_config = ConfigDict(extra="allow")
+
+    pruned: int = 0
+    dry_run: bool = True
+
+
+class DetailedHealthResponse(BaseModel):
+    """Response from GET /v1/admin/health/detailed."""
+
+    model_config = ConfigDict(extra="allow")
+
+    redis: dict[str, Any] = Field(default_factory=dict)
+    neo4j: dict[str, Any] = Field(default_factory=dict)
+
+
+# --- Simple API models ---
+
+
+class Memory(BaseModel):
+    """A single memory item returned by the simple search() API."""
+
+    model_config = ConfigDict(extra="allow")
+
+    text: str
+    confidence: float = 0.0
+    source_session: str = ""
+    created_at: str = ""
+    memory_id: str = ""
+    node_type: str = ""
+    score: float = 0.0

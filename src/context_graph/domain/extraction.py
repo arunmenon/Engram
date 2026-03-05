@@ -88,13 +88,58 @@ def validate_source_quote(quote: str, conversation_text: str) -> bool:
     return best_ratio >= 0.6
 
 
+_NEGATION_MARKERS = frozenset(
+    {
+        "no",
+        "not",
+        "never",
+        "none",
+        "nor",
+        "neither",
+        "without",
+        "don't",
+        "doesn't",
+        "didn't",
+        "won't",
+        "can't",
+        "isn't",
+        "aren't",
+        "wasn't",
+        "weren't",
+    }
+)
+
+
 def verify_entailment(claim: str, evidence: str) -> bool:
     """Verify that *claim* is entailed by *evidence*.
 
-    TODO: Integrate DeBERTa-v3 NLI model for real entailment checking.
-    Currently returns True as a pass-through stub.
+    Uses keyword overlap heuristic with negation detection: checks whether
+    a sufficient fraction of significant words in the claim also appear in
+    the evidence, and whether they agree on negation.
+
+    TODO: Integrate DeBERTa-v3 NLI model for higher accuracy.
     """
-    return True
+    if not claim or not evidence:
+        return False
+
+    claim_lower = claim.lower().split()
+    evidence_lower = evidence.lower().split()
+
+    # Check for negation disagreement — one text negates, the other doesn't
+    claim_negations = _NEGATION_MARKERS & set(claim_lower)
+    evidence_negations = _NEGATION_MARKERS & set(evidence_lower)
+    if bool(claim_negations) != bool(evidence_negations):
+        return False
+
+    # Use words with len > 2 to catch "no", "not", "bad", "can" etc.
+    claim_words = {w for w in claim_lower if len(w) > 2}
+    if len(claim_words) < 2:
+        return True  # Too short to meaningfully verify
+    evidence_words = {w for w in evidence_lower if len(w) > 2}
+    if not evidence_words:
+        return True
+    overlap = len(claim_words & evidence_words) / len(claim_words)
+    return overlap >= 0.5
 
 
 # ---------------------------------------------------------------------------

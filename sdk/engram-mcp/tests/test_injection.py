@@ -26,9 +26,7 @@ def mock_client() -> AsyncMock:
     from engram.models import AtlasResponse, IngestResult
 
     client = AsyncMock()
-    client.ingest.return_value = IngestResult(
-        event_id="evt-001", global_position="1707644400000-0"
-    )
+    client.ingest.return_value = IngestResult(event_id="evt-001", global_position="1707644400000-0")
 
     # Wire up path validation so bad IDs raise ValueError even in the mock
     async def _get_context(session_id, **kwargs):
@@ -69,9 +67,7 @@ class TestMCPRecordInjection:
     @pytest.mark.asyncio
     async def test_xss_in_content(self, mcp_server: EngramMCPServer) -> None:
         """XSS in content is ingested safely (no crash)."""
-        result = await _handle_record(
-            mcp_server, {"content": '<script>alert("xss")</script>'}
-        )
+        result = await _handle_record(mcp_server, {"content": '<script>alert("xss")</script>'})
         assert len(result) == 1
         assert "Event Recorded" in result[0].text
 
@@ -106,9 +102,7 @@ class TestMCPRecordInjection:
         current["value"] = "deep"
 
         # Should either succeed (if serialized size is OK) or fail gracefully
-        result = await _handle_record(
-            mcp_server, {"content": "test", "metadata": nested}
-        )
+        result = await _handle_record(mcp_server, {"content": "test", "metadata": nested})
         assert len(result) == 1
         # Either recorded or error, but no crash
         text = result[0].text
@@ -117,9 +111,7 @@ class TestMCPRecordInjection:
     @pytest.mark.asyncio
     async def test_non_int_importance(self, mcp_server: EngramMCPServer) -> None:
         """importance="high" yields a graceful error, not a crash."""
-        result = await _handle_record(
-            mcp_server, {"content": "test", "importance": "high"}
-        )
+        result = await _handle_record(mcp_server, {"content": "test", "importance": "high"})
         assert "Error" in result[0].text
         assert "integer" in result[0].text
 
@@ -127,16 +119,12 @@ class TestMCPRecordInjection:
     async def test_out_of_range_importance(self, mcp_server: EngramMCPServer) -> None:
         """importance=0 or 11 is clamped/rejected gracefully."""
         # importance=0 gets clamped to 1 by _safe_int
-        result = await _handle_record(
-            mcp_server, {"content": "test", "importance": 0}
-        )
+        result = await _handle_record(mcp_server, {"content": "test", "importance": 0})
         # Should succeed with clamped value (0 -> 1)
         assert "Event Recorded" in result[0].text
 
         # importance=11 gets clamped to 10
-        result = await _handle_record(
-            mcp_server, {"content": "test", "importance": 11}
-        )
+        result = await _handle_record(mcp_server, {"content": "test", "importance": 11})
         assert "Event Recorded" in result[0].text
 
 
@@ -149,39 +137,29 @@ class TestMCPRecallInjection:
     """Test injection attacks via engram_recall tool."""
 
     @pytest.mark.asyncio
-    async def test_path_traversal_session_id(
-        self, mcp_server: EngramMCPServer
-    ) -> None:
+    async def test_path_traversal_session_id(self, mcp_server: EngramMCPServer) -> None:
         """session_id with path traversal triggers client validation."""
-        result = await _handle_recall(
-            mcp_server, {"session_id": "../../admin"}
-        )
+        result = await _handle_recall(mcp_server, {"session_id": "../../admin"})
         assert "Error" in result[0].text
 
     @pytest.mark.asyncio
     async def test_cypher_in_session_id(self, mcp_server: EngramMCPServer) -> None:
         """Cypher injection in session_id is caught by client validation."""
-        result = await _handle_recall(
-            mcp_server, {"session_id": "' OR 1=1 //"}
-        )
+        result = await _handle_recall(mcp_server, {"session_id": "' OR 1=1 //"})
         # The forward slashes trigger the path traversal guard
         assert "Error" in result[0].text
 
     @pytest.mark.asyncio
     async def test_string_max_nodes(self, mcp_server: EngramMCPServer) -> None:
         """max_nodes="abc" yields error text, not a crash."""
-        result = await _handle_recall(
-            mcp_server, {"max_nodes": "abc"}
-        )
+        result = await _handle_recall(mcp_server, {"max_nodes": "abc"})
         assert "Error" in result[0].text
         assert "integer" in result[0].text
 
     @pytest.mark.asyncio
     async def test_huge_max_nodes(self, mcp_server: EngramMCPServer) -> None:
         """max_nodes=999999 is capped to MAX_NODES_LIMIT."""
-        result = await _handle_recall(
-            mcp_server, {"max_nodes": 999999}
-        )
+        result = await _handle_recall(mcp_server, {"max_nodes": 999999})
         # Should succeed — value is capped
         text = result[0].text
         assert "Error" not in text or "Session Context" in text
@@ -206,18 +184,14 @@ class TestMCPEntityInjection:
     @pytest.mark.asyncio
     async def test_entity_type_injection(self, mcp_server: EngramMCPServer) -> None:
         """entity_type with Cypher injection is rejected by allowlist."""
-        result = await _handle_entities(
-            mcp_server, {"entity_type": "agent' RETURN n //"}
-        )
+        result = await _handle_entities(mcp_server, {"entity_type": "agent' RETURN n //"})
         assert "Error" in result[0].text
         assert "Invalid entity_type" in result[0].text
 
     @pytest.mark.asyncio
     async def test_entity_type_special_chars(self, mcp_server: EngramMCPServer) -> None:
         """entity_type with special chars is rejected."""
-        result = await _handle_entities(
-            mcp_server, {"entity_type": "<script>alert(1)</script>"}
-        )
+        result = await _handle_entities(mcp_server, {"entity_type": "<script>alert(1)</script>"})
         assert "Error" in result[0].text
         assert "Invalid entity_type" in result[0].text
 
@@ -255,9 +229,7 @@ class TestMCPForgetInjection:
     @pytest.mark.asyncio
     async def test_path_traversal_user_id(self, mcp_server: EngramMCPServer) -> None:
         """user_id with path traversal is rejected by client validation."""
-        result = await _handle_forget(
-            mcp_server, {"user_id": "../../admin"}
-        )
+        result = await _handle_forget(mcp_server, {"user_id": "../../admin"})
         assert "Error" in result[0].text
 
     @pytest.mark.asyncio
@@ -278,9 +250,7 @@ class TestMCPForgetInjection:
     @pytest.mark.asyncio
     async def test_null_byte_user_id(self, mcp_server: EngramMCPServer) -> None:
         """Null byte in user_id is rejected by client validation."""
-        result = await _handle_forget(
-            mcp_server, {"user_id": "user\x00admin"}
-        )
+        result = await _handle_forget(mcp_server, {"user_id": "user\x00admin"})
         assert "Error" in result[0].text
 
 

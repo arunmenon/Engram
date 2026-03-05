@@ -91,3 +91,11 @@ class UserStore(Protocol):
     ) -> None:
         """Write a single DERIVED_FROM edge from a source node to an event."""
         ...
+
+    async def set_preference_superseded(
+        self,
+        preference_id: str,
+        superseded_by: str,
+    ) -> None:
+        """Mark a preference as superseded by another preference."""
+        ...

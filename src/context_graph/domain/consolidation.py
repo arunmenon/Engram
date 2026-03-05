@@ -74,6 +74,7 @@ def create_summary_from_events(
     events: list[dict[str, Any]],
     scope: str,
     scope_id: str,
+    llm_summary_text: str | None = None,
 ) -> SummaryNode:
     """Create a deterministic summary node without LLM.
 
@@ -103,7 +104,10 @@ def create_summary_from_events(
 
     start_str = timestamps[0].isoformat() if timestamps else "?"
     end_str = timestamps[-1].isoformat() if timestamps else "?"
-    content = f"{len(events)} events ({', '.join(event_types)}) from {start_str} to {end_str}"
+    if llm_summary_text:
+        content = llm_summary_text
+    else:
+        content = f"{len(events)} events ({', '.join(event_types)}) from {start_str} to {end_str}"
 
     return SummaryNode(
         summary_id=summary_id,

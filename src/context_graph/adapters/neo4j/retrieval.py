@@ -20,7 +20,6 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from context_graph.adapters.metrics import GRAPH_QUERY_DURATION
 from context_graph.adapters.neo4j import queries
 from context_graph.domain.intent import classify_intent, get_edge_weights, select_seed_strategy
 from context_graph.domain.models import (
@@ -37,6 +36,7 @@ from context_graph.domain.ppr import approximate_ppr
 from context_graph.domain.query_expansion import build_hyde_prompt, expand_query
 from context_graph.domain.reranking import reciprocal_rank_fusion
 from context_graph.domain.scoring import score_entity_node, score_node
+from context_graph.metrics import GRAPH_QUERY_DURATION
 from context_graph.settings import INTENT_WEIGHTS
 
 if TYPE_CHECKING:
@@ -78,6 +78,7 @@ class RetrievalDeps:
     query_timeout_s: float
     neighbor_limit: int
     search_similar_entities: Any  # callable from store
+    hyde_hot_path_timeout: float = 2.0
 
 
 class RetrievalPipeline:
@@ -99,23 +100,36 @@ class RetrievalPipeline:
         start_ms = time.monotonic_ns()
         d = self._deps
 
-        # HyDE query expansion (L6)
+        # HyDE query expansion (L6) — with configurable timeout
+        hot_path_timeout = d.hyde_hot_path_timeout
         query_text_for_embedding = query.query
         if query.use_hyde and d.llm_client is not None:
             try:
                 hyde_prompt = build_hyde_prompt(query.query)
-                hyde_response = await d.llm_client.generate_text(hyde_prompt)
+                hyde_response = await asyncio.wait_for(
+                    d.llm_client.generate_text(hyde_prompt),
+                    timeout=hot_path_timeout,
+                )
                 if hyde_response:
                     query_text_for_embedding = expand_query(query.query, hyde_response)
+            except TimeoutError:
+                logger.warning("hyde_timeout", query_length=len(query.query))
             except Exception:
                 logger.warning("hyde_expansion_failed", query_length=len(query.query))
 
         # Embed query text for relevance scoring
         query_embedding = await self._embed_query(query_text_for_embedding)
 
-        # Classify intent from the query text
+        # Classify intent from the query text — with configurable timeout
         if d.intent_classifier is not None:
-            inferred_intents = await d.intent_classifier.classify(query.query)
+            try:
+                inferred_intents = await asyncio.wait_for(
+                    d.intent_classifier.classify(query.query),
+                    timeout=hot_path_timeout,
+                )
+            except TimeoutError:
+                logger.warning("intent_classification_timeout", query_length=len(query.query))
+                inferred_intents = classify_intent(query.query)
         else:
             inferred_intents = classify_intent(query.query)
 
@@ -187,6 +201,9 @@ class RetrievalPipeline:
 
         # PPR post-processing (L5)
         self._apply_ppr(nodes, edges, edge_weights, seed_node_ids)
+
+        # MMR diversity re-ranking (L4) — reorder nodes with embeddings
+        self._apply_mmr(nodes, query_embedding)
 
         # Sort all nodes by score, take top max_nodes with offset pagination
         sorted_node_ids = sorted(
@@ -588,6 +605,64 @@ class RetrievalPipeline:
                 importance_score=node.scores.importance_score,
                 ppr_score=round(ppr_clamped, 6),
             )
+
+    def _apply_mmr(
+        self,
+        nodes: dict[str, AtlasNode],
+        query_embedding: list[float] | None,
+    ) -> None:
+        """Apply Maximal Marginal Relevance to diversify retrieval results.
+
+        Only operates on nodes that have an embedding attribute. Updates
+        relevance_score with the MMR-adjusted score.
+        """
+        if query_embedding is None:
+            return
+
+        from context_graph.domain.reranking import maximal_marginal_relevance
+
+        mmr_candidates: list[tuple[str, float, list[float]]] = []
+        for nid, node in nodes.items():
+            embedding = node.attributes.get("embedding")
+            if embedding and isinstance(embedding, list) and len(embedding) > 0:
+                relevance = node.scores.relevance_score if node.scores else 0.0
+                mmr_candidates.append((nid, relevance, embedding))
+
+        if not mmr_candidates:
+            return
+
+        # Greedy iterative MMR: pick top candidate, add to selected, repeat
+        selected: list[str] = []
+        remaining = list(mmr_candidates)
+        mmr_order: list[tuple[str, float]] = []
+
+        while remaining:
+            round_results = maximal_marginal_relevance(
+                candidates=remaining,
+                selected=selected,
+                lambda_param=0.7,
+            )
+            if not round_results:
+                break
+            best_id, best_score = round_results[0]
+            selected.append(best_id)
+            mmr_order.append((best_id, best_score))
+            remaining = [(cid, rel, emb) for cid, rel, emb in remaining if cid != best_id]
+
+        # Apply diversity-adjusted rank scores (normalized to 0-1 range)
+        if mmr_order:
+            max_score = max(s for _, s in mmr_order) if mmr_order else 1.0
+            min_score = min(s for _, s in mmr_order) if mmr_order else 0.0
+            score_range = max_score - min_score if max_score != min_score else 1.0
+            for nid, mmr_score in mmr_order:
+                if nid in nodes and nodes[nid].scores:
+                    normalized = (mmr_score - min_score) / score_range
+                    nodes[nid].scores = NodeScores(
+                        decay_score=nodes[nid].scores.decay_score,
+                        relevance_score=round(normalized, 6),
+                        importance_score=nodes[nid].scores.importance_score,
+                        ppr_score=getattr(nodes[nid].scores, "ppr_score", None),
+                    )
 
 
 # ------------------------------------------------------------------

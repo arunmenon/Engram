@@ -652,3 +652,48 @@ _Date: 2026-03-02_
 **Guard rails:** PPR is skipped when disabled, when the subgraph exceeds `max_subgraph_size` nodes, or when there are no valid seed nodes.
 
 **Rationale:** Decay scoring captures temporal relevance but misses structural importance. Nodes that are highly connected or sit at bridge positions in the graph topology may be structurally important for understanding context, even if they have lower recency scores. PPR surfaces these structurally important nodes by propagating probability mass through the graph edges, biased toward the seed nodes that the intent-aware retrieval selected.
+
+### Amendment: Belief, Goal, and Episode Types (2026-03-04)
+
+**What changed:** Three new node types and four new edge types are added to the graph schema to support belief tracking, goal management, and episodic grouping. This brings the total to 11 node types and 20 edge types.
+
+#### New Node Types (3)
+
+| Node Type | Label | Source |
+|-----------|-------|--------|
+| Belief | `:Belief` | Inferred or stated belief with confidence tracking and category (user_model, world_model, capability) |
+| Goal | `:Goal` | Tracked user/agent goal with lifecycle status (active, completed, abandoned, superseded) |
+| Episode | `:Episode` | Coherent group of events within a session, typed as temporal, causal, or thematic |
+
+Total node types: **11** (was 8).
+
+#### New Edge Types (4)
+
+| Edge Type | From → To | View | Purpose |
+|-----------|-----------|------|---------|
+| CONTRADICTS | Belief → Belief | Epistemic | Links beliefs that contradict each other |
+| SUPERSEDES | Belief → Belief | Epistemic | Winner supersedes loser after contradiction resolution |
+| PURSUES | Entity → Goal | Motivational | Links an entity to goals they pursue |
+| CONTAINS | Episode → Event | Episodic | Groups events into coherent episodes |
+
+Total edge types: **20** (was 16).
+
+#### New Semantic Views
+
+- **Epistemic View (V_epistemic):** Belief nodes traversed via CONTRADICTS and SUPERSEDES edges. Supports belief tracking, contradiction detection, and knowledge evolution.
+- **Motivational View (V_motivational):** Goal nodes traversed via PURSUES edges. Supports goal tracking and progress monitoring.
+- **Episodic View (V_episodic):** Episode nodes traversed via CONTAINS edges. Supports temporal grouping and narrative reconstruction.
+
+#### Intent Weight Matrix
+
+The 4 new edge types default to weight 0.0 across all 8 intents unless intent-specific traversal is required (e.g., `personalize` intent may weight PURSUES higher for goal-aware context).
+
+#### New Uniqueness Constraints (3)
+
+```cypher
+CREATE CONSTRAINT constraint_belief_pk ON (b:Belief) ASSERT b.belief_id IS UNIQUE;
+CREATE CONSTRAINT constraint_goal_pk ON (g:Goal) ASSERT g.goal_id IS UNIQUE;
+CREATE CONSTRAINT constraint_episode_pk ON (e:Episode) ASSERT e.episode_id IS UNIQUE;
+```
+
+Total constraints: **11** (was 8).

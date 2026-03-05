@@ -410,3 +410,45 @@ composite weights, ignoring the `DecaySettings` configuration class. The
 **Impact:** Operators can now tune all decay parameters at deployment time via
 environment variables without code changes. This closes the gap between the
 configurable `DecaySettings` class and the previously hardcoded scoring calls.
+
+### Amendment: Sublinear Stability Scaling (2026-03-04)
+
+_Date: 2026-03-04_
+
+The stability factor S now uses sublinear scaling by default:
+
+```
+S = s_base * (1.0 + (s_boost / s_base) * log1p(access_count))
+```
+
+This prevents heavily-accessed nodes from becoming effectively immortal.
+Under the previous linear formula (`S = s_base + access_count * s_boost`),
+a node accessed 100 times gained S approximately 2568 hours (~107 days). Under
+sublinear scaling: S approximately 279 hours (~11.6 days).
+
+The linear formula remains available via `sublinear=False` parameter for
+backward compatibility and testing.
+
+**Implementation:** `domain/scoring.py`, `compute_recency_score()` function.
+
+### Amendment: LLM-Powered Consolidation Summaries (2026-03-04)
+
+_Date: 2026-03-04_
+
+The ConsolidationConsumer now generates episode, session, and agent-level
+summaries using LLM calls via `LLMExtractionClient.generate_text()`.
+
+`generate_text()` is implemented using `litellm.acompletion()` with
+configurable model, temperature, max_tokens, timeout, and retries.
+The `build_summary_prompt()` domain function constructs a structured prompt
+from event sequences.
+
+When the LLM returns a response, the LLM text is used as the summary
+content via the `llm_summary_text` parameter on
+`create_summary_from_events()`.
+
+When the LLM is unavailable or returns None, the system falls back to
+the deterministic template format (event count + types + time range).
+
+This dual-path design ensures consolidation continues functioning without
+an LLM dependency while producing richer summaries when one is available.

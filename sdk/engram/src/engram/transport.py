@@ -21,11 +21,11 @@ from engram.exceptions import (
 
 _CREDENTIAL_PATTERNS = [
     re.compile(
-        r'(?:api[_-]?key|admin[_-]?key|password|secret|token|authorization)'
+        r"(?:api[_-]?key|admin[_-]?key|password|secret|token|authorization)"
         r'["\s:=]+["\']?[\w\-\.]+',
         re.IGNORECASE,
     ),
-    re.compile(r'(?:redis|neo4j|postgres|mysql)://[^\s]+', re.IGNORECASE),
+    re.compile(r"(?:redis|neo4j|postgres|mysql)://[^\s]+", re.IGNORECASE),
 ]
 
 
@@ -200,16 +200,13 @@ class Transport:
         scrubbed_body = body
         if isinstance(body, dict):
             scrubbed_body = {
-                k: _scrub_credentials(str(v)) if isinstance(v, str) else v
-                for k, v in body.items()
+                k: _scrub_credentials(str(v)) if isinstance(v, str) else v for k, v in body.items()
             }
 
         status = response.status_code
 
         if status == 401:
-            return AuthenticationError(
-                message, status_code=status, response_body=scrubbed_body
-            )
+            return AuthenticationError(message, status_code=status, response_body=scrubbed_body)
 
         if status == 404:
             return NotFoundError(str(message))
@@ -226,15 +223,9 @@ class Transport:
 
         if status == 429:
             retry_after = self._parse_retry_after(response)
-            return RateLimitError(
-                message, retry_after=retry_after, response_body=scrubbed_body
-            )
+            return RateLimitError(message, retry_after=retry_after, response_body=scrubbed_body)
 
         if status >= 500:
-            return ServerError(
-                message, status_code=status, response_body=scrubbed_body
-            )
+            return ServerError(message, status_code=status, response_body=scrubbed_body)
 
-        return TransportError(
-            message, status_code=status, response_body=scrubbed_body
-        )
+        return TransportError(message, status_code=status, response_body=scrubbed_body)

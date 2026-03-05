@@ -1,4 +1,4 @@
-# ADR-0003: Dual Store with Postgres Source of Truth and Neo4j Projection [Updated: Redis replaced Postgres — see ADR-0010]
+# ADR-0003: Dual Store with Redis Source of Truth and Neo4j Projection
 
 Status: **Accepted — Amended 2026-02-11**
 Date: 2026-02-07

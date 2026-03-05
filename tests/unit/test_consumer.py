@@ -394,3 +394,71 @@ class TestConsumerSettings:
         settings = ConsumerSettings()
         assert settings.max_retries == 3
         assert settings.claim_idle_ms == 600_000
+
+
+# =========================================================================
+# Lag metric tests
+# =========================================================================
+
+
+class TestConsumerLagMetric:
+    """Tests for CONSUMER_LAG gauge update."""
+
+    @pytest.mark.asyncio()
+    async def test_update_lag_metric_sets_gauge(self):
+        """_update_lag_metric should set CONSUMER_LAG gauge from xinfo_groups."""
+        redis = AsyncMock()
+        redis.xinfo_groups.return_value = [
+            {"name": "test-group", "lag": 42},
+        ]
+        consumer = StubConsumer(redis, "test-group", "c1", "stream:test")
+        await consumer._update_lag_metric()
+        redis.xinfo_groups.assert_called_once_with("stream:test")
+
+    @pytest.mark.asyncio()
+    async def test_update_lag_metric_ignores_other_groups(self):
+        """Only the matching group name should be used."""
+        redis = AsyncMock()
+        redis.xinfo_groups.return_value = [
+            {"name": "other-group", "lag": 100},
+        ]
+        consumer = StubConsumer(redis, "test-group", "c1", "stream:test")
+        # Should not raise, just silently ignore
+        await consumer._update_lag_metric()
+
+    @pytest.mark.asyncio()
+    async def test_update_lag_metric_handles_exception(self):
+        """Redis errors in lag metric should be swallowed."""
+        redis = AsyncMock()
+        redis.xinfo_groups.side_effect = Exception("connection lost")
+        consumer = StubConsumer(redis, "grp", "c1", "stream:test")
+        # Should not raise
+        await consumer._update_lag_metric()
+
+    @pytest.mark.asyncio()
+    async def test_lag_metric_called_every_n_iterations(self):
+        """Lag metric should be called every _LAG_METRIC_INTERVAL iterations."""
+        redis = AsyncMock()
+        redis.xautoclaim.return_value = (b"0-0", [], [])
+        redis.xpending_range.return_value = []
+
+        consumer = StubConsumer(redis, "grp", "c1", "stream:test")
+        consumer._LAG_METRIC_INTERVAL = 2  # call every 2 iterations
+
+        iteration = 0
+
+        async def _xreadgroup_side_effect(**kwargs):
+            nonlocal iteration
+            iteration += 1
+            if iteration > 4:
+                consumer._stopped = True
+            return []
+
+        redis.xreadgroup.side_effect = _xreadgroup_side_effect
+
+        with patch.object(
+            consumer, "_update_lag_metric", wraps=consumer._update_lag_metric
+        ) as mock_lag:
+            await consumer.run()
+            # Should be called at iterations 2 and 4
+            assert mock_lag.call_count == 2

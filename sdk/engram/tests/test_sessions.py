@@ -45,9 +45,7 @@ class TestSessionRecord:
     ) -> None:
         """record() creates event with correct fields."""
         ingest_resp = make_ingest_response()
-        mock_session_api.post("/events").mock(
-            return_value=httpx.Response(200, json=ingest_resp)
-        )
+        mock_session_api.post("/events").mock(return_value=httpx.Response(200, json=ingest_resp))
 
         session = SessionManager(client=session_client, agent_id="agent-x")
         result = await session.record("hello world", event_type="tool.execute", importance=7)

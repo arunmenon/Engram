@@ -24,6 +24,7 @@ from context_graph.api.routes.admin import router as admin_router
 from context_graph.api.routes.context import router as context_router
 from context_graph.api.routes.entities import router as entities_router
 from context_graph.api.routes.events import router as events_router
+from context_graph.api.routes.feedback import router as feedback_router
 from context_graph.api.routes.health import router as health_router
 from context_graph.api.routes.lineage import router as lineage_router
 from context_graph.api.routes.query import router as query_router
@@ -136,6 +137,7 @@ def create_app() -> FastAPI:
     app.include_router(query_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(lineage_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(entities_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(feedback_router, prefix="/v1", dependencies=api_key_deps)
 
     # Admin + GDPR endpoints: require admin key
     admin_key_deps = [Depends(require_admin_key)]

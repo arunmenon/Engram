@@ -282,3 +282,30 @@ All three channels run concurrently via `asyncio.gather`. Failed channels are gr
 **New EventStore method:** `search_bm25(query_text, session_id, limit)` added to the EventStore protocol for full-text retrieval.
 
 **Impact:** This is backward-compatible. Existing callers see improved retrieval quality. The `event_store` dependency is optional; when absent, only graph and vector channels are active.
+
+### Amendment: MMR Diversity, Hot-Path Timeout, and Feedback Loop (2026-03-04)
+
+**MMR Diversity Re-ranking:**
+After RRF fusion and PPR post-processing, Maximal Marginal Relevance (MMR) is applied as a final re-ranking step. MMR iteratively selects nodes that are both relevant to the query and diverse from already-selected nodes. Configuration: `lambda_param=0.7` (favoring relevance over diversity). Only operates on nodes that have embedding vectors. Updates `relevance_score` with MMR-adjusted normalized scores. Implementation: `adapters/neo4j/retrieval.py` calling `domain/reranking.py::maximal_marginal_relevance()`.
+
+**Hot-Path LLM Timeout:**
+Both HyDE query expansion and LLM-based intent classification are wrapped in `asyncio.wait_for()` with a configurable timeout (default: 2.0 seconds via `RetrievalDeps.hyde_hot_path_timeout`). On timeout:
+- HyDE expansion is skipped; the original query embedding is used directly
+- Intent classification falls back to the rule-based `classify_intent()` from `domain/intent.py`
+
+This ensures query latency remains bounded even when the LLM backend is slow or unavailable.
+
+**Retrieval Feedback Endpoint:**
+New `POST /v1/feedback` endpoint accepting a `RetrievalFeedback` model:
+- `query_id: str` — identifies the original query
+- `session_id: str` — current session context
+- `helpful_node_ids: list[str]` (max 100) — nodes the user found relevant
+- `irrelevant_node_ids: list[str]` (max 100) — nodes the user found unhelpful
+
+Behavior:
+- Bumps `importance_hint` by +1 on helpful nodes (clamped to max 10)
+- Decrements `importance_hint` by -1 on irrelevant nodes (clamped to min 1)
+- Stores the feedback as a `system.feedback` event in the event ledger for traceability
+- Calls `GraphStore.adjust_node_importance()` — a new protocol method on the GraphStore port
+
+This provides the signal collection foundation for future learned ranking (e.g., LambdaMART weight tuning).

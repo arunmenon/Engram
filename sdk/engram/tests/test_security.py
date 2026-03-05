@@ -114,7 +114,7 @@ class TestScrubCredentials:
     """Unit tests for the _scrub_credentials helper."""
 
     def test_scrub_api_key(self):
-        result = _scrub_credentials('Error: api_key=sk-12345 was invalid')
+        result = _scrub_credentials("Error: api_key=sk-12345 was invalid")
         assert "sk-12345" not in result
         assert "[REDACTED]" in result
 
@@ -251,9 +251,7 @@ class TestAdminKeyUsage:
         assert "Authorization" not in headers
 
     def test_admin_endpoint_with_admin_key(self):
-        config = EngramConfig(
-            base_url="http://test:8000", admin_key="admin-key-123"
-        )
+        config = EngramConfig(base_url="http://test:8000", admin_key="admin-key-123")
         transport = Transport(config)
         headers = transport._auth_headers(admin=True)
         assert headers["Authorization"] == "Bearer admin-key-123"

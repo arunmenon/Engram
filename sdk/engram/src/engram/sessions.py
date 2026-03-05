@@ -120,9 +120,7 @@ class SessionManager:
             if not self._started or self._ended:
                 return None
             self._ended = True
-            return await self._record_unlocked(
-                "Session ended", event_type="system.session_end"
-            )
+            return await self._record_unlocked("Session ended", event_type="system.session_end")
 
     async def __aenter__(self) -> SessionManager:
         """Start the session. Sends system.session_start event."""

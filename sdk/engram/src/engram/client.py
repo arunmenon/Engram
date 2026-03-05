@@ -8,9 +8,19 @@ from engram.config import EngramConfig, get_config
 from engram.models import (
     AtlasResponse,
     BatchResult,
+    BehavioralPatternNode,
+    DetailedHealthResponse,
+    EntityResponse,
     Event,
+    GDPRDeleteResponse,
+    GDPRExportResponse,
     HealthStatus,
     IngestResult,
+    InterestNode,
+    PreferenceNode,
+    PruneResponse,
+    ReconsolidateResponse,
+    SkillNode,
     StatsResponse,
     SubgraphQuery,
     UserProfile,
@@ -26,7 +36,7 @@ MAX_PAYLOAD_SIZE = 10_000_000  # 10MB
 MAX_NODES_LIMIT = 10_000
 MAX_DEPTH_LIMIT = 100
 
-_INVISIBLE_UNICODE_RE = re.compile(r'[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]')
+_INVISIBLE_UNICODE_RE = re.compile(r"[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]")
 
 
 def _validate_path_param(value: str, name: str) -> str:
@@ -93,9 +103,7 @@ class EngramClient:
     async def ingest(self, event: Event) -> IngestResult:
         """POST /v1/events — ingest a single event."""
         if len(event.payload_ref) > MAX_PAYLOAD_SIZE:
-            raise ValueError(
-                f"payload_ref exceeds maximum size of {MAX_PAYLOAD_SIZE} bytes"
-            )
+            raise ValueError(f"payload_ref exceeds maximum size of {MAX_PAYLOAD_SIZE} bytes")
         data = event.model_dump(mode="json", exclude_none=True)
         response = await self._transport.post("/events", json=data)
         return IngestResult.model_validate(response.json())
@@ -163,11 +171,11 @@ class EngramClient:
 
     # --- Entities ---
 
-    async def get_entity(self, entity_id: str) -> dict[str, Any]:
+    async def get_entity(self, entity_id: str) -> EntityResponse:
         """GET /v1/entities/{entity_id} — entity with connected events."""
         _validate_path_param(entity_id, "entity_id")
         response = await self._transport.get(f"/entities/{entity_id}")
-        return response.json()  # type: ignore[no-any-return]
+        return EntityResponse.model_validate(response.json())
 
     # --- Users (admin key required) ---
 
@@ -179,7 +187,7 @@ class EngramClient:
 
     async def get_user_preferences(
         self, user_id: str, category: str | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> list[PreferenceNode]:
         """GET /v1/users/{user_id}/preferences."""
         _validate_path_param(user_id, "user_id")
         params: dict[str, Any] = {}
@@ -188,37 +196,37 @@ class EngramClient:
         response = await self._transport.get(
             f"/users/{user_id}/preferences", params=params or None, admin=True
         )
-        return response.json()  # type: ignore[no-any-return]
+        return [PreferenceNode.model_validate(p) for p in response.json()]
 
-    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_skills(self, user_id: str) -> list[SkillNode]:
         """GET /v1/users/{user_id}/skills."""
         _validate_path_param(user_id, "user_id")
         response = await self._transport.get(f"/users/{user_id}/skills", admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return [SkillNode.model_validate(s) for s in response.json()]
 
-    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_patterns(self, user_id: str) -> list[BehavioralPatternNode]:
         """GET /v1/users/{user_id}/patterns."""
         _validate_path_param(user_id, "user_id")
         response = await self._transport.get(f"/users/{user_id}/patterns", admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return [BehavioralPatternNode.model_validate(p) for p in response.json()]
 
-    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_interests(self, user_id: str) -> list[InterestNode]:
         """GET /v1/users/{user_id}/interests."""
         _validate_path_param(user_id, "user_id")
         response = await self._transport.get(f"/users/{user_id}/interests", admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return [InterestNode.model_validate(i) for i in response.json()]
 
-    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+    async def export_user_data(self, user_id: str) -> GDPRExportResponse:
         """GET /v1/users/{user_id}/data-export — GDPR export."""
         _validate_path_param(user_id, "user_id")
         response = await self._transport.get(f"/users/{user_id}/data-export", admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return GDPRExportResponse.model_validate(response.json())
 
-    async def delete_user(self, user_id: str) -> dict[str, Any]:
+    async def delete_user(self, user_id: str) -> GDPRDeleteResponse:
         """DELETE /v1/users/{user_id} — GDPR cascade erasure."""
         _validate_path_param(user_id, "user_id")
         response = await self._transport.delete(f"/users/{user_id}", admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return GDPRDeleteResponse.model_validate(response.json())
 
     # --- Health ---
 
@@ -234,25 +242,25 @@ class EngramClient:
         response = await self._transport.get("/admin/stats", admin=True)
         return StatsResponse.model_validate(response.json())
 
-    async def reconsolidate(self, session_id: str | None = None) -> dict[str, Any]:
+    async def reconsolidate(self, session_id: str | None = None) -> ReconsolidateResponse:
         """POST /v1/admin/reconsolidate."""
         json_data: dict[str, Any] | None = None
         if session_id is not None:
             json_data = {"session_id": session_id}
         response = await self._transport.post("/admin/reconsolidate", json=json_data, admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return ReconsolidateResponse.model_validate(response.json())
 
-    async def prune(self, tier: str, dry_run: bool = True) -> dict[str, Any]:
+    async def prune(self, tier: str, dry_run: bool = True) -> PruneResponse:
         """POST /v1/admin/prune."""
         response = await self._transport.post(
             "/admin/prune", json={"tier": tier, "dry_run": dry_run}, admin=True
         )
-        return response.json()  # type: ignore[no-any-return]
+        return PruneResponse.model_validate(response.json())
 
-    async def health_detailed(self) -> dict[str, Any]:
+    async def health_detailed(self) -> DetailedHealthResponse:
         """GET /v1/admin/health/detailed."""
         response = await self._transport.get("/admin/health/detailed", admin=True)
-        return response.json()  # type: ignore[no-any-return]
+        return DetailedHealthResponse.model_validate(response.json())
 
     # --- Session management ---
 

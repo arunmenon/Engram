@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, Any
 import structlog
 from neo4j import AsyncGraphDatabase
 
-from context_graph.adapters.metrics import GRAPH_QUERY_DURATION
 from context_graph.adapters.neo4j import queries
 from context_graph.adapters.neo4j.retrieval import RetrievalDeps, RetrievalPipeline
 from context_graph.domain.lineage import validate_traversal_bounds
@@ -34,14 +33,18 @@ from context_graph.domain.models import (
 )
 from context_graph.domain.pagination import decode_cursor, encode_cursor
 from context_graph.domain.scoring import score_node
+from context_graph.metrics import GRAPH_QUERY_DURATION
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
 
     from context_graph.domain.models import (
+        BeliefNode,
         Edge,
         EntityNode,
+        EpisodeNode,
         EventNode,
+        GoalNode,
         LineageQuery,
         SubgraphQuery,
         SummaryNode,
@@ -72,6 +75,10 @@ _EDGE_QUERIES: dict[str, str] = {
     EdgeType.ABOUT: queries.MERGE_ABOUT,
     EdgeType.ABSTRACTED_FROM: queries.MERGE_ABSTRACTED_FROM,
     EdgeType.PARENT_SKILL: queries.MERGE_PARENT_SKILL,
+    EdgeType.CONTRADICTS: queries.MERGE_CONTRADICTS,
+    EdgeType.SUPERSEDES: queries.MERGE_SUPERSEDES,
+    EdgeType.PURSUES: queries.MERGE_PURSUES,
+    EdgeType.CONTAINS: queries.MERGE_CONTAINS,
 }
 
 # Map EdgeType -> UNWIND batch template (only for high-volume types)
@@ -167,6 +174,36 @@ class Neo4jGraphStore:
             await session.execute_write(lambda tx: tx.run(queries.MERGE_EVENT_NODE, params))
         logger.debug("merged_event_node", event_id=node.event_id)
 
+    async def merge_event_nodes_batch(self, nodes: list[EventNode]) -> None:
+        """MERGE a batch of event nodes in a single UNWIND transaction."""
+        if not nodes:
+            return
+        events_params = [
+            {
+                "event_id": node.event_id,
+                "event_type": node.event_type,
+                "occurred_at": node.occurred_at.isoformat(),
+                "session_id": node.session_id,
+                "agent_id": node.agent_id,
+                "trace_id": node.trace_id,
+                "tool_name": node.tool_name,
+                "global_position": node.global_position,
+                "keywords": node.keywords,
+                "summary": node.summary,
+                "importance_score": node.importance_score,
+                "access_count": node.access_count,
+                "last_accessed_at": (
+                    node.last_accessed_at.isoformat() if node.last_accessed_at else None
+                ),
+            }
+            for node in nodes
+        ]
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(
+                lambda tx: tx.run(queries.BATCH_MERGE_EVENT_NODES, {"events": events_params})
+            )
+        logger.debug("merged_event_nodes_batch", count=len(nodes))
+
     async def merge_entity_node(self, node: EntityNode) -> None:
         """MERGE an entity node into the graph. Idempotent."""
         params = {
@@ -196,6 +233,52 @@ class Neo4jGraphStore:
         async with self._driver.session(database=self._database) as session:
             await session.execute_write(lambda tx: tx.run(queries.MERGE_SUMMARY_NODE, params))
         logger.debug("merged_summary_node", summary_id=node.summary_id)
+
+    async def merge_belief_node(self, node: BeliefNode) -> None:
+        """MERGE a belief node into the graph. Idempotent."""
+        params = {
+            "belief_id": node.belief_id,
+            "belief_text": node.belief_text,
+            "confidence": node.confidence,
+            "category": str(node.category),
+            "created_at": node.created_at.isoformat(),
+            "last_confirmed_at": node.last_confirmed_at.isoformat(),
+            "confirmation_count": node.confirmation_count,
+            "superseded_by": node.superseded_by,
+        }
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(queries.MERGE_BELIEF_NODE, params))
+        logger.debug("merged_belief_node", belief_id=node.belief_id)
+
+    async def merge_goal_node(self, node: GoalNode) -> None:
+        """MERGE a goal node into the graph. Idempotent."""
+        params = {
+            "goal_id": node.goal_id,
+            "description": node.description,
+            "status": str(node.status),
+            "created_at": node.created_at.isoformat(),
+            "last_active_at": node.last_active_at.isoformat(),
+            "priority": node.priority,
+            "evidence_count": node.evidence_count,
+        }
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(queries.MERGE_GOAL_NODE, params))
+        logger.debug("merged_goal_node", goal_id=node.goal_id)
+
+    async def merge_episode_node(self, node: EpisodeNode) -> None:
+        """MERGE an episode node into the graph. Idempotent."""
+        params = {
+            "episode_id": node.episode_id,
+            "session_id": node.session_id,
+            "start_time": node.start_time.isoformat(),
+            "end_time": node.end_time.isoformat(),
+            "event_count": node.event_count,
+            "episode_type": str(node.episode_type),
+            "summary_id": node.summary_id,
+        }
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(queries.MERGE_EPISODE_NODE, params))
+        logger.debug("merged_episode_node", episode_id=node.episode_id)
 
     # ------------------------------------------------------------------
     # Edge operations
@@ -322,17 +405,10 @@ class Neo4jGraphStore:
 
     async def ensure_vector_indexes(self) -> None:
         """Create vector indexes for embedding search if they do not exist."""
-        vector_index_query = (
-            "CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS "
-            "FOR (n:Entity) ON (n.embedding) "
-            "OPTIONS {indexConfig: {"
-            "`vector.dimensions`: 384, "
-            "`vector.similarity_function`: 'cosine'"
-            "}}"
-        )
         async with self._driver.session(database=self._database) as session:
-            await session.run(vector_index_query)
-        logger.info("ensured_vector_indexes")
+            for vindex_query in queries.ALL_VECTOR_INDEXES:
+                await session.run(vindex_query)
+        logger.info("ensured_vector_indexes", count=len(queries.ALL_VECTOR_INDEXES))
 
     # ------------------------------------------------------------------
     # Phase 3: Query methods
@@ -866,6 +942,123 @@ class Neo4jGraphStore:
         return [dict(r) for r in records]
 
     # ------------------------------------------------------------------
+    # GraphStore protocol extensions (hexagonal boundary compliance)
+    # ------------------------------------------------------------------
+
+    async def update_event_enrichment(
+        self, event_id: str, keywords: list[str], importance_score: int
+    ) -> None:
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(
+                lambda tx: tx.run(
+                    queries.UPDATE_EVENT_ENRICHMENT,
+                    {
+                        "event_id": event_id,
+                        "keywords": keywords,
+                        "importance_score": importance_score,
+                    },
+                )
+            )
+
+    async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(
+                lambda tx: tx.run(
+                    queries.UPDATE_EVENT_EMBEDDING,
+                    {
+                        "event_id": event_id,
+                        "embedding": embedding,
+                    },
+                )
+            )
+
+    async def adjust_node_importance(
+        self,
+        node_id: str,
+        delta: int,
+        min_value: int = 1,
+        max_value: int = 10,
+    ) -> bool:
+        """Adjust importance_score on an Event node, clamped to [min_value, max_value]."""
+        query = (
+            "MATCH (e:Event {event_id: $node_id}) "
+            "SET e.importance_score = "
+            "CASE "
+            "  WHEN e.importance_score IS NULL THEN $clamped_delta "
+            "  ELSE toInteger(CASE "
+            "    WHEN e.importance_score + $delta < $min_val THEN $min_val "
+            "    WHEN e.importance_score + $delta > $max_val THEN $max_val "
+            "    ELSE e.importance_score + $delta END) "
+            "END "
+            "RETURN e.event_id AS eid"
+        )
+        clamped_delta = max(min_value, min(max_value, max(min_value, 5 + delta)))
+
+        async def _work(tx: Any) -> list[Any]:
+            result = await tx.run(
+                query,
+                {
+                    "node_id": node_id,
+                    "delta": delta,
+                    "min_val": min_value,
+                    "max_val": max_value,
+                    "clamped_delta": clamped_delta,
+                },
+            )
+            return [record async for record in result]
+
+        async with self._driver.session(database=self._database) as session:
+            records = await session.execute_write(_work)
+            return len(records) > 0
+
+    async def merge_entity_node_raw(
+        self,
+        entity_id: str,
+        name: str,
+        entity_type: str,
+        first_seen: str,
+        last_seen: str,
+        mention_count: int,
+        embedding: list[float] | None = None,
+    ) -> None:
+        params = {
+            "entity_id": entity_id,
+            "name": name,
+            "entity_type": entity_type,
+            "first_seen": first_seen,
+            "last_seen": last_seen,
+            "mention_count": mention_count,
+            "embedding": embedding or [],
+        }
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params))
+
+    async def merge_typed_edge(
+        self, source_id: str, target_id: str, edge_type: str, props: dict[str, Any] | None = None
+    ) -> None:
+        query = _EDGE_QUERIES.get(edge_type)
+        if query is None:
+            msg = f"Unknown edge type: {edge_type}"
+            raise ValueError(msg)
+        params = {"source_id": source_id, "target_id": target_id, "props": props or {}}
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(lambda tx: tx.run(query, params))
+
+    async def get_entities(self, limit: int = 1000) -> list[dict[str, Any]]:
+        query = (
+            "MATCH (n:Entity) "
+            "RETURN n.entity_id AS entity_id, n.name AS name, "
+            "n.entity_type AS entity_type LIMIT $limit"
+        )
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(query, {"limit": limit})
+            records = [record async for record in result]
+        return [
+            {"entity_id": r["entity_id"], "name": r["name"], "entity_type": r["entity_type"]}
+            for r in records
+        ]
+
+    # ------------------------------------------------------------------
     # UserStore protocol — delegates to user_queries module
     # ------------------------------------------------------------------
 
@@ -999,6 +1192,18 @@ class Neo4jGraphStore:
             event_id,
             method,
             session_id,
+        )
+
+    async def set_preference_superseded(
+        self,
+        preference_id: str,
+        superseded_by: str,
+    ) -> None:
+        """Mark a preference as superseded by another preference."""
+        from context_graph.adapters.neo4j import user_queries
+
+        await user_queries.set_preference_superseded(
+            self._driver, self._database, preference_id, superseded_by
         )
 
     # ------------------------------------------------------------------

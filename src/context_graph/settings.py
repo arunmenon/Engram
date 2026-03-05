@@ -343,6 +343,7 @@ class HyDESettings(BaseSettings):
     enabled: bool = False
     temperature: float = 0.7
     max_tokens: int = 256
+    hot_path_timeout_seconds: float = 2.0
 
 
 class PPRSettings(BaseSettings):
@@ -437,6 +438,7 @@ class Settings(BaseSettings):
     app_name: str = "context-graph"
     debug: bool = False
     log_level: str = "INFO"
+    uvicorn_workers: int = 4
 
     cors_origins: list[str] = Field(default=["http://localhost:5173"])
 

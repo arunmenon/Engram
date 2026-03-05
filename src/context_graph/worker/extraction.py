@@ -16,6 +16,10 @@ from typing import TYPE_CHECKING, Any
 import orjson
 import structlog
 
+from context_graph.domain.contradiction import (
+    detect_preference_contradictions,
+    resolve_contradiction,
+)
 from context_graph.domain.entity_resolution import (
     EntityResolutionAction,
     SemanticCandidate,
@@ -28,12 +32,11 @@ from context_graph.domain.models import Event
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from neo4j import AsyncDriver
     from redis.asyncio import Redis
 
     from context_graph.adapters.llm.client import LLMExtractionClient
-    from context_graph.adapters.neo4j.store import Neo4jGraphStore
     from context_graph.ports.embedding import EmbeddingService
+    from context_graph.ports.graph_store import GraphStore
     from context_graph.ports.user_store import UserStore
     from context_graph.settings import Settings
 
@@ -51,12 +54,10 @@ class ExtractionConsumer(BaseConsumer):
     def __init__(
         self,
         redis_client: Redis,
-        neo4j_driver: AsyncDriver,
-        neo4j_database: str,
         llm_client: LLMExtractionClient,
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
-        graph_store: Neo4jGraphStore | None = None,
+        graph_store: GraphStore | None = None,
         user_store: UserStore | None = None,
     ) -> None:
         consumer_settings = settings.consumer
@@ -71,8 +72,6 @@ class ExtractionConsumer(BaseConsumer):
             claim_batch_size=consumer_settings.claim_batch_size,
             dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
-        self._neo4j_driver = neo4j_driver
-        self._neo4j_database = neo4j_database
         self._llm_client = llm_client
         self._settings = settings
         self._event_key_prefix = settings.redis.event_key_prefix
@@ -256,23 +255,10 @@ class ExtractionConsumer(BaseConsumer):
         return events, raw_docs
 
     async def _fetch_existing_entities(self) -> list[dict[str, Any]]:
-        """Fetch existing Entity nodes from Neo4j for deduplication."""
-        query = (
-            "MATCH (n:Entity) "
-            "RETURN n.entity_id AS entity_id, n.name AS name, "
-            "n.entity_type AS entity_type LIMIT 1000"
-        )
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-            result = await session.run(query)
-            records = [record async for record in result]
-        return [
-            {
-                "entity_id": r["entity_id"],
-                "name": r["name"],
-                "entity_type": r["entity_type"],
-            }
-            for r in records
-        ]
+        """Fetch existing Entity nodes for deduplication."""
+        if self._graph_store is None:
+            return []
+        return await self._graph_store.get_entities(limit=1000)
 
     async def _write_extraction_results(
         self,
@@ -424,6 +410,13 @@ class ExtractionConsumer(BaseConsumer):
                     },
                 )
 
+            # --- Detect and resolve preference contradictions ---
+            await self._resolve_preference_contradictions(
+                user_entity_id=user_entity_id,
+                new_preferences=result.get("preferences", []),
+                session_id=session_id,
+            )
+
         # --- Write skills ---
         if us is not None:
             for skill_data in result.get("skills", []):
@@ -530,24 +523,18 @@ class ExtractionConsumer(BaseConsumer):
         now: str,
         embedding: list[float] | None = None,
     ) -> None:
-        """MERGE an Entity node in Neo4j with optional embedding."""
-        from context_graph.adapters.neo4j.queries import MERGE_ENTITY_NODE
-
-        params = {
-            "entity_id": entity_id,
-            "name": name,
-            "entity_type": entity_type,
-            "first_seen": now,
-            "last_seen": now,
-            "mention_count": 1,
-            "embedding": embedding or [],
-        }
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-
-            async def _write(tx: Any) -> None:
-                await tx.run(MERGE_ENTITY_NODE, params)
-
-            await session.execute_write(_write)
+        """MERGE an Entity node via GraphStore protocol."""
+        if self._graph_store is None:
+            return
+        await self._graph_store.merge_entity_node_raw(
+            entity_id=entity_id,
+            name=name,
+            entity_type=entity_type,
+            first_seen=now,
+            last_seen=now,
+            mention_count=1,
+            embedding=embedding,
+        )
 
     async def _merge_references_edge(
         self,
@@ -555,19 +542,13 @@ class ExtractionConsumer(BaseConsumer):
         entity_id: str,
     ) -> None:
         """MERGE a REFERENCES edge from Event to Entity."""
-        from context_graph.adapters.neo4j.queries import MERGE_REFERENCES
-
-        params = {
-            "source_id": event_id,
-            "target_id": entity_id,
-            "props": {},
-        }
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
-
-            async def _write(tx: Any) -> None:
-                await tx.run(MERGE_REFERENCES, params)
-
-            await session.execute_write(_write)
+        if self._graph_store is None:
+            return
+        await self._graph_store.merge_typed_edge(
+            source_id=event_id,
+            target_id=entity_id,
+            edge_type="REFERENCES",
+        )
 
     async def _merge_resolution_edge(
         self,
@@ -578,21 +559,54 @@ class ExtractionConsumer(BaseConsumer):
         justification: str,
     ) -> None:
         """MERGE a SAME_AS or RELATED_TO edge between entities."""
-        from context_graph.adapters.neo4j.queries import MERGE_RELATED_TO, MERGE_SAME_AS
-
-        query = MERGE_SAME_AS if action == EntityResolutionAction.SAME_AS else MERGE_RELATED_TO
-        params = {
-            "source_id": source_id,
-            "target_id": target_id,
-            "props": {
+        if self._graph_store is None:
+            return
+        edge_type = "SAME_AS" if action == EntityResolutionAction.SAME_AS else "RELATED_TO"
+        await self._graph_store.merge_typed_edge(
+            source_id=source_id,
+            target_id=target_id,
+            edge_type=edge_type,
+            props={
                 "confidence": confidence,
                 "justification": justification,
                 "resolved_at": datetime.now(UTC).isoformat(),
             },
-        }
-        async with self._neo4j_driver.session(database=self._neo4j_database) as session:
+        )
 
-            async def _write(tx: Any) -> None:
-                await tx.run(query, params)
+    async def _resolve_preference_contradictions(
+        self,
+        user_entity_id: str,
+        new_preferences: list[dict[str, Any]],
+        session_id: str,
+    ) -> None:
+        """Check newly extracted preferences against existing ones for contradictions.
 
-            await session.execute_write(_write)
+        If a new preference has the same (category, key) but opposite polarity to
+        an existing one, mark the older preference with superseded_by.
+        """
+        us = self._user_store
+        if us is None or not new_preferences:
+            return
+
+        existing_preferences = await us.get_user_preferences(user_entity_id)
+
+        all_preferences = existing_preferences + new_preferences
+        conflicts = detect_preference_contradictions(all_preferences)
+
+        for pref_a, pref_b in conflicts:
+            winner, loser = resolve_contradiction(pref_a, pref_b)
+            loser_id = loser.get("preference_id", "")
+            winner_id = winner.get("preference_id", winner.get("id", ""))
+            if loser_id and winner_id:
+                await us.set_preference_superseded(
+                    preference_id=loser_id,
+                    superseded_by=winner_id,
+                )
+                log.info(
+                    "preference_contradiction_resolved",
+                    session_id=session_id,
+                    loser_id=loser_id,
+                    winner_id=winner_id,
+                    category=loser.get("category"),
+                    key=loser.get("key"),
+                )

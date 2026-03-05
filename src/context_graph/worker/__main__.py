@@ -52,16 +52,12 @@ async def _build_consumer(
         ), closeables
 
     if consumer_type == "enrichment":
-        from neo4j import AsyncGraphDatabase
-
+        from context_graph.adapters.neo4j.store import Neo4jGraphStore
         from context_graph.worker.enrichment import EnrichmentConsumer
 
-        neo4j_driver = AsyncGraphDatabase.driver(
-            settings.neo4j.uri,
-            auth=(settings.neo4j.username, settings.neo4j.password.get_secret_value()),
-            max_connection_pool_size=settings.neo4j.max_connection_pool_size,
-        )
-        closeables.append(neo4j_driver)
+        graph_store = Neo4jGraphStore(settings.neo4j)
+        await graph_store.ensure_constraints()
+        closeables.append(graph_store)
 
         # Optional embedding service for event embeddings
         embedding_service = None
@@ -82,23 +78,16 @@ async def _build_consumer(
 
         return EnrichmentConsumer(
             redis_client=redis_client,
-            neo4j_driver=neo4j_driver,
+            graph_store=graph_store,
             settings=settings,
             embedding_service=embedding_service,
         ), closeables
 
     if consumer_type == "extraction":
-        from neo4j import AsyncGraphDatabase
-
         from context_graph.adapters.llm.client import LLMExtractionClient
         from context_graph.adapters.neo4j.store import Neo4jGraphStore
         from context_graph.worker.extraction import ExtractionConsumer
 
-        neo4j_driver = AsyncGraphDatabase.driver(
-            settings.neo4j.uri,
-            auth=(settings.neo4j.username, settings.neo4j.password.get_secret_value()),
-            max_connection_pool_size=settings.neo4j.max_connection_pool_size,
-        )
         llm_client = LLMExtractionClient(
             model_id=settings.llm.model_id,
             temperature=settings.llm.temperature,
@@ -106,7 +95,6 @@ async def _build_consumer(
             timeout=settings.llm.timeout_seconds,
             max_retries=settings.llm.max_retries,
         )
-        closeables.append(neo4j_driver)
 
         # Tier 2b: Semantic entity matching via embedding service + Neo4j vector index
         embedding_service = None
@@ -142,22 +130,23 @@ async def _build_consumer(
 
         return ExtractionConsumer(
             redis_client=redis_client,
-            neo4j_driver=neo4j_driver,
-            neo4j_database=settings.neo4j.database,
             llm_client=llm_client,
             settings=settings,
             embedding_service=embedding_service,
-            graph_store=extraction_graph_store,
+            graph_store=extraction_graph_store or user_store,
             user_store=user_store,
         ), closeables
 
     if consumer_type == "consolidation":
         from context_graph.adapters.neo4j.store import Neo4jGraphStore
+        from context_graph.adapters.redis.retention import RedisRetentionManager
         from context_graph.worker.consolidation import ConsolidationConsumer
 
         graph_store = Neo4jGraphStore(settings.neo4j)
         await graph_store.ensure_constraints()
         closeables.append(graph_store)
+
+        retention_manager = RedisRetentionManager(redis_client)
 
         # Bootstrap archive store based on settings (ADR-0014)
         archive_store: Any = None
@@ -198,11 +187,28 @@ async def _build_consumer(
                     path=archive_settings.fs_base_path,
                 )
 
+        # Optional: LLM client for consolidation summaries
+        consolidation_llm_client: Any = None
+        try:
+            from context_graph.adapters.llm.client import LLMExtractionClient
+
+            consolidation_llm_client = LLMExtractionClient(
+                model_id=settings.llm.model_id,
+                temperature=settings.llm.temperature,
+                max_tokens=settings.llm.max_tokens,
+                timeout=settings.llm.timeout_seconds,
+            )
+            log.info("consolidation_llm_client_initialized")
+        except ImportError:
+            log.info("consolidation_llm_client_unavailable")
+
         return ConsolidationConsumer(
             redis_client=redis_client,
             graph_maintenance=graph_store,
+            retention_manager=retention_manager,
             settings=settings,
             archive_store=archive_store,
+            llm_client=consolidation_llm_client,
         ), closeables
 
     msg = f"Unknown consumer type: {consumer_type}"

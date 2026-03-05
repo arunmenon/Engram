@@ -292,3 +292,36 @@ class TestHealthDetailed:
         assert body["neo4j"]["connected"] is True
         assert body["neo4j"]["nodes"]["Event"] == 5
         assert body["version"] == "0.1.0"
+
+
+# ---------------------------------------------------------------------------
+# POST /v1/admin/replay
+# ---------------------------------------------------------------------------
+
+
+class TestReplayEndpoint:
+    """Tests for POST /v1/admin/replay."""
+
+    def test_replay_requires_confirm(self) -> None:
+        """Replay should reject when confirm is false."""
+        client = _make_admin_client()
+        response = client.post(
+            "/v1/admin/replay",
+            json={"confirm": False},
+        )
+        assert response.status_code == 400
+
+    def test_replay_clears_and_rebuilds(self) -> None:
+        """Replay should clear graph and replay events."""
+        client = _make_admin_client()
+
+        response = client.post(
+            "/v1/admin/replay",
+            json={"confirm": True},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "events_replayed" in data
+        assert "nodes_created" in data
+        assert "edges_created" in data
+        assert data["events_replayed"] == 0

@@ -61,10 +61,7 @@ class TestMCPEventChainConcurrency:
         """20 concurrent _handle_record() — all succeed, last_event_id set."""
         server = _make_server()
 
-        tasks = [
-            _handle_record(server, {"content": f"msg-{i}"})
-            for i in range(20)
-        ]
+        tasks = [_handle_record(server, {"content": f"msg-{i}"}) for i in range(20)]
         results = await asyncio.gather(*tasks)
 
         assert len(results) == 20
@@ -127,9 +124,7 @@ class TestMCPAsyncCancellation:
 
         server._client.ingest = AsyncMock(side_effect=slow_ingest)
 
-        task = asyncio.create_task(
-            _handle_record(server, {"content": "will-be-cancelled"})
-        )
+        task = asyncio.create_task(_handle_record(server, {"content": "will-be-cancelled"}))
         await asyncio.sleep(0.01)
         task.cancel()
 
@@ -150,9 +145,7 @@ class TestMCPAsyncCancellation:
 
         server._client.get_user_profile = AsyncMock(side_effect=slow_profile)
 
-        task = asyncio.create_task(
-            _handle_profile(server, {"user_id": "user-1"})
-        )
+        task = asyncio.create_task(_handle_profile(server, {"user_id": "user-1"}))
         await asyncio.sleep(0.01)
         task.cancel()
 
