@@ -490,17 +490,75 @@ class TestSourceQuoteThreshold060:
 
 
 # ---------------------------------------------------------------------------
-# Entailment stub
+# verify_entailment (keyword overlap heuristic)
 # ---------------------------------------------------------------------------
 
 
-class TestEntailmentStub:
-    def test_entailment_stub_returns_true(self):
+class TestVerifyEntailment:
+    def test_matching_claim_and_evidence(self):
         from context_graph.domain.extraction import verify_entailment
 
         assert verify_entailment("Python is fast", "Python is a fast programming language") is True
 
-    def test_entailment_stub_always_true(self):
+    def test_unrelated_claim_and_evidence(self):
         from context_graph.domain.extraction import verify_entailment
 
-        assert verify_entailment("cats are dogs", "fish swim in water") is True
+        assert verify_entailment("cats are dogs", "fish swim in water") is False
+
+    def test_empty_claim_returns_false(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        assert verify_entailment("", "some evidence text") is False
+
+    def test_empty_evidence_returns_false(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        assert verify_entailment("some claim text", "") is False
+
+    def test_short_claim_returns_true(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        # Claims with fewer than 2 significant words (>3 chars) return True
+        assert verify_entailment("it is", "anything here") is True
+
+    def test_partial_overlap_below_threshold(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        # Only 1 out of 4 significant words overlap (25% < 40%)
+        assert (
+            verify_entailment(
+                "quantum physics experiments results",
+                "quantum computing hardware design",
+            )
+            is False
+        )
+
+    def test_partial_overlap_above_threshold(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        # Multiple overlapping significant words
+        assert (
+            verify_entailment(
+                "Python programming language features",
+                "Python is a programming language with many features",
+            )
+            is True
+        )
+
+    def test_negation_disagreement_returns_false(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        # "not" in claim but not in evidence — negation mismatch
+        assert verify_entailment("User does not like vim", "User likes vim") is False
+
+    def test_negation_agreement_passes(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        # Both texts share negation — no mismatch
+        assert verify_entailment("User does not like vim", "User does not prefer vim") is True
+
+    def test_negation_marker_no_caught(self):
+        from context_graph.domain.extraction import verify_entailment
+
+        # "no" is 2 chars — must be caught by lowered word filter
+        assert verify_entailment("User has no experience", "User has much experience") is False

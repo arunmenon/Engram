@@ -28,15 +28,15 @@ VALID_ENTITY_TYPES = {"agent", "user", "service", "tool", "resource", "concept"}
 
 # Error sanitization patterns
 _SENSITIVE_PATTERNS = [
-    re.compile(r'/(?:Users|home|var|opt|src)/[^\s]+', re.IGNORECASE),
+    re.compile(r"/(?:Users|home|var|opt|src)/[^\s]+", re.IGNORECASE),
     re.compile(
-        r'(?:api[_-]?key|admin[_-]?key|password|secret|token)'
+        r"(?:api[_-]?key|admin[_-]?key|password|secret|token)"
         r'["\s:=]+["\']?[\w\-\.]+',
         re.IGNORECASE,
     ),
-    re.compile(r'(?:redis|neo4j|postgres)://[^\s]+', re.IGNORECASE),
+    re.compile(r"(?:redis|neo4j|postgres)://[^\s]+", re.IGNORECASE),
     re.compile(r'File "[^"]+", line \d+', re.IGNORECASE),
-    re.compile(r'Traceback \(most recent call last\):', re.IGNORECASE),
+    re.compile(r"Traceback \(most recent call last\):", re.IGNORECASE),
 ]
 
 _MAX_ERROR_LENGTH = 500
@@ -120,8 +120,7 @@ TOOL_DEFINITIONS: list[Tool] = [
                 "session_id": {
                     "type": "string",
                     "description": (
-                        "Session ID to retrieve context for. "
-                        "Uses current session if not provided."
+                        "Session ID to retrieve context for. Uses current session if not provided."
                     ),
                 },
                 "max_nodes": {
@@ -162,9 +161,7 @@ TOOL_DEFINITIONS: list[Tool] = [
     ),
     Tool(
         name="engram_trace",
-        description=(
-            "Get provenance/lineage chain for a specific node — shows causal origins"
-        ),
+        description=("Get provenance/lineage chain for a specific node — shows causal origins"),
         inputSchema={
             "type": "object",
             "properties": {
@@ -216,8 +213,7 @@ TOOL_DEFINITIONS: list[Tool] = [
                 "entity_type": {
                     "type": "string",
                     "description": (
-                        "Filter by entity type "
-                        "(agent, user, service, tool, resource, concept)"
+                        "Filter by entity type (agent, user, service, tool, resource, concept)"
                     ),
                 },
             },
@@ -359,9 +355,7 @@ async def _handle_recall(
         return [TextContent(type="text", text=f"Error: {exc}")]
 
     try:
-        response = await mcp_server.client.get_context(
-            session_id, query=query, max_nodes=max_nodes
-        )
+        response = await mcp_server.client.get_context(session_id, query=query, max_nodes=max_nodes)
     except ValueError as exc:
         return [TextContent(type="text", text=f"Error: {exc}")]
     except Exception:
@@ -413,9 +407,7 @@ async def _handle_trace(
         return [TextContent(type="text", text=f"Error: {exc}")]
 
     try:
-        response = await mcp_server.client.get_lineage(
-            node_id, max_depth=max_depth, intent=intent
-        )
+        response = await mcp_server.client.get_lineage(node_id, max_depth=max_depth, intent=intent)
     except ValueError as exc:
         return [TextContent(type="text", text=f"Error: {exc}")]
     except Exception:

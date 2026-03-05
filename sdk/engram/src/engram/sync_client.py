@@ -9,9 +9,19 @@ from engram.config import EngramConfig
 from engram.models import (
     AtlasResponse,
     BatchResult,
+    BehavioralPatternNode,
+    DetailedHealthResponse,
+    EntityResponse,
     Event,
+    GDPRDeleteResponse,
+    GDPRExportResponse,
     HealthStatus,
     IngestResult,
+    InterestNode,
+    PreferenceNode,
+    PruneResponse,
+    ReconsolidateResponse,
+    SkillNode,
     StatsResponse,
     SubgraphQuery,
     UserProfile,
@@ -73,7 +83,7 @@ class EngramSyncClient:
         """Get node lineage."""
         return self._run(self._async_client.get_lineage(node_id, **kwargs))
 
-    def get_entity(self, entity_id: str) -> dict[str, Any]:
+    def get_entity(self, entity_id: str) -> EntityResponse:
         """Get entity."""
         return self._run(self._async_client.get_entity(entity_id))
 
@@ -83,27 +93,27 @@ class EngramSyncClient:
 
     def get_user_preferences(
         self, user_id: str, category: str | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> list[PreferenceNode]:
         """Get user preferences."""
         return self._run(self._async_client.get_user_preferences(user_id, category=category))
 
-    def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+    def get_user_skills(self, user_id: str) -> list[SkillNode]:
         """Get user skills."""
         return self._run(self._async_client.get_user_skills(user_id))
 
-    def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+    def get_user_patterns(self, user_id: str) -> list[BehavioralPatternNode]:
         """Get user patterns."""
         return self._run(self._async_client.get_user_patterns(user_id))
 
-    def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+    def get_user_interests(self, user_id: str) -> list[InterestNode]:
         """Get user interests."""
         return self._run(self._async_client.get_user_interests(user_id))
 
-    def export_user_data(self, user_id: str) -> dict[str, Any]:
+    def export_user_data(self, user_id: str) -> GDPRExportResponse:
         """Export user data (GDPR)."""
         return self._run(self._async_client.export_user_data(user_id))
 
-    def delete_user(self, user_id: str) -> dict[str, Any]:
+    def delete_user(self, user_id: str) -> GDPRDeleteResponse:
         """Delete user (GDPR)."""
         return self._run(self._async_client.delete_user(user_id))
 
@@ -115,15 +125,15 @@ class EngramSyncClient:
         """Get admin stats."""
         return self._run(self._async_client.stats())
 
-    def reconsolidate(self, session_id: str | None = None) -> dict[str, Any]:
+    def reconsolidate(self, session_id: str | None = None) -> ReconsolidateResponse:
         """Trigger reconsolidation."""
         return self._run(self._async_client.reconsolidate(session_id=session_id))
 
-    def prune(self, tier: str, dry_run: bool = True) -> dict[str, Any]:
+    def prune(self, tier: str, dry_run: bool = True) -> PruneResponse:
         """Prune events by tier."""
         return self._run(self._async_client.prune(tier, dry_run=dry_run))
 
-    def health_detailed(self) -> dict[str, Any]:
+    def health_detailed(self) -> DetailedHealthResponse:
         """Get detailed health."""
         return self._run(self._async_client.health_detailed())
 

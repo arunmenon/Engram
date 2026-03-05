@@ -187,12 +187,28 @@ async def _build_consumer(
                     path=archive_settings.fs_base_path,
                 )
 
+        # Optional: LLM client for consolidation summaries
+        consolidation_llm_client: Any = None
+        try:
+            from context_graph.adapters.llm.client import LLMExtractionClient
+
+            consolidation_llm_client = LLMExtractionClient(
+                model_id=settings.llm.model_id,
+                temperature=settings.llm.temperature,
+                max_tokens=settings.llm.max_tokens,
+                timeout=settings.llm.timeout_seconds,
+            )
+            log.info("consolidation_llm_client_initialized")
+        except ImportError:
+            log.info("consolidation_llm_client_unavailable")
+
         return ConsolidationConsumer(
             redis_client=redis_client,
             graph_maintenance=graph_store,
             retention_manager=retention_manager,
             settings=settings,
             archive_store=archive_store,
+            llm_client=consolidation_llm_client,
         ), closeables
 
     msg = f"Unknown consumer type: {consumer_type}"

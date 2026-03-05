@@ -762,3 +762,37 @@ async def export_user_data(
         provenance_chains=len(export["provenance_chains"]),
     )
     return export
+
+
+# ---------------------------------------------------------------------------
+# Preference Contradiction Resolution
+# ---------------------------------------------------------------------------
+
+_SET_PREFERENCE_SUPERSEDED = """
+MATCH (p:Preference {preference_id: $preference_id})
+SET p.superseded_by = $superseded_by
+""".strip()
+
+
+async def set_preference_superseded(
+    driver: AsyncDriver,
+    database: str,
+    preference_id: str,
+    superseded_by: str,
+) -> None:
+    """Mark a preference as superseded by another preference."""
+    async with driver.session(database=database) as session:
+        await session.execute_write(
+            lambda tx: tx.run(
+                _SET_PREFERENCE_SUPERSEDED,
+                {
+                    "preference_id": preference_id,
+                    "superseded_by": superseded_by,
+                },
+            )
+        )
+    log.info(
+        "preference_superseded",
+        preference_id=preference_id,
+        superseded_by=superseded_by,
+    )

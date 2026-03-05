@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 import structlog
 
 from context_graph.metrics import (
+    CONSUMER_LAG,
     CONSUMER_MESSAGE_ERRORS,
     CONSUMER_MESSAGES_DEAD_LETTERED,
     CONSUMER_MESSAGES_PROCESSED,
@@ -206,6 +207,20 @@ class BaseConsumer:
             counts[msg_id] = int(times_delivered)
         return counts
 
+    # -- Lag metric --------------------------------------------------------
+
+    _LAG_METRIC_INTERVAL = 50  # update lag gauge every N loop iterations
+
+    async def _update_lag_metric(self) -> None:
+        """Update the CONSUMER_LAG gauge from XINFO GROUPS."""
+        try:
+            info = await self._redis.xinfo_groups(self._stream_key)
+            for group in info:
+                if group.get("name") == self._group_name:
+                    CONSUMER_LAG.labels(group=self._group_name).set(max(0, group.get("lag", 0)))
+        except Exception:  # noqa: BLE001
+            pass  # Non-critical metric, don't crash on failure
+
     # -- Main loop ---------------------------------------------------------
 
     async def run(self) -> None:
@@ -269,11 +284,12 @@ class BaseConsumer:
                     }
                     try:
                         await self.process_message(entry_id, decoded_data)
-                        await self._redis.xack(
-                            self._stream_key,
-                            self._group_name,
-                            entry_id,
-                        )
+                        if not self.deferred_ack:
+                            await self._redis.xack(
+                                self._stream_key,
+                                self._group_name,
+                                entry_id,
+                            )
                         CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
                     except Exception:
                         CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
@@ -287,6 +303,7 @@ class BaseConsumer:
         log.info("pending_drain_completed", group=self._group_name)
 
         # Main loop — new messages
+        loop_iteration = 0
         while not self._stopped:
             messages = await self._redis.xreadgroup(
                 groupname=self._group_name,
@@ -295,6 +312,10 @@ class BaseConsumer:
                 count=self._batch_size,
                 block=self._block_timeout_ms,
             )
+
+            loop_iteration += 1
+            if loop_iteration % self._LAG_METRIC_INTERVAL == 0:
+                await self._update_lag_metric()
 
             if not messages:
                 continue
@@ -315,11 +336,12 @@ class BaseConsumer:
 
                     try:
                         await self.process_message(entry_id, decoded_data)
-                        await self._redis.xack(
-                            self._stream_key,
-                            self._group_name,
-                            entry_id,
-                        )
+                        if not self.deferred_ack:
+                            await self._redis.xack(
+                                self._stream_key,
+                                self._group_name,
+                                entry_id,
+                            )
                         CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
                     except Exception:
                         CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
@@ -331,15 +353,32 @@ class BaseConsumer:
                             consumer=self._consumer_name,
                         )
 
+        await self.on_stop()
         log.info(
             "consumer_stopped",
             group=self._group_name,
             consumer=self._consumer_name,
         )
 
+    @property
+    def deferred_ack(self) -> bool:
+        """Return True to defer XACK until the subclass handles it.
+
+        Batching consumers override this so the base loop does NOT ACK
+        after each ``process_message`` call.  Instead, the consumer
+        ACKs messages itself after a successful flush.
+        """
+        return False
+
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a single stream message. Override in subclasses."""
         raise NotImplementedError
+
+    async def on_stop(self) -> None:
+        """Cleanup hook called after the main loop exits.
+
+        Subclasses can override to flush buffers, close resources, etc.
+        """
 
     def stop(self) -> None:
         """Signal the consumer loop to stop gracefully."""

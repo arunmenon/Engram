@@ -91,9 +91,7 @@ def _config_from_env(**overrides: Any) -> EngramConfig:
         elif "\n" in config.api_key or "\r" in config.api_key:
             raise ConfigurationError("API key must not contain newlines")
         elif stripped.startswith("Bearer "):
-            config = config.model_copy(
-                update={"api_key": stripped.removeprefix("Bearer ").strip()}
-            )
+            config = config.model_copy(update={"api_key": stripped.removeprefix("Bearer ").strip()})
 
     # Normalize empty/whitespace admin_key to None; reject newlines
     if config.admin_key is not None:
@@ -105,13 +103,9 @@ def _config_from_env(**overrides: Any) -> EngramConfig:
 
     # Validate numeric bounds
     if config.timeout <= 0:
-        raise ConfigurationError(
-            f"timeout must be positive, got {config.timeout}"
-        )
+        raise ConfigurationError(f"timeout must be positive, got {config.timeout}")
     if config.max_retries < 0:
-        raise ConfigurationError(
-            f"max_retries must be non-negative, got {config.max_retries}"
-        )
+        raise ConfigurationError(f"max_retries must be non-negative, got {config.max_retries}")
 
     # Warn on non-HTTPS for non-local hosts
     if config.base_url.startswith("http://"):
@@ -121,8 +115,7 @@ def _config_from_env(**overrides: Any) -> EngramConfig:
         hostname = (parsed.hostname or "").lower()
         if hostname not in _LOCAL_HOSTS:
             warnings.warn(
-                f"Engram base_url uses HTTP ({config.base_url}). "
-                "Use HTTPS in production.",
+                f"Engram base_url uses HTTP ({config.base_url}). Use HTTPS in production.",
                 UserWarning,
                 stacklevel=2,
             )

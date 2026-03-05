@@ -55,9 +55,7 @@ class TestMalformedResponses:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_invalid_json_200(self, respx_mock, client: EngramClient):
         """Server returns invalid JSON with 200 -> should raise."""
-        respx_mock.get("/health").mock(
-            return_value=httpx.Response(200, content=b"not json at all")
-        )
+        respx_mock.get("/health").mock(return_value=httpx.Response(200, content=b"not json at all"))
         with pytest.raises((ValueError, httpx.DecodingError)):
             await client.health()
 
@@ -75,9 +73,7 @@ class TestMalformedResponses:
         """Server returns HTML instead of JSON."""
         html = b"<html><body>502 Bad Gateway</body></html>"
         respx_mock.get("/health").mock(
-            return_value=httpx.Response(
-                200, content=html, headers={"content-type": "text/html"}
-            )
+            return_value=httpx.Response(200, content=html, headers={"content-type": "text/html"})
         )
         with pytest.raises((ValueError, httpx.DecodingError)):
             await client.health()
@@ -85,9 +81,7 @@ class TestMalformedResponses:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_empty_body_200(self, respx_mock, client: EngramClient):
         """Empty response body with 200."""
-        respx_mock.get("/health").mock(
-            return_value=httpx.Response(200, content=b"")
-        )
+        respx_mock.get("/health").mock(return_value=httpx.Response(200, content=b""))
         with pytest.raises((ValueError, httpx.DecodingError)):
             await client.health()
 
@@ -124,9 +118,7 @@ class TestMalformedResponses:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_missing_fields_ingest(self, respx_mock, client: EngramClient):
         """IngestResult missing required fields -> Pydantic catches."""
-        respx_mock.post("/events").mock(
-            return_value=httpx.Response(200, json={"unexpected": True})
-        )
+        respx_mock.post("/events").mock(return_value=httpx.Response(200, json={"unexpected": True}))
         event = Event(
             event_id=uuid4(),
             event_type="test",
@@ -142,9 +134,7 @@ class TestMalformedResponses:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_server_returns_list(self, respx_mock, client: EngramClient):
         """Server returns [] instead of {} for profile."""
-        respx_mock.get("/users/u1/profile").mock(
-            return_value=httpx.Response(200, json=[])
-        )
+        respx_mock.get("/users/u1/profile").mock(return_value=httpx.Response(200, json=[]))
         with pytest.raises(ValueError):
             await client.get_user_profile("u1")
 
@@ -198,13 +188,9 @@ class TestResourceExhaustion:
         """10MB response body -> should complete or error, NOT hang."""
         version_padding = b"x" * (10 * 1024 * 1024)
         large_body = (
-            b'{"status":"ok","redis":true,"neo4j":true,"version":"'
-            + version_padding
-            + b'"}'
+            b'{"status":"ok","redis":true,"neo4j":true,"version":"' + version_padding + b'"}'
         )
-        respx_mock.get("/health").mock(
-            return_value=httpx.Response(200, content=large_body)
-        )
+        respx_mock.get("/health").mock(return_value=httpx.Response(200, content=large_body))
         # May raise validation error or succeed with large data.  Key: no hang.
         with contextlib.suppress(ValueError):
             await client.health()
@@ -229,9 +215,7 @@ class TestResourceExhaustion:
         from engram.models import AtlasEdge
 
         edges = [
-            AtlasEdge(
-                source=f"n-{i}", target=f"n-{i + 1}", edge_type="FOLLOWS"
-            )
+            AtlasEdge(source=f"n-{i}", target=f"n-{i + 1}", edge_type="FOLLOWS")
             for i in range(500_000)
         ]
         resp = AtlasResponse(edges=edges)
@@ -269,9 +253,7 @@ class TestPaginationExhaustion:
             nonlocal call_count
             call_count += 1
             return AtlasResponse(
-                pagination=Pagination(
-                    cursor=f"cursor-{call_count}", has_more=True
-                ),
+                pagination=Pagination(cursor=f"cursor-{call_count}", has_more=True),
             )
 
         iterator = PageIterator(fake_fetch, max_pages=5)
@@ -290,9 +272,7 @@ class TestPaginationExhaustion:
 
         async def fake_fetch(**kwargs):
             nonlocal call_index
-            cursor = cursor_sequence[
-                min(call_index, len(cursor_sequence) - 1)
-            ]
+            cursor = cursor_sequence[min(call_index, len(cursor_sequence) - 1)]
             call_index += 1
             return AtlasResponse(
                 pagination=Pagination(cursor=cursor, has_more=True),
@@ -403,18 +383,14 @@ class TestTimeoutBehavior:
 
     async def test_timeout_zero(self):
         """timeout=0.0 in request -> httpx may raise or accept."""
-        config = EngramConfig(
-            base_url="http://test:8000", timeout=0.0, max_retries=0
-        )
+        config = EngramConfig(base_url="http://test:8000", timeout=0.0, max_retries=0)
         test_client = EngramClient(config=config)
         assert test_client._config.timeout == 0.0
         await test_client.close()
 
     async def test_timeout_negative(self):
         """timeout=-1.0 -> httpx will reject at request time."""
-        config = EngramConfig(
-            base_url="http://test:8000", timeout=-1.0, max_retries=0
-        )
+        config = EngramConfig(base_url="http://test:8000", timeout=-1.0, max_retries=0)
         test_client = EngramClient(config=config)
         assert test_client._config.timeout == -1.0
         await test_client.close()
@@ -422,9 +398,7 @@ class TestTimeoutBehavior:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_very_small_timeout(self, respx_mock):
         """timeout=0.001 -> valid, may timeout quickly."""
-        config = EngramConfig(
-            base_url="http://test:8000", timeout=0.001, max_retries=0
-        )
+        config = EngramConfig(base_url="http://test:8000", timeout=0.001, max_retries=0)
         test_client = EngramClient(config=config)
         respx_mock.get("/health").mock(
             return_value=httpx.Response(
@@ -444,13 +418,9 @@ class TestTimeoutBehavior:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_custom_per_request_timeout(self, respx_mock):
         """Pass timeout to individual request -> works."""
-        config = EngramConfig(
-            base_url="http://test:8000", timeout=30.0, max_retries=0
-        )
+        config = EngramConfig(base_url="http://test:8000", timeout=30.0, max_retries=0)
         transport = Transport(config)
-        respx_mock.get("/health").mock(
-            return_value=httpx.Response(200, json={"status": "ok"})
-        )
+        respx_mock.get("/health").mock(return_value=httpx.Response(200, json={"status": "ok"}))
         response = await transport.request("GET", "/health", timeout=5.0)
         assert response.status_code == 200
         await transport.close()
@@ -508,9 +478,7 @@ class TestHTTPStatusCodes:
     @respx.mock(base_url="http://test:8000/v1")
     async def test_204_no_content(self, respx_mock, client: EngramClient):
         """Server returns 204 with empty body -> handled."""
-        respx_mock.get("/health").mock(
-            return_value=httpx.Response(204)
-        )
+        respx_mock.get("/health").mock(return_value=httpx.Response(204))
         # 204 is <400, transport returns it. health() tries .json().
         with pytest.raises((ValueError, httpx.DecodingError)):
             await client.health()
@@ -545,9 +513,7 @@ class TestPartialResponses:
             return_value=httpx.Response(
                 200,
                 content=body.encode("latin-1"),
-                headers={
-                    "content-type": "application/json; charset=latin-1"
-                },
+                headers={"content-type": "application/json; charset=latin-1"},
             )
         )
         result = await client.health()

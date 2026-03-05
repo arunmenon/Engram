@@ -427,7 +427,7 @@ def _coerce_interest(raw: dict[str, Any]) -> dict[str, Any]:
 
 def _parse_items_individually(
     raw_list: list[dict[str, Any]],
-    model_cls: type,
+    model_cls: type[Any],
     coerce_fn: Any | None = None,
     label: str = "item",
     session_id: str = "",
@@ -474,8 +474,48 @@ class LLMExtractionClient:
 
     async def generate_text(self, prompt: str) -> str | None:
         """Generate text from a prompt. Used for HyDE and other expansions."""
-        # TODO: Implement actual LLM call via litellm
-        return None
+        try:
+            import litellm
+
+            response = await litellm.acompletion(
+                model=self._model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=self._temperature,
+                max_tokens=self._max_tokens,
+                timeout=self._timeout,
+                num_retries=self._max_retries,
+            )
+            content = response.choices[0].message.content
+            return str(content) if content else None
+        except Exception:
+            log.exception("generate_text_failed")
+            return None
+
+    async def verify_entailment(self, claim: str, evidence: str) -> bool:
+        """Check whether *evidence* entails *claim* using an LLM call.
+
+        Returns True if the LLM judges the claim to be supported by the
+        evidence, False otherwise. Falls back to the keyword-overlap
+        heuristic from ``domain.extraction.verify_entailment`` on any error.
+        """
+        from context_graph.domain.extraction import verify_entailment as heuristic_verify
+
+        prompt = (
+            "You are an entailment verification system. "
+            "Determine whether the EVIDENCE supports the CLAIM.\n\n"
+            f"CLAIM: {claim}\n\n"
+            f"EVIDENCE: {evidence}\n\n"
+            'Respond with ONLY "yes" or "no".'
+        )
+        try:
+            result = await self.generate_text(prompt)
+            if result is None:
+                return heuristic_verify(claim, evidence)
+            answer = result.strip().lower()
+            return answer.startswith("yes")
+        except Exception:
+            log.warning("verify_entailment_llm_failed", claim=claim[:50])
+            return heuristic_verify(claim, evidence)
 
     async def _call_llm(self, system_prompt: str) -> str:
         """Call the LLM via litellm and return raw response text.

@@ -1,15 +1,27 @@
 from __future__ import annotations
 
 import asyncio
+import warnings
 from typing import Any
 
 from engram.config import configure as _configure_config
 from engram.config import get_config
-from engram.models import AtlasResponse, IngestResult
+from engram.models import AtlasResponse, IngestResult, Memory, SubgraphQuery
 
 _init_lock = asyncio.Lock()
 _default_client: Any = None
 _default_session: Any = None
+
+# Canonical text-extraction key order — must match AtlasResponse._TEXT_KEYS
+_TEXT_KEYS = (
+    "content",
+    "payload_ref",
+    "summary",
+    "text",
+    "belief_text",
+    "description",
+    "name",
+)
 
 
 def _get_client() -> Any:
@@ -84,6 +96,81 @@ async def trace(
     return await client.get_lineage(node_id, max_depth=max_depth, intent=intent)
 
 
+async def add(
+    text: str,
+    *,
+    agent_id: str = "default",
+    importance: int | None = None,
+) -> IngestResult:
+    """Simple add — wraps record() with event_type='observation.output'."""
+    session = await _get_session(agent_id)
+    return await session.record(
+        text,
+        event_type="observation.output",
+        importance=importance,
+    )
+
+
+async def search(
+    query: str,
+    *,
+    top_k: int = 10,
+) -> list[Memory]:
+    """Simple search — wraps query_subgraph(), returns flat Memory list."""
+    client = _get_client()
+    # Build a SubgraphQuery using session context when available
+    session_id = _default_session.id if _default_session is not None else "default"
+    agent_id = getattr(_default_session, "_agent_id", "default")
+    subgraph_query = SubgraphQuery(
+        query=query,
+        session_id=session_id,
+        agent_id=agent_id,
+        max_nodes=top_k,
+    )
+    atlas = await client.query_subgraph(subgraph_query)
+    memories: list[Memory] = []
+    for node_id, node in atlas.nodes.items():
+        text = ""
+        for key in _TEXT_KEYS:
+            val = node.attributes.get(key)
+            if val and isinstance(val, str):
+                text = val
+                break
+        if text:
+            score = node.scores.decay_score
+            source_session = ""
+            if node.provenance is not None:
+                source_session = node.provenance.session_id
+            memories.append(
+                Memory(
+                    text=text,
+                    memory_id=node_id,
+                    node_type=node.node_type,
+                    score=score,
+                    source_session=source_session,
+                )
+            )
+    memories.sort(key=lambda m: m.score, reverse=True)
+    return memories
+
+
+async def aclose() -> None:
+    """Gracefully end session and close client."""
+    global _default_session, _default_client  # noqa: PLW0603
+    if _default_session is not None:
+        try:
+            await _default_session.end()
+        except Exception:  # noqa: BLE001
+            pass
+        _default_session = None
+    if _default_client is not None:
+        try:
+            await _default_client.close()
+        except Exception:  # noqa: BLE001
+            pass
+        _default_client = None
+
+
 def configure(
     base_url: str | None = None,
     api_key: str | None = None,
@@ -92,10 +179,16 @@ def configure(
     """Configure the module-level client. Resets existing client/session.
 
     Note: This is a synchronous function. If a session is active, it will be
-    discarded without sending session_end. Use the full SessionManager API
-    for proper lifecycle management.
+    discarded without sending session_end. Call aclose() first to avoid
+    session leak.
     """
     global _default_client, _default_session  # noqa: PLW0603
+    if _default_session is not None:
+        warnings.warn(
+            "configure() called with active session. Call aclose() first to avoid session leak.",
+            ResourceWarning,
+            stacklevel=2,
+        )
     _configure_config(base_url=base_url, api_key=api_key, **kwargs)
     _default_client = None
     _default_session = None

@@ -16,6 +16,10 @@ from typing import TYPE_CHECKING, Any
 import orjson
 import structlog
 
+from context_graph.domain.contradiction import (
+    detect_preference_contradictions,
+    resolve_contradiction,
+)
 from context_graph.domain.entity_resolution import (
     EntityResolutionAction,
     SemanticCandidate,
@@ -406,6 +410,13 @@ class ExtractionConsumer(BaseConsumer):
                     },
                 )
 
+            # --- Detect and resolve preference contradictions ---
+            await self._resolve_preference_contradictions(
+                user_entity_id=user_entity_id,
+                new_preferences=result.get("preferences", []),
+                session_id=session_id,
+            )
+
         # --- Write skills ---
         if us is not None:
             for skill_data in result.get("skills", []):
@@ -561,3 +572,41 @@ class ExtractionConsumer(BaseConsumer):
                 "resolved_at": datetime.now(UTC).isoformat(),
             },
         )
+
+    async def _resolve_preference_contradictions(
+        self,
+        user_entity_id: str,
+        new_preferences: list[dict[str, Any]],
+        session_id: str,
+    ) -> None:
+        """Check newly extracted preferences against existing ones for contradictions.
+
+        If a new preference has the same (category, key) but opposite polarity to
+        an existing one, mark the older preference with superseded_by.
+        """
+        us = self._user_store
+        if us is None or not new_preferences:
+            return
+
+        existing_preferences = await us.get_user_preferences(user_entity_id)
+
+        all_preferences = existing_preferences + new_preferences
+        conflicts = detect_preference_contradictions(all_preferences)
+
+        for pref_a, pref_b in conflicts:
+            winner, loser = resolve_contradiction(pref_a, pref_b)
+            loser_id = loser.get("preference_id", "")
+            winner_id = winner.get("preference_id", winner.get("id", ""))
+            if loser_id and winner_id:
+                await us.set_preference_superseded(
+                    preference_id=loser_id,
+                    superseded_by=winner_id,
+                )
+                log.info(
+                    "preference_contradiction_resolved",
+                    session_id=session_id,
+                    loser_id=loser_id,
+                    winner_id=winner_id,
+                    category=loser.get("category"),
+                    key=loser.get("key"),
+                )

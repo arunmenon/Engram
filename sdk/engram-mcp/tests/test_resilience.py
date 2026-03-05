@@ -27,9 +27,7 @@ from engram_mcp.tools import (
 def mock_client() -> AsyncMock:
     """Create a mock EngramClient with all methods pre-configured."""
     client = AsyncMock()
-    client.ingest.return_value = IngestResult(
-        event_id="eid-1", global_position="1707644400000-0"
-    )
+    client.ingest.return_value = IngestResult(event_id="eid-1", global_position="1707644400000-0")
     client.get_context.return_value = AtlasResponse()
     client.query_subgraph.return_value = AtlasResponse()
     client.get_lineage.return_value = AtlasResponse()
@@ -58,13 +56,9 @@ def mcp_server(mock_client: AsyncMock) -> EngramMCPServer:
 class TestMCPErrorResilience:
     """MCP tool handlers should return error text, never crash."""
 
-    async def test_pydantic_validation_error_importance_zero(
-        self, mcp_server: EngramMCPServer
-    ):
+    async def test_pydantic_validation_error_importance_zero(self, mcp_server: EngramMCPServer):
         """importance=0 is below Pydantic's ge=1 constraint -> error text, not crash."""
-        result = await _handle_record(
-            mcp_server, {"content": "test", "importance": 0}
-        )
+        result = await _handle_record(mcp_server, {"content": "test", "importance": 0})
         assert len(result) == 1
         # Pydantic raises before we even call ingest; the handler catches it
         text = result[0].text
@@ -110,10 +104,7 @@ class TestMCPErrorResilience:
     async def test_concurrent_record_calls(self, mcp_server: EngramMCPServer):
         """20 concurrent _handle_record -> no lost updates."""
         results = await asyncio.gather(
-            *[
-                _handle_record(mcp_server, {"content": f"msg-{i}"})
-                for i in range(20)
-            ]
+            *[_handle_record(mcp_server, {"content": f"msg-{i}"}) for i in range(20)]
         )
         assert len(results) == 20
         for r in results:

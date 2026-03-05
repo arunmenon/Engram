@@ -12,9 +12,19 @@ from engram.exceptions import NotFoundError
 from engram.models import (
     AtlasResponse,
     BatchResult,
+    BehavioralPatternNode,
+    DetailedHealthResponse,
+    EntityResponse,
     Event,
+    GDPRDeleteResponse,
+    GDPRExportResponse,
     HealthStatus,
     IngestResult,
+    InterestNode,
+    PreferenceNode,
+    PruneResponse,
+    ReconsolidateResponse,
+    SkillNode,
     StatsResponse,
     SubgraphQuery,
     UserProfile,
@@ -147,7 +157,10 @@ class TestEntityEndpoints:
             )
         )
         result = await client.get_entity("ent-1")
-        assert result["entity_id"] == "ent-1"
+        assert isinstance(result, EntityResponse)
+        assert result.entity_id == "ent-1"
+        assert result.name == "Test"
+        assert result.entity_type == "concept"
         await client.close()
 
     async def test_get_entity_not_found(self, client: EngramClient, mock_api: respx.MockRouter):
@@ -173,36 +186,68 @@ class TestUserEndpoints:
 
     async def test_get_user_preferences(self, client: EngramClient, mock_api: respx.MockRouter):
         route = mock_api.get("/users/u1/preferences").mock(
-            return_value=httpx.Response(200, json=[{"pref": "dark_mode"}])
+            return_value=httpx.Response(
+                200,
+                json=[{"preference_id": "p1", "category": "ui", "key": "theme", "value": "dark"}],
+            )
         )
         result = await client.get_user_preferences("u1", category="ui")
         assert isinstance(result, list)
+        assert len(result) == 1
+        assert isinstance(result[0], PreferenceNode)
+        assert result[0].category == "ui"
+        assert result[0].key == "theme"
         request = route.calls[0].request
         assert "category=ui" in str(request.url)
         await client.close()
 
     async def test_get_user_skills(self, client: EngramClient, mock_api: respx.MockRouter):
         mock_api.get("/users/u1/skills").mock(
-            return_value=httpx.Response(200, json=[{"skill": "python"}])
+            return_value=httpx.Response(
+                200,
+                json=[{"skill_id": "s1", "name": "python", "level": "expert"}],
+            )
         )
         result = await client.get_user_skills("u1")
         assert isinstance(result, list)
+        assert len(result) == 1
+        assert isinstance(result[0], SkillNode)
+        assert result[0].name == "python"
         await client.close()
 
     async def test_get_user_patterns(self, client: EngramClient, mock_api: respx.MockRouter):
         mock_api.get("/users/u1/patterns").mock(
-            return_value=httpx.Response(200, json=[{"pattern": "morning_coder"}])
+            return_value=httpx.Response(
+                200,
+                json=[
+                    {
+                        "pattern_id": "bp1",
+                        "pattern_type": "temporal",
+                        "description": "morning coder",
+                    }
+                ],
+            )
         )
         result = await client.get_user_patterns("u1")
         assert isinstance(result, list)
+        assert len(result) == 1
+        assert isinstance(result[0], BehavioralPatternNode)
+        assert result[0].description == "morning coder"
         await client.close()
 
     async def test_get_user_interests(self, client: EngramClient, mock_api: respx.MockRouter):
         mock_api.get("/users/u1/interests").mock(
-            return_value=httpx.Response(200, json=[{"interest": "AI"}])
+            return_value=httpx.Response(
+                200,
+                json=[{"entity_id": "e1", "name": "AI", "entity_type": "topic", "strength": 0.9}],
+            )
         )
         result = await client.get_user_interests("u1")
         assert isinstance(result, list)
+        assert len(result) == 1
+        assert isinstance(result[0], InterestNode)
+        assert result[0].name == "AI"
+        assert result[0].strength == 0.9
         await client.close()
 
     async def test_export_user_data(self, client: EngramClient, mock_api: respx.MockRouter):
@@ -210,7 +255,9 @@ class TestUserEndpoints:
             return_value=httpx.Response(200, json={"events": [], "entities": []})
         )
         result = await client.export_user_data("u1")
-        assert "events" in result
+        assert isinstance(result, GDPRExportResponse)
+        assert result.events == []
+        assert result.entities == []
         await client.close()
 
     async def test_delete_user(self, client: EngramClient, mock_api: respx.MockRouter):
@@ -218,7 +265,9 @@ class TestUserEndpoints:
             return_value=httpx.Response(200, json={"deleted_nodes": 5, "deleted_edges": 10})
         )
         result = await client.delete_user("u1")
-        assert result["deleted_nodes"] == 5
+        assert isinstance(result, GDPRDeleteResponse)
+        assert result.deleted_nodes == 5
+        assert result.deleted_edges == 10
         await client.close()
 
 
@@ -258,7 +307,8 @@ class TestHealthAndAdmin:
             return_value=httpx.Response(200, json={"status": "started"})
         )
         result = await client.reconsolidate(session_id="sess-1")
-        assert result["status"] == "started"
+        assert isinstance(result, ReconsolidateResponse)
+        assert result.status == "started"
         await client.close()
 
     async def test_prune(self, client: EngramClient, mock_api: respx.MockRouter):
@@ -266,7 +316,9 @@ class TestHealthAndAdmin:
             return_value=httpx.Response(200, json={"pruned": 10, "dry_run": True})
         )
         result = await client.prune("cold", dry_run=True)
-        assert result["pruned"] == 10
+        assert isinstance(result, PruneResponse)
+        assert result.pruned == 10
+        assert result.dry_run is True
         await client.close()
 
     async def test_health_detailed(self, client: EngramClient, mock_api: respx.MockRouter):
@@ -274,7 +326,8 @@ class TestHealthAndAdmin:
             return_value=httpx.Response(200, json={"redis": {"connected": True}})
         )
         result = await client.health_detailed()
-        assert "redis" in result
+        assert isinstance(result, DetailedHealthResponse)
+        assert result.redis == {"connected": True}
         await client.close()
 
 

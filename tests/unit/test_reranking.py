@@ -184,6 +184,21 @@ class TestMaximalMarginalRelevance:
         result = maximal_marginal_relevance(candidates, selected=[], lambda_param=1.0)
         assert result[0][0] == "b"
 
+    def test_mmr_reorders_similar_embedding_candidates(self) -> None:
+        """MMR should penalize candidates that are similar to already-ranked ones."""
+        # Two candidates with identical embeddings and one diverse candidate
+        candidates = [
+            ("a", 0.9, [1.0, 0.0, 0.0]),  # high relevance, direction X
+            ("b", 0.85, [0.99, 0.01, 0.0]),  # similar to a, slightly lower relevance
+            ("c", 0.8, [0.0, 1.0, 0.0]),  # different direction Y
+        ]
+        # With no selected: first pick is "a" (highest relevance)
+        # After "a" is picked, "c" should be preferred over "b" due to diversity
+        result = maximal_marginal_relevance(candidates, selected=["a"], lambda_param=0.5)
+        result_dict = dict(result)
+        # "c" is diverse from "a", so should get higher MMR than "b"
+        assert result_dict["c"] > result_dict["b"]
+
     def test_mmr_lambda_zero_maximizes_diversity(self) -> None:
         """lambda=0.0 should rank purely by diversity (negative similarity)."""
         # "a" is already selected

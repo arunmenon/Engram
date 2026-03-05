@@ -181,9 +181,7 @@ class TestEngramTrace:
             mcp_server, {"node_id": "evt-abc-123", "max_depth": 5, "intent": "when"}
         )
 
-        mock_client.get_lineage.assert_called_once_with(
-            "evt-abc-123", max_depth=5, intent="when"
-        )
+        mock_client.get_lineage.assert_called_once_with("evt-abc-123", max_depth=5, intent="when")
         assert "Lineage for evt-abc-123" in result[0].text
 
 

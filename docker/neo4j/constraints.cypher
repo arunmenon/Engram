@@ -30,6 +30,15 @@ CREATE CONSTRAINT workflow_pk IF NOT EXISTS FOR (w:Workflow) REQUIRE w.workflow_
 // BehavioralPattern node — uniqueness (ADR-0012)
 CREATE CONSTRAINT behavioralpattern_pk IF NOT EXISTS FOR (b:BehavioralPattern) REQUIRE b.pattern_id IS UNIQUE;
 
+// Belief node — uniqueness
+CREATE CONSTRAINT belief_pk IF NOT EXISTS FOR (b:Belief) REQUIRE b.belief_id IS UNIQUE;
+
+// Goal node — uniqueness
+CREATE CONSTRAINT goal_pk IF NOT EXISTS FOR (g:Goal) REQUIRE g.goal_id IS UNIQUE;
+
+// Episode node — uniqueness
+CREATE CONSTRAINT episode_pk IF NOT EXISTS FOR (e:Episode) REQUIRE e.episode_id IS UNIQUE;
+
 // Performance indexes
 CREATE INDEX event_session_id IF NOT EXISTS FOR (e:Event) ON (e.session_id);
 

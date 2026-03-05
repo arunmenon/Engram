@@ -146,7 +146,7 @@ class TestMCPErrorDisclosure:
         assert "[REDACTED]" in sanitized
 
     def test_error_no_api_key(self):
-        exc = Exception('Failed: api_key=sk-secret-12345 was rejected')
+        exc = Exception("Failed: api_key=sk-secret-12345 was rejected")
         sanitized = _sanitize_error(exc)
         assert "sk-secret-12345" not in sanitized
         assert "[REDACTED]" in sanitized

@@ -47,6 +47,18 @@ CONSTRAINT_BEHAVIORALPATTERN_PK = (
     "FOR (b:BehavioralPattern) REQUIRE b.pattern_id IS UNIQUE"
 )
 
+CONSTRAINT_BELIEF_PK = (
+    "CREATE CONSTRAINT belief_pk IF NOT EXISTS FOR (b:Belief) REQUIRE b.belief_id IS UNIQUE"
+)
+
+CONSTRAINT_GOAL_PK = (
+    "CREATE CONSTRAINT goal_pk IF NOT EXISTS FOR (g:Goal) REQUIRE g.goal_id IS UNIQUE"
+)
+
+CONSTRAINT_EPISODE_PK = (
+    "CREATE CONSTRAINT episode_pk IF NOT EXISTS FOR (e:Episode) REQUIRE e.episode_id IS UNIQUE"
+)
+
 ALL_CONSTRAINTS = [
     CONSTRAINT_EVENT_PK,
     CONSTRAINT_ENTITY_PK,
@@ -56,6 +68,9 @@ ALL_CONSTRAINTS = [
     CONSTRAINT_SKILL_PK,
     CONSTRAINT_WORKFLOW_PK,
     CONSTRAINT_BEHAVIORALPATTERN_PK,
+    CONSTRAINT_BELIEF_PK,
+    CONSTRAINT_GOAL_PK,
+    CONSTRAINT_EPISODE_PK,
 ]
 
 # ---------------------------------------------------------------------------
@@ -103,6 +118,23 @@ SET e.event_type = $event_type,
     e.last_accessed_at = $last_accessed_at
 """.strip()
 
+BATCH_MERGE_EVENT_NODES = """
+UNWIND $events AS evt
+MERGE (e:Event {event_id: evt.event_id})
+SET e.event_type = evt.event_type,
+    e.occurred_at = evt.occurred_at,
+    e.session_id = evt.session_id,
+    e.agent_id = evt.agent_id,
+    e.trace_id = evt.trace_id,
+    e.tool_name = evt.tool_name,
+    e.global_position = evt.global_position,
+    e.keywords = evt.keywords,
+    e.summary = evt.summary,
+    e.importance_score = evt.importance_score,
+    e.access_count = evt.access_count,
+    e.last_accessed_at = evt.last_accessed_at
+""".strip()
+
 MERGE_ENTITY_NODE = """
 MERGE (n:Entity {entity_id: $entity_id})
 SET n.name = $name,
@@ -121,6 +153,37 @@ SET s.scope = $scope,
     s.created_at = $created_at,
     s.event_count = $event_count,
     s.time_range = $time_range
+""".strip()
+
+MERGE_BELIEF_NODE = """
+MERGE (b:Belief {belief_id: $belief_id})
+SET b.belief_text = $belief_text,
+    b.confidence = $confidence,
+    b.category = $category,
+    b.created_at = $created_at,
+    b.last_confirmed_at = $last_confirmed_at,
+    b.confirmation_count = $confirmation_count,
+    b.superseded_by = $superseded_by
+""".strip()
+
+MERGE_GOAL_NODE = """
+MERGE (g:Goal {goal_id: $goal_id})
+SET g.description = $description,
+    g.status = $status,
+    g.created_at = $created_at,
+    g.last_active_at = $last_active_at,
+    g.priority = $priority,
+    g.evidence_count = $evidence_count
+""".strip()
+
+MERGE_EPISODE_NODE = """
+MERGE (e:Episode {episode_id: $episode_id})
+SET e.session_id = $session_id,
+    e.start_time = $start_time,
+    e.end_time = $end_time,
+    e.event_count = $event_count,
+    e.episode_type = $episode_type,
+    e.summary_id = $summary_id
 """.strip()
 
 # ---------------------------------------------------------------------------
@@ -248,6 +311,34 @@ MERGE_PARENT_SKILL = """
 MATCH (a:Skill {skill_id: $source_id})
 MATCH (b:Skill {skill_id: $target_id})
 MERGE (a)-[r:PARENT_SKILL]->(b)
+SET r += $props
+""".strip()
+
+MERGE_CONTRADICTS = """
+MATCH (a:Belief {belief_id: $source_id})
+MATCH (b:Belief {belief_id: $target_id})
+MERGE (a)-[r:CONTRADICTS]->(b)
+SET r += $props
+""".strip()
+
+MERGE_SUPERSEDES = """
+MATCH (a:Belief {belief_id: $source_id})
+MATCH (b:Belief {belief_id: $target_id})
+MERGE (a)-[r:SUPERSEDES]->(b)
+SET r += $props
+""".strip()
+
+MERGE_PURSUES = """
+MATCH (a:Entity {entity_id: $source_id})
+MATCH (b:Goal {goal_id: $target_id})
+MERGE (a)-[r:PURSUES]->(b)
+SET r += $props
+""".strip()
+
+MERGE_CONTAINS = """
+MATCH (a:Episode {episode_id: $source_id})
+MATCH (b:Event {event_id: $target_id})
+MERGE (a)-[r:CONTAINS]->(b)
 SET r += $props
 """.strip()
 

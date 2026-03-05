@@ -68,6 +68,45 @@ class TestComputeRecencyScore:
         assert score == 1.0
 
 
+class TestSublinearStabilityGrowth:
+    """Tests for sublinear (log1p) stability growth in compute_recency_score."""
+
+    def test_sublinear_growth_bounded(self) -> None:
+        """Diminishing returns: jump from 10->100 accesses should be smaller than 0->10."""
+        now = datetime.now(UTC)
+        occurred_at = now - timedelta(hours=200)
+        score_0 = compute_recency_score(occurred_at, access_count=0, now=now, sublinear=True)
+        score_10 = compute_recency_score(occurred_at, access_count=10, now=now, sublinear=True)
+        score_100 = compute_recency_score(occurred_at, access_count=100, now=now, sublinear=True)
+        delta_0_to_10 = score_10 - score_0
+        delta_10_to_100 = score_100 - score_10
+        assert delta_0_to_10 > delta_10_to_100
+        assert delta_10_to_100 > 0  # still grows, just slower
+
+    def test_linear_backward_compat(self) -> None:
+        """sublinear=False gives exactly the old linear behavior."""
+        now = datetime.now(UTC)
+        occurred_at = now - timedelta(hours=100)
+        import math
+
+        access_count = 5
+        s_base = 168.0
+        s_boost = 24.0
+        score = compute_recency_score(
+            occurred_at,
+            access_count=access_count,
+            s_base=s_base,
+            s_boost=s_boost,
+            now=now,
+            sublinear=False,
+        )
+        # Manually compute expected: S = s_base + access_count * s_boost
+        stability = s_base + access_count * s_boost
+        t_hours = 100.0
+        expected = math.exp(-t_hours / stability)
+        assert abs(score - expected) < 1e-9
+
+
 class TestComputeImportanceScore:
     """Tests for importance scoring."""
 

@@ -63,6 +63,18 @@ def consumer(mock_redis, mock_graph_maintenance, mock_retention_manager, mock_se
 
 
 @pytest.fixture()
+def consumer_with_llm(mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings):
+    llm_client = AsyncMock()
+    return ConsolidationConsumer(
+        redis_client=mock_redis,
+        graph_maintenance=mock_graph_maintenance,
+        retention_manager=mock_retention_manager,
+        settings=mock_settings,
+        llm_client=llm_client,
+    )
+
+
+@pytest.fixture()
 def consumer_with_archive(
     mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings
 ):
@@ -369,3 +381,94 @@ class TestOrphanCleanup:
         gm.delete_orphan_nodes.return_value = ({"Entity": 0}, [])
 
         await consumer._run_forgetting()
+
+
+# ── TestLLMConsolidationWiring ────────────────────────────────────────
+
+
+class TestLLMConsolidationWiring:
+    """Tests for LLM-powered summary generation in consolidation."""
+
+    @pytest.mark.asyncio()
+    async def test_llm_client_called_for_episode_summary(self, consumer_with_llm, mock_settings):
+        """When llm_client is provided, generate_text is called for each episode."""
+        gm = consumer_with_llm._graph_maintenance
+        llm = consumer_with_llm._llm_client
+
+        llm.generate_text.return_value = "Agent searched files and found results."
+
+        # Simulate session events: 2 events in 1 episode
+        gm.run_session_query.return_value = [
+            {
+                "e": {
+                    "event_id": "evt-1",
+                    "occurred_at": "2025-01-01T12:00:00+00:00",
+                    "event_type": "tool.execute",
+                }
+            },
+            {
+                "e": {
+                    "event_id": "evt-2",
+                    "occurred_at": "2025-01-01T12:01:00+00:00",
+                    "event_type": "agent.invoke",
+                }
+            },
+        ]
+        gm.write_summary_with_edges.return_value = None
+
+        await consumer_with_llm._consolidate_session("sess-1", 2)
+
+        # generate_text called for episode + session summaries
+        assert llm.generate_text.call_count == 2
+        # Summaries should use LLM text
+        calls = gm.write_summary_with_edges.call_args_list
+        for call in calls:
+            assert call.kwargs["content"] == "Agent searched files and found results."
+
+    @pytest.mark.asyncio()
+    async def test_fallback_when_llm_returns_none(self, consumer_with_llm, mock_settings):
+        """When LLM returns None, fall back to template summary."""
+        gm = consumer_with_llm._graph_maintenance
+        llm = consumer_with_llm._llm_client
+
+        llm.generate_text.return_value = None
+
+        gm.run_session_query.return_value = [
+            {
+                "e": {
+                    "event_id": "evt-1",
+                    "occurred_at": "2025-01-01T12:00:00+00:00",
+                    "event_type": "tool.execute",
+                }
+            },
+        ]
+        gm.write_summary_with_edges.return_value = None
+
+        await consumer_with_llm._consolidate_session("sess-1", 1)
+
+        # Should still write summaries, using template content
+        calls = gm.write_summary_with_edges.call_args_list
+        for call in calls:
+            assert "1 events" in call.kwargs["content"]
+
+    @pytest.mark.asyncio()
+    async def test_no_llm_client_uses_template(self, consumer, mock_settings):
+        """When no llm_client, episode summaries use deterministic template."""
+        gm = consumer._graph_maintenance
+
+        gm.run_session_query.return_value = [
+            {
+                "e": {
+                    "event_id": "evt-1",
+                    "occurred_at": "2025-01-01T12:00:00+00:00",
+                    "event_type": "tool.execute",
+                }
+            },
+        ]
+        gm.write_summary_with_edges.return_value = None
+
+        await consumer._consolidate_session("sess-1", 1)
+
+        calls = gm.write_summary_with_edges.call_args_list
+        for call in calls:
+            assert "1 events" in call.kwargs["content"]

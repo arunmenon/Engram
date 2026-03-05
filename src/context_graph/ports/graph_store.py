@@ -29,6 +29,10 @@ class GraphStore(Protocol):
         """MERGE an event node into the graph. Idempotent."""
         ...
 
+    async def merge_event_nodes_batch(self, nodes: list[EventNode]) -> None:
+        """MERGE a batch of event nodes into the graph in a single transaction."""
+        ...
+
     async def merge_entity_node(self, node: EntityNode) -> None:
         """MERGE an entity node into the graph. Idempotent."""
         ...
@@ -117,10 +121,21 @@ class GraphStore(Protocol):
         """Search for similar entities using vector index."""
         ...
 
-    async def consolidate_entity_cluster(
-        self, cluster_ids: list[str], canonical_id: str
-    ) -> None:
+    async def consolidate_entity_cluster(self, cluster_ids: list[str], canonical_id: str) -> None:
         """Ensure all entities in a cluster have SAME_AS edges to the canonical."""
+        ...
+
+    async def adjust_node_importance(
+        self,
+        node_id: str,
+        delta: int,
+        min_value: int = 1,
+        max_value: int = 10,
+    ) -> bool:
+        """Adjust importance_score on an Event node by *delta*, clamped to [min_value, max_value].
+
+        Returns True if the node was found and updated, False otherwise.
+        """
         ...
 
     async def ensure_constraints(self) -> None:

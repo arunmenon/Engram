@@ -26,10 +26,15 @@ def compute_recency_score(
     s_boost: float = 24.0,
     now: datetime | None = None,
     last_accessed_at: datetime | None = None,
+    sublinear: bool = True,
 ) -> float:
     """Ebbinghaus forgetting curve: R = e^(-t / S).
 
-    S = s_base + (access_count * s_boost) — stability grows with repeated access.
+    When sublinear=True (default):
+      S = s_base * (1.0 + (s_boost / s_base) * log1p(access_count))
+    When sublinear=False (backward-compatible linear):
+      S = s_base + (access_count * s_boost)
+
     t = hours since the most recent of occurred_at and last_accessed_at.
 
     Returns a value in [0.0, 1.0].
@@ -40,7 +45,13 @@ def compute_recency_score(
     if last_accessed_at is not None:
         effective_time = max(occurred_at, last_accessed_at)
     t_hours = max(0.0, (now - effective_time).total_seconds() / 3600.0)
-    stability = s_base + (access_count * s_boost)
+    if sublinear:
+        if s_base > 0:
+            stability = s_base * (1.0 + (s_boost / s_base) * math.log1p(access_count))
+        else:
+            stability = 0.0
+    else:
+        stability = s_base + (access_count * s_boost)
     if stability <= 0:
         return 0.0
     return math.exp(-t_hours / stability)

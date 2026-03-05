@@ -319,6 +319,86 @@ class TestLLMExtractionClient:
 
 
 # ---------------------------------------------------------------------------
+# generate_text
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateText:
+    @pytest.fixture()
+    def client(self) -> LLMExtractionClient:
+        return LLMExtractionClient(model_id="test-model", prompt_version="v1")
+
+    async def test_generate_text_returns_none_when_litellm_unavailable(
+        self, client: LLMExtractionClient
+    ) -> None:
+        """When litellm raises an import or connection error, generate_text returns None."""
+        result = await client.generate_text("Summarize this episode")
+        assert result is None
+
+    async def test_generate_text_returns_string_on_success(self) -> None:
+        """When litellm succeeds, generate_text returns the response content."""
+        import sys
+        from types import ModuleType
+        from unittest.mock import AsyncMock, MagicMock
+
+        client = LLMExtractionClient(model_id="test-model")
+
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = "The agent searched for files and found results."
+
+        mock_litellm = ModuleType("litellm")
+        mock_litellm.acompletion = AsyncMock(return_value=mock_response)  # type: ignore[attr-defined]
+        sys.modules["litellm"] = mock_litellm
+        try:
+            result = await client.generate_text("Summarize this episode")
+        finally:
+            del sys.modules["litellm"]
+
+        assert result == "The agent searched for files and found results."
+
+    async def test_generate_text_returns_none_on_empty_content(self) -> None:
+        """When the LLM returns empty content, generate_text returns None."""
+        import sys
+        from types import ModuleType
+        from unittest.mock import AsyncMock, MagicMock
+
+        client = LLMExtractionClient(model_id="test-model")
+
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = None
+
+        mock_litellm = ModuleType("litellm")
+        mock_litellm.acompletion = AsyncMock(return_value=mock_response)  # type: ignore[attr-defined]
+        sys.modules["litellm"] = mock_litellm
+        try:
+            result = await client.generate_text("test prompt")
+        finally:
+            del sys.modules["litellm"]
+
+        assert result is None
+
+    async def test_generate_text_returns_none_on_exception(self) -> None:
+        """When litellm raises an exception, generate_text returns None."""
+        import sys
+        from types import ModuleType
+        from unittest.mock import AsyncMock
+
+        client = LLMExtractionClient(model_id="test-model")
+
+        mock_litellm = ModuleType("litellm")
+        mock_litellm.acompletion = AsyncMock(side_effect=Exception("API error"))  # type: ignore[attr-defined]
+        sys.modules["litellm"] = mock_litellm
+        try:
+            result = await client.generate_text("test prompt")
+        finally:
+            del sys.modules["litellm"]
+
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
 # XML conversation wrapper (Fix 4)
 # ---------------------------------------------------------------------------
 
@@ -430,3 +510,66 @@ class TestConfidenceGating:
         }
         validated = validate_extraction(result, conversation, min_thresholds=min_thresholds)
         assert len(validated.preferences) == 1
+
+
+# ---------------------------------------------------------------------------
+# verify_entailment
+# ---------------------------------------------------------------------------
+
+
+class TestVerifyEntailment:
+    """Tests for LLMExtractionClient.verify_entailment with LLM fallback."""
+
+    @pytest.mark.asyncio()
+    async def test_falls_back_to_heuristic_when_generate_returns_none(self) -> None:
+        """When generate_text returns None, falls back to heuristic."""
+        client = LLMExtractionClient()
+        # Monkey-patch generate_text to return None (simulating LLM failure)
+        client.generate_text = _mock_generate_none  # type: ignore[assignment]
+
+        # Heuristic should pass since words overlap
+        result = await client.verify_entailment(
+            "user prefers dark mode editor",
+            "the user prefers dark mode for their editor settings",
+        )
+        assert result is True
+
+    @pytest.mark.asyncio()
+    async def test_falls_back_to_heuristic_when_generate_returns_none_negative(self) -> None:
+        """When generate_text returns None, heuristic rejects non-overlapping text."""
+        client = LLMExtractionClient()
+        client.generate_text = _mock_generate_none  # type: ignore[assignment]
+
+        result = await client.verify_entailment(
+            "user likes basketball and football",
+            "the weather is sunny today with clear skies",
+        )
+        assert result is False
+
+    @pytest.mark.asyncio()
+    async def test_returns_true_for_yes_response(self) -> None:
+        client = LLMExtractionClient()
+        client.generate_text = _mock_generate_yes  # type: ignore[assignment]
+
+        result = await client.verify_entailment("claim", "evidence")
+        assert result is True
+
+    @pytest.mark.asyncio()
+    async def test_returns_false_for_no_response(self) -> None:
+        client = LLMExtractionClient()
+        client.generate_text = _mock_generate_no  # type: ignore[assignment]
+
+        result = await client.verify_entailment("claim", "evidence")
+        assert result is False
+
+
+async def _mock_generate_none(prompt: str) -> str | None:
+    return None
+
+
+async def _mock_generate_yes(prompt: str) -> str | None:
+    return "yes"
+
+
+async def _mock_generate_no(prompt: str) -> str | None:
+    return "no"
