@@ -650,3 +650,33 @@ Consumer workers described in this ADR now accept port protocol types for graph 
 - Section 4 (Consumer 2) graph writes now go through `UserStore.write_preference_with_edges`, `write_skill_with_edges`, `write_interest_edge`, and `write_user_profile` instead of direct Cypher. Consumer 2 still uses raw `AsyncDriver` for entity node MERGE and REFERENCES edge creation (partial migration).
 - Section 6 (Consumer 4) maintenance operations now go through `GraphMaintenance.get_session_event_counts`, `write_summary_with_edges`, `delete_edges_by_type_and_age`, `delete_cold_events`, `delete_archive_events`, `delete_orphan_nodes`, and `update_importance_from_centrality`.
 - The API routes (`/v1/users/`) use `UserStore` via DI (`dependencies.py: get_user_store() -> UserStore`), never importing from `adapters/neo4j/`.
+
+### Amendment: Extraction Pipeline Implementation Status (2026-03-04)
+
+**generate_text() Implementation:**
+The `LLMExtractionClient.generate_text()` method is now fully implemented using `litellm.acompletion()`. Configuration: model_id, temperature, max_tokens, timeout, and `num_retries` are all sourced from `CG_LLM_*` settings. Returns the generated text string or `None` on failure. This unblocks HyDE query expansion in the retrieval pipeline and LLM-powered consolidation summaries.
+
+**verify_entailment() — MVP Implementation:**
+The ADR originally specified DeBERTa-v3-large for NLI-based entailment checking. The MVP implementation uses a two-tier approach:
+
+1. **Primary:** LLM-based entailment check via `LLMExtractionClient.verify_entailment()` — sends a structured prompt asking the LLM to assess whether the evidence supports the claim
+2. **Fallback:** Keyword overlap heuristic with negation detection (`domain/extraction.py:113-142`):
+   - Extracts significant words (length > 2) from both claim and evidence
+   - Checks for negation marker disagreement using a curated set: `no`, `not`, `never`, `none`, `nor`, `neither`, `without`, `don't`, `doesn't`, `didn't`, `won't`, `can't`, `isn't`, `aren't`, `wasn't`, `weren't`
+   - If one text contains negation markers and the other doesn't → reject (not entailed)
+   - Otherwise, requires >= 50% keyword overlap for acceptance
+   - Claims with fewer than 2 significant words pass automatically (too short to verify)
+
+DeBERTa-v3-large integration remains a post-MVP enhancement for higher-accuracy offline batch verification.
+
+**Contradiction Detection in Consumer 2:**
+After extracting preferences from a session, Consumer 2 now runs cross-preference contradiction detection:
+1. Fetches the user's existing preferences from the graph
+2. Calls `detect_preference_contradictions()` — groups by `(category, key)`, detects opposite polarity
+3. Applies `resolve_contradiction()` — most-recent-wins using `last_confirmed_at`
+4. Marks older preference with `superseded_by` via `set_preference_superseded()`
+
+This provides real-time conflict resolution at extraction time, supplementing Consumer 4's periodic cross-session consolidation.
+
+**Auto-supersession Timing:**
+The ADR originally described supersession as part of Consumer 4 (Consolidation). The implementation places primary supersession in Consumer 2 (Extraction), where it can act immediately when contradictions are detected. Consumer 4 remains responsible for periodic cross-session preference merging and cleanup of any contradictions missed by Consumer 2.

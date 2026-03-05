@@ -509,3 +509,67 @@ Async safety for shared state:
 - Input validation adds ~1-2ms overhead per client call (negligible vs network latency)
 - `max_pages=100` default may need tuning for bulk export use cases (configurable)
 - Locking in `SessionManager` serializes concurrent records within a single session (by design — event chain ordering requires it)
+
+### Amendment: Typed Returns, Simple API, and Framework Adapter Packages (2026-03-04)
+
+**Full Typed Client Methods (16/16):**
+All `EngramClient` methods now return typed Pydantic v2 models instead of raw dicts. Complete method table:
+
+| Method | Return Type |
+|--------|------------|
+| `record()` | `IngestResult` |
+| `record_batch()` | `IngestResult` |
+| `get_session_context()` | `AtlasResponse` |
+| `query_subgraph()` | `AtlasResponse` |
+| `get_entity()` | `AtlasResponse` |
+| `get_lineage()` | `AtlasResponse` |
+| `get_user_preferences()` | `list[PreferenceNode]` |
+| `get_user_skills()` | `list[SkillNode]` |
+| `get_user_patterns()` | `list[BehavioralPatternNode]` |
+| `get_user_interests()` | `list[InterestNode]` |
+| `export_user_data()` | `GDPRExportResponse` |
+| `delete_user()` | `GDPRDeleteResponse` |
+| `stats()` | `StatsResponse` |
+| `reconsolidate()` | `ReconsolidateResponse` |
+| `prune()` | `PruneResponse` |
+| `health_detailed()` | `DetailedHealthResponse` |
+
+All response models use `model_config = {"extra": "allow"}` for forward compatibility with future server-side field additions.
+
+**AtlasResponse Convenience Methods:**
+- `.node_ids -> list[str]` — extracts all node IDs from the response
+- `.texts() -> list[str]` — extracts primary text from each node using a priority key list: `content`, `payload_ref`, `summary`, `text`, `belief_text`, `description`, `name`
+- `.as_context_string(separator="\n---\n") -> str` — formats nodes as an LLM-injectable context block: `[NodeType] text (score: X.XX)`
+
+**Simple API — add() and search():**
+Two ultra-simple methods for the "3 lines to first value" experience:
+- `add(text, user_id=None, agent_id="default", importance=None) -> IngestResult` — wraps `record()` with `event_type="observation.output"`
+- `search(query, user_id=None, top_k=10) -> list[Memory]` — wraps `query_subgraph()`, extracts text from nodes, returns flat list sorted by score
+
+The `Memory` model: `text: str`, `confidence: float`, `source_session: str | None`, `created_at: str | None`, `memory_id: str`, `node_type: str`, `score: float`
+
+**Session Lifecycle Management:**
+- `aclose()` — gracefully ends the active session and closes the HTTP client. Safe to call multiple times (idempotent).
+- `configure()` now emits `ResourceWarning` if called while a session is already active, alerting developers to potential session leaks.
+
+**LangChain Adapter — Separate Package:**
+The LangChain integration is a separate package (`sdk/engram-langchain/`, PyPI: `engram-langchain`) rather than an optional extra. Three adapter classes:
+
+| Class | Base Class | Purpose |
+|-------|-----------|---------|
+| `EngramCallbackHandler` | `BaseCallbackHandler` | Auto-records chain/tool/LLM actions as Engram events |
+| `EngramRetriever` | `BaseRetriever` | Queries Engram subgraph, returns LangChain `Document` objects |
+| `EngramChatMessageHistory` | `BaseChatMessageHistory` | Persists conversation history through Engram events |
+
+Note: The originally-specified `EngramMemory` class has been replaced by `EngramChatMessageHistory`, which implements LangChain's standard `BaseChatMessageHistory` interface.
+
+**CrewAI Adapter — Separate Package:**
+The CrewAI integration is a separate package (`sdk/engram-crewai/`, PyPI: `engram-crewai`) rather than an optional extra. One adapter class:
+
+| Class | Purpose |
+|-------|---------|
+| `EngramStorageBackend` | Custom memory storage for CrewAI with sync and async dual-mode support |
+
+Maps CrewAI scopes to Engram session IDs. Implements `save()`, `search()`, `delete()`, `list_scopes()`.
+
+Note: The originally-specified `EngramCrewMemory` class has been replaced by `EngramStorageBackend`.

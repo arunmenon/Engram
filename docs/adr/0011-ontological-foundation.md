@@ -601,3 +601,82 @@ RETURN related AS ent, evt, properties(r) AS ref_props
 
 - **Positive**: Entity-centric queries now return complete results across transitively linked entities. The star topology (all members point to canonical) keeps traversal depth bounded.
 - **Negative**: Additional write overhead at extraction time (one MERGE per non-canonical member per cluster). Mitigated by MERGE idempotency -- re-running produces no duplicates.
+
+## Amendment 2: Epistemic, Goal, and Episode Type Grounding (2026-03-04)
+
+### Context
+
+ADR-0009 Amendment "Belief, Goal, and Episode Types (2026-03-04)" introduces three new node types (Belief, Goal, Episode) and four new edge types (CONTRADICTS, SUPERSEDES, PURSUES, CONTAINS). This amendment provides the ontological grounding for these types within the ADR-0011 framework.
+
+### Node Type Grounding
+
+| Context-Graph Node | PROV-O Mapping | Rationale |
+|-------------------|----------------|-----------|
+| `:Belief` | `prov:Entity` | Beliefs are derived entities representing inferred system knowledge about users or the world |
+| `:Goal` | `prov:Entity` | Goals are entities tracked over time with lifecycle status transitions |
+| `:Episode` | `prov:Collection` | Episodes are named collections of causally or temporally related activities |
+
+### Edge Type Grounding
+
+| Operational Edge | PROV-O Grounding | Custom Extension |
+|-----------------|------------------|------------------|
+| CONTRADICTS | No direct equivalent | `cg:contradicts` -- epistemic conflict between beliefs |
+| SUPERSEDES | `prov:wasRevisionOf` (loose) | `cg:supersedes` -- belief evolution via contradiction resolution |
+| PURSUES | No direct equivalent | `cg:pursues` -- intentional relationship between agent and goal |
+| CONTAINS | `prov:hadMember` (loose) | `cg:contains` -- episode membership for event grouping |
+
+### PG-Schema Definitions
+
+Node types:
+
+```
+CREATE NODE TYPE Belief (
+  belief_id STRING NOT NULL, belief_text STRING NOT NULL,
+  confidence FLOAT NOT NULL, category STRING NOT NULL,
+  created_at TIMESTAMP, last_confirmed_at TIMESTAMP,
+  confirmation_count INTEGER DEFAULT 1, superseded_by STRING
+)
+CREATE NODE TYPE Goal (
+  goal_id STRING NOT NULL, description STRING NOT NULL,
+  status STRING NOT NULL, created_at TIMESTAMP,
+  last_active_at TIMESTAMP, priority INTEGER, evidence_count INTEGER DEFAULT 1
+)
+CREATE NODE TYPE Episode (
+  episode_id STRING NOT NULL, session_id STRING NOT NULL,
+  start_time TIMESTAMP, end_time TIMESTAMP,
+  event_count INTEGER DEFAULT 0, episode_type STRING NOT NULL, summary_id STRING
+)
+```
+
+Edge types:
+
+```
+CREATE EDGE TYPE CONTRADICTS () FROM Belief TO Belief
+CREATE EDGE TYPE SUPERSEDES () FROM Belief TO Belief
+CREATE EDGE TYPE PURSUES () FROM Entity TO Goal
+CREATE EDGE TYPE CONTAINS () FROM Episode TO Event
+```
+
+### New Enum Grounding
+
+| Enum | Values | Grounding |
+|------|--------|-----------|
+| BeliefCategory | user_model, world_model, capability | Custom taxonomy for epistemic categorization |
+| GoalStatus | active, completed, abandoned, superseded | Aligned with schema.org ActionStatusType |
+| EpisodeType | temporal, causal, thematic | Cognitive science episode categorization |
+
+### Multi-Graph View Formalism Update
+
+Three new semantic views are added to the MVKG definition (Section 4):
+
+- `V_epistemic = (N_belief, E_contradicts ∪ E_supersedes)` -- belief tracking and contradiction resolution
+- `V_motivational = (N_goal, E_pursues)` -- goal tracking and progress monitoring
+- `V_episodic = (N_episode, E_contains)` -- temporal event grouping
+
+### New Ontology Modules
+
+Three new modules are added to the ontology module structure:
+
+- `cg-epistemic` -- Belief nodes, CONTRADICTS/SUPERSEDES edges, BeliefCategory enum
+- `cg-goals` -- Goal nodes, PURSUES edge, GoalStatus lifecycle
+- `cg-episodes` -- Episode nodes, CONTAINS edge, EpisodeType classification
