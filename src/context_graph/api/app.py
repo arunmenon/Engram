@@ -28,6 +28,7 @@ from context_graph.api.routes.feedback import router as feedback_router
 from context_graph.api.routes.health import router as health_router
 from context_graph.api.routes.lineage import router as lineage_router
 from context_graph.api.routes.query import router as query_router
+from context_graph.api.routes.simulate import router as simulate_router
 from context_graph.api.routes.users import router as users_router
 from context_graph.settings import Settings
 
@@ -143,6 +144,9 @@ def create_app() -> FastAPI:
     admin_key_deps = [Depends(require_admin_key)]
     app.include_router(admin_router, prefix="/v1", dependencies=admin_key_deps)
     app.include_router(users_router, prefix="/v1", dependencies=admin_key_deps)
+
+    # Simulation endpoint: standard API key auth
+    app.include_router(simulate_router, prefix="/v1", dependencies=api_key_deps)
 
     # Health endpoint: no auth (used by load balancers / orchestrators)
     app.include_router(health_router, prefix="/v1")
