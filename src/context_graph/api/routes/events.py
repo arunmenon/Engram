@@ -21,10 +21,11 @@ from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
-from context_graph.adapters.redis.store import RedisEventStore  # noqa: TCH001 — runtime: Depends()
 from context_graph.api.dependencies import get_event_store
 from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model_validate
 from context_graph.domain.validation import ValidationError, validate_event
+from context_graph.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
+from context_graph.ports.event_store import EventStore  # noqa: TCH001 — runtime: Depends()
 
 logger = structlog.get_logger(__name__)
 
@@ -64,7 +65,7 @@ class BatchResponse(BaseModel):
 # Helpers
 # ---------------------------------------------------------------------------
 
-EventStoreDep = Annotated[RedisEventStore, Depends(get_event_store)]
+EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
 
 
 def _parse_event(data: dict[str, Any]) -> Event:
@@ -94,6 +95,10 @@ async def ingest_event(
     """
     body = await request.json()
 
+    # Extract payload before Pydantic parsing (Event model ignores extra fields)
+    raw_payload = body.get("payload")
+    event_payload: dict[str, Any] | None = raw_payload if isinstance(raw_payload, dict) else None
+
     try:
         event = _parse_event(body)
     except PydanticValidationError as exc:
@@ -106,7 +111,8 @@ async def ingest_event(
             message=validation_result.errors[0].message,
         )
 
-    global_position = await event_store.append(event)
+    global_position = await event_store.append(event, payload=event_payload)
+    EVENTS_INGESTED_TOTAL.inc()
 
     logger.info(
         "event_ingested",
@@ -157,8 +163,15 @@ async def ingest_event_batch(
     results: list[dict[str, str]] = []
     errors: list[dict[str, Any]] = []
     valid_events: list[Event] = []
+    valid_payloads: list[dict[str, Any] | None] = []
 
     for idx, raw_event in enumerate(raw_events):
+        # Extract payload before Pydantic parsing
+        raw_payload = raw_event.get("payload") if isinstance(raw_event, dict) else None
+        event_payload: dict[str, Any] | None = (
+            raw_payload if isinstance(raw_payload, dict) else None
+        )
+
         # Parse
         try:
             event = _parse_event(raw_event)
@@ -183,6 +196,7 @@ async def ingest_event_batch(
         validation_result = validate_event(event)
         if validation_result.is_valid:
             valid_events.append(event)
+            valid_payloads.append(event_payload)
         else:
             errors.append(
                 {
@@ -196,7 +210,7 @@ async def ingest_event_batch(
             )
 
     if valid_events:
-        positions = await event_store.append_batch(valid_events)
+        positions = await event_store.append_batch(valid_events, payloads=valid_payloads)
         for event, position in zip(valid_events, positions, strict=True):
             results.append(
                 {
@@ -204,6 +218,8 @@ async def ingest_event_batch(
                     "global_position": position,
                 }
             )
+        EVENTS_INGESTED_TOTAL.inc(len(results))
+        EVENTS_BATCH_SIZE.observe(len(raw_events))
 
     logger.info(
         "batch_ingested",

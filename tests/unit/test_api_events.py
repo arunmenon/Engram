@@ -90,6 +90,27 @@ class TestIngestEvent:
         response = test_client.post("/v1/events", json=payload)
         assert response.status_code == 422
 
+    def test_ingest_with_payload_dict(self, test_client: TestClient) -> None:
+        """POST with a payload dict succeeds — payload is stored alongside event."""
+        data = _make_event_payload(
+            payload={"content": "I need help with my PayPal account"},
+        )
+        response = test_client.post("/v1/events", json=data)
+        assert response.status_code == 201
+
+    def test_ingest_without_payload(self, test_client: TestClient) -> None:
+        """POST without payload field succeeds normally."""
+        data = _make_event_payload()
+        assert "payload" not in data
+        response = test_client.post("/v1/events", json=data)
+        assert response.status_code == 201
+
+    def test_ingest_with_non_dict_payload_ignored(self, test_client: TestClient) -> None:
+        """POST with non-dict payload value silently ignores it (201)."""
+        data = _make_event_payload(payload="just a string")
+        response = test_client.post("/v1/events", json=data)
+        assert response.status_code == 201
+
     def test_response_has_timing_header(self, test_client: TestClient) -> None:
         payload = _make_event_payload()
         response = test_client.post("/v1/events", json=payload)
@@ -133,6 +154,15 @@ class TestIngestBatch:
     def test_batch_empty_rejected(self, test_client: TestClient) -> None:
         response = test_client.post("/v1/events/batch", json={"events": []})
         assert response.status_code == 422  # Pydantic min_length=1
+
+    def test_batch_with_payloads(self, test_client: TestClient) -> None:
+        """Batch with payload fields in each event succeeds."""
+        events = [_make_event_payload(payload={"content": f"message {i}"}) for i in range(2)]
+        response = test_client.post("/v1/events/batch", json={"events": events})
+        assert response.status_code == 201
+        body = response.json()
+        assert body["accepted"] == 2
+        assert body["rejected"] == 0
 
     def test_batch_results_contain_positions(self, test_client: TestClient) -> None:
         events = [_make_event_payload() for _ in range(2)]

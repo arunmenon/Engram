@@ -48,7 +48,7 @@ The event store uses three Redis data structures in concert:
 
 1. **Redis Streams** — append-only event log providing total ordering and consumer group delivery
 2. **RedisJSON documents** — structured event records enabling rich secondary queries
-3. **RediSearch indexes** — secondary indexes on session_id, agent_id, trace_id, event_type, and time ranges
+3. **RediSearch indexes** — secondary indexes on session_id, agent_id, trace_id, event_type, tool_name (TagField), importance_hint (NumericField), and time ranges
 
 Events are written atomically to all three structures via a Lua script that also performs deduplication.
 
@@ -56,18 +56,20 @@ Events are written atomically to all three structures via a Lua script that also
 
 **Global stream** (`events:__global__`): Receives every event. Provides total ordering (equivalent to `global_position`). Consumer groups for the projection worker read from this stream.
 
-**Per-session streams** (`events:{session_id}`): One stream per session for efficient session-scoped reads without scanning the global stream.
+**Per-session streams** (`events:session:{session_id}`): One stream per session for efficient session-scoped reads without scanning the global stream.
 
 **JSON documents** (`evt:{event_id}`): One document per event, indexed by RediSearch for field-based queries.
 
-**Dedup set** (`dedup:events`): Sorted set of event_id values with TTL-based cleanup, enabling idempotent ingestion.
+**Dedup set** (`dedup:events`): Sorted set of event_id values (scored by ingestion timestamp) with `ZREMRANGEBYSCORE`-based cleanup of entries older than the retention window, enabling idempotent ingestion.
 
 ### Idempotent Ingestion
 
 Ingestion MUST be idempotent. A Lua script atomically:
-1. Checks the dedup sorted set for the `event_id`
-2. If absent, writes to the global stream, session stream, and JSON document in a single atomic operation
-3. Returns the auto-assigned stream entry ID (the new `global_position`)
+1. Checks the dedup sorted set via `ZSCORE` for the `event_id`
+2. If absent, `XADD` to the global stream (`events:__global__`) with optional `MAXLEN` cap
+3. `XADD` to the per-session stream (`events:session:{session_id}`)
+4. `JSON.SET` the full event document (`evt:{event_id}`), then path-set `$.global_position` with the stream entry ID; `ZADD` the event_id to the dedup sorted set scored by ingestion timestamp
+5. Returns the auto-assigned stream entry ID (the new `global_position`)
 
 Duplicates are rejected without side effects, providing semantics equivalent to Postgres `ON CONFLICT (event_id) DO NOTHING`.
 
@@ -86,7 +88,7 @@ The `provenance.global_position` field in API responses (ADR-0006 Atlas pattern)
 
 The projection worker (ADR-0005) MUST use Redis consumer groups instead of Postgres polling:
 
-- `XREADGROUP GROUP projection worker-1 BLOCK 5000 STREAMS events:__global__ >` for push-based delivery
+- `XREADGROUP GROUP graph-projection projection-1 BLOCK 5000 STREAMS events:__global__ >` for push-based delivery
 - `XACK` after successful Neo4j projection
 - Pending Entry List provides automatic crash recovery
 - No application-level cursor table required (consumer group tracks position)
@@ -99,7 +101,7 @@ The RediSearch index on JSON documents supports all query patterns currently ser
 
 | Query | Implementation |
 |-------|---------------|
-| Events by session | `FT.SEARCH idx:events "@session_id:{sess-abc}"` or `XRANGE events:sess-abc - +` |
+| Events by session | `FT.SEARCH idx:events "@session_id:{sess-abc}"` or `XRANGE events:session:sess-abc - +` |
 | Events by agent | `FT.SEARCH idx:events "@agent_id:{agent-1}"` |
 | Events by trace | `FT.SEARCH idx:events "@trace_id:{trace-xyz}"` |
 | Time range | `FT.SEARCH idx:events "@occurred_at_epoch_ms:[start end]"` or `XRANGE events:__global__ start end` |
@@ -271,3 +273,90 @@ Use Redis Streams as the sole data structure, without RedisJSON documents or Red
 - [Redis Streams Documentation](https://redis.io/docs/latest/develop/data-types/streams/)
 - [Redis 8.6 Idempotent Streams](https://redis.io/blog/announcing-redis-86-performance-improvements-streams/)
 - [Building an Event Store with Redis Streams](https://oneuptime.com/blog/post/2026-01-21-redis-event-store-streams/view)
+
+## Amendments
+
+### 2026-02-23: Stream Capping & Lifecycle Hardening (ADR-0014)
+
+**Stream capping**: XADD in the Lua ingestion script now accepts an optional
+MAXLEN parameter (approximate, configurable via `CG_REDIS_GLOBAL_STREAM_MAXLEN`,
+default 0 = uncapped). This bounds stream memory growth independently of XTRIM.
+
+**Session stream cleanup**: Per-session streams (`events:session:{session_id}`)
+are now cleaned up by the consolidation worker when the newest entry is older
+than `session_stream_retention_hours` (default 168h).
+
+**Lua script fix**: The `string.gsub` JSON patching for `global_position` has
+been replaced with a two-step `JSON.SET`: first the full document, then a path
+set on `$.global_position`. This eliminates the risk of matching `global_position`
+inside nested payload data.
+
+**Batch optimization**: `append_batch()` now uses `asyncio.gather()` with a
+semaphore of 50 for concurrent event ingestion, reducing batch latency from
+O(n * RTT) to O(RTT).
+
+### 2026-02-28: Credential Handling
+
+**What changed:** `RedisSettings.password` changed from `str | None` to `SecretStr | None` to prevent accidental credential logging. Callers must use `.get_secret_value()` when the password is set.
+
+**Impact:** Code creating Redis connections must check `if settings.password` and then call `.get_secret_value()`. Env var format unchanged (`CG_REDIS_PASSWORD=<value>`).
+
+### 2026-02-28: XAUTOCLAIM and Dead-Letter Queue (H4, H5)
+
+**XAUTOCLAIM for orphaned PEL messages:** Consumer workers now use
+`XAUTOCLAIM` (Redis 6.2+) on startup to claim messages that have been idle
+in the PEL longer than a configurable threshold (default: 5 minutes). This
+recovers messages from crashed consumer instances without manual
+intervention. The `XAUTOCLAIM` command atomically combines `XPENDING` +
+`XCLAIM` and also returns delivery counts.
+
+**Dead-letter queue streams:** Messages that fail processing after
+`max_retries` delivery attempts (default: 5) are written to a DLQ stream
+(`<source_stream>:dlq`) and ACKed from the source stream. DLQ entries
+include the original stream, entry ID, consumer group, consumer name, and
+delivery count for debugging. For example, the global stream DLQ is
+`events:__global__:dlq`.
+
+**DLQ streams are NOT indexed or consumed** automatically. They serve as a
+debugging and manual recovery mechanism. Operators can inspect DLQ entries
+via `XRANGE <stream>:dlq - +` and replay individual messages if needed.
+
+### 2026-02-28: Pipeline Batching & Protocol Extensions (Tier 1)
+
+_Date: 2026-02-28_
+
+The previous amendment (2026-02-23) documented `append_batch()` as using
+`asyncio.gather()` with a semaphore of 50 concurrent EVALSHA calls. This
+has been superseded by a Redis pipeline implementation.
+
+**Changes:**
+
+- **Pipeline-based batch ingestion:** `append_batch()` now uses
+  `redis.pipeline(transaction=False)` to queue all EVALSHA calls into a
+  single pipeline and execute them in one network round-trip. This reduces
+  batch latency from O(n * RTT) to O(RTT) without the concurrency
+  complexity of gather + semaphore. Each event remains individually atomic
+  via the Lua ingestion script.
+- **Payload parameter on append methods:** Both `append(event, payload=)`
+  and `append_batch(events, payloads=)` now accept optional payload dicts.
+  Payloads are stored alongside event fields in the Redis JSON document
+  (under `$.payload`) so the extraction worker (Consumer 2, ADR-0013) can
+  access conversation content without a separate lookup. The `EventStore`
+  protocol in `ports/event_store.py` has been updated to include these
+  parameters.
+- **EventStoreAdmin protocol:** A new `EventStoreAdmin` protocol is
+  defined in `ports/event_store.py` with `health_ping() -> bool` and
+  `stream_length() -> int` methods, used by the health check and admin
+  endpoints. This is separate from the core `EventStore` protocol.
+- **Dedup set cleanup:** `cleanup_dedup_set(retention_ms=)` removes
+  entries from the dedup sorted set older than the retention window via
+  `ZREMRANGEBYSCORE`, preventing unbounded memory growth of the dedup set.
+
+**Impact on this ADR:**
+
+- The "Batch optimization" bullet in the 2026-02-23 amendment is
+  superseded: pipeline replaces gather+semaphore.
+- The Idempotent Ingestion section's description of the Lua script remains
+  accurate; pipeline simply batches multiple EVALSHA invocations.
+- The Data Model section's JSON document schema effectively gains an
+  optional `payload` field at `$.payload`.

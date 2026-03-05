@@ -50,7 +50,7 @@ All projected nodes share a base property set, with type-specific extensions:
 **Event Node** (`:Event`)
 ```
 Properties:
-  event_id         : STRING (PK, from Postgres)
+  event_id         : STRING (PK, from Redis)
   event_type       : STRING (dot-namespaced: agent.invoke, tool.execute, etc.)
   occurred_at      : DATETIME
   session_id       : STRING
@@ -77,6 +77,7 @@ Properties:
   first_seen  : DATETIME
   last_seen   : DATETIME
   mention_count : INTEGER
+  embedding   : LIST<FLOAT>  // Entity embedding for semantic search (384-dim)
 ```
 
 **Summary Node** (`:Summary`) -- created during re-consolidation
@@ -148,7 +149,7 @@ Properties:
 - Created in Stage 3 (re-consolidation)
 - Links summary nodes to the events or lower-level summaries they compress
 - Enables hierarchical retrieval: query a summary, drill down to source events
-- Preserves provenance: summary -> event -> Postgres source
+- Preserves provenance: summary -> event -> Redis source
 
 ### Intent-Aware Retrieval
 
@@ -209,7 +210,7 @@ During Stage 2 enrichment (ADR-0008), event nodes MUST be annotated with derived
 
 | A-MEM Field | Neo4j Property | Derivation |
 |-------------|---------------|------------|
-| Content | (event payload via `payload_ref`) | Not stored in Neo4j; dereference to Postgres |
+| Content | (event payload via `payload_ref`) | Not stored in Neo4j; dereference to Redis |
 | Timestamp | `occurred_at` | Direct from event |
 | Keywords | `keywords` | NLP extraction from payload content |
 | Tags | `event_type` (dot-namespaced) | Direct from event |
@@ -250,10 +251,10 @@ The `scores` field is new -- it enables clients to understand why particular nod
 Because Neo4j is a derived projection (ADR-0003), schema changes do NOT require data migration:
 
 1. Update projection logic to produce new edge types / node properties
-2. Trigger full re-projection from Postgres events
+2. Trigger full re-projection from Redis events
 3. Neo4j rebuilds with the new schema
 
-This is a unique advantage over systems where the graph is the primary store. The immutable Postgres ledger means we can re-project with different schemas, enrichment strategies, or edge-creation thresholds without losing data.
+This is a unique advantage over systems where the graph is the primary store. The immutable Redis ledger means we can re-project with different schemas, enrichment strategies, or edge-creation thresholds without losing data.
 
 ## Consequences
 
@@ -264,7 +265,7 @@ This is a unique advantage over systems where the graph is the primary store. Th
 - **Token efficiency**: Intent-aware traversal surfaces relevant nodes first, reducing context size passed to agents (MAGMA reports 95% token reduction)
 - **Cross-session entity tracking**: Entity nodes solve the object permanence problem -- the same tool across sessions is one node
 - **Hierarchical navigation**: Summary nodes enable agents to browse at the right granularity, drilling down when needed
-- **Provenance preserved**: Every graph element traces back to immutable Postgres events via `event_id`
+- **Provenance preserved**: Every graph element traces back to immutable Redis events via `event_id`
 - **Schema evolution via re-projection**: No migration required; change projection logic and rebuild
 
 ### Negative
@@ -292,7 +293,7 @@ Rejected. A single `RELATES_TO` edge with type metadata requires filtering at qu
 Rejected. MAGMA's four views are orthogonal but share the same node set. Separate databases would require cross-database joins. A single Neo4j database with typed edges achieves the same logical separation with better query performance.
 
 ### 3. External vector database for semantic edges
-Deferred. Storing embeddings as Neo4j node properties is sufficient at our expected scale. If embedding search latency exceeds acceptable thresholds (benchmark at 100K events), we can add a dedicated vector index (Neo4j's built-in vector index or an external Pinecone/Qdrant) without changing the graph schema.
+Deferred. Storing embeddings as Neo4j node properties is sufficient at our expected scale. If embedding search latency exceeds acceptable thresholds (benchmark at 100K events), we can add a dedicated vector index (Neo4j's built-in vector index or an external Pinecone/Qdrant) without changing the graph schema. (Note: Neo4j vector index `entity_embedding_idx` is now implemented for Entity embeddings -- see 2026-02-25 amendment.)
 
 ### 4. Full knowledge graph extraction (NER + relation extraction)
 Deferred for MVP. Full KG extraction from event payloads is high-value but high-complexity. Start with entity nodes (agents, tools, sessions) derived from event metadata fields. Expand to payload-content-based entities in a future phase.
@@ -320,7 +321,7 @@ The graph structure itself determines what's relevant — nodes with many connec
 | Query routing | Caller declares intent → static weight matrix | Extract entities from query → seed PPR on matched Entity/Event nodes |
 | Edge weighting | Per-intent static weights (hand-tuned) | Edge types could still have base weights (teleport probability modifiers), but topology dominates |
 | Multi-hop | Limited by max_depth (default 3) and heuristic weights | Natural — PPR propagates through arbitrary path lengths with diminishing relevance |
-| Scalability | O(edges traversed) per query | O(edges * iterations) but converges fast; Neo4j has native graph algorithms library (GDS) with PPR implementation |
+| Scalability | O(edges traversed) per query | O(edges * iterations) but converges fast; Neo4j has native graph algorithms library (GDS) with PPR implementation (Note: GDS library is not available on Neo4j Community Edition. Centrality is computed via plain Cypher.) |
 | Explainability | "This node was returned because CAUSED_BY edges had weight 5.0 for your 'why' intent" | "This node accumulated relevance 0.73 through 3 paths from your seed nodes" — less interpretable |
 | Intent sensitivity | Very sensitive — different intents produce very different results | Less sensitive to declared intent; more sensitive to query content and graph structure |
 
@@ -512,3 +513,187 @@ This preserves the traceability-first principle: the caller always knows *how* t
 | Multi-intent traversal increases query latency | Parallel traversals (not sequential); enforce per-intent timeout budget that sums to total `timeout_ms` |
 | Proactive context is noise rather than signal | Mark proactive nodes clearly; start conservative (only surface recurring patterns with high confidence); collect feedback metrics |
 | Entity extraction from query text is unreliable | Use embedding similarity as fallback when keyword matching fails; degrade gracefully to `general` intent with user's entity node as sole seed |
+
+### 2026-02-25: Neo4j-Only Embedding Storage
+
+All embeddings are stored exclusively as Neo4j node properties:
+
+- **Entity embeddings** (384-dim): Stored on Entity.embedding, populated
+  by Consumer 2 (extraction). Used for both KNN entity resolution
+  (via Neo4j vector index) and query-time relevance scoring.
+
+- **Event embeddings** (384-dim): Stored on Event.embedding, populated
+  by Consumer 3 (enrichment). Used for query-time relevance scoring.
+
+Neo4j vector index `entity_embedding_idx` provides O(log n) approximate
+nearest neighbor search for entity resolution, replacing the previously
+planned Redis HNSW index.
+
+This aligns with the original non-goal statement: "Vector database as
+a separate component (embeddings stored as Neo4j node properties)."
+
+### 2026-02-28: Batched Neighbor Traversal and Per-Seed Neighbor Limit
+
+**What changed:** The subgraph neighbor traversal now uses a single batched Cypher query (`UNWIND`) instead of per-seed sequential queries (N+1 fix). A `neighbor_limit` setting (default 50) bounds the total neighbors returned by the batch query, preventing hub node explosion.
+
+**Rationale:** With 10 seed nodes and unbounded neighbor queries, the subgraph endpoint could produce 10 sequential roundtrips each returning hundreds of rows. The batch query reduces this to a single roundtrip with a bounded result set. The 50-neighbor default is sufficient for intent-weighted traversal -- the top-scoring nodes are kept after decay scoring anyway.
+
+**Setting:** `CG_QUERY_DEFAULT_NEIGHBOR_LIMIT` (default 50). Applied as `LIMIT` in the `GET_EVENT_NEIGHBORS_BATCH` Cypher query.
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Graph operations described in this ADR are now accessed exclusively through port protocols, enforcing hexagonal architecture boundaries between API routes and the Neo4j adapter.
+
+**Protocol boundaries for graph operations:**
+
+| Operation Category | Protocol | Key Methods |
+|--------------------|----------|-------------|
+| Subgraph query, lineage, context retrieval | `GraphStore` (`ports/graph_store.py`) | `get_subgraph`, `get_lineage`, `get_context`, `get_entity` |
+| Node/edge projection (MERGE) | `GraphStore` | `merge_event_node`, `merge_entity_node`, `create_edge` |
+| Maintenance (pruning, summarization, centrality) | `GraphMaintenance` (`ports/maintenance.py`) | `delete_edges_by_type_and_age`, `delete_cold_events`, `write_summary_with_edges`, `update_importance_from_centrality` |
+| User subgraph (profiles, preferences, skills) | `UserStore` (`ports/user_store.py`) | `get_user_profile`, `get_user_preferences`, `get_user_skills`, `write_preference_with_edges` |
+| Health checks | `HealthCheckable` (`ports/health.py`) | `health_ping` |
+
+**Route hexagonal purity:** All 7 API route files import only from `ports/`, never from `adapters/`. The `dependencies.py` module returns protocol types via DI functions (e.g., `get_graph_store() -> GraphStore`). The concrete `Neo4jGraphStore` adapter satisfies `GraphStore`, `GraphMaintenance`, `UserStore`, and `HealthCheckable` protocols through ~25 delegation methods.
+
+**Impact on this ADR:**
+
+- The intent-weighted traversal and node enrichment schema defined here remain unchanged. The protocol boundary sits at the API-to-adapter layer, not the graph schema or Cypher query layer.
+- The four edge types, eight node types, and intent weight matrix are schema concerns that live below the protocol boundary inside the Neo4j adapter.
+- Query responses still use the Atlas pattern with provenance pointers; the protocol methods return `AtlasResponse` domain models, not raw Neo4j records.
+
+### Amendment: LLM-Based Intent Classification with Keyword Fallback
+
+_Date: 2026-03-02_
+
+**What changed:** Intent classification now supports an optional LLM-based classifier (`LLMIntentClassifier`) in addition to the existing keyword-based heuristic. The `IntentClassifier` protocol (`ports/intent.py`) defines the interface. The LLM classifier uses few-shot prompting with examples for all 8 intent types and automatically falls back to keyword-based `classify_intent()` on any error (timeout, parse failure, API error).
+
+**Configuration:** Controlled by `IntentSettings` in `settings.py`:
+- `CG_INTENT_USE_LLM` (default: `false`) -- enable LLM-based classification
+- `CG_INTENT_FALLBACK_ON_ERROR` (default: `true`) -- fall back to keywords on LLM failure
+- `CG_INTENT_TIMEOUT_SECONDS` (default: `5`) -- LLM call timeout
+
+**Architecture:** The `Neo4jGraphStore` constructor accepts an optional `intent_classifier: IntentClassifier` parameter. When provided, `get_subgraph()` uses it instead of the direct `classify_intent()` function call. The `KeywordIntentClassifier` wraps the existing function for protocol conformance.
+
+**Rationale:** The keyword heuristic is fast and interpretable but cannot handle nuanced or ambiguous queries (e.g., "Why do my customers' payments keep failing?" has causal, temporal, and entity aspects). An LLM classifier captures multi-intent queries more accurately while the keyword fallback ensures reliability. This aligns with the risk mitigation noted in the original ADR: "Pre-classify common query patterns; cache intent for repeated queries; make intent optional."
+
+### Amendment: HyDE Query Expansion (L6)
+
+_Date: 2026-03-02_
+
+**What changed:** Subgraph queries now support optional Hypothetical Document Embeddings (HyDE) query expansion. When `use_hyde: true` is set on a `SubgraphQuery` and an LLM client is available, the system generates a hypothetical answer passage via the LLM, then combines it with the original query text before embedding. This produces an embedding that captures both the query intent and the expected answer context, improving semantic retrieval for vague or short queries.
+
+**Configuration:** Controlled by `HyDESettings` in `settings.py`:
+- `CG_HYDE_ENABLED` (default: `false`) -- global enable flag
+- `CG_HYDE_TEMPERATURE` (default: `0.7`) -- LLM temperature for hypothetical document generation
+- `CG_HYDE_MAX_TOKENS` (default: `256`) -- max tokens for the generated passage
+
+**Architecture:** The pure domain module `domain/query_expansion.py` provides `build_hyde_prompt()`, `combine_query_with_hyde()`, and `expand_query()` functions with zero framework dependencies. The `Neo4jGraphStore` constructor accepts an optional `llm_client` parameter. In `get_subgraph()`, when `query.use_hyde` is true and `llm_client` is available, the system calls `llm_client.generate_text()` with a HyDE prompt and expands the query text before embedding. On any failure, it falls back to the original query text silently.
+
+**Rationale:** Short or vague queries like "payment issues" produce poor embeddings because the query text lacks the specificity needed for cosine similarity matching. HyDE (Gao et al., 2022) addresses this by generating a hypothetical answer that contains the vocabulary and concepts likely present in relevant documents, dramatically improving retrieval quality. The opt-in `use_hyde` flag ensures no latency penalty for queries that don't need expansion.
+
+**References:**
+- Gao et al. (2022). "Precise Zero-Shot Dense Retrieval without Relevance Labels." arXiv:2212.10496
+
+### Amendment: Multi-Channel Hybrid Retrieval with RRF Fusion (L4)
+
+_Date: 2026-03-02_
+
+**What changed:** Subgraph seed selection now uses three parallel retrieval channels fused via Reciprocal Rank Fusion (RRF), replacing the previous single graph-based seed strategy. This implements a hybrid retrieval pattern that combines structured (graph), semantic (vector), and lexical (BM25) signals.
+
+**Retrieval channels:**
+
+| Channel | Source Store | Signal Type | Ranking |
+|---------|------------|-------------|---------|
+| Graph | Neo4j (seed strategy queries) | Structural — topology, edge types, intent weights | Rank position from Cypher ORDER BY |
+| Vector | Neo4j (entity embedding vector index) | Semantic — cosine similarity to query embedding | Cosine similarity score |
+| BM25 | RediSearch (full-text on `summary` + `keywords`) | Lexical — term frequency / inverse document frequency | BM25 relevance score |
+
+All three channels run concurrently via `asyncio.gather(return_exceptions=True)`. Failed channels are gracefully excluded from fusion. The fused seed list is then used as the starting point for the existing neighbor traversal pipeline.
+
+**RRF fusion formula:** For each item appearing in one or more ranked lists: `score(item) = sum over lists of 1 / (k + rank_in_list)` where k=60 (the canonical value from Cormack, Clarke, and Buettcher, 2009). Items appearing in multiple channels naturally receive higher fused scores, providing multi-signal confirmation.
+
+**New domain module:** `domain/reranking.py` provides `reciprocal_rank_fusion()` and `maximal_marginal_relevance()` as pure functions with zero framework dependencies.
+
+**New RediSearch fields:** The event index (`adapters/redis/indexes.py`) adds two `TextField` entries for BM25 scoring:
+- `$.summary` (weight 2.0) — event summary text from enrichment
+- `$.keywords` (weight 1.5) — extracted keywords from enrichment
+
+**New EventStore method:** `search_bm25(query_text, session_id, limit)` added to the EventStore protocol (`ports/event_store.py`) and implemented in `RedisEventStore` (`adapters/redis/store.py`).
+
+**Architecture:** The `Neo4jGraphStore` constructor accepts an optional `event_store: EventStore` parameter for BM25 access. Three private methods `_get_graph_seeds()`, `_get_vector_seeds()`, and `_get_bm25_seeds()` encapsulate each channel. The `get_subgraph()` method orchestrates parallel execution and fusion.
+
+**Response extension:** `QueryMeta.retrieval_channels` (new optional dict field) reports how many seeds each channel contributed, e.g., `{"graph": 5, "vector": 3, "bm25": 4}`.
+
+**Rationale:** Single-channel retrieval (graph-only) misses semantically relevant results that aren't directly connected to seed nodes in the graph topology. BM25 captures lexical matches in event summaries (important for exact term matching), while vector similarity captures semantic relatedness. The combination addresses the vocabulary mismatch problem: graph and BM25 handle known terms, vectors handle conceptual similarity.
+
+**References:**
+- Cormack, Clarke, Buettcher (2009). "Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods." SIGIR 2009.
+- Carbonell, Goldstein (1998). "The Use of MMR, Diversity-Based Reranking." SIGIR 1998.
+
+### Amendment: Personalized PageRank Approximation (L5)
+
+_Date: 2026-03-02_
+
+**What changed:** Subgraph retrieval now optionally applies Personalized PageRank (PPR) as a post-processing step between neighbor traversal and final sorting/pagination. PPR re-ranks nodes based on structural importance relative to the seed nodes, complementing the existing decay-based scoring.
+
+**Algorithm:** Iterative power method with configurable damping factor (default 0.85) and iteration count (default 5). The implementation is pure Python with zero external dependencies (no Neo4j GDS required), operating on a local adjacency list built from the already-fetched nodes and edges.
+
+**Score blending:** PPR scores are normalized by graph size (multiplied by N, clamped to [0, 1]) and blended into the existing `decay_score` using a configurable weight: `blended = (1 - blend_w) * decay_score + blend_w * ppr_clamped` (default blend_weight=0.3). The raw PPR score is preserved in `NodeScores.ppr_score` for transparency.
+
+**New domain module:** `domain/ppr.py` provides `approximate_ppr()` as a pure function: `approximate_ppr(adjacency, seeds, damping, iterations) -> dict[str, float]`.
+
+**New model field:** `NodeScores.ppr_score` (float, default 0.0, range [0, 1]) added to the Atlas response.
+
+**Configuration:** `PPRSettings` (env prefix `CG_PPR_`) controls: `enabled` (default False), `damping` (0.85), `iterations` (5), `max_subgraph_size` (500, skip PPR for very large result sets), `blend_weight` (0.3).
+
+**Guard rails:** PPR is skipped when disabled, when the subgraph exceeds `max_subgraph_size` nodes, or when there are no valid seed nodes.
+
+**Rationale:** Decay scoring captures temporal relevance but misses structural importance. Nodes that are highly connected or sit at bridge positions in the graph topology may be structurally important for understanding context, even if they have lower recency scores. PPR surfaces these structurally important nodes by propagating probability mass through the graph edges, biased toward the seed nodes that the intent-aware retrieval selected.
+
+### Amendment: Belief, Goal, and Episode Types (2026-03-04)
+
+**What changed:** Three new node types and four new edge types are added to the graph schema to support belief tracking, goal management, and episodic grouping. This brings the total to 11 node types and 20 edge types.
+
+#### New Node Types (3)
+
+| Node Type | Label | Source |
+|-----------|-------|--------|
+| Belief | `:Belief` | Inferred or stated belief with confidence tracking and category (user_model, world_model, capability) |
+| Goal | `:Goal` | Tracked user/agent goal with lifecycle status (active, completed, abandoned, superseded) |
+| Episode | `:Episode` | Coherent group of events within a session, typed as temporal, causal, or thematic |
+
+Total node types: **11** (was 8).
+
+#### New Edge Types (4)
+
+| Edge Type | From → To | View | Purpose |
+|-----------|-----------|------|---------|
+| CONTRADICTS | Belief → Belief | Epistemic | Links beliefs that contradict each other |
+| SUPERSEDES | Belief → Belief | Epistemic | Winner supersedes loser after contradiction resolution |
+| PURSUES | Entity → Goal | Motivational | Links an entity to goals they pursue |
+| CONTAINS | Episode → Event | Episodic | Groups events into coherent episodes |
+
+Total edge types: **20** (was 16).
+
+#### New Semantic Views
+
+- **Epistemic View (V_epistemic):** Belief nodes traversed via CONTRADICTS and SUPERSEDES edges. Supports belief tracking, contradiction detection, and knowledge evolution.
+- **Motivational View (V_motivational):** Goal nodes traversed via PURSUES edges. Supports goal tracking and progress monitoring.
+- **Episodic View (V_episodic):** Episode nodes traversed via CONTAINS edges. Supports temporal grouping and narrative reconstruction.
+
+#### Intent Weight Matrix
+
+The 4 new edge types default to weight 0.0 across all 8 intents unless intent-specific traversal is required (e.g., `personalize` intent may weight PURSUES higher for goal-aware context).
+
+#### New Uniqueness Constraints (3)
+
+```cypher
+CREATE CONSTRAINT constraint_belief_pk ON (b:Belief) ASSERT b.belief_id IS UNIQUE;
+CREATE CONSTRAINT constraint_goal_pk ON (g:Goal) ASSERT g.goal_id IS UNIQUE;
+CREATE CONSTRAINT constraint_episode_pk ON (e:Episode) ASSERT e.episode_id IS UNIQUE;
+```
+
+Total constraints: **11** (was 8).

@@ -177,6 +177,30 @@ class TestCreateSummaryFromEvents:
         assert "agent.invoke" in summary.content
         assert "tool.execute" in summary.content
 
+    def test_llm_summary_text_used_when_provided(self):
+        events = self._make_events(3)
+        llm_text = "The agent searched for files and processed the results successfully."
+        summary = create_summary_from_events(
+            events, scope="episode", scope_id="s1-ep0", llm_summary_text=llm_text
+        )
+        assert summary.content == llm_text
+        assert summary.event_count == 3
+
+    def test_fallback_when_llm_summary_is_none(self):
+        events = self._make_events(3)
+        summary = create_summary_from_events(
+            events, scope="episode", scope_id="s1-ep0", llm_summary_text=None
+        )
+        assert "3 events" in summary.content
+
+    def test_fallback_when_llm_summary_is_empty(self):
+        events = self._make_events(3)
+        summary = create_summary_from_events(
+            events, scope="episode", scope_id="s1-ep0", llm_summary_text=""
+        )
+        # Empty string is falsy, so falls back to template
+        assert "3 events" in summary.content
+
 
 # ---------------------------------------------------------------------------
 # build_summary_prompt

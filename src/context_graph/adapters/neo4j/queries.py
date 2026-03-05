@@ -25,7 +25,78 @@ CONSTRAINT_SUMMARY_PK = (
     "CREATE CONSTRAINT summary_pk IF NOT EXISTS FOR (s:Summary) REQUIRE s.summary_id IS UNIQUE"
 )
 
-ALL_CONSTRAINTS = [CONSTRAINT_EVENT_PK, CONSTRAINT_ENTITY_PK, CONSTRAINT_SUMMARY_PK]
+CONSTRAINT_USERPROFILE_PK = (
+    "CREATE CONSTRAINT userprofile_pk IF NOT EXISTS FOR (u:UserProfile) REQUIRE u.user_id IS UNIQUE"
+)
+
+CONSTRAINT_PREFERENCE_PK = (
+    "CREATE CONSTRAINT preference_pk IF NOT EXISTS "
+    "FOR (p:Preference) REQUIRE p.preference_id IS UNIQUE"
+)
+
+CONSTRAINT_SKILL_PK = (
+    "CREATE CONSTRAINT skill_pk IF NOT EXISTS FOR (s:Skill) REQUIRE s.skill_id IS UNIQUE"
+)
+
+CONSTRAINT_WORKFLOW_PK = (
+    "CREATE CONSTRAINT workflow_pk IF NOT EXISTS FOR (w:Workflow) REQUIRE w.workflow_id IS UNIQUE"
+)
+
+CONSTRAINT_BEHAVIORALPATTERN_PK = (
+    "CREATE CONSTRAINT behavioralpattern_pk IF NOT EXISTS "
+    "FOR (b:BehavioralPattern) REQUIRE b.pattern_id IS UNIQUE"
+)
+
+CONSTRAINT_BELIEF_PK = (
+    "CREATE CONSTRAINT belief_pk IF NOT EXISTS FOR (b:Belief) REQUIRE b.belief_id IS UNIQUE"
+)
+
+CONSTRAINT_GOAL_PK = (
+    "CREATE CONSTRAINT goal_pk IF NOT EXISTS FOR (g:Goal) REQUIRE g.goal_id IS UNIQUE"
+)
+
+CONSTRAINT_EPISODE_PK = (
+    "CREATE CONSTRAINT episode_pk IF NOT EXISTS FOR (e:Episode) REQUIRE e.episode_id IS UNIQUE"
+)
+
+ALL_CONSTRAINTS = [
+    CONSTRAINT_EVENT_PK,
+    CONSTRAINT_ENTITY_PK,
+    CONSTRAINT_SUMMARY_PK,
+    CONSTRAINT_USERPROFILE_PK,
+    CONSTRAINT_PREFERENCE_PK,
+    CONSTRAINT_SKILL_PK,
+    CONSTRAINT_WORKFLOW_PK,
+    CONSTRAINT_BEHAVIORALPATTERN_PK,
+    CONSTRAINT_BELIEF_PK,
+    CONSTRAINT_GOAL_PK,
+    CONSTRAINT_EPISODE_PK,
+]
+
+# ---------------------------------------------------------------------------
+# Performance indexes
+# ---------------------------------------------------------------------------
+
+INDEX_EVENT_SESSION_ID = (
+    "CREATE INDEX event_session_id IF NOT EXISTS FOR (e:Event) ON (e.session_id)"
+)
+
+ALL_INDEXES = [INDEX_EVENT_SESSION_ID]
+
+# ---------------------------------------------------------------------------
+# Vector indexes
+# ---------------------------------------------------------------------------
+
+VECTOR_INDEX_ENTITY_EMBEDDING = (
+    "CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS "
+    "FOR (n:Entity) ON (n.embedding) "
+    "OPTIONS {indexConfig: {"
+    "`vector.dimensions`: 384, "
+    "`vector.similarity_function`: 'cosine'"
+    "}}"
+)
+
+ALL_VECTOR_INDEXES = [VECTOR_INDEX_ENTITY_EMBEDDING]
 
 # ---------------------------------------------------------------------------
 # Node MERGE queries
@@ -47,13 +118,31 @@ SET e.event_type = $event_type,
     e.last_accessed_at = $last_accessed_at
 """.strip()
 
+BATCH_MERGE_EVENT_NODES = """
+UNWIND $events AS evt
+MERGE (e:Event {event_id: evt.event_id})
+SET e.event_type = evt.event_type,
+    e.occurred_at = evt.occurred_at,
+    e.session_id = evt.session_id,
+    e.agent_id = evt.agent_id,
+    e.trace_id = evt.trace_id,
+    e.tool_name = evt.tool_name,
+    e.global_position = evt.global_position,
+    e.keywords = evt.keywords,
+    e.summary = evt.summary,
+    e.importance_score = evt.importance_score,
+    e.access_count = evt.access_count,
+    e.last_accessed_at = evt.last_accessed_at
+""".strip()
+
 MERGE_ENTITY_NODE = """
 MERGE (n:Entity {entity_id: $entity_id})
 SET n.name = $name,
     n.entity_type = $entity_type,
     n.first_seen = $first_seen,
     n.last_seen = $last_seen,
-    n.mention_count = $mention_count
+    n.mention_count = $mention_count,
+    n.embedding = $embedding
 """.strip()
 
 MERGE_SUMMARY_NODE = """
@@ -64,6 +153,37 @@ SET s.scope = $scope,
     s.created_at = $created_at,
     s.event_count = $event_count,
     s.time_range = $time_range
+""".strip()
+
+MERGE_BELIEF_NODE = """
+MERGE (b:Belief {belief_id: $belief_id})
+SET b.belief_text = $belief_text,
+    b.confidence = $confidence,
+    b.category = $category,
+    b.created_at = $created_at,
+    b.last_confirmed_at = $last_confirmed_at,
+    b.confirmation_count = $confirmation_count,
+    b.superseded_by = $superseded_by
+""".strip()
+
+MERGE_GOAL_NODE = """
+MERGE (g:Goal {goal_id: $goal_id})
+SET g.description = $description,
+    g.status = $status,
+    g.created_at = $created_at,
+    g.last_active_at = $last_active_at,
+    g.priority = $priority,
+    g.evidence_count = $evidence_count
+""".strip()
+
+MERGE_EPISODE_NODE = """
+MERGE (e:Episode {episode_id: $episode_id})
+SET e.session_id = $session_id,
+    e.start_time = $start_time,
+    e.end_time = $end_time,
+    e.event_count = $event_count,
+    e.episode_type = $episode_type,
+    e.summary_id = $summary_id
 """.strip()
 
 # ---------------------------------------------------------------------------
@@ -194,6 +314,34 @@ MERGE (a)-[r:PARENT_SKILL]->(b)
 SET r += $props
 """.strip()
 
+MERGE_CONTRADICTS = """
+MATCH (a:Belief {belief_id: $source_id})
+MATCH (b:Belief {belief_id: $target_id})
+MERGE (a)-[r:CONTRADICTS]->(b)
+SET r += $props
+""".strip()
+
+MERGE_SUPERSEDES = """
+MATCH (a:Belief {belief_id: $source_id})
+MATCH (b:Belief {belief_id: $target_id})
+MERGE (a)-[r:SUPERSEDES]->(b)
+SET r += $props
+""".strip()
+
+MERGE_PURSUES = """
+MATCH (a:Entity {entity_id: $source_id})
+MATCH (b:Goal {goal_id: $target_id})
+MERGE (a)-[r:PURSUES]->(b)
+SET r += $props
+""".strip()
+
+MERGE_CONTAINS = """
+MATCH (a:Episode {episode_id: $source_id})
+MATCH (b:Event {event_id: $target_id})
+MERGE (a)-[r:CONTAINS]->(b)
+SET r += $props
+""".strip()
+
 # ---------------------------------------------------------------------------
 # Batch edge creation via UNWIND
 # ---------------------------------------------------------------------------
@@ -249,6 +397,20 @@ RETURN e, type(r) AS rel_type, properties(r) AS rel_props,
        neighbor.event_id AS neighbor_event_id,
        neighbor.entity_id AS neighbor_entity_id,
        neighbor.summary_id AS neighbor_summary_id
+LIMIT $neighbor_limit
+""".strip()
+
+GET_EVENT_NEIGHBORS_BATCH = """
+UNWIND $event_ids AS eid
+MATCH (e:Event {event_id: eid})
+OPTIONAL MATCH (e)-[r]->(neighbor)
+RETURN e.event_id AS seed_event_id,
+       type(r) AS rel_type, properties(r) AS rel_props,
+       labels(neighbor) AS neighbor_labels, properties(neighbor) AS neighbor_props,
+       neighbor.event_id AS neighbor_event_id,
+       neighbor.entity_id AS neighbor_entity_id,
+       neighbor.summary_id AS neighbor_summary_id
+LIMIT $neighbor_limit
 """.strip()
 
 GET_ENTITY_WITH_EVENTS = """
@@ -257,6 +419,27 @@ OPTIONAL MATCH (evt:Event)-[r:REFERENCES]->(ent)
 RETURN ent, evt, properties(r) AS ref_props
 ORDER BY evt.occurred_at DESC
 LIMIT $limit
+""".strip()
+
+GET_ENTITY_WITH_CLUSTER = """
+MATCH (ent:Entity {entity_id: $entity_id})
+OPTIONAL MATCH (ent)-[:SAME_AS*0..3]-(related:Entity)
+WITH DISTINCT related
+OPTIONAL MATCH (evt:Event)-[r:REFERENCES]->(related)
+RETURN related AS ent, evt, properties(r) AS ref_props
+ORDER BY evt.occurred_at DESC
+LIMIT $limit
+""".strip()
+
+CONSOLIDATE_ENTITY_CLUSTER = """
+UNWIND $member_ids AS mid
+MATCH (member:Entity {entity_id: mid})
+MATCH (canonical:Entity {entity_id: $canonical_id})
+WHERE member <> canonical
+MERGE (member)-[r:SAME_AS]->(canonical)
+SET r.confidence = 1.0,
+    r.justification = 'transitive_closure',
+    r.resolved_at = $resolved_at
 """.strip()
 
 UPDATE_ACCESS_COUNT = """
@@ -278,9 +461,96 @@ SET e.keywords = $keywords,
     e.importance_score = $importance_score
 """.strip()
 
+UPDATE_EVENT_EMBEDDING = """
+MATCH (e:Event {event_id: $event_id})
+SET e.embedding = $embedding
+""".strip()
+
+# ---------------------------------------------------------------------------
+# Neo4j vector index search (entity embeddings)
+# ---------------------------------------------------------------------------
+
+SEARCH_SIMILAR_ENTITIES = """
+CALL db.index.vector.queryNodes('entity_embedding_idx', $top_k, $query_embedding)
+YIELD node, score
+WHERE score >= $threshold
+RETURN node.entity_id AS entity_id, node.name AS name,
+       node.entity_type AS entity_type, score
+ORDER BY score DESC
+""".strip()
+
+GET_SESSION_EDGES = """
+MATCH (a:Event {session_id: $session_id})-[r]->(b:Event {session_id: $session_id})
+WHERE a.event_id IN $event_ids AND b.event_id IN $event_ids
+RETURN a.event_id AS source, b.event_id AS target,
+       type(r) AS edge_type, properties(r) AS props
+""".strip()
+
 GET_SUBGRAPH_SEED_EVENTS = """
 MATCH (e:Event {session_id: $session_id})
 RETURN e ORDER BY e.occurred_at DESC LIMIT $seed_limit
+""".strip()
+
+# ---------------------------------------------------------------------------
+# Intent-based seed selection strategies (Phase 1.2)
+# ---------------------------------------------------------------------------
+
+GET_SEED_CAUSAL_ROOTS = """
+MATCH (e:Event {session_id: $session_id})
+WHERE (e)<-[:CAUSED_BY]-()
+WITH e, size([(x)-[:CAUSED_BY]->(e) | x]) AS caused_count
+RETURN e ORDER BY caused_count DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_ENTITY_HUBS = """
+MATCH (e:Event {session_id: $session_id})-[:REFERENCES]->(ent:Entity)
+WITH e, count(ent) AS entity_count
+RETURN e ORDER BY entity_count DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_TEMPORAL_ANCHORS = """
+MATCH (e:Event {session_id: $session_id})
+WHERE e.importance_score IS NOT NULL
+RETURN e ORDER BY e.importance_score DESC, e.occurred_at ASC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_USER_PROFILE = """
+MATCH (e:Event {session_id: $session_id})-[:REFERENCES]->(ent:Entity)
+WHERE (ent)-[:HAS_PROFILE]->() OR (ent)-[:HAS_PREFERENCE]->()
+WITH e, count(ent) AS profile_links
+RETURN e ORDER BY profile_links DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_SIMILAR_CLUSTER = """
+MATCH (e:Event {session_id: $session_id})
+OPTIONAL MATCH (e)-[:SIMILAR_TO]-(other:Event)
+WITH e, count(other) AS sim_count
+RETURN e ORDER BY sim_count DESC, e.occurred_at DESC
+LIMIT $seed_limit
+""".strip()
+
+GET_SEED_WORKFLOW_PATTERN = """
+MATCH (e:Event {session_id: $session_id})
+WHERE e.event_type STARTS WITH 'tool.' OR e.event_type STARTS WITH 'workflow.'
+RETURN e ORDER BY e.occurred_at ASC
+LIMIT $seed_limit
+""".strip()
+
+# ---------------------------------------------------------------------------
+# Cross-session entity retrieval (Phase 1.3)
+# ---------------------------------------------------------------------------
+
+GET_ENTITY_CROSS_SESSION_EVENTS = """
+MATCH (e:Event {session_id: $session_id})-[:REFERENCES]->(ent:Entity)
+WITH DISTINCT ent
+MATCH (other:Event)-[:REFERENCES]->(ent)
+WHERE other.session_id <> $session_id
+RETURN other AS e ORDER BY other.occurred_at DESC
+LIMIT $limit
 """.strip()
 
 # ---------------------------------------------------------------------------

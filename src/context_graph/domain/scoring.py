@@ -26,10 +26,15 @@ def compute_recency_score(
     s_boost: float = 24.0,
     now: datetime | None = None,
     last_accessed_at: datetime | None = None,
+    sublinear: bool = True,
 ) -> float:
     """Ebbinghaus forgetting curve: R = e^(-t / S).
 
-    S = s_base + (access_count * s_boost) — stability grows with repeated access.
+    When sublinear=True (default):
+      S = s_base * (1.0 + (s_boost / s_base) * log1p(access_count))
+    When sublinear=False (backward-compatible linear):
+      S = s_base + (access_count * s_boost)
+
     t = hours since the most recent of occurred_at and last_accessed_at.
 
     Returns a value in [0.0, 1.0].
@@ -40,7 +45,13 @@ def compute_recency_score(
     if last_accessed_at is not None:
         effective_time = max(occurred_at, last_accessed_at)
     t_hours = max(0.0, (now - effective_time).total_seconds() / 3600.0)
-    stability = s_base + (access_count * s_boost)
+    if sublinear:
+        if s_base > 0:
+            stability = s_base * (1.0 + (s_boost / s_base) * math.log1p(access_count))
+        else:
+            stability = 0.0
+    else:
+        stability = s_base + (access_count * s_boost)
     if stability <= 0:
         return 0.0
     return math.exp(-t_hours / stability)
@@ -174,6 +185,62 @@ def score_node(
 
     # importance_score in NodeScores is int (1-10 scale); map from float
     importance_int = importance_hint if importance_hint is not None else round(importance * 10)
+
+    return NodeScores(
+        decay_score=round(composite, 6),
+        relevance_score=round(relevance, 6),
+        importance_score=importance_int,
+    )
+
+
+def score_entity_node(
+    entity_data: dict[str, Any],
+    query_embedding: list[float] | None = None,
+    now: datetime | None = None,
+    s_base: float = 336.0,
+    s_boost: float = 24.0,
+    w_recency: float = 1.0,
+    w_importance: float = 1.0,
+    w_relevance: float = 1.0,
+    w_user_affinity: float = 0.5,
+) -> NodeScores:
+    """Score an Entity node for retrieval ranking.
+
+    Entities don't have occurred_at or access_count like events.
+    Uses last_seen for recency, mention_count for importance,
+    and embedding similarity for relevance.
+    """
+    # Recency from last_seen
+    last_seen_raw = entity_data.get("last_seen")
+    if isinstance(last_seen_raw, str):
+        last_seen = datetime.fromisoformat(last_seen_raw)
+    elif isinstance(last_seen_raw, datetime):
+        last_seen = last_seen_raw
+    else:
+        last_seen = datetime.now(UTC) if now is None else now
+
+    recency = compute_recency_score(last_seen, s_base=s_base, s_boost=s_boost, now=now)
+
+    # Importance from mention_count
+    mention_count = entity_data.get("mention_count", 1)
+    importance = compute_importance_score(
+        importance_hint=min(10, mention_count), access_count=mention_count
+    )
+
+    # Relevance from embedding
+    node_embedding = entity_data.get("embedding", [])
+    relevance = compute_relevance_score(query_embedding or [], node_embedding)
+
+    composite = compute_composite_score(
+        recency,
+        importance,
+        relevance,
+        w_recency=w_recency,
+        w_importance=w_importance,
+        w_relevance=w_relevance,
+        w_user_affinity=w_user_affinity,
+    )
+    importance_int = min(10, max(1, mention_count))
 
     return NodeScores(
         decay_score=round(composite, 6),

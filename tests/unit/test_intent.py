@@ -60,6 +60,16 @@ class TestClassifyIntent:
         result = classify_intent("customize my preferred workflow style")
         assert IntentType.PERSONALIZE in result
 
+    def test_show_does_not_match_how(self) -> None:
+        """'show' should NOT trigger HOW_DOES intent (word boundary fix)."""
+        result = classify_intent("show me the logs")
+        assert IntentType.HOW_DOES not in result
+
+    def test_what_still_matches(self) -> None:
+        """'what happened?' should still trigger WHAT intent after word boundary fix."""
+        result = classify_intent("what happened?")
+        assert IntentType.WHAT in result
+
     def test_case_insensitive(self) -> None:
         """Classification should be case-insensitive."""
         result = classify_intent("WHY DID THE BUILD FAIL?")

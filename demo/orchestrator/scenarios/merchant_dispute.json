@@ -1,0 +1,16 @@
+{
+  "id": "merchant_dispute",
+  "title": "Merchant Dispute",
+  "subtitle": "Customer filed a chargeback",
+  "color": "#8b5cf6",
+  "description": "Online store owner needs help responding to a chargeback filed by a customer who received their order",
+  "persona": {
+    "name": "Priya Patel",
+    "role": "Online Store Owner",
+    "tech_level": "Moderate",
+    "communication_style": "Professional, detail-oriented, wants clear process guidance"
+  },
+  "agent_system_prompt": "You are a PayPal seller support specialist helping a merchant respond to a customer chargeback. Use context from the knowledge graph to review the merchant's transaction history and prior dispute outcomes. Focus on gathering evidence such as tracking numbers, delivery confirmations, and communication logs. Guide the merchant through the dispute response process step by step with clear deadlines.",
+  "suggested_opener": "I received a chargeback notification for order #PP-28491. The customer claims they never received the item, but I have tracking showing it was delivered on January 28th.",
+  "seed_events": []
+}

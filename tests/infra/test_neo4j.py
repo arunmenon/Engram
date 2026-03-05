@@ -63,8 +63,7 @@ async def cleanup_test_data(driver):
     async with driver.session(database="neo4j") as session:
         # Remove all nodes created during tests using test-specific labels
         await session.run(
-            "MATCH (n) WHERE any(label IN labels(n) WHERE label STARTS WITH 'Test') "
-            "DETACH DELETE n"
+            "MATCH (n) WHERE any(label IN labels(n) WHERE label STARTS WITH 'Test') DETACH DELETE n"
         )
         # Also clean up nodes with test-specific event_id prefixes
         await session.run(
@@ -164,8 +163,7 @@ async def test_constraints_from_constraints_cypher(session):
 
     missing = expected_constraints - existing_constraint_names
     assert not missing, (
-        f"Missing constraints: {missing}. "
-        f"Existing constraints: {existing_constraint_names}"
+        f"Missing constraints: {missing}. Existing constraints: {existing_constraint_names}"
     )
     print(f"\nAll {len(expected_constraints)} uniqueness constraints created and verified:")
     for name in sorted(expected_constraints):
@@ -182,7 +180,9 @@ async def test_constraints_from_constraints_cypher(session):
         print("  NOTE: NOT NULL constraints available (Enterprise Edition detected)")
     except neo4j.exceptions.DatabaseError:
         print("  NOT NULL constraints NOT available (Community Edition confirmed)")
-        print("  -> NOT NULL enforcement delegated to application layer (Pydantic + projection worker)")
+        print(
+            "  -> NOT NULL enforcement delegated to application layer (Pydantic + projection worker)"
+        )
 
 
 @pytest.mark.infra
@@ -286,9 +286,7 @@ async def test_typed_relationships(session):
     )
     records = [record async for record in result]
     found_types = {record["rel_type"] for record in records}
-    assert found_types == set(edge_types), (
-        f"Expected all 5 edge types, found: {found_types}"
-    )
+    assert found_types == set(edge_types), f"Expected all 5 edge types, found: {found_types}"
     print(f"\nAll 5 relationship types verified: {sorted(found_types)}")
 
 
@@ -340,9 +338,7 @@ async def test_variable_length_path_traversal(session):
 
     # Should reach B (depth 1), C (depth 2), D (depth 3), E (depth 4)
     assert len(records) == 4, f"Expected 4 reachable nodes, got {len(records)}"
-    assert reached_nodes == chain_ids[1:], (
-        f"Expected chain {chain_ids[1:]}, got {reached_nodes}"
-    )
+    assert reached_nodes == chain_ids[1:], f"Expected chain {chain_ids[1:]}, got {reached_nodes}"
     assert depths == [1, 2, 3, 4], f"Expected depths [1,2,3,4], got {depths}"
 
     # Verify bounded traversal: depth 1..2 should only reach B and C
@@ -396,9 +392,7 @@ async def test_unwind_merge_batch_pattern(session):
     """
     result = await session.run(batch_query, {"events": events})
     record = await result.single()
-    assert record["merged_count"] == 20, (
-        f"Expected 20 merged nodes, got {record['merged_count']}"
-    )
+    assert record["merged_count"] == 20, f"Expected 20 merged nodes, got {record['merged_count']}"
 
     # Run the same batch again -- should be idempotent
     result_2 = await session.run(batch_query, {"events": events})
@@ -406,9 +400,7 @@ async def test_unwind_merge_batch_pattern(session):
     assert record_2["merged_count"] == 20, "Idempotent re-run should return same count"
 
     # Verify exactly 20 nodes exist (not 40)
-    count_result = await session.run(
-        "MATCH (e:TestBatch) RETURN count(e) AS total"
-    )
+    count_result = await session.run("MATCH (e:TestBatch) RETURN count(e) AS total")
     count_record = await count_result.single()
     assert count_record["total"] == 20, (
         f"Expected exactly 20 nodes after idempotent batch, got {count_record['total']}"
@@ -666,14 +658,10 @@ async def test_performance_1000_node_merge_batch(session):
     assert record["merged_count"] == 1000, (
         f"Expected 1000 merged nodes, got {record['merged_count']}"
     )
-    assert elapsed < 5.0, (
-        f"1000-node MERGE took {elapsed:.2f}s, exceeds 5s threshold"
-    )
+    assert elapsed < 5.0, f"1000-node MERGE took {elapsed:.2f}s, exceeds 5s threshold"
 
     # Verify node count
-    count_result = await session.run(
-        "MATCH (e:TestPerf) RETURN count(e) AS total"
-    )
+    count_result = await session.run("MATCH (e:TestPerf) RETURN count(e) AS total")
     count_record = await count_result.single()
     assert count_record["total"] == 1000
 

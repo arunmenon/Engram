@@ -91,9 +91,17 @@ class EdgeType(enum.StrEnum):
     REFERENCES = "REFERENCES"
     SUMMARIZES = "SUMMARIZES"
 
+    # Episodic + belief edges
+    CONTAINS = "CONTAINS"
+    CONTRADICTS = "CONTRADICTS"
+
     # Entity resolution (ADR-0011)
     SAME_AS = "SAME_AS"
     RELATED_TO = "RELATED_TO"
+
+    # Goal + belief evolution edges
+    PURSUES = "PURSUES"
+    SUPERSEDES = "SUPERSEDES"
 
     # User personalization (ADR-0012)
     HAS_PROFILE = "HAS_PROFILE"
@@ -140,8 +148,11 @@ class NodeType(enum.StrEnum):
     User personalization (ADR-0012): UserProfile, Preference, Skill, Workflow, BehavioralPattern
     """
 
+    BELIEF = "Belief"
     EVENT = "Event"
     ENTITY = "Entity"
+    EPISODE = "Episode"
+    GOAL = "Goal"
     SUMMARY = "Summary"
     USER_PROFILE = "UserProfile"
     PREFERENCE = "Preference"
@@ -245,6 +256,31 @@ class CausalMechanism(enum.StrEnum):
     INFERRED = "inferred"
 
 
+class BeliefCategory(enum.StrEnum):
+    """Belief category — user model vs world model vs capability."""
+
+    USER_MODEL = "user_model"
+    WORLD_MODEL = "world_model"
+    CAPABILITY = "capability"
+
+
+class GoalStatus(enum.StrEnum):
+    """Goal lifecycle status."""
+
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    ABANDONED = "abandoned"
+    SUPERSEDED = "superseded"
+
+
+class EpisodeType(enum.StrEnum):
+    """Episode grouping type."""
+
+    TEMPORAL = "temporal"
+    CAUSAL = "causal"
+    THEMATIC = "thematic"
+
+
 # ---------------------------------------------------------------------------
 # Event Model — THE shared contract (ADR-0004 + amendments)
 # ---------------------------------------------------------------------------
@@ -316,6 +352,7 @@ class EntityNode(BaseModel):
     first_seen: datetime
     last_seen: datetime
     mention_count: int = 1
+    embedding: list[float] = Field(default_factory=list)
 
 
 class SummaryNode(BaseModel):
@@ -413,6 +450,48 @@ class BehavioralPatternNode(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Episodic / Belief / Goal Node Models
+# ---------------------------------------------------------------------------
+
+
+class BeliefNode(BaseModel):
+    """Belief node — an inferred or stated belief about the user, world, or capabilities."""
+
+    belief_id: str
+    belief_text: str
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    category: BeliefCategory
+    created_at: datetime
+    last_confirmed_at: datetime
+    confirmation_count: int = 1
+    superseded_by: str | None = None
+
+
+class GoalNode(BaseModel):
+    """Goal node — a tracked user or agent goal."""
+
+    goal_id: str
+    description: str
+    status: GoalStatus
+    created_at: datetime
+    last_active_at: datetime
+    priority: int | None = Field(default=None, ge=1, le=10)
+    evidence_count: int = 1
+
+
+class EpisodeNode(BaseModel):
+    """Episode node — a coherent group of events within a session."""
+
+    episode_id: str
+    session_id: str
+    start_time: datetime
+    end_time: datetime
+    event_count: int = 0
+    episode_type: EpisodeType
+    summary_id: str | None = None
+
+
+# ---------------------------------------------------------------------------
 # Edge Models
 # ---------------------------------------------------------------------------
 
@@ -449,6 +528,7 @@ class NodeScores(BaseModel):
     decay_score: float = 0.0
     relevance_score: float = 0.0
     importance_score: int = 0
+    ppr_score: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
 class AtlasNode(BaseModel):
@@ -489,10 +569,12 @@ class QueryMeta(BaseModel):
     inferred_intents: dict[str, float] = Field(default_factory=dict)
     intent_override: str | None = None
     seed_nodes: list[str] = Field(default_factory=list)
+    seed_strategy: str | None = None
     proactive_nodes_count: int = 0
     scoring_weights: dict[str, float] = Field(
         default_factory=lambda: {"recency": 1.0, "importance": 1.0, "relevance": 1.0}
     )
+    retrieval_channels: dict[str, int] = Field(default_factory=dict)
     capacity: QueryCapacity | None = None
 
 
@@ -548,6 +630,8 @@ class SubgraphQuery(BaseModel):
     timeout_ms: int = Field(default=5000, ge=100, le=30000)
     intent: IntentType | None = None
     seed_nodes: list[str] | None = None
+    cursor: str | None = None
+    use_hyde: bool = Field(default=False)
 
 
 class LineageQuery(BaseModel):
@@ -557,3 +641,4 @@ class LineageQuery(BaseModel):
     max_depth: int = Field(default=3, ge=1, le=10)
     max_nodes: int = Field(default=100, ge=1, le=500)
     intent: IntentType | None = None
+    cursor: str | None = None

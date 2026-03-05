@@ -11,12 +11,12 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from context_graph.adapters.neo4j.store import Neo4jGraphStore  # noqa: TCH001 — runtime: Depends()
 from context_graph.api.dependencies import get_graph_store
+from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runtime: Depends()
 
 router = APIRouter(tags=["entities"])
 
-GraphStoreDep = Annotated[Neo4jGraphStore, Depends(get_graph_store)]
+GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
 
 
 @router.get("/entities/{entity_id}")

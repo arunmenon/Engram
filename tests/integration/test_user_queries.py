@@ -18,28 +18,27 @@ async def neo4j_driver():
     settings = Neo4jSettings()
     driver = AsyncGraphDatabase.driver(
         settings.uri,
-        auth=(settings.username, settings.password),
+        auth=(settings.username, settings.password.get_secret_value()),
     )
 
     # Create constraints for test stability
     async with driver.session(database=settings.database) as session:
         await session.run(
-            "CREATE CONSTRAINT entity_pk IF NOT EXISTS "
-            "FOR (e:Entity) REQUIRE e.entity_id IS UNIQUE"
+            "CREATE CONSTRAINT entity_pk IF NOT EXISTS FOR (e:Entity) REQUIRE e.entity_id IS UNIQUE"
         )
         await session.run(
             "CREATE CONSTRAINT preference_pk IF NOT EXISTS "
             "FOR (p:Preference) REQUIRE p.preference_id IS UNIQUE"
         )
         await session.run(
-            "CREATE CONSTRAINT skill_pk IF NOT EXISTS " "FOR (s:Skill) REQUIRE s.skill_id IS UNIQUE"
+            "CREATE CONSTRAINT skill_pk IF NOT EXISTS FOR (s:Skill) REQUIRE s.skill_id IS UNIQUE"
         )
         await session.run(
             "CREATE CONSTRAINT profile_pk IF NOT EXISTS "
             "FOR (p:UserProfile) REQUIRE p.profile_id IS UNIQUE"
         )
         await session.run(
-            "CREATE CONSTRAINT event_pk IF NOT EXISTS " "FOR (e:Event) REQUIRE e.event_id IS UNIQUE"
+            "CREATE CONSTRAINT event_pk IF NOT EXISTS FOR (e:Event) REQUIRE e.event_id IS UNIQUE"
         )
 
     yield driver, settings.database
@@ -95,7 +94,7 @@ class TestUserProfile:
         # Verify only one profile node
         async with driver.session(database=database) as session:
             result = await session.run(
-                "MATCH (p:UserProfile {profile_id: 'profile:bob'}) " "RETURN count(p) AS cnt"
+                "MATCH (p:UserProfile {profile_id: 'profile:bob'}) RETURN count(p) AS cnt"
             )
             record = await result.single()
 
@@ -460,7 +459,7 @@ class TestDeleteUserData:
         # Verify entity is anonymized
         async with driver.session(database=database) as session:
             result = await session.run(
-                "MATCH (e:Entity {entity_id: 'user:delete-test'}) " "RETURN e.name AS name"
+                "MATCH (e:Entity {entity_id: 'user:delete-test'}) RETURN e.name AS name"
             )
             record = await result.single()
 

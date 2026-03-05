@@ -9,7 +9,7 @@ Amended-by: ADR-0010 (Redis replaces Postgres)
 
 Recent research (Dec 2025 -- Feb 2026) across agent memory architectures, graph-based memory systems, and neuroscience-inspired AI consistently converges on a multi-tier cognitive memory model. The field has moved beyond simple short-term/long-term dichotomies to a five-type taxonomy grounded in cognitive neuroscience: sensory, working, episodic, semantic, and procedural memory.
 
-Our existing dual-store architecture (Postgres event ledger + Neo4j graph projection + async projection worker) already implements the Complementary Learning Systems (CLS) pattern identified in neuroscience research -- but this alignment is implicit. This ADR makes it explicit and defines how each memory tier maps to system components.
+Our existing dual-store architecture (Redis event ledger + Neo4j graph projection + async projection worker) already implements the Complementary Learning Systems (CLS) pattern identified in neuroscience research -- but this alignment is implicit. This ADR makes it explicit and defines how each memory tier maps to system components.
 
 ### Research Basis
 
@@ -32,7 +32,7 @@ Nine papers across three research clusters inform this decision:
 
 ### Key Finding
 
-All three research clusters independently arrived at the same architectural conclusion: our Postgres + Neo4j + projection worker architecture maps directly to the hippocampal-neocortical Complementary Learning Systems model. This ADR formalizes that mapping.
+All three research clusters independently arrived at the same architectural conclusion: our Redis + Neo4j + projection worker architecture maps directly to the hippocampal-neocortical Complementary Learning Systems model. This ADR formalizes that mapping.
 
 Non-goals for this decision:
 - Implementing parametric memory (fine-tuning agent weights)
@@ -82,7 +82,7 @@ Working memory SHOULD:
 - Chunk related events into coherent episodes before returning (grouping by trace_id or parent_event_id chains)
 - Include scoring metadata in the `meta` response field
 
-### Tier 3: Episodic Memory (Postgres Event Ledger)
+### Tier 3: Episodic Memory (Redis Event Ledger)
 
 The Redis event store IS the episodic memory store. This tier satisfies all five properties of episodic memory (Pink et al., 2025):
 
@@ -133,18 +133,18 @@ Sensory --> Working --> Episodic --> Semantic
 ```
 
 The consolidation direction is:
-1. Events ingested into Postgres (episodic capture -- fast, detailed)
+1. Events ingested into Redis (episodic capture -- fast, detailed)
 2. Projection worker transforms events into Neo4j graph (semantic consolidation -- slow, abstracting)
 3. Context API assembles working memory from both stores (retrieval -- bounded, ranked)
 
 This maps to the neuroscience model:
-- **Postgres = hippocampus** (rapid encoding, detailed episodic traces, index-based storage)
+- **Redis = hippocampus** (rapid encoding, detailed episodic traces, stream-based storage)
 - **Neo4j = neocortex** (consolidated relational knowledge, query-optimized, gradually abstracted)
-- **Projection worker = systems consolidation** (async replay writing structure from hippocampus to neocortex)
+- **Projection worker = systems consolidation** (async consumer groups writing structure from hippocampus to neocortex)
 
 ### Event Schema Extension
 
-To support memory tier operations, the Postgres event schema SHOULD be extended with:
+To support memory tier operations, the Redis event schema SHOULD be extended with:
 
 ```
 importance_hint  SMALLINT  DEFAULT NULL   -- caller-supplied importance estimate (1-10 scale)
@@ -156,7 +156,7 @@ This field:
 - Can be populated by producers with domain knowledge (e.g., an agent knows a tool failure is important)
 - Can be populated by the ingestion layer using rule-based heuristics (e.g., `tool.execute` events default to higher importance than `observation.received`)
 
-**Dual-source importance semantics:** The authoritative `importance_score` is computed during enrichment (ADR-0008 Stage 2) and stored in Neo4j. Enrichment MAY use the Postgres `importance_hint` as one input signal among graph-derived factors (centrality, access frequency). When `importance_hint` is absent at ingestion, enrichment computes importance entirely from heuristics and graph context. See ADR-0004 amendment for the complete Postgres schema.
+**Dual-source importance semantics:** The authoritative `importance_score` is computed during enrichment (ADR-0008 Stage 2) and stored in Neo4j. Enrichment MAY use the Redis `importance_hint` as one input signal among graph-derived factors (centrality, access frequency). When `importance_hint` is absent at ingestion, enrichment computes importance entirely from heuristics and graph context. See ADR-0004 amendment for the complete Redis event schema.
 
 ## Consequences
 
@@ -209,12 +209,12 @@ Considered viable for MVP. However, explicitly acknowledging procedural memory a
 
 ### 2026-02-11: Importance Field Renamed and Phased Deployment Note
 
-**Importance field:** The originally proposed `importance_score` Postgres field has been renamed to `importance_hint` to distinguish it from the enrichment-computed `importance_score` in Neo4j. See ADR-0004 amendment for the authoritative Postgres schema.
+**Importance field:** The originally proposed `importance_score` field has been renamed to `importance_hint` to distinguish it from the enrichment-computed `importance_score` in Neo4j. See ADR-0004 amendment for the authoritative Redis event schema.
 
-**Phased deployment alignment:** The tier architecture is a logical model that guides design decisions across all deployment phases. While this ADR describes the full four-tier system with both Postgres and Neo4j, the model remains valid during phased deployment:
+**Phased deployment alignment:** The tier architecture is a logical model that guides design decisions across all deployment phases. While this ADR describes the full four-tier system with both Redis and Neo4j, the model remains valid during phased deployment:
 - In the initial build with both stores: All four tiers are active as described.
 - The transition to adding consolidation features (ADR-0008 Stages 2-3) does not require schema changes — it adds enrichment capabilities to events already being projected.
-- The CLS mapping (Postgres=hippocampus, Neo4j=neocortex) reflects the target architecture that the project adopts from the initial build per ADR-0003 (Accepted).
+- The CLS mapping (Redis=hippocampus, Neo4j=neocortex) reflects the target architecture that the project adopts from the initial build per ADR-0003 (Accepted).
 
 ### 2026-02-11: Redis Adoption (ADR-0010)
 

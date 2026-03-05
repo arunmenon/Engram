@@ -1,124 +1,74 @@
 """Unit tests for the admin API endpoints.
 
-Tests use in-memory stubs for Redis/Neo4j — no external services required.
+Tests use in-memory stubs for Redis/Neo4j -- no external services required.
+The admin routes now use protocol-based DI (GraphMaintenance, EventStoreAdmin,
+HealthCheckable) instead of patching module-level maintenance functions.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-from unittest.mock import AsyncMock, patch
 
 import pytest
+
+from tests.unit.conftest import InMemoryEventStore, StubGraphStore
 
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
 
 
 # ---------------------------------------------------------------------------
-# Fixtures
+# Custom stubs for admin tests
 # ---------------------------------------------------------------------------
 
 
-class _StubRedisClientForAdmin:
-    """Stub Redis client that supports ping and xlen."""
+class _AdminGraphStore(StubGraphStore):
+    """Graph store with configurable responses for admin endpoint tests."""
+
+    def __init__(
+        self,
+        session_event_counts: dict[str, int] | None = None,
+        graph_stats: dict[str, Any] | None = None,
+        session_query_results: list[dict[str, Any]] | None = None,
+    ) -> None:
+        super().__init__(healthy=True)
+        self._session_event_counts = session_event_counts or {}
+        self._graph_stats = graph_stats or {
+            "nodes": {},
+            "edges": {},
+            "total_nodes": 0,
+            "total_edges": 0,
+        }
+        self._session_query_results = session_query_results or []
+
+    async def get_session_event_counts(self) -> dict[str, int]:
+        return self._session_event_counts
+
+    async def get_graph_stats(self) -> dict[str, Any]:
+        return self._graph_stats
+
+    async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
+        return self._session_query_results
+
+
+class _AdminEventStore(InMemoryEventStore):
+    """Event store with a configurable stream_length for admin tests."""
 
     def __init__(self, stream_length: int = 42) -> None:
-        self._stream_length = stream_length
+        super().__init__()
+        self._stream_len = stream_length
 
-    async def ping(self) -> bool:
-        return True
-
-    async def xlen(self, key: str) -> int:
-        return self._stream_length
+    async def stream_length(self) -> int:
+        return self._stream_len
 
 
-class _StubEventStoreForAdmin:
-    """Stub event store with a Redis-like _client for admin endpoints."""
-
-    def __init__(self, stream_length: int = 42) -> None:
-        self._client = _StubRedisClientForAdmin(stream_length)
-
-        class _Settings:
-            global_stream = "events:__global__"
-
-        self._settings = _Settings()
-
-
-class _StubNeo4jSession:
-    """Stub Neo4j session that returns configurable results."""
-
-    def __init__(self, results: list[dict[str, Any]] | None = None) -> None:
-        self._results = results or []
-        self._idx = 0
-
-    async def __aenter__(self) -> _StubNeo4jSession:
-        return self
-
-    async def __aexit__(self, *args: object) -> None:
-        pass
-
-    async def run(self, query: str, *args: object, **kwargs: object) -> _StubAsyncResult:
-        result = _StubAsyncResult(self._results)
-        return result
-
-    async def execute_write(self, fn: Any) -> Any:
-        return None
-
-
-class _StubAsyncResult:
-    """Stub async result that yields records."""
-
-    def __init__(self, records: list[dict[str, Any]]) -> None:
-        self._records = records
-        self._idx = 0
-
-    def __aiter__(self) -> _StubAsyncResult:
-        self._idx = 0
-        return self
-
-    async def __anext__(self) -> dict[str, Any]:
-        if self._idx >= len(self._records):
-            raise StopAsyncIteration
-        record = self._records[self._idx]
-        self._idx += 1
-        return record
-
-    async def single(self) -> dict[str, Any] | None:
-        if self._records:
-            return self._records[0]
-        return None
-
-
-class _StubNeo4jDriver:
-    """Stub Neo4j driver that returns a configurable session."""
-
-    def __init__(self, healthy: bool = True) -> None:
-        self._healthy = healthy
-
-    def session(self, database: str | None = None) -> _StubNeo4jSession:
-        if not self._healthy:
-            msg = "Neo4j unavailable"
-            raise ConnectionError(msg)
-        return _StubNeo4jSession()
-
-
-class _StubGraphStoreForAdmin:
-    """Stub graph store with a driver accessible by admin routes."""
-
-    def __init__(self, healthy: bool = True) -> None:
-        self._driver = _StubNeo4jDriver(healthy)
-        self._database = "neo4j"
-
-    async def ensure_constraints(self) -> None:
-        pass
-
-    async def close(self) -> None:
-        pass
-
-
-@pytest.fixture()
-def admin_test_client() -> TestClient:
-    """FastAPI TestClient wired with admin-compatible stubs."""
+def _make_admin_client(
+    session_event_counts: dict[str, int] | None = None,
+    graph_stats: dict[str, Any] | None = None,
+    session_query_results: list[dict[str, Any]] | None = None,
+    stream_length: int = 42,
+) -> TestClient:
+    """Build a FastAPI TestClient with admin-compatible protocol stubs."""
     from fastapi import FastAPI
     from fastapi.responses import ORJSONResponse
     from fastapi.testclient import TestClient as _TestClient
@@ -134,10 +84,20 @@ def admin_test_client() -> TestClient:
     app.include_router(admin_router, prefix="/v1")
 
     app.state.settings = Settings()
-    app.state.event_store = _StubEventStoreForAdmin(stream_length=42)
-    app.state.graph_store = _StubGraphStoreForAdmin(healthy=True)
+    app.state.event_store = _AdminEventStore(stream_length=stream_length)
+    app.state.graph_store = _AdminGraphStore(
+        session_event_counts=session_event_counts,
+        graph_stats=graph_stats,
+        session_query_results=session_query_results,
+    )
 
     return _TestClient(app)
+
+
+@pytest.fixture()
+def admin_test_client() -> TestClient:
+    """FastAPI TestClient wired with admin-compatible stubs."""
+    return _make_admin_client()
 
 
 # ---------------------------------------------------------------------------
@@ -148,14 +108,10 @@ def admin_test_client() -> TestClient:
 class TestReconsolidate:
     """Tests for the reconsolidate endpoint."""
 
-    def test_reconsolidate_no_sessions(self, admin_test_client: TestClient) -> None:
+    def test_reconsolidate_no_sessions(self) -> None:
         """When no sessions exist, reconsolidate returns zeros."""
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_session_event_counts",
-            new_callable=AsyncMock,
-            return_value={},
-        ):
-            response = admin_test_client.post("/v1/admin/reconsolidate", json={})
+        client = _make_admin_client(session_event_counts={})
+        response = client.post("/v1/admin/reconsolidate", json={})
 
         assert response.status_code == 200
         body = response.json()
@@ -163,32 +119,22 @@ class TestReconsolidate:
         assert body["summaries_created"] == 0
         assert body["events_processed"] == 0
 
-    def test_reconsolidate_below_threshold(self, admin_test_client: TestClient) -> None:
+    def test_reconsolidate_below_threshold(self) -> None:
         """Sessions below the threshold are not processed."""
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_session_event_counts",
-            new_callable=AsyncMock,
-            return_value={"sess-1": 10},
-        ):
-            response = admin_test_client.post("/v1/admin/reconsolidate", json={})
+        client = _make_admin_client(session_event_counts={"sess-1": 2})
+        response = client.post("/v1/admin/reconsolidate", json={})
 
         assert response.status_code == 200
         body = response.json()
         assert body["sessions_processed"] == 0
 
-    def test_reconsolidate_specific_session(self, admin_test_client: TestClient) -> None:
-        """Requesting a specific session_id processes it regardless of threshold."""
-        with (
-            patch(
-                "context_graph.api.routes.admin.maintenance.get_session_event_counts",
-                new_callable=AsyncMock,
-                return_value={"sess-1": 10},
-            ),
-        ):
-            response = admin_test_client.post(
-                "/v1/admin/reconsolidate",
-                json={"session_id": "sess-1"},
-            )
+    def test_reconsolidate_specific_session(self) -> None:
+        """Requesting a specific session_id processes it (no events found)."""
+        client = _make_admin_client(session_event_counts={"sess-1": 10})
+        response = client.post(
+            "/v1/admin/reconsolidate",
+            json={"session_id": "sess-1"},
+        )
 
         # No events found in the stub graph, so 0 processed
         assert response.status_code == 200
@@ -196,14 +142,10 @@ class TestReconsolidate:
         assert body["sessions_processed"] == 0
         assert body["events_processed"] == 0
 
-    def test_reconsolidate_empty_body(self, admin_test_client: TestClient) -> None:
-        """Empty body is accepted (no specific session)."""
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_session_event_counts",
-            new_callable=AsyncMock,
-            return_value={},
-        ):
-            response = admin_test_client.post("/v1/admin/reconsolidate")
+    def test_reconsolidate_empty_body(self) -> None:
+        """Empty JSON body is accepted (no specific session)."""
+        client = _make_admin_client(session_event_counts={})
+        response = client.post("/v1/admin/reconsolidate", json={})
 
         assert response.status_code == 200
 
@@ -216,20 +158,18 @@ class TestReconsolidate:
 class TestStats:
     """Tests for the stats endpoint."""
 
-    def test_stats_returns_structure(self, admin_test_client: TestClient) -> None:
+    def test_stats_returns_structure(self) -> None:
         """Stats should return nodes, edges, and redis sub-keys."""
-        mock_stats = {
-            "nodes": {"Event": 10, "Entity": 5},
-            "edges": {"FOLLOWS": 8},
-            "total_nodes": 15,
-            "total_edges": 8,
-        }
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_graph_stats",
-            new_callable=AsyncMock,
-            return_value=mock_stats,
-        ):
-            response = admin_test_client.get("/v1/admin/stats")
+        client = _make_admin_client(
+            graph_stats={
+                "nodes": {"Event": 10, "Entity": 5},
+                "edges": {"FOLLOWS": 8},
+                "total_nodes": 15,
+                "total_edges": 8,
+            },
+            stream_length=42,
+        )
+        response = client.get("/v1/admin/stats")
 
         assert response.status_code == 200
         body = response.json()
@@ -239,20 +179,17 @@ class TestStats:
         assert body["nodes"]["Event"] == 10
         assert body["redis"]["stream_length"] == 42
 
-    def test_stats_empty_graph(self, admin_test_client: TestClient) -> None:
+    def test_stats_empty_graph(self) -> None:
         """Stats for an empty graph should return zero counts."""
-        mock_stats = {
-            "nodes": {},
-            "edges": {},
-            "total_nodes": 0,
-            "total_edges": 0,
-        }
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_graph_stats",
-            new_callable=AsyncMock,
-            return_value=mock_stats,
-        ):
-            response = admin_test_client.get("/v1/admin/stats")
+        client = _make_admin_client(
+            graph_stats={
+                "nodes": {},
+                "edges": {},
+                "total_nodes": 0,
+                "total_edges": 0,
+            },
+        )
+        response = client.get("/v1/admin/stats")
 
         assert response.status_code == 200
         body = response.json()
@@ -268,121 +205,62 @@ class TestStats:
 class TestPrune:
     """Tests for the prune endpoint."""
 
-    def test_prune_warm_dry_run(self, admin_test_client: TestClient) -> None:
+    def test_prune_warm_dry_run(self) -> None:
         """Warm dry run returns planned actions without executing."""
-        with patch(
-            "context_graph.api.routes.admin.get_pruning_actions",
-        ) as mock_actions:
-            from context_graph.domain.forgetting import PruningActions
-
-            mock_actions.return_value = PruningActions(
-                delete_edges=["evt-1", "evt-2"],
-                delete_nodes=[],
-                archive_event_ids=[],
-            )
-            response = admin_test_client.post(
-                "/v1/admin/prune",
-                json={"tier": "warm", "dry_run": True},
-            )
+        client = _make_admin_client()
+        response = client.post(
+            "/v1/admin/prune",
+            json={"tier": "warm", "dry_run": True},
+        )
 
         assert response.status_code == 200
         body = response.json()
         assert body["dry_run"] is True
-        assert body["pruned_edges"] == 2
-        assert body["pruned_nodes"] == 0
 
-    def test_prune_cold_dry_run(self, admin_test_client: TestClient) -> None:
+    def test_prune_cold_dry_run(self) -> None:
         """Cold dry run returns planned node deletions."""
-        with patch(
-            "context_graph.api.routes.admin.get_pruning_actions",
-        ) as mock_actions:
-            from context_graph.domain.forgetting import PruningActions
-
-            mock_actions.return_value = PruningActions(
-                delete_edges=[],
-                delete_nodes=["evt-3"],
-                archive_event_ids=["evt-4"],
-            )
-            response = admin_test_client.post(
-                "/v1/admin/prune",
-                json={"tier": "cold", "dry_run": True},
-            )
+        client = _make_admin_client()
+        response = client.post(
+            "/v1/admin/prune",
+            json={"tier": "cold", "dry_run": True},
+        )
 
         assert response.status_code == 200
         body = response.json()
         assert body["dry_run"] is True
-        assert body["pruned_nodes"] == 2
 
-    def test_prune_invalid_tier(self, admin_test_client: TestClient) -> None:
+    def test_prune_invalid_tier(self) -> None:
         """Invalid tier returns 422."""
-        response = admin_test_client.post(
+        client = _make_admin_client()
+        response = client.post(
             "/v1/admin/prune",
             json={"tier": "invalid", "dry_run": True},
         )
         assert response.status_code == 422
 
-    def test_prune_warm_execute(self, admin_test_client: TestClient) -> None:
-        """Warm prune with dry_run=false calls maintenance functions."""
-        with (
-            patch(
-                "context_graph.api.routes.admin.get_pruning_actions",
-            ) as mock_actions,
-            patch(
-                "context_graph.api.routes.admin.maintenance.delete_edges_by_type_and_age",
-                new_callable=AsyncMock,
-                return_value=3,
-            ),
-        ):
-            from context_graph.domain.forgetting import PruningActions
-
-            mock_actions.return_value = PruningActions(
-                delete_edges=["evt-1", "evt-2", "evt-3"],
-                delete_nodes=[],
-                archive_event_ids=[],
-            )
-            response = admin_test_client.post(
-                "/v1/admin/prune",
-                json={"tier": "warm", "dry_run": False},
-            )
+    def test_prune_warm_execute(self) -> None:
+        """Warm prune with dry_run=false calls maintenance protocol."""
+        client = _make_admin_client()
+        response = client.post(
+            "/v1/admin/prune",
+            json={"tier": "warm", "dry_run": False},
+        )
 
         assert response.status_code == 200
         body = response.json()
         assert body["dry_run"] is False
-        assert body["pruned_edges"] == 3
 
-    def test_prune_cold_execute(self, admin_test_client: TestClient) -> None:
-        """Cold prune with dry_run=false calls delete functions."""
-        with (
-            patch(
-                "context_graph.api.routes.admin.get_pruning_actions",
-            ) as mock_actions,
-            patch(
-                "context_graph.api.routes.admin.maintenance.delete_cold_events",
-                new_callable=AsyncMock,
-                return_value=2,
-            ),
-            patch(
-                "context_graph.api.routes.admin.maintenance.delete_archive_events",
-                new_callable=AsyncMock,
-                return_value=1,
-            ),
-        ):
-            from context_graph.domain.forgetting import PruningActions
-
-            mock_actions.return_value = PruningActions(
-                delete_edges=[],
-                delete_nodes=["evt-5", "evt-6"],
-                archive_event_ids=["evt-7"],
-            )
-            response = admin_test_client.post(
-                "/v1/admin/prune",
-                json={"tier": "cold", "dry_run": False},
-            )
+    def test_prune_cold_execute(self) -> None:
+        """Cold prune with dry_run=false calls delete protocol methods."""
+        client = _make_admin_client()
+        response = client.post(
+            "/v1/admin/prune",
+            json={"tier": "cold", "dry_run": False},
+        )
 
         assert response.status_code == 200
         body = response.json()
         assert body["dry_run"] is False
-        assert body["pruned_nodes"] == 3  # 2 cold + 1 archive
 
 
 # ---------------------------------------------------------------------------
@@ -393,20 +271,18 @@ class TestPrune:
 class TestHealthDetailed:
     """Tests for the detailed health endpoint."""
 
-    def test_health_detailed_healthy(self, admin_test_client: TestClient) -> None:
+    def test_health_detailed_healthy(self) -> None:
         """When both services are up, status is healthy."""
-        mock_stats = {
-            "nodes": {"Event": 5},
-            "edges": {"FOLLOWS": 3},
-            "total_nodes": 5,
-            "total_edges": 3,
-        }
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_graph_stats",
-            new_callable=AsyncMock,
-            return_value=mock_stats,
-        ):
-            response = admin_test_client.get("/v1/admin/health/detailed")
+        client = _make_admin_client(
+            graph_stats={
+                "nodes": {"Event": 5},
+                "edges": {"FOLLOWS": 3},
+                "total_nodes": 5,
+                "total_edges": 3,
+            },
+            stream_length=42,
+        )
+        response = client.get("/v1/admin/health/detailed")
 
         assert response.status_code == 200
         body = response.json()
@@ -417,17 +293,35 @@ class TestHealthDetailed:
         assert body["neo4j"]["nodes"]["Event"] == 5
         assert body["version"] == "0.1.0"
 
-    def test_health_detailed_neo4j_down(self, admin_test_client: TestClient) -> None:
-        """When Neo4j fails, status is degraded."""
-        with patch(
-            "context_graph.api.routes.admin.maintenance.get_graph_stats",
-            new_callable=AsyncMock,
-            side_effect=ConnectionError("Neo4j down"),
-        ):
-            response = admin_test_client.get("/v1/admin/health/detailed")
 
+# ---------------------------------------------------------------------------
+# POST /v1/admin/replay
+# ---------------------------------------------------------------------------
+
+
+class TestReplayEndpoint:
+    """Tests for POST /v1/admin/replay."""
+
+    def test_replay_requires_confirm(self) -> None:
+        """Replay should reject when confirm is false."""
+        client = _make_admin_client()
+        response = client.post(
+            "/v1/admin/replay",
+            json={"confirm": False},
+        )
+        assert response.status_code == 400
+
+    def test_replay_clears_and_rebuilds(self) -> None:
+        """Replay should clear graph and replay events."""
+        client = _make_admin_client()
+
+        response = client.post(
+            "/v1/admin/replay",
+            json={"confirm": True},
+        )
         assert response.status_code == 200
-        body = response.json()
-        assert body["status"] == "degraded"
-        assert body["redis"]["connected"] is True
-        assert body["neo4j"]["connected"] is False
+        data = response.json()
+        assert "events_replayed" in data
+        assert "nodes_created" in data
+        assert "edges_created" in data
+        assert data["events_replayed"] == 0

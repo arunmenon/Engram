@@ -215,6 +215,8 @@ CREATE EDGE TYPE DERIVED_FROM (
   | FROM Skill TO Event
   | FROM Workflow TO Event
 
+> Implementation note: In code, these are stored as `method` and `extracted_at` respectively (see `adapters/neo4j/user_queries.py`).
+
 CREATE EDGE TYPE EXHIBITS_PATTERN ()
   FROM Entity TO BehavioralPattern
   -- Constraint: Entity.entity_type = "user"
@@ -671,6 +673,8 @@ CREATE CONSTRAINT behavioralpattern_type_not_null FOR (b:BehavioralPattern) REQU
 CREATE CONSTRAINT behavioralpattern_confidence_not_null FOR (b:BehavioralPattern) REQUIRE b.confidence IS NOT NULL;
 ```
 
+> Note: Uniqueness constraints for UserProfile, Preference, Skill, Workflow, and BehavioralPattern are defined in `docker/neo4j/constraints.cypher`.
+
 **Projection worker validation** (application-level, not enforceable by Neo4j):
 
 | Rule | Enforcement |
@@ -917,3 +921,45 @@ Rejected. The user explicitly requested this capability. Without personalization
 ### Provenance Standards
 - W3C. "PROV-O: The PROV Ontology." https://www.w3.org/TR/prov-o/
 - Belhajjame, K. et al. (2024). "User Modeling and User Profiling: A Comprehensive Survey." https://arxiv.org/pdf/2402.09660
+
+## Amendment: Contradiction Detection and Resolution (2026-03-04)
+
+### Context
+
+As the system accumulates preferences and beliefs over time, contradictions inevitably arise -- a user may state "I prefer Python" in one session and "I prefer Go" in another for the same domain. Without formal contradiction detection, the system would surface conflicting preferences simultaneously, degrading personalization quality.
+
+### Preference Contradiction Detection
+
+When new preferences are extracted, the system checks for contradictions against existing preferences:
+
+1. Group active preferences by `(category, key)`
+2. Detect polarity conflicts (positive vs negative on same key)
+3. Resolve using most-recent-wins: compare `last_confirmed_at` timestamps
+4. Set `superseded_by` on the loser preference
+5. If neither has a timestamp, the newly extracted preference wins by default
+
+Implementation: `domain/contradiction.py::detect_preference_contradictions()` and `resolve_contradiction()`
+
+### Belief Contradiction Detection
+
+Beliefs support contradiction detection using text similarity within the same `BeliefCategory`:
+
+1. Compare active (non-superseded) beliefs within the same category
+2. Compute text similarity via `SequenceMatcher` ratio
+3. Ratio in [0.6, 0.95] = **contradiction** (same topic, different claims)
+4. Ratio > 0.95 = **duplicate** (not a contradiction)
+5. Ratio < 0.6 = **different topic** (not a contradiction)
+6. Resolution priority: confidence > recency (`last_confirmed_at`) > confirmation_count
+7. Loser gets `superseded_by` set to winner's `belief_id`
+
+Implementation: `domain/contradiction.py::detect_belief_contradiction()`, `resolve_belief_contradiction()`, `find_belief_contradictions()`
+
+### Edge Creation
+
+- `CONTRADICTS` edge created between contradictory Belief nodes
+- `SUPERSEDES` edge created from winner to loser after resolution
+- For preferences, supersession is tracked via the `superseded_by` property (not an edge), with potential future migration to SUPERSEDES edges
+
+### Integration Point
+
+Contradiction detection runs in Consumer 2 (Session Extraction) after preference extraction, providing real-time conflict resolution. This supplements Consumer 4's periodic cross-session consolidation.

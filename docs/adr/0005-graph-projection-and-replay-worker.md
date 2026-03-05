@@ -59,3 +59,130 @@ Rejected because latency may be too high for interactive agent workflows.
 ### 2026-02-11: Redis Streams Replace Postgres Polling
 
 **What changed:** Postgres polling replaced by Redis consumer groups (XREADGROUP) per ADR-0010. Push-based delivery eliminates polling lag. Consumer group tracks position automatically. Crash recovery via Pending Entry List (PEL) replaces application-level cursor.
+
+### 2026-02-28: Orphaned Message Recovery and Dead-Letter Queue (H4, H5)
+
+**Orphaned message claiming (H4):** Before the PEL drain loop, the consumer
+now calls `XAUTOCLAIM` to claim messages that have been idle in the PEL for
+longer than `claim_idle_ms` (default: 5 minutes). This recovers messages
+from crashed consumer instances. `XAUTOCLAIM` (Redis 6.2+) combines
+`XPENDING` + `XCLAIM` atomically and returns the claimed entries along
+with their delivery counts.
+
+**Dead-letter queue (H5):** During the PEL drain loop, each message's
+delivery count is checked via `XPENDING ... <consumer>`. If a message has
+been delivered more than `max_retries` times (default: 5), it is written to
+a DLQ stream (`<stream>:dlq`) with metadata (original stream, entry ID,
+group, consumer, delivery count) and then ACKed from the source stream.
+This prevents permanently-failing messages from blocking the PEL drain on
+every restart.
+
+**Configuration:** New `ConsumerSettings` class with env prefix `CG_CONSUMER_`:
+- `claim_idle_ms` (default 300000) -- min idle time before claiming
+- `claim_batch_size` (default 100) -- max messages per XAUTOCLAIM
+- `max_retries` (default 5) -- delivery attempts before dead-lettering
+- `dlq_stream_suffix` (default `:dlq`) -- appended to source stream key
+
+**Metric:** `engram_consumer_messages_dead_lettered_total{consumer}` counts
+messages moved to the DLQ.
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Worker constructors now accept port protocol types instead of raw infrastructure drivers, enforcing hexagonal architecture boundaries. This decouples workers from concrete adapter implementations and enables testing with any protocol-conformant stub.
+
+**Protocol-based worker constructors:**
+
+| Worker | Before | After |
+|--------|--------|-------|
+| `ProjectionConsumer` | `Neo4jGraphStore` (concrete) | `GraphStore` (protocol from `ports/graph_store.py`) |
+| `ConsolidationConsumer` | `AsyncDriver` (raw Neo4j) | `GraphMaintenance` (protocol from `ports/maintenance.py`) |
+| `EnrichmentConsumer` | `AsyncDriver` (raw Neo4j) | `AsyncDriver` (unchanged — enrichment still uses raw driver for direct Cypher queries; protocol migration deferred) |
+
+**New port protocols relevant to this ADR:**
+
+- `GraphStore` (`ports/graph_store.py`): Covers `merge_event_node`, `create_edge`, `get_subgraph`, `get_lineage` — used by Consumer 1 (projection).
+- `GraphMaintenance` (`ports/maintenance.py`): Covers `get_session_event_counts`, `write_summary_with_edges`, `delete_edges_by_type_and_age`, `delete_cold_events`, `delete_archive_events`, `update_importance_from_centrality` — used by Consumer 4 (consolidation).
+- `HealthCheckable` (`ports/health.py`): Covers `health_ping` — used by health route for both stores.
+
+**Dependency injection:** `api/dependencies.py` returns protocol types (not concrete adapters) to route handlers. DI functions like `get_graph_store() -> GraphStore` and `get_graph_maintenance() -> GraphMaintenance` ensure route files never import from `adapters/`.
+
+**Impact on this ADR:**
+
+- The "projector worker" described in the Decision section now receives its graph store via the `GraphStore` protocol, not a direct Neo4j driver reference.
+- Replay support is unchanged — the `BaseConsumer` XREADGROUP lifecycle and PEL recovery still apply. The protocol boundary is at the graph write layer, not the stream read layer.
+- The Stage 1/2/3 pipeline from the 2026-02-11 amendment now has explicit protocol boundaries: Stage 1 uses `GraphStore`, Stage 3 uses `GraphMaintenance`.
+
+### Amendment: PEL-Safe Stream Trimming (Tier 1)
+
+_Date: 2026-02-28_
+
+Consumer 4 (consolidation) now performs PEL-safe stream trimming that
+protects all consumer groups from data loss during `XTRIM`.
+
+**What changed:** The `trim_stream()` function in `adapters/redis/trimmer.py`
+accepts an optional `consumer_groups` parameter. When provided, it calls
+`get_consumer_group_progress()` to find the oldest unprocessed entry across
+all specified groups (via `XINFO GROUPS` + `XPENDING`), then computes
+`min(age_cutoff, oldest_unprocessed)` as the safe trim point via
+`compute_safe_trim_id()`.
+
+The consolidation worker passes all 4 consumer group names:
+`graph-projection`, `session-extraction`, `enrichment`, `consolidation`.
+
+**Why this matters for ADR-0005:** The original Redis Streams amendment
+(2026-02-11) established that crash recovery relies on the Pending Entry
+List (PEL). If `XTRIM` removes entries that are still in a consumer group's
+PEL, those entries are silently lost — the consumer will never process them
+and cannot recover them. PEL-safe trimming closes this gap by ensuring the
+trim point never advances past unprocessed entries for any group.
+
+A warning is logged when consumer groups lag behind the age cutoff,
+providing an early signal for operator intervention before the lag becomes
+critical.
+
+### Amendment: Micro-Batching, Deferred ACK, and Operational Enhancements (2026-03-04)
+
+_Date: 2026-03-04_
+
+The ProjectionConsumer has been enhanced with micro-batching, deferred
+acknowledgment, session memory bounding, batch graph writes, and lag metric
+sampling. These changes improve throughput, correctness, and resource usage.
+
+**1. Micro-batching:**
+
+ProjectionConsumer buffers up to 50 events (`_BATCH_SIZE`) or 100ms
+(`_BATCH_TIMEOUT_MS`) before flushing as one batch to Neo4j. This amortizes
+write overhead across multiple events. On flush, a single batch UNWIND query
+replaces N individual MERGE calls, significantly reducing Neo4j round-trips
+under load.
+
+**2. Deferred ACK pattern:**
+
+ProjectionConsumer sets `deferred_ack = True`, preventing the BaseConsumer
+from ACKing each message after `process_message`. Instead, XACK is issued
+for all buffered entry IDs after the batch Neo4j write succeeds. This ensures
+at-least-once delivery: if a crash occurs mid-batch, all buffered messages
+remain in the PEL and are reprocessed on restart.
+
+**3. Session memory bounding:**
+
+The per-session last-event cache (`_session_last_event`) uses an `OrderedDict`
+with LRU eviction, capped at 10,000 sessions (`_MAX_SESSION_CACHE`). Sessions
+are explicitly removed on `system.session_end` events. This prevents unbounded
+memory growth over long-running projection workers.
+
+**4. Batch protocol method:**
+
+The `GraphStore` protocol now includes `merge_event_nodes_batch(nodes)`
+alongside the single-event `merge_event_node()`. The projection consumer
+checks for the batch method via `hasattr` and falls back to sequential single
+writes for backward compatibility.
+
+**5. Lag metric sampling:**
+
+The `CONSUMER_LAG` Prometheus gauge is updated every 50 loop iterations
+(`_LAG_METRIC_INTERVAL`) via Redis `XINFO GROUPS`. This balances metric
+freshness against Redis command overhead. The implementation guards against
+`-1` values returned by Redis when lag is unknown.

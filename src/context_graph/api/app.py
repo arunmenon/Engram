@@ -12,16 +12,19 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
 import structlog
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
+from prometheus_client import make_asgi_app as make_metrics_app
 
 from context_graph.adapters.neo4j.store import Neo4jGraphStore
 from context_graph.adapters.redis.store import RedisEventStore
+from context_graph.api.dependencies import require_admin_key, require_api_key
 from context_graph.api.middleware import register_middleware
 from context_graph.api.routes.admin import router as admin_router
 from context_graph.api.routes.context import router as context_router
 from context_graph.api.routes.entities import router as entities_router
 from context_graph.api.routes.events import router as events_router
+from context_graph.api.routes.feedback import router as feedback_router
 from context_graph.api.routes.health import router as health_router
 from context_graph.api.routes.lineage import router as lineage_router
 from context_graph.api.routes.query import router as query_router
@@ -43,7 +46,58 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     event_store = await RedisEventStore.create(settings.redis)
     await event_store.ensure_indexes()
 
-    graph_store = Neo4jGraphStore(settings.neo4j)
+    # Optional: embedding service for query-time relevance scoring
+    embedding_service = None
+    try:
+        from context_graph.adapters.embedding.service import SentenceTransformerEmbedder
+
+        embedding_service = SentenceTransformerEmbedder(
+            model_name=settings.embedding.model_name,
+            device=settings.embedding.device,
+        )
+        logger.info(
+            "embedding_service_initialized",
+            model=settings.embedding.model_name,
+        )
+    except ImportError:
+        logger.info("embedding_service_unavailable", hint="relevance_score will default to 0.5")
+
+    # Optional: LLM intent classifier
+    intent_classifier = None
+    if settings.intent.use_llm:
+        from context_graph.adapters.llm.intent_classifier import LLMIntentClassifier
+
+        intent_classifier = LLMIntentClassifier(
+            model_id=settings.llm.model_id,
+            timeout_seconds=settings.intent.timeout_seconds,
+            fallback_on_error=settings.intent.fallback_on_error,
+        )
+        logger.info("llm_intent_classifier_initialized")
+
+    # Optional: LLM client for HyDE and other expansions
+    llm_client = None
+    try:
+        from context_graph.adapters.llm.client import LLMExtractionClient
+
+        llm_client = LLMExtractionClient(
+            model_id=settings.llm.model_id,
+            temperature=settings.hyde.temperature,
+            max_tokens=settings.hyde.max_tokens,
+        )
+        logger.info("llm_client_initialized")
+    except ImportError:
+        logger.info("llm_client_unavailable")
+
+    graph_store = Neo4jGraphStore(
+        settings.neo4j,
+        embedding_service=embedding_service,
+        query_settings=settings.query,
+        decay_settings=settings.decay,
+        intent_classifier=intent_classifier,
+        llm_client=llm_client,
+        event_store=event_store,
+        ppr_settings=settings.ppr,
+    )
     await graph_store.ensure_constraints()
 
     app.state.settings = settings
@@ -76,13 +130,25 @@ def create_app() -> FastAPI:
 
     register_middleware(app)
 
-    app.include_router(events_router, prefix="/v1")
+    # Standard endpoints: require API key (disabled when CG_AUTH_API_KEY unset)
+    api_key_deps = [Depends(require_api_key)]
+    app.include_router(events_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(context_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(query_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(lineage_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(entities_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(feedback_router, prefix="/v1", dependencies=api_key_deps)
+
+    # Admin + GDPR endpoints: require admin key
+    admin_key_deps = [Depends(require_admin_key)]
+    app.include_router(admin_router, prefix="/v1", dependencies=admin_key_deps)
+    app.include_router(users_router, prefix="/v1", dependencies=admin_key_deps)
+
+    # Health endpoint: no auth (used by load balancers / orchestrators)
     app.include_router(health_router, prefix="/v1")
-    app.include_router(context_router, prefix="/v1")
-    app.include_router(query_router, prefix="/v1")
-    app.include_router(lineage_router, prefix="/v1")
-    app.include_router(entities_router, prefix="/v1")
-    app.include_router(admin_router, prefix="/v1")
-    app.include_router(users_router, prefix="/v1")
+
+    # Prometheus metrics endpoint
+    metrics_app = make_metrics_app()
+    app.mount("/metrics", metrics_app)
 
     return app
