@@ -24,8 +24,8 @@ Four processing stages exist, handled by async consumers:
 | Source | Consumer | LLM Required | Trigger |
 |--------|----------|-------------|---------|
 | Structured events (temporal ordering, causal links, entity mentions) | Graph Projection (Consumer 1) | No (structural operations + optional rule-based fallback) | Per-event from Redis Stream |
-| Session conversation text (preferences, skills, interests, entities) | Session Extraction (Consumer 2) | Yes (per-session batch) | Session end or every N turns |
-| Event metadata (keywords, embeddings, importance scores) | Enrichment (Consumer 3) | No (local embedding model) | Per-event-batch from Redis Stream |
+| Session conversation text (preferences, skills, interests, entities) | Session Extraction (Consumer 2) | Yes (per-session batch). Entity embeddings stored on Neo4j Entity nodes (not Redis HNSW). | Session end or every N turns |
+| Event metadata (keywords, embeddings, importance scores) | Enrichment (Consumer 3) | No (local embedding model). Event embeddings computed and stored on Neo4j Event nodes. | Per-event-batch from Redis Stream |
 | Cross-session aggregated patterns (workflows, behavioral patterns) | Consolidation & Maintenance (Consumer 4) | Yes (periodic batch) | Configurable schedule (default: every 6 hours) |
 
 No production agent memory system (Mem0, Zep/Graphiti, Memoria, A-MEM, MAGMA) covers our full extraction needs. Entity and Preference extraction have production validation; Skill, Workflow, and BehavioralPattern extraction are **novel to our system** with no production precedent (researcher-2, Section 6.6; reviewer-2, Gap #6). Event-level provenance via DERIVED_FROM edges is our key differentiator -- no production system implements this (researcher-2, Section 8.3; reviewer-2, "Provenance Gap" observation).
@@ -226,6 +226,8 @@ class ExtractedPreference(BaseModel):
 
 **Reconciliation with Consumer 1 outputs.** If Consumer 1's resilience fallback already created preliminary Entity or Preference nodes, Consumer 2's higher-confidence LLM extractions supersede them. Consumer 2 checks for existing nodes via entity resolution before creating new ones, reinforcing matches (observation_count++) or superseding conflicts.
 
+**Entity embedding storage.** Entity embeddings (384-dim, all-MiniLM-L6-v2) are computed during extraction and stored directly on Neo4j Entity nodes as the `embedding` property. These embeddings power KNN entity resolution via the Neo4j vector index `entity_embedding_idx` (O(log n) approximate nearest neighbor search) and query-time relevance scoring. This replaces the previously considered Redis HNSW index approach, keeping all embedding storage in Neo4j consistent with the original ADR-0009 non-goal: "Vector database as a separate component (embeddings stored as Neo4j node properties)."
+
 ### 5. Consumer 3: Enrichment (ADR-0008 Stage 2)
 
 Consumer 3 reads events from the stream after Consumer 1 has projected structural edges, and computes derived attributes on Neo4j nodes. This consumer implements ADR-0008 Stage 2.
@@ -244,7 +246,13 @@ Consumer 3 reads events from the stream after Consumer 1 has projected structura
 - `SIMILAR_TO` edges between events with `cosine(embedding_i, embedding_j) > 0.85` (ADR-0009 threshold)
 - `REFERENCES` edges from entity mention extraction in event payloads
 
+> **Status (2026-02):** SIMILAR_TO edge creation (cross-event embedding comparison)
+> and REFERENCES edge creation are deferred. Event embeddings are computed and stored
+> on Neo4j Event nodes, but pairwise similarity comparison is not yet implemented.
+
 **Latency:** 50-500ms per event batch. Embedding computation is the bottleneck (~50-200ms per event with all-MiniLM-L6-v2). Batch processing amortizes model loading overhead.
+
+**Event embedding storage.** Event embeddings (384-dim, all-MiniLM-L6-v2) are computed by Consumer 3 and stored directly on Neo4j Event nodes as the `embedding` property. These embeddings are used for computing SIMILAR_TO edges (cosine > 0.85) and for query-time relevance scoring. All embedding storage is Neo4j-only, consistent with ADR-0009's non-goal statement regarding vector databases.
 
 **Relationship to Consumer 2:** Consumer 3 enriches ALL events (structural metadata). Consumer 2 extracts knowledge from conversation TEXT. They are complementary -- Consumer 3 provides the embeddings and importance scores that decay scoring (ADR-0008) requires, while Consumer 2 provides the user-knowledge nodes (Preferences, Skills, etc.) that personalization requires.
 
@@ -613,3 +621,62 @@ With prompt caching (90% savings on system prompt + schema, ~60% of input tokens
 - StructEval (2025): LLM structured output benchmarks
 - CISC (ACL Findings 2025): Confidence-informed self-consistency
 - Instructor library: Pydantic-based structured LLM output with automatic retry
+
+## Amendments
+
+### Amendment: Hexagonal Port Protocols (Tier 1)
+
+_Date: 2026-02-28_
+
+Consumer workers described in this ADR now accept port protocol types for graph operations instead of raw Neo4j `AsyncDriver` references. This enforces hexagonal boundaries and enables testing consumers with protocol-conformant stubs.
+
+**Consumer constructor changes:**
+
+| Consumer | Constructor Parameter | Before | After |
+|----------|----------------------|--------|-------|
+| Consumer 2 (`ExtractionConsumer`) | `user_store` | N/A (direct Neo4j writes) | `UserStore` protocol (`ports/user_store.py`) — optional, for writing preferences, skills, interests, and profiles |
+| Consumer 4 (`ConsolidationConsumer`) | `graph_maintenance` | `AsyncDriver` (raw Neo4j) | `GraphMaintenance` protocol (`ports/maintenance.py`) — for session counts, summaries, forgetting, centrality |
+| Consumer 1 (`ProjectionConsumer`) | `graph_store` | `Neo4jGraphStore` (concrete) | `GraphStore` protocol (`ports/graph_store.py`) — for MERGE operations |
+| Consumer 3 (`EnrichmentConsumer`) | `neo4j_driver` | `AsyncDriver` | `AsyncDriver` (unchanged — still uses raw driver for direct Cypher; protocol migration deferred) |
+
+**New protocols used by consumers:**
+
+- `UserStore` (`ports/user_store.py`): 14 methods covering user profile CRUD, preference/skill/interest writes with provenance edges, and GDPR delete/export. Used by Consumer 2 for writing extraction results.
+- `GraphMaintenance` (`ports/maintenance.py`): 11 methods covering session event counts, summary writes, retention tier enforcement (warm edge pruning, cold event deletion, archive cleanup), orphan node cleanup, and centrality-based importance updates. Used by Consumer 4 for all consolidation and forgetting operations.
+- `EventStoreAdmin` (`ports/event_store.py`): Admin operations (`health_ping`, `stream_length`) used by health and admin routes; not directly used by consumers.
+
+**Impact on this ADR:**
+
+- Section 4 (Consumer 2) graph writes now go through `UserStore.write_preference_with_edges`, `write_skill_with_edges`, `write_interest_edge`, and `write_user_profile` instead of direct Cypher. Consumer 2 still uses raw `AsyncDriver` for entity node MERGE and REFERENCES edge creation (partial migration).
+- Section 6 (Consumer 4) maintenance operations now go through `GraphMaintenance.get_session_event_counts`, `write_summary_with_edges`, `delete_edges_by_type_and_age`, `delete_cold_events`, `delete_archive_events`, `delete_orphan_nodes`, and `update_importance_from_centrality`.
+- The API routes (`/v1/users/`) use `UserStore` via DI (`dependencies.py: get_user_store() -> UserStore`), never importing from `adapters/neo4j/`.
+
+### Amendment: Extraction Pipeline Implementation Status (2026-03-04)
+
+**generate_text() Implementation:**
+The `LLMExtractionClient.generate_text()` method is now fully implemented using `litellm.acompletion()`. Configuration: model_id, temperature, max_tokens, timeout, and `num_retries` are all sourced from `CG_LLM_*` settings. Returns the generated text string or `None` on failure. This unblocks HyDE query expansion in the retrieval pipeline and LLM-powered consolidation summaries.
+
+**verify_entailment() — MVP Implementation:**
+The ADR originally specified DeBERTa-v3-large for NLI-based entailment checking. The MVP implementation uses a two-tier approach:
+
+1. **Primary:** LLM-based entailment check via `LLMExtractionClient.verify_entailment()` — sends a structured prompt asking the LLM to assess whether the evidence supports the claim
+2. **Fallback:** Keyword overlap heuristic with negation detection (`domain/extraction.py:113-142`):
+   - Extracts significant words (length > 2) from both claim and evidence
+   - Checks for negation marker disagreement using a curated set: `no`, `not`, `never`, `none`, `nor`, `neither`, `without`, `don't`, `doesn't`, `didn't`, `won't`, `can't`, `isn't`, `aren't`, `wasn't`, `weren't`
+   - If one text contains negation markers and the other doesn't → reject (not entailed)
+   - Otherwise, requires >= 50% keyword overlap for acceptance
+   - Claims with fewer than 2 significant words pass automatically (too short to verify)
+
+DeBERTa-v3-large integration remains a post-MVP enhancement for higher-accuracy offline batch verification.
+
+**Contradiction Detection in Consumer 2:**
+After extracting preferences from a session, Consumer 2 now runs cross-preference contradiction detection:
+1. Fetches the user's existing preferences from the graph
+2. Calls `detect_preference_contradictions()` — groups by `(category, key)`, detects opposite polarity
+3. Applies `resolve_contradiction()` — most-recent-wins using `last_confirmed_at`
+4. Marks older preference with `superseded_by` via `set_preference_superseded()`
+
+This provides real-time conflict resolution at extraction time, supplementing Consumer 4's periodic cross-session consolidation.
+
+**Auto-supersession Timing:**
+The ADR originally described supersession as part of Consumer 4 (Consolidation). The implementation places primary supersession in Consumer 2 (Extraction), where it can act immediately when contradictions are detected. Consumer 4 remains responsible for periodic cross-session preference merging and cleanup of any contradictions missed by Consumer 2.

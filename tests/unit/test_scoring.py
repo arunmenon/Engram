@@ -68,6 +68,45 @@ class TestComputeRecencyScore:
         assert score == 1.0
 
 
+class TestSublinearStabilityGrowth:
+    """Tests for sublinear (log1p) stability growth in compute_recency_score."""
+
+    def test_sublinear_growth_bounded(self) -> None:
+        """Diminishing returns: jump from 10->100 accesses should be smaller than 0->10."""
+        now = datetime.now(UTC)
+        occurred_at = now - timedelta(hours=200)
+        score_0 = compute_recency_score(occurred_at, access_count=0, now=now, sublinear=True)
+        score_10 = compute_recency_score(occurred_at, access_count=10, now=now, sublinear=True)
+        score_100 = compute_recency_score(occurred_at, access_count=100, now=now, sublinear=True)
+        delta_0_to_10 = score_10 - score_0
+        delta_10_to_100 = score_100 - score_10
+        assert delta_0_to_10 > delta_10_to_100
+        assert delta_10_to_100 > 0  # still grows, just slower
+
+    def test_linear_backward_compat(self) -> None:
+        """sublinear=False gives exactly the old linear behavior."""
+        now = datetime.now(UTC)
+        occurred_at = now - timedelta(hours=100)
+        import math
+
+        access_count = 5
+        s_base = 168.0
+        s_boost = 24.0
+        score = compute_recency_score(
+            occurred_at,
+            access_count=access_count,
+            s_base=s_base,
+            s_boost=s_boost,
+            now=now,
+            sublinear=False,
+        )
+        # Manually compute expected: S = s_base + access_count * s_boost
+        stability = s_base + access_count * s_boost
+        t_hours = 100.0
+        expected = math.exp(-t_hours / stability)
+        assert abs(score - expected) < 1e-9
+
+
 class TestComputeImportanceScore:
     """Tests for importance scoring."""
 
@@ -297,6 +336,237 @@ class TestComputeRelevanceEmptyFallback:
     def test_zero_vectors_returns_half(self):
         """Zero norm vectors should return 0.5."""
         assert compute_relevance_score([0.0, 0.0], [0.0, 0.0]) == 0.5
+
+
+class TestScoreEntityNode:
+    """Tests for score_entity_node with real embeddings."""
+
+    def test_entity_node_with_real_embedding(self) -> None:
+        """Non-empty embedding should produce relevance_score != 0.5."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 3,
+            "embedding": [1.0, 0.0, 0.0],
+        }
+        result = score_entity_node(entity_data, query_embedding=[1.0, 0.0, 0.0], now=now)
+        assert result.relevance_score > 0.99
+        assert result.relevance_score != 0.5
+
+    def test_entity_node_empty_embedding(self) -> None:
+        """Empty embedding should preserve 0.5 default relevance."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 1,
+            "embedding": [],
+        }
+        result = score_entity_node(entity_data, query_embedding=[1.0, 0.0, 0.0], now=now)
+        assert result.relevance_score == 0.5
+
+    def test_entity_node_orthogonal_embedding(self) -> None:
+        """Orthogonal embedding should produce relevance_score of 0.0."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 2,
+            "embedding": [0.0, 1.0, 0.0],
+        }
+        result = score_entity_node(entity_data, query_embedding=[1.0, 0.0, 0.0], now=now)
+        assert abs(result.relevance_score) < 1e-6
+
+    def test_entity_node_no_query_embedding(self) -> None:
+        """No query embedding should give 0.5 relevance regardless of node embedding."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 5,
+            "embedding": [1.0, 0.0, 0.0],
+        }
+        result = score_entity_node(entity_data, now=now)
+        assert result.relevance_score == 0.5
+
+
+class TestScoreEntityNodeConfigurable:
+    """Tests for score_entity_node with configurable decay parameters."""
+
+    def test_score_entity_node_custom_s_base(self) -> None:
+        """A higher s_base should produce slower decay (higher recency for old entities)."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": (now - timedelta(hours=500)).isoformat(),
+            "mention_count": 3,
+            "embedding": [],
+        }
+        score_default = score_entity_node(entity_data, now=now)
+        score_high_base = score_entity_node(entity_data, now=now, s_base=2000.0)
+        assert score_high_base.decay_score > score_default.decay_score
+
+    def test_score_entity_node_custom_weights(self) -> None:
+        """Custom weights should change the composite score."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 5,
+            "embedding": [1.0, 0.0],
+        }
+        score_default = score_entity_node(entity_data, query_embedding=[1.0, 0.0], now=now)
+        score_relevance_only = score_entity_node(
+            entity_data,
+            query_embedding=[1.0, 0.0],
+            now=now,
+            w_recency=0.0,
+            w_importance=0.0,
+            w_relevance=10.0,
+            w_user_affinity=0.0,
+        )
+        # With only relevance weighted and identical embeddings, score ~1.0
+        assert score_relevance_only.decay_score > 0.95
+        assert score_default.decay_score != score_relevance_only.decay_score
+
+    def test_score_entity_node_defaults_match_current_behavior(self) -> None:
+        """Default params produce the same result as old hardcoded values."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": (now - timedelta(hours=100)).isoformat(),
+            "mention_count": 4,
+            "embedding": [0.5, 0.5],
+        }
+        # Call with explicit old defaults (s_base=336.0) — should match no-arg call
+        score_explicit = score_entity_node(
+            entity_data, query_embedding=[0.5, 0.5], now=now, s_base=336.0
+        )
+        score_implicit = score_entity_node(entity_data, query_embedding=[0.5, 0.5], now=now)
+        assert abs(score_explicit.decay_score - score_implicit.decay_score) < 1e-9
+
+    def test_score_node_with_all_custom_params(self) -> None:
+        """score_node should accept and apply all custom decay params."""
+        now = datetime.now(UTC)
+        node_data = {
+            "occurred_at": (now - timedelta(hours=50)).isoformat(),
+            "access_count": 2,
+            "importance_score": 7,
+            "embedding": [1.0, 0.0],
+            "in_degree": 3,
+        }
+        result = score_node(
+            node_data,
+            query_embedding=[1.0, 0.0],
+            s_base=500.0,
+            s_boost=50.0,
+            w_recency=2.0,
+            w_importance=0.5,
+            w_relevance=3.0,
+            w_user_affinity=0.0,
+            now=now,
+        )
+        assert isinstance(result, NodeScores)
+        assert result.decay_score > 0
+
+    def test_composite_score_zero_weights(self) -> None:
+        """All zero weights should produce decay_score of 0.0."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 10,
+            "embedding": [1.0, 0.0],
+        }
+        result = score_entity_node(
+            entity_data,
+            query_embedding=[1.0, 0.0],
+            now=now,
+            w_recency=0.0,
+            w_importance=0.0,
+            w_relevance=0.0,
+            w_user_affinity=0.0,
+        )
+        assert result.decay_score == 0.0
+
+    def test_entity_node_user_affinity_weight(self) -> None:
+        """Changing w_user_affinity affects composite when user_affinity > 0."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": now.isoformat(),
+            "mention_count": 5,
+            "embedding": [],
+        }
+        # Entity nodes don't carry user_affinity, so the affinity component is 0.
+        # Changing w_user_affinity changes total_weight divisor, thus the composite.
+        score_low_w = score_entity_node(entity_data, now=now, w_user_affinity=0.0)
+        score_high_w = score_entity_node(entity_data, now=now, w_user_affinity=5.0)
+        # With user_affinity=0 in entity, higher w_user_affinity dilutes composite
+        assert score_low_w.decay_score > score_high_w.decay_score
+
+    def test_decay_settings_propagation(self) -> None:
+        """Verify params reach compute functions by testing s_base effect on recency."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": (now - timedelta(hours=300)).isoformat(),
+            "mention_count": 2,
+            "embedding": [],
+        }
+        # Very low s_base -> fast decay -> low recency
+        score_fast = score_entity_node(entity_data, now=now, s_base=10.0)
+        # Very high s_base -> slow decay -> high recency
+        score_slow = score_entity_node(entity_data, now=now, s_base=10000.0)
+        assert score_slow.decay_score > score_fast.decay_score
+
+    def test_entity_node_high_s_base_slower_decay(self) -> None:
+        """Entity with high s_base should retain higher score over time."""
+        from context_graph.domain.scoring import score_entity_node
+
+        now = datetime.now(UTC)
+        entity_data = {
+            "last_seen": (now - timedelta(hours=1000)).isoformat(),
+            "mention_count": 1,
+            "embedding": [],
+        }
+        score_normal = score_entity_node(entity_data, now=now, s_base=336.0)
+        score_high_base = score_entity_node(entity_data, now=now, s_base=5000.0)
+        assert score_high_base.decay_score > score_normal.decay_score
+
+
+class TestEntityDecaySettings:
+    """Verify entity scoring uses separate s_base from events."""
+
+    def test_entity_default_s_base_differs_from_event(self) -> None:
+        """Entity s_base (336h) should differ from event s_base (168h)."""
+        from context_graph.settings import DecaySettings
+
+        settings = DecaySettings()
+        assert settings.entity_s_base == 336.0
+        assert settings.s_base == 168.0
+        assert settings.entity_s_base > settings.s_base
+
+    def test_entity_scoring_uses_entity_s_base(self) -> None:
+        """score_entity_node default s_base should match entity_s_base."""
+        import inspect
+
+        from context_graph.domain.scoring import score_entity_node
+
+        sig = inspect.signature(score_entity_node)
+        default_s_base = sig.parameters["s_base"].default
+        assert default_s_base == 336.0
 
 
 class TestComputeUserAffinity:

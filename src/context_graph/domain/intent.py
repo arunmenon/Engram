@@ -9,6 +9,8 @@ Pure Python — ZERO framework imports.
 
 from __future__ import annotations
 
+import re
+
 from context_graph.domain.models import IntentType
 
 # Keyword patterns for each intent type.
@@ -44,6 +46,13 @@ _INTENT_KEYWORDS: dict[str, list[str]] = {
     ],
 }
 
+# Pre-compiled regex patterns with word boundaries for each intent type.
+# Avoids substring matching (e.g., "show" matching "how") by using \b.
+_INTENT_PATTERNS: dict[str, list[re.Pattern[str]]] = {
+    intent: [re.compile(r"\b" + re.escape(kw) + r"\b") for kw in keywords]
+    for intent, keywords in _INTENT_KEYWORDS.items()
+}
+
 # Maps dominant intent to seed-node selection strategy.
 _SEED_STRATEGIES: dict[str, str] = {
     IntentType.WHY: "causal_roots",
@@ -65,8 +74,8 @@ def classify_intent(query: str) -> dict[str, float]:
     """
     query_lower = query.lower()
     scores: dict[str, float] = {}
-    for intent, keywords in _INTENT_KEYWORDS.items():
-        matches = sum(1 for kw in keywords if kw in query_lower)
+    for intent, _keywords in _INTENT_KEYWORDS.items():
+        matches = sum(1 for pat in _INTENT_PATTERNS[intent] if pat.search(query_lower))
         if matches > 0:
             scores[intent] = min(1.0, matches * 0.4)
 
@@ -106,3 +115,11 @@ def select_seed_strategy(intents: dict[str, float]) -> str:
         return "general"
     dominant = max(intents, key=lambda k: intents[k])
     return _SEED_STRATEGIES.get(dominant, "general")
+
+
+class KeywordIntentClassifier:
+    """Keyword-based intent classifier conforming to IntentClassifier protocol."""
+
+    async def classify(self, query: str) -> dict[str, float]:
+        """Classify a query using keyword matching."""
+        return classify_intent(query)

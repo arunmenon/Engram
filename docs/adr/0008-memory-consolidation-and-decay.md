@@ -8,7 +8,7 @@ Amended-by: ADR-0010 (Redis replaces Postgres)
 
 ## Context
 
-The projection worker (ADR-0005) currently performs a single-pass transformation: poll Postgres events, MERGE into Neo4j. Research reveals this is only the first stage of a richer consolidation lifecycle. The biological model -- hippocampal replay during rest gradually writing structure into the neocortex -- maps to a multi-stage consolidation process with active forgetting.
+The projection worker (ADR-0005) currently performs a single-pass transformation: read Redis Stream events via consumer groups, MERGE into Neo4j. Research reveals this is only the first stage of a richer consolidation lifecycle. The biological model -- hippocampal replay during rest gradually writing structure into the neocortex -- maps to a multi-stage consolidation process with active forgetting.
 
 Without decay and consolidation, the graph grows unboundedly. Every event is projected with equal weight, query performance degrades over time, and the semantic store loses its ability to surface what matters. The research consensus is clear: forgetting is a feature, not a bug.
 
@@ -104,6 +104,8 @@ score(node, query, t_now) = w_r * recency(node, t_now)
                           + w_v * relevance(node, query)
 ```
 
+> Implementation note: The composite score is normalized by dividing by the sum of all weights, producing values in the [0, 1] range.
+
 Where:
 
 **Recency** (Ebbinghaus-inspired with access reinforcement):
@@ -111,7 +113,7 @@ Where:
 recency(node, t_now) = e^(-t_elapsed / S)
 ```
 - `t_elapsed` = hours since `max(node.occurred_at, node.last_accessed_at)`
-- `S` = stability factor, starting at `S_base` (default 168 = 1 week half-life) and increasing by `S_boost` (default 24 hours) on each query access
+- `S` = stability factor, starting at `S_base` (default 168 = 1 week time constant, half-life ~4.85 days) and increasing by `S_boost` (default 24 hours) on each query access
 - Using `last_accessed_at` means frequently queried nodes decay slower -- "use it or lose it"
 
 **Importance** (normalized 0-1):
@@ -321,3 +323,132 @@ Where:
 **When user context is unavailable** (e.g., anonymous queries, system-level admin queries): `user_affinity` falls back to `0.0`, and scoring degrades gracefully to the original three-factor formula.
 
 **Impact on reconsolidation on retrieval (Section: Reconsolidation on Retrieval):** The existing side-effects (increment `access_count`, update `last_accessed_at`, recalculate `stability`) are unchanged. The `retrieval_recurrence` sub-factor of `user_affinity` reads these values but does not write additional state beyond what the existing reconsolidation already tracks.
+
+### 2026-02-23: Consolidation Scheduling & Archival (ADR-0014)
+
+**Scheduling**: ConsolidationConsumer now self-triggers via asyncio timer every
+`reconsolidation_interval_hours` (default 6h), in addition to accepting manual
+`consolidation_trigger` stream messages. Concurrent runs guarded by asyncio.Lock.
+
+**Archive-before-delete**: The `_trim_redis()` step now exports events to an
+ArchiveStore (GCS/filesystem) before deleting expired JSON documents. The archive
+preserves raw event data beyond the 90-day Redis retention ceiling.
+
+**Dedup maintenance**: `cleanup_dedup_set()` is now invoked during every trim cycle.
+Session streams are cleaned up after `session_stream_retention_hours`.
+
+### 2026-02-28: Rate Limiting & PEL-Safe Trimming (Tier 1)
+
+_Date: 2026-02-28_
+
+The consolidation pipeline and its supporting API endpoints are now protected
+by a token bucket rate limiter, and Redis stream trimming is PEL-safe.
+
+**Rate Limiting:**
+
+A per-client token bucket rate limiter (`api/rate_limit.py`) guards all API
+endpoints that feed into the consolidation pipeline. Three tiers:
+
+| Tier | Scope | Default RPM |
+|------|-------|-------------|
+| exempt | `/v1/health`, `/metrics` | unlimited |
+| standard | All other `/v1/` endpoints | 120 |
+| admin | `/v1/admin/*`, GDPR delete/export | 30 |
+
+Configuration via `RateLimitSettings` (env prefix `CG_RATELIMIT_`): `enabled`,
+`standard_rpm`, `admin_rpm`, `max_clients` (LRU bound, default 10000).
+
+The middleware (`RateLimitMiddleware`) returns HTTP 429 with `Retry-After`,
+`X-RateLimit-Limit`, and `X-RateLimit-Remaining` headers on exhaustion.
+
+**New Prometheus metric** (extends the monitoring table in this ADR):
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `engram_rate_limit_exceeded_total` | Counter | Rate-limited requests, labeled by `tier` |
+
+**PEL-safe stream trimming:**
+
+The `trim_stream()` function now accepts an optional `consumer_groups`
+parameter. When provided, it queries `XINFO GROUPS` + `XPENDING` to find the
+oldest unprocessed entry across all consumer groups and adjusts the trim point
+to `min(age_cutoff, oldest_unprocessed)`. This prevents trimming entries that
+have not yet been processed by any consumer group.
+
+A warning is logged when consumer groups are lagging behind the age cutoff,
+enabling operators to detect processing delays before they cause data loss.
+
+**Impact on this ADR:**
+- Rate limiting protects the event ingestion path from burst overload that
+  could overwhelm the consolidation pipeline.
+- PEL-safe trimming ensures the `_trim_redis()` step in the consolidation
+  cycle cannot remove unprocessed entries, closing a potential data loss
+  window between ingestion and projection.
+
+### 2026-03-02: Runtime-Configurable Decay Parameters
+
+_Date: 2026-03-02_
+
+All decay scoring parameters (`s_base`, `s_boost`, `weight_recency`,
+`weight_importance`, `weight_relevance`, `weight_user_affinity`) are now
+runtime-configurable via `DecaySettings` (env prefix `CG_DECAY_`).
+
+Previously, `score_entity_node()` hardcoded `s_base=336.0` and used default
+composite weights, ignoring the `DecaySettings` configuration class. The
+`Neo4jGraphStore` did not accept or propagate decay settings to scoring calls.
+
+**Changes:**
+
+- `score_entity_node()` now accepts `s_base`, `s_boost`, `w_recency`,
+  `w_importance`, `w_relevance`, `w_user_affinity` keyword parameters
+  (defaults: `s_base=336.0`, others matching `DecaySettings` defaults).
+- `Neo4jGraphStore.__init__()` accepts an optional `decay_settings` parameter
+  and propagates its values to all `score_node()` and `score_entity_node()`
+  call sites (7 total across `get_context`, `get_lineage`, `get_subgraph`).
+- The API lifespan (`api/app.py`) passes `settings.decay` to the graph store.
+
+**Impact:** Operators can now tune all decay parameters at deployment time via
+environment variables without code changes. This closes the gap between the
+configurable `DecaySettings` class and the previously hardcoded scoring calls.
+
+### Amendment: Sublinear Stability Scaling (2026-03-04)
+
+_Date: 2026-03-04_
+
+The stability factor S now uses sublinear scaling by default:
+
+```
+S = s_base * (1.0 + (s_boost / s_base) * log1p(access_count))
+```
+
+This prevents heavily-accessed nodes from becoming effectively immortal.
+Under the previous linear formula (`S = s_base + access_count * s_boost`),
+a node accessed 100 times gained S approximately 2568 hours (~107 days). Under
+sublinear scaling: S approximately 279 hours (~11.6 days).
+
+The linear formula remains available via `sublinear=False` parameter for
+backward compatibility and testing.
+
+**Implementation:** `domain/scoring.py`, `compute_recency_score()` function.
+
+### Amendment: LLM-Powered Consolidation Summaries (2026-03-04)
+
+_Date: 2026-03-04_
+
+The ConsolidationConsumer now generates episode, session, and agent-level
+summaries using LLM calls via `LLMExtractionClient.generate_text()`.
+
+`generate_text()` is implemented using `litellm.acompletion()` with
+configurable model, temperature, max_tokens, timeout, and retries.
+The `build_summary_prompt()` domain function constructs a structured prompt
+from event sequences.
+
+When the LLM returns a response, the LLM text is used as the summary
+content via the `llm_summary_text` parameter on
+`create_summary_from_events()`.
+
+When the LLM is unavailable or returns None, the system falls back to
+the deterministic template format (event count + types + time range).
+
+This dual-path design ensures consolidation continues functioning without
+an LLM dependency while producing richer summaries when one is available.

@@ -1,7 +1,10 @@
 """RediSearch index definitions for event documents.
 
-Creates a secondary index on JSON documents stored at ``evt:*`` keys,
-enabling filtered search and sorted retrieval via the FT.SEARCH command.
+Creates secondary indexes on JSON documents:
+- ``evt:*`` keys for event search (ADR-0010)
+
+Entity embeddings are stored on Neo4j node properties and searched
+via the Neo4j vector index (entity_embedding_idx). See ADR-0009 amendment.
 
 Source: ADR-0010
 """
@@ -11,7 +14,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import structlog
-from redis.commands.search.field import NumericField, TagField
+from redis.commands.search.field import NumericField, TagField, TextField
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 
 if TYPE_CHECKING:
@@ -25,7 +28,7 @@ def event_index_definition(prefix: str = "evt:") -> IndexDefinition:
     return IndexDefinition(prefix=[prefix], index_type=IndexType.JSON)  # type: ignore[no-untyped-call]
 
 
-def event_index_fields() -> list[TagField | NumericField]:
+def event_index_fields() -> list[TagField | NumericField | TextField]:
     """Return the field schema for the events JSON index."""
     return [
         TagField("$.session_id", as_name="session_id"),
@@ -35,6 +38,9 @@ def event_index_fields() -> list[TagField | NumericField]:
         TagField("$.tool_name", as_name="tool_name"),
         NumericField("$.occurred_at_epoch_ms", as_name="occurred_at_epoch_ms", sortable=True),
         NumericField("$.importance_hint", as_name="importance_hint", sortable=True),
+        # Full-text fields for BM25 retrieval (L4 hybrid search)
+        TextField("$.summary", as_name="summary", weight=2.0),
+        TextField("$.keywords", as_name="keywords", weight=1.5),
     ]
 
 

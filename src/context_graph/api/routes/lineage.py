@@ -11,17 +11,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
-from context_graph.adapters.neo4j.store import Neo4jGraphStore  # noqa: TCH001 — runtime: Depends()
 from context_graph.api.dependencies import get_graph_store
 from context_graph.domain.models import (  # noqa: TCH001 — runtime: type annotations + response_model
     AtlasResponse,
     IntentType,
     LineageQuery,
 )
+from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runtime: Depends()
 
 router = APIRouter(tags=["lineage"])
 
-GraphStoreDep = Annotated[Neo4jGraphStore, Depends(get_graph_store)]
+GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
 
 
 @router.get("/nodes/{node_id}/lineage", response_model=AtlasResponse)
@@ -31,6 +31,7 @@ async def get_lineage(
     max_depth: int = Query(default=3, ge=1, le=10),
     max_nodes: int = Query(default=100, ge=1, le=500),
     intent: str | None = Query(default="why"),
+    cursor: str | None = Query(default=None, description="Pagination cursor"),
 ) -> AtlasResponse:
     """Traverse lineage (CAUSED_BY chains) from a node."""
     intent_type = IntentType(intent) if intent else None
@@ -39,5 +40,6 @@ async def get_lineage(
         max_depth=max_depth,
         max_nodes=max_nodes,
         intent=intent_type,
+        cursor=cursor,
     )
     return await graph_store.get_lineage(lineage_query)

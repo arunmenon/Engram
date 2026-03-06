@@ -233,7 +233,7 @@ CREATE NODE TYPE Event (
   session_id       STRING NOT NULL,
   agent_id         STRING NOT NULL,
   trace_id         STRING NOT NULL,
-  global_position  INTEGER NOT NULL,
+  global_position  STRING NOT NULL,
   tool_name        STRING,
   keywords         LIST<STRING>,
   summary          STRING,
@@ -249,7 +249,8 @@ CREATE NODE TYPE Entity (
   entity_type STRING NOT NULL,
   first_seen  ZONED DATETIME NOT NULL,
   last_seen   ZONED DATETIME NOT NULL,
-  mention_count INTEGER DEFAULT 1
+  mention_count INTEGER DEFAULT 1,
+  embedding   LIST<FLOAT>
 )
 
 CREATE NODE TYPE Summary (
@@ -557,3 +558,125 @@ Rejected. Existing standards (PROV-O, schema.org, SEM, PG-Schema) cover 80% of o
 ### Neuroscience
 - McClelland, McNaughton & O'Reilly (1995). "Why There Are Complementary Learning Systems in the Hippocampus and Neocortex." Psychological Review
 - Kumaran, Hassabis & McClelland (2016). "What Learning Systems do Intelligent Agents Need?" Trends in Cognitive Sciences
+
+---
+
+## Amendment 1: Transitive Closure for Entity Resolution (2026-03-02)
+
+### Context
+
+The original entity resolution strategy (Section 3) produces pairwise SAME_AS edges but does not guarantee transitive consistency. If entity A is SAME_AS B and B is SAME_AS C, the graph may lack the A-to-C edge. This creates incomplete clusters that break entity-centric queries: retrieving all events for entity A would miss events connected only to C.
+
+### Decision
+
+Entity resolution MUST compute transitive closure over SAME_AS edges after the pairwise resolution loop completes. The implementation uses a Union-Find (disjoint-set) data structure to efficiently merge connected components.
+
+#### Algorithm
+
+1. **Collect**: During the entity resolution cascade, collect all pairwise SAME_AS edges as `(source_id, target_id)` tuples.
+2. **Cluster**: Run Union-Find over the collected edges to identify connected components.
+3. **Canonical selection**: For each cluster, select the canonical entity as the member with the highest `mention_count` (ties broken alphabetically by entity_id).
+4. **Consolidate**: For each non-canonical member in a cluster, MERGE a SAME_AS edge to the canonical entity. This ensures star-topology connectivity within each cluster.
+
+#### Query Impact
+
+Entity retrieval queries (`GET_ENTITY_WITH_CLUSTER`) now follow SAME_AS chains up to depth 3 to aggregate events across all cluster members:
+
+```cypher
+MATCH (ent:Entity {entity_id: $entity_id})
+OPTIONAL MATCH (ent)-[:SAME_AS*0..3]-(related:Entity)
+WITH DISTINCT related
+OPTIONAL MATCH (evt:Event)-[r:REFERENCES]->(related)
+RETURN related AS ent, evt, properties(r) AS ref_props
+```
+
+#### Files Modified
+
+- `src/context_graph/domain/entity_resolution.py`: Added `_UnionFind` class and `compute_transitive_closure()` function
+- `src/context_graph/worker/extraction.py`: Wired transitive closure after entity resolution loop
+- `src/context_graph/adapters/neo4j/queries.py`: Added `GET_ENTITY_WITH_CLUSTER` and `CONSOLIDATE_ENTITY_CLUSTER` queries
+- `src/context_graph/adapters/neo4j/store.py`: Added `consolidate_entity_cluster()` and `get_entity_with_cluster()` methods
+
+### Consequences
+
+- **Positive**: Entity-centric queries now return complete results across transitively linked entities. The star topology (all members point to canonical) keeps traversal depth bounded.
+- **Negative**: Additional write overhead at extraction time (one MERGE per non-canonical member per cluster). Mitigated by MERGE idempotency -- re-running produces no duplicates.
+
+## Amendment 2: Epistemic, Goal, and Episode Type Grounding (2026-03-04)
+
+### Context
+
+ADR-0009 Amendment "Belief, Goal, and Episode Types (2026-03-04)" introduces three new node types (Belief, Goal, Episode) and four new edge types (CONTRADICTS, SUPERSEDES, PURSUES, CONTAINS). This amendment provides the ontological grounding for these types within the ADR-0011 framework.
+
+### Node Type Grounding
+
+| Context-Graph Node | PROV-O Mapping | Rationale |
+|-------------------|----------------|-----------|
+| `:Belief` | `prov:Entity` | Beliefs are derived entities representing inferred system knowledge about users or the world |
+| `:Goal` | `prov:Entity` | Goals are entities tracked over time with lifecycle status transitions |
+| `:Episode` | `prov:Collection` | Episodes are named collections of causally or temporally related activities |
+
+### Edge Type Grounding
+
+| Operational Edge | PROV-O Grounding | Custom Extension |
+|-----------------|------------------|------------------|
+| CONTRADICTS | No direct equivalent | `cg:contradicts` -- epistemic conflict between beliefs |
+| SUPERSEDES | `prov:wasRevisionOf` (loose) | `cg:supersedes` -- belief evolution via contradiction resolution |
+| PURSUES | No direct equivalent | `cg:pursues` -- intentional relationship between agent and goal |
+| CONTAINS | `prov:hadMember` (loose) | `cg:contains` -- episode membership for event grouping |
+
+### PG-Schema Definitions
+
+Node types:
+
+```
+CREATE NODE TYPE Belief (
+  belief_id STRING NOT NULL, belief_text STRING NOT NULL,
+  confidence FLOAT NOT NULL, category STRING NOT NULL,
+  created_at TIMESTAMP, last_confirmed_at TIMESTAMP,
+  confirmation_count INTEGER DEFAULT 1, superseded_by STRING
+)
+CREATE NODE TYPE Goal (
+  goal_id STRING NOT NULL, description STRING NOT NULL,
+  status STRING NOT NULL, created_at TIMESTAMP,
+  last_active_at TIMESTAMP, priority INTEGER, evidence_count INTEGER DEFAULT 1
+)
+CREATE NODE TYPE Episode (
+  episode_id STRING NOT NULL, session_id STRING NOT NULL,
+  start_time TIMESTAMP, end_time TIMESTAMP,
+  event_count INTEGER DEFAULT 0, episode_type STRING NOT NULL, summary_id STRING
+)
+```
+
+Edge types:
+
+```
+CREATE EDGE TYPE CONTRADICTS () FROM Belief TO Belief
+CREATE EDGE TYPE SUPERSEDES () FROM Belief TO Belief
+CREATE EDGE TYPE PURSUES () FROM Entity TO Goal
+CREATE EDGE TYPE CONTAINS () FROM Episode TO Event
+```
+
+### New Enum Grounding
+
+| Enum | Values | Grounding |
+|------|--------|-----------|
+| BeliefCategory | user_model, world_model, capability | Custom taxonomy for epistemic categorization |
+| GoalStatus | active, completed, abandoned, superseded | Aligned with schema.org ActionStatusType |
+| EpisodeType | temporal, causal, thematic | Cognitive science episode categorization |
+
+### Multi-Graph View Formalism Update
+
+Three new semantic views are added to the MVKG definition (Section 4):
+
+- `V_epistemic = (N_belief, E_contradicts ∪ E_supersedes)` -- belief tracking and contradiction resolution
+- `V_motivational = (N_goal, E_pursues)` -- goal tracking and progress monitoring
+- `V_episodic = (N_episode, E_contains)` -- temporal event grouping
+
+### New Ontology Modules
+
+Three new modules are added to the ontology module structure:
+
+- `cg-epistemic` -- Belief nodes, CONTRADICTS/SUPERSEDES edges, BeliefCategory enum
+- `cg-goals` -- Goal nodes, PURSUES edge, GoalStatus lifecycle
+- `cg-episodes` -- Episode nodes, CONTAINS edge, EpisodeType classification

@@ -16,7 +16,7 @@ A traceability-first context graph service for AI agents. Captures immutable eve
 | Store | Role | Data |
 |-------|------|------|
 | Redis Stack (Streams + JSON + Search) | Event ledger, source of truth | Immutable events, hot/cold tiers |
-| Neo4j Community | Derived graph projection | 8 node types, 16 edge types, intent-weighted traversal |
+| Neo4j Community | Derived graph projection | 11 node types, 20 edge types, intent-weighted traversal |
 
 ### Consumer Groups (ADR-0013)
 
@@ -84,7 +84,7 @@ src/context_graph/
 
 ## Graph Schema (ADR-0009, ADR-0011, ADR-0012)
 
-### 8 Node Types
+### 11 Node Types
 
 | Node Type | Label | Source |
 |-----------|-------|--------|
@@ -96,8 +96,11 @@ src/context_graph/
 | Skill | `:Skill` | ADR-0012 — user skill/competency |
 | Workflow | `:Workflow` | ADR-0012 — detected workflow pattern |
 | BehavioralPattern | `:BehavioralPattern` | ADR-0012 — cross-session behavioral pattern |
+| Belief | `:Belief` | ADR-0009 Amendment — inferred/stated belief with confidence and category |
+| Goal | `:Goal` | ADR-0009 Amendment — tracked user/agent goal with lifecycle status |
+| Episode | `:Episode` | ADR-0009 Amendment — coherent event group within a session |
 
-### 16 Edge Types
+### 20 Edge Types
 
 | Edge Type | From → To | View | Source |
 |-----------|-----------|------|--------|
@@ -117,6 +120,10 @@ src/context_graph/
 | ABOUT | Preference → Entity | User | ADR-0012 |
 | ABSTRACTED_FROM | Workflow → Workflow | Behavioral | ADR-0012 |
 | PARENT_SKILL | Skill → Skill | User | ADR-0012 |
+| CONTRADICTS | Belief → Belief | Epistemic | ADR-0009 Amendment |
+| SUPERSEDES | Belief → Belief | Epistemic | ADR-0009 Amendment |
+| PURSUES | Entity → Goal | Motivational | ADR-0009 Amendment |
+| CONTAINS | Episode → Event | Episodic | ADR-0009 Amendment |
 
 ### 8 Intent Types
 

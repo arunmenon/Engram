@@ -118,9 +118,33 @@ ON MATCH SET target.last_seen = $now
 MERGE (p)-[:ABOUT]->(target)
 """.strip()
 
-_MERGE_DERIVED_FROM = """
-MATCH (source {%s: $source_id})
-MATCH (e:Event {event_id: $event_id})
+# Allowlist: maps source type name -> (label, id_field) for DERIVED_FROM edges.
+# Only these types are permitted — any other value raises ValueError.
+_DERIVED_FROM_SOURCE_TYPES: dict[str, tuple[str, str]] = {
+    "preference_id": ("Preference", "preference_id"),
+    "skill_id": ("Skill", "skill_id"),
+    "pattern_id": ("BehavioralPattern", "pattern_id"),
+    "workflow_id": ("Workflow", "workflow_id"),
+}
+
+
+def _build_derived_from_query(source_id_field: str) -> str:
+    """Build a safe DERIVED_FROM Cypher query for the given source type.
+
+    Validates source_id_field against a static allowlist to prevent
+    Cypher injection. Raises ValueError for unknown fields.
+    """
+    if source_id_field not in _DERIVED_FROM_SOURCE_TYPES:
+        msg = (
+            f"Unknown source_id_field: {source_id_field!r}. "
+            f"Allowed: {sorted(_DERIVED_FROM_SOURCE_TYPES)}"
+        )
+        raise ValueError(msg)
+
+    label, id_field = _DERIVED_FROM_SOURCE_TYPES[source_id_field]
+    return f"""
+MATCH (source:{label} {{{id_field}: $source_id}})
+MATCH (e:Event {{event_id: $event_id}})
 MERGE (source)-[r:DERIVED_FROM]->(e)
 SET r.method = $method,
     r.session_id = $session_id,
@@ -130,6 +154,7 @@ SET r.method = $method,
     r.evidence_quote = $evidence_quote,
     r.source_turn_index = $source_turn_index
 """.strip()
+
 
 _MERGE_SKILL = """
 MERGE (s:Skill {skill_id: $skill_id})
@@ -437,7 +462,7 @@ async def write_preference_with_edges(
 
             # Create DERIVED_FROM edges to source events
             for event_id in source_event_ids:
-                query = _MERGE_DERIVED_FROM % "preference_id"
+                query = _build_derived_from_query("preference_id")
                 await tx.run(
                     query,
                     {
@@ -515,7 +540,7 @@ async def write_skill_with_edges(
 
             # Create DERIVED_FROM edges to source events
             for event_id in source_event_ids:
-                query = _MERGE_DERIVED_FROM % "skill_id"
+                query = _build_derived_from_query("skill_id")
                 await tx.run(
                     query,
                     {
@@ -603,7 +628,7 @@ async def write_derived_from_edge(
 ) -> None:
     """Write a single DERIVED_FROM edge from a source node to an event."""
     now = datetime.now(UTC).isoformat()
-    query = _MERGE_DERIVED_FROM % source_id_field
+    query = _build_derived_from_query(source_id_field)
 
     async with driver.session(database=database) as session:
 
@@ -737,3 +762,37 @@ async def export_user_data(
         provenance_chains=len(export["provenance_chains"]),
     )
     return export
+
+
+# ---------------------------------------------------------------------------
+# Preference Contradiction Resolution
+# ---------------------------------------------------------------------------
+
+_SET_PREFERENCE_SUPERSEDED = """
+MATCH (p:Preference {preference_id: $preference_id})
+SET p.superseded_by = $superseded_by
+""".strip()
+
+
+async def set_preference_superseded(
+    driver: AsyncDriver,
+    database: str,
+    preference_id: str,
+    superseded_by: str,
+) -> None:
+    """Mark a preference as superseded by another preference."""
+    async with driver.session(database=database) as session:
+        await session.execute_write(
+            lambda tx: tx.run(
+                _SET_PREFERENCE_SUPERSEDED,
+                {
+                    "preference_id": preference_id,
+                    "superseded_by": superseded_by,
+                },
+            )
+        )
+    log.info(
+        "preference_superseded",
+        preference_id=preference_id,
+        superseded_by=superseded_by,
+    )
