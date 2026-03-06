@@ -408,6 +408,26 @@ class ArchiveSettings(BaseSettings):
     batch_size: int = 1000
 
 
+class SimulationSettings(BaseSettings):
+    """Dynamic conversation simulation settings.
+
+    Controls the LLM proxy endpoint for TinyTroupe-style
+    two-agent conversations in the frontend demo.
+    """
+
+    model_config = {"env_prefix": "CG_SIM_"}
+
+    # Intentionally uses a cheaper model than LLMSettings.model_id (extraction).
+    # Simulation generates many turns; extraction needs high quality.
+    default_model_id: str = "gpt-4o-mini"
+    default_temperature: float = 0.7
+    max_turns: int = 50
+    max_tokens_per_turn: int = 512
+    allowed_models: list[str] = Field(
+        default=["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1-nano"]
+    )
+
+
 class ConsumerSettings(BaseSettings):
     """Consumer resilience settings (H4, H5).
 
@@ -457,3 +477,4 @@ class Settings(BaseSettings):
     hyde: HyDESettings = Field(default_factory=HyDESettings)
     ppr: PPRSettings = Field(default_factory=PPRSettings)
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
+    simulation: SimulationSettings = Field(default_factory=SimulationSettings)

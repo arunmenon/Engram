@@ -2,13 +2,25 @@ import { useEffect, useRef, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useSessionStore, selectCurrentMessages } from '../../stores/sessionStore';
 import { useChatStore } from '../../stores/chatStore';
-import { isLiveMode } from '../../api/mode';
+import { isLiveMode, isSimulatorMode, isDynamicMode } from '../../api/mode';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ScenarioPicker } from './ScenarioPicker';
+import { SimulatorChat } from '../simulator/SimulatorChat';
+import { DynamicChat } from '../simulator/DynamicChat';
 
 export function ChatPanel() {
   const live = isLiveMode();
+
+  // Dynamic mode — delegate to DynamicChat
+  if (live && isDynamicMode()) {
+    return <DynamicChat />;
+  }
+
+  // Simulator mode — delegate entirely
+  if (live && isSimulatorMode()) {
+    return <SimulatorChat />;
+  }
 
   // Mock-mode state
   const sessions = useSessionStore(s => s.sessions);
@@ -35,7 +47,7 @@ export function ChatPanel() {
     }
   }, [currentSessionId, visibleMessages.length, liveMessages.length]);
 
-  // Live mode: show scenario picker or live chat
+  // Live mode (interactive): show scenario picker or live chat
   if (live) {
     return (
       <div className="w-[400px] shrink-0 bg-surface border-r border-muted-dark/30 flex flex-col">
