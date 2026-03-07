@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 import { ConfidenceBar } from '../shared/ConfidenceBar';
 import { useUserStore } from '../../stores/userStore';
-import { isLiveMode } from '../../api/mode';
+import { isLiveMode, isSimulatorMode } from '../../api/mode';
 import { PatternTimeline } from './PatternTimeline';
 import { ConfidenceTrend } from './ConfidenceTrend';
 import { PatternRecommendations } from './PatternRecommendations';
@@ -28,7 +28,7 @@ export function UserTab() {
   const { profile, preferences, skills, interests, patterns, fetchUserData } = useUserStore();
 
   useEffect(() => {
-    if (isLiveMode()) {
+    if (isLiveMode() && !isSimulatorMode()) {
       fetchUserData();
     }
   }, [fetchUserData]);

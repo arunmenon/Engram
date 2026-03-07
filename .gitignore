@@ -39,3 +39,14 @@ htmlcov/
 
 # Playwright MCP
 .playwright-mcp/
+
+# KG Memory MCP index cache
+.kg-index.json
+
+# MCP server config (may contain env var references)
+.mcp.json
+
+# Build artifacts
+tsconfig.tsbuildinfo
+demo/frontend/tsconfig.tsbuildinfo
+*.timestamp-*.mjs

@@ -42,6 +42,9 @@ export function SimulatorChat() {
   const visibleMessagesPerSession = useSimulatorStore(s => s.visibleMessagesPerSession);
   const currentStepIndex = useSimulatorStore(s => s.currentStepIndex);
   const isPlaying = useSimulatorStore(s => s.isPlaying);
+  const backendConnected = useSimulatorStore(s => s.backendConnected);
+  const pipelineStats = useSimulatorStore(s => s.pipelineStats);
+  const ingestedEvents = useSimulatorStore(s => s.ingestedEvents);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -154,9 +157,9 @@ export function SimulatorChat() {
 
       {/* Pipeline Status + Simulator Controls */}
       <PipelineStatus
-        backendConnected={useSimulatorStore(s => s.backendConnected)}
-        pipelineStats={useSimulatorStore(s => s.pipelineStats)}
-        ingestedEvents={useSimulatorStore(s => s.ingestedEvents)}
+        backendConnected={backendConnected}
+        pipelineStats={pipelineStats}
+        ingestedEvents={ingestedEvents}
       />
       <SimulatorControls />
     </div>

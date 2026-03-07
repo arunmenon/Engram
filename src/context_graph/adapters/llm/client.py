@@ -359,12 +359,24 @@ def validate_extraction(
                 continue
         valid_interests.append(interest.model_copy(update={"weight": adjusted_confidence}))
 
+    # Validate persona source quote (pass through if valid or no quote)
+    valid_persona = result.persona
+    if valid_persona is not None and valid_persona.source_quote:
+        if not validate_source_quote(valid_persona.source_quote, conversation_text):
+            log.debug(
+                "persona_source_quote_invalid",
+                name=valid_persona.name,
+                quote=valid_persona.source_quote[:50],
+            )
+            valid_persona = None
+
     return result.model_copy(
         update={
             "entities": valid_entities,
             "preferences": valid_preferences,
             "skills": valid_skills,
             "interests": valid_interests,
+            "persona": valid_persona,
         }
     )
 
@@ -650,6 +662,7 @@ class LLMExtractionClient:
                     preferences=len(validated.preferences),
                     skills=len(validated.skills),
                     interests=len(validated.interests),
+                    has_persona=validated.persona is not None,
                 )
                 return validated.model_dump()
 

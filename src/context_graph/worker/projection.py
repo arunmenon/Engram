@@ -145,6 +145,11 @@ class ProjectionConsumer(BaseConsumer):
         if entry_ids:
             await self._redis.xack(self._stream_key, self._group_name, *entry_ids)
 
+    async def on_batch_complete(self) -> None:
+        """Flush any remaining buffer after each XREADGROUP round."""
+        if self._buffer:
+            await self._flush_buffer()
+
     async def on_stop(self) -> None:
         """Flush remaining buffered events before shutdown."""
         if self._buffer:

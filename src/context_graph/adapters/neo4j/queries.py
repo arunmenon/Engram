@@ -486,6 +486,36 @@ RETURN a.event_id AS source, b.event_id AS target,
        type(r) AS edge_type, properties(r) AS props
 """.strip()
 
+GET_SESSION_NEIGHBORS = """
+MATCH (e:Event {session_id: $session_id})-[r]->(n)
+WHERE e.event_id IN $event_ids
+  AND NOT n:Event
+RETURN e.event_id AS source_event_id,
+       type(r) AS edge_type, properties(r) AS edge_props,
+       labels(n) AS neighbor_labels, properties(n) AS neighbor_props,
+       coalesce(n.entity_id, n.preference_id, n.skill_id,
+                n.profile_id, n.summary_id, n.pattern_id,
+                n.workflow_id, n.belief_id, n.goal_id,
+                n.episode_id) AS neighbor_id
+LIMIT 500
+""".strip()
+
+GET_NEIGHBOR_INTER_EDGES = """
+UNWIND $neighbor_ids AS nid
+MATCH (a)-[r]->(b)
+WHERE coalesce(a.entity_id, a.preference_id, a.skill_id,
+               a.profile_id, a.pattern_id, a.workflow_id) = nid
+  AND NOT a:Event AND NOT b:Event
+  AND coalesce(b.entity_id, b.preference_id, b.skill_id,
+               b.profile_id, b.pattern_id, b.workflow_id) IN $neighbor_ids
+RETURN coalesce(a.entity_id, a.preference_id, a.skill_id,
+                a.profile_id, a.pattern_id, a.workflow_id) AS source,
+       coalesce(b.entity_id, b.preference_id, b.skill_id,
+                b.profile_id, b.pattern_id, b.workflow_id) AS target,
+       type(r) AS edge_type, properties(r) AS props
+LIMIT 200
+""".strip()
+
 GET_SUBGRAPH_SEED_EVENTS = """
 MATCH (e:Event {session_id: $session_id})
 RETURN e ORDER BY e.occurred_at DESC LIMIT $seed_limit
