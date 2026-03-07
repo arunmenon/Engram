@@ -460,6 +460,18 @@ class Neo4jGraphStore:
             retrieval_reason=retrieval_reason,
         )
 
+    @staticmethod
+    def _label_to_node_type(labels: list[str]) -> str:
+        """Map Neo4j labels to a node type string."""
+        known = {
+            "Event", "Entity", "Summary", "UserProfile", "Preference",
+            "Skill", "Workflow", "BehavioralPattern", "Belief", "Goal", "Episode",
+        }
+        for label in labels:
+            if label in known:
+                return label
+        return labels[0] if labels else "Unknown"
+
     async def _embed_query(self, query_text: str | None) -> list[float] | None:
         """Embed query text if embedding service is available."""
         if self._embedding_service is None or not query_text:
@@ -578,6 +590,75 @@ class Neo4jGraphStore:
                         properties=dict(erec["props"]) if erec["props"] else {},
                     )
                 )
+
+        # Fetch non-Event neighbor nodes (Entity, Preference, Skill, etc.)
+        if event_ids:
+            async with self._driver.session(database=self._database) as session:
+                nbr_result = await session.run(
+                    queries.GET_SESSION_NEIGHBORS,
+                    {"session_id": session_id, "event_ids": event_ids},
+                    timeout=self._query_timeout_s,
+                )
+                nbr_records = [record async for record in nbr_result]
+
+            neighbor_ids: list[str] = []
+            for nrec in nbr_records:
+                nbr_id = nrec["neighbor_id"]
+                if not nbr_id or nbr_id in nodes:
+                    continue
+                labels = list(nrec["neighbor_labels"])
+                nbr_props = dict(nrec["neighbor_props"])
+                node_type = self._label_to_node_type(labels)
+                nodes[nbr_id] = AtlasNode(
+                    node_id=nbr_id,
+                    node_type=node_type,
+                    attributes=nbr_props,
+                    provenance=Provenance(
+                        event_id=nbr_id,
+                        global_position="",
+                        source="neo4j",
+                        occurred_at=datetime.now(UTC),
+                        session_id=session_id,
+                        agent_id="",
+                        trace_id="",
+                    ),
+                    scores=NodeScores(
+                        decay_score=1.0,
+                        relevance_score=0.0,
+                        importance_score=nbr_props.get("importance_score", 5),
+                    ),
+                    retrieval_reason="neighbor",
+                )
+                neighbor_ids.append(nbr_id)
+
+                # Add the cross-type edge (Event → neighbor)
+                edges.append(
+                    AtlasEdge(
+                        source=nrec["source_event_id"],
+                        target=nbr_id,
+                        edge_type=nrec["edge_type"],
+                        properties=dict(nrec["edge_props"]) if nrec["edge_props"] else {},
+                    )
+                )
+
+            # Fetch edges between neighbor nodes (SAME_AS, HAS_PREFERENCE, etc.)
+            if neighbor_ids:
+                async with self._driver.session(database=self._database) as session:
+                    inter_result = await session.run(
+                        queries.GET_NEIGHBOR_INTER_EDGES,
+                        {"neighbor_ids": neighbor_ids},
+                        timeout=self._query_timeout_s,
+                    )
+                    inter_records = [record async for record in inter_result]
+                for irec in inter_records:
+                    edges.append(
+                        AtlasEdge(
+                            source=irec["source"],
+                            target=irec["target"],
+                            edge_type=irec["edge_type"],
+                            properties=dict(irec["props"]) if irec["props"] else {},
+                        )
+                    )
 
         # Build pagination cursor from last record
         next_cursor: str | None = None

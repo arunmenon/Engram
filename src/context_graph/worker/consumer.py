@@ -353,6 +353,9 @@ class BaseConsumer:
                             consumer=self._consumer_name,
                         )
 
+            # Allow batching consumers to flush after each XREADGROUP round
+            await self.on_batch_complete()
+
         await self.on_stop()
         log.info(
             "consumer_stopped",
@@ -373,6 +376,13 @@ class BaseConsumer:
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a single stream message. Override in subclasses."""
         raise NotImplementedError
+
+    async def on_batch_complete(self) -> None:
+        """Hook called after processing each XREADGROUP batch.
+
+        Batching consumers can override to flush any remaining buffer
+        that didn't reach the batch size threshold.
+        """
 
     async def on_stop(self) -> None:
         """Cleanup hook called after the main loop exits.

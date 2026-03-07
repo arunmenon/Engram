@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { apiGet } from '../api/client';
-import { isLiveMode } from '../api/mode';
+import { isLiveMode, isSimulatorMode } from '../api/mode';
 import {
   sarahProfile,
   sarahPreferences,
@@ -22,17 +22,28 @@ interface UserState {
   patterns: EnhancedPattern[];
   loading: boolean;
   error: string | null;
+  setProfile: (profile: UserProfile | null) => void;
+  setPreferences: (prefs: UserPreference[]) => void;
+  setSkills: (skills: UserSkill[]) => void;
+  setInterests: (interests: UserInterest[]) => void;
+  setPatterns: (patterns: EnhancedPattern[]) => void;
   fetchUserData: (userId?: string) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>((set) => ({
-  profile: isLiveMode() ? null : sarahProfile,
-  preferences: isLiveMode() ? [] : sarahPreferences,
-  skills: isLiveMode() ? [] : sarahSkills,
-  interests: isLiveMode() ? [] : sarahInterests,
-  patterns: isLiveMode() ? [] : sarahEnhancedPatterns,
+  profile: (isLiveMode() || isSimulatorMode()) ? null : sarahProfile,
+  preferences: (isLiveMode() || isSimulatorMode()) ? [] : sarahPreferences,
+  skills: (isLiveMode() || isSimulatorMode()) ? [] : sarahSkills,
+  interests: (isLiveMode() || isSimulatorMode()) ? [] : sarahInterests,
+  patterns: (isLiveMode() || isSimulatorMode()) ? [] : sarahEnhancedPatterns,
   loading: false,
   error: null,
+
+  setProfile: (profile) => set({ profile }),
+  setPreferences: (preferences) => set({ preferences }),
+  setSkills: (skills) => set({ skills }),
+  setInterests: (interests) => set({ interests }),
+  setPatterns: (patterns) => set({ patterns }),
 
   fetchUserData: async (userId = 'profile-sarah') => {
     if (!isLiveMode()) return;

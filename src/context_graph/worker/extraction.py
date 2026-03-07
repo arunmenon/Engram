@@ -442,15 +442,9 @@ class ExtractionConsumer(BaseConsumer):
                     weight=interest_data.get("weight", 0.5),
                     source=interest_data.get("source", "inferred"),
                 )
-                interest_entity_id = f"entity:{interest_data.get('entity_name', '')}"
-                for event_id in source_event_ids:
-                    await us.write_derived_from_edge(
-                        source_node_id=interest_entity_id,
-                        source_id_field="entity_id",
-                        event_id=event_id,
-                        method="llm_extraction",
-                        session_id=session_id,
-                    )
+                # Note: interests are INTERESTED_IN edges from user→entity.
+                # DERIVED_FROM edges are not applicable to Entity nodes
+                # (only Preference, Skill, BehavioralPattern, Workflow).
 
         log.info(
             "extraction_results_written",

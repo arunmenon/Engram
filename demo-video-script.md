@@ -1,7 +1,7 @@
 # Context Graph — Video Narration Script (v5)
 
-**Format:** Animated React presentation (screen record at 1920x1080)
-**Duration:** ~15-16 minutes (15 slides)
+**Format:** Scrollytelling React presentation (screen record at 1920x1080, scroll-based)
+**Duration:** ~18-19 minutes (17 sections, continuous scroll)
 **Audience:** Stakeholders / Investors / Technical Leadership
 **Tone:** Professional and composed, with a clear narrative arc — authoritative but accessible
 
@@ -194,7 +194,7 @@
 
 > "Consumer 2 is the LLM-powered stage — Session Extraction. It triggers when a session concludes. The language model examines the full conversation and extracts entities, preferences, skills, and interests. It then executes three-tier entity resolution to determine whether 'QuickBooks,' 'QB,' and 'QBO' refer to the same thing — we will examine that process in detail shortly. Every extracted node receives a DERIVED_FROM edge back to its source events, maintaining the provenance chain."
 
-> "Consumer 4 handles Re-Consolidation. It runs on a six-hour schedule, grouping events into episodes using 30-minute gap detection, creating hierarchical summaries, and recomputing importance based on graph centrality. It also performs what we call active forgetting — it removes low-importance, rarely-accessed nodes. Not because of storage constraints, but because a pruned graph produces higher-quality results. Less noise, higher signal."
+> "Consumer 4 handles Re-Consolidation. It runs on a six-hour schedule, grouping events into episodes using 30-minute gap detection, creating hierarchical summaries, and recomputing importance based on graph centrality. It performs active forgetting — removing low-importance, rarely-accessed nodes — but critically, it archives expired events to GCS *before* deleting them from Redis. It also cleans up orphaned entities and stale embedding keys. Not because of storage constraints, but because a pruned graph produces higher-quality results. Less noise, higher signal — and zero data loss."
 
 > "Two additional details are worth noting. Consolidation does not operate on a fixed timer — it triggers when accumulated importance crosses a threshold, approximately 15 high-importance events. This approach comes directly from Park et al.'s Generative Agents paper. And when a node is *retrieved* — when it is used to generate a response — its stability increases. The act of remembering strengthens the memory. That is biological reconsolidation, and we implement it in the system."
 
@@ -246,7 +246,7 @@
 
 > "Tier 2a engages when exact match fails. It applies fuzzy string comparison using SequenceMatcher at the character level. If 'React.js' versus 'ReactJS' scores above 0.9, we do not merge — we create a SAME_AS edge. This is a softer assertion: 'these are very likely the same entity, at 92% confidence.' If the entity types differ, the relationship becomes RELATED_TO instead."
 
-> "Tier 2b applies semantic matching. We compare embedding vectors. 'Payment processing' and 'billing system' share no character-level similarity but are conceptually proximate. If cosine similarity exceeds 0.90, a SAME_AS edge is created. Above 0.75, RELATED_TO. Semantic matches are designed to never produce a hard merge — the confidence ceiling is intentionally lower."
+> "Tier 2b applies semantic matching using SentenceTransformer embeddings stored in a Redis HNSW vector index. We encode entity names into 384-dimensional vectors and perform approximate K-nearest-neighbor lookup — O(log N), not a linear scan. 'Payment processing' and 'billing system' share no character-level similarity but are conceptually proximate. If cosine similarity exceeds 0.90, a SAME_AS edge is created. Above 0.75, RELATED_TO. Semantic matches are designed to never produce a hard merge — the confidence ceiling is intentionally lower."
 
 > "If all three tiers fail to find a match, we create a new entity. And — this is a point I want to emphasize — every entity, whether merged, linked, or newly created, carries a DERIVED_FROM edge back to its source events. You can always trace an entity to the moment it was first mentioned."
 
@@ -326,7 +326,7 @@
 
 > "Let me conclude the technical discussion by showing how memory ages within the system. On the left, the Ebbinghaus curve in action. The blue line represents natural decay with a 168-hour half-life — after one week without access, a memory retains approximately 37% of its strength. The green dashed line shows the effect of re-access: the stability parameter increases and the curve resets at a higher level."
 
-> "Below that, the retention tier architecture. There are *two independent systems* operating in parallel. Neo4j maintains four tiers — hot, warm, cold, archive — each with distinct pruning rules. Redis maintains three — hot, cold, expired. They operate on different timelines because they serve different purposes. Neo4j optimizes for query performance. Redis optimizes for durability."
+> "Below that, the retention tier architecture. There are *two independent systems* operating in parallel. Neo4j maintains four tiers — hot, warm, cold, archive — each with distinct pruning rules. Redis maintains three — hot, cold, and archive, where expired events are exported to GCS before deletion. They operate on different timelines because they serve different purposes. Neo4j optimizes for query performance. Redis optimizes for durability."
 
 > "On the right, the composite scoring formula. Four factors, each weighted: recency, importance, and relevance at weight 1.0; user affinity at 0.5 as the differentiating factor — the factor that determines relevance *to a specific individual*. Together, they produce the single score that determines which context surfaces."
 
@@ -338,36 +338,89 @@
 
 ---
 
-## Slide 14: Differentiators (15:00 – 15:30)
+## Slide 14: Production Lifecycle (15:00 – 16:15)
+
+**[NARRATION]**
+
+> "Let me now address a question that is critical for any production deployment: what happens to data over time? Memory systems that grow without bound are unsustainable. Systems that delete without preserving are non-compliant. We need both."
+
+> "Context Graph implements a five-stage lifecycle, formalized in ADR-0014. On Day 0, an event enters Redis at full fidelity — stream entry plus JSON document, with dedup via Lua script. It is simultaneously projected into Neo4j with all edges intact. This is the hot tier."
+
+> "By Day 7, the Redis stream is trimmed — the XTRIM MINID operation removes stream entries, but the JSON documents remain. Session-specific streams are cleaned up. Neo4j moves to the warm tier, where weak semantic edges — those with similarity below 0.7 — are pruned."
+
+> "At Day 30, Neo4j enters the cold tier. Low-importance, rarely-accessed event nodes are deleted. Summary nodes now represent the consolidated understanding. Graph centrality is recomputed."
+
+> "Day 60 is where the archive pipeline engages. And this is a point I want to emphasize: we archive *before* we delete. Events are exported to GCS as date-partitioned, gzip-compressed JSONL files. Only after the export succeeds do we remove the Redis JSON documents. If the process fails mid-way, the next consolidation cycle retries idempotently."
+
+> "Beyond Day 90, only Neo4j summaries and the GCS archive remain. GCS lifecycle policies can move data to Coldline or Archive storage class. The cost reduction from Redis to GCS Archive is on the order of 100x. And critically, full event replay from archive back into Neo4j is always possible."
+
+**[SPEAKER NOTES]**
+- This is a new slide addressing production operations — the audience should feel that this is not just a research prototype
+- The "archive before delete" point is the most important concept — it addresses data safety directly
+- The 100x cost reduction figure is compelling for investors — let it register
+- Walk through the timeline columns from left to right as they animate
+- "If the process fails mid-way, the next cycle retries" — conveys crash safety without jargon
+- Pacing: measured and methodical, each stage getting approximately 15 seconds
+
+---
+
+## Slide 15: Production Readiness (16:15 – 17:30)
+
+**[NARRATION]**
+
+> "Before discussing differentiators, I want to share the results of our formal architecture review. We conducted a comprehensive assessment across eight dimensions and identified 67 findings — 7 critical, 15 high, 24 medium, and 21 low."
+
+> "All seven critical findings have been resolved. The most significant was the complete absence of authentication on any API endpoint — that is now addressed with a two-tier key system. Standard API keys protect read and ingest operations. A separate admin key gates dangerous operations: graph pruning, forced reconsolidation, and GDPR deletion. Authentication is disabled by default in development and enforced in production via environment configuration."
+
+> "We also resolved critical bugs in the consumer workers. Consumer 3, the enrichment worker, had a silent failure where Neo4j writes were never executing due to a non-async lambda in the write pipeline. Consumer 2 was scanning the entire global Redis stream rather than reading from per-session streams. Both are now corrected."
+
+> "On the testing front, we currently have 497 tests — 420 unit and 77 integration. This includes end-to-end lifecycle tests that exercise the full path from event ingestion through projection, enrichment, archival, and replay. The embedding pipeline has dedicated tests for HNSW index creation, KNN search, and zombie key cleanup."
+
+> "On the operational side, we have implemented orphan node cleanup — entities left dangling after their source events are deleted are automatically removed in batches of 500. Embedding keys for pruned entities are cleaned. Stream capping prevents unbounded growth. And all four consumer workers are containerized in Docker Compose with offset tracking and crash-safe operation."
+
+**[SPEAKER NOTES]**
+- This slide builds investor confidence — it shows engineering maturity, not just research ambition
+- "67 findings, 7 critical, all resolved" is the headline — deliver it clearly
+- The authentication gap is the most relatable finding — every stakeholder understands "no auth on API"
+- Test counts (497 total) are concrete evidence of quality — let the animated counters resolve
+- Do not dwell on every operational detail — the visual cards carry the specifics
+- Energy: composed confidence. This is the "we did the hard work" moment.
+
+---
+
+## Slide 16: Differentiators (17:30 – 18:00)
 
 **[NARRATION]**
 
 > "Let me summarize the six capabilities that distinguish Context Graph from the existing landscape."
 
-> "Full provenance — every context node traces back to its source event. Immutable ledger — the event store is append-only, and the graph is a disposable, rebuildable projection. Framework agnostic — zero coupling to any specific AI framework. Proactive context — the system surfaces relevant information *before* it is requested. GDPR ready — user data export and deletion are built in from the foundation. And intent-weighted retrieval — 'why?' and 'when?' queries follow entirely different paths through the graph."
+> "Full provenance — every context node traces back to its source event. Immutable ledger — the event store is append-only, the graph is a disposable, rebuildable projection, and GCS archive ensures zero data loss. Framework agnostic — zero coupling to any specific AI framework. Self-maintaining — automatic consolidation, archive-before-delete, orphan cleanup, and embedding lifecycle management with no operator intervention. Production secured — API key and admin key authentication, GDPR export and deletion, bounded queries, and role-based access. And intent-weighted retrieval — 'why?' and 'when?' queries follow entirely different paths through the graph."
 
 **[SPEAKER NOTES]**
 - This is delivered at a brisk pace — one sentence per differentiator
 - The six cards are already on screen. Reference each one briefly.
-- "Disposable, rebuildable projection" — that phrase consistently generates interest. Allow it to land.
-- "Before it is requested" for proactive context is the compelling detail
+- Note the updated differentiators: "Self-Maintaining" and "Production Secured" replace the prior entries
+- "Zero data loss" and "no operator intervention" are the new phrases that should land
 - Do not linger — the closing follows immediately
 
 ---
 
-## Slide 15: Closing (15:30 – 16:00)
+## Slide 17: Closing (18:00 – 18:30)
 
 **[NARRATION]**
 
 > "Context Graph provides AI agents with the memory they deserve. Traceable. Intelligent. Personalized."
 
-> "We built it on a foundation of twelve research papers, grounded in cognitive science, and engineered for production. This is not a prototype. This is not a proof of concept. This is a system designed to scale."
+> "We built it on a foundation of twelve research papers, grounded in cognitive science, and engineered for production. Sixty-seven architecture findings documented, all critical items resolved, nearly five hundred tests, and a self-maintaining lifecycle from ingestion to long-term archive."
+
+> "This is not a prototype. This is a system designed to scale."
 
 > "Thank you. I would welcome your questions."
 
 **[SPEAKER NOTES]**
 - Slow down. This is the conclusion.
 - "Traceable. Intelligent. Personalized." — three beats, three pauses
+- The new line about architecture findings and test count reinforces the production readiness message
 - "This is not a prototype" should convey measured conviction
 - "I would welcome your questions" — direct eye contact with camera or audience
 - Allow the slide to remain on screen for 3-5 seconds after you stop speaking
@@ -391,10 +444,12 @@
 | 11 | FE Shell Demo | 75s | Demo (6 steps) | Purposeful demonstration |
 | 12 | Personas | 45s | Use Cases | Practical impact |
 | 13 | Decay & Forgetting | 45s | Architecture | Composed wrap-up |
-| 14 | Differentiators | 30s | Summary | Brisk, confident |
-| 15 | Closing | 30s | CTA | Measured conviction |
+| 14 | **Production Lifecycle** | 75s | **Operations** | Methodical, production-focused |
+| 15 | **Production Readiness** | 75s | **Operations** | Composed confidence |
+| 16 | Differentiators | 30s | Summary | Brisk, confident |
+| 17 | Closing | 30s | CTA | Measured conviction |
 
-**Total: ~15-16 minutes with pauses and breathing room**
+**Total: ~18-19 minutes with pauses and breathing room**
 
 ---
 
@@ -436,24 +491,29 @@
 4. **Lighting:** If recording face, soft front light. Avoid overhead fluorescents.
 
 ### Controls
-- **Arrow keys / Spacebar:** Advance slides
-- **'A' key:** Toggle auto-play (useful for rehearsal, not recommended for final recording)
-- **Slide 11 (Demo):** Has 6 sub-steps. Click through each one deliberately.
+- **Mouse scroll / Trackpad:** Scroll smoothly through sections. Content animates as it enters the viewport.
+- **Navigation dots (right edge):** Click to jump to any section. Active section is highlighted.
+- **Progress bar (top):** Shows overall scroll progress.
+- **Section 11 (Demo):** Uses a sticky scroll-linked layout. The mockup stays fixed while you scroll through 8 steps (6 chat messages + context panel + graph view). Scroll slowly and deliberately.
 
 ### Recording Strategy
-- **Option A (Recommended):** Screen record with OBS Studio (free). Record narration as a separate audio track. Mix in post with Audacity or DaVinci Resolve.
-- **Option B:** Use Loom or ScreenFlow for simultaneous screen + voiceover. Simpler but less control.
-- **Option C:** Record screen silently, then record voiceover to the playback in a second pass.
+- **Option A (Recommended):** Screen record with OBS Studio (free). Use a mouse with a smooth scroll wheel or trackpad for buttery-smooth scrolling. Record narration as a separate audio track. Mix in post.
+- **Option B:** Use Loom or ScreenFlow for simultaneous screen + voiceover. Practice scroll pacing before recording.
+- **Option C:** Record screen silently with a pre-planned scroll speed, then record voiceover to the playback in a second pass.
+- **Scroll tip:** Practice the full scroll-through 2-3 times before recording. Aim for ~18 minutes total scroll time. The floating progress bar at the top helps you gauge pacing.
 
 ### Pacing Advice
-- **Slides 1-2:** Composed warmth. Establish the context.
-- **Slides 3-5 (Research):** This is the conceptual foundation. Take your time. The audience needs to appreciate the depth of research before seeing the system.
-- **Slides 6-10 (Architecture):** Explanatory mode. Be the guide. Direct attention to specific elements on screen.
-- **Slide 11 (Demo):** Let the visuals carry the weight. 2-3 seconds of silence between clicks is appropriate.
-- **Slides 12-15:** Concluding energy. Slightly brisker pace, building to a composed, confident close.
+- **Sections 1-2 (Hero, Problem):** Composed warmth. Let the hero fade-in resolve before speaking. Scroll slowly to reveal problem cards one by one.
+- **Sections 3-5 (Research, Neuroscience, Gap):** Conceptual foundation. Scroll at a measured pace — each column/row animates as it enters. Give the audience time to absorb the depth.
+- **Sections 6-10 (Solution through Entity Resolution):** Explanatory mode. Scroll steadily. Direct narration to match each element as it reveals from the side or bottom.
+- **Section 11 (Demo):** The sticky scroll-linked section. Scroll *very slowly* — each scroll increment advances the demo step. Let the mockup transitions breathe. 2-3 seconds of silence between steps is appropriate.
+- **Sections 12-13 (Personas, Decay):** Wrap-up of conceptual architecture. Normal scroll pace.
+- **Sections 14-15 (Lifecycle, Readiness):** Credibility sections. Counter animations trigger on entry — pause briefly to let them count up. Measured and factual.
+- **Sections 16-17 (Differentiators, Closing):** Concluding energy. Slightly brisker scroll, building to a composed, confident close.
 
 ### Post-Production
-- Add subtle ambient music under slides 1-5 (research section). Fade out for demo.
-- Consider lower-third titles for paper citations on slides 3-4.
+- Add subtle ambient music under sections 1-5 (research section). Fade out for demo.
+- Consider lower-third titles for paper citations on sections 3-4.
 - Trim any dead air over 3 seconds.
 - Add a 2-second black fade at the end.
+- The scrollytelling format produces very smooth recordings — minimal need for jump cuts.

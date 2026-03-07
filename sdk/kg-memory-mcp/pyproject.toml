@@ -1,0 +1,36 @@
+[project]
+name = "kg-memory-mcp"
+version = "0.1.0"
+description = "KG-based intelligent memory server MCP tool for coding agent context retrieval"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp>=1.0",
+    "orjson>=3.10",
+    "tree-sitter>=0.23",
+    "tree-sitter-python>=0.23",
+    "tree-sitter-markdown>=0.3",
+    "litellm>=1.0",
+    "pydantic>=2.9",
+]
+
+[project.optional-dependencies]
+watcher = ["watchdog>=4.0"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[project.scripts]
+kg-memory-mcp = "kg_memory.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kg_memory"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100

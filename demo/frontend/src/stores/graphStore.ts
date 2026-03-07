@@ -7,7 +7,7 @@ import { tracker } from '../analytics/tracker';
 import { useAnnounceStore } from './announceStore';
 import { apiGet, apiPost } from '../api/client';
 import { transformAtlasResponse } from '../api/transforms';
-import { isLiveMode } from '../api/mode';
+import { isLiveMode, isSimulatorMode } from '../api/mode';
 
 interface GraphState {
   nodes: GraphNode[];
@@ -28,6 +28,7 @@ interface GraphState {
   setSessionFilter: (sessionId: string | null) => void;
   setLayoutType: (layout: 'force' | 'circular') => void;
   setSigmaRenderer: (renderer: Sigma | null) => void;
+  setGraphData: (nodes: GraphNode[], edges: GraphEdge[], meta?: QueryMeta | null) => void;
   fetchSessionContext: (sessionId: string) => Promise<void>;
   fetchSubgraph: (query: string, sessionId?: string) => Promise<void>;
 }
@@ -36,8 +37,8 @@ const allNodeTypes = new Set<NodeType>(['Event', 'Entity', 'Summary', 'UserProfi
 const allEdgeTypes = new Set<EdgeType>(['FOLLOWS', 'CAUSED_BY', 'SIMILAR_TO', 'REFERENCES', 'SUMMARIZES', 'SAME_AS', 'RELATED_TO', 'HAS_PROFILE', 'HAS_PREFERENCE', 'HAS_SKILL', 'DERIVED_FROM', 'EXHIBITS_PATTERN', 'INTERESTED_IN', 'ABOUT', 'ABSTRACTED_FROM', 'PARENT_SKILL']);
 
 export const useGraphStore = create<GraphState>((set, get) => ({
-  nodes: mockNodes,
-  edges: mockEdges,
+  nodes: isSimulatorMode() ? [] : mockNodes,
+  edges: isSimulatorMode() ? [] : mockEdges,
   selectedNodeId: null,
   visibleNodeTypes: new Set(allNodeTypes),
   visibleEdgeTypes: new Set(allEdgeTypes),
@@ -47,6 +48,10 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   loading: false,
   error: null,
   lastAtlasMeta: null,
+
+  setGraphData: (nodes, edges, meta = null) => {
+    set({ nodes, edges, lastAtlasMeta: meta ?? null, loading: false, error: null });
+  },
 
   fetchSessionContext: async (sessionId) => {
     if (!isLiveMode()) return;

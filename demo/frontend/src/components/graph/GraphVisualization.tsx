@@ -156,19 +156,22 @@ export function GraphVisualization() {
       });
     }
 
-    // Apply ForceAtlas2 layout
-    const inferredSettings = forceAtlas2.inferSettings(graph);
-    forceAtlas2.assign(graph, {
-      iterations: 100,
-      settings: {
-        ...inferredSettings,
-        gravity: 1,
-        scalingRatio: 10,
-        barnesHutOptimize: true,
-      },
-    });
+    // Apply ForceAtlas2 layout (skip for empty graphs)
+    if (graph.order > 0) {
+      const inferredSettings = forceAtlas2.inferSettings(graph);
+      forceAtlas2.assign(graph, {
+        iterations: 100,
+        settings: {
+          ...inferredSettings,
+          gravity: 1,
+          scalingRatio: 10,
+          barnesHutOptimize: true,
+        },
+      });
+    }
 
     const renderer = new Sigma(graph, containerRef.current, {
+      allowInvalidContainer: true,
       renderEdgeLabels: true,
       defaultEdgeType: 'arrow',
       defaultNodeType: 'circle',

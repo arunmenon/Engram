@@ -4,7 +4,7 @@ import { GraphLegend } from './GraphLegend';
 
 export function GraphPanel() {
   return (
-    <div className="flex-1 min-w-[500px] relative overflow-hidden">
+    <div className="flex-1 min-w-[500px] min-h-[400px] relative overflow-hidden">
       <GraphVisualization />
       <GraphControls />
       <GraphLegend />
