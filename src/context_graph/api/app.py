@@ -105,6 +105,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.event_store = event_store
     app.state.graph_store = graph_store
 
+    if settings.auth.api_key is None:
+        logger.warning(
+            "auth_disabled",
+            hint="Set CG_AUTH_API_KEY to enable API authentication",
+        )
+
     logger.info(
         "app_started",
         redis_host=settings.redis.host,

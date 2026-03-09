@@ -7,7 +7,7 @@ back as SSE tokens. Completely stateless — the frontend manages turn-taking.
 from __future__ import annotations
 
 import uuid
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import litellm
 import orjson
@@ -28,9 +28,9 @@ router = APIRouter(prefix="/simulate", tags=["simulate"])
 class PersonaSpec(BaseModel):
     """Persona definition for a simulated agent."""
 
-    name: str
+    name: str = Field(..., max_length=100)
     role: Literal["customer", "support"]
-    system_prompt: str
+    system_prompt: str = Field(..., max_length=4000)
     model_id: str | None = None
     temperature: float | None = None
 
@@ -39,14 +39,14 @@ class ConversationMessage(BaseModel):
     """A single message in the conversation history."""
 
     role: Literal["user", "assistant", "system"]
-    content: str
+    content: str = Field(..., max_length=8000)
 
 
 class SimulateTurnRequest(BaseModel):
     """Request body for a single conversation turn."""
 
     persona: PersonaSpec
-    conversation_history: list[ConversationMessage] = Field(default_factory=list)
+    conversation_history: list[ConversationMessage] = Field(default_factory=list, max_length=100)
     session_context: str | None = None
     max_tokens: int = Field(default=512, ge=50, le=2048)
     stream: bool = True
@@ -62,7 +62,9 @@ class TurnResult(BaseModel):
 
 
 @router.post("/turn")
-async def simulate_turn(body: SimulateTurnRequest, request: Request):
+async def simulate_turn(
+    body: SimulateTurnRequest, request: Request
+) -> TurnResult | JSONResponse | EventSourceResponse:
     """Generate a single conversation turn via LLM.
 
     Streams SSE tokens when stream=True, returns JSON otherwise.
@@ -136,16 +138,18 @@ async def simulate_turn(body: SimulateTurnRequest, request: Request):
         )
 
 
-def _build_messages(body: SimulateTurnRequest) -> list[dict]:
+def _build_messages(body: SimulateTurnRequest) -> list[dict[str, Any]]:
     """Build the LLM message array from persona + history."""
-    messages: list[dict] = [{"role": "system", "content": body.persona.system_prompt}]
+    messages: list[dict[str, Any]] = [{"role": "system", "content": body.persona.system_prompt}]
 
     # Add session context as a system message on first turn
     if body.session_context and not body.conversation_history:
-        messages.append({
-            "role": "system",
-            "content": f"Topic: {body.session_context}. Begin the conversation naturally.",
-        })
+        messages.append(
+            {
+                "role": "system",
+                "content": f"Topic: {body.session_context}. Begin the conversation naturally.",
+            }
+        )
 
     # Add conversation history
     for msg in body.conversation_history:
@@ -164,12 +168,12 @@ def _build_messages(body: SimulateTurnRequest) -> list[dict]:
 
 
 async def _stream_response(
-    messages: list[dict],
+    messages: list[dict[str, Any]],
     model_id: str,
     temperature: float,
     max_tokens: int,
     turn_id: str,
-) -> AsyncGenerator[dict, None]:
+) -> AsyncGenerator[dict[str, str], None]:
     """Stream LLM response as SSE events."""
     full_content = ""
     token_index = 0
@@ -191,9 +195,7 @@ async def _stream_response(
                 full_content += content
                 yield {
                     "event": "token",
-                    "data": orjson.dumps(
-                        {"content": content, "index": token_index}
-                    ).decode(),
+                    "data": orjson.dumps({"content": content, "index": token_index}).decode(),
                 }
                 token_index += 1
 
@@ -207,12 +209,14 @@ async def _stream_response(
 
         yield {
             "event": "done",
-            "data": orjson.dumps({
-                "content": full_content,
-                "turn_id": turn_id,
-                "model_id": model_id,
-                "tokens_used": tokens_used,
-            }).decode(),
+            "data": orjson.dumps(
+                {
+                    "content": full_content,
+                    "turn_id": turn_id,
+                    "model_id": model_id,
+                    "tokens_used": tokens_used,
+                }
+            ).decode(),
         }
 
         logger.info(
