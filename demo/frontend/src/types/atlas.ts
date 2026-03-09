@@ -1,7 +1,7 @@
 export interface Provenance {
   event_id: string;
   global_position: string;
-  source: 'redis' | 'neo4j' | 'llm';
+  source: "redis" | "neo4j" | "llm";
   occurred_at: string;
   session_id: string;
   agent_id: string;
@@ -15,13 +15,52 @@ export interface NodeScores {
   user_affinity?: number;
 }
 
-export type NodeType = 'Event' | 'Entity' | 'Summary' | 'UserProfile' | 'Preference' | 'Skill' | 'Workflow' | 'BehavioralPattern';
+export type NodeType =
+  | "Event"
+  | "Entity"
+  | "Summary"
+  | "UserProfile"
+  | "Preference"
+  | "Skill"
+  | "Workflow"
+  | "BehavioralPattern"
+  | "Belief"
+  | "Goal"
+  | "Episode";
 
-export type EdgeType = 'FOLLOWS' | 'CAUSED_BY' | 'SIMILAR_TO' | 'REFERENCES' | 'SUMMARIZES' | 'SAME_AS' | 'RELATED_TO' | 'HAS_PROFILE' | 'HAS_PREFERENCE' | 'HAS_SKILL' | 'DERIVED_FROM' | 'EXHIBITS_PATTERN' | 'INTERESTED_IN' | 'ABOUT' | 'ABSTRACTED_FROM' | 'PARENT_SKILL';
+export type EdgeType =
+  | "FOLLOWS"
+  | "CAUSED_BY"
+  | "SIMILAR_TO"
+  | "REFERENCES"
+  | "SUMMARIZES"
+  | "SAME_AS"
+  | "RELATED_TO"
+  | "HAS_PROFILE"
+  | "HAS_PREFERENCE"
+  | "HAS_SKILL"
+  | "DERIVED_FROM"
+  | "EXHIBITS_PATTERN"
+  | "INTERESTED_IN"
+  | "ABOUT"
+  | "ABSTRACTED_FROM"
+  | "PARENT_SKILL"
+  | "CONTAINS"
+  | "CONTRADICTS"
+  | "PURSUES"
+  | "SUPERSEDES";
 
-export type IntentType = 'why' | 'when' | 'what' | 'related' | 'general' | 'who_is' | 'how_does' | 'personalize';
+export type IntentType =
+  | "why"
+  | "when"
+  | "what"
+  | "related"
+  | "general"
+  | "who_is"
+  | "how_does"
+  | "personalize";
 
-export type RetrievalReason = 'direct' | 'proactive' | 'traversal' | 'similar';
+export type RetrievalReason = "direct" | "proactive" | "traversal" | "similar";
 
 export interface AtlasNode {
   id: string;
