@@ -1,14 +1,15 @@
-import { create } from 'zustand';
-import type { SimulatorScenario } from '../data/scenarios';
-import { allScenarios } from '../data/scenarios';
-import { useGraphStore } from './graphStore';
+import { create } from "zustand";
+import type { SimulatorScenario } from "../data/scenarios";
+import { allScenarios } from "../data/scenarios";
+import { useGraphStore } from "./graphStore";
 import {
   EngramError,
   messageToEvents,
+  rebaseTimestamp,
   sessionLifecycleEvents,
   type EventPayload,
-} from '../api/engram';
-import { transformAtlasResponse } from '../api/transforms';
+} from "../api/engram";
+import { transformAtlasResponse } from "../api/transforms";
 import {
   type PipelineStats,
   EMPTY_PIPELINE_STATS,
@@ -16,12 +17,18 @@ import {
   detectBackend,
   fetchPipelineStats,
   clearUserStoreData,
-} from '../api/pipeline';
+} from "../api/pipeline";
 
 // Re-export PipelineStats for consumers that imported it from here
 export type { PipelineStats };
 
-export type SimulatorStatus = 'idle' | 'picking' | 'ready' | 'playing' | 'paused' | 'complete';
+export type SimulatorStatus =
+  | "idle"
+  | "picking"
+  | "ready"
+  | "playing"
+  | "paused"
+  | "complete";
 
 interface SimulatorState {
   status: SimulatorStatus;
@@ -74,6 +81,31 @@ const engram = getSharedClient();
 
 const ingestedSessionIds = new Set<string>();
 
+// ─── Timestamp rebasing ─────────────────────────────────────────────────────
+// Scenario data has timestamps from 2024. We rebase them to "now" so events
+// appear fresh in the backend's decay scoring and timeline views.
+
+let _applyStepLock = false;
+
+let _rebaseOrigin: string | null = null; // scenario's earliest session start_time
+let _rebaseTarget: string | null = null; // "now" when playback began
+
+function initRebase(scenario: SimulatorScenario): void {
+  if (_rebaseOrigin) return; // already initialized for this playback
+  _rebaseOrigin = scenario.sessions[0]?.start_time ?? new Date().toISOString();
+  _rebaseTarget = new Date().toISOString();
+}
+
+function resetRebase(): void {
+  _rebaseOrigin = null;
+  _rebaseTarget = null;
+}
+
+function rebase(timestamp: string): string {
+  if (!_rebaseOrigin || !_rebaseTarget) return timestamp;
+  return rebaseTimestamp(timestamp, _rebaseOrigin, _rebaseTarget);
+}
+
 // ─── Engram Integration Layer (NO FALLBACKS) ────────────────────────────────
 
 /**
@@ -85,37 +117,52 @@ async function ingestStepEvents(
   stepIndex: number,
 ): Promise<{ accepted: number; sessionEnded: boolean }> {
   const msg = scenario.messages[stepIndex];
-  if (!msg) throw new Error('Invalid step index');
+  if (!msg) throw new Error("Invalid step index");
+
+  initRebase(scenario);
 
   const events: EventPayload[] = [];
   const sessionId = msg.session_id;
   let sessionEnded = false;
 
   // If this is the first message in a session, send session_start first
-  const isFirstInSession = stepIndex === 0 ||
+  const isFirstInSession =
+    stepIndex === 0 ||
     scenario.messages[stepIndex - 1]?.session_id !== sessionId;
 
   if (isFirstInSession && !ingestedSessionIds.has(sessionId)) {
-    const session = scenario.sessions.find(s => s.id === sessionId);
+    const session = scenario.sessions.find((s) => s.id === sessionId);
     if (session) {
-      const lifecycle = sessionLifecycleEvents(session);
+      const rebasedSession = {
+        ...session,
+        start_time: rebase(session.start_time),
+        end_time: rebase(session.end_time),
+      };
+      const lifecycle = sessionLifecycleEvents(rebasedSession);
       events.push(lifecycle.start);
       ingestedSessionIds.add(sessionId);
     }
   }
 
-  // Convert the message to events
-  const msgEvents = messageToEvents(msg);
+  // Convert the message to events (with rebased timestamp)
+  const rebasedMsg = { ...msg, timestamp: rebase(msg.timestamp) };
+  const msgEvents = messageToEvents(rebasedMsg);
   events.push(...msgEvents);
 
   // If this is the last message in a session, send session_end
-  const isLastInSession = stepIndex === scenario.messages.length - 1 ||
+  const isLastInSession =
+    stepIndex === scenario.messages.length - 1 ||
     scenario.messages[stepIndex + 1]?.session_id !== sessionId;
 
   if (isLastInSession) {
-    const session = scenario.sessions.find(s => s.id === sessionId);
+    const session = scenario.sessions.find((s) => s.id === sessionId);
     if (session) {
-      const lifecycle = sessionLifecycleEvents(session);
+      const rebasedSession = {
+        ...session,
+        start_time: rebase(session.start_time),
+        end_time: rebase(session.end_time),
+      };
+      const lifecycle = sessionLifecycleEvents(rebasedSession);
       events.push(lifecycle.end);
       sessionEnded = true;
     }
@@ -133,13 +180,16 @@ async function ingestStepEvents(
  * Note: simulatorStore's fetchLiveGraph takes a scenario to extract persona name,
  * unlike the shared pipeline version which takes a plain queryContext string.
  */
-async function fetchLiveGraph(sessionId: string, scenario: SimulatorScenario): Promise<void> {
+async function fetchLiveGraph(
+  sessionId: string,
+  scenario: SimulatorScenario,
+): Promise<void> {
   // Use querySubgraph to get ALL node types (Events, Entities, Summaries, etc.)
   try {
     const atlas = await engram.querySubgraph({
       query: `session context for ${scenario.persona.name}`,
       session_id: sessionId,
-      agent_id: 'fe-simulator',
+      agent_id: "fe-simulator",
       max_nodes: 200,
       max_depth: 5,
     });
@@ -151,7 +201,10 @@ async function fetchLiveGraph(sessionId: string, scenario: SimulatorScenario): P
   }
 
   // Fallback: getContext returns Event nodes for the session
-  const atlas = await engram.getContext(sessionId, { maxNodes: 200, maxDepth: 5 });
+  const atlas = await engram.getContext(sessionId, {
+    maxNodes: 200,
+    maxDepth: 5,
+  });
   const { nodes, edges } = transformAtlasResponse(atlas);
   useGraphStore.getState().setGraphData(nodes, edges, atlas.meta);
 }
@@ -164,11 +217,12 @@ async function fetchLiveGraph(sessionId: string, scenario: SimulatorScenario): P
  * unlike the shared fetchLiveUserData which takes userId directly.
  */
 async function fetchLiveUserData(scenario: SimulatorScenario): Promise<void> {
-  const userNodeId = scenario.atlasSnapshots[scenario.atlasSnapshots.length - 1]
-    ?.userProfile?.id;
+  const userNodeId =
+    scenario.atlasSnapshots[scenario.atlasSnapshots.length - 1]?.userProfile
+      ?.id;
   if (!userNodeId) return;
 
-  const { fetchLiveUserData: sharedFetch } = await import('../api/pipeline');
+  const { fetchLiveUserData: sharedFetch } = await import("../api/pipeline");
   await sharedFetch(userNodeId);
 }
 
@@ -182,14 +236,21 @@ async function applyStep(
   stepIndex: number,
   setState: (partial: Partial<SimulatorState>) => void,
 ) {
+  if (_applyStepLock) return;
+  _applyStepLock = true;
+
   try {
     // 1. Ingest events to real backend
-    const { accepted, sessionEnded } = await ingestStepEvents(scenario, stepIndex);
-    const newTotal = (useSimulatorStore.getState().ingestedEvents || 0) + accepted;
+    const { accepted, sessionEnded } = await ingestStepEvents(
+      scenario,
+      stepIndex,
+    );
+    const newTotal =
+      (useSimulatorStore.getState().ingestedEvents || 0) + accepted;
     setState({ ingestedEvents: newTotal, lastApiError: null });
 
     // 2. Wait for projection consumer to process
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 200));
 
     // 3. Fetch live graph from backend
     const msg = scenario.messages[stepIndex];
@@ -197,11 +258,14 @@ async function applyStep(
 
     // 4. If a session just ended, track it and trigger post-session pipeline
     if (sessionEnded) {
-      const completed = [...useSimulatorStore.getState().completedSessions, msg.session_id];
+      const completed = [
+        ...useSimulatorStore.getState().completedSessions,
+        msg.session_id,
+      ];
       setState({ completedSessions: completed });
 
       // Wait a bit more for extraction consumer (Consumer 2) to process session_end
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       // Re-fetch graph — may now include Entity nodes from extraction
       await fetchLiveGraph(msg.session_id, scenario);
@@ -216,16 +280,20 @@ async function applyStep(
     // 6. Update pipeline stats
     const stats = await fetchPipelineStats();
     setState({ pipelineStats: stats });
-
   } catch (err) {
     const errMsg = err instanceof EngramError ? err.message : String(err);
     setState({ lastApiError: `Pipeline error: ${errMsg}` });
-    console.error('[Simulator] Pipeline error:', err);
+    console.error("[Simulator] Pipeline error:", err);
+  } finally {
+    _applyStepLock = false;
   }
 }
 
 /** Build visibleMessagesPerSession for messages[0..stepIndex] */
-function buildVisibleCounts(scenario: SimulatorScenario, stepIndex: number): Record<string, number> {
+function buildVisibleCounts(
+  scenario: SimulatorScenario,
+  stepIndex: number,
+): Record<string, number> {
   const counts: Record<string, number> = {};
   for (let i = 0; i <= stepIndex; i++) {
     const sid = scenario.messages[i].session_id;
@@ -237,11 +305,11 @@ function buildVisibleCounts(scenario: SimulatorScenario, stepIndex: number): Rec
 // ─── Store ──────────────────────────────────────────────────────────────────
 
 export const useSimulatorStore = create<SimulatorState>((set, get) => ({
-  status: 'picking',
+  status: "picking",
   scenario: null,
   currentStepIndex: -1,
   visibleMessagesPerSession: {},
-  currentSessionId: '',
+  currentSessionId: "",
   isPlaying: false,
   playbackSpeed: 1,
   backendConnected: false,
@@ -254,13 +322,15 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
   completedSessions: [],
 
   enterPicker: () => {
+    _applyStepLock = false;
     ingestedSessionIds.clear();
+    resetRebase();
     set({
-      status: 'picking',
+      status: "picking",
       scenario: null,
       currentStepIndex: -1,
       visibleMessagesPerSession: {},
-      currentSessionId: '',
+      currentSessionId: "",
       isPlaying: false,
       ingestedEvents: 0,
       lastApiError: null,
@@ -272,14 +342,15 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
   },
 
   pickScenario: (scenarioId: string) => {
-    const scenario = allScenarios.find(s => s.id === scenarioId);
+    const scenario = allScenarios.find((s) => s.id === scenarioId);
     if (!scenario) return;
-    const firstSessionId = scenario.sessions[0]?.id ?? '';
+    const firstSessionId = scenario.sessions[0]?.id ?? "";
 
     ingestedSessionIds.clear();
+    resetRebase();
 
     set({
-      status: 'ready',
+      status: "ready",
       scenario,
       currentStepIndex: -1,
       visibleMessagesPerSession: {},
@@ -305,14 +376,19 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
           lastApiError: null,
           pipelineStats: stats,
         });
-        console.log('[Simulator] Backend connected — Engram Live mode (no fallbacks)');
+        console.log(
+          "[Simulator] Backend connected — Engram Live mode (no fallbacks)",
+        );
       } else {
         set({
           detecting: false,
           backendConnected: false,
-          lastApiError: 'Engram backend not available. Start the backend with: docker compose -f docker/docker-compose.yml up -d',
+          lastApiError:
+            "Engram backend not available. Start the backend with: docker compose -f docker/docker-compose.yml up -d",
         });
-        console.error('[Simulator] Backend NOT available — cannot proceed without Engram');
+        console.error(
+          "[Simulator] Backend NOT available — cannot proceed without Engram",
+        );
       }
     });
   },
@@ -321,7 +397,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
     const state = get();
     if (!state.scenario || !state.backendConnected) {
       if (!state.backendConnected) {
-        set({ lastApiError: 'Cannot play: Engram backend not connected' });
+        set({ lastApiError: "Cannot play: Engram backend not connected" });
       }
       return;
     }
@@ -333,7 +409,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       if (!msg) return;
       const counts = buildVisibleCounts(state.scenario, 0);
       set({
-        status: 'playing',
+        status: "playing",
         isPlaying: true,
         currentStepIndex: 0,
         visibleMessagesPerSession: counts,
@@ -350,7 +426,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       const counts = buildVisibleCounts(state.scenario, 0);
       ingestedSessionIds.clear();
       set({
-        status: 'playing',
+        status: "playing",
         isPlaying: true,
         currentStepIndex: 0,
         visibleMessagesPerSession: counts,
@@ -363,17 +439,17 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
     }
 
     // Resume
-    set({ status: 'playing', isPlaying: true });
+    set({ status: "playing", isPlaying: true });
   },
 
-  pause: () => set({ status: 'paused', isPlaying: false }),
+  pause: () => set({ status: "paused", isPlaying: false }),
 
   stepForward: () => {
     const state = get();
     if (!state.scenario || !state.backendConnected) return;
     const nextIndex = state.currentStepIndex + 1;
     if (nextIndex >= state.scenario.messages.length) {
-      set({ status: 'complete', isPlaying: false });
+      set({ status: "complete", isPlaying: false });
       return;
     }
     const msg = state.scenario.messages[nextIndex];
@@ -382,10 +458,20 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       currentStepIndex: nextIndex,
       visibleMessagesPerSession: counts,
       currentSessionId: msg.session_id,
-      status: nextIndex >= state.scenario.messages.length - 1 ? 'complete' : (state.isPlaying ? 'playing' : 'paused'),
-      isPlaying: nextIndex >= state.scenario.messages.length - 1 ? false : state.isPlaying,
+      status:
+        nextIndex >= state.scenario.messages.length - 1
+          ? "complete"
+          : state.isPlaying
+            ? "playing"
+            : "paused",
+      isPlaying:
+        nextIndex >= state.scenario.messages.length - 1
+          ? false
+          : state.isPlaying,
     });
-    applyStep(state.scenario, nextIndex, (p) => set(p as Partial<SimulatorState>));
+    applyStep(state.scenario, nextIndex, (p) =>
+      set(p as Partial<SimulatorState>),
+    );
   },
 
   stepBackward: () => {
@@ -399,7 +485,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       currentStepIndex: prevIndex,
       visibleMessagesPerSession: counts,
       currentSessionId: msg.session_id,
-      status: 'paused',
+      status: "paused",
       isPlaying: false,
     });
     // Re-fetch from backend — graph shows cumulative state (can't un-ingest)
@@ -412,7 +498,10 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
   goToStep: (index: number) => {
     const state = get();
     if (!state.scenario || !state.backendConnected) return;
-    const clamped = Math.max(0, Math.min(index, state.scenario.messages.length - 1));
+    const clamped = Math.max(
+      0,
+      Math.min(index, state.scenario.messages.length - 1),
+    );
     const msg = state.scenario.messages[clamped];
     if (!msg) return;
     const counts = buildVisibleCounts(state.scenario, clamped);
@@ -420,7 +509,8 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       currentStepIndex: clamped,
       visibleMessagesPerSession: counts,
       currentSessionId: msg.session_id,
-      status: clamped >= state.scenario.messages.length - 1 ? 'complete' : 'paused',
+      status:
+        clamped >= state.scenario.messages.length - 1 ? "complete" : "paused",
       isPlaying: false,
     });
     // Re-fetch live graph (cumulative view from backend)
@@ -436,9 +526,9 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
     set({
       currentStepIndex: -1,
       visibleMessagesPerSession: {},
-      currentSessionId: state.scenario.sessions[0]?.id ?? '',
+      currentSessionId: state.scenario.sessions[0]?.id ?? "",
       isPlaying: false,
-      status: 'ready',
+      status: "ready",
     });
     useGraphStore.getState().setGraphData([], []);
     clearUserStoreData();
@@ -451,63 +541,84 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
     const msg = state.scenario.messages[lastIndex];
     if (!msg) return;
     const counts = buildVisibleCounts(state.scenario, lastIndex);
+    const scenarioId = state.scenario.id;
     set({
       currentStepIndex: lastIndex,
       visibleMessagesPerSession: counts,
       currentSessionId: msg.session_id,
       isPlaying: false,
-      status: 'complete',
+      status: "complete",
     });
 
     // Ingest ALL events at once, then trigger full pipeline
     (async () => {
       try {
-        // 1. Build all events for all sessions
+        initRebase(state.scenario!);
+
+        // 1. Build all events for all sessions (with rebased timestamps)
         const allEvents: EventPayload[] = [];
         for (const session of state.scenario!.sessions) {
-          const lc = sessionLifecycleEvents(session);
+          const rebasedSession = {
+            ...session,
+            start_time: rebase(session.start_time),
+            end_time: rebase(session.end_time),
+          };
+          const lc = sessionLifecycleEvents(rebasedSession);
           allEvents.push(lc.start);
-          const sessionMsgs = state.scenario!.messages.filter(m => m.session_id === session.id);
+          const sessionMsgs = state.scenario!.messages.filter(
+            (m) => m.session_id === session.id,
+          );
           for (const m of sessionMsgs) {
-            allEvents.push(...messageToEvents(m));
+            const rebasedMsg = { ...m, timestamp: rebase(m.timestamp) };
+            allEvents.push(...messageToEvents(rebasedMsg));
           }
           allEvents.push(lc.end);
         }
 
         // 2. Batch ingest
         const result = await engram.ingestBatch(allEvents);
+        if (get().scenario?.id !== scenarioId) return;
         set({
           ingestedEvents: result.accepted,
           lastApiError: null,
-          completedSessions: state.scenario!.sessions.map(s => s.id),
+          completedSessions: state.scenario!.sessions.map((s) => s.id),
         });
 
         // 3. Wait for projection + extraction consumers
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise((r) => setTimeout(r, 800));
+        if (get().scenario?.id !== scenarioId) return;
 
         // 4. Trigger reconsolidation to create Summary nodes
         try {
           await engram.reconsolidate();
-          console.log('[Simulator] Reconsolidation triggered after skip-to-end');
+          if (get().scenario?.id !== scenarioId) return;
+          console.log(
+            "[Simulator] Reconsolidation triggered after skip-to-end",
+          );
         } catch (e) {
-          console.warn('[Simulator] Reconsolidate failed (may need more events):', e);
+          console.warn(
+            "[Simulator] Reconsolidate failed (may need more events):",
+            e,
+          );
         }
 
         // 5. Wait for consolidation
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 500));
+        if (get().scenario?.id !== scenarioId) return;
 
         // 6. Fetch full graph + user data
         await fetchLiveGraph(msg.session_id, state.scenario!);
+        if (get().scenario?.id !== scenarioId) return;
         await fetchLiveUserData(state.scenario!).catch(() => {});
 
         // 7. Update pipeline stats
+        if (get().scenario?.id !== scenarioId) return;
         const stats = await fetchPipelineStats();
         set({ pipelineStats: stats });
-
       } catch (err) {
         const errMsg = err instanceof EngramError ? err.message : String(err);
         set({ lastApiError: `Skip-to-end pipeline error: ${errMsg}` });
-        console.error('[Simulator] Skip-to-end failed:', err);
+        console.error("[Simulator] Skip-to-end failed:", err);
       }
     })();
   },
@@ -521,7 +632,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
   clearContextGraph: async () => {
     const state = get();
     if (!state.backendConnected) {
-      set({ lastApiError: 'Cannot clear: Engram backend not connected' });
+      set({ lastApiError: "Cannot clear: Engram backend not connected" });
       return;
     }
 
@@ -542,34 +653,39 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
         ingestedEvents: 0,
         currentStepIndex: -1,
         visibleMessagesPerSession: {},
-        status: state.scenario ? 'ready' : 'picking',
+        status: state.scenario ? "ready" : "picking",
         isPlaying: false,
         lastApiError: null,
         pipelineStats: stats,
         completedSessions: [],
       });
-      console.log('[Simulator] Context graph cleared via replay');
+      console.log("[Simulator] Context graph cleared via replay");
     } catch (err) {
-      const errMsg = err instanceof EngramError ? err.message : 'Failed to clear context graph';
+      const errMsg =
+        err instanceof EngramError
+          ? err.message
+          : "Failed to clear context graph";
       set({ isClearing: false, lastApiError: errMsg });
-      console.error('[Simulator] Clear failed:', err);
+      console.error("[Simulator] Clear failed:", err);
     }
   },
 
   triggerReconsolidate: async () => {
     const state = get();
     if (!state.backendConnected) {
-      set({ lastApiError: 'Cannot reconsolidate: Engram backend not connected' });
+      set({
+        lastApiError: "Cannot reconsolidate: Engram backend not connected",
+      });
       return;
     }
 
     set({ isReconsolidating: true, lastApiError: null });
     try {
       const result = await engram.reconsolidate();
-      console.log('[Simulator] Reconsolidation result:', result);
+      console.log("[Simulator] Reconsolidation result:", result);
 
       // Wait for Summary nodes to be written
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       // Re-fetch graph with Summary nodes
       if (state.scenario && state.currentSessionId) {
@@ -585,9 +701,10 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
         lastApiError: null,
       });
     } catch (err) {
-      const errMsg = err instanceof EngramError ? err.message : 'Reconsolidation failed';
+      const errMsg =
+        err instanceof EngramError ? err.message : "Reconsolidation failed";
       set({ isReconsolidating: false, lastApiError: errMsg });
-      console.error('[Simulator] Reconsolidate failed:', err);
+      console.error("[Simulator] Reconsolidate failed:", err);
     }
   },
 
@@ -598,7 +715,9 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
     // Also re-fetch graph and user data
     const state = get();
     if (state.scenario && state.currentSessionId && state.backendConnected) {
-      await fetchLiveGraph(state.currentSessionId, state.scenario).catch(() => {});
+      await fetchLiveGraph(state.currentSessionId, state.scenario).catch(
+        () => {},
+      );
       await fetchLiveUserData(state.scenario).catch(() => {});
     }
   },

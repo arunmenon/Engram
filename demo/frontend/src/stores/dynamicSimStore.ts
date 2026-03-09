@@ -5,16 +5,16 @@
  * conversations between two personas, streaming responses token-by-token
  * and ingesting each turn through the full Engram pipeline.
  */
-import { create } from 'zustand';
-import type { Persona } from '../data/personas';
-import { useGraphStore } from './graphStore';
+import { create } from "zustand";
+import type { Persona } from "../data/personas";
+import { useGraphStore } from "./graphStore";
 import {
   EngramError,
   messageToEvents,
   simulateTurnStream,
   type EventPayload,
   type SimulateTurnDone,
-} from '../api/engram';
+} from "../api/engram";
 import {
   type PipelineStats,
   EMPTY_PIPELINE_STATS,
@@ -24,7 +24,7 @@ import {
   fetchLiveGraph,
   fetchLiveUserData,
   clearUserStoreData,
-} from '../api/pipeline';
+} from "../api/pipeline";
 
 // Re-export PipelineStats for consumers that imported it from here
 export type { PipelineStats };
@@ -32,18 +32,18 @@ export type { PipelineStats };
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type DynamicStatus =
-  | 'picking'
-  | 'ready'
-  | 'generating'
-  | 'ingesting'
-  | 'waiting'
-  | 'paused'
-  | 'complete'
-  | 'error';
+  | "picking"
+  | "ready"
+  | "generating"
+  | "ingesting"
+  | "waiting"
+  | "paused"
+  | "complete"
+  | "error";
 
 export interface DynamicMessage {
   id: string;
-  role: 'customer' | 'support';
+  role: "customer" | "support";
   personaName: string;
   personaAvatar: string;
   personaColor: string;
@@ -76,15 +76,17 @@ interface DynamicSimState {
   isClearing: boolean;
   isReconsolidating: boolean;
 
-  // Abort controller for current stream
-  _abortController: AbortController | null;
-
   // Trace ID for session lifecycle (start/end must share the same trace)
   _sessionTraceId: string;
 
   // Actions
   enterPicker: () => void;
-  selectPersonas: (customer: Persona, support: Persona, topic: string, maxTurns?: number) => void;
+  selectPersonas: (
+    customer: Persona,
+    support: Persona,
+    topic: string,
+    maxTurns?: number,
+  ) => void;
   generateNextTurn: () => Promise<void>;
   startAutoPlay: () => void;
   pauseAutoPlay: () => void;
@@ -100,19 +102,20 @@ interface DynamicSimState {
 // ─── Generation Lock ─────────────────────────────────────────────────────────
 
 let _generationLock = false;
+let _abortController: AbortController | null = null;
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
 export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
-  status: 'picking',
+  status: "picking",
   customerPersona: null,
   supportPersona: null,
-  topicSeed: '',
-  sessionId: '',
+  topicSeed: "",
+  sessionId: "",
   turnCount: 0,
   maxTurns: 20,
   messages: [],
-  streamingContent: '',
+  streamingContent: "",
   streamingPersona: null,
   isAutoPlaying: false,
   turnDelayMs: 1500,
@@ -122,30 +125,28 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
   lastApiError: null,
   isClearing: false,
   isReconsolidating: false,
-  _abortController: null,
-  _sessionTraceId: '',
+  _sessionTraceId: "",
 
   enterPicker: () => {
-    const state = get();
-    if (state._abortController) state._abortController.abort();
+    if (_abortController) _abortController.abort();
+    _abortController = null;
     _generationLock = false;
     set({
-      status: 'picking',
+      status: "picking",
       customerPersona: null,
       supportPersona: null,
-      topicSeed: '',
-      sessionId: '',
+      topicSeed: "",
+      sessionId: "",
       turnCount: 0,
       messages: [],
-      streamingContent: '',
+      streamingContent: "",
       streamingPersona: null,
       isAutoPlaying: false,
       backendConnected: false,
       ingestedEvents: 0,
       pipelineStats: EMPTY_PIPELINE_STATS,
       lastApiError: null,
-      _abortController: null,
-      _sessionTraceId: '',
+      _sessionTraceId: "",
     });
     useGraphStore.getState().setGraphData([], []);
     clearUserStoreData();
@@ -155,7 +156,7 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
     const sessionId = `dynamic-${Date.now()}`;
     const traceId = crypto.randomUUID();
     set({
-      status: 'ready',
+      status: "ready",
       customerPersona: customer,
       supportPersona: support,
       topicSeed: topic,
@@ -163,7 +164,7 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
       turnCount: 0,
       maxTurns: maxTurns ?? 20,
       messages: [],
-      streamingContent: '',
+      streamingContent: "",
       streamingPersona: null,
       isAutoPlaying: false,
       ingestedEvents: 0,
@@ -181,14 +182,14 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
         try {
           const startEvent: EventPayload = {
             event_id: crypto.randomUUID(),
-            event_type: 'system.session_start',
+            event_type: "system.session_start",
             occurred_at: startTime,
             session_id: sessionId,
-            agent_id: 'fe-dynamic-sim',
+            agent_id: "fe-dynamic-sim",
             trace_id: traceId,
             payload_ref: `inline://session-start-${sessionId}`,
             importance_hint: 3,
-            status: 'completed',
+            status: "completed",
           };
           await getSharedClient().ingestBatch([startEvent]);
         } catch {
@@ -196,11 +197,16 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
         }
 
         const stats = await fetchPipelineStats();
-        set({ backendConnected: true, lastApiError: null, pipelineStats: stats });
+        set({
+          backendConnected: true,
+          lastApiError: null,
+          pipelineStats: stats,
+        });
       } else {
         set({
           backendConnected: false,
-          lastApiError: 'Engram backend not available. Start with: docker compose -f docker/docker-compose.yml up -d',
+          lastApiError:
+            "Engram backend not available. Start with: docker compose -f docker/docker-compose.yml up -d",
         });
       }
     });
@@ -220,26 +226,28 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
 
       // Determine speaker: even turns = customer, odd = support
       const isCustomerTurn = state.turnCount % 2 === 0;
-      const activePersona = isCustomerTurn ? state.customerPersona : state.supportPersona;
+      const activePersona = isCustomerTurn
+        ? state.customerPersona
+        : state.supportPersona;
 
       const abortController = new AbortController();
+      _abortController = abortController;
       set({
-        status: 'generating',
-        streamingContent: '',
+        status: "generating",
+        streamingContent: "",
         streamingPersona: activePersona,
         lastApiError: null,
-        _abortController: abortController,
       });
 
       // Build conversation history with perspective flip
       // LLM always sees itself as "assistant" and the other party as "user"
       const currentMessages = get().messages;
-      const history = currentMessages.map(msg => ({
-        role: msg.role === activePersona.role ? 'assistant' : 'user',
+      const history = currentMessages.map((msg) => ({
+        role: msg.role === activePersona.role ? "assistant" : "user",
         content: msg.content,
       }));
 
-      let fullContent = '';
+      let fullContent = "";
       let turnResult: SimulateTurnDone | null = null;
 
       const stream = simulateTurnStream(
@@ -260,19 +268,19 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
         // Check if aborted
         if (abortController.signal.aborted) return;
 
-        if (event.type === 'token') {
+        if (event.type === "token") {
           fullContent += event.content;
           set({ streamingContent: fullContent });
-        } else if (event.type === 'done') {
+        } else if (event.type === "done") {
           turnResult = event.data;
           fullContent = turnResult.content;
-        } else if (event.type === 'error') {
+        } else if (event.type === "error") {
+          _abortController = null;
           set({
-            status: 'error',
+            status: "error",
             lastApiError: `LLM error: ${event.error}`,
-            streamingContent: '',
+            streamingContent: "",
             streamingPersona: null,
-            _abortController: null,
           });
           return;
         }
@@ -296,13 +304,13 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
       const updatedMessages = [...get().messages, message];
       const newTurnCount = get().turnCount + 1;
 
+      _abortController = null;
       set({
-        status: 'ingesting',
+        status: "ingesting",
         messages: updatedMessages,
         turnCount: newTurnCount,
-        streamingContent: '',
+        streamingContent: "",
         streamingPersona: null,
-        _abortController: null,
       });
 
       // Ingest into pipeline
@@ -312,21 +320,27 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
             {
               id: message.id,
               session_id: get().sessionId,
-              role: activePersona.role === 'customer' ? 'user' : 'agent',
+              role: activePersona.role === "customer" ? "user" : "agent",
               content: message.content,
               timestamp: message.timestamp,
               tools_used: undefined,
             },
-            'fe-dynamic-sim',
+            "fe-dynamic-sim",
           );
           const result = await getSharedClient().ingestBatch(events);
-          set({ ingestedEvents: (get().ingestedEvents || 0) + result.accepted });
+          set({
+            ingestedEvents: (get().ingestedEvents || 0) + result.accepted,
+          });
 
           // Wait for projection consumer
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
 
           // Fetch updated graph
-          await fetchLiveGraph(get().sessionId, get().customerPersona!.name, 'fe-dynamic-sim');
+          await fetchLiveGraph(
+            get().sessionId,
+            get().customerPersona!.name,
+            "fe-dynamic-sim",
+          );
 
           // Update pipeline stats
           const stats = await fetchPipelineStats();
@@ -344,18 +358,16 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
       }
 
       // Set waiting status for auto-play timer
-      set({ status: get().isAutoPlaying ? 'waiting' : 'paused' });
-
+      set({ status: get().isAutoPlaying ? "waiting" : "paused" });
     } catch (err) {
-      const abortController = get()._abortController;
-      if (abortController?.signal.aborted) return;
+      if (_abortController?.signal.aborted) return;
+      _abortController = null;
       const errMsg = err instanceof Error ? err.message : String(err);
       set({
-        status: 'error',
+        status: "error",
         lastApiError: `Generation error: ${errMsg}`,
-        streamingContent: '',
+        streamingContent: "",
         streamingPersona: null,
-        _abortController: null,
       });
     } finally {
       _generationLock = false;
@@ -364,31 +376,40 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
 
   startAutoPlay: () => {
     const state = get();
-    if (!state.customerPersona || !state.supportPersona || !state.backendConnected) return;
+    if (
+      !state.customerPersona ||
+      !state.supportPersona ||
+      !state.backendConnected
+    )
+      return;
     set({ isAutoPlaying: true });
-    if (state.status === 'ready' || state.status === 'paused' || state.status === 'waiting') {
-      set({ status: 'waiting' });
+    if (
+      state.status === "ready" ||
+      state.status === "paused" ||
+      state.status === "waiting"
+    ) {
+      set({ status: "waiting" });
     }
   },
 
   pauseAutoPlay: () => {
     set({ isAutoPlaying: false });
     const state = get();
-    if (state.status === 'waiting') {
-      set({ status: 'paused' });
+    if (state.status === "waiting") {
+      set({ status: "paused" });
     }
   },
 
   endSession: async () => {
+    if (_abortController) _abortController.abort();
+    _abortController = null;
     const state = get();
-    if (state._abortController) state._abortController.abort();
 
     set({
-      status: 'complete',
+      status: "complete",
       isAutoPlaying: false,
-      streamingContent: '',
+      streamingContent: "",
       streamingPersona: null,
-      _abortController: null,
     });
 
     if (state.backendConnected && state.sessionId) {
@@ -396,25 +417,29 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
         const endTime = new Date().toISOString();
         const endEvent: EventPayload = {
           event_id: crypto.randomUUID(),
-          event_type: 'system.session_end',
+          event_type: "system.session_end",
           occurred_at: endTime,
           session_id: state.sessionId,
-          agent_id: 'fe-dynamic-sim',
+          agent_id: "fe-dynamic-sim",
           trace_id: state._sessionTraceId,
           payload_ref: `inline://session-end-${state.sessionId}`,
           importance_hint: 2,
-          status: 'completed',
+          status: "completed",
         };
         await getSharedClient().ingestBatch([endEvent]);
 
         // Wait for extraction consumer to process session_end
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 500));
 
         // Re-fetch graph with Entity nodes from extraction
-        await fetchLiveGraph(state.sessionId, state.customerPersona?.name ?? '', 'fe-dynamic-sim');
+        await fetchLiveGraph(
+          state.sessionId,
+          state.customerPersona?.name ?? "",
+          "fe-dynamic-sim",
+        );
 
         // Fetch user data
-        const userId = state.customerPersona?.id ?? '';
+        const userId = state.customerPersona?.id ?? "";
         if (userId) {
           await fetchLiveUserData(userId).catch(() => {});
         }
@@ -440,7 +465,12 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
       useGraphStore.getState().setGraphData([], []);
       clearUserStoreData();
       const stats = await fetchPipelineStats();
-      set({ isClearing: false, ingestedEvents: 0, pipelineStats: stats, lastApiError: null });
+      set({
+        isClearing: false,
+        ingestedEvents: 0,
+        pipelineStats: stats,
+        lastApiError: null,
+      });
     } catch (err) {
       const errMsg = err instanceof EngramError ? err.message : String(err);
       set({ isClearing: false, lastApiError: errMsg });
@@ -453,12 +483,20 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
     set({ isReconsolidating: true, lastApiError: null });
     try {
       await getSharedClient().reconsolidate();
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
       if (state.sessionId) {
-        await fetchLiveGraph(state.sessionId, state.customerPersona?.name ?? '', 'fe-dynamic-sim');
+        await fetchLiveGraph(
+          state.sessionId,
+          state.customerPersona?.name ?? "",
+          "fe-dynamic-sim",
+        );
       }
       const stats = await fetchPipelineStats();
-      set({ isReconsolidating: false, pipelineStats: stats, lastApiError: null });
+      set({
+        isReconsolidating: false,
+        pipelineStats: stats,
+        lastApiError: null,
+      });
     } catch (err) {
       const errMsg = err instanceof EngramError ? err.message : String(err);
       set({ isReconsolidating: false, lastApiError: errMsg });
@@ -470,7 +508,11 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
     set({ pipelineStats: stats });
     const state = get();
     if (state.sessionId && state.backendConnected) {
-      await fetchLiveGraph(state.sessionId, state.customerPersona?.name ?? '', 'fe-dynamic-sim').catch(() => {});
+      await fetchLiveGraph(
+        state.sessionId,
+        state.customerPersona?.name ?? "",
+        "fe-dynamic-sim",
+      ).catch(() => {});
     }
   },
 
