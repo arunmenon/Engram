@@ -1,19 +1,23 @@
-import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import Sigma from 'sigma';
-import Graph from 'graphology';
-import { EdgeArrowProgram, NodeCircleProgram } from 'sigma/rendering';
-import forceAtlas2 from 'graphology-layout-forceatlas2';
-import { useGraphStore } from '../../stores/graphStore';
-import { useInsightStore } from '../../stores/insightStore';
-import { useSessionStore } from '../../stores/sessionStore';
-import type { GraphNode } from '../../types/graph';
-import type { NodeType, EdgeType } from '../../types/atlas';
-import NodeDiamondProgram from './programs/node-diamond';
-import NodeSquareProgram from './programs/node-square';
-import NodeTriangleProgram from './programs/node-triangle';
-import { useAnimationStore, RETRIEVAL_COLORS } from '../../stores/animationStore';
-import { useTraversalAnimation } from '../../hooks/useTraversalAnimation';
-import { tracker } from '../../analytics/tracker';
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
+import Sigma from "sigma";
+import Graph from "graphology";
+import { EdgeArrowProgram, NodeCircleProgram } from "sigma/rendering";
+import forceAtlas2 from "graphology-layout-forceatlas2";
+import { useGraphStore } from "../../stores/graphStore";
+import { useInsightStore } from "../../stores/insightStore";
+import { useSessionStore } from "../../stores/sessionStore";
+import type { GraphNode } from "../../types/graph";
+import type { NodeType, EdgeType } from "../../types/atlas";
+import NodeDiamondProgram from "./programs/node-diamond";
+import NodeSquareProgram from "./programs/node-square";
+import NodeTriangleProgram from "./programs/node-triangle";
+import {
+  useAnimationStore,
+  RETRIEVAL_COLORS,
+} from "../../stores/animationStore";
+import { useTraversalAnimation } from "../../hooks/useTraversalAnimation";
+import { tracker } from "../../analytics/tracker";
+import { NODE_COLORS } from "../../api/transforms";
 
 /**
  * Shape mapping by node type:
@@ -23,20 +27,37 @@ import { tracker } from '../../analytics/tracker';
  *  - square:   Summary, BehavioralPattern
  */
 const NODE_TYPE_SHAPE: Record<NodeType, string> = {
-  Event: 'circle',
-  UserProfile: 'circle',
-  Entity: 'triangle',
-  Workflow: 'triangle',
-  Preference: 'diamond',
-  Skill: 'diamond',
-  Summary: 'square',
-  BehavioralPattern: 'square',
+  Event: "circle",
+  UserProfile: "circle",
+  Entity: "triangle",
+  Workflow: "triangle",
+  Preference: "diamond",
+  Skill: "diamond",
+  Summary: "square",
+  BehavioralPattern: "square",
+  Belief: "diamond",
+  Goal: "triangle",
+  Episode: "square",
 };
 
 const DIRECTED_EDGE_TYPES = new Set<EdgeType>([
-  'FOLLOWS', 'CAUSED_BY', 'REFERENCES', 'DERIVED_FROM',
-  'SUMMARIZES', 'HAS_PROFILE', 'HAS_PREFERENCE', 'HAS_SKILL',
-  'EXHIBITS_PATTERN', 'INTERESTED_IN', 'ABOUT', 'ABSTRACTED_FROM', 'PARENT_SKILL',
+  "FOLLOWS",
+  "CAUSED_BY",
+  "REFERENCES",
+  "DERIVED_FROM",
+  "SUMMARIZES",
+  "HAS_PROFILE",
+  "HAS_PREFERENCE",
+  "HAS_SKILL",
+  "EXHIBITS_PATTERN",
+  "INTERESTED_IN",
+  "ABOUT",
+  "ABSTRACTED_FROM",
+  "PARENT_SKILL",
+  "CONTAINS",
+  "CONTRADICTS",
+  "PURSUES",
+  "SUPERSEDES",
 ]);
 
 interface TooltipData {
@@ -56,8 +77,8 @@ function computeCircularPositions(graph: Graph) {
   const radius = Math.max(100, count * 8);
   nodes.forEach((node, i) => {
     const angle = (2 * Math.PI * i) / count;
-    graph.setNodeAttribute(node, 'x', radius * Math.cos(angle));
-    graph.setNodeAttribute(node, 'y', radius * Math.sin(angle));
+    graph.setNodeAttribute(node, "x", radius * Math.cos(angle));
+    graph.setNodeAttribute(node, "y", radius * Math.sin(angle));
   });
 }
 
@@ -82,6 +103,7 @@ export function GraphVisualization() {
 
   const animatedNodeIds = useAnimationStore((s) => s.animatedNodeIds);
   const animatedEdgeIds = useAnimationStore((s) => s.animatedEdgeIds);
+  const activeTrace = useAnimationStore((s) => s.activeTrace);
 
   useTraversalAnimation();
 
@@ -107,10 +129,27 @@ export function GraphVisualization() {
   const edgeMapRef = useRef(edgeMap);
   edgeMapRef.current = edgeMap;
 
+  // O(1) highlighted node lookups instead of O(N) .includes()
+  const highlightedNodeSet = useMemo(
+    () => new Set(highlightedNodeIds),
+    [highlightedNodeIds],
+  );
+  const highlightedNodeSetRef = useRef(highlightedNodeSet);
+  highlightedNodeSetRef.current = highlightedNodeSet;
+
+  // O(1) active trace lookups instead of O(N) .find()
+  const activeTraceMap = useMemo(() => {
+    const m = new Map<string, (typeof activeTrace)[0]>();
+    for (const s of activeTrace) m.set(s.nodeId, s);
+    return m;
+  }, [activeTrace]);
+  const activeTraceMapRef = useRef(activeTraceMap);
+  activeTraceMapRef.current = activeTraceMap;
+
   const handleClickNode = useCallback(
     ({ node }: { node: string }) => {
       selectNode(node);
-      setInsightActiveTab('scores');
+      setInsightActiveTab("scores");
     },
     [selectNode, setInsightActiveTab],
   );
@@ -123,7 +162,7 @@ export function GraphVisualization() {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const graph = new Graph({ multi: true, type: 'directed' });
+    const graph = new Graph({ multi: true, type: "directed" });
     graphRef.current = graph;
 
     // Add nodes with shape based on node type
@@ -134,7 +173,7 @@ export function GraphVisualization() {
         size: n.size,
         color: n.color,
         label: n.label,
-        type: NODE_TYPE_SHAPE[n.node_type] ?? 'circle',
+        type: NODE_TYPE_SHAPE[n.node_type] ?? "circle",
         node_type: n.node_type,
         session_id: n.session_id ?? null,
         event_type: n.event_type ?? null,
@@ -150,7 +189,7 @@ export function GraphVisualization() {
         color: e.color,
         size: e.size,
         label: e.label ?? null,
-        type: DIRECTED_EDGE_TYPES.has(e.edge_type) ? 'arrow' : 'line',
+        type: DIRECTED_EDGE_TYPES.has(e.edge_type) ? "arrow" : "line",
         edge_type: e.edge_type,
         forceLabel: false,
       });
@@ -173,8 +212,8 @@ export function GraphVisualization() {
     const renderer = new Sigma(graph, containerRef.current, {
       allowInvalidContainer: true,
       renderEdgeLabels: true,
-      defaultEdgeType: 'arrow',
-      defaultNodeType: 'circle',
+      defaultEdgeType: "arrow",
+      defaultNodeType: "circle",
       nodeProgramClasses: {
         circle: NodeCircleProgram,
         diamond: NodeDiamondProgram,
@@ -184,37 +223,36 @@ export function GraphVisualization() {
       edgeProgramClasses: {
         arrow: EdgeArrowProgram,
       },
-      labelColor: { color: '#9ca3af' },
+      labelColor: { color: "#9ca3af" },
       labelSize: 11,
-      labelFont: 'Inter',
-      edgeLabelFont: 'Inter',
+      labelFont: "Inter",
+      edgeLabelFont: "Inter",
       edgeLabelSize: 9,
-      edgeLabelColor: { color: '#6b7280' },
+      edgeLabelColor: { color: "#6b7280" },
       labelDensity: 0.5,
       labelRenderedSizeThreshold: 6,
       zIndex: true,
-      defaultNodeColor: '#6b7280',
-      defaultEdgeColor: '#374151',
+      defaultNodeColor: "#6b7280",
+      defaultEdgeColor: "#374151",
       minEdgeThickness: 0.5,
 
       nodeReducer: (node, data) => {
         const res = { ...data };
         const graphState = useGraphStore.getState();
-        const sessionState = useSessionStore.getState();
         const animState = useAnimationStore.getState();
 
         // Animation mode: highlight animated nodes, dim everything else
         if (animState.isAnimating || animState.animatedNodeIds.size > 0) {
           if (animState.animatedNodeIds.has(node)) {
-            const step = animState.activeTrace.find((s) => s.nodeId === node);
+            const step = activeTraceMapRef.current.get(node);
             if (step) {
-              res.color = RETRIEVAL_COLORS[step.retrieval_reason] || '#3b82f6';
+              res.color = RETRIEVAL_COLORS[step.retrieval_reason] || "#3b82f6";
               res.highlighted = true;
               res.zIndex = 10;
             }
           } else {
-            res.color = '#1a1a22';
-            res.label = '';
+            res.color = "#1a1a22";
+            res.label = "";
             res.zIndex = 0;
           }
           return res;
@@ -231,9 +269,12 @@ export function GraphVisualization() {
 
         // Dim nodes not matching session filter
         if (graphState.sessionFilter) {
-          if (nodeData?.session_id && nodeData.session_id !== graphState.sessionFilter) {
-            res.color = '#1e1e24';
-            res.label = '';
+          if (
+            nodeData?.session_id &&
+            nodeData.session_id !== graphState.sessionFilter
+          ) {
+            res.color = "#1e1e24";
+            res.label = "";
             res.zIndex = 0;
           }
         }
@@ -245,9 +286,9 @@ export function GraphVisualization() {
         }
 
         // Highlight provenance nodes from chat
-        if (sessionState.highlightedNodeIds.includes(node)) {
+        if (highlightedNodeSetRef.current.has(node)) {
           res.highlighted = true;
-          res.color = '#f59e0b';
+          res.color = "#f59e0b";
           res.zIndex = 9;
         }
 
@@ -262,11 +303,11 @@ export function GraphVisualization() {
         // Animation mode: highlight animated edges, dim everything else
         if (animState.isAnimating || animState.animatedNodeIds.size > 0) {
           if (animState.animatedEdgeIds.has(edge)) {
-            res.color = '#f59e0b';
+            res.color = "#f59e0b";
             res.size = 2.5;
             res.zIndex = 10;
           } else {
-            res.color = '#0d0d10';
+            res.color = "#0d0d10";
             res.size = 0.3;
           }
           return res;
@@ -288,22 +329,32 @@ export function GraphVisualization() {
           const sourceNode = nodeMapRef.current.get(source);
           const targetNode = nodeMapRef.current.get(target);
 
-          if (sourceNode && !graphState.visibleNodeTypes.has(sourceNode.node_type)) {
+          if (
+            sourceNode &&
+            !graphState.visibleNodeTypes.has(sourceNode.node_type)
+          ) {
             res.hidden = true;
             return res;
           }
-          if (targetNode && !graphState.visibleNodeTypes.has(targetNode.node_type)) {
+          if (
+            targetNode &&
+            !graphState.visibleNodeTypes.has(targetNode.node_type)
+          ) {
             res.hidden = true;
             return res;
           }
 
           // Dim edges not in current session filter
           if (graphState.sessionFilter) {
-            const sourceInSession = !sourceNode?.session_id || sourceNode.session_id === graphState.sessionFilter;
-            const targetInSession = !targetNode?.session_id || targetNode.session_id === graphState.sessionFilter;
+            const sourceInSession =
+              !sourceNode?.session_id ||
+              sourceNode.session_id === graphState.sessionFilter;
+            const targetInSession =
+              !targetNode?.session_id ||
+              targetNode.session_id === graphState.sessionFilter;
 
             if (!sourceInSession || !targetInSession) {
-              res.color = '#1a1a22';
+              res.color = "#1a1a22";
               res.size = 0.5;
             }
           }
@@ -321,7 +372,10 @@ export function GraphVisualization() {
       const nodePosition = renderer.getNodeDisplayData(node);
       const nodeData = nodeMapRef.current.get(node);
       if (nodePosition && nodeData) {
-        const viewportCoords = renderer.graphToViewport({ x: nodePosition.x, y: nodePosition.y });
+        const viewportCoords = renderer.graphToViewport({
+          x: nodePosition.x,
+          y: nodePosition.y,
+        });
         setTooltip({
           x: viewportCoords.x,
           y: viewportCoords.y,
@@ -342,25 +396,25 @@ export function GraphVisualization() {
         const duration = Date.now() - hoverStartRef.current.time;
         const nodeData = nodeMapRef.current.get(hoverStartRef.current.nodeId);
         tracker.track({
-          type: 'node.hover',
+          type: "node.hover",
           nodeId: hoverStartRef.current.nodeId,
-          nodeType: nodeData?.node_type ?? '',
+          nodeType: nodeData?.node_type ?? "",
           durationMs: duration,
         });
         hoverStartRef.current = null;
       }
     };
 
-    renderer.on('clickNode', handleClickNode);
-    renderer.on('clickStage', handleClickStage);
-    renderer.on('enterNode', handleEnterNode);
-    renderer.on('leaveNode', handleLeaveNode);
+    renderer.on("clickNode", handleClickNode);
+    renderer.on("clickStage", handleClickStage);
+    renderer.on("enterNode", handleEnterNode);
+    renderer.on("leaveNode", handleLeaveNode);
 
     return () => {
-      renderer.off('clickNode', handleClickNode);
-      renderer.off('clickStage', handleClickStage);
-      renderer.off('enterNode', handleEnterNode);
-      renderer.off('leaveNode', handleLeaveNode);
+      renderer.off("clickNode", handleClickNode);
+      renderer.off("clickStage", handleClickStage);
+      renderer.off("enterNode", handleEnterNode);
+      renderer.off("leaveNode", handleLeaveNode);
       useGraphStore.getState().setSigmaRenderer(null);
       renderer.kill();
       rendererRef.current = null;
@@ -375,7 +429,15 @@ export function GraphVisualization() {
     if (rendererRef.current) {
       rendererRef.current.refresh();
     }
-  }, [selectedNodeId, visibleNodeTypes, visibleEdgeTypes, sessionFilter, highlightedNodeIds, animatedNodeIds, animatedEdgeIds]);
+  }, [
+    selectedNodeId,
+    visibleNodeTypes,
+    visibleEdgeTypes,
+    sessionFilter,
+    highlightedNodeIds,
+    animatedNodeIds,
+    animatedEdgeIds,
+  ]);
 
   // Re-run layout when layoutType changes
   useEffect(() => {
@@ -383,7 +445,7 @@ export function GraphVisualization() {
     const renderer = rendererRef.current;
     if (!graph || !renderer) return;
 
-    if (layoutType === 'circular') {
+    if (layoutType === "circular") {
       computeCircularPositions(graph);
     } else {
       const inferredSettings = forceAtlas2.inferSettings(graph);
@@ -411,7 +473,10 @@ export function GraphVisualization() {
     if (sessionNodes.length === 0) return;
 
     // Compute bounding box of session nodes
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
     for (const n of sessionNodes) {
       const displayData = renderer.getNodeDisplayData(n.id);
       if (displayData) {
@@ -425,22 +490,10 @@ export function GraphVisualization() {
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
 
-    renderer.getCamera().animate(
-      { x: centerX, y: centerY, ratio: 0.8 },
-      { duration: 500 },
-    );
+    renderer
+      .getCamera()
+      .animate({ x: centerX, y: centerY, ratio: 0.8 }, { duration: 500 });
   }, [sessionFilter, nodes]);
-
-  const nodeTypeColor: Record<string, string> = {
-    Event: '#3b82f6',
-    Entity: '#14b8a6',
-    Summary: '#4b5563',
-    UserProfile: '#8b5cf6',
-    Preference: '#22c55e',
-    Skill: '#a855f7',
-    Workflow: '#f59e0b',
-    BehavioralPattern: '#f59e0b',
-  };
 
   return (
     <div className="relative w-full h-full">
@@ -449,7 +502,7 @@ export function GraphVisualization() {
         className="w-full h-full"
         tabIndex={0}
         aria-label="Interactive knowledge graph. Use mouse to pan and zoom."
-        style={{ background: '#0a0a0c' }}
+        style={{ background: "#0a0a0c" }}
       />
 
       {/* Tooltip */}
@@ -459,24 +512,32 @@ export function GraphVisualization() {
           style={{
             left: tooltip.x + 12,
             top: tooltip.y - 10,
-            transform: 'translateY(-100%)',
+            transform: "translateY(-100%)",
           }}
         >
           <div className="flex items-center gap-2 mb-1">
             <span
               className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: nodeTypeColor[tooltip.nodeType] ?? '#6b7280' }}
+              style={{
+                backgroundColor: NODE_COLORS[tooltip.nodeType] ?? "#6b7280",
+              }}
             />
             <span className="text-[10px] font-mono uppercase tracking-wider text-muted-light">
               {tooltip.nodeType}
             </span>
           </div>
-          <p className="text-sm text-gray-100 font-medium truncate">{tooltip.label}</p>
+          <p className="text-sm text-gray-100 font-medium truncate">
+            {tooltip.label}
+          </p>
           {tooltip.eventType && (
-            <p className="text-xs text-muted-light mt-0.5 font-mono">{tooltip.eventType}</p>
+            <p className="text-xs text-muted-light mt-0.5 font-mono">
+              {tooltip.eventType}
+            </p>
           )}
           {tooltip.entityType && (
-            <p className="text-xs text-muted-light mt-0.5 font-mono">{tooltip.entityType}</p>
+            <p className="text-xs text-muted-light mt-0.5 font-mono">
+              {tooltip.entityType}
+            </p>
           )}
           <div className="mt-1.5 flex items-center gap-2">
             <span className="text-[10px] text-muted">Decay</span>
@@ -486,7 +547,11 @@ export function GraphVisualization() {
                 style={{
                   width: `${tooltip.decayScore * 100}%`,
                   backgroundColor:
-                    tooltip.decayScore > 0.7 ? '#22c55e' : tooltip.decayScore > 0.4 ? '#f59e0b' : '#ef4444',
+                    tooltip.decayScore > 0.7
+                      ? "#22c55e"
+                      : tooltip.decayScore > 0.4
+                        ? "#f59e0b"
+                        : "#ef4444",
                 }}
               />
             </div>
