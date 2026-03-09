@@ -464,8 +464,17 @@ class Neo4jGraphStore:
     def _label_to_node_type(labels: list[str]) -> str:
         """Map Neo4j labels to a node type string."""
         known = {
-            "Event", "Entity", "Summary", "UserProfile", "Preference",
-            "Skill", "Workflow", "BehavioralPattern", "Belief", "Goal", "Episode",
+            "Event",
+            "Entity",
+            "Summary",
+            "UserProfile",
+            "Preference",
+            "Skill",
+            "Workflow",
+            "BehavioralPattern",
+            "Belief",
+            "Goal",
+            "Episode",
         }
         for label in labels:
             if label in known:
