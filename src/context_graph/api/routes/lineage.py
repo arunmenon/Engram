@@ -11,7 +11,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
-from context_graph.api.dependencies import get_graph_store
+from context_graph.api.dependencies import TenantContext, get_graph_store, require_tenant
 from context_graph.domain.models import (  # noqa: TCH001 — runtime: type annotations + response_model
     AtlasResponse,
     IntentType,
@@ -22,12 +22,14 @@ from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runti
 router = APIRouter(tags=["lineage"])
 
 GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
+TenantDep = Annotated[TenantContext, Depends(require_tenant)]
 
 
 @router.get("/nodes/{node_id}/lineage", response_model=AtlasResponse)
 async def get_lineage(
     node_id: str,
     graph_store: GraphStoreDep,
+    tenant: TenantDep,
     max_depth: int = Query(default=3, ge=1, le=10),
     max_nodes: int = Query(default=100, ge=1, le=500),
     intent: str | None = Query(default="why"),
@@ -42,4 +44,4 @@ async def get_lineage(
         intent=intent_type,
         cursor=cursor,
     )
-    return await graph_store.get_lineage(lineage_query)
+    return await graph_store.get_lineage(lineage_query, tenant_id=tenant.tenant_id)

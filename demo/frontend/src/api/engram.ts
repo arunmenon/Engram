@@ -15,6 +15,7 @@ import type {
   AtlasEdge,
   IntentType,
 } from "../types/atlas";
+import { API_BASE_URL } from "../config";
 
 // ─── SDK Types ──────────────────────────────────────────────────────────────
 
@@ -269,7 +270,7 @@ export class EngramClient {
   }
 
   constructor(config: EngramConfig = {}) {
-    this.basePath = config.basePath ?? "/v1";
+    this.basePath = config.basePath ?? API_BASE_URL;
     this.apiKey = config.apiKey;
     this.adminKey = config.adminKey;
     this.timeout = config.timeout ?? 30_000;
@@ -698,7 +699,7 @@ export async function* simulateTurnStream(
   };
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-  const response = await fetch("/v1/simulate/turn", {
+  const response = await fetch(`${API_BASE_URL}/simulate/turn`, {
     method: "POST",
     headers,
     body: JSON.stringify({ ...request, stream: true }),

@@ -196,7 +196,7 @@ class TestTrimRedisWiring:
         await consumer._trim_redis()
 
         mock_retention_manager.cleanup_dedup_set.assert_called_once_with(
-            dedup_key=mock_settings.redis.dedup_set,
+            dedup_key=f"t:default:{mock_settings.redis.dedup_set}",
             retention_ceiling_days=mock_settings.redis.retention_ceiling_days,
         )
 
@@ -234,7 +234,7 @@ class TestTrimRedisWiring:
         await consumer._trim_redis()
 
         mock_retention_manager.cleanup_session_streams.assert_called_once_with(
-            prefix="events:session:",
+            prefix="t:default:events:session:",
             max_age_hours=mock_settings.redis.session_stream_retention_hours,
         )
 
@@ -251,7 +251,7 @@ class TestTrimRedisWiring:
         await consumer_with_archive._trim_redis()
 
         mock_retention_manager.archive_and_delete_expired_events.assert_called_once_with(
-            key_prefix=mock_settings.redis.event_key_prefix,
+            key_prefix=f"t:default:{mock_settings.redis.event_key_prefix}",
             max_age_days=mock_settings.redis.retention_ceiling_days,
             archive_store=consumer_with_archive._archive_store,
         )
@@ -269,7 +269,7 @@ class TestTrimRedisWiring:
         await consumer._trim_redis()
 
         mock_retention_manager.delete_expired_events.assert_called_once_with(
-            key_prefix=mock_settings.redis.event_key_prefix,
+            key_prefix=f"t:default:{mock_settings.redis.event_key_prefix}",
             max_age_days=mock_settings.redis.retention_ceiling_days,
         )
 
@@ -368,6 +368,7 @@ class TestOrphanCleanup:
 
         gm.delete_orphan_nodes.assert_called_once_with(
             batch_size=mock_settings.retention.orphan_cleanup_batch_size,
+            tenant_id="default",
         )
 
     @pytest.mark.asyncio()

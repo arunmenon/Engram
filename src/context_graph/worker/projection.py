@@ -40,7 +40,7 @@ class ProjectionConsumer(BaseConsumer):
     """
 
     _MAX_SESSION_CACHE = 10_000
-    _BATCH_SIZE = 50
+    _BATCH_SIZE = 100
     _BATCH_TIMEOUT_MS = 100
 
     @property
@@ -52,21 +52,25 @@ class ProjectionConsumer(BaseConsumer):
         redis_client: Redis,
         graph_store: GraphStore,
         settings: Settings,
+        tenant_id: str = "default",
+        instance_id: str = "1",
     ) -> None:
         consumer_settings = settings.consumer
         super().__init__(
             redis_client=redis_client,
             group_name=settings.redis.group_projection,
-            consumer_name="projection-1",
+            consumer_name=f"projection-{instance_id}",
             stream_key=settings.redis.global_stream,
             block_timeout_ms=settings.redis.block_timeout_ms,
+            tenant_id=tenant_id,
             max_retries=consumer_settings.max_retries,
             claim_idle_ms=consumer_settings.claim_idle_ms,
             claim_batch_size=consumer_settings.claim_batch_size,
             dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
         self._graph_store = graph_store
-        self._event_key_prefix = settings.redis.event_key_prefix
+        # Tenant-prefixed event key: t:{tenant_id}:{base_prefix}
+        self._event_key_prefix = f"t:{tenant_id}:{settings.redis.event_key_prefix}"
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
         self._last_flush_time: float = time.monotonic()
@@ -133,12 +137,14 @@ class ProjectionConsumer(BaseConsumer):
         # Batch write to Neo4j
         if all_nodes:
             if hasattr(self._graph_store, "merge_event_nodes_batch"):
-                await self._graph_store.merge_event_nodes_batch(all_nodes)
+                await self._graph_store.merge_event_nodes_batch(
+                    all_nodes, tenant_id=self._tenant_id
+                )
             else:
                 for node in all_nodes:
-                    await self._graph_store.merge_event_node(node)
+                    await self._graph_store.merge_event_node(node, tenant_id=self._tenant_id)
         if all_edges:
-            await self._graph_store.create_edges_batch(all_edges)
+            await self._graph_store.create_edges_batch(all_edges, tenant_id=self._tenant_id)
 
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]

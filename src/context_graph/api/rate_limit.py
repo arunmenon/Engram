@@ -77,7 +77,17 @@ class RateLimiterStore:
 # Tier resolution
 # ---------------------------------------------------------------------------
 
-_EXEMPT_PATHS = frozenset({"/v1/health", "/metrics"})
+_EXEMPT_PATHS = frozenset(
+    {
+        "/v1/health",
+        "/v1/health/live",
+        "/v1/health/ready",
+        "/health",
+        "/health/live",
+        "/health/ready",
+        "/metrics",
+    }
+)
 _ADMIN_PREFIXES = ("/v1/admin/",)
 
 

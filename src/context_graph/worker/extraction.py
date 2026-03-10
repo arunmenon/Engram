@@ -59,14 +59,17 @@ class ExtractionConsumer(BaseConsumer):
         embedding_service: EmbeddingService | None = None,
         graph_store: GraphStore | None = None,
         user_store: UserStore | None = None,
+        tenant_id: str = "default",
+        instance_id: str = "1",
     ) -> None:
         consumer_settings = settings.consumer
         super().__init__(
             redis_client=redis_client,
             group_name=settings.redis.group_extraction,
-            consumer_name="extraction-1",
+            consumer_name=f"extraction-{instance_id}",
             stream_key=settings.redis.global_stream,
             block_timeout_ms=settings.redis.block_timeout_ms,
+            tenant_id=tenant_id,
             max_retries=consumer_settings.max_retries,
             claim_idle_ms=consumer_settings.claim_idle_ms,
             claim_batch_size=consumer_settings.claim_batch_size,
@@ -74,7 +77,8 @@ class ExtractionConsumer(BaseConsumer):
         )
         self._llm_client = llm_client
         self._settings = settings
-        self._event_key_prefix = settings.redis.event_key_prefix
+        # Tenant-prefixed event key: t:{tenant_id}:{base_prefix}
+        self._event_key_prefix = f"t:{tenant_id}:{settings.redis.event_key_prefix}"
         self._session_turn_counts: dict[str, int] = {}
         self._mid_session_interval: int = getattr(settings, "mid_session_extraction_interval", 50)
         self._embedding_service = embedding_service
@@ -191,7 +195,8 @@ class ExtractionConsumer(BaseConsumer):
         raw_docs: list[dict[str, Any]] = []
 
         # Read from the per-session stream (bounded to this session only)
-        session_stream_key = f"events:session:{session_id}"
+        # Apply tenant prefix to match Redis key layout: t:{tenant_id}:events:session:{sid}
+        session_stream_key = f"t:{self._tenant_id}:events:session:{session_id}"
         try:
             session_entries = await self._redis.xrange(
                 session_stream_key,
@@ -286,7 +291,7 @@ class ExtractionConsumer(BaseConsumer):
             role = persona_data.get("role")
             if role and persona_data.get("name"):
                 profile_data["display_name"] = f"{persona_data['name']} ({role})"
-            await us.write_user_profile(profile_data=profile_data)
+            await us.write_user_profile(profile_data=profile_data, tenant_id=self._tenant_id)
             log.info(
                 "extraction_wrote_user_profile",
                 session_id=session_id,
@@ -408,6 +413,7 @@ class ExtractionConsumer(BaseConsumer):
                         "session_id": session_id,
                         "source_quote": source_quote,
                     },
+                    tenant_id=self._tenant_id,
                 )
 
             # --- Detect and resolve preference contradictions ---
@@ -430,6 +436,7 @@ class ExtractionConsumer(BaseConsumer):
                         "session_id": session_id,
                         "source_quote": source_quote,
                     },
+                    tenant_id=self._tenant_id,
                 )
 
         # --- Write interests ---
@@ -441,6 +448,7 @@ class ExtractionConsumer(BaseConsumer):
                     entity_type=interest_data.get("entity_type", "concept"),
                     weight=interest_data.get("weight", 0.5),
                     source=interest_data.get("source", "inferred"),
+                    tenant_id=self._tenant_id,
                 )
                 # Note: interests are INTERESTED_IN edges from user→entity.
                 # DERIVED_FROM edges are not applicable to Entity nodes
@@ -582,7 +590,9 @@ class ExtractionConsumer(BaseConsumer):
         if us is None or not new_preferences:
             return
 
-        existing_preferences = await us.get_user_preferences(user_entity_id)
+        existing_preferences = await us.get_user_preferences(
+            user_entity_id, tenant_id=self._tenant_id
+        )
 
         all_preferences = existing_preferences + new_preferences
         conflicts = detect_preference_contradictions(all_preferences)
@@ -595,6 +605,7 @@ class ExtractionConsumer(BaseConsumer):
                 await us.set_preference_superseded(
                     preference_id=loser_id,
                     superseded_by=winner_id,
+                    tenant_id=self._tenant_id,
                 )
                 log.info(
                     "preference_contradiction_resolved",

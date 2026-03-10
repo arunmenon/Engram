@@ -82,10 +82,14 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: Any) -> Response:
         request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
-        structlog.contextvars.bind_contextvars(request_id=request_id)
+        tenant_id = request.headers.get("x-tenant-id")
+        if tenant_id:
+            structlog.contextvars.bind_contextvars(request_id=request_id, tenant_id=tenant_id)
+        else:
+            structlog.contextvars.bind_contextvars(request_id=request_id)
         response: Response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
-        structlog.contextvars.unbind_contextvars("request_id")
+        structlog.contextvars.unbind_contextvars("request_id", "tenant_id")
         return response
 
 
@@ -147,7 +151,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         capacity = float(rpm)
         refill_rate = rpm / 60.0  # per second
 
-        client_id = request.client.host if request.client else "unknown"
+        forwarded = request.headers.get("x-forwarded-for")
+        client_id = (
+            forwarded.split(",")[0].strip()
+            if forwarded
+            else (request.client.host if request.client else "unknown")
+        )
         bucket = self._store.get_or_create(f"{tier}:{client_id}", capacity, refill_rate)
 
         if not bucket.consume():
@@ -188,5 +197,5 @@ def register_middleware(app: FastAPI, settings: Settings | None = None) -> None:
         allow_origins=settings.cors_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
     )

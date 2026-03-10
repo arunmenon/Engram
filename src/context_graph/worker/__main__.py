@@ -34,6 +34,8 @@ async def _build_consumer(
     consumer_type: str,
     redis_client: Any,
     settings: Settings,
+    tenant_id: str = "default",
+    instance_id: str = "1",
 ) -> tuple[BaseConsumer, list[Any]]:
     """Build the consumer and return it with closeable resources."""
     closeables: list[Any] = []
@@ -49,6 +51,8 @@ async def _build_consumer(
             redis_client=redis_client,
             graph_store=graph_store,
             settings=settings,
+            tenant_id=tenant_id,
+            instance_id=instance_id,
         ), closeables
 
     if consumer_type == "enrichment":
@@ -81,6 +85,8 @@ async def _build_consumer(
             graph_store=graph_store,
             settings=settings,
             embedding_service=embedding_service,
+            tenant_id=tenant_id,
+            instance_id=instance_id,
         ), closeables
 
     if consumer_type == "extraction":
@@ -135,6 +141,8 @@ async def _build_consumer(
             embedding_service=embedding_service,
             graph_store=extraction_graph_store or user_store,
             user_store=user_store,
+            tenant_id=tenant_id,
+            instance_id=instance_id,
         ), closeables
 
     if consumer_type == "consolidation":
@@ -209,13 +217,19 @@ async def _build_consumer(
             settings=settings,
             archive_store=archive_store,
             llm_client=consolidation_llm_client,
+            tenant_id=tenant_id,
+            instance_id=instance_id,
         ), closeables
 
     msg = f"Unknown consumer type: {consumer_type}"
     raise ValueError(msg)
 
 
-async def run_worker(consumer_type: str) -> None:
+async def run_worker(
+    consumer_type: str,
+    tenant_id: str = "default",
+    instance_id: str = "1",
+) -> None:
     """Instantiate and run a consumer worker until shutdown signal."""
     settings = Settings()
 
@@ -227,6 +241,8 @@ async def run_worker(consumer_type: str) -> None:
     log.info(
         "worker_starting",
         consumer=consumer_type,
+        tenant_id=tenant_id,
+        instance_id=instance_id,
         redis_host=settings.redis.host,
         neo4j_uri=settings.neo4j.uri,
     )
@@ -242,7 +258,13 @@ async def run_worker(consumer_type: str) -> None:
         decode_responses=False,
     )
 
-    consumer, closeables = await _build_consumer(consumer_type, redis_client, settings)
+    consumer, closeables = await _build_consumer(
+        consumer_type,
+        redis_client,
+        settings,
+        tenant_id=tenant_id,
+        instance_id=instance_id,
+    )
 
     try:
         # Register SIGTERM/SIGINT handler for graceful shutdown
@@ -275,8 +297,18 @@ def main() -> None:
         choices=VALID_CONSUMERS,
         help="Consumer type to run",
     )
+    parser.add_argument(
+        "--tenant",
+        default="default",
+        help="Tenant ID for multi-tenant stream isolation (default: 'default')",
+    )
+    parser.add_argument(
+        "--instance",
+        default="1",
+        help="Instance ID for horizontal scaling (default: '1')",
+    )
     args = parser.parse_args()
-    asyncio.run(run_worker(args.consumer))
+    asyncio.run(run_worker(args.consumer, tenant_id=args.tenant, instance_id=args.instance))
 
 
 if __name__ == "__main__":

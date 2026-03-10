@@ -26,31 +26,35 @@ log = structlog.get_logger(__name__)
 
 _GET_USER_PROFILE = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_PROFILE]->(p:UserProfile)
+WHERE e.tenant_id = $tenant_id
 RETURN p
 LIMIT 1
 """.strip()
 
 _GET_USER_PREFERENCES = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_PREFERENCE]->(p:Preference)
-WHERE $active_only = false OR p.superseded_by IS NULL
+WHERE e.tenant_id = $tenant_id AND ($active_only = false OR p.superseded_by IS NULL)
 RETURN p
 ORDER BY p.last_confirmed_at DESC
 """.strip()
 
 _GET_USER_SKILLS = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_SKILL]->(s:Skill)
+WHERE e.tenant_id = $tenant_id
 RETURN s
 ORDER BY s.name
 """.strip()
 
 _GET_USER_PATTERNS = """
 MATCH (e:Entity {entity_id: $user_id})-[:EXHIBITS_PATTERN]->(b:BehavioralPattern)
+WHERE e.tenant_id = $tenant_id
 RETURN b
 ORDER BY b.last_confirmed_at DESC
 """.strip()
 
 _GET_USER_INTERESTS = """
 MATCH (e:Entity {entity_id: $user_id})-[r:INTERESTED_IN]->(target:Entity)
+WHERE e.tenant_id = $tenant_id
 RETURN target.entity_id AS entity_id,
        target.name AS name,
        target.entity_type AS entity_type,
@@ -69,8 +73,10 @@ ON CREATE SET e.name = $display_name,
               e.entity_type = 'user',
               e.first_seen = $now,
               e.last_seen = $now,
-              e.mention_count = 1
-ON MATCH SET e.last_seen = $now
+              e.mention_count = 1,
+              e.tenant_id = $tenant_id
+ON MATCH SET e.last_seen = $now,
+             e.tenant_id = $tenant_id
 WITH e
 MERGE (e)-[:HAS_PROFILE]->(p:UserProfile {profile_id: $profile_id})
 SET p.user_id = $user_id,
@@ -80,7 +86,8 @@ SET p.user_id = $user_id,
     p.communication_style = $communication_style,
     p.technical_level = $technical_level,
     p.created_at = coalesce(p.created_at, $now),
-    p.updated_at = $now
+    p.updated_at = $now,
+    p.tenant_id = $tenant_id
 """.strip()
 
 _MERGE_PREFERENCE = """
@@ -97,7 +104,8 @@ SET p.category = $category,
     p.observation_count = coalesce(p.observation_count, 0) + 1,
     p.first_observed_at = coalesce(p.first_observed_at, $now),
     p.last_confirmed_at = $now,
-    p.superseded_by = $superseded_by
+    p.superseded_by = $superseded_by,
+    p.tenant_id = $tenant_id
 """.strip()
 
 _MERGE_HAS_PREFERENCE_EDGE = """
@@ -113,8 +121,10 @@ ON CREATE SET target.name = $target_name,
               target.entity_type = $target_type,
               target.first_seen = $now,
               target.last_seen = $now,
-              target.mention_count = 1
-ON MATCH SET target.last_seen = $now
+              target.mention_count = 1,
+              target.tenant_id = $tenant_id
+ON MATCH SET target.last_seen = $now,
+             target.tenant_id = $tenant_id
 MERGE (p)-[:ABOUT]->(target)
 """.strip()
 
@@ -144,7 +154,9 @@ def _build_derived_from_query(source_id_field: str) -> str:
     label, id_field = _DERIVED_FROM_SOURCE_TYPES[source_id_field]
     return f"""
 MATCH (source:{label} {{{id_field}: $source_id}})
+WHERE source.tenant_id = $tenant_id
 MATCH (e:Event {{event_id: $event_id}})
+WHERE e.tenant_id = $tenant_id
 MERGE (source)-[r:DERIVED_FROM]->(e)
 SET r.method = $method,
     r.session_id = $session_id,
@@ -161,7 +173,8 @@ MERGE (s:Skill {skill_id: $skill_id})
 SET s.name = $name,
     s.category = $category,
     s.description = $description,
-    s.created_at = coalesce(s.created_at, $now)
+    s.created_at = coalesce(s.created_at, $now),
+    s.tenant_id = $tenant_id
 """.strip()
 
 _MERGE_HAS_SKILL_EDGE = """
@@ -197,6 +210,7 @@ SET r.weight = $weight,
 
 _DELETE_USER_DATA = """
 MATCH (e:Entity {entity_id: $user_id})
+WHERE e.tenant_id = $tenant_id
 OPTIONAL MATCH (e)-[:HAS_PROFILE]->(p:UserProfile)
 DETACH DELETE p
 WITH DISTINCT e
@@ -222,27 +236,32 @@ RETURN count(e) AS affected
 
 _EXPORT_USER_PROFILE = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_PROFILE]->(p:UserProfile)
+WHERE e.tenant_id = $tenant_id
 RETURN properties(p) AS profile
 LIMIT 1
 """.strip()
 
 _EXPORT_USER_PREFERENCES = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_PREFERENCE]->(p:Preference)
+WHERE e.tenant_id = $tenant_id
 RETURN properties(p) AS preference
 """.strip()
 
 _EXPORT_USER_SKILLS = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_SKILL]->(s:Skill)
+WHERE e.tenant_id = $tenant_id
 RETURN properties(s) AS skill
 """.strip()
 
 _EXPORT_USER_PATTERNS = """
 MATCH (e:Entity {entity_id: $user_id})-[:EXHIBITS_PATTERN]->(b:BehavioralPattern)
+WHERE e.tenant_id = $tenant_id
 RETURN properties(b) AS pattern
 """.strip()
 
 _EXPORT_USER_INTERESTS = """
 MATCH (e:Entity {entity_id: $user_id})-[r:INTERESTED_IN]->(target:Entity)
+WHERE e.tenant_id = $tenant_id
 RETURN target.entity_id AS entity_id,
        target.name AS name,
        target.entity_type AS entity_type,
@@ -252,6 +271,7 @@ RETURN target.entity_id AS entity_id,
 
 _EXPORT_USER_DERIVED_FROM = """
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_PREFERENCE]->(p:Preference)
+WHERE e.tenant_id = $tenant_id
 MATCH (p)-[r:DERIVED_FROM]->(evt:Event)
 RETURN p.preference_id AS source_id,
        'Preference' AS source_type,
@@ -261,6 +281,7 @@ RETURN p.preference_id AS source_id,
        r.extracted_at AS extracted_at
 UNION ALL
 MATCH (e:Entity {entity_id: $user_id})-[:HAS_SKILL]->(s:Skill)
+WHERE e.tenant_id = $tenant_id
 MATCH (s)-[r:DERIVED_FROM]->(evt:Event)
 RETURN s.skill_id AS source_id,
        'Skill' AS source_type,
@@ -280,10 +301,11 @@ async def get_user_profile(
     driver: AsyncDriver,
     database: str,
     user_id: str,
+    tenant_id: str = "default",
 ) -> dict[str, Any] | None:
     """Fetch a user's profile node. Returns None if not found."""
     async with driver.session(database=database) as session:
-        result = await session.run(_GET_USER_PROFILE, {"user_id": user_id})
+        result = await session.run(_GET_USER_PROFILE, {"user_id": user_id, "tenant_id": tenant_id})
         record = await result.single()
 
     if record is None:
@@ -296,12 +318,13 @@ async def get_user_preferences(
     database: str,
     user_id: str,
     active_only: bool = True,
+    tenant_id: str = "default",
 ) -> list[dict[str, Any]]:
     """Fetch a user's preferences. When active_only=True, excludes superseded."""
     async with driver.session(database=database) as session:
         result = await session.run(
             _GET_USER_PREFERENCES,
-            {"user_id": user_id, "active_only": active_only},
+            {"user_id": user_id, "active_only": active_only, "tenant_id": tenant_id},
         )
         records = [record async for record in result]
 
@@ -312,10 +335,11 @@ async def get_user_skills(
     driver: AsyncDriver,
     database: str,
     user_id: str,
+    tenant_id: str = "default",
 ) -> list[dict[str, Any]]:
     """Fetch a user's skills."""
     async with driver.session(database=database) as session:
-        result = await session.run(_GET_USER_SKILLS, {"user_id": user_id})
+        result = await session.run(_GET_USER_SKILLS, {"user_id": user_id, "tenant_id": tenant_id})
         records = [record async for record in result]
 
     return [dict(record["s"]) for record in records]
@@ -325,10 +349,11 @@ async def get_user_patterns(
     driver: AsyncDriver,
     database: str,
     user_id: str,
+    tenant_id: str = "default",
 ) -> list[dict[str, Any]]:
     """Fetch a user's behavioral patterns."""
     async with driver.session(database=database) as session:
-        result = await session.run(_GET_USER_PATTERNS, {"user_id": user_id})
+        result = await session.run(_GET_USER_PATTERNS, {"user_id": user_id, "tenant_id": tenant_id})
         records = [record async for record in result]
 
     return [dict(record["b"]) for record in records]
@@ -338,10 +363,13 @@ async def get_user_interests(
     driver: AsyncDriver,
     database: str,
     user_id: str,
+    tenant_id: str = "default",
 ) -> list[dict[str, Any]]:
     """Fetch a user's interests (INTERESTED_IN edges to entities)."""
     async with driver.session(database=database) as session:
-        result = await session.run(_GET_USER_INTERESTS, {"user_id": user_id})
+        result = await session.run(
+            _GET_USER_INTERESTS, {"user_id": user_id, "tenant_id": tenant_id}
+        )
         records = [record async for record in result]
 
     return [
@@ -365,6 +393,7 @@ async def write_user_profile(
     driver: AsyncDriver,
     database: str,
     profile_data: dict[str, Any],
+    tenant_id: str = "default",
 ) -> None:
     """Create or update a user profile with HAS_PROFILE edge."""
     now = datetime.now(UTC).isoformat()
@@ -380,6 +409,7 @@ async def write_user_profile(
         "communication_style": profile_data.get("communication_style"),
         "technical_level": profile_data.get("technical_level"),
         "now": now,
+        "tenant_id": tenant_id,
     }
 
     async with driver.session(database=database) as session:
@@ -399,6 +429,7 @@ async def write_preference_with_edges(
     preference_data: dict[str, Any],
     source_event_ids: list[str],
     derivation_info: dict[str, Any],
+    tenant_id: str = "default",
 ) -> None:
     """Write a Preference node with HAS_PREFERENCE, ABOUT, and DERIVED_FROM edges."""
     now = datetime.now(UTC).isoformat()
@@ -417,6 +448,7 @@ async def write_preference_with_edges(
         "scope_id": preference_data.get("scope_id"),
         "superseded_by": preference_data.get("superseded_by"),
         "now": now,
+        "tenant_id": tenant_id,
     }
 
     has_pref_params = {
@@ -434,10 +466,13 @@ async def write_preference_with_edges(
                 "e.name = $user_entity_id, "
                 "e.first_seen = $now, "
                 "e.last_seen = $now, "
-                "e.mention_count = 1",
+                "e.mention_count = 1, "
+                "e.tenant_id = $tenant_id "
+                "ON MATCH SET e.tenant_id = $tenant_id",
                 {
                     "user_entity_id": user_entity_id,
                     "now": now,
+                    "tenant_id": tenant_id,
                 },
             )
             # Create preference node
@@ -457,6 +492,7 @@ async def write_preference_with_edges(
                         "target_name": about_entity,
                         "target_type": "concept",
                         "now": now,
+                        "tenant_id": tenant_id,
                     },
                 )
 
@@ -475,6 +511,7 @@ async def write_preference_with_edges(
                         "prompt_version": derivation_info.get("prompt_version"),
                         "evidence_quote": derivation_info.get("evidence_quote"),
                         "source_turn_index": derivation_info.get("source_turn_index"),
+                        "tenant_id": tenant_id,
                     },
                 )
 
@@ -495,6 +532,7 @@ async def write_skill_with_edges(
     skill_data: dict[str, Any],
     source_event_ids: list[str],
     derivation_info: dict[str, Any],
+    tenant_id: str = "default",
 ) -> None:
     """Write a Skill node with HAS_SKILL and DERIVED_FROM edges."""
     now = datetime.now(UTC).isoformat()
@@ -506,6 +544,7 @@ async def write_skill_with_edges(
         "category": skill_data.get("category", "domain_knowledge"),
         "description": skill_data.get("description"),
         "now": now,
+        "tenant_id": tenant_id,
     }
 
     has_skill_params = {
@@ -527,10 +566,13 @@ async def write_skill_with_edges(
                 "e.name = $user_entity_id, "
                 "e.first_seen = $now, "
                 "e.last_seen = $now, "
-                "e.mention_count = 1",
+                "e.mention_count = 1, "
+                "e.tenant_id = $tenant_id "
+                "ON MATCH SET e.tenant_id = $tenant_id",
                 {
                     "user_entity_id": user_entity_id,
                     "now": now,
+                    "tenant_id": tenant_id,
                 },
             )
             # Create skill node
@@ -553,6 +595,7 @@ async def write_skill_with_edges(
                         "prompt_version": derivation_info.get("prompt_version"),
                         "evidence_quote": derivation_info.get("evidence_quote"),
                         "source_turn_index": derivation_info.get("source_turn_index"),
+                        "tenant_id": tenant_id,
                     },
                 )
 
@@ -574,6 +617,7 @@ async def write_interest_edge(
     entity_type: str,
     weight: float,
     source: str,
+    tenant_id: str = "default",
 ) -> None:
     """Create an INTERESTED_IN edge from user to a target entity."""
     now = datetime.now(UTC).isoformat()
@@ -599,10 +643,13 @@ async def write_interest_edge(
                 "e.name = $user_entity_id, "
                 "e.first_seen = $now, "
                 "e.last_seen = $now, "
-                "e.mention_count = 1",
+                "e.mention_count = 1, "
+                "e.tenant_id = $tenant_id "
+                "ON MATCH SET e.tenant_id = $tenant_id",
                 {
                     "user_entity_id": user_entity_id,
                     "now": now,
+                    "tenant_id": tenant_id,
                 },
             )
             await tx.run(_MERGE_INTERESTED_IN, params)
@@ -625,6 +672,7 @@ async def write_derived_from_edge(
     event_id: str,
     method: str,
     session_id: str,
+    tenant_id: str = "default",
 ) -> None:
     """Write a single DERIVED_FROM edge from a source node to an event."""
     now = datetime.now(UTC).isoformat()
@@ -645,6 +693,7 @@ async def write_derived_from_edge(
                     "prompt_version": None,
                     "evidence_quote": None,
                     "source_turn_index": None,
+                    "tenant_id": tenant_id,
                 },
             )
 
@@ -660,6 +709,7 @@ async def delete_user_data(
     driver: AsyncDriver,
     database: str,
     user_id: str,
+    tenant_id: str = "default",
 ) -> int:
     """GDPR cascade delete: remove all user-specific nodes and anonymize Entity.
 
@@ -672,7 +722,7 @@ async def delete_user_data(
     async with driver.session(database=database) as session:
 
         async def _delete(tx: Any) -> int:
-            result = await tx.run(_DELETE_USER_DATA, {"user_id": user_id})
+            result = await tx.run(_DELETE_USER_DATA, {"user_id": user_id, "tenant_id": tenant_id})
             record = await result.single()
             return record["affected"] if record else 0
 
@@ -686,6 +736,7 @@ async def export_user_data(
     driver: AsyncDriver,
     database: str,
     user_id: str,
+    tenant_id: str = "default",
 ) -> dict[str, Any]:
     """GDPR export: return all data associated with a user.
 
@@ -702,29 +753,31 @@ async def export_user_data(
     }
 
     async with driver.session(database=database) as session:
+        params = {"user_id": user_id, "tenant_id": tenant_id}
+
         # Profile
-        profile_result = await session.run(_EXPORT_USER_PROFILE, {"user_id": user_id})
+        profile_result = await session.run(_EXPORT_USER_PROFILE, params)
         profile_record = await profile_result.single()
         if profile_record:
             export["profile"] = dict(profile_record["profile"])
 
         # Preferences
-        pref_result = await session.run(_EXPORT_USER_PREFERENCES, {"user_id": user_id})
+        pref_result = await session.run(_EXPORT_USER_PREFERENCES, params)
         pref_records = [record async for record in pref_result]
         export["preferences"] = [dict(r["preference"]) for r in pref_records]
 
         # Skills
-        skill_result = await session.run(_EXPORT_USER_SKILLS, {"user_id": user_id})
+        skill_result = await session.run(_EXPORT_USER_SKILLS, params)
         skill_records = [record async for record in skill_result]
         export["skills"] = [dict(r["skill"]) for r in skill_records]
 
         # Patterns
-        pattern_result = await session.run(_EXPORT_USER_PATTERNS, {"user_id": user_id})
+        pattern_result = await session.run(_EXPORT_USER_PATTERNS, params)
         pattern_records = [record async for record in pattern_result]
         export["patterns"] = [dict(r["pattern"]) for r in pattern_records]
 
         # Interests
-        interest_result = await session.run(_EXPORT_USER_INTERESTS, {"user_id": user_id})
+        interest_result = await session.run(_EXPORT_USER_INTERESTS, params)
         interest_records = [record async for record in interest_result]
         export["interests"] = [
             {
@@ -738,7 +791,7 @@ async def export_user_data(
         ]
 
         # Provenance chains (DERIVED_FROM)
-        derived_result = await session.run(_EXPORT_USER_DERIVED_FROM, {"user_id": user_id})
+        derived_result = await session.run(_EXPORT_USER_DERIVED_FROM, params)
         derived_records = [record async for record in derived_result]
         export["provenance_chains"] = [
             {
@@ -770,6 +823,7 @@ async def export_user_data(
 
 _SET_PREFERENCE_SUPERSEDED = """
 MATCH (p:Preference {preference_id: $preference_id})
+WHERE p.tenant_id = $tenant_id
 SET p.superseded_by = $superseded_by
 """.strip()
 
@@ -779,18 +833,22 @@ async def set_preference_superseded(
     database: str,
     preference_id: str,
     superseded_by: str,
+    tenant_id: str = "default",
 ) -> None:
     """Mark a preference as superseded by another preference."""
+    params = {
+        "preference_id": preference_id,
+        "superseded_by": superseded_by,
+        "tenant_id": tenant_id,
+    }
+
     async with driver.session(database=database) as session:
-        await session.execute_write(
-            lambda tx: tx.run(
-                _SET_PREFERENCE_SUPERSEDED,
-                {
-                    "preference_id": preference_id,
-                    "superseded_by": superseded_by,
-                },
-            )
-        )
+
+        async def _write(tx: Any) -> None:
+            await tx.run(_SET_PREFERENCE_SUPERSEDED, params)
+
+        await session.execute_write(_write)
+
     log.info(
         "preference_superseded",
         preference_id=preference_id,

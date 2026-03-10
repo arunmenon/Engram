@@ -49,7 +49,7 @@ class TestFeedbackEndpoint:
     """Tests for the /v1/feedback POST endpoint."""
 
     def _make_app(self):
-        from unittest.mock import AsyncMock, MagicMock
+        from unittest.mock import AsyncMock
 
         from fastapi import FastAPI
 
@@ -64,8 +64,9 @@ class TestFeedbackEndpoint:
         mock_graph_store = AsyncMock()
         mock_graph_store.adjust_node_importance.return_value = True
 
-        app.state.settings = MagicMock()
-        app.state.settings.auth.api_key = None
+        from context_graph.settings import Settings
+
+        app.state.settings = Settings()  # tenant disabled by default
         app.state.event_store = mock_event_store
         app.state.graph_store = mock_graph_store
 

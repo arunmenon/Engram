@@ -9,21 +9,34 @@ Source: ADR-0005, ADR-0013
 
 from __future__ import annotations
 
+import asyncio
+import random
+import time as _time
 from typing import TYPE_CHECKING
 
 import structlog
 
 from context_graph.metrics import (
+    CONSUMER_BATCH_ACTUAL_SIZE,
     CONSUMER_LAG,
     CONSUMER_MESSAGE_ERRORS,
     CONSUMER_MESSAGES_DEAD_LETTERED,
     CONSUMER_MESSAGES_PROCESSED,
+    CONSUMER_THROUGHPUT,
 )
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
 
 log = structlog.get_logger(__name__)
+
+
+def _build_tenant_stream_key(base_stream: str, tenant_id: str) -> str:
+    """Build a tenant-prefixed stream key: ``t:{tenant_id}:{base_stream}``.
+
+    Mirrors the key layout used by ``adapters.redis.store._tenant_stream_key``.
+    """
+    return f"t:{tenant_id}:{base_stream}"
 
 
 class BaseConsumer:
@@ -40,6 +53,11 @@ class BaseConsumer:
       blocking the PEL drain indefinitely
     """
 
+    # Exponential backoff defaults
+    _BACKOFF_BASE_S: float = 1.0
+    _BACKOFF_MAX_S: float = 60.0
+    _BACKOFF_JITTER: float = 0.5
+
     def __init__(
         self,
         redis_client: Redis,
@@ -49,23 +67,49 @@ class BaseConsumer:
         batch_size: int = 10,
         block_timeout_ms: int = 5000,
         *,
+        tenant_id: str = "default",
         max_retries: int = 5,
         claim_idle_ms: int = 300_000,
         claim_batch_size: int = 100,
         dlq_stream_suffix: str = ":dlq",
+        adaptive_batch_size: bool = False,
     ) -> None:
         self._redis = redis_client
         self._group_name = group_name
         self._consumer_name = consumer_name
-        self._stream_key = stream_key
+        self._tenant_id = tenant_id
+        # Apply tenant prefix to stream key
+        self._stream_key = _build_tenant_stream_key(stream_key, tenant_id)
         self._batch_size = batch_size
         self._block_timeout_ms = block_timeout_ms
         self._stopped = False
+        self._consecutive_errors = 0
         # Resilience settings (H4, H5)
         self._max_retries = max_retries
         self._claim_idle_ms = claim_idle_ms
         self._claim_batch_size = claim_batch_size
-        self._dlq_stream_key = f"{stream_key}{dlq_stream_suffix}"
+        self._dlq_stream_key = f"{self._stream_key}{dlq_stream_suffix}"
+        # Adaptive batch sizing
+        self._adaptive_batch_size = adaptive_batch_size
+
+    async def _backoff_delay(self) -> None:
+        """Sleep with exponential backoff + jitter after consecutive errors.
+
+        Delay = min(base * 2^errors, max) * (1 + random * jitter).
+        Resets ``_consecutive_errors`` is handled by the caller on success.
+        """
+        delay = min(
+            self._BACKOFF_BASE_S * (2**self._consecutive_errors),
+            self._BACKOFF_MAX_S,
+        )
+        jittered = delay * (1.0 + random.random() * self._BACKOFF_JITTER)  # noqa: S311
+        log.warning(
+            "consumer_backoff",
+            delay_s=round(jittered, 2),
+            consecutive_errors=self._consecutive_errors,
+            consumer=self._consumer_name,
+        )
+        await asyncio.sleep(jittered)
 
     async def ensure_group(self) -> None:
         """Create the consumer group if it does not already exist.
@@ -221,6 +265,39 @@ class BaseConsumer:
         except Exception:  # noqa: BLE001
             pass  # Non-critical metric, don't crash on failure
 
+    # -- Adaptive batch sizing ---------------------------------------------
+
+    # Lag thresholds for scaling batch size (pending message count)
+    _LAG_THRESHOLD_2X: int = 1_000
+    _LAG_THRESHOLD_4X: int = 10_000
+
+    async def _get_pending_count(self) -> int:
+        """Return the number of pending messages for this consumer group.
+
+        Uses XPENDING summary (not the detailed range variant) which
+        returns the total pending count efficiently.
+        """
+        try:
+            summary = await self._redis.xpending(self._stream_key, self._group_name)
+            pending = summary.get("pending", 0) if summary else 0
+            return int(pending)
+        except Exception:  # noqa: BLE001
+            return 0
+
+    def _compute_batch_size(self, pending_count: int) -> int:
+        """Scale batch size based on consumer lag.
+
+        Returns 1x, 2x, or 4x the base batch size depending on the
+        number of pending (unprocessed) messages.  This allows consumers
+        to catch up faster during traffic spikes without requiring
+        configuration changes.
+        """
+        if pending_count >= self._LAG_THRESHOLD_4X:
+            return self._batch_size * 4
+        if pending_count >= self._LAG_THRESHOLD_2X:
+            return self._batch_size * 2
+        return self._batch_size
+
     # -- Main loop ---------------------------------------------------------
 
     async def run(self) -> None:
@@ -305,11 +382,22 @@ class BaseConsumer:
         # Main loop — new messages
         loop_iteration = 0
         while not self._stopped:
+            # Adaptive batch sizing: scale read count based on lag
+            effective_batch_size = self._batch_size
+            if self._adaptive_batch_size and loop_iteration % self._LAG_METRIC_INTERVAL == 0:
+                pending_count = await self._get_pending_count()
+                CONSUMER_LAG.labels(group=self._group_name).set(pending_count)
+                effective_batch_size = self._compute_batch_size(pending_count)
+                CONSUMER_BATCH_ACTUAL_SIZE.labels(consumer=self._group_name).observe(
+                    effective_batch_size
+                )
+
+            batch_t0 = _time.monotonic()
             messages = await self._redis.xreadgroup(
                 groupname=self._group_name,
                 consumername=self._consumer_name,
                 streams={self._stream_key: ">"},
-                count=self._batch_size,
+                count=effective_batch_size,
                 block=self._block_timeout_ms,
             )
 
@@ -320,8 +408,10 @@ class BaseConsumer:
             if not messages:
                 continue
 
+            batch_msg_count = 0
             for _stream_name, entries in messages:
                 for entry_id_raw, data in entries:
+                    batch_msg_count += 1
                     entry_id = (
                         entry_id_raw.decode()
                         if isinstance(entry_id_raw, bytes)
@@ -343,8 +433,10 @@ class BaseConsumer:
                                 entry_id,
                             )
                         CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
+                        self._consecutive_errors = 0
                     except Exception:
                         CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
+                        self._consecutive_errors += 1
                         # Message stays in PEL for retry on next read cycle
                         log.exception(
                             "message_processing_failed",
@@ -352,6 +444,14 @@ class BaseConsumer:
                             group=self._group_name,
                             consumer=self._consumer_name,
                         )
+                        await self._backoff_delay()
+
+            # Update throughput gauge
+            batch_elapsed = _time.monotonic() - batch_t0
+            if batch_elapsed > 0 and batch_msg_count > 0:
+                CONSUMER_THROUGHPUT.labels(consumer=self._group_name).set(
+                    batch_msg_count / batch_elapsed
+                )
 
             # Allow batching consumers to flush after each XREADGROUP round
             await self.on_batch_complete()

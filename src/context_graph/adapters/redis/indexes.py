@@ -31,6 +31,7 @@ def event_index_definition(prefix: str = "evt:") -> IndexDefinition:
 def event_index_fields() -> list[TagField | NumericField | TextField]:
     """Return the field schema for the events JSON index."""
     return [
+        TagField("$.tenant_id", as_name="tenant_id"),
         TagField("$.session_id", as_name="session_id"),
         TagField("$.agent_id", as_name="agent_id"),
         TagField("$.trace_id", as_name="trace_id"),

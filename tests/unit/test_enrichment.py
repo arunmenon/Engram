@@ -116,7 +116,7 @@ class TestEventEmbeddingComputation:
 
         embedding_service.embed_text.assert_called_once()
         consumer._graph_store.store_event_embedding.assert_called_once_with(
-            "evt-1", [0.1, 0.2, 0.3]
+            "evt-1", [0.1, 0.2, 0.3], tenant_id="default"
         )
 
     @pytest.mark.asyncio()
