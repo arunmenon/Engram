@@ -42,6 +42,34 @@ CREATE CONSTRAINT episode_pk IF NOT EXISTS FOR (e:Episode) REQUIRE e.episode_id 
 // Performance indexes
 CREATE INDEX event_session_id IF NOT EXISTS FOR (e:Event) ON (e.session_id);
 
+// Tenant isolation indexes (one per node label)
+CREATE INDEX event_tenant_idx IF NOT EXISTS FOR (e:Event) ON (e.tenant_id);
+CREATE INDEX entity_tenant_idx IF NOT EXISTS FOR (n:Entity) ON (n.tenant_id);
+CREATE INDEX summary_tenant_idx IF NOT EXISTS FOR (s:Summary) ON (s.tenant_id);
+CREATE INDEX userprofile_tenant_idx IF NOT EXISTS FOR (u:UserProfile) ON (u.tenant_id);
+CREATE INDEX preference_tenant_idx IF NOT EXISTS FOR (p:Preference) ON (p.tenant_id);
+CREATE INDEX skill_tenant_idx IF NOT EXISTS FOR (s:Skill) ON (s.tenant_id);
+CREATE INDEX workflow_tenant_idx IF NOT EXISTS FOR (w:Workflow) ON (w.tenant_id);
+CREATE INDEX behavioral_tenant_idx IF NOT EXISTS FOR (b:BehavioralPattern) ON (b.tenant_id);
+CREATE INDEX belief_tenant_idx IF NOT EXISTS FOR (b:Belief) ON (b.tenant_id);
+CREATE INDEX goal_tenant_idx IF NOT EXISTS FOR (g:Goal) ON (g.tenant_id);
+CREATE INDEX episode_tenant_idx IF NOT EXISTS FOR (ep:Episode) ON (ep.tenant_id);
+
+// Relationship indexes (Neo4j 5.7+) — accelerate edge-property queries
+CREATE INDEX follows_rel_idx IF NOT EXISTS FOR ()-[r:FOLLOWS]-() ON (r.delta_ms);
+CREATE INDEX similar_rel_idx IF NOT EXISTS FOR ()-[r:SIMILAR_TO]-() ON (r.similarity_score);
+CREATE INDEX references_rel_idx IF NOT EXISTS FOR ()-[r:REFERENCES]-() ON (r.mention_count);
+
+// Composite indexes — eliminate full scans on frequent multi-predicate queries
+CREATE INDEX event_session_time_idx IF NOT EXISTS FOR (e:Event) ON (e.session_id, e.occurred_at);
+CREATE INDEX event_type_tenant_idx IF NOT EXISTS FOR (e:Event) ON (e.event_type, e.tenant_id);
+CREATE INDEX entity_type_tenant_idx IF NOT EXISTS FOR (e:Entity) ON (e.entity_type, e.tenant_id);
+
+// Property indexes for hot queries
+CREATE INDEX event_importance_idx IF NOT EXISTS FOR (e:Event) ON (e.importance_score);
+CREATE INDEX event_access_count_idx IF NOT EXISTS FOR (e:Event) ON (e.access_count);
+CREATE INDEX entity_name_idx IF NOT EXISTS FOR (e:Entity) ON (e.name);
+
 // Vector indexes for embedding-based similarity search (Neo4j 5.26+)
 CREATE VECTOR INDEX entity_embedding_idx IF NOT EXISTS
 FOR (n:Entity) ON (n.embedding)

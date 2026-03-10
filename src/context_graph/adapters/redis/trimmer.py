@@ -29,6 +29,7 @@ async def trim_stream(
     stream_key: str,
     max_age_days: int,
     consumer_groups: list[str] | None = None,
+    tenant_id: str = "default",
 ) -> int:
     """Trim stream entries older than max_age_days.
 
@@ -80,6 +81,7 @@ async def delete_expired_events(
     key_prefix: str,
     max_age_days: int,
     batch_size: int = 100,
+    tenant_id: str = "default",
 ) -> int:
     """Delete JSON event documents past the retention ceiling.
 
@@ -94,7 +96,7 @@ async def delete_expired_events(
 
     deleted_count = 0
     cursor = 0
-    scan_pattern = f"{key_prefix}*"
+    scan_pattern = f"t:{tenant_id}:{key_prefix}*"
 
     while True:
         cursor, keys = await redis_client.scan(
@@ -144,6 +146,7 @@ async def delete_expired_events(
         key_prefix=key_prefix,
         max_age_days=max_age_days,
         deleted_count=deleted_count,
+        tenant_id=tenant_id,
     )
     return deleted_count
 
@@ -158,19 +161,20 @@ async def cleanup_session_streams(
     prefix: str = "events:session:",
     max_age_hours: int = 168,
     batch_size: int = 100,
+    tenant_id: str = "default",
 ) -> int:
     """Delete per-session streams whose newest entry is older than max_age_hours.
 
-    Scans for keys matching ``{prefix}*`` and checks each stream's newest
-    entry via XREVRANGE ... + COUNT 1. Streams with no entries or whose
-    newest entry is older than the cutoff are deleted.
+    Scans for keys matching ``t:{tenant_id}:{prefix}*`` and checks each
+    stream's newest entry via XREVRANGE ... + COUNT 1. Streams with no entries
+    or whose newest entry is older than the cutoff are deleted.
 
     Returns the number of deleted session streams.
     """
     cutoff_ms = int((time.time() - max_age_hours * 3600) * 1000)
     deleted_count = 0
     cursor = 0
-    scan_pattern = f"{prefix}*"
+    scan_pattern = f"t:{tenant_id}:{prefix}*"
 
     while True:
         cursor, keys = await redis_client.scan(
@@ -224,6 +228,7 @@ async def archive_and_delete_expired_events(
     max_age_days: int,
     archive_store: Any,
     batch_size: int = 100,
+    tenant_id: str = "default",
 ) -> tuple[int, int]:
     """Archive expired events to the archive store, then delete from Redis.
 
@@ -247,7 +252,7 @@ async def archive_and_delete_expired_events(
     archived_count = 0
     deleted_count = 0
     cursor = 0
-    scan_pattern = f"{key_prefix}*"
+    scan_pattern = f"t:{tenant_id}:{key_prefix}*"
 
     while True:
         cursor, keys = await redis_client.scan(
@@ -318,6 +323,7 @@ async def archive_and_delete_expired_events(
         max_age_days=max_age_days,
         archived_count=archived_count,
         deleted_count=deleted_count,
+        tenant_id=tenant_id,
     )
     return archived_count, deleted_count
 
@@ -325,6 +331,85 @@ async def archive_and_delete_expired_events(
 # ---------------------------------------------------------------------------
 # ADR-0014: Dedup set maintenance
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Memory pressure: proactive trimming
+# ---------------------------------------------------------------------------
+
+
+async def trim_under_pressure(
+    redis_client: Redis,
+    global_stream: str = "events:__global__",
+    event_key_prefix: str = "evt:",
+    dedup_key: str = "dedup:events",
+    session_prefix: str = "events:session:",
+    hot_window_days: int = 7,
+    retention_ceiling_days: int = 90,
+    tenant_id: str = "default",
+) -> int:
+    """Aggressively trim data when Redis memory is under pressure.
+
+    Reduces retention windows to free memory quickly:
+    - Session streams: halved retention (hot_window_days / 2)
+    - Cold tier JSON docs: halved retention (retention_ceiling_days / 2)
+    - Dedup entries: capped at 30 days regardless of normal ceiling
+
+    Returns the total number of items freed (trimmed + deleted + cleaned).
+    Logs a WARNING with detailed stats for operator visibility.
+    """
+    freed_total = 0
+
+    # 1. Trim session streams at half the normal retention
+    half_session_hours = max(1, (hot_window_days * 24) // 2)
+    session_freed = await cleanup_session_streams(
+        redis_client,
+        prefix=session_prefix,
+        max_age_hours=half_session_hours,
+        tenant_id=tenant_id,
+    )
+    freed_total += session_freed
+
+    # 2. Delete COLD tier JSON docs at half the normal retention ceiling
+    half_retention_days = max(1, retention_ceiling_days // 2)
+    json_freed = await delete_expired_events(
+        redis_client,
+        key_prefix=event_key_prefix,
+        max_age_days=half_retention_days,
+        tenant_id=tenant_id,
+    )
+    freed_total += json_freed
+
+    # 3. Clean dedup entries older than 30 days (aggressive cap)
+    dedup_freed = await cleanup_dedup_set(
+        redis_client,
+        dedup_key=f"t:{tenant_id}:{dedup_key}",
+        retention_ceiling_days=30,
+        tenant_id=tenant_id,
+    )
+    freed_total += dedup_freed
+
+    # 4. Trim global stream at half the hot window
+    half_hot_days = max(1, hot_window_days // 2)
+    stream_freed = await trim_stream(
+        redis_client,
+        stream_key=f"t:{tenant_id}:{global_stream}",
+        max_age_days=half_hot_days,
+        tenant_id=tenant_id,
+    )
+    freed_total += stream_freed
+
+    log.warning(
+        "pressure_trim_completed",
+        session_streams_freed=session_freed,
+        json_docs_freed=json_freed,
+        dedup_entries_freed=dedup_freed,
+        stream_entries_freed=stream_freed,
+        total_freed=freed_total,
+        tenant_id=tenant_id,
+    )
+
+    return freed_total
 
 
 # ---------------------------------------------------------------------------
@@ -413,11 +498,13 @@ async def cleanup_dedup_set(
     redis_client: Redis,
     dedup_key: str,
     retention_ceiling_days: int = 90,
+    tenant_id: str = "default",
 ) -> int:
     """Remove old entries from the dedup sorted set.
 
     Removes entries with scores (epoch_ms) older than retention_ceiling_days.
     This prevents the dedup set from growing unbounded.
+    The dedup_key should already be tenant-prefixed by the caller.
 
     Returns the number of removed entries.
     """
@@ -434,5 +521,6 @@ async def cleanup_dedup_set(
         retention_ceiling_days=retention_ceiling_days,
         cutoff_ms=cutoff_ms,
         removed=removed,
+        tenant_id=tenant_id,
     )
     return removed
