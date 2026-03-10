@@ -32,6 +32,13 @@ embedding = [
     "sentence-transformers>=2.6",
     "numpy>=1.26",
 ]
+benchmark = [
+    "pytest-benchmark>=4.0",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "redis>=5.0",
+    "neo4j>=5.25",
+]
 gcs = [
     "google-cloud-storage>=2.14",
 ]
@@ -56,6 +63,9 @@ markers = [
     "infra: infrastructure validation tests (require docker services)",
     "unit: unit tests (no external dependencies)",
     "integration: integration tests (require docker services)",
+    "benchmark: performance benchmarks (require docker services and pytest-benchmark)",
+    "slow: slow benchmarks (large data sets, long runtime)",
+    "scaled: scaled load profile benchmarks (10K-5M nodes)",
 ]
 
 [tool.ruff]
