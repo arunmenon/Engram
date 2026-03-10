@@ -12,12 +12,58 @@ hexagonal architecture boundaries (routes never import from adapters/).
 from __future__ import annotations
 
 import hmac
+import re
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import structlog
 from fastapi import HTTPException, Request  # noqa: TCH002 — runtime: FastAPI dependency injection
 
 logger = structlog.get_logger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Multi-tenancy
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TenantContext:
+    """Immutable tenant context extracted from request headers."""
+
+    tenant_id: str
+
+
+_TENANT_ID_RE: re.Pattern[str] | None = None
+
+
+async def require_tenant(request: Request) -> TenantContext:
+    """Extract and validate tenant ID from request headers.
+
+    When tenancy is disabled (``CG_TENANT_ENABLED=false``), returns the
+    configured default tenant transparently.  When enabled, validates
+    the ``X-Tenant-ID`` header against the configured regex pattern.
+    """
+    settings = request.app.state.settings
+    if not settings.tenant.enabled:
+        return TenantContext(tenant_id=settings.tenant.default_tenant)
+
+    tenant_id = request.headers.get(settings.tenant.header_name)
+    if not tenant_id:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{settings.tenant.header_name} header required",
+        )
+
+    global _TENANT_ID_RE  # noqa: PLW0603
+    if _TENANT_ID_RE is None:
+        _TENANT_ID_RE = re.compile(settings.tenant.id_pattern)
+
+    if not _TENANT_ID_RE.match(tenant_id):
+        raise HTTPException(status_code=400, detail="Invalid tenant ID format")
+
+    return TenantContext(tenant_id=tenant_id)
+
 
 if TYPE_CHECKING:
     from context_graph.ports.event_store import EventStore, EventStoreAdmin

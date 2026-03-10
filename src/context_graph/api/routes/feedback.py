@@ -17,7 +17,12 @@ import structlog
 from fastapi import APIRouter, Depends
 from fastapi.responses import ORJSONResponse
 
-from context_graph.api.dependencies import get_event_store, get_graph_store
+from context_graph.api.dependencies import (
+    TenantContext,
+    get_event_store,
+    get_graph_store,
+    require_tenant,
+)
 from context_graph.domain.feedback import RetrievalFeedback  # noqa: TCH001 — runtime: Pydantic body
 from context_graph.ports.event_store import EventStore  # noqa: TCH001 — runtime: Depends
 from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runtime: Depends
@@ -28,6 +33,7 @@ router = APIRouter(prefix="/feedback", tags=["feedback"])
 
 EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
 GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
+TenantDep = Annotated[TenantContext, Depends(require_tenant)]
 
 # Importance adjustment constants
 HELPFUL_IMPORTANCE_BUMP = 1
@@ -41,6 +47,7 @@ async def submit_feedback(
     feedback: RetrievalFeedback,
     event_store: EventStoreDep,
     graph_store: GraphStoreDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Submit retrieval feedback to adjust node importance scores.
 
@@ -71,7 +78,11 @@ async def submit_feedback(
         "irrelevant_node_ids": feedback.irrelevant_node_ids,
     }
 
-    global_position = await event_store.append(feedback_event, payload=feedback_payload)
+    global_position = await event_store.append(
+        feedback_event,
+        payload=feedback_payload,
+        tenant_id=tenant.tenant_id,
+    )
 
     # Adjust importance scores on the graph
     bumped = 0
@@ -83,6 +94,7 @@ async def submit_feedback(
             delta=HELPFUL_IMPORTANCE_BUMP,
             min_value=MIN_IMPORTANCE,
             max_value=MAX_IMPORTANCE,
+            tenant_id=tenant.tenant_id,
         )
         if adjusted:
             bumped += 1
@@ -93,6 +105,7 @@ async def submit_feedback(
             delta=-IRRELEVANT_IMPORTANCE_DECREMENT,
             min_value=MIN_IMPORTANCE,
             max_value=MAX_IMPORTANCE,
+            tenant_id=tenant.tenant_id,
         )
         if adjusted:
             decremented += 1
@@ -116,4 +129,5 @@ async def submit_feedback(
             "bumped": bumped,
             "decremented": decremented,
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )

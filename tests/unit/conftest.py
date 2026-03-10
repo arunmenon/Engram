@@ -29,6 +29,7 @@ class InMemoryEventStore:
         self,
         event: Event,
         payload: dict[str, Any] | None = None,
+        tenant_id: str = "default",
     ) -> str:
         event_id_str = str(event.event_id)
         if event_id_str in self._events:
@@ -42,6 +43,7 @@ class InMemoryEventStore:
         self,
         events: list[Event],
         payloads: list[dict[str, Any] | None] | None = None,
+        tenant_id: str = "default",
     ) -> list[str]:
         positions: list[str] = []
         for idx, event in enumerate(events):
@@ -50,7 +52,7 @@ class InMemoryEventStore:
             positions.append(position)
         return positions
 
-    async def get_by_id(self, event_id: str) -> Event | None:
+    async def get_by_id(self, event_id: str, tenant_id: str = "default") -> Event | None:
         return self._events.get(event_id)
 
     async def get_by_session(
@@ -58,10 +60,11 @@ class InMemoryEventStore:
         session_id: str,
         limit: int = 100,
         after: str | None = None,
+        tenant_id: str = "default",
     ) -> list[Event]:
         return [e for e in self._events.values() if e.session_id == session_id][:limit]
 
-    async def search(self, query: EventQuery) -> list[Event]:
+    async def search(self, query: EventQuery, tenant_id: str = "default") -> list[Event]:
         return list(self._events.values())[: query.limit]
 
     async def ensure_indexes(self) -> None:
@@ -74,7 +77,7 @@ class InMemoryEventStore:
     async def health_ping(self) -> bool:
         return True
 
-    async def stream_length(self) -> int:
+    async def stream_length(self, tenant_id: str = "default") -> int:
         return self._counter
 
 
@@ -86,7 +89,7 @@ class StubGraphStore:
         # Configurable entity lookup response
         self._entities: dict[str, dict[str, object]] = {}
 
-    async def ensure_constraints(self) -> None:
+    async def ensure_constraints(self, tenant_id: str = "default") -> None:
         pass
 
     async def get_context(
@@ -96,22 +99,27 @@ class StubGraphStore:
         query: str | None = None,
         max_depth: int = 3,
         cursor: str | None = None,
+        tenant_id: str = "default",
     ) -> AtlasResponse:
         from context_graph.domain.models import AtlasResponse
 
         return AtlasResponse()
 
-    async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
+    async def get_subgraph(self, query: SubgraphQuery, tenant_id: str = "default") -> AtlasResponse:
         from context_graph.domain.models import AtlasResponse
 
         return AtlasResponse()
 
-    async def get_lineage(self, query: LineageQuery) -> AtlasResponse:
+    async def get_lineage(
+        self, query: LineageQuery, query_text: str | None = None, tenant_id: str = "default"
+    ) -> AtlasResponse:
         from context_graph.domain.models import AtlasResponse
 
         return AtlasResponse()
 
-    async def get_entity(self, entity_id: str) -> dict[str, object] | None:
+    async def get_entity(
+        self, entity_id: str, tenant_id: str = "default"
+    ) -> dict[str, object] | None:
         return self._entities.get(entity_id)
 
     async def close(self) -> None:
@@ -122,10 +130,10 @@ class StubGraphStore:
         return self._healthy
 
     # GraphMaintenance protocol
-    async def get_session_event_counts(self) -> dict[str, int]:
+    async def get_session_event_counts(self, tenant_id: str = "default") -> dict[str, int]:
         return {}
 
-    async def get_graph_stats(self) -> dict[str, Any]:
+    async def get_graph_stats(self, tenant_id: str = "default") -> dict[str, Any]:
         return {"nodes": {}, "edges": {}, "total_nodes": 0, "total_edges": 0}
 
     async def write_summary_with_edges(
@@ -138,57 +146,78 @@ class StubGraphStore:
         event_count: int,
         time_range: list[str],
         event_ids: list[str],
+        tenant_id: str = "default",
     ) -> None:
         pass
 
-    async def delete_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
-        return 0
-
-    async def delete_cold_events(
-        self, max_age_hours: int, min_importance: int, min_access_count: int
+    async def delete_edges_by_type_and_age(
+        self, min_score: float, max_age_hours: int, tenant_id: str = "default"
     ) -> int:
         return 0
 
-    async def delete_archive_events(self, event_ids: list[str]) -> int:
+    async def delete_cold_events(
+        self,
+        max_age_hours: int,
+        min_importance: int,
+        min_access_count: int,
+        tenant_id: str = "default",
+    ) -> int:
         return 0
 
-    async def get_archive_event_ids(self, max_age_hours: int) -> list[str]:
+    async def delete_archive_events(self, event_ids: list[str], tenant_id: str = "default") -> int:
+        return 0
+
+    async def get_archive_event_ids(
+        self, max_age_hours: int, tenant_id: str = "default"
+    ) -> list[str]:
         return []
 
-    async def delete_orphan_nodes(self, batch_size: int = 500) -> tuple[dict[str, int], list[str]]:
+    async def delete_orphan_nodes(
+        self, batch_size: int = 500, tenant_id: str = "default"
+    ) -> tuple[dict[str, int], list[str]]:
         return {}, []
 
-    async def update_importance_from_centrality(self) -> int:
+    async def update_importance_from_centrality(self, tenant_id: str = "default") -> int:
         return 0
 
     async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
         return []
 
     # UserStore protocol
-    async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
+    async def get_user_profile(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> dict[str, Any] | None:
         return None
 
     async def get_user_preferences(
-        self, user_id: str, active_only: bool = True
+        self, user_id: str, active_only: bool = True, tenant_id: str = "default"
     ) -> list[dict[str, Any]]:
         return []
 
-    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_skills(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         return []
 
-    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_patterns(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         return []
 
-    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_interests(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         return []
 
-    async def delete_user_data(self, user_id: str) -> int:
+    async def delete_user_data(self, user_id: str, tenant_id: str = "default") -> int:
         return 0
 
-    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+    async def export_user_data(self, user_id: str, tenant_id: str = "default") -> dict[str, Any]:
         return {}
 
-    async def write_user_profile(self, profile_data: dict[str, Any]) -> None:
+    async def write_user_profile(
+        self, profile_data: dict[str, Any], tenant_id: str = "default"
+    ) -> None:
         pass
 
     async def write_preference_with_edges(
@@ -197,6 +226,7 @@ class StubGraphStore:
         preference_data: dict[str, Any],
         source_event_ids: list[str],
         derivation_info: dict[str, Any],
+        tenant_id: str = "default",
     ) -> None:
         pass
 
@@ -206,6 +236,7 @@ class StubGraphStore:
         skill_data: dict[str, Any],
         source_event_ids: list[str],
         derivation_info: dict[str, Any],
+        tenant_id: str = "default",
     ) -> None:
         pass
 
@@ -216,6 +247,7 @@ class StubGraphStore:
         entity_type: str,
         weight: float,
         source: str,
+        tenant_id: str = "default",
     ) -> None:
         pass
 
@@ -226,6 +258,7 @@ class StubGraphStore:
         event_id: str,
         method: str,
         session_id: str,
+        tenant_id: str = "default",
     ) -> None:
         pass
 

@@ -139,7 +139,7 @@ class TestDeleteExpiredEvents:
 
     async def test_batch_size_passed_to_scan(self, mock_redis):
         await delete_expired_events(mock_redis, "evt:", max_age_days=90, batch_size=50)
-        mock_redis.scan.assert_called_with(cursor=0, match="evt:*", count=50)
+        mock_redis.scan.assert_called_with(cursor=0, match="t:default:evt:*", count=50)
 
     async def test_multiple_scan_pages(self, mock_redis):
         # First page returns cursor=42, second page returns cursor=0

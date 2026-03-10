@@ -50,7 +50,7 @@ class TestClaimOrphanedMessages:
         )
         await consumer._claim_orphaned_messages()
         redis.xautoclaim.assert_called_once_with(
-            name="stream:test",
+            name="t:default:stream:test",
             groupname="grp",
             consumername="c1",
             min_idle_time=300_000,
@@ -127,7 +127,7 @@ class TestDeadLetterQueue:
         await consumer._dead_letter_message("123-0", {"event_id": "abc"}, 6)
         redis.xadd.assert_called_once()
         call_args = redis.xadd.call_args
-        assert call_args[0][0] == "stream:test:dlq"  # DLQ stream key
+        assert call_args[0][0] == "t:default:stream:test:dlq"  # DLQ stream key
         dlq_data = call_args[0][1]
         assert dlq_data["original_entry_id"] == "123-0"
         assert dlq_data["event_id"] == "abc"
@@ -137,7 +137,7 @@ class TestDeadLetterQueue:
         redis = AsyncMock()
         consumer = StubConsumer(redis, "grp", "c1", "stream:test")
         await consumer._dead_letter_message("123-0", {}, 6)
-        redis.xack.assert_called_once_with("stream:test", "grp", "123-0")
+        redis.xack.assert_called_once_with("t:default:stream:test", "grp", "123-0")
 
     @pytest.mark.asyncio()
     async def test_dead_letter_includes_metadata(self):
@@ -145,7 +145,7 @@ class TestDeadLetterQueue:
         consumer = StubConsumer(redis, "grp", "c1", "stream:test")
         await consumer._dead_letter_message("123-0", {"event_id": "xyz"}, 7)
         dlq_data = redis.xadd.call_args[0][1]
-        assert dlq_data["original_stream"] == "stream:test"
+        assert dlq_data["original_stream"] == "t:default:stream:test"
         assert dlq_data["original_entry_id"] == "123-0"
         assert dlq_data["group"] == "grp"
         assert dlq_data["consumer"] == "c1"
@@ -154,7 +154,7 @@ class TestDeadLetterQueue:
     @pytest.mark.asyncio()
     async def test_dlq_stream_key_derived_correctly(self):
         consumer = StubConsumer(AsyncMock(), "grp", "c1", "events:__global__")
-        assert consumer._dlq_stream_key == "events:__global__:dlq"
+        assert consumer._dlq_stream_key == "t:default:events:__global__:dlq"
 
     @pytest.mark.asyncio()
     async def test_custom_dlq_suffix(self):
@@ -165,7 +165,7 @@ class TestDeadLetterQueue:
             "events:__global__",
             dlq_stream_suffix=".dead",
         )
-        assert consumer._dlq_stream_key == "events:__global__.dead"
+        assert consumer._dlq_stream_key == "t:default:events:__global__.dead"
 
 
 # =========================================================================
@@ -202,7 +202,7 @@ class TestGetDeliveryCounts:
         consumer = StubConsumer(redis, "grp", "c1", "stream:test", batch_size=20)
         await consumer._get_delivery_counts()
         redis.xpending_range.assert_called_once_with(
-            name="stream:test",
+            name="t:default:stream:test",
             groupname="grp",
             min="-",
             max="+",
@@ -271,7 +271,7 @@ class TestRunFlowIntegration:
 
         # Verify dead-letter was written
         redis.xadd.assert_called_once()
-        assert redis.xadd.call_args[0][0] == "stream:test:dlq"
+        assert redis.xadd.call_args[0][0] == "t:default:stream:test:dlq"
         # Verify ACK from source (via _dead_letter_message)
         redis.xack.assert_called()
 
@@ -413,7 +413,7 @@ class TestConsumerLagMetric:
         ]
         consumer = StubConsumer(redis, "test-group", "c1", "stream:test")
         await consumer._update_lag_metric()
-        redis.xinfo_groups.assert_called_once_with("stream:test")
+        redis.xinfo_groups.assert_called_once_with("t:default:stream:test")
 
     @pytest.mark.asyncio()
     async def test_update_lag_metric_ignores_other_groups(self):

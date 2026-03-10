@@ -16,37 +16,47 @@ from typing import Any, Protocol, runtime_checkable
 class UserStore(Protocol):
     """Protocol for user-specific graph operations."""
 
-    async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
+    async def get_user_profile(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> dict[str, Any] | None:
         """Fetch a user's profile node. Returns None if not found."""
         ...
 
     async def get_user_preferences(
-        self, user_id: str, active_only: bool = True
+        self, user_id: str, active_only: bool = True, tenant_id: str = "default"
     ) -> list[dict[str, Any]]:
         """Fetch a user's preferences."""
         ...
 
-    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_skills(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         """Fetch a user's skills."""
         ...
 
-    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_patterns(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         """Fetch a user's behavioral patterns."""
         ...
 
-    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_interests(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         """Fetch a user's interests."""
         ...
 
-    async def delete_user_data(self, user_id: str) -> int:
+    async def delete_user_data(self, user_id: str, tenant_id: str = "default") -> int:
         """GDPR cascade delete. Returns the number of affected entities."""
         ...
 
-    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+    async def export_user_data(self, user_id: str, tenant_id: str = "default") -> dict[str, Any]:
         """GDPR export: return all data associated with a user."""
         ...
 
-    async def write_user_profile(self, profile_data: dict[str, Any]) -> None:
+    async def write_user_profile(
+        self, profile_data: dict[str, Any], tenant_id: str = "default"
+    ) -> None:
         """Create or update a user profile with HAS_PROFILE edge."""
         ...
 
@@ -56,6 +66,7 @@ class UserStore(Protocol):
         preference_data: dict[str, Any],
         source_event_ids: list[str],
         derivation_info: dict[str, Any],
+        tenant_id: str = "default",
     ) -> None:
         """Write a Preference node with HAS_PREFERENCE, ABOUT, and DERIVED_FROM edges."""
         ...
@@ -66,6 +77,7 @@ class UserStore(Protocol):
         skill_data: dict[str, Any],
         source_event_ids: list[str],
         derivation_info: dict[str, Any],
+        tenant_id: str = "default",
     ) -> None:
         """Write a Skill node with HAS_SKILL and DERIVED_FROM edges."""
         ...
@@ -77,6 +89,7 @@ class UserStore(Protocol):
         entity_type: str,
         weight: float,
         source: str,
+        tenant_id: str = "default",
     ) -> None:
         """Create an INTERESTED_IN edge from user to a target entity."""
         ...
@@ -88,6 +101,7 @@ class UserStore(Protocol):
         event_id: str,
         method: str,
         session_id: str,
+        tenant_id: str = "default",
     ) -> None:
         """Write a single DERIVED_FROM edge from a source node to an event."""
         ...
@@ -96,6 +110,7 @@ class UserStore(Protocol):
         self,
         preference_id: str,
         superseded_by: str,
+        tenant_id: str = "default",
     ) -> None:
         """Mark a preference as superseded by another preference."""
         ...

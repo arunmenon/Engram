@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 import structlog
 from neo4j import AsyncGraphDatabase
 
+from context_graph.adapters.circuit_breaker import CircuitBreaker
 from context_graph.adapters.neo4j import queries
 from context_graph.adapters.neo4j.retrieval import RetrievalDeps, RetrievalPipeline
 from context_graph.domain.lineage import validate_traversal_bounds
@@ -33,7 +34,7 @@ from context_graph.domain.models import (
 )
 from context_graph.domain.pagination import decode_cursor, encode_cursor
 from context_graph.domain.scoring import score_node
-from context_graph.metrics import GRAPH_QUERY_DURATION
+from context_graph.metrics import GRAPH_QUERY_DURATION, NEO4J_OP_DURATION
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -53,7 +54,13 @@ if TYPE_CHECKING:
     from context_graph.ports.event_store import EventStore
     from context_graph.ports.intent import IntentClassifier
     from context_graph.ports.llm import LLMClient
-    from context_graph.settings import DecaySettings, Neo4jSettings, PPRSettings, QuerySettings
+    from context_graph.settings import (
+        CircuitBreakerSettings,
+        DecaySettings,
+        Neo4jSettings,
+        PPRSettings,
+        QuerySettings,
+    )
 
 logger = structlog.get_logger(__name__)
 
@@ -81,10 +88,28 @@ _EDGE_QUERIES: dict[str, str] = {
     EdgeType.CONTAINS: queries.MERGE_CONTAINS,
 }
 
-# Map EdgeType -> UNWIND batch template (only for high-volume types)
+# Map EdgeType -> UNWIND batch template (all 20 edge types)
 _BATCH_EDGE_QUERIES: dict[str, str] = {
     EdgeType.FOLLOWS: queries.BATCH_MERGE_FOLLOWS,
     EdgeType.CAUSED_BY: queries.BATCH_MERGE_CAUSED_BY,
+    EdgeType.SIMILAR_TO: queries.BATCH_MERGE_SIMILAR_TO,
+    EdgeType.REFERENCES: queries.BATCH_MERGE_REFERENCES,
+    EdgeType.SUMMARIZES: queries.BATCH_MERGE_SUMMARIZES,
+    EdgeType.SAME_AS: queries.BATCH_MERGE_SAME_AS,
+    EdgeType.RELATED_TO: queries.BATCH_MERGE_RELATED_TO,
+    EdgeType.HAS_PROFILE: queries.BATCH_MERGE_HAS_PROFILE,
+    EdgeType.HAS_PREFERENCE: queries.BATCH_MERGE_HAS_PREFERENCE,
+    EdgeType.HAS_SKILL: queries.BATCH_MERGE_HAS_SKILL,
+    EdgeType.DERIVED_FROM: queries.BATCH_MERGE_DERIVED_FROM,
+    EdgeType.EXHIBITS_PATTERN: queries.BATCH_MERGE_EXHIBITS_PATTERN,
+    EdgeType.INTERESTED_IN: queries.BATCH_MERGE_INTERESTED_IN,
+    EdgeType.ABOUT: queries.BATCH_MERGE_ABOUT,
+    EdgeType.ABSTRACTED_FROM: queries.BATCH_MERGE_ABSTRACTED_FROM,
+    EdgeType.PARENT_SKILL: queries.BATCH_MERGE_PARENT_SKILL,
+    EdgeType.CONTRADICTS: queries.BATCH_MERGE_CONTRADICTS,
+    EdgeType.SUPERSEDES: queries.BATCH_MERGE_SUPERSEDES,
+    EdgeType.PURSUES: queries.BATCH_MERGE_PURSUES,
+    EdgeType.CONTAINS: queries.BATCH_MERGE_CONTAINS,
 }
 
 
@@ -107,12 +132,32 @@ class Neo4jGraphStore:
         llm_client: LLMClient | None = None,
         event_store: EventStore | None = None,
         ppr_settings: PPRSettings | None = None,
+        cb_settings: CircuitBreakerSettings | None = None,
     ) -> None:
         self._settings = settings
         self._driver: AsyncDriver = AsyncGraphDatabase.driver(
             settings.uri,
             auth=(settings.username, settings.password.get_secret_value()),
             max_connection_pool_size=settings.max_connection_pool_size,
+            connection_acquisition_timeout=settings.connection_acquisition_timeout,
+            max_connection_lifetime=settings.max_connection_lifetime,
+            liveness_check_timeout=settings.connection_liveness_check_timeout,
+        )
+        # Circuit breaker for write operations
+        if cb_settings is None:
+            from context_graph.settings import CircuitBreakerSettings
+
+            cb_settings = CircuitBreakerSettings()
+        self._write_cb = CircuitBreaker(
+            "neo4j_write",
+            failure_threshold=cb_settings.neo4j_failure_threshold,
+            recovery_timeout=cb_settings.neo4j_recovery_timeout,
+        )
+        # Circuit breaker for read operations (higher threshold, same recovery)
+        self._read_cb = CircuitBreaker(
+            "neo4j_read",
+            failure_threshold=cb_settings.neo4j_read_failure_threshold,
+            recovery_timeout=cb_settings.neo4j_read_recovery_timeout,
         )
         self._database = settings.database
         self._embedding_service = embedding_service
@@ -151,7 +196,7 @@ class Neo4jGraphStore:
     # Node operations
     # ------------------------------------------------------------------
 
-    async def merge_event_node(self, node: EventNode) -> None:
+    async def merge_event_node(self, node: EventNode, tenant_id: str = "default") -> None:
         """MERGE an event node into the graph. Idempotent."""
         params = {
             "event_id": node.event_id,
@@ -169,12 +214,19 @@ class Neo4jGraphStore:
             "last_accessed_at": (
                 node.last_accessed_at.isoformat() if node.last_accessed_at else None
             ),
+            "tenant_id": tenant_id,
         }
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_EVENT_NODE, params))
-        logger.debug("merged_event_node", event_id=node.event_id)
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_EVENT_NODE, params)
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_event_node").observe(time.monotonic() - t0)
+        logger.debug("merged_event_node", event_id=node.event_id, tenant_id=tenant_id)
 
-    async def merge_event_nodes_batch(self, nodes: list[EventNode]) -> None:
+    async def merge_event_nodes_batch(
+        self, nodes: list[EventNode], tenant_id: str = "default"
+    ) -> None:
         """MERGE a batch of event nodes in a single UNWIND transaction."""
         if not nodes:
             return
@@ -195,16 +247,20 @@ class Neo4jGraphStore:
                 "last_accessed_at": (
                     node.last_accessed_at.isoformat() if node.last_accessed_at else None
                 ),
+                "tenant_id": tenant_id,
             }
             for node in nodes
         ]
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(
-                lambda tx: tx.run(queries.BATCH_MERGE_EVENT_NODES, {"events": events_params})
+            await self._write_cb.call(
+                session.execute_write,
+                lambda tx: tx.run(queries.BATCH_MERGE_EVENT_NODES, {"events": events_params}),
             )
-        logger.debug("merged_event_nodes_batch", count=len(nodes))
+        NEO4J_OP_DURATION.labels(operation="merge_event_nodes_batch").observe(time.monotonic() - t0)
+        logger.debug("merged_event_nodes_batch", count=len(nodes), tenant_id=tenant_id)
 
-    async def merge_entity_node(self, node: EntityNode) -> None:
+    async def merge_entity_node(self, node: EntityNode, tenant_id: str = "default") -> None:
         """MERGE an entity node into the graph. Idempotent."""
         params = {
             "entity_id": node.entity_id,
@@ -214,12 +270,47 @@ class Neo4jGraphStore:
             "last_seen": node.last_seen.isoformat(),
             "mention_count": node.mention_count,
             "embedding": node.embedding,
+            "tenant_id": tenant_id,
         }
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params))
-        logger.debug("merged_entity_node", entity_id=node.entity_id)
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params)
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_entity_node").observe(time.monotonic() - t0)
+        logger.debug("merged_entity_node", entity_id=node.entity_id, tenant_id=tenant_id)
 
-    async def merge_summary_node(self, node: SummaryNode) -> None:
+    async def merge_entity_nodes_batch(
+        self, nodes: list[EntityNode], tenant_id: str = "default"
+    ) -> None:
+        """MERGE a batch of entity nodes in a single UNWIND transaction."""
+        if not nodes:
+            return
+        node_params = [
+            {
+                "entity_id": node.entity_id,
+                "name": node.name,
+                "entity_type": str(node.entity_type),
+                "first_seen": node.first_seen.isoformat(),
+                "last_seen": node.last_seen.isoformat(),
+                "mention_count": node.mention_count,
+                "embedding": node.embedding,
+                "tenant_id": tenant_id,
+            }
+            for node in nodes
+        ]
+        t0 = time.monotonic()
+        async with self._driver.session(database=self._database) as session:
+            await self._write_cb.call(
+                session.execute_write,
+                lambda tx: tx.run(queries.BATCH_MERGE_ENTITY_NODES, {"nodes": node_params}),
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_entity_nodes_batch").observe(
+            time.monotonic() - t0
+        )
+        logger.debug("merged_entity_nodes_batch", count=len(nodes), tenant_id=tenant_id)
+
+    async def merge_summary_node(self, node: SummaryNode, tenant_id: str = "default") -> None:
         """MERGE a summary node into the graph. Idempotent."""
         params = {
             "summary_id": node.summary_id,
@@ -229,12 +320,47 @@ class Neo4jGraphStore:
             "created_at": node.created_at.isoformat(),
             "event_count": node.event_count,
             "time_range": [dt.isoformat() for dt in node.time_range],
+            "tenant_id": tenant_id,
         }
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_SUMMARY_NODE, params))
-        logger.debug("merged_summary_node", summary_id=node.summary_id)
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_SUMMARY_NODE, params)
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_summary_node").observe(time.monotonic() - t0)
+        logger.debug("merged_summary_node", summary_id=node.summary_id, tenant_id=tenant_id)
 
-    async def merge_belief_node(self, node: BeliefNode) -> None:
+    async def merge_summary_nodes_batch(
+        self, nodes: list[SummaryNode], tenant_id: str = "default"
+    ) -> None:
+        """MERGE a batch of summary nodes in a single UNWIND transaction."""
+        if not nodes:
+            return
+        node_params = [
+            {
+                "summary_id": node.summary_id,
+                "scope": node.scope,
+                "scope_id": node.scope_id,
+                "content": node.content,
+                "created_at": node.created_at.isoformat(),
+                "event_count": node.event_count,
+                "time_range": [dt.isoformat() for dt in node.time_range],
+                "tenant_id": tenant_id,
+            }
+            for node in nodes
+        ]
+        t0 = time.monotonic()
+        async with self._driver.session(database=self._database) as session:
+            await self._write_cb.call(
+                session.execute_write,
+                lambda tx: tx.run(queries.BATCH_MERGE_SUMMARY_NODES, {"nodes": node_params}),
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_summary_nodes_batch").observe(
+            time.monotonic() - t0
+        )
+        logger.debug("merged_summary_nodes_batch", count=len(nodes), tenant_id=tenant_id)
+
+    async def merge_belief_node(self, node: BeliefNode, tenant_id: str = "default") -> None:
         """MERGE a belief node into the graph. Idempotent."""
         params = {
             "belief_id": node.belief_id,
@@ -245,12 +371,48 @@ class Neo4jGraphStore:
             "last_confirmed_at": node.last_confirmed_at.isoformat(),
             "confirmation_count": node.confirmation_count,
             "superseded_by": node.superseded_by,
+            "tenant_id": tenant_id,
         }
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_BELIEF_NODE, params))
-        logger.debug("merged_belief_node", belief_id=node.belief_id)
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_BELIEF_NODE, params)
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_belief_node").observe(time.monotonic() - t0)
+        logger.debug("merged_belief_node", belief_id=node.belief_id, tenant_id=tenant_id)
 
-    async def merge_goal_node(self, node: GoalNode) -> None:
+    async def merge_belief_nodes_batch(
+        self, nodes: list[BeliefNode], tenant_id: str = "default"
+    ) -> None:
+        """MERGE a batch of belief nodes in a single UNWIND transaction."""
+        if not nodes:
+            return
+        node_params = [
+            {
+                "belief_id": node.belief_id,
+                "belief_text": node.belief_text,
+                "confidence": node.confidence,
+                "category": str(node.category),
+                "created_at": node.created_at.isoformat(),
+                "last_confirmed_at": node.last_confirmed_at.isoformat(),
+                "confirmation_count": node.confirmation_count,
+                "superseded_by": node.superseded_by,
+                "tenant_id": tenant_id,
+            }
+            for node in nodes
+        ]
+        t0 = time.monotonic()
+        async with self._driver.session(database=self._database) as session:
+            await self._write_cb.call(
+                session.execute_write,
+                lambda tx: tx.run(queries.BATCH_MERGE_BELIEF_NODES, {"nodes": node_params}),
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_belief_nodes_batch").observe(
+            time.monotonic() - t0
+        )
+        logger.debug("merged_belief_nodes_batch", count=len(nodes), tenant_id=tenant_id)
+
+    async def merge_goal_node(self, node: GoalNode, tenant_id: str = "default") -> None:
         """MERGE a goal node into the graph. Idempotent."""
         params = {
             "goal_id": node.goal_id,
@@ -260,12 +422,45 @@ class Neo4jGraphStore:
             "last_active_at": node.last_active_at.isoformat(),
             "priority": node.priority,
             "evidence_count": node.evidence_count,
+            "tenant_id": tenant_id,
         }
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_GOAL_NODE, params))
-        logger.debug("merged_goal_node", goal_id=node.goal_id)
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_GOAL_NODE, params)
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_goal_node").observe(time.monotonic() - t0)
+        logger.debug("merged_goal_node", goal_id=node.goal_id, tenant_id=tenant_id)
 
-    async def merge_episode_node(self, node: EpisodeNode) -> None:
+    async def merge_goal_nodes_batch(
+        self, nodes: list[GoalNode], tenant_id: str = "default"
+    ) -> None:
+        """MERGE a batch of goal nodes in a single UNWIND transaction."""
+        if not nodes:
+            return
+        node_params = [
+            {
+                "goal_id": node.goal_id,
+                "description": node.description,
+                "status": str(node.status),
+                "created_at": node.created_at.isoformat(),
+                "last_active_at": node.last_active_at.isoformat(),
+                "priority": node.priority,
+                "evidence_count": node.evidence_count,
+                "tenant_id": tenant_id,
+            }
+            for node in nodes
+        ]
+        t0 = time.monotonic()
+        async with self._driver.session(database=self._database) as session:
+            await self._write_cb.call(
+                session.execute_write,
+                lambda tx: tx.run(queries.BATCH_MERGE_GOAL_NODES, {"nodes": node_params}),
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_goal_nodes_batch").observe(time.monotonic() - t0)
+        logger.debug("merged_goal_nodes_batch", count=len(nodes), tenant_id=tenant_id)
+
+    async def merge_episode_node(self, node: EpisodeNode, tenant_id: str = "default") -> None:
         """MERGE an episode node into the graph. Idempotent."""
         params = {
             "episode_id": node.episode_id,
@@ -275,16 +470,51 @@ class Neo4jGraphStore:
             "event_count": node.event_count,
             "episode_type": str(node.episode_type),
             "summary_id": node.summary_id,
+            "tenant_id": tenant_id,
         }
+        t0 = time.monotonic()
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_EPISODE_NODE, params))
-        logger.debug("merged_episode_node", episode_id=node.episode_id)
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_EPISODE_NODE, params)
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_episode_node").observe(time.monotonic() - t0)
+        logger.debug("merged_episode_node", episode_id=node.episode_id, tenant_id=tenant_id)
+
+    async def merge_episode_nodes_batch(
+        self, nodes: list[EpisodeNode], tenant_id: str = "default"
+    ) -> None:
+        """MERGE a batch of episode nodes in a single UNWIND transaction."""
+        if not nodes:
+            return
+        node_params = [
+            {
+                "episode_id": node.episode_id,
+                "session_id": node.session_id,
+                "start_time": node.start_time.isoformat(),
+                "end_time": node.end_time.isoformat(),
+                "event_count": node.event_count,
+                "episode_type": str(node.episode_type),
+                "summary_id": node.summary_id,
+                "tenant_id": tenant_id,
+            }
+            for node in nodes
+        ]
+        t0 = time.monotonic()
+        async with self._driver.session(database=self._database) as session:
+            await self._write_cb.call(
+                session.execute_write,
+                lambda tx: tx.run(queries.BATCH_MERGE_EPISODE_NODES, {"nodes": node_params}),
+            )
+        NEO4J_OP_DURATION.labels(operation="merge_episode_nodes_batch").observe(
+            time.monotonic() - t0
+        )
+        logger.debug("merged_episode_nodes_batch", count=len(nodes), tenant_id=tenant_id)
 
     # ------------------------------------------------------------------
     # Edge operations
     # ------------------------------------------------------------------
 
-    async def create_edge(self, edge: Edge) -> None:
+    async def create_edge(self, edge: Edge, tenant_id: str = "default") -> None:
         """Create or update an edge between two nodes."""
         query = _EDGE_QUERIES.get(edge.edge_type)
         if query is None:
@@ -295,21 +525,23 @@ class Neo4jGraphStore:
             "source_id": edge.source,
             "target_id": edge.target,
             "props": edge.properties,
+            "tenant_id": tenant_id,
         }
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(query, params))
+            await self._write_cb.call(session.execute_write, lambda tx: tx.run(query, params))
         logger.debug(
             "created_edge",
             edge_type=edge.edge_type,
             source=edge.source,
             target=edge.target,
+            tenant_id=tenant_id,
         )
 
-    async def create_edges_batch(self, edges: list[Edge]) -> None:
+    async def create_edges_batch(self, edges: list[Edge], tenant_id: str = "default") -> None:
         """Create or update edges in batch.
 
-        Groups edges by type. Types with UNWIND batch templates use a single
-        query per type. Other types fall back to individual MERGE operations.
+        Groups edges by type. All 20 edge types have UNWIND batch templates,
+        so each type group is written in a single Cypher statement per type.
         """
         if not edges:
             return
@@ -319,41 +551,30 @@ class Neo4jGraphStore:
         for edge in edges:
             edges_by_type.setdefault(edge.edge_type, []).append(edge)
 
+        t0 = time.monotonic()
+
         async with self._driver.session(database=self._database) as session:
 
             async def _write_batch(tx: Any) -> None:
                 for edge_type, typed_edges in edges_by_type.items():
                     batch_query = _BATCH_EDGE_QUERIES.get(edge_type)
-                    if batch_query is not None:
-                        # Use UNWIND batch for supported types
-                        edge_params = [
-                            {
-                                "source_id": e.source,
-                                "target_id": e.target,
-                                "props": e.properties,
-                            }
-                            for e in typed_edges
-                        ]
-                        await tx.run(batch_query, {"edges": edge_params})
-                    else:
-                        # Fall back to individual MERGE for other types
-                        query = _EDGE_QUERIES.get(edge_type)
-                        if query is None:
-                            logger.warning("skipping_unknown_edge_type", edge_type=edge_type)
-                            continue
-                        for e in typed_edges:
-                            await tx.run(
-                                query,
-                                {
-                                    "source_id": e.source,
-                                    "target_id": e.target,
-                                    "props": e.properties,
-                                },
-                            )
+                    if batch_query is None:
+                        logger.warning("skipping_unknown_edge_type", edge_type=edge_type)
+                        continue
+                    edge_params = [
+                        {
+                            "source_id": e.source,
+                            "target_id": e.target,
+                            "props": e.properties,
+                        }
+                        for e in typed_edges
+                    ]
+                    await tx.run(batch_query, {"edges": edge_params, "tenant_id": tenant_id})
 
-            await session.execute_write(_write_batch)
+            await self._write_cb.call(session.execute_write, _write_batch)
 
-        logger.debug("created_edges_batch", count=len(edges))
+        NEO4J_OP_DURATION.labels(operation="create_edges_batch").observe(time.monotonic() - t0)
+        logger.debug("created_edges_batch", count=len(edges), tenant_id=tenant_id)
 
     # ------------------------------------------------------------------
     # Schema management
@@ -364,6 +585,7 @@ class Neo4jGraphStore:
         query_embedding: list[float],
         top_k: int = 10,
         threshold: float = 0.75,
+        tenant_id: str = "default",
     ) -> list[dict[str, Any]]:
         """Search for similar entities using the Neo4j vector index.
 
@@ -374,23 +596,28 @@ class Neo4jGraphStore:
             "query_embedding": query_embedding,
             "top_k": top_k,
             "threshold": threshold,
+            "tenant_id": tenant_id,
         }
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(
-                queries.SEARCH_SIMILAR_ENTITIES, params, timeout=self._query_timeout_s
-            )
-            records = [record async for record in result]
-        return [
-            {
-                "entity_id": r["entity_id"],
-                "name": r["name"],
-                "entity_type": r["entity_type"],
-                "score": r["score"],
-            }
-            for r in records
-        ]
 
-    async def ensure_constraints(self) -> None:
+        async def _read() -> list[dict[str, Any]]:
+            async with self._driver.session(database=self._database) as session:
+                result = await session.run(
+                    queries.SEARCH_SIMILAR_ENTITIES, params, timeout=self._query_timeout_s
+                )
+                records = [record async for record in result]
+            return [
+                {
+                    "entity_id": r["entity_id"],
+                    "name": r["name"],
+                    "entity_type": r["entity_type"],
+                    "score": r["score"],
+                }
+                for r in records
+            ]
+
+        return await self._read_cb.call(_read)  # type: ignore[no-any-return]
+
+    async def ensure_constraints(self, tenant_id: str = "default") -> None:
         """Create uniqueness constraints and performance indexes if they do not exist."""
         async with self._driver.session(database=self._database) as session:
             for constraint_query in queries.ALL_CONSTRAINTS:
@@ -481,6 +708,23 @@ class Neo4jGraphStore:
                 return label
         return labels[0] if labels else "Unknown"
 
+    async def _read_query(
+        self, cypher: str, params: dict[str, Any], timeout: float | None = None
+    ) -> list[Any]:
+        """Run a read query through the read circuit breaker.
+
+        Returns a list of records. Raises CircuitOpenError if the read
+        circuit is open.
+        """
+        _timeout = timeout if timeout is not None else self._query_timeout_s
+
+        async def _run() -> list[Any]:
+            async with self._driver.session(database=self._database) as session:
+                result = await session.run(cypher, params, timeout=_timeout)
+                return [record async for record in result]
+
+        return await self._read_cb.call(_run)  # type: ignore[no-any-return]
+
     async def _embed_query(self, query_text: str | None) -> list[float] | None:
         """Embed query text if embedding service is available."""
         if self._embedding_service is None or not query_text:
@@ -491,7 +735,7 @@ class Neo4jGraphStore:
             logger.warning("query_embedding_failed", query=query_text[:50])
             return None
 
-    async def _bump_access_counts(self, event_ids: list[str]) -> None:
+    async def _bump_access_counts(self, event_ids: list[str], tenant_id: str = "default") -> None:
         """Increment access_count for a batch of event nodes."""
         if not event_ids:
             return
@@ -500,7 +744,7 @@ class Neo4jGraphStore:
             await session.execute_write(
                 lambda tx: tx.run(
                     queries.BATCH_UPDATE_ACCESS_COUNT,
-                    {"event_ids": event_ids, "now": now_iso},
+                    {"event_ids": event_ids, "now": now_iso, "tenant_id": tenant_id},
                 )
             )
 
@@ -511,6 +755,7 @@ class Neo4jGraphStore:
         query: str | None = None,
         max_depth: int = 3,
         cursor: str | None = None,
+        tenant_id: str = "default",
     ) -> AtlasResponse:
         """Assemble working memory context for a session."""
         start_ms = time.monotonic_ns()
@@ -529,23 +774,23 @@ class Neo4jGraphStore:
         if cursor_ts:
             cypher = (
                 "MATCH (e:Event {session_id: $session_id}) "
-                "WHERE e.occurred_at > $cursor_ts "
-                "   OR (e.occurred_at = $cursor_ts AND e.event_id > $cursor_id) "
+                "WHERE e.tenant_id = $tenant_id "
+                "  AND (e.occurred_at > $cursor_ts "
+                "   OR (e.occurred_at = $cursor_ts AND e.event_id > $cursor_id)) "
                 "RETURN e ORDER BY e.occurred_at ASC LIMIT $limit"
             )
             params: dict[str, Any] = {
                 "session_id": session_id,
+                "tenant_id": tenant_id,
                 "cursor_ts": cursor_ts,
                 "cursor_id": cursor_id,
                 "limit": fetch_limit,
             }
         else:
             cypher = queries.GET_SESSION_EVENTS
-            params = {"session_id": session_id, "limit": fetch_limit}
+            params = {"session_id": session_id, "tenant_id": tenant_id, "limit": fetch_limit}
 
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(cypher, params, timeout=self._query_timeout_s)
-            records = [record async for record in result]
+        records = await self._read_query(cypher, params)
 
         has_more = len(records) > max_nodes
         if has_more:
@@ -578,18 +823,15 @@ class Neo4jGraphStore:
 
         # Bump access counts
         event_ids = [eid for eid, _, _ in scored_entries]
-        await self._bump_access_counts(event_ids)
+        await self._bump_access_counts(event_ids, tenant_id=tenant_id)
 
         # Fetch edges between session events
         edges: list[AtlasEdge] = []
         if event_ids:
-            async with self._driver.session(database=self._database) as session:
-                edge_result = await session.run(
-                    queries.GET_SESSION_EDGES,
-                    {"session_id": session_id, "event_ids": event_ids},
-                    timeout=self._query_timeout_s,
-                )
-                edge_records = [record async for record in edge_result]
+            edge_records = await self._read_query(
+                queries.GET_SESSION_EDGES,
+                {"session_id": session_id, "event_ids": event_ids, "tenant_id": tenant_id},
+            )
             for erec in edge_records:
                 edges.append(
                     AtlasEdge(
@@ -602,13 +844,10 @@ class Neo4jGraphStore:
 
         # Fetch non-Event neighbor nodes (Entity, Preference, Skill, etc.)
         if event_ids:
-            async with self._driver.session(database=self._database) as session:
-                nbr_result = await session.run(
-                    queries.GET_SESSION_NEIGHBORS,
-                    {"session_id": session_id, "event_ids": event_ids},
-                    timeout=self._query_timeout_s,
-                )
-                nbr_records = [record async for record in nbr_result]
+            nbr_records = await self._read_query(
+                queries.GET_SESSION_NEIGHBORS,
+                {"session_id": session_id, "event_ids": event_ids, "tenant_id": tenant_id},
+            )
 
             neighbor_ids: list[str] = []
             for nrec in nbr_records:
@@ -652,13 +891,10 @@ class Neo4jGraphStore:
 
             # Fetch edges between neighbor nodes (SAME_AS, HAS_PREFERENCE, etc.)
             if neighbor_ids:
-                async with self._driver.session(database=self._database) as session:
-                    inter_result = await session.run(
-                        queries.GET_NEIGHBOR_INTER_EDGES,
-                        {"neighbor_ids": neighbor_ids},
-                        timeout=self._query_timeout_s,
-                    )
-                    inter_records = [record async for record in inter_result]
+                inter_records = await self._read_query(
+                    queries.GET_NEIGHBOR_INTER_EDGES,
+                    {"neighbor_ids": neighbor_ids, "tenant_id": tenant_id},
+                )
                 for irec in inter_records:
                     edges.append(
                         AtlasEdge(
@@ -700,7 +936,7 @@ class Neo4jGraphStore:
         )
 
     async def get_lineage(
-        self, query: LineageQuery, query_text: str | None = None
+        self, query: LineageQuery, query_text: str | None = None, tenant_id: str = "default"
     ) -> AtlasResponse:
         """Traverse lineage (CAUSED_BY chains) from a node."""
         start_ms = time.monotonic_ns()
@@ -724,17 +960,15 @@ class Neo4jGraphStore:
 
         fetch_limit = clamped_nodes + 1
 
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(
-                queries.GET_LINEAGE,
-                {
-                    "node_id": query.node_id,
-                    "max_depth": clamped_depth,
-                    "max_nodes": fetch_limit,
-                },
-                timeout=self._query_timeout_s,
-            )
-            records = [record async for record in result]
+        records = await self._read_query(
+            queries.GET_LINEAGE,
+            {
+                "node_id": query.node_id,
+                "max_depth": clamped_depth,
+                "max_nodes": fetch_limit,
+                "tenant_id": tenant_id,
+            },
+        )
 
         # Apply offset for pagination
         if offset > 0:
@@ -783,7 +1017,7 @@ class Neo4jGraphStore:
                         )
                     )
 
-        await self._bump_access_counts(list(nodes.keys()))
+        await self._bump_access_counts(list(nodes.keys()), tenant_id=tenant_id)
 
         # Build next cursor (offset-based)
         next_cursor: str | None = None
@@ -812,19 +1046,16 @@ class Neo4jGraphStore:
             meta=meta,
         )
 
-    async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
+    async def get_subgraph(self, query: SubgraphQuery, tenant_id: str = "default") -> AtlasResponse:
         """Delegate to the retrieval pipeline for subgraph queries."""
-        return await self._retrieval.get_subgraph(query)
+        return await self._retrieval.get_subgraph(query, tenant_id=tenant_id)
 
-    async def get_entity(self, entity_id: str) -> dict[str, Any] | None:
+    async def get_entity(self, entity_id: str, tenant_id: str = "default") -> dict[str, Any] | None:
         """Retrieve an entity and its connected events."""
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(
-                queries.GET_ENTITY_WITH_EVENTS,
-                {"entity_id": entity_id, "limit": 100},
-                timeout=self._query_timeout_s,
-            )
-            records = [record async for record in result]
+        records = await self._read_query(
+            queries.GET_ENTITY_WITH_EVENTS,
+            {"entity_id": entity_id, "limit": 100, "tenant_id": tenant_id},
+        )
 
         if not records:
             return None
@@ -850,7 +1081,9 @@ class Neo4jGraphStore:
     # Entity cluster consolidation (transitive closure)
     # ------------------------------------------------------------------
 
-    async def consolidate_entity_cluster(self, cluster_ids: list[str], canonical_id: str) -> None:
+    async def consolidate_entity_cluster(
+        self, cluster_ids: list[str], canonical_id: str, tenant_id: str = "default"
+    ) -> None:
         """Ensure all entities in a cluster have SAME_AS edges to the canonical.
 
         Uses MERGE for idempotent edge creation. Members that are already
@@ -869,6 +1102,7 @@ class Neo4jGraphStore:
             "member_ids": member_ids,
             "canonical_id": canonical_id,
             "resolved_at": now_iso,
+            "tenant_id": tenant_id,
         }
 
         async with self._driver.session(database=self._database) as session:
@@ -884,15 +1118,14 @@ class Neo4jGraphStore:
             member_count=len(member_ids),
         )
 
-    async def get_entity_with_cluster(self, entity_id: str) -> dict[str, Any] | None:
+    async def get_entity_with_cluster(
+        self, entity_id: str, tenant_id: str = "default"
+    ) -> dict[str, Any] | None:
         """Retrieve an entity, its SAME_AS cluster, and connected events."""
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(
-                queries.GET_ENTITY_WITH_CLUSTER,
-                {"entity_id": entity_id, "limit": 100},
-                timeout=self._query_timeout_s,
-            )
-            records = [record async for record in result]
+        records = await self._read_query(
+            queries.GET_ENTITY_WITH_CLUSTER,
+            {"entity_id": entity_id, "limit": 100, "tenant_id": tenant_id},
+        )
 
         if not records:
             return None
@@ -936,17 +1169,19 @@ class Neo4jGraphStore:
     # GraphMaintenance protocol — delegates to maintenance module
     # ------------------------------------------------------------------
 
-    async def get_session_event_counts(self) -> dict[str, int]:
+    async def get_session_event_counts(self, tenant_id: str = "default") -> dict[str, int]:
         """Count events per session in the graph."""
         from context_graph.adapters.neo4j import maintenance
 
-        return await maintenance.get_session_event_counts(self._driver, self._database)
+        return await maintenance.get_session_event_counts(
+            self._driver, self._database, tenant_id=tenant_id
+        )
 
-    async def get_graph_stats(self) -> dict[str, Any]:
+    async def get_graph_stats(self, tenant_id: str = "default") -> dict[str, Any]:
         """Get node and edge counts by type."""
         from context_graph.adapters.neo4j import maintenance
 
-        return await maintenance.get_graph_stats(self._driver, self._database)
+        return await maintenance.get_graph_stats(self._driver, self._database, tenant_id=tenant_id)
 
     async def write_summary_with_edges(
         self,
@@ -958,6 +1193,7 @@ class Neo4jGraphStore:
         event_count: int,
         time_range: list[str],
         event_ids: list[str],
+        tenant_id: str = "default",
     ) -> None:
         """Write a summary node and SUMMARIZES edges."""
         from context_graph.adapters.neo4j import maintenance
@@ -973,18 +1209,20 @@ class Neo4jGraphStore:
             event_count=event_count,
             time_range=time_range,
             event_ids=event_ids,
+            tenant_id=tenant_id,
         )
 
     async def delete_edges_by_type_and_age(
         self,
         min_score: float,
         max_age_hours: int,
+        tenant_id: str = "default",
     ) -> int:
         """Delete SIMILAR_TO edges below a score threshold."""
         from context_graph.adapters.neo4j import maintenance
 
         return await maintenance.delete_edges_by_type_and_age(
-            self._driver, self._database, min_score, max_age_hours
+            self._driver, self._database, min_score, max_age_hours, tenant_id=tenant_id
         )
 
     async def delete_cold_events(
@@ -992,37 +1230,55 @@ class Neo4jGraphStore:
         max_age_hours: int,
         min_importance: int,
         min_access_count: int,
+        tenant_id: str = "default",
     ) -> int:
         """Delete cold-tier event nodes."""
         from context_graph.adapters.neo4j import maintenance
 
         return await maintenance.delete_cold_events(
-            self._driver, self._database, max_age_hours, min_importance, min_access_count
+            self._driver,
+            self._database,
+            max_age_hours,
+            min_importance,
+            min_access_count,
+            tenant_id=tenant_id,
         )
 
-    async def delete_archive_events(self, event_ids: list[str]) -> int:
+    async def delete_archive_events(self, event_ids: list[str], tenant_id: str = "default") -> int:
         """Delete archived event nodes by their IDs."""
         from context_graph.adapters.neo4j import maintenance
 
-        return await maintenance.delete_archive_events(self._driver, self._database, event_ids)
+        return await maintenance.delete_archive_events(
+            self._driver, self._database, event_ids, tenant_id=tenant_id
+        )
 
-    async def get_archive_event_ids(self, max_age_hours: int) -> list[str]:
+    async def get_archive_event_ids(
+        self, max_age_hours: int, tenant_id: str = "default"
+    ) -> list[str]:
         """Get event IDs older than the specified age."""
         from context_graph.adapters.neo4j import maintenance
 
-        return await maintenance.get_archive_event_ids(self._driver, self._database, max_age_hours)
+        return await maintenance.get_archive_event_ids(
+            self._driver, self._database, max_age_hours, tenant_id=tenant_id
+        )
 
-    async def delete_orphan_nodes(self, batch_size: int = 500) -> tuple[dict[str, int], list[str]]:
+    async def delete_orphan_nodes(
+        self, batch_size: int = 500, tenant_id: str = "default"
+    ) -> tuple[dict[str, int], list[str]]:
         """Delete orphaned nodes."""
         from context_graph.adapters.neo4j import maintenance
 
-        return await maintenance.delete_orphan_nodes(self._driver, self._database, batch_size)
+        return await maintenance.delete_orphan_nodes(
+            self._driver, self._database, batch_size, tenant_id=tenant_id
+        )
 
-    async def update_importance_from_centrality(self) -> int:
+    async def update_importance_from_centrality(self, tenant_id: str = "default") -> int:
         """Recompute importance scores from in-degree centrality."""
         from context_graph.adapters.neo4j import maintenance
 
-        return await maintenance.update_importance_from_centrality(self._driver, self._database)
+        return await maintenance.update_importance_from_centrality(
+            self._driver, self._database, tenant_id=tenant_id
+        )
 
     async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
         """Run an arbitrary read query and return records as dicts."""
@@ -1036,30 +1292,36 @@ class Neo4jGraphStore:
     # ------------------------------------------------------------------
 
     async def update_event_enrichment(
-        self, event_id: str, keywords: list[str], importance_score: int
+        self, event_id: str, keywords: list[str], importance_score: int, tenant_id: str = "default"
     ) -> None:
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(
+            await self._write_cb.call(
+                session.execute_write,
                 lambda tx: tx.run(
                     queries.UPDATE_EVENT_ENRICHMENT,
                     {
                         "event_id": event_id,
                         "keywords": keywords,
                         "importance_score": importance_score,
+                        "tenant_id": tenant_id,
                     },
-                )
+                ),
             )
 
-    async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
+    async def store_event_embedding(
+        self, event_id: str, embedding: list[float], tenant_id: str = "default"
+    ) -> None:
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(
+            await self._write_cb.call(
+                session.execute_write,
                 lambda tx: tx.run(
                     queries.UPDATE_EVENT_EMBEDDING,
                     {
                         "event_id": event_id,
                         "embedding": embedding,
+                        "tenant_id": tenant_id,
                     },
-                )
+                ),
             )
 
     async def adjust_node_importance(
@@ -1068,10 +1330,12 @@ class Neo4jGraphStore:
         delta: int,
         min_value: int = 1,
         max_value: int = 10,
+        tenant_id: str = "default",
     ) -> bool:
         """Adjust importance_score on an Event node, clamped to [min_value, max_value]."""
         query = (
             "MATCH (e:Event {event_id: $node_id}) "
+            "WHERE e.tenant_id = $tenant_id "
             "SET e.importance_score = "
             "CASE "
             "  WHEN e.importance_score IS NULL THEN $clamped_delta "
@@ -1093,6 +1357,7 @@ class Neo4jGraphStore:
                     "min_val": min_value,
                     "max_val": max_value,
                     "clamped_delta": clamped_delta,
+                    "tenant_id": tenant_id,
                 },
             )
             return [record async for record in result]
@@ -1110,6 +1375,7 @@ class Neo4jGraphStore:
         last_seen: str,
         mention_count: int,
         embedding: list[float] | None = None,
+        tenant_id: str = "default",
     ) -> None:
         params = {
             "entity_id": entity_id,
@@ -1119,30 +1385,44 @@ class Neo4jGraphStore:
             "last_seen": last_seen,
             "mention_count": mention_count,
             "embedding": embedding or [],
+            "tenant_id": tenant_id,
         }
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params))
+            await self._write_cb.call(
+                session.execute_write, lambda tx: tx.run(queries.MERGE_ENTITY_NODE, params)
+            )
 
     async def merge_typed_edge(
-        self, source_id: str, target_id: str, edge_type: str, props: dict[str, Any] | None = None
+        self,
+        source_id: str,
+        target_id: str,
+        edge_type: str,
+        props: dict[str, Any] | None = None,
+        tenant_id: str = "default",
     ) -> None:
         query = _EDGE_QUERIES.get(edge_type)
         if query is None:
             msg = f"Unknown edge type: {edge_type}"
             raise ValueError(msg)
-        params = {"source_id": source_id, "target_id": target_id, "props": props or {}}
+        params = {
+            "source_id": source_id,
+            "target_id": target_id,
+            "props": props or {},
+            "tenant_id": tenant_id,
+        }
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(lambda tx: tx.run(query, params))
+            await self._write_cb.call(session.execute_write, lambda tx: tx.run(query, params))
 
-    async def get_entities(self, limit: int = 1000) -> list[dict[str, Any]]:
-        query = (
+    async def get_entities(
+        self, limit: int = 1000, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
+        cypher = (
             "MATCH (n:Entity) "
+            "WHERE n.tenant_id = $tenant_id "
             "RETURN n.entity_id AS entity_id, n.name AS name, "
             "n.entity_type AS entity_type LIMIT $limit"
         )
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(query, {"limit": limit})
-            records = [record async for record in result]
+        records = await self._read_query(cypher, {"limit": limit, "tenant_id": tenant_id})
         return [
             {"entity_id": r["entity_id"], "name": r["name"], "entity_type": r["entity_type"]}
             for r in records
@@ -1152,57 +1432,81 @@ class Neo4jGraphStore:
     # UserStore protocol — delegates to user_queries module
     # ------------------------------------------------------------------
 
-    async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
+    async def get_user_profile(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> dict[str, Any] | None:
         """Fetch a user's profile node."""
         from context_graph.adapters.neo4j import user_queries
 
-        return await user_queries.get_user_profile(self._driver, self._database, user_id)
+        return await user_queries.get_user_profile(
+            self._driver, self._database, user_id, tenant_id=tenant_id
+        )
 
     async def get_user_preferences(
-        self, user_id: str, active_only: bool = True
+        self, user_id: str, active_only: bool = True, tenant_id: str = "default"
     ) -> list[dict[str, Any]]:
         """Fetch a user's preferences."""
         from context_graph.adapters.neo4j import user_queries
 
         return await user_queries.get_user_preferences(
-            self._driver, self._database, user_id, active_only=active_only
+            self._driver, self._database, user_id, active_only=active_only, tenant_id=tenant_id
         )
 
-    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_skills(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         """Fetch a user's skills."""
         from context_graph.adapters.neo4j import user_queries
 
-        return await user_queries.get_user_skills(self._driver, self._database, user_id)
+        return await user_queries.get_user_skills(
+            self._driver, self._database, user_id, tenant_id=tenant_id
+        )
 
-    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_patterns(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         """Fetch a user's behavioral patterns."""
         from context_graph.adapters.neo4j import user_queries
 
-        return await user_queries.get_user_patterns(self._driver, self._database, user_id)
+        return await user_queries.get_user_patterns(
+            self._driver, self._database, user_id, tenant_id=tenant_id
+        )
 
-    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_interests(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         """Fetch a user's interests."""
         from context_graph.adapters.neo4j import user_queries
 
-        return await user_queries.get_user_interests(self._driver, self._database, user_id)
+        return await user_queries.get_user_interests(
+            self._driver, self._database, user_id, tenant_id=tenant_id
+        )
 
-    async def delete_user_data(self, user_id: str) -> int:
+    async def delete_user_data(self, user_id: str, tenant_id: str = "default") -> int:
         """GDPR cascade delete."""
         from context_graph.adapters.neo4j import user_queries
 
-        return await user_queries.delete_user_data(self._driver, self._database, user_id)
+        return await user_queries.delete_user_data(
+            self._driver, self._database, user_id, tenant_id=tenant_id
+        )
 
-    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+    async def export_user_data(self, user_id: str, tenant_id: str = "default") -> dict[str, Any]:
         """GDPR export."""
         from context_graph.adapters.neo4j import user_queries
 
-        return await user_queries.export_user_data(self._driver, self._database, user_id)
+        return await user_queries.export_user_data(
+            self._driver, self._database, user_id, tenant_id=tenant_id
+        )
 
-    async def write_user_profile(self, profile_data: dict[str, Any]) -> None:
+    async def write_user_profile(
+        self, profile_data: dict[str, Any], tenant_id: str = "default"
+    ) -> None:
         """Create or update a user profile."""
         from context_graph.adapters.neo4j import user_queries
 
-        await user_queries.write_user_profile(self._driver, self._database, profile_data)
+        await user_queries.write_user_profile(
+            self._driver, self._database, profile_data, tenant_id=tenant_id
+        )
 
     async def write_preference_with_edges(
         self,
@@ -1210,6 +1514,7 @@ class Neo4jGraphStore:
         preference_data: dict[str, Any],
         source_event_ids: list[str],
         derivation_info: dict[str, Any],
+        tenant_id: str = "default",
     ) -> None:
         """Write a Preference node with edges."""
         from context_graph.adapters.neo4j import user_queries
@@ -1221,6 +1526,7 @@ class Neo4jGraphStore:
             preference_data,
             source_event_ids,
             derivation_info,
+            tenant_id=tenant_id,
         )
 
     async def write_skill_with_edges(
@@ -1229,6 +1535,7 @@ class Neo4jGraphStore:
         skill_data: dict[str, Any],
         source_event_ids: list[str],
         derivation_info: dict[str, Any],
+        tenant_id: str = "default",
     ) -> None:
         """Write a Skill node with edges."""
         from context_graph.adapters.neo4j import user_queries
@@ -1240,6 +1547,7 @@ class Neo4jGraphStore:
             skill_data,
             source_event_ids,
             derivation_info,
+            tenant_id=tenant_id,
         )
 
     async def write_interest_edge(
@@ -1249,6 +1557,7 @@ class Neo4jGraphStore:
         entity_type: str,
         weight: float,
         source: str,
+        tenant_id: str = "default",
     ) -> None:
         """Create an INTERESTED_IN edge."""
         from context_graph.adapters.neo4j import user_queries
@@ -1261,6 +1570,7 @@ class Neo4jGraphStore:
             entity_type,
             weight,
             source,
+            tenant_id=tenant_id,
         )
 
     async def write_derived_from_edge(
@@ -1270,6 +1580,7 @@ class Neo4jGraphStore:
         event_id: str,
         method: str,
         session_id: str,
+        tenant_id: str = "default",
     ) -> None:
         """Write a single DERIVED_FROM edge."""
         from context_graph.adapters.neo4j import user_queries
@@ -1282,18 +1593,20 @@ class Neo4jGraphStore:
             event_id,
             method,
             session_id,
+            tenant_id=tenant_id,
         )
 
     async def set_preference_superseded(
         self,
         preference_id: str,
         superseded_by: str,
+        tenant_id: str = "default",
     ) -> None:
         """Mark a preference as superseded by another preference."""
         from context_graph.adapters.neo4j import user_queries
 
         await user_queries.set_preference_superseded(
-            self._driver, self._database, preference_id, superseded_by
+            self._driver, self._database, preference_id, superseded_by, tenant_id=tenant_id
         )
 
     # ------------------------------------------------------------------

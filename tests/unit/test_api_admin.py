@@ -41,10 +41,10 @@ class _AdminGraphStore(StubGraphStore):
         }
         self._session_query_results = session_query_results or []
 
-    async def get_session_event_counts(self) -> dict[str, int]:
+    async def get_session_event_counts(self, tenant_id: str = "default") -> dict[str, int]:
         return self._session_event_counts
 
-    async def get_graph_stats(self) -> dict[str, Any]:
+    async def get_graph_stats(self, tenant_id: str = "default") -> dict[str, Any]:
         return self._graph_stats
 
     async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
@@ -58,7 +58,7 @@ class _AdminEventStore(InMemoryEventStore):
         super().__init__()
         self._stream_len = stream_length
 
-    async def stream_length(self) -> int:
+    async def stream_length(self, tenant_id: str = "default") -> int:
         return self._stream_len
 
 

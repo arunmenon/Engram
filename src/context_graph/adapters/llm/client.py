@@ -469,6 +469,9 @@ class LLMExtractionClient:
     Implements the ExtractionService protocol. Builds structured prompts
     with the ontology schema, calls an LLM for extraction, and validates
     the results against the source conversation.
+
+    LLM calls are protected by a circuit breaker and instrumented with
+    the ``LLM_CALL_DURATION`` Prometheus histogram.
     """
 
     def __init__(
@@ -487,24 +490,49 @@ class LLMExtractionClient:
         self._max_retries = max_retries
         self._prompt_version = prompt_version
 
+        from context_graph.adapters.circuit_breaker import CircuitBreaker
+
+        self._circuit_breaker = CircuitBreaker(
+            name="llm_extraction",
+            failure_threshold=5,
+            recovery_timeout=60.0,
+        )
+
     async def generate_text(self, prompt: str) -> str | None:
         """Generate text from a prompt. Used for HyDE and other expansions."""
-        try:
-            import litellm
+        import time
 
-            response = await litellm.acompletion(
-                model=self._model_id,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=self._temperature,
-                max_tokens=self._max_tokens,
-                timeout=self._timeout,
-                num_retries=self._max_retries,
+        from context_graph.metrics import LLM_CALL_DURATION
+
+        start = time.monotonic()
+        try:
+            result: str | None = await self._circuit_breaker.call(
+                self._raw_generate_text,
+                prompt,
             )
-            content = response.choices[0].message.content
-            return str(content) if content else None
+            return result
         except Exception:
             log.exception("generate_text_failed")
             return None
+        finally:
+            LLM_CALL_DURATION.labels(model=self._model_id).observe(
+                time.monotonic() - start,
+            )
+
+    async def _raw_generate_text(self, prompt: str) -> str | None:
+        """Raw LLM call for generate_text (no circuit breaker wrapping)."""
+        import litellm
+
+        response = await litellm.acompletion(
+            model=self._model_id,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=self._temperature,
+            max_tokens=self._max_tokens,
+            timeout=self._timeout,
+            num_retries=self._max_retries,
+        )
+        content = response.choices[0].message.content
+        return str(content) if content else None
 
     async def verify_entailment(self, claim: str, evidence: str) -> bool:
         """Check whether *evidence* entails *claim* using an LLM call.
@@ -533,10 +561,29 @@ class LLMExtractionClient:
             return heuristic_verify(claim, evidence)
 
     async def _call_llm(self, system_prompt: str) -> str:
-        """Call the LLM via litellm and return raw response text.
+        """Call the LLM via litellm, protected by circuit breaker.
 
-        Raises on network/API errors after retries are exhausted.
+        Instrumented with ``LLM_CALL_DURATION``. Raises on network/API
+        errors after retries are exhausted or when the circuit is open.
         """
+        import time
+
+        from context_graph.metrics import LLM_CALL_DURATION
+
+        start = time.monotonic()
+        try:
+            result: str = await self._circuit_breaker.call(
+                self._raw_call_llm,
+                system_prompt,
+            )
+            return result
+        finally:
+            LLM_CALL_DURATION.labels(model=self._model_id).observe(
+                time.monotonic() - start,
+            )
+
+    async def _raw_call_llm(self, system_prompt: str) -> str:
+        """Raw LLM extraction call (no circuit breaker wrapping)."""
         import litellm
 
         response = await litellm.acompletion(

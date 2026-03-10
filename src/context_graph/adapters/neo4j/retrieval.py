@@ -95,7 +95,7 @@ class RetrievalPipeline:
     # Public entry point
     # ------------------------------------------------------------------
 
-    async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
+    async def get_subgraph(self, query: SubgraphQuery, tenant_id: str = "default") -> AtlasResponse:
         """Execute an intent-aware subgraph query."""
         start_ms = time.monotonic_ns()
         d = self._deps
@@ -146,9 +146,9 @@ class RetrievalPipeline:
         seed_limit = min(10, query.max_nodes)
 
         # Multi-channel hybrid retrieval (L4): run 3 channels in parallel
-        graph_task = self._get_graph_seeds(query, seed_limit, seed_query, seed_strategy)
-        vector_task = self._get_vector_seeds(query_embedding, seed_limit)
-        bm25_task = self._get_bm25_seeds(query.query, query.session_id, seed_limit)
+        graph_task = self._get_graph_seeds(query, seed_limit, seed_query, seed_strategy, tenant_id)
+        vector_task = self._get_vector_seeds(query_embedding, seed_limit, tenant_id)
+        bm25_task = self._get_bm25_seeds(query.query, query.session_id, seed_limit, tenant_id)
 
         channel_results = await asyncio.gather(
             graph_task, vector_task, bm25_task, return_exceptions=True
@@ -182,21 +182,25 @@ class RetrievalPipeline:
         seed_node_ids: list[str] = []
 
         # Batch-fetch properties for fused seed IDs (single roundtrip)
-        await self._fetch_seed_nodes(fused_seed_ids, nodes, seed_node_ids, query_embedding)
+        await self._fetch_seed_nodes(
+            fused_seed_ids, nodes, seed_node_ids, query_embedding, tenant_id
+        )
 
         # Override with user-provided seed_nodes if specified
         if query.seed_nodes:
             seed_node_ids = list(query.seed_nodes)
             user_seeds = [s for s in query.seed_nodes if s not in nodes]
             if user_seeds:
-                await self._fetch_seed_nodes(user_seeds, nodes, seed_node_ids, query_embedding)
+                await self._fetch_seed_nodes(
+                    user_seeds, nodes, seed_node_ids, query_embedding, tenant_id
+                )
 
         # Cross-session entity expansion for relevant intents
-        await self._expand_cross_session(query, inferred_intents, nodes, query_embedding)
+        await self._expand_cross_session(query, inferred_intents, nodes, query_embedding, tenant_id)
 
         # Batch neighbor traversal for all seeds (single roundtrip)
         await self._expand_neighbors(
-            seed_node_ids, nodes, edges, seen_edges, edge_weights, query_embedding
+            seed_node_ids, nodes, edges, seen_edges, edge_weights, query_embedding, tenant_id
         )
 
         # PPR post-processing (L5)
@@ -230,7 +234,7 @@ class RetrievalPipeline:
 
         # Bump access counts for event nodes only
         event_ids = [nid for nid in nodes if nid.startswith("evt")]
-        await self._bump_access_counts(event_ids)
+        await self._bump_access_counts(event_ids, tenant_id)
 
         # Build next cursor (offset-based)
         next_cursor_sg: str | None = None
@@ -277,13 +281,14 @@ class RetrievalPipeline:
         seed_limit: int,
         seed_query: str,
         seed_strategy: str,
+        tenant_id: str = "default",
     ) -> list[tuple[str, float]]:
         """Channel 1: Graph-based seed retrieval via intent-aware strategy."""
         d = self._deps
         async with d.driver.session(database=d.database) as session:
             seed_result = await session.run(
                 seed_query,
-                {"session_id": query.session_id, "seed_limit": seed_limit},
+                {"session_id": query.session_id, "seed_limit": seed_limit, "tenant_id": tenant_id},
                 timeout=d.query_timeout_s,
             )
             seed_records = [record async for record in seed_result]
@@ -293,7 +298,11 @@ class RetrievalPipeline:
             async with d.driver.session(database=d.database) as session:
                 seed_result = await session.run(
                     queries.GET_SUBGRAPH_SEED_EVENTS,
-                    {"session_id": query.session_id, "seed_limit": seed_limit},
+                    {
+                        "session_id": query.session_id,
+                        "seed_limit": seed_limit,
+                        "tenant_id": tenant_id,
+                    },
                     timeout=d.query_timeout_s,
                 )
                 seed_records = [record async for record in seed_result]
@@ -310,13 +319,14 @@ class RetrievalPipeline:
         self,
         query_embedding: list[float] | None,
         limit: int,
+        tenant_id: str = "default",
     ) -> list[tuple[str, float]]:
         """Channel 2: Vector similarity seed retrieval via entity embeddings."""
         if query_embedding is None:
             return []
         try:
             results = await self._deps.search_similar_entities(
-                query_embedding, top_k=limit, threshold=0.5
+                query_embedding, top_k=limit, threshold=0.5, tenant_id=tenant_id
             )
             return [(r["entity_id"], r["score"]) for r in results]
         except Exception:
@@ -328,13 +338,14 @@ class RetrievalPipeline:
         query_text: str,
         session_id: str | None,
         limit: int,
+        tenant_id: str = "default",
     ) -> list[tuple[str, float]]:
         """Channel 3: BM25 full-text seed retrieval via Redis event store."""
         if self._deps.event_store is None:
             return []
         try:
             events = await self._deps.event_store.search_bm25(
-                query_text, session_id=session_id, limit=limit
+                query_text, session_id=session_id, limit=limit, tenant_id=tenant_id
             )
             seeds: list[tuple[str, float]] = []
             for rank, event in enumerate(events):
@@ -358,7 +369,7 @@ class RetrievalPipeline:
             logger.warning("query_embedding_failed", query_length=len(query_text))
             return None
 
-    async def _bump_access_counts(self, event_ids: list[str]) -> None:
+    async def _bump_access_counts(self, event_ids: list[str], tenant_id: str = "default") -> None:
         """Increment access_count for a batch of event nodes."""
         if not event_ids:
             return
@@ -368,7 +379,7 @@ class RetrievalPipeline:
             await session.execute_write(
                 lambda tx: tx.run(
                     queries.BATCH_UPDATE_ACCESS_COUNT,
-                    {"event_ids": event_ids, "now": now_iso},
+                    {"event_ids": event_ids, "now": now_iso, "tenant_id": tenant_id},
                 )
             )
 
@@ -378,6 +389,7 @@ class RetrievalPipeline:
         nodes: dict[str, AtlasNode],
         seed_node_ids: list[str],
         query_embedding: list[float] | None,
+        tenant_id: str = "default",
     ) -> None:
         """Batch-fetch event nodes for seed IDs (single roundtrip)."""
         if not seed_ids:
@@ -389,8 +401,8 @@ class RetrievalPipeline:
 
         async with d.driver.session(database=d.database) as session:
             result = await session.run(
-                "MATCH (e:Event) WHERE e.event_id IN $eids RETURN e",
-                {"eids": new_ids},
+                "MATCH (e:Event) WHERE e.event_id IN $eids AND e.tenant_id = $tenant_id RETURN e",
+                {"eids": new_ids, "tenant_id": tenant_id},
                 timeout=d.query_timeout_s,
             )
             records = [record async for record in result]
@@ -425,6 +437,7 @@ class RetrievalPipeline:
         inferred_intents: dict[str, float],
         nodes: dict[str, AtlasNode],
         query_embedding: list[float] | None,
+        tenant_id: str = "default",
     ) -> None:
         """Add cross-session entity events for personalization intents."""
         cross_intents = {"who_is", "personalize", "related"}
@@ -437,7 +450,7 @@ class RetrievalPipeline:
         async with d.driver.session(database=d.database) as session:
             cross_result = await session.run(
                 queries.GET_ENTITY_CROSS_SESSION_EVENTS,
-                {"session_id": query.session_id, "limit": cross_limit},
+                {"session_id": query.session_id, "limit": cross_limit, "tenant_id": tenant_id},
                 timeout=d.query_timeout_s,
             )
             cross_records = [record async for record in cross_result]
@@ -468,6 +481,7 @@ class RetrievalPipeline:
         seen_edges: set[tuple[str, str, str]],
         edge_weights: dict[str, float],
         query_embedding: list[float] | None,
+        tenant_id: str = "default",
     ) -> None:
         """Batch neighbor traversal for all seeds (single roundtrip)."""
         if not seed_node_ids:
@@ -480,6 +494,7 @@ class RetrievalPipeline:
                 {
                     "event_ids": seed_node_ids,
                     "neighbor_limit": d.neighbor_limit,
+                    "tenant_id": tenant_id,
                 },
                 timeout=d.query_timeout_s,
             )

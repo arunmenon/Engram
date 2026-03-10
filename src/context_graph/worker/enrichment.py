@@ -44,21 +44,25 @@ class EnrichmentConsumer(BaseConsumer):
         graph_store: GraphStore,
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
+        tenant_id: str = "default",
+        instance_id: str = "1",
     ) -> None:
         consumer_settings = settings.consumer
         super().__init__(
             redis_client=redis_client,
             group_name=settings.redis.group_enrichment,
-            consumer_name="enrichment-1",
+            consumer_name=f"enrichment-{instance_id}",
             stream_key=settings.redis.global_stream,
             block_timeout_ms=settings.redis.block_timeout_ms,
+            tenant_id=tenant_id,
             max_retries=consumer_settings.max_retries,
             claim_idle_ms=consumer_settings.claim_idle_ms,
             claim_batch_size=consumer_settings.claim_batch_size,
             dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
         )
         self._graph_store = graph_store
-        self._event_key_prefix = settings.redis.event_key_prefix
+        # Tenant-prefixed event key: t:{tenant_id}:{base_prefix}
+        self._event_key_prefix = f"t:{tenant_id}:{settings.redis.event_key_prefix}"
         self._embedding_service = embedding_service
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
@@ -92,7 +96,9 @@ class EnrichmentConsumer(BaseConsumer):
         importance_score = importance_hint if importance_hint is not None else DEFAULT_IMPORTANCE
 
         # Update Neo4j node
-        await self._graph_store.update_event_enrichment(event_id, keywords, importance_score)
+        await self._graph_store.update_event_enrichment(
+            event_id, keywords, importance_score, tenant_id=self._tenant_id
+        )
 
         log.debug(
             "event_enriched",
@@ -128,7 +134,9 @@ class EnrichmentConsumer(BaseConsumer):
             log.warning("event_embedding_failed", event_id=event_id)
             return
 
-        await self._graph_store.store_event_embedding(event_id, embedding)
+        await self._graph_store.store_event_embedding(
+            event_id, embedding, tenant_id=self._tenant_id
+        )
         log.debug("event_embedding_stored", event_id=event_id)
 
 

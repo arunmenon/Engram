@@ -41,27 +41,37 @@ class _UsersGraphStore(StubGraphStore):
         self._export_data = export_data or {}
         self._delete_count = delete_count
 
-    async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
+    async def get_user_profile(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> dict[str, Any] | None:
         return self._profile
 
     async def get_user_preferences(
-        self, user_id: str, active_only: bool = True
+        self, user_id: str, active_only: bool = True, tenant_id: str = "default"
     ) -> list[dict[str, Any]]:
         return self._preferences
 
-    async def get_user_skills(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_skills(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         return self._skills
 
-    async def get_user_patterns(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_patterns(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         return self._patterns
 
-    async def get_user_interests(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_interests(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> list[dict[str, Any]]:
         return self._interests
 
-    async def export_user_data(self, user_id: str) -> dict[str, Any]:
+    async def export_user_data(
+        self, user_id: str, tenant_id: str = "default"
+    ) -> dict[str, Any]:
         return self._export_data
 
-    async def delete_user_data(self, user_id: str) -> int:
+    async def delete_user_data(self, user_id: str, tenant_id: str = "default") -> int:
         return self._delete_count
 
 

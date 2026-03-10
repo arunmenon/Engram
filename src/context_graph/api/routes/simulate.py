@@ -7,15 +7,17 @@ back as SSE tokens. Completely stateless — the frontend manages turn-taking.
 from __future__ import annotations
 
 import uuid
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 import litellm
 import orjson
 import structlog
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
+
+from context_graph.api.dependencies import TenantContext, require_tenant
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -23,6 +25,8 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/simulate", tags=["simulate"])
+
+TenantDep = Annotated[TenantContext, Depends(require_tenant)]
 
 
 class PersonaSpec(BaseModel):
@@ -61,9 +65,11 @@ class TurnResult(BaseModel):
     tokens_used: int
 
 
-@router.post("/turn")
+@router.post("/turn", response_model=None)
 async def simulate_turn(
-    body: SimulateTurnRequest, request: Request
+    body: SimulateTurnRequest,
+    request: Request,
+    tenant: TenantDep,
 ) -> TurnResult | JSONResponse | EventSourceResponse:
     """Generate a single conversation turn via LLM.
 

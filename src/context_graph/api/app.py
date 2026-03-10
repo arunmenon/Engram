@@ -154,7 +154,10 @@ def create_app() -> FastAPI:
     # Simulation endpoint: standard API key auth
     app.include_router(simulate_router, prefix="/v1", dependencies=api_key_deps)
 
-    # Health endpoint: no auth (used by load balancers / orchestrators)
+    # Health endpoints: no auth (used by load balancers / K8s probes)
+    # Root-level: /health/live, /health/ready, /health
+    app.include_router(health_router)
+    # Backward-compatible: /v1/health (kept for existing integrations)
     app.include_router(health_router, prefix="/v1")
 
     # Prometheus metrics endpoint

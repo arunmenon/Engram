@@ -21,7 +21,7 @@ from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
-from context_graph.api.dependencies import get_event_store
+from context_graph.api.dependencies import TenantContext, get_event_store, require_tenant
 from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model_validate
 from context_graph.domain.validation import ValidationError, validate_event
 from context_graph.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
@@ -66,6 +66,7 @@ class BatchResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
+TenantDep = Annotated[TenantContext, Depends(require_tenant)]
 
 
 def _parse_event(data: dict[str, Any]) -> Event:
@@ -87,6 +88,7 @@ def _parse_event(data: dict[str, Any]) -> Event:
 async def ingest_event(
     request: Request,
     event_store: EventStoreDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Ingest a single event into the event ledger.
 
@@ -111,7 +113,9 @@ async def ingest_event(
             message=validation_result.errors[0].message,
         )
 
-    global_position = await event_store.append(event, payload=event_payload)
+    global_position = await event_store.append(
+        event, payload=event_payload, tenant_id=tenant.tenant_id
+    )
     EVENTS_INGESTED_TOTAL.inc()
 
     logger.info(
@@ -119,6 +123,7 @@ async def ingest_event(
         event_id=str(event.event_id),
         event_type=event.event_type,
         global_position=global_position,
+        tenant_id=tenant.tenant_id,
     )
 
     return ORJSONResponse(
@@ -127,6 +132,7 @@ async def ingest_event(
             "event_id": str(event.event_id),
             "global_position": global_position,
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )
 
 
@@ -134,6 +140,7 @@ async def ingest_event(
 async def ingest_event_batch(
     request: Request,
     event_store: EventStoreDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Ingest a batch of events.
 
@@ -210,7 +217,9 @@ async def ingest_event_batch(
             )
 
     if valid_events:
-        positions = await event_store.append_batch(valid_events, payloads=valid_payloads)
+        positions = await event_store.append_batch(
+            valid_events, payloads=valid_payloads, tenant_id=tenant.tenant_id
+        )
         for event, position in zip(valid_events, positions, strict=True):
             results.append(
                 {
@@ -236,4 +245,5 @@ async def ingest_event_batch(
             "results": results,
             "errors": errors,
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )

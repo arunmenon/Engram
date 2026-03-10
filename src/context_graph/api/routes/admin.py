@@ -18,12 +18,14 @@ from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel, Field
 
 from context_graph.api.dependencies import (
+    TenantContext,
     get_event_health,
     get_event_store,
     get_event_store_admin,
     get_graph_maintenance,
     get_graph_store,
     get_settings,
+    require_tenant,
 )
 from context_graph.domain.consolidation import (
     create_summary_from_events,
@@ -54,6 +56,7 @@ EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
 GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 EventHealthDep = Annotated[HealthCheckable, Depends(get_event_health)]
+TenantDep = Annotated[TenantContext, Depends(require_tenant)]
 
 
 # ---------------------------------------------------------------------------
@@ -118,6 +121,7 @@ async def reconsolidate(
     body: ReconsolidateRequest,
     graph_maint: MaintenanceDep,
     settings: SettingsDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Trigger re-consolidation for a session or all qualifying sessions.
 
@@ -128,7 +132,9 @@ async def reconsolidate(
     session_id = body.session_id
     threshold = settings.decay.reflection_threshold
 
-    session_counts = await graph_maint.get_session_event_counts()
+    session_counts = await graph_maint.get_session_event_counts(
+        tenant_id=tenant.tenant_id,
+    )
 
     if session_id:
         sessions_to_process = {session_id: session_counts.get(session_id, 0)}
@@ -149,11 +155,12 @@ async def reconsolidate(
 
         records = await graph_maint.run_session_query(
             "MATCH (e:Event {session_id: $sid}) "
+            "WHERE e.tenant_id = $tenant_id "
             "RETURN e.event_id AS event_id, e.event_type AS event_type, "
             "e.occurred_at AS occurred_at, e.tool_name AS tool_name, "
             "e.status AS status "
             "ORDER BY e.occurred_at",
-            {"sid": sid},
+            {"sid": sid, "tenant_id": tenant.tenant_id},
         )
 
         event_dicts = list(records)
@@ -177,6 +184,7 @@ async def reconsolidate(
                 event_count=summary.event_count,
                 time_range=[dt.isoformat() for dt in summary.time_range],
                 event_ids=episode_event_ids,
+                tenant_id=tenant.tenant_id,
             )
             summaries_created += 1
 
@@ -195,6 +203,7 @@ async def reconsolidate(
             "summaries_created": summaries_created,
             "events_processed": events_processed,
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )
 
 
@@ -202,13 +211,18 @@ async def reconsolidate(
 async def stats(
     graph_maint: MaintenanceDep,
     event_admin: EventStoreAdminDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Return graph node/edge counts and Redis stream length."""
-    graph_stats = await graph_maint.get_graph_stats()
+    graph_stats = await graph_maint.get_graph_stats(
+        tenant_id=tenant.tenant_id,
+    )
 
     stream_length = 0
     try:
-        stream_length = await event_admin.stream_length()
+        stream_length = await event_admin.stream_length(
+            tenant_id=tenant.tenant_id,
+        )
     except Exception:
         logger.warning("stats_redis_stream_length_failed")
 
@@ -220,6 +234,7 @@ async def stats(
             "total_edges": graph_stats["total_edges"],
             "redis": {"stream_length": stream_length},
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )
 
 
@@ -228,6 +243,7 @@ async def prune(
     prune_req: PruneRequest,
     graph_maint: MaintenanceDep,
     settings: SettingsDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Run retention-based pruning on the graph.
 
@@ -239,13 +255,14 @@ async def prune(
     prune_batch_limit = 10_000
     records = await graph_maint.run_session_query(
         "MATCH (e:Event) "
+        "WHERE e.tenant_id = $tenant_id "
         "RETURN e.event_id AS event_id, e.occurred_at AS occurred_at, "
         "e.importance_score AS importance_score, "
         "coalesce(e.access_count, 0) AS access_count, "
         "e.similarity_score AS similarity_score "
         "ORDER BY e.occurred_at "
         "LIMIT $batch_limit",
-        {"batch_limit": prune_batch_limit},
+        {"batch_limit": prune_batch_limit, "tenant_id": tenant.tenant_id},
     )
 
     event_dicts = list(records)
@@ -273,6 +290,7 @@ async def prune(
             pruned_edges = await graph_maint.delete_edges_by_type_and_age(
                 min_score=retention.warm_min_similarity_score,
                 max_age_hours=retention.hot_hours,
+                tenant_id=tenant.tenant_id,
             )
     elif prune_req.tier == "cold":
         node_ids = actions.delete_nodes + actions.archive_event_ids
@@ -284,9 +302,11 @@ async def prune(
                 max_age_hours=retention.warm_hours,
                 min_importance=retention.cold_min_importance,
                 min_access_count=retention.cold_min_access_count,
+                tenant_id=tenant.tenant_id,
             )
             deleted_archive = await graph_maint.delete_archive_events(
                 event_ids=actions.archive_event_ids,
+                tenant_id=tenant.tenant_id,
             )
             pruned_nodes = deleted_cold + deleted_archive
 
@@ -306,6 +326,7 @@ async def prune(
             "details": details,
             "truncated": len(event_dicts) >= prune_batch_limit,
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )
 
 
@@ -315,6 +336,7 @@ async def replay(
     graph_maint: MaintenanceDep,
     event_store: EventStoreDep,
     graph_store: GraphStoreDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Rebuild the Neo4j graph projection from Redis event ledger.
 
@@ -335,8 +357,11 @@ async def replay(
 
     logger.warning("replay_started")
 
-    # Step 1: Clear the graph
-    await graph_maint.run_session_query("MATCH (n) DETACH DELETE n", {})
+    # Step 1: Clear the tenant's graph nodes
+    await graph_maint.run_session_query(
+        "MATCH (n {tenant_id: $tenant_id}) DETACH DELETE n",
+        {"tenant_id": tenant.tenant_id},
+    )
 
     # Step 2: Re-create constraints via graph store
     await graph_store.ensure_constraints()
@@ -350,7 +375,10 @@ async def replay(
 
     while True:
         query = EventQuery(limit=batch_size, after=prev_event.occurred_at if prev_event else None)
-        events = await event_store.search(query)
+        events = await event_store.search(
+            query,
+            tenant_id=tenant.tenant_id,
+        )
 
         if not events:
             break
@@ -358,11 +386,17 @@ async def replay(
         for event in events:
             projection = project_event(event, prev_event)
 
-            await graph_store.merge_event_node(projection.node)
+            await graph_store.merge_event_node(
+                projection.node,
+                tenant_id=tenant.tenant_id,
+            )
             nodes_created += 1
 
             for edge in projection.edges:
-                await graph_store.create_edge(edge)
+                await graph_store.create_edge(
+                    edge,
+                    tenant_id=tenant.tenant_id,
+                )
                 edges_created += 1
 
             events_replayed += 1
@@ -384,6 +418,7 @@ async def replay(
             "nodes_created": nodes_created,
             "edges_created": edges_created,
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )
 
 
@@ -392,6 +427,7 @@ async def health_detailed(
     graph_maint: MaintenanceDep,
     event_health: EventHealthDep,
     event_admin: EventStoreAdminDep,
+    tenant: TenantDep,
 ) -> ORJSONResponse:
     """Extended health check with Neo4j stats and Redis stream length."""
     redis_ok = False
@@ -401,12 +437,16 @@ async def health_detailed(
 
     try:
         redis_ok = await event_health.health_ping()
-        stream_length = await event_admin.stream_length()
+        stream_length = await event_admin.stream_length(
+            tenant_id=tenant.tenant_id,
+        )
     except Exception:
         logger.warning("detailed_health_redis_failed")
 
     try:
-        graph_stats = await graph_maint.get_graph_stats()
+        graph_stats = await graph_maint.get_graph_stats(
+            tenant_id=tenant.tenant_id,
+        )
         neo4j_ok = True
     except Exception:
         logger.warning("detailed_health_neo4j_failed")
@@ -429,4 +469,5 @@ async def health_detailed(
             },
             "version": "0.1.0",
         },
+        headers={"X-Tenant-ID": tenant.tenant_id},
     )

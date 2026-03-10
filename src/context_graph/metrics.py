@@ -72,6 +72,18 @@ CONSUMER_LAG = Gauge(
     ["group"],
 )
 
+CONSUMER_THROUGHPUT = Gauge(
+    "engram_consumer_events_per_second",
+    "Consumer processing rate",
+    ["consumer"],
+)
+
+CONSUMER_BATCH_ACTUAL_SIZE = Histogram(
+    "engram_consumer_batch_actual_size",
+    "Actual batch size used by consumer after adaptive sizing",
+    ["consumer"],
+)
+
 # ---------------------------------------------------------------------------
 # Graph queries
 # ---------------------------------------------------------------------------
@@ -80,4 +92,65 @@ GRAPH_QUERY_DURATION = Histogram(
     "engram_graph_query_duration_seconds",
     "Neo4j query duration",
     ["query_type"],
+)
+
+# ---------------------------------------------------------------------------
+# Per-operation latency
+# ---------------------------------------------------------------------------
+
+REDIS_OP_DURATION = Histogram(
+    "engram_redis_op_duration_seconds",
+    "Redis operation duration",
+    ["operation"],
+)
+
+NEO4J_OP_DURATION = Histogram(
+    "engram_neo4j_op_duration_seconds",
+    "Neo4j operation duration",
+    ["operation"],
+)
+
+LLM_CALL_DURATION = Histogram(
+    "engram_llm_call_duration_seconds",
+    "LLM call duration",
+    ["model"],
+)
+
+# ---------------------------------------------------------------------------
+# Redis pool and memory
+# ---------------------------------------------------------------------------
+
+REDIS_POOL_SIZE = Gauge(
+    "engram_redis_pool_size",
+    "Redis connection pool size",
+)
+
+REDIS_POOL_IN_USE = Gauge(
+    "engram_redis_pool_in_use",
+    "Redis connections currently in use",
+)
+
+REDIS_MEMORY_USED = Gauge(
+    "engram_redis_memory_used_bytes",
+    "Redis used memory in bytes",
+)
+
+REDIS_MEMORY_PEAK = Gauge(
+    "engram_redis_memory_peak_bytes",
+    "Redis peak memory in bytes",
+)
+
+REDIS_MEMORY_FRAGMENTATION = Gauge(
+    "engram_redis_memory_fragmentation_ratio",
+    "Redis memory fragmentation ratio",
+)
+
+# ---------------------------------------------------------------------------
+# Circuit breaker
+# ---------------------------------------------------------------------------
+
+CIRCUIT_BREAKER_STATE = Gauge(
+    "engram_circuit_breaker_state",
+    "Circuit breaker state (0=closed, 1=open, 2=half-open)",
+    ["name"],
 )

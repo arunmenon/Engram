@@ -21,6 +21,7 @@ class EventStore(Protocol):
         self,
         event: Event,
         payload: dict[str, Any] | None = None,
+        tenant_id: str = "default",
     ) -> str:
         """Append a single event. Returns the global_position (stream entry ID).
 
@@ -33,6 +34,7 @@ class EventStore(Protocol):
         self,
         events: list[Event],
         payloads: list[dict[str, Any] | None] | None = None,
+        tenant_id: str = "default",
     ) -> list[str]:
         """Append multiple events. Returns list of global_positions.
 
@@ -40,7 +42,7 @@ class EventStore(Protocol):
         """
         ...
 
-    async def get_by_id(self, event_id: str) -> Event | None:
+    async def get_by_id(self, event_id: str, tenant_id: str = "default") -> Event | None:
         """Retrieve a single event by its event_id."""
         ...
 
@@ -49,6 +51,7 @@ class EventStore(Protocol):
         session_id: str,
         limit: int = 100,
         after: str | None = None,
+        tenant_id: str = "default",
     ) -> list[Event]:
         """Retrieve events for a session, ordered by occurred_at.
 
@@ -59,7 +62,7 @@ class EventStore(Protocol):
         """
         ...
 
-    async def search(self, query: EventQuery) -> list[Event]:
+    async def search(self, query: EventQuery, tenant_id: str = "default") -> list[Event]:
         """Search events using RediSearch secondary indexes."""
         ...
 
@@ -68,6 +71,7 @@ class EventStore(Protocol):
         query_text: str,
         session_id: str | None = None,
         limit: int = 50,
+        tenant_id: str = "default",
     ) -> list[Event]:
         """Full-text BM25 search across event summaries and keywords."""
         ...
@@ -85,6 +89,6 @@ class EventStoreAdmin(Protocol):
         """Return True if the event store is reachable."""
         ...
 
-    async def stream_length(self) -> int:
+    async def stream_length(self, tenant_id: str = "default") -> int:
         """Return the number of entries in the global event stream."""
         ...

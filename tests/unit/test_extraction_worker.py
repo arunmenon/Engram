@@ -85,7 +85,7 @@ class TestExtractionConsumerStructure:
 
     def test_constructor_sets_stream_key(self) -> None:
         consumer = _make_consumer()
-        assert consumer._stream_key == "events:__global__"
+        assert consumer._stream_key == "t:default:events:__global__"
 
 
 class TestProcessMessage:
@@ -200,7 +200,8 @@ class TestProcessMessage:
         def _execute_command_side_effect(*args: Any, **kwargs: Any) -> Any:
             # First call from process_message: fetch session_end doc
             # Subsequent calls from _collect_session_events: return None
-            if len(args) >= 3 and args[2] == "evt:evt-end":
+            # Event keys are now tenant-prefixed: t:default:evt:{event_id}
+            if len(args) >= 3 and args[2] == "t:default:evt:evt-end":
                 return _mock_json_doc("evt-end", "system.session_end", "sess-1")
             return None
 

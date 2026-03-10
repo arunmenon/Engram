@@ -17,6 +17,7 @@ class GraphMaintenance(Protocol):
 
     async def get_session_event_counts(
         self,
+        tenant_id: str = "default",
     ) -> dict[str, int]:
         """Count events per session in the graph.
 
@@ -24,7 +25,7 @@ class GraphMaintenance(Protocol):
         """
         ...
 
-    async def get_graph_stats(self) -> dict[str, Any]:
+    async def get_graph_stats(self, tenant_id: str = "default") -> dict[str, Any]:
         """Get node and edge counts by type for admin/monitoring."""
         ...
 
@@ -38,6 +39,7 @@ class GraphMaintenance(Protocol):
         event_count: int,
         time_range: list[str],
         event_ids: list[str],
+        tenant_id: str = "default",
     ) -> None:
         """Write a summary node and SUMMARIZES edges to the covered events."""
         ...
@@ -46,6 +48,7 @@ class GraphMaintenance(Protocol):
         self,
         min_score: float,
         max_age_hours: int,
+        tenant_id: str = "default",
     ) -> int:
         """Delete SIMILAR_TO edges below a score threshold and older than max_age_hours."""
         ...
@@ -55,23 +58,28 @@ class GraphMaintenance(Protocol):
         max_age_hours: int,
         min_importance: int,
         min_access_count: int,
+        tenant_id: str = "default",
     ) -> int:
         """Delete cold-tier event nodes that don't meet retention criteria."""
         ...
 
-    async def delete_archive_events(self, event_ids: list[str]) -> int:
+    async def delete_archive_events(self, event_ids: list[str], tenant_id: str = "default") -> int:
         """Delete archived event nodes by their IDs."""
         ...
 
-    async def get_archive_event_ids(self, max_age_hours: int) -> list[str]:
+    async def get_archive_event_ids(
+        self, max_age_hours: int, tenant_id: str = "default"
+    ) -> list[str]:
         """Get event IDs older than the specified age for archive-tier pruning."""
         ...
 
-    async def delete_orphan_nodes(self, batch_size: int = 500) -> tuple[dict[str, int], list[str]]:
+    async def delete_orphan_nodes(
+        self, batch_size: int = 500, tenant_id: str = "default"
+    ) -> tuple[dict[str, int], list[str]]:
         """Delete orphaned nodes (no relationships) and return counts + deleted entity IDs."""
         ...
 
-    async def update_importance_from_centrality(self) -> int:
+    async def update_importance_from_centrality(self, tenant_id: str = "default") -> int:
         """Recompute importance scores based on in-degree centrality."""
         ...
 

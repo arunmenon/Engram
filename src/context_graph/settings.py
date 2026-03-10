@@ -28,6 +28,11 @@ class RedisSettings(BaseSettings):
     db: int = 0
     password: SecretStr | None = None
 
+    # Connection pool tuning
+    max_connections: int = 20
+    socket_timeout: float = 5.0
+    socket_connect_timeout: float = 5.0
+
     # Stream keys
     global_stream: str = "events:__global__"
     dedup_set: str = "dedup:events"
@@ -57,10 +62,17 @@ class RedisSettings(BaseSettings):
     retention_ceiling_days: int = 90
 
     # Approximate MAXLEN for global stream XADD (0 = uncapped) — ADR-0014
-    global_stream_maxlen: int = 0
+    # Default 500K entries ~= 7 days at moderate load (1 event/sec)
+    global_stream_maxlen: int = 500_000
 
     # Session stream retention (hours) — streams older than this are deleted
     session_stream_retention_hours: int = 168  # 7 days
+
+    # Concurrent batch ingestion: max parallel Lua EVALSHA calls
+    batch_concurrency: int = 50
+
+    # Memory pressure threshold (%) -- triggers proactive trimming
+    memory_pressure_threshold_pct: float = 80.0
 
 
 class Neo4jSettings(BaseSettings):
@@ -73,6 +85,11 @@ class Neo4jSettings(BaseSettings):
     password: SecretStr = SecretStr("engram-dev-password")
     database: str = "neo4j"
     max_connection_pool_size: int = 50
+
+    # Pool tuning
+    connection_acquisition_timeout: float = 60.0
+    max_connection_lifetime: int = 3600
+    connection_liveness_check_timeout: float = 30.0
 
 
 class DecaySettings(BaseSettings):
@@ -449,6 +466,55 @@ class ConsumerSettings(BaseSettings):
     # H5: DLQ stream suffix — appended to the source stream key
     dlq_stream_suffix: str = ":dlq"
 
+    # Adaptive batch sizing: scale batch_size based on consumer lag
+    adaptive_batch_size: bool = True
+
+
+class TenantSettings(BaseSettings):
+    """Multi-tenancy settings.
+
+    When enabled, API requests must carry the configured header (default
+    X-Tenant-ID).  All Redis keys and Neo4j queries are scoped by tenant.
+    When disabled, the default_tenant value is used transparently.
+    """
+
+    model_config = {"env_prefix": "CG_TENANT_"}
+
+    enabled: bool = False
+    default_tenant: str = "default"
+    header_name: str = "X-Tenant-ID"
+    id_pattern: str = r"^[a-z][a-z0-9-]{2,63}$"
+
+
+class CircuitBreakerSettings(BaseSettings):
+    """Circuit breaker thresholds for Neo4j and LLM calls."""
+
+    model_config = {"env_prefix": "CG_CB_"}
+
+    neo4j_failure_threshold: int = 5
+    neo4j_recovery_timeout: float = 30.0
+    neo4j_read_failure_threshold: int = 8
+    neo4j_read_recovery_timeout: float = 30.0
+    llm_failure_threshold: int = 3
+    llm_recovery_timeout: float = 60.0
+
+
+class NodeBudgetSettings(BaseSettings):
+    """Per-tenant node budget for graph compaction.
+
+    When the total node count for a tenant exceeds ``compaction_trigger_pct``
+    of ``max_nodes_per_tenant``, the consolidation worker will compact stale
+    sessions by removing old events that are already covered by summaries.
+    """
+
+    model_config = {"env_prefix": "CG_NODE_BUDGET_"}
+
+    max_nodes_per_tenant: int = 100_000
+    compaction_trigger_pct: float = 80.0
+    min_session_age_hours: int = 168
+    min_events_for_compaction: int = 50
+    keep_recent_events: int = 10
+
 
 class Settings(BaseSettings):
     """Root application settings."""
@@ -478,3 +544,6 @@ class Settings(BaseSettings):
     ppr: PPRSettings = Field(default_factory=PPRSettings)
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
     simulation: SimulationSettings = Field(default_factory=SimulationSettings)
+    tenant: TenantSettings = Field(default_factory=TenantSettings)
+    circuit_breaker: CircuitBreakerSettings = Field(default_factory=CircuitBreakerSettings)
+    node_budget: NodeBudgetSettings = Field(default_factory=NodeBudgetSettings)
