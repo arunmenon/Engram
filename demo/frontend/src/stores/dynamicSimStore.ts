@@ -29,6 +29,74 @@ import {
 // Re-export PipelineStats for consumers that imported it from here
 export type { PipelineStats };
 
+/**
+ * Retrieve past context from the Engram graph and format it as a system
+ * prompt supplement for the support agent.  Returns an empty string when
+ * no meaningful prior context exists.
+ */
+async function _retrievePastContext(
+  _sessionId: string,
+  customerName: string,
+): Promise<string> {
+  try {
+    const client = getSharedClient();
+
+    // Query cross-session user data (preferences, skills, interests)
+    // The extraction consumer creates user entities keyed by agent_id,
+    // so the entity in Neo4j is "user:fe-dynamic-sim" (not the persona name).
+    const userId = "user:fe-dynamic-sim";
+    const [prefsRes, skillsRes, interestsRes] = await Promise.allSettled([
+      client.getUserPreferences(userId),
+      client.getUserSkills(userId),
+      client.getUserInterests(userId),
+    ]);
+
+    const parts: string[] = [];
+
+    if (prefsRes.status === "fulfilled" && Array.isArray(prefsRes.value)) {
+      const items = prefsRes.value
+        .map((p: Record<string, unknown>) => {
+          const key = (p.key as string) ?? "";
+          const context = (p.context as string) ?? "";
+          return context || key.replace(/_/g, " ");
+        })
+        .filter(Boolean);
+      if (items.length) parts.push("Customer preferences: " + items.join("; "));
+    }
+
+    if (skillsRes.status === "fulfilled" && Array.isArray(skillsRes.value)) {
+      const names = skillsRes.value
+        .map((s: Record<string, unknown>) => (s.name as string) ?? "")
+        .filter(Boolean);
+      if (names.length) parts.push("Customer skills: " + names.join(", "));
+    }
+
+    if (
+      interestsRes.status === "fulfilled" &&
+      Array.isArray(interestsRes.value)
+    ) {
+      const names = interestsRes.value
+        .map((i: Record<string, unknown>) => (i.name as string) ?? "")
+        .filter(Boolean);
+      if (names.length) parts.push("Customer interests: " + names.join(", "));
+    }
+
+    if (parts.length === 0) return "";
+
+    return (
+      "\n\n--- CUSTOMER HISTORY (from Engram context graph) ---\n" +
+      `The following context was retrieved about ${customerName} from previous sessions:\n` +
+      parts.join("\n") +
+      "\n\nUse this context naturally in your responses. Reference past interactions when relevant " +
+      "to show continuity and personalized service. Do NOT list these facts back mechanically.\n" +
+      "--- END CUSTOMER HISTORY ---"
+    );
+  } catch {
+    // Context retrieval is best-effort; don't block the conversation
+    return "";
+  }
+}
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type DynamicStatus =
@@ -247,6 +315,22 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
         content: msg.content,
       }));
 
+      // Augment support agent's system prompt with retrieved context
+      let augmentedPrompt = activePersona.systemPrompt;
+      if (
+        activePersona.role === "support" &&
+        state.backendConnected &&
+        state.customerPersona
+      ) {
+        const pastContext = await _retrievePastContext(
+          state.sessionId,
+          state.customerPersona.name,
+        );
+        if (pastContext) {
+          augmentedPrompt += pastContext;
+        }
+      }
+
       let fullContent = "";
       let turnResult: SimulateTurnDone | null = null;
 
@@ -255,7 +339,7 @@ export const useDynamicSimStore = create<DynamicSimState>((set, get) => ({
           persona: {
             name: activePersona.name,
             role: activePersona.role,
-            system_prompt: activePersona.systemPrompt,
+            system_prompt: augmentedPrompt,
           },
           conversation_history: history,
           session_context: get().turnCount === 0 ? state.topicSeed : undefined,

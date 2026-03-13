@@ -17,7 +17,7 @@ import {
 } from "../../stores/animationStore";
 import { useTraversalAnimation } from "../../hooks/useTraversalAnimation";
 import { tracker } from "../../analytics/tracker";
-import { NODE_COLORS } from "../../api/transforms";
+import { NODE_COLORS, getEventColor } from "../../api/transforms";
 
 /**
  * Shape mapping by node type:
@@ -228,13 +228,13 @@ export function GraphVisualization() {
       labelFont: "Inter",
       edgeLabelFont: "Inter",
       edgeLabelSize: 9,
-      edgeLabelColor: { color: "#6b7280" },
+      edgeLabelColor: { color: "#94a3b8" },
       labelDensity: 0.5,
       labelRenderedSizeThreshold: 6,
       zIndex: true,
       defaultNodeColor: "#6b7280",
-      defaultEdgeColor: "#374151",
-      minEdgeThickness: 0.5,
+      defaultEdgeColor: "#64748b",
+      minEdgeThickness: 1.5,
 
       nodeReducer: (node, data) => {
         const res = { ...data };
@@ -405,16 +405,51 @@ export function GraphVisualization() {
       }
     };
 
+    // ─── Node dragging ────────────────────────────────────────────────
+    let draggedNode: string | null = null;
+    let isDragging = false;
+
+    const handleDownNode = (event: { node: string }) => {
+      draggedNode = event.node;
+      isDragging = false;
+      renderer.getCamera().disable();
+    };
+
+    const handleMouseMove = (coords: { x: number; y: number }) => {
+      if (!draggedNode || !graph) return;
+      isDragging = true;
+      setTooltip(null);
+      const pos = renderer.viewportToGraph(coords);
+      graph.setNodeAttribute(draggedNode, "x", pos.x);
+      graph.setNodeAttribute(draggedNode, "y", pos.y);
+    };
+
+    const handleMouseUp = () => {
+      if (draggedNode && isDragging) {
+        // Prevent click from firing after a drag
+        draggedNode = null;
+        isDragging = false;
+      }
+      draggedNode = null;
+      renderer.getCamera().enable();
+    };
+
     renderer.on("clickNode", handleClickNode);
     renderer.on("clickStage", handleClickStage);
     renderer.on("enterNode", handleEnterNode);
     renderer.on("leaveNode", handleLeaveNode);
+    renderer.on("downNode", handleDownNode);
+    renderer.getMouseCaptor().on("mousemovebody", handleMouseMove);
+    renderer.getMouseCaptor().on("mouseup", handleMouseUp);
 
     return () => {
       renderer.off("clickNode", handleClickNode);
       renderer.off("clickStage", handleClickStage);
       renderer.off("enterNode", handleEnterNode);
       renderer.off("leaveNode", handleLeaveNode);
+      renderer.off("downNode", handleDownNode);
+      renderer.getMouseCaptor().off("mousemovebody", handleMouseMove);
+      renderer.getMouseCaptor().off("mouseup", handleMouseUp);
       useGraphStore.getState().setSigmaRenderer(null);
       renderer.kill();
       rendererRef.current = null;
@@ -519,7 +554,10 @@ export function GraphVisualization() {
             <span
               className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
               style={{
-                backgroundColor: NODE_COLORS[tooltip.nodeType] ?? "#6b7280",
+                backgroundColor:
+                  tooltip.nodeType === "Event"
+                    ? getEventColor(tooltip.eventType)
+                    : (NODE_COLORS[tooltip.nodeType] ?? "#6b7280"),
               }}
             />
             <span className="text-[10px] font-mono uppercase tracking-wider text-muted-light">

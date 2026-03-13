@@ -38,9 +38,19 @@ export function ContextUsed({ nodeIds, count }: ContextUsedProps) {
             className="overflow-hidden"
           >
             <div className="mt-2 space-y-1.5">
-              {contextNodes.map(node => (
-                <NodeCard key={node.id} node={node} compact />
-              ))}
+              {contextNodes.length > 0
+                ? contextNodes.map(node => (
+                    <NodeCard key={node.id} node={node} compact />
+                  ))
+                : nodeIds.map(id => (
+                    <div
+                      key={id}
+                      className="flex items-center gap-2 rounded-md bg-surface-dark/60 px-2.5 py-1.5 text-[11px]"
+                    >
+                      <span className="h-2 w-2 rounded-full bg-accent-blue/40 shrink-0" />
+                      <span className="text-muted truncate font-mono">{id}</span>
+                    </div>
+                  ))}
             </div>
           </motion.div>
         )}

@@ -13,6 +13,9 @@ export function DynamicChat() {
   const streamingPersona = useDynamicSimStore(s => s.streamingPersona);
   const customerPersona = useDynamicSimStore(s => s.customerPersona);
   const supportPersona = useDynamicSimStore(s => s.supportPersona);
+  const backendConnected = useDynamicSimStore(s => s.backendConnected);
+  const pipelineStats = useDynamicSimStore(s => s.pipelineStats);
+  const ingestedEvents = useDynamicSimStore(s => s.ingestedEvents);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -169,9 +172,9 @@ export function DynamicChat() {
 
       {/* Pipeline Status + Controls */}
       <PipelineStatus
-        backendConnected={useDynamicSimStore(s => s.backendConnected)}
-        pipelineStats={useDynamicSimStore(s => s.pipelineStats)}
-        ingestedEvents={useDynamicSimStore(s => s.ingestedEvents)}
+        backendConnected={backendConnected}
+        pipelineStats={pipelineStats}
+        ingestedEvents={ingestedEvents}
       />
       <DynamicControls />
     </div>

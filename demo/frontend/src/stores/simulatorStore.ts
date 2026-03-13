@@ -71,6 +71,8 @@ interface SimulatorState {
   clearContextGraph: () => Promise<void>;
   triggerReconsolidate: () => Promise<void>;
   refreshPipelineStats: () => Promise<void>;
+  /** Fetch graph scoped to a specific session, or all sessions if null */
+  fetchGraphForFilter: (sessionId: string | null) => Promise<void>;
 }
 
 // ─── Engram Client (singleton from shared pipeline) ─────────────────────────
@@ -82,17 +84,20 @@ const engram = getSharedClient();
 const ingestedSessionIds = new Set<string>();
 
 // ─── Timestamp rebasing ─────────────────────────────────────────────────────
-// Scenario data has timestamps from 2024. We rebase them to "now" so events
-// appear fresh in the backend's decay scoring and timeline views.
+// Scenario data has timestamps from 2024. We rebase them so the *last*
+// session's end_time maps to "now", putting all events safely in the past.
+// This avoids the backend's MAX_FUTURE_DRIFT_SECONDS (5 min) rejection
+// that occurs when multi-week inter-session gaps push S2/S3 into the future.
 
 let _applyStepLock = false;
 
-let _rebaseOrigin: string | null = null; // scenario's earliest session start_time
+let _rebaseOrigin: string | null = null; // scenario's latest session end_time
 let _rebaseTarget: string | null = null; // "now" when playback began
 
 function initRebase(scenario: SimulatorScenario): void {
   if (_rebaseOrigin) return; // already initialized for this playback
-  _rebaseOrigin = scenario.sessions[0]?.start_time ?? new Date().toISOString();
+  const lastSession = scenario.sessions[scenario.sessions.length - 1];
+  _rebaseOrigin = lastSession?.end_time ?? new Date().toISOString();
   _rebaseTarget = new Date().toISOString();
 }
 
@@ -719,6 +724,47 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
         () => {},
       );
       await fetchLiveUserData(state.scenario).catch(() => {});
+    }
+  },
+
+  fetchGraphForFilter: async (sessionId: string | null) => {
+    const state = get();
+    if (!state.scenario || !state.backendConnected) return;
+
+    const graphStore = useGraphStore.getState();
+    graphStore.setSessionFilter(sessionId);
+
+    if (sessionId) {
+      // Single session — same as existing fetchLiveGraph
+      await fetchLiveGraph(sessionId, state.scenario);
+    } else {
+      // "All" — query every session and merge results
+      const allNodes = new Map<string, import("../types/graph").GraphNode>();
+      const allEdges = new Map<string, import("../types/graph").GraphEdge>();
+      const sessionIds = state.scenario.sessions.map((s) => s.id);
+
+      await Promise.all(
+        sessionIds.map(async (sid) => {
+          try {
+            const atlas = await engram.querySubgraph({
+              query: `session context for ${state.scenario!.persona.name}`,
+              session_id: sid,
+              agent_id: "fe-simulator",
+              max_nodes: 200,
+              max_depth: 5,
+            });
+            const { nodes, edges } = transformAtlasResponse(atlas);
+            for (const n of nodes) allNodes.set(n.id, n);
+            for (const e of edges) allEdges.set(e.id, e);
+          } catch {
+            // Session may not have data yet — skip silently
+          }
+        }),
+      );
+
+      useGraphStore
+        .getState()
+        .setGraphData([...allNodes.values()], [...allEdges.values()]);
     }
   },
 }));

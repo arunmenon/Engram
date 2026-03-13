@@ -1,4 +1,6 @@
 import { useGraphStore } from '../../stores/graphStore';
+import { useSimulatorStore } from '../../stores/simulatorStore';
+import { isSimulatorMode } from '../../api/mode';
 import type { NodeType } from '../../types/atlas';
 import { LayoutGrid, Circle } from 'lucide-react';
 
@@ -27,6 +29,8 @@ export function GraphControls() {
   const toggleNodeType = useGraphStore((s) => s.toggleNodeType);
   const sessionFilter = useGraphStore((s) => s.sessionFilter);
   const setSessionFilter = useGraphStore((s) => s.setSessionFilter);
+  const fetchGraphForFilter = useSimulatorStore((s) => s.fetchGraphForFilter);
+  const loading = useGraphStore((s) => s.loading);
 
   return (
     <div className="absolute top-3 right-3 z-40 bg-surface-dark/80 backdrop-blur-sm border border-muted-dark/40 rounded-lg p-2.5 space-y-2.5 min-w-[180px]">
@@ -92,12 +96,19 @@ export function GraphControls() {
         {SESSION_OPTIONS.map(({ id, label }) => (
           <button
             key={label}
-            onClick={() => setSessionFilter(id)}
+            onClick={() => {
+              if (isSimulatorMode()) {
+                fetchGraphForFilter(id);
+              } else {
+                setSessionFilter(id);
+              }
+            }}
+            disabled={loading}
             className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors ${
               sessionFilter === id
                 ? 'bg-accent-blue/20 text-accent-blue'
                 : 'text-muted-light hover:text-gray-100'
-            }`}
+            } ${loading ? 'opacity-50 cursor-wait' : ''}`}
           >
             {label}
           </button>
