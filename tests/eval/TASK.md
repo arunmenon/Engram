@@ -28,39 +28,24 @@ You are a scoring optimization researcher. Your goal: **maximize the retrieval q
 score = (1 - violation_rate) * mean_nDCG@10
 ```
 
-Higher is better. Current best on original: **0.7660**. Target: **0.80+**
+Higher is better. Current best on extended: **0.6990**. Target: **0.75+**
 
-## Dataset Modes
+## Dataset
 
-The eval supports 3 dataset sizes. Use `--dataset` flag to select:
+**IMPORTANT: Use `--dataset=extended` for ALL eval runs.** This is mandatory.
 
-| Mode           | Flag                           | Nodes | Edges | Queries | Scenarios | Use for                                 |
-| -------------- | ------------------------------ | ----- | ----- | ------- | --------- | --------------------------------------- |
-| Original       | `--dataset=original` (default) | 59    | 106   | 24      | 3         | Fast iteration, regression checks       |
-| Extended       | `--dataset=extended`           | 287   | 418   | 80      | 10        | Full evaluation, final scores           |
-| Generated-only | `--dataset=generated-only`     | 228   | 312   | 56      | 7         | Testing generalization to new scenarios |
+The extended dataset has 287 nodes, 418 edges, 80 queries across 10 fintech scenarios (3 original + 7 LLM-generated). This is the primary benchmark. All scores in this document and in the research log refer to extended dataset runs.
 
-**Recommended workflow:**
-
-- Iterate on `--dataset=original` (fast, ~8ms per run)
-- Validate winners on `--dataset=extended` before accepting
-- A change that improves original but hurts extended is suspicious -- investigate before accepting
+| Mode           | Flag                       | Nodes   | Queries | Scenarios | Use for                               |
+| -------------- | -------------------------- | ------- | ------- | --------- | ------------------------------------- |
+| **Extended**   | **`--dataset=extended`**   | **287** | **80**  | **10**    | **ALL runs -- this is the benchmark** |
+| Original       | `--dataset=original`       | 59      | 24      | 3         | Do NOT use -- leads to overfitting    |
+| Generated-only | `--dataset=generated-only` | 228     | 56      | 7         | Optional -- test generalization only  |
 
 ## Quick Start
 
 ```bash
-# Current best (original dataset, score=0.7660)
-uv run python tests/eval/run_eval.py \
-  --w_relevance=3.2 --w_recency=0.72 --w_importance=0.8 --w_user_affinity=0.78 \
-  --intent_relevance_bias=4.2 --intent_affinity_bias=1.5 --intent_recency_bias=1.1 \
-  --entity_s_base=720 --entity_s_boost=48 --degree_boost_cap=0.14 \
-  --node_type_profile_bonus=1.05 \
-  --hook=scenario_focus:cross_scenario_multiplier=0.2,related_cross_scenario_multiplier=0.8 \
-  --hook=negative_similarity:penalty_factor=0.2 \
-  --hook=edge_boost:boost_factor=0.08,top_n_seeds=6 \
-  --compare-baseline
-
-# Same config on extended dataset
+# Current best (extended dataset, score=0.6990)
 uv run python tests/eval/run_eval.py \
   --dataset=extended \
   --w_relevance=3.2 --w_recency=0.72 --w_importance=0.8 --w_user_affinity=0.78 \
@@ -70,13 +55,14 @@ uv run python tests/eval/run_eval.py \
   --hook=scenario_focus:cross_scenario_multiplier=0.2,related_cross_scenario_multiplier=0.8 \
   --hook=negative_similarity:penalty_factor=0.2 \
   --hook=edge_boost:boost_factor=0.08,top_n_seeds=6 \
+  --hook=mmr_diversity \
   --compare-baseline
 
 # List available hooks
 uv run python tests/eval/run_eval.py --list-hooks
 
 # JSON output (for programmatic parsing)
-uv run python tests/eval/run_eval.py --json --compare-baseline
+uv run python tests/eval/run_eval.py --dataset=extended --json --compare-baseline
 ```
 
 ## Your Loop
@@ -121,9 +107,9 @@ Run eval with your ONE change applied on top of the last accepted config. Use `-
 
 Append to `tests/eval/results/agent_research_log.md` using the format below. Include the EXACT command so future cycles can reproduce it.
 
-### Step 7: Cross-Validate (for accepted changes)
+### Step 7: Sanity Check (optional)
 
-If you accepted a change on `--dataset=original`, also run it on `--dataset=extended`. If the extended score drops significantly (>5%), reconsider the change -- it may be overfitting to the 3 original scenarios.
+If a change produces a surprisingly large gain (>3%), also run it on `--dataset=generated-only` to confirm it generalizes to the 7 new scenarios and isn't just lifting the 3 original ones.
 
 ## What You Can Change
 
@@ -207,17 +193,28 @@ cp tests/eval/harness.py.bak tests/eval/harness.py
 
 ## Past Breakthroughs (learn from these)
 
-| Change                                                    | Score  | Delta  | Session |
-| --------------------------------------------------------- | ------ | ------ | ------- |
-| Boosted w_relevance from 1.0 to 3.2                       | 0.5326 | +10%   | Cycle 1 |
-| intent_relevance_bias = 4.2                               | 0.5897 | +2%    | Cycle 1 |
-| edge_boost(factor=0.05) on tuned params                   | 0.6074 | +1.8%  | Cycle 1 |
-| edge_boost + negative_similarity                          | 0.6205 | +1.3%  | Cycle 3 |
-| scenario_focus (cross_scenario=0.45)                      | 0.7417 | +12.1% | Cycle 5 |
-| Hook reorder: scenario_focus before edge_boost            | 0.7442 | +0.25% | Cycle 6 |
-| Tighter scenario_focus (0.2) + stronger edge_boost (0.08) | 0.7660 | +1.4%  | Cycle 8 |
+These were discovered on the original dataset and verified on extended. Extended scores shown.
 
-**Key insight**: scenario_focus was the single biggest unlock (+12%). Hook ordering matters. Penalizing bad nodes before boosting good ones prevents error propagation.
+| Change                                         | Extended Score | Session         |
+| ---------------------------------------------- | -------------- | --------------- |
+| Tuned params + edge_boost                      | ~0.43          | Original C1     |
+| scenario_focus hook                            | ~0.60          | Original C5     |
+| Entity-aware edge_boost (skip Event neighbors) | 0.6719         | Original C11    |
+| 2-hop traversal + same-scenario entity boost   | 0.6796         | Original C13-14 |
+| MMR diversity (skip `what` intent)             | **0.6990**     | Original C15-17 |
+
+**Key insights from prior optimization:**
+
+- scenario_focus was the single biggest unlock. Hook ordering matters -- penalize before boosting.
+- Entity-centric intents (who_is, related, personalize) need different edge_boost behavior than event-centric intents.
+- MMR diversity helps RELATED but hurts WHAT -- intent-selective application is key.
+- Current hook chain: `scenario_focus -> negative_similarity -> edge_boost -> mmr_diversity`
+
+**Where the remaining gap is (extended dataset, score=0.6990):**
+
+- RELATED=0.5577, HOW_DOES=0.6364, WHO_IS=0.6441 are the weakest intents
+- Worst queries are in generated scenarios: lu-how-does-01 (0.13), cr-why-01 (0.20), ar-how_does-01 (0.32)
+- The params and hooks were tuned for 3 original scenarios -- the 7 new scenarios likely need retuning
 
 ## Dead Ends (do NOT retry these)
 
@@ -237,7 +234,7 @@ cp tests/eval/harness.py.bak tests/eval/harness.py
 3. **Ignoring the log** -- if someone already tried it and it failed, don't retry unless you have a fundamentally different approach
 4. **Tweaking params by tiny amounts** -- changing w_relevance from 3.2 to 3.3 is noise. Make meaningful changes or move to hooks/code.
 5. **Adding hooks without understanding the current chain** -- the current chain (scenario_focus -> negative_similarity -> edge_boost) is carefully ordered. Adding a hook in the wrong position can destroy gains.
-6. **Optimizing for original only** -- a change that helps 59 nodes but hurts 287 is overfitting
+6. **Using `--dataset=original`** -- the 59-node dataset is for sanity checks only, not optimization. Always use `--dataset=extended`
 
 ## Recording Your Work
 
