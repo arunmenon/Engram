@@ -79,6 +79,8 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH"]
 [tool.ruff.lint.per-file-ignores]
 # Pydantic models need datetime/UUID at runtime, not just TYPE_CHECKING
 "src/context_graph/domain/models.py" = ["TCH003"]
+# Generator has many long rationale/description strings in data definitions
+"tests/eval/generate_dataset.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["context_graph"]
@@ -101,3 +103,8 @@ omit = ["*/tests/*"]
 [tool.coverage.report]
 show_missing = true
 fail_under = 70
+
+[dependency-groups]
+dev = [
+    "instructor>=1.15.1",
+]
