@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520" font-family="Inter, -apple-system, system-ui, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c0392b"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="920" height="520" fill="#fafafa" rx="8"/>
+
+  <!-- Title -->
+  <text x="460" y="36" text-anchor="middle" font-size="15" font-weight="700" fill="#222">Scoring Pipeline: Where the 0.1 Fallback Hid</text>
+
+  <!-- ==================== QUERY BOX ==================== -->
+  <rect x="30" y="60" width="160" height="72" rx="8" fill="#e8f4f8" stroke="#5dade2" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="110" y="86" text-anchor="middle" font-size="11" font-weight="600" fill="#2471a3">Query</text>
+  <text x="110" y="103" text-anchor="middle" font-size="9" fill="#555">"Given Jordan's profile,</text>
+  <text x="110" y="115" text-anchor="middle" font-size="9" fill="#555">which preferences…"</text>
+  <text x="110" y="127" text-anchor="middle" font-size="9" fill="#888">intent: personalize</text>
+
+  <!-- Arrow: Query → Base Scoring -->
+  <line x1="190" y1="96" x2="228" y2="96" stroke="#666" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== BASE SCORING ==================== -->
+  <rect x="232" y="56" width="180" height="80" rx="8" fill="#fff" stroke="#bbb" stroke-width="1.2" filter="url(#shadow)"/>
+  <text x="322" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#333">Base Scoring</text>
+  <text x="322" y="96" text-anchor="middle" font-size="9" fill="#666">4-factor weighted average:</text>
+  <text x="322" y="110" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#555">w_rel·sim + w_rec·decay</text>
+  <text x="322" y="122" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#555">+ w_imp·imp + w_aff·aff</text>
+
+  <!-- Arrow: Base → Hook Chain -->
+  <line x1="412" y1="96" x2="448" y2="96" stroke="#666" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== HOOK CHAIN ==================== -->
+  <rect x="452" y="48" width="280" height="96" rx="8" fill="#fff" stroke="#bbb" stroke-width="1.2" filter="url(#shadow)"/>
+  <text x="592" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="#333">Post-Processing Hook Chain</text>
+
+  <!-- Hook boxes inside -->
+  <rect x="464" y="80" width="88" height="24" rx="4" fill="#f0e6f6" stroke="#8e44ad" stroke-width="1"/>
+  <text x="508" y="96" text-anchor="middle" font-size="8" fill="#6c3483">scenario_focus</text>
+
+  <rect x="558" y="80" width="78" height="24" rx="4" fill="#fde9e0" stroke="#e67e22" stroke-width="1"/>
+  <text x="597" y="96" text-anchor="middle" font-size="8" fill="#a04000">neg_similarity</text>
+
+  <rect x="642" y="80" width="78" height="24" rx="4" fill="#e8f8e8" stroke="#27ae60" stroke-width="1" id="edge-boost-box"/>
+  <text x="681" y="96" text-anchor="middle" font-size="8" fill="#1e7e34">edge_boost</text>
+
+  <!-- Small arrows between hooks -->
+  <line x1="552" y1="92" x2="556" y2="92" stroke="#999" stroke-width="0.8" marker-end="url(#arrow)"/>
+  <line x1="636" y1="92" x2="640" y2="92" stroke="#999" stroke-width="0.8" marker-end="url(#arrow)"/>
+
+  <!-- 4th hook below -->
+  <rect x="464" y="110" width="78" height="24" rx="4" fill="#e8f0f8" stroke="#2980b9" stroke-width="1"/>
+  <text x="503" y="126" text-anchor="middle" font-size="8" fill="#1a5276">mmr_diversity</text>
+
+  <!-- Arrow from edge_boost row down to mmr row -->
+  <line x1="720" y1="92" x2="730" y2="92" stroke="#999" stroke-width="0.8"/>
+  <line x1="730" y1="92" x2="730" y2="122" stroke="#999" stroke-width="0.8"/>
+  <line x1="730" y1="122" x2="544" y2="122" stroke="#999" stroke-width="0.8" marker-end="url(#arrow)"/>
+
+  <!-- Arrow: Hook Chain → Output -->
+  <line x1="732" y1="96" x2="768" y2="96" stroke="#666" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== OUTPUT ==================== -->
+  <rect x="772" y="60" width="120" height="72" rx="8" fill="#eafaf1" stroke="#27ae60" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="832" y="84" text-anchor="middle" font-size="11" font-weight="600" fill="#1e7e34">Ranked Output</text>
+  <text x="832" y="100" text-anchor="middle" font-size="9" fill="#555">Top-10 nodes</text>
+  <text x="832" y="114" text-anchor="middle" font-size="9" fill="#555">nDCG@10 scored</text>
+  <text x="832" y="128" text-anchor="middle" font-size="9" fill="#888">→ accept / reject</text>
+
+  <!-- ==================== EDGE BOOST DETAIL (THE BUG) ==================== -->
+
+  <!-- Callout line from edge_boost box down -->
+  <line x1="681" y1="104" x2="681" y2="170" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Detail box -->
+  <rect x="380" y="174" width="510" height="200" rx="10" fill="#fff9f5" stroke="#c0392b" stroke-width="1.5" filter="url(#shadow)"/>
+
+  <!-- Header -->
+  <rect x="380" y="174" width="510" height="32" rx="10" fill="#c0392b"/>
+  <rect x="380" y="194" width="510" height="12" fill="#c0392b"/>
+  <text x="635" y="195" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">edge_boost: The 0.1 Fallback Gap</text>
+
+  <!-- Two columns -->
+  <!-- Left: Configured edges -->
+  <text x="420" y="228" font-size="10" font-weight="600" fill="#333">Configured (original dataset)</text>
+
+  <rect x="400" y="236" width="200" height="22" rx="3" fill="#eafaf1" stroke="#27ae60" stroke-width="1"/>
+  <text x="410" y="251" font-size="9" font-family="JetBrains Mono, monospace" fill="#1e7e34">CAUSED_BY:  1.5</text>
+  <text x="575" y="251" font-size="8" fill="#888">causal chains</text>
+
+  <rect x="400" y="262" width="200" height="22" rx="3" fill="#eafaf1" stroke="#27ae60" stroke-width="1"/>
+  <text x="410" y="277" font-size="9" font-family="JetBrains Mono, monospace" fill="#1e7e34">FOLLOWS:    1.0</text>
+  <text x="575" y="277" font-size="8" fill="#888">event sequence</text>
+
+  <rect x="400" y="288" width="200" height="22" rx="3" fill="#eafaf1" stroke="#27ae60" stroke-width="1"/>
+  <text x="410" y="303" font-size="9" font-family="JetBrains Mono, monospace" fill="#1e7e34">REFERENCES: 1.2</text>
+  <text x="575" y="303" font-size="8" fill="#888">entity links</text>
+
+  <rect x="400" y="314" width="200" height="22" rx="3" fill="#eafaf1" stroke="#27ae60" stroke-width="1"/>
+  <text x="410" y="329" font-size="9" font-family="JetBrains Mono, monospace" fill="#1e7e34">SIMILAR_TO: 0.8</text>
+  <text x="575" y="329" font-size="8" fill="#888">semantic sim</text>
+
+  <!-- Right: Unconfigured edges (THE BUG) -->
+  <text x="668" y="228" font-size="10" font-weight="600" fill="#c0392b">Fell through to default (extended dataset)</text>
+
+  <rect x="648" y="236" width="220" height="22" rx="3" fill="#fdedec" stroke="#c0392b" stroke-width="1.2"/>
+  <text x="658" y="251" font-size="9" font-family="JetBrains Mono, monospace" fill="#922b21">HAS_PREFERENCE: 0.1</text>
+  <text x="833" y="251" font-size="8" font-weight="600" fill="#27ae60">→ 1.3</text>
+
+  <rect x="648" y="262" width="220" height="22" rx="3" fill="#fdedec" stroke="#c0392b" stroke-width="1.2"/>
+  <text x="658" y="277" font-size="9" font-family="JetBrains Mono, monospace" fill="#922b21">HAS_PROFILE:    0.1</text>
+  <text x="833" y="277" font-size="8" font-weight="600" fill="#27ae60">→ 1.5</text>
+
+  <rect x="648" y="288" width="220" height="22" rx="3" fill="#fdedec" stroke="#c0392b" stroke-width="1.2"/>
+  <text x="658" y="303" font-size="9" font-family="JetBrains Mono, monospace" fill="#922b21">RELATED_TO:     0.1</text>
+  <text x="833" y="303" font-size="8" font-weight="600" fill="#27ae60">→ 1.0</text>
+
+  <rect x="648" y="314" width="220" height="22" rx="3" fill="#fdedec" stroke="#c0392b" stroke-width="1"/>
+  <text x="658" y="329" font-size="9" font-family="JetBrains Mono, monospace" fill="#922b21">HAS_SKILL:      0.1</text>
+  <text x="833" y="329" font-size="8" fill="#888">tried, rejected</text>
+
+  <rect x="648" y="340" width="220" height="22" rx="3" fill="#fdedec" stroke="#c0392b" stroke-width="1"/>
+  <text x="658" y="355" font-size="9" font-family="JetBrains Mono, monospace" fill="#922b21">DERIVED_FROM:   0.1</text>
+  <text x="833" y="355" font-size="8" fill="#888">not yet tried</text>
+
+  <!-- Impact annotation -->
+  <rect x="400" y="348" width="230" height="20" rx="3" fill="none"/>
+  <text x="410" y="362" font-size="9" fill="#666">HAS_PREFERENCE fix alone: </text>
+  <text x="538" y="362" font-size="10" font-weight="700" fill="#c0392b">+0.0109</text>
+  <text x="590" y="362" font-size="9" fill="#666">(largest single gain)</text>
+
+  <!-- ==================== QUERY EXAMPLE (left side, bottom) ==================== -->
+  <rect x="30" y="174" width="330" height="200" rx="10" fill="#f4f6f9" stroke="#7f8c8d" stroke-width="1" filter="url(#shadow)"/>
+  <text x="195" y="196" text-anchor="middle" font-size="10" font-weight="600" fill="#333">Example: at-personalize-01</text>
+
+  <!-- Before -->
+  <text x="50" y="218" font-size="9" font-weight="600" fill="#c0392b">Before (HAS_PREFERENCE = 0.1)</text>
+  <text x="50" y="235" font-size="9" fill="#666">Top-10 dominated by Event nodes.</text>
+  <text x="50" y="249" font-size="9" fill="#666">Preference nodes pref-at-01, pref-at-02</text>
+  <text x="50" y="263" font-size="9" fill="#666">buried — edge propagation too weak.</text>
+  <text x="50" y="280" font-size="9" font-family="JetBrains Mono, monospace" fill="#c0392b">nDCG = 0.32</text>
+
+  <!-- Divider -->
+  <line x1="50" y1="290" x2="340" y2="290" stroke="#ccc" stroke-width="0.8"/>
+
+  <!-- After -->
+  <text x="50" y="308" font-size="9" font-weight="600" fill="#27ae60">After (HAS_PREFERENCE = 1.3)</text>
+  <text x="50" y="325" font-size="9" fill="#666">pref-at-01 enters top-10.</text>
+  <text x="50" y="339" font-size="9" fill="#666">Graph propagation reaches preference</text>
+  <text x="50" y="353" font-size="9" fill="#666">and skill nodes through weighted edges.</text>
+  <text x="50" y="370" font-size="9" font-family="JetBrains Mono, monospace" fill="#27ae60">nDCG = 0.41</text>
+
+  <!-- ==================== LEGEND ==================== -->
+  <rect x="30" y="400" width="860" height="100" rx="8" fill="#f8f8f8" stroke="#ddd" stroke-width="1"/>
+  <text x="460" y="420" text-anchor="middle" font-size="10" font-weight="600" fill="#555">The Autoresearch Loop</text>
+
+  <!-- Loop steps -->
+  <rect x="52" y="436" width="100" height="30" rx="5" fill="#e8f4f8" stroke="#5dade2" stroke-width="1"/>
+  <text x="102" y="455" text-anchor="middle" font-size="8" font-weight="600" fill="#2471a3">Read History</text>
+
+  <line x1="152" y1="451" x2="168" y2="451" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="172" y="436" width="100" height="30" rx="5" fill="#fff" stroke="#bbb" stroke-width="1"/>
+  <text x="222" y="455" text-anchor="middle" font-size="8" font-weight="600" fill="#333">Hypothesize</text>
+
+  <line x1="272" y1="451" x2="288" y2="451" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="292" y="436" width="100" height="30" rx="5" fill="#eafaf1" stroke="#27ae60" stroke-width="1"/>
+  <text x="342" y="455" text-anchor="middle" font-size="8" font-weight="600" fill="#1e7e34">Run Eval</text>
+
+  <line x1="392" y1="451" x2="408" y2="451" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="412" y="436" width="110" height="30" rx="5" fill="#fde9e0" stroke="#e67e22" stroke-width="1"/>
+  <text x="467" y="455" text-anchor="middle" font-size="8" font-weight="600" fill="#a04000">Accept / Reject</text>
+
+  <line x1="522" y1="451" x2="538" y2="451" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="542" y="436" width="100" height="30" rx="5" fill="#f0e6f6" stroke="#8e44ad" stroke-width="1"/>
+  <text x="592" y="455" text-anchor="middle" font-size="8" font-weight="600" fill="#6c3483">Record</text>
+
+  <!-- Loop-back arrow -->
+  <line x1="642" y1="451" x2="660" y2="451" stroke="#666" stroke-width="1"/>
+  <line x1="660" y1="451" x2="660" y2="486" stroke="#666" stroke-width="1"/>
+  <line x1="660" y1="486" x2="42" y2="486" stroke="#666" stroke-width="1"/>
+  <line x1="42" y1="486" x2="42" y2="451" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Escalation label on loop-back -->
+  <text x="351" y="482" text-anchor="middle" font-size="8" fill="#888">3 rejections → escalate level (L1 params → L2 hooks → L3 code)</text>
+
+  <!-- Stall label -->
+  <rect x="680" y="436" width="190" height="30" rx="5" fill="#f8f8f8" stroke="#95a5a6" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="775" y="449" text-anchor="middle" font-size="8" fill="#7f8c8d">Stall detected after 10 cycles</text>
+  <text x="775" y="461" text-anchor="middle" font-size="8" fill="#7f8c8d">at all 3 levels → STOP</text>
+
+</svg>

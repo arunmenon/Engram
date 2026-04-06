@@ -88,6 +88,8 @@ The standard approach for `how_does` queries was to multiply the relevance weigh
 
 ### Discovery 2: The missing edge types
 
+![Scoring pipeline diagram showing the 0.1 fallback gap in edge_boost](autoresearch-scoring-pipeline.svg)
+
 This was the most important finding. The `edge_boost` hook had default weights for four edge types:
 
 ```python
