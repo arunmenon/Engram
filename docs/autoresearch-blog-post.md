@@ -1,8 +1,8 @@
 # How an AI Agent Found a Hidden Gap in Our Retrieval Scoring System
 
-We used an AI agent to optimize a retrieval scoring algorithm for a knowledge graph. Over 19 autonomous cycles it improved ranking quality by 5.5% -- but the more interesting result was what it discovered along the way: five graph edge types in our system were silently degraded to near-zero weight because our original test data never exercised them. That structural gap was invisible to us. The agent found it by following a protocol we call TASK.md.
+We used an AI agent to optimize a retrieval scoring algorithm for a knowledge graph. Over 19 autonomous cycles it improved ranking quality by 5.5% -- but the more interesting result was what it discovered along the way: five graph edge types in our system were falling through to a low default weight because our original test data never exercised them. That structural gap was invisible to us. The agent found it by following a protocol we call TASK.md.
 
-This post describes the protocol, the discoveries, and why the [autoresearch pattern](https://github.com/karpathy/autoresearch) -- Andrej Karpathy's minimal loop for autonomous optimization -- works for retrieval systems, not just model training.
+This post describes the protocol, the discoveries, and why the [autoresearch pattern](https://github.com/karpathy/autoresearch) -- Andrej Karpathy's minimal loop for autonomous optimization -- can be adapted to retrieval scoring, not just model training.
 
 ## The system: ranking nodes in a knowledge graph
 
@@ -29,17 +29,17 @@ We built a deterministic evaluation setup:
 - 3 hand-crafted scenarios + 7 LLM-generated scenarios (GPT-5.4-mini with Pydantic structured output, human-reviewed for node diversity and edge coverage)
 - 8 intent types: `why`, `when`, `what`, `related`, `general`, `who_is`, `how_does`, `personalize`
 
-**An important caveat**: the embeddings are 8-dimensional SHA-256 hashes, not real semantic embeddings. This was deliberate -- it makes evaluation perfectly reproducible and cheap (~3 seconds per full run, no GPU needed), but it means cosine similarity carries no real semantic signal. What you gain in reproducibility, you lose in the relevance dimension. This constraint shaped the entire experiment: the biggest wins came from graph structure, not semantic tuning.
+**An important caveat**: the node vectors are 8-dimensional SHA-256 hashes, not learned semantic embeddings. This was deliberate -- it makes evaluation perfectly reproducible and cheap (~3 seconds per full run, no GPU needed), but it means cosine similarity carries no real semantic signal. What you gain in reproducibility, you lose in the relevance dimension. This constraint shaped the entire experiment: the biggest wins came from graph structure, not semantic tuning.
 
 The metric: `score = (1 - violation_rate) * mean_nDCG@10`
 
 The violation rate acts as a hard safety gate. Any run with violation rate above 0.1 is automatically rejected regardless of how much nDCG improved. In practice, no accepted run tripped the gate, but it constrained the search: several rejected changes (like replacing the MMR reranker with RRF) would have introduced violations if the gate were absent.
 
-**Why the LLM-generated scenarios mattered**: our original 3-scenario, 59-node dataset was small enough for configs to overfit to it. The 7 generated scenarios introduced new edge types (`HAS_PROFILE`, `HAS_PREFERENCE`, `RELATED_TO`) and query patterns that the hand-crafted data never covered. This turned out to be the most consequential design decision in the whole experiment.
+**Why the LLM-generated scenarios mattered**: our original 3-scenario, 59-node dataset was small enough for configs to overfit to it. The 7 generated scenarios introduced new edge types (`HAS_PROFILE`, `HAS_PREFERENCE`, `RELATED_TO`) and query patterns that the hand-crafted data never covered. We used them to broaden structural coverage, not to replace human judgment on what "good retrieval" means -- the relevance grades and expected rankings were still reviewed manually. This turned out to be the most consequential design decision in the experiment.
 
 ## The protocol: TASK.md
 
-The core contribution is the protocol document, not the AI agent. TASK.md is a self-contained instruction sheet that any LLM agent can follow. It has five parts:
+The reusable contribution here is the protocol document, not any specific model. TASK.md is a self-contained instruction sheet that any LLM agent can follow. It has five parts:
 
 **10 rules** that constrain agent behavior: one change per cycle, always revert to last accepted state, record every experiment, never modify the evaluation harness, backup before code edits.
 
@@ -84,7 +84,7 @@ Total wall clock time: approximately 45 minutes for all 19 cycles. Each eval run
 
 ### Discovery 1: Amplifying noise hurts more than helping
 
-The standard approach for `how_does` queries was to multiply the relevance weight by 4.2x. But with hashed embeddings, there is no real semantic signal to amplify. The agent discovered that removing the multiplier improved HOW_DOES from 0.6309 to 0.6839 (Cycle 5). The correct move was subtraction, not addition.
+The standard approach for `how_does` queries was to multiply the relevance weight by 4.2x. But with hash-based vectors, there is no real semantic signal to amplify. The agent discovered that removing the multiplier improved HOW_DOES from 0.6309 to 0.6839 (Cycle 5). The correct move was subtraction, not addition.
 
 ### Discovery 2: The missing edge types
 
@@ -99,7 +99,7 @@ edge_type_weights = {
 }
 ```
 
-Any unrecognized edge type fell back to `0.1`. The extended dataset introduced `HAS_PROFILE`, `RELATED_TO`, `HAS_PREFERENCE`, `HAS_SKILL`, and `DERIVED_FROM`. All five were treated as nearly irrelevant.
+Any unrecognized edge type fell back to `0.1`. The extended dataset introduced `HAS_PROFILE`, `RELATED_TO`, `HAS_PREFERENCE`, `HAS_SKILL`, and `DERIVED_FROM`. All five were falling through to the 0.1 fallback.
 
 The agent fixed three of them across Cycles 14-17, with `HAS_PREFERENCE` alone contributing +0.0109 -- the single largest gain in the run.
 
@@ -119,29 +119,23 @@ Cycles 6 through 11 were six consecutive rejections targeting WHO_IS. The agent 
 
 Karpathy's autoresearch has three primitives: one editable file, one scalar metric, one time-boxed cycle. Our setup extends the pattern in ways that matter for retrieval systems:
 
-**Three-level search space with risk escalation.** Karpathy's agent always operates at the same level (code edits). Ours starts with safe parameter tweaks and only reaches into the codebase when parameters are exhausted. This controls blast radius while preserving the unbounded search space at L3.
+**Three-level search space with risk escalation.** Karpathy's agent always operates at the same level (code edits). Ours starts with safe parameter tweaks and only reaches into the codebase when parameters are exhausted. Dead ends from prior sessions prevent retesting known failures like Z-score normalization (-22% regression).
 
-**Institutional dead ends.** Karpathy's `results.tsv` logs outcomes but does not carry forward "don't try this" knowledge. Our dead ends table prevents retesting Z-score normalization (-22% regression) or aggressive recency weighting. Early benchmarks comparing autoresearch to classical HPO suggest that a significant fraction of gains come from changes outside the predefined search space -- architectural modifications that no parameter grid would include. Dead ends help the agent spend its budget on that unexplored territory.
+**No gradient signal.** nDCG@10 over 80 queries is noisy and non-differentiable. The agent reasons about per-intent breakdowns, identifies the worst category, and hypothesizes targeted fixes. Traditional AutoML (Optuna, Ray Tune) cannot reason about _why_ a configuration is failing.
 
-**No gradient signal.** nDCG@10 over 80 queries is noisy and non-differentiable. The agent reasons about per-intent breakdowns, identifies the worst category, and hypothesizes targeted fixes. Traditional AutoML (Optuna, Ray Tune) cannot reason about _why_ a configuration is failing -- it can only explore _what_ to try next.
-
-**Mixed intervention types.** The structural edge weight discovery (Cycles 14-17) is a change that no predefined parameter search space would have included. It required the agent to inspect the dataset's edge types, compare them against the hook's default config, and recognize the gap.
+**Mixed intervention types.** The structural edge weight discovery (Cycles 14-17) required the agent to inspect the dataset's edge types, compare them against the hook's default config, and recognize the gap. No predefined parameter search space would have included that change.
 
 ## Lessons learned
 
-**The protocol matters more than the agent.** The 19-cycle run used OpenAI Codex; the prior 17 cycles used a mix of Claude and Codex. Both followed the same TASK.md and produced comparable reasoning quality.
-
-**LLM-generated evaluation data surfaces real gaps.** If we had only optimized on the 3 hand-crafted scenarios, the missing edge types would never have been found.
+**The protocol transfers across agents.** The 19-cycle run used OpenAI Codex; the prior 17 cycles used a mix of Claude and Codex. Both followed the same TASK.md and produced comparable reasoning quality.
 
 **One change per cycle is non-negotiable.** Cycle 8 caused a -0.0339 regression from `node_type_profile_bonus=2.0`. Combined with another change, that would have been undiagnosable.
 
-**Most cycles will be rejected.** 63% rejection rate. The accepted changes were higher quality because of strict accept/reject discipline.
-
-**Default fallbacks are silent killers.** When your system has a fallback for unknown inputs (edge types defaulting to 0.1), expanding evaluation data will expose those defaults as bugs.
+**Most cycles will be rejected, and that is fine.** 63% rejection rate. The accepted changes were higher quality because of strict accept/reject discipline. A 37% hit rate with clean signal beats a higher rate with ambiguous attribution.
 
 ## What we would do differently
 
-**Run with real embeddings.** The 8D hashed embeddings put a hard ceiling on relevance-based improvements. The +5.5% gain was achieved despite the semantic signal being random noise. Running the same protocol with sentence-transformer embeddings would reveal whether relevance-weight parameters become more impactful, and whether the graph-structural discoveries still hold.
+**Run with real embeddings.** The 8D hash vectors put a hard ceiling on relevance-based improvements. The +5.5% gain was achieved despite the semantic signal being random noise. Running the same protocol with sentence-transformer embeddings would reveal whether relevance-weight parameters become more impactful, and whether the graph-structural discoveries still hold.
 
 **Parallel evaluation at L1.** Parameter changes are safe and independent. Running 5-10 L1 changes in parallel and accepting the best would compress the parameter phase significantly.
 
@@ -152,7 +146,7 @@ Karpathy's autoresearch has three primitives: one editable file, one scalar metr
 Five properties made the loop deterministic:
 
 1. **Fixed evaluation time** (2h after base timestamp, no wall-clock dependency)
-2. **Deterministic embeddings** (SHA-256 hash, same input always produces same vector)
+2. **Deterministic hash vectors** (SHA-256, same input always produces same vector)
 3. **Frozen dataset** (read-only, never modified during optimization)
 4. **Exact command logging** (every cycle records the full copy-pasteable command)
 5. **Single-change discipline** (one variable per cycle, clean attribution)
@@ -173,4 +167,4 @@ The improvement came from two categories: fixing cross-scenario noise (Cycles 1-
 
 We plan to continue running cycles from the current baseline and to repeat the experiment with real semantic embeddings. The TASK.md and research log are in the [Engram repository](https://github.com/arunmenon/context-graph) for anyone who wants to adapt the protocol.
 
-The protocol is the product. The agent is replaceable. The TASK.md is not.
+The durable artifact from this work is the protocol. Different agents can follow it. The value is in the procedure, not the model.
