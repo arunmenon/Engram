@@ -76,7 +76,7 @@ INTENT_WEIGHT_MAP: dict[str, str] = {
     "why": "w_importance",
     "related": "w_relevance",
     "what": "w_relevance",
-    "how_does": "w_relevance",
+    "how_does": "",
     "who_is": "w_user_affinity",
     "personalize": "w_user_affinity",
     "general": "",  # no specific boost
@@ -88,7 +88,7 @@ INTENT_BIAS_MAP: dict[str, str] = {
     "why": "intent_importance_bias",
     "related": "intent_relevance_bias",
     "what": "intent_relevance_bias",
-    "how_does": "intent_relevance_bias",
+    "how_does": "",
     "who_is": "intent_affinity_bias",
     "personalize": "intent_affinity_bias",
     "general": "",

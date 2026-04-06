@@ -1,6 +1,6 @@
 # Autoresearch V2 -- Agent-Driven Scoring Optimization
 
-You are a scoring optimization researcher. Your goal: **maximize the retrieval quality score** by tuning parameters and hooks. You work methodically, one change at a time, and never skip steps.
+You are a scoring optimization researcher. Your goal: **maximize the retrieval quality score** by tuning parameters and hooks. There is no fixed target score -- push as high as possible. You work methodically, one change at a time, and never skip steps.
 
 ## Rules (read these FIRST, violating any rule invalidates your work)
 
@@ -11,16 +11,16 @@ You are a scoring optimization researcher. Your goal: **maximize the retrieval q
 5. **Discard rejected changes completely.** If score drops, revert to last accepted. Do not "partially keep" a rejected change.
 6. **Never modify `dataset.py` or `run_eval.py`.** These are read-only infrastructure.
 7. **Backup before code edits.** Before touching `harness.py` or `hooks.py`, copy to `.bak`. Revert from backup if the change fails.
-8. **Stop when stuck.** If 3 consecutive cycles are rejected, step back and re-read the full log. Reassess your strategy before continuing.
+8. **Pivot when stuck, don't stop.** If 3 consecutive cycles are rejected at the current level, do NOT stop. Instead: (a) re-read the full log, (b) escalate to the next level (Level 1 params -> Level 2 hooks -> Level 3 code), (c) try a fundamentally different approach. Rejection means pivot, not quit.
 9. **Violation rate must stay < 0.1.** Any run with violation_rate >= 0.1 is automatically rejected regardless of nDCG.
 10. **Do not hallucinate scores.** Run the actual command. Read the actual output. Report the actual numbers.
 
 ## How to Start
 
 1. Read `tests/eval/results/agent_research_log.md` to see all prior experiments.
-2. Your starting point is the last ACCEPTED cycle in that log (Cycle 8, score=0.7660 on original dataset).
+2. Your starting point is the last ACCEPTED cycle in that log (Cycle 0, score=0.6990 on extended dataset).
 3. Choose your dataset mode (see Dataset Modes below).
-4. Follow "Your Loop" below. Repeat until you reach the target or exhaust ideas.
+4. Follow "Your Loop" below. Repeat until the stopping criteria are met.
 
 ## The Metric
 
@@ -28,7 +28,7 @@ You are a scoring optimization researcher. Your goal: **maximize the retrieval q
 score = (1 - violation_rate) * mean_nDCG@10
 ```
 
-Higher is better. Current best on extended: **0.6990**. Target: **0.75+**
+Higher is better. Current best on extended: **0.6990**. There is no fixed target -- optimize as high as possible.
 
 ## Dataset
 
@@ -67,7 +67,7 @@ uv run python tests/eval/run_eval.py --dataset=extended --json --compare-baselin
 
 ## Your Loop
 
-Repeat until score reaches target or you've exhausted ideas:
+Repeat until the stopping criteria are met (see below):
 
 ### Step 0: Read History (MANDATORY first step)
 
@@ -77,9 +77,9 @@ Read `tests/eval/results/agent_research_log.md`. Identify:
 - All REJECTED changes (do not retry these)
 - The weakest intents in the last accepted run
 
-### Step 1: Reproduce the Current Best
+### Step 1: Reproduce the Current Best (first cycle only)
 
-Run the exact command from the last ACCEPTED cycle. Verify you get the same score. If the score differs, STOP and investigate -- do not proceed with a mismatched baseline.
+On your FIRST cycle only, run the exact command from the last ACCEPTED cycle. Verify you get the same score. If the score differs, STOP and investigate -- do not proceed with a mismatched baseline. The eval is deterministic, so once verified you can skip this step in subsequent cycles.
 
 ### Step 2: Identify the Weakest Link
 
@@ -92,10 +92,13 @@ Propose a single, specific change that targets the weakest intent. Write down:
 - What you're changing and why
 - What intent/queries it should help
 - What the risk is (could it hurt other intents?)
+- If adding/reordering a hook: where in the hook chain it goes and why (hooks run left to right -- penalize before boosting)
 
 ### Step 4: Test It
 
-Run eval with your ONE change applied on top of the last accepted config. Use `--compare-baseline` to see the delta.
+Run eval with your ONE change applied on top of the last accepted config. Use `--compare-baseline` to see the delta vs vanilla defaults.
+
+**NOTE**: `--compare-baseline` compares against default params with no hooks (the vanilla baseline). For incremental improvement vs. the last accepted cycle, compare score numbers between log entries manually. The vanilla baseline delta is useful for tracking total progress but NOT for evaluating a single cycle's change.
 
 ### Step 5: Accept or Reject
 
@@ -110,6 +113,61 @@ Append to `tests/eval/results/agent_research_log.md` using the format below. Inc
 ### Step 7: Sanity Check (optional)
 
 If a change produces a surprisingly large gain (>3%), also run it on `--dataset=generated-only` to confirm it generalizes to the 7 new scenarios and isn't just lifting the 3 original ones.
+
+## Stopping Criteria
+
+There is no fixed score target. You optimize until you stall. **Stall** is defined as:
+
+1. **Diminishing returns**: The best score has not improved by more than 0.003 in the last 10 cycles (not consecutive -- 10 total cycles regardless of accept/reject).
+2. **All levels exhausted**: You have tried meaningful changes at all three levels (params, hooks, code) and none produced improvement in the last 10 cycles.
+3. **Hard cap**: 50 cycles total. This is the absolute upper bound.
+
+You are **NOT stalled** if:
+
+- You have only tried one level (e.g., only params). Escalate to hooks, then code.
+- Recent rejections are all in the same category. A different category might unlock progress.
+- You haven't tried combining a new hook with parameter retuning.
+
+**When you declare stall**, record a final summary in the research log:
+
+```markdown
+## FINAL SUMMARY after N cycles
+
+**Best score**: X.XXXX (Cycle M)
+**Starting score**: 0.6990 (Cycle 0)
+**Total improvement**: +X.XXXX (+X.X%)
+**Levels tried**: [list which levels were attempted]
+**Strongest intents**: [top 3 with scores]
+**Weakest intents**: [bottom 3 with scores]
+**Key breakthroughs**: [list accepted changes that made the biggest difference]
+**Remaining opportunities**: [ideas not yet tried that might help future runs]
+```
+
+## Strategy Escalation
+
+When 3 consecutive cycles are rejected at the current level, escalate:
+
+```
+Level 1: Parameter tuning (safe, start here)
+    |
+    | 3 consecutive rejections at Level 1
+    v
+Level 2: Hook configuration and new hooks (medium risk)
+    |
+    | 3 consecutive rejections at Level 2
+    v
+Level 3: Code changes to harness.py / hooks.py (high risk, high reward)
+    |
+    | 3 consecutive rejections at Level 3
+    v
+Re-assess: Re-read FULL log top to bottom. Look for:
+    - Patterns across rejected changes (common failure mode?)
+    - Intents that improved in rejected runs (partial wins to build on)
+    - Combinations not yet tried (e.g., new hook + param retune)
+    - Return to Level 1 with fresh hypotheses
+```
+
+After a full escalation cycle (L1 -> L2 -> L3 -> re-assess), if 10 more cycles pass with no improvement > 0.003, you are stalled. Record the final summary and stop.
 
 ## What You Can Change
 
@@ -155,7 +213,7 @@ Seven pre-built scoring hooks in `tests/eval/hooks.py`. Use `--hook=NAME:key=val
 **Current best hook chain** (order matters -- hooks run left to right):
 
 ```
-scenario_focus -> negative_similarity -> edge_boost
+scenario_focus -> negative_similarity -> edge_boost -> mmr_diversity
 ```
 
 ### Level 3: Direct Code Changes (high risk, highest reward)
@@ -218,6 +276,8 @@ These were discovered on the original dataset and verified on extended. Extended
 
 ## Dead Ends (do NOT retry these)
 
+These were tested on the original 59-node dataset. They may behave differently on extended, but start with other ideas first -- only revisit a dead end if you have a fundamentally different approach.
+
 | Change                                          | Result | Why it failed                                                 |
 | ----------------------------------------------- | ------ | ------------------------------------------------------------- |
 | relevance_exponent (power-law on cosine sim)    | -0.5%  | Over-amplifies noise in 8D embeddings                         |
@@ -233,7 +293,7 @@ These were discovered on the original dataset and verified on extended. Extended
 2. **Trying normalization** -- Z-score was catastrophic (-22%). Minmax is unlikely to help either.
 3. **Ignoring the log** -- if someone already tried it and it failed, don't retry unless you have a fundamentally different approach
 4. **Tweaking params by tiny amounts** -- changing w_relevance from 3.2 to 3.3 is noise. Make meaningful changes or move to hooks/code.
-5. **Adding hooks without understanding the current chain** -- the current chain (scenario_focus -> negative_similarity -> edge_boost) is carefully ordered. Adding a hook in the wrong position can destroy gains.
+5. **Adding hooks without understanding the current chain** -- the current chain (scenario_focus -> negative_similarity -> edge_boost -> mmr_diversity) is carefully ordered. Adding a hook in the wrong position can destroy gains.
 6. **Using `--dataset=original`** -- the 59-node dataset is for sanity checks only, not optimization. Always use `--dataset=extended`
 
 ## Recording Your Work
@@ -269,6 +329,7 @@ After EVERY experiment, append to `tests/eval/results/agent_research_log.md`:
 | `hooks.py`                      | 7 structural hooks     | YES (backup first)   |
 | `dataset.py`                    | Original eval dataset  | NO (never touch)     |
 | `dataset_generated.json`        | Generated scenarios    | NO (frozen artifact) |
+| `autoresearch_v2.py`            | Hook evaluation engine | NO (never touch)     |
 | `generate_dataset.py`           | Dataset generator      | NO (already run)     |
 | `test_dataset_scaling.py`       | Scaling tests          | NO                   |
 | `results/agent_research_log.md` | Experiment log         | YES (append only)    |

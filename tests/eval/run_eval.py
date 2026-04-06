@@ -39,9 +39,8 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 
 from tests.eval.harness import ScoringParams, evaluate  # noqa: E402
 
-# hooks and autoresearch_v2 are imported lazily -- only when --hook or
-# --list-hooks is used.  This keeps the default (param-only) path fast
-# and avoids pulling in the 59KB autoresearch_v2 module.
+# hooks is imported lazily -- only when --hook or --list-hooks is used.
+# This keeps the default (param-only) path fast.
 
 
 def build_params_from_args(args: argparse.Namespace) -> ScoringParams:
@@ -95,8 +94,9 @@ def parse_hook_spec(spec: str) -> tuple[str, dict]:
 
 
 def run_with_hooks(params: ScoringParams, hook_specs: list[tuple[str, dict]]):
-    """Run evaluate_with_hooks from autoresearch_v2."""
-    from tests.eval.autoresearch_v2 import apply_structural_hook, evaluate_with_hooks
+    """Run evaluate_with_hooks with hooks applied."""
+    from tests.eval.autoresearch_v2 import evaluate_with_hooks
+    from tests.eval.hooks import apply_structural_hook
 
     active_hooks = {}
     for hook_name, hook_config in hook_specs:
@@ -106,13 +106,15 @@ def run_with_hooks(params: ScoringParams, hook_specs: list[tuple[str, dict]]):
     return evaluate_with_hooks(params, active_hooks)
 
 
-def format_report(result, params: ScoringParams, hook_names: list[str]) -> str:
+def format_report(result, params: ScoringParams, hook_names: list[str],
+                   dataset_mode: str = "original") -> str:
     """Format a clean report the agent can parse."""
     lines = []
     lines.append("=" * 70)
     lines.append("  EVAL RESULT")
     lines.append("=" * 70)
     lines.append("")
+    lines.append(f"  Dataset: {dataset_mode}")
     lines.append(f"  SCORE: {result.score:.4f}")
     lines.append(f"  nDCG@10: {result.mean_ndcg:.4f}")
     lines.append(f"  Violation Rate: {result.mean_violation_rate:.4f}")
@@ -149,9 +151,11 @@ def format_report(result, params: ScoringParams, hook_names: list[str]) -> str:
     return "\n".join(lines)
 
 
-def format_json(result, params: ScoringParams, hook_names: list[str]) -> str:
+def format_json(result, params: ScoringParams, hook_names: list[str],
+                dataset_mode: str = "original") -> str:
     """Format as JSON for machine parsing."""
     output = {
+        "dataset": dataset_mode,
         "score": round(result.score, 6),
         "mean_ndcg": round(result.mean_ndcg, 6),
         "mean_violation_rate": round(result.mean_violation_rate, 6),
@@ -256,8 +260,10 @@ def main():
         delta = result.score - baseline.score
         pct = (delta / baseline.score) * 100 if baseline.score > 0 else 0
 
+    dataset_mode = args.dataset
+
     if args.json:
-        output = format_json(result, params, hook_names)
+        output = format_json(result, params, hook_names, dataset_mode)
         if args.compare_baseline:
             parsed = json.loads(output)
             parsed["baseline_score"] = round(baseline.score, 6)
@@ -266,7 +272,7 @@ def main():
             output = json.dumps(parsed, indent=2)
         print(output)
     else:
-        print(format_report(result, params, hook_names))
+        print(format_report(result, params, hook_names, dataset_mode))
         if args.compare_baseline:
             print(f"\n  Baseline: {baseline.score:.4f}")
             print(f"  Delta:    {delta:+.4f} ({pct:+.1f}%)")

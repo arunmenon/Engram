@@ -15,6 +15,7 @@ All dataset types are typed as Any to avoid import coupling.
 from __future__ import annotations
 
 import contextlib
+import copy
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -223,6 +224,9 @@ class EdgeBoostConfig:
         default_factory=lambda: {
             "CAUSED_BY": 1.5,
             "FOLLOWS": 1.0,
+            "HAS_PREFERENCE": 1.3,
+            "HAS_PROFILE": 1.5,
+            "RELATED_TO": 1.0,
             "REFERENCES": 1.2,
             "SIMILAR_TO": 0.8,
         }
@@ -355,6 +359,7 @@ HookFn = Callable[
 _INTENT_EDGE_MULTIPLIERS: dict[str, dict[str, float]] = {
     "why": {"CAUSED_BY": 2.0},
     "when": {"FOLLOWS": 2.0},
+    "how_does": {"REFERENCES": 2.0},
 }
 
 
@@ -1061,3 +1066,43 @@ HOOK_REGISTRY: dict[str, dict[str, Any]] = {
         "default": MMRConfig(),
     },
 }
+
+
+# ---------------------------------------------------------------------------
+# Hook Application Utilities
+# ---------------------------------------------------------------------------
+
+
+def apply_structural_hook(
+    hook_name: str,
+    config_overrides: dict,
+) -> dict[str, Any]:
+    """Build hook info dict from a hook name and config overrides.
+
+    Looks up the hook function and config class in HOOK_REGISTRY,
+    creates a new config instance with overrides applied, and returns
+    a dict suitable for passing to evaluate_with_hooks.
+
+    Args:
+        hook_name: Name of the hook in HOOK_REGISTRY (e.g., "edge_boost").
+        config_overrides: Dict of config field overrides to apply.
+
+    Returns:
+        Dict with "fn" (callable) and "config" (config instance) keys.
+
+    Raises:
+        ValueError: If hook_name is not found in HOOK_REGISTRY.
+    """
+    if hook_name not in HOOK_REGISTRY:
+        raise ValueError(f"Unknown hook '{hook_name}'. Available: {list(HOOK_REGISTRY.keys())}")
+
+    hook_entry = HOOK_REGISTRY[hook_name]
+    hook_fn = hook_entry["fn"]
+    default_config = hook_entry["default"]
+
+    config = copy.deepcopy(default_config)
+    for key, value in config_overrides.items():
+        if hasattr(config, key):
+            setattr(config, key, value)
+
+    return {"fn": hook_fn, "config": config}
