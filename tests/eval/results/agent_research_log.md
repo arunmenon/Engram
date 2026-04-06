@@ -50,6 +50,7 @@ Prior experiments on the original 59-node dataset are archived in `agent_researc
 **Change**: Removed `how_does` from `INTENT_WEIGHT_MAP` / `INTENT_BIAS_MAP`, so `how_does` no longer gets the extra `intent_relevance_bias` multiplier.
 **Command**: `uv run python tests/eval/run_eval.py --dataset=extended --w_relevance=3.2 --w_recency=0.72 --w_importance=0.8 --w_user_affinity=0.78 --intent_relevance_bias=4.2 --intent_affinity_bias=1.5 --intent_recency_bias=1.1 --entity_s_base=720 --entity_s_boost=48 --degree_boost_cap=0.14 --node_type_profile_bonus=1.05 --hook=scenario_focus:cross_scenario_multiplier=0.2,related_cross_scenario_multiplier=0.5 --hook=negative_similarity:penalty_factor=0.2 --hook=edge_boost:boost_factor=0.08,top_n_seeds=6,max_hops=2 --hook=mmr_diversity --compare-baseline`
 **Result**: score=0.7199, weakest intent=WHO_IS at 0.6441
+**Per-intent nDCG**: RELATED=0.6596, WHO_IS=0.6441, WHAT=0.6745, HOW_DOES=0.6839, PERSONALIZE=0.7119, WHEN=0.7934, GENERAL=0.7879, WHY=0.8154
 **Lesson**: This directly fixed the bottleneck. `HOW_DOES` jumped from 0.6309 to 0.6839, with `lu-how-does-01` rising from 0.1609 to 0.3816. `ar-how_does-01` is still weak, but the overall balance is much better and the next weakest average intent is now `WHO_IS`.
 
 ## Cycle 6: REJECTED score=0.7157 (delta=-0.0042 vs Cycle 5)
