@@ -18,7 +18,7 @@ You are a scoring optimization researcher. Your goal: **maximize the retrieval q
 ## How to Start
 
 1. Read `tests/eval/results/agent_research_log.md` to see all prior experiments.
-2. Your starting point is the last ACCEPTED cycle in that log (Cycle 0, score=0.6990 on extended dataset).
+2. Your starting point is the last ACCEPTED cycle in that log (Cycle 17, score=0.7372 on extended dataset).
 3. Choose your dataset mode (see Dataset Modes below).
 4. Follow "Your Loop" below. Repeat until the stopping criteria are met.
 
@@ -28,7 +28,7 @@ You are a scoring optimization researcher. Your goal: **maximize the retrieval q
 score = (1 - violation_rate) * mean_nDCG@10
 ```
 
-Higher is better. Current best on extended: **0.6990**. There is no fixed target -- optimize as high as possible.
+Higher is better. Current best on extended: **0.7372**. There is no fixed target -- optimize as high as possible.
 
 ## Dataset
 
@@ -45,7 +45,7 @@ The extended dataset has 287 nodes, 418 edges, 80 queries across 10 fintech scen
 ## Quick Start
 
 ```bash
-# Current best (extended dataset, score=0.6990)
+# Current best (extended dataset, score=0.7372)
 uv run python tests/eval/run_eval.py \
   --dataset=extended \
   --w_relevance=3.2 --w_recency=0.72 --w_importance=0.8 --w_user_affinity=0.78 \
@@ -253,13 +253,16 @@ cp tests/eval/harness.py.bak tests/eval/harness.py
 
 These were discovered on the original dataset and verified on extended. Extended scores shown.
 
-| Change                                         | Extended Score | Session         |
-| ---------------------------------------------- | -------------- | --------------- |
-| Tuned params + edge_boost                      | ~0.43          | Original C1     |
-| scenario_focus hook                            | ~0.60          | Original C5     |
-| Entity-aware edge_boost (skip Event neighbors) | 0.6719         | Original C11    |
-| 2-hop traversal + same-scenario entity boost   | 0.6796         | Original C13-14 |
-| MMR diversity (skip `what` intent)             | **0.6990**     | Original C15-17 |
+| Change                                                 | Extended Score | Session         |
+| ------------------------------------------------------ | -------------- | --------------- |
+| Tuned params + edge_boost                              | ~0.43          | Original C1     |
+| scenario_focus hook                                    | ~0.60          | Original C5     |
+| Entity-aware edge_boost (skip Event neighbors)         | 0.6719         | Original C11    |
+| 2-hop traversal + same-scenario entity boost           | 0.6796         | Original C13-14 |
+| MMR diversity (skip `what` intent)                     | 0.6990         | Original C15-17 |
+| Tightened RELATED cross-scenario penalty               | 0.7118         | Extended C1     |
+| Removed HOW_DOES from relevance amplifier              | 0.7199         | Extended C5     |
+| HAS_PROFILE + RELATED_TO + HAS_PREFERENCE edge weights | **0.7372**     | Extended C14-17 |
 
 **Key insights from prior optimization:**
 
@@ -267,16 +270,20 @@ These were discovered on the original dataset and verified on extended. Extended
 - Entity-centric intents (who_is, related, personalize) need different edge_boost behavior than event-centric intents.
 - MMR diversity helps RELATED but hurts WHAT -- intent-selective application is key.
 - Current hook chain: `scenario_focus -> negative_similarity -> edge_boost -> mmr_diversity`
+- Extended dataset exposed missing edge type weights (HAS_PROFILE, RELATED_TO, HAS_PREFERENCE) -- adding proper weights was the biggest gain source.
+- With noisy 8D embeddings, removing relevance amplification for HOW_DOES helped more than boosting it.
 
-**Where the remaining gap is (extended dataset, score=0.6990):**
+**Where the remaining gap is (extended dataset, score=0.7372):**
 
-- RELATED=0.5577, HOW_DOES=0.6364, WHO_IS=0.6441 are the weakest intents
-- Worst queries are in generated scenarios: lu-how-does-01 (0.13), cr-why-01 (0.20), ar-how_does-01 (0.32)
-- The params and hooks were tuned for 3 original scenarios -- the 7 new scenarios likely need retuning
+- WHAT=0.6704, RELATED=0.6797, HOW_DOES=0.7014 are the weakest intents
+- Worst queries: lu-how-does-01 (0.38), cr-why-01 (0.20), ar-how_does-01 (0.37), at-personalize-01 (0.41)
+- HAS_SKILL and DERIVED_FROM edge types not yet weighted (HAS_SKILL was tried in C18, marginal)
 
 ## Dead Ends (do NOT retry these)
 
-These were tested on the original 59-node dataset. They may behave differently on extended, but start with other ideas first -- only revisit a dead end if you have a fundamentally different approach.
+These were tested on original and/or extended datasets. Do not retry unless you have a fundamentally different approach.
+
+**From original dataset (59 nodes):**
 
 | Change                                          | Result | Why it failed                                                 |
 | ----------------------------------------------- | ------ | ------------------------------------------------------------- |
@@ -286,6 +293,20 @@ These were tested on the original 59-node dataset. They may behave differently o
 | mmr_diversity alone (no edge_boost)             | ~0%    | Diversity without better ranking is noise                     |
 | Z-score normalization before hooks              | -22%   | Destroys useful score spacing catastrophically                |
 | Intent-aware edge multipliers in hooks.py       | -0.1%  | Real issue was cross-scenario contamination, not edge weights |
+
+**From extended dataset (287 nodes, Cycles 1-19):**
+
+| Change                                        | Result  | Why it failed                                             |
+| --------------------------------------------- | ------- | --------------------------------------------------------- |
+| Softer MMR diversity (lambda_param=0.85)      | -0.0103 | Helps HOW_DOES but kills WHY, RELATED, WHO_IS             |
+| node_type_profile_bonus = 2.0                 | -0.0339 | Lifts WHO_IS/PERSONALIZE but destroys everything else     |
+| Replace MMR with RRF reranker                 | -0.4087 | Catastrophic -- destroys RELATED, WHO_IS, PERSONALIZE     |
+| Skip MMR for WHO_IS                           | -0.0031 | WHO_IS actually needs MMR; skipping makes it worse        |
+| WHO_IS weight: importance instead of affinity | -0.0024 | Importance weighting alone doesn't recover profile nodes  |
+| Event neighbors for WHO_IS in edge_boost      | -0.0056 | Adds noise rather than useful actor evidence              |
+| HAS_SKILL edge weight (1.3)                   | -0.0006 | Marginal gains bleed into RELATED/WHAT/WHO_IS regressions |
+| Raise base REFERENCES weight (1.2 to 1.4)     | -0.0018 | Too broad -- helps WHAT slightly but degrades overall     |
+| WHAT-specific REFERENCES multiplier (1.5)     | -0.0018 | Overfits to worst queries, drops WHAT average             |
 
 ## Anti-Patterns (things that waste cycles)
 
