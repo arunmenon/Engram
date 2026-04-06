@@ -2,7 +2,7 @@
 
 We used an AI agent to optimize a retrieval scoring algorithm for a knowledge graph. Over 19 autonomous cycles it improved ranking quality by 5.5% -- but the more interesting result was what it discovered along the way: five graph edge types in our system were falling through to a low default weight because our original test data never exercised them. That structural gap was invisible to us. The agent found it by following a protocol we call TASK.md.
 
-This post describes the protocol, the discoveries, and why the [autoresearch pattern](https://github.com/karpathy/autoresearch) -- Andrej Karpathy's minimal loop for autonomous optimization -- can be adapted to retrieval scoring, not just model training.
+This post describes the protocol, the discoveries, and what this experiment suggests about using agentic optimization loops -- inspired by Andrej Karpathy's [autoresearch pattern](https://github.com/karpathy/autoresearch) -- for retrieval scoring.
 
 ## The system: ranking nodes in a knowledge graph
 
@@ -121,17 +121,17 @@ Karpathy's autoresearch has three primitives: one editable file, one scalar metr
 
 **Three-level search space with risk escalation.** Karpathy's agent always operates at the same level (code edits). Ours starts with safe parameter tweaks and only reaches into the codebase when parameters are exhausted. Dead ends from prior sessions prevent retesting known failures like Z-score normalization (-22% regression).
 
-**No gradient signal.** nDCG@10 over 80 queries is noisy and non-differentiable. The agent reasons about per-intent breakdowns, identifies the worst category, and hypothesizes targeted fixes. Traditional AutoML (Optuna, Ray Tune) cannot reason about _why_ a configuration is failing.
+**No gradient signal, but hypothesis-driven reasoning.** nDCG@10 over 80 queries is noisy and non-differentiable. The agent reads per-intent breakdowns and forms hypotheses about why a category is failing. Traditional AutoML tools can search parameter spaces efficiently, but they do not inspect artifacts or reason about root causes.
 
-**Mixed intervention types.** The structural edge weight discovery (Cycles 14-17) required the agent to inspect the dataset's edge types, compare them against the hook's default config, and recognize the gap. No predefined parameter search space would have included that change.
+**Mixed intervention types.** The edge weight discovery (Cycles 14-17) required inspecting the dataset's edge types, comparing them against the hook's default config, and recognizing the gap. No predefined parameter search space would have included that change.
 
 ## Lessons learned
 
-**The protocol transfers across agents.** The 19-cycle run used OpenAI Codex; the prior 17 cycles used a mix of Claude and Codex. Both followed the same TASK.md and produced comparable reasoning quality.
+**The same protocol worked across agents.** The 19-cycle run used OpenAI Codex; the prior 17 cycles used a mix of Claude and Codex. In both cases, the same TASK.md structure produced comparable reasoning quality.
 
 **One change per cycle is non-negotiable.** Cycle 8 caused a -0.0339 regression from `node_type_profile_bonus=2.0`. Combined with another change, that would have been undiagnosable.
 
-**Most cycles will be rejected, and that is fine.** 63% rejection rate. The accepted changes were higher quality because of strict accept/reject discipline. A 37% hit rate with clean signal beats a higher rate with ambiguous attribution.
+**Most cycles will be rejected.** 63% rejection rate. The strict accept/reject discipline meant each accepted change had clean attribution.
 
 ## What we would do differently
 
@@ -151,7 +151,7 @@ Five properties made the loop deterministic:
 4. **Exact command logging** (every cycle records the full copy-pasteable command)
 5. **Single-change discipline** (one variable per cycle, clean attribution)
 
-Any agent that can read files and run shell commands can reproduce this. The TASK.md protocol is the reusable artifact.
+Any sufficiently capable agent that can read files, run shell commands, and follow the protocol should be able to reproduce this setup.
 
 ## Final numbers
 
@@ -163,8 +163,6 @@ Any agent that can read files and run shell commands can reproduce this. The TAS
 | Accepted            | --     | 7       | 37%                        |
 | Biggest single gain | --     | +0.0109 | HAS_PREFERENCE edge weight |
 
-The improvement came from two categories: fixing cross-scenario noise (Cycles 1-2, 5) and fixing missing edge type weights (Cycles 14-17). The agent identified both independently through the protocol's hypothesis-test-record loop.
+The gains came from two categories: fixing cross-scenario noise (Cycles 1-2, 5) and fixing missing edge type weights (Cycles 14-17). The agent identified both independently through the protocol's hypothesis-test-record loop. We plan to continue from the current baseline and repeat the experiment with real semantic embeddings. The TASK.md and research log are in the [Engram repository](https://github.com/arunmenon/context-graph).
 
-We plan to continue running cycles from the current baseline and to repeat the experiment with real semantic embeddings. The TASK.md and research log are in the [Engram repository](https://github.com/arunmenon/context-graph) for anyone who wants to adapt the protocol.
-
-The durable artifact from this work is the protocol. Different agents can follow it. The value is in the procedure, not the model.
+The durable artifact from this work is the protocol. The value is in the procedure, not the model.
