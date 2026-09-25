@@ -1,0 +1,91 @@
+# Jev (TypeSafe System One) as a typed-decision layer in Engram
+
+**Date:** 2026-09-25
+**Inputs:** the independent field guide *How to Use Jev with LLMs* (Sep 2026); TypeSafe's public docs and launch blog; the [judgment-point catalogue](judgment-points-catalogue.md).
+**Verification note:** `typesafe.ai`, `docs.typesafe.ai` and `evals.typesafe.ai` are blocked from this environment. Vendor facts below were read from verbatim Markdown mirrors of the docs (fetched 2026-09-23) and from TypeSafe's own GitHub repositories (`typesafe-sdk-python`, `typesafe-sdk-js`, `skills`, `system-one-adapter-python`). Each is labelled **vendor states** or **third-party**. Re-check against the live docs before relying on limits or prices; the Models page says limits "can change without notice".
+
+## 1. What Jev is, in one paragraph
+
+**Vendor states:** Jev is "the first System One model": send a *state* (string, JSON object, or array; text only) plus a map of typed *questions*; get typed answers with probabilities. Three primitives: **Choice** (pick one of up to 255 options; returns the option, a probability per option, and a `confidence`), **Score** (position on an ordered rubric of 2–10 levels; returns a probability-weighted score, per-level probabilities, `confidence`), **Noul** (probability that a statement is true; no separate confidence). All questions in a request are evaluated independently and in parallel against the same state; adding questions "barely changes the response time". Context budget: 64k tokens per request, 32k for state + longest question. It does not generate text, code, or explanations. Pricing: $0.042 per million input tokens, output free. Rate limit published as 250k tokens/s and 1,200 requests/min, "adjusting dynamically". Hosted in the US only; no VPC/on-prem/weights; zero-data-retention is enterprise-only. Python (`typesafe-sdk`, ≥3.10) and JS SDKs; OpenRouter and Vercel AI Gateway routes.
+
+**Latency:** vendor gives "70–500 ms end-to-end" and "around 100 ms"; no percentiles. **Third-party** wall-clock p50s range 130–600 ms depending on region and gateway.
+
+**Accuracy/calibration:** vendor's own workflow evals put Jev at 67.8 % mean agreement with a GPT-6/Fable-5.1 reference (vs 74.1 % for the best LLM) at ~$0.0004 and 0.4 s per case. **Third-party** audits: ECE 0.02–0.03 on standard classification sets, but 0.1–0.3 on out-of-distribution or policy-dependent labels; removing an "abstain" option from a Choice pushed ECE from 0.02 to 0.79; paired Nouls do not sum to 1; run-to-run variance exists (not deterministic). The vendor's "can't hallucinate" claim means *schema conformance*, not truth — its own skill file says "Typed output guarantees the interface, not truth."
+
+**Known weaknesses (vendor's jaggedness page):** literal reading; math, counting, numeric formats; date comparison ("reads dates as text"); double negatives; large irrelevant state degrades accuracy; can be steered by injected instructions in the state; no invariants across separate questions.
+
+## 2. Where the field guide is right for Engram
+
+The guide's core rule — *LLM generates, Jev makes bounded semantic decisions, deterministic code keeps authority, and every decision leaves a receipt* — matches two independent findings from the code review:
+
+- Engram's hot path already has **no LLM** on it by design, but its *async* path asks one LLM call to propose entities, preferences and skills **and** grade its own confidence and source type (E2/E6). That is the "self-approval" anti-pattern the guide names.
+- Almost no decision in Engram is recorded with its inputs (catalogue cross-cut (d)). The guide's "decision receipt" is the same primitive that the [RSI positioning](rsi-positioning.md) needs for outcome feedback and that the provenance literature (Eywa, MemIR, MemTX) treats as mandatory.
+
+So the value of Jev to Engram is less "cheaper LLM calls" and more "a place to put the judgments that currently have no judge, in a form that can be logged, replayed and calibrated".
+
+## 3. Plug-in map
+
+Ordered by (impact × ease). Ids refer to the catalogue.
+
+### Tier A — do first (async path, no latency risk, fixes a known defect)
+
+| # | Judgment point | Today | With Jev | Why here |
+|---|---|---|---|---|
+| A1 | **Extraction acceptance gate** (E2, E5, E6) | LLM self-reports confidence and source type; grounding is a word-overlap heuristic | After the extraction LLM returns items, one Jev call per session with a battery over `{transcript_excerpt, item, quote}`: Noul `quote_supports_item`, Choice `source_type ∈ {explicit_stated, implicit_behavioural, inferred, unsupported}`, Score `strength`. Code applies ceilings from the *Jev* source type, not the LLM's. Items below threshold go to a `tentative` state rather than being dropped (see RSI doc) | Removes the self-approval conflict; independent grounding check; vendor's citation-check and RAG-passage cookbooks are the same shape. Extraction is already async, so +0.3 s is invisible |
+| A2 | **Entity-match arbitration** (E9–E12) | Tier 2b = MiniLM on the *name only*, top-1, 0.90/0.75 thresholds, types not compared; closure erases evidence | Deterministic recall (exact/alias/fuzzy/embedding top-k) → one Jev call over the candidate set: Score `same_entity ∈ {different, related, same}` per candidate plus Nouls on the disagreeing fields (same type? same owner/org?). Store the score and the field-level answers on the `SAME_AS`/`RELATED_TO` edge. Closure keeps the original evidence | The vendor's own entity-alignment cookbook is exactly this (3-level Score + companion Nouls, 450 pairs). Replaces the LLM tier the ADRs promised but the core never implemented |
+| A3 | **Delete / archive gate** (C8, C9, C10, C11) | Age + importance + access-count thresholds; no archive; wrong decisions irreversible | Before any DETACH DELETE: batch candidates, ask Noul `still_referenced_by_active_summary_or_goal`, Noul `contains_constraint_or_decision`, Score `evidential_value`. Code: high → keep; medium → archive-then-delete; low → delete. Receipt stored as a `system.forgetting` event | Makes forgetting auditable and gives the RSI loop a place to learn thresholds per tenant. Governance-Decay and AuthMem-Bench results say summaries silently drop constraints — this is the guard |
+| A4 | **Duplicate-with-conflicting-payload** (I2) | Same `event_id` → old position returned; content never compared | Code compares a content hash first (deterministic). Only when hashes differ: Noul `payloads_semantically_equivalent` → equal: accept as replay; different: reject with 409 per ADR-0026's conflict rule | Cheap, closes a gap-analysis finding, and the deterministic hash handles >99 % of cases without a model call |
+| A5 | **Preference / belief supersession** (E15, E16, B1) | Free-text key match + "most recent wins"; no SUPERSEDES edge; belief logic dead | Pairwise over candidates sharing an entity/category: Choice `relation ∈ {same, supersedes, contradicts, unrelated}` + Noul `newer_is_more_reliable_given_sources`. Write a typed edge with the distribution as justification | This is the CONTRADICTS/SUPERSEDES machinery ADR-0009 promised. Nous/TEPA/MemTX all want an explicit, recorded update decision |
+
+### Tier B — retrieval-side, shadow-mode first
+
+| # | Judgment point | Today | With Jev | Caution |
+|---|---|---|---|---|
+| B1 | **Neighbour / proactive-context admission** (R6, R8) | Every fetched neighbour is returned and labelled "proactive" with no relevance test | After graph expansion, one call over `{query, intent, candidate_nodes[]}` with a Noul `relevant_to_query` per candidate (Choice over candidate ids also works). Admit above threshold; record the distribution in `meta` | This is the vendor's "classifying RAG passages" pattern and the compaction pattern several third-party tools use. Adds ~0.2–0.5 s to `/subgraph`; run behind a flag and measure the counterfactual as the guide prescribes. Do **not** sort by raw probability across items — a third-party benchmark found probability ordering unreliable; use it as a gate and keep Engram's own scoring for rank |
+| B2 | **Intent classification** (R1, R2) | Keyword regex; optional LLM classifier | Choice over the 8 intents (+ `unclear`) with distribution; the distribution *is* Engram's multi-intent weight vector | Natural fit and cheap, but the keyword classifier is not the bottleneck today; the eval harness never even exercises it. Do B1 first |
+| B3 | **Importance at ingest** (I4, C5) | hint or constant 5; later overwritten by centrality | Score `salience` over `{event_type, tool, payload_excerpt}` at enrichment time; keep hint as a prior | Async, cheap. Gives the decay model a real importance signal instead of a constant |
+
+### Tier C — do not do
+
+- **Summarisation, HyDE, extraction itself** (C3, R18, E2): generation; Jev cannot do it.
+- **Anything numeric or temporal**: recency, decay, tier assignment, episode boundaries — the jaggedness page says Jev reads dates as text. Keep these in code.
+- **Ranking by probability across items**: gate, don't sort.
+- **Replacing the event-envelope validator** (I1): exact rules belong in Pydantic.
+
+## 4. Integration shape
+
+```
+domain/decisions.py        # question batteries as versioned constants (battery id, version, question ids, criteria)
+ports/decision.py          # Protocol: decide(state, battery) -> DecisionResult; no vendor types in domain/
+adapters/typesafe/client.py# TypeSafe SDK adapter; pinned model id; retry policy; timeout; breaker
+adapters/typesafe/receipt.py# builds a `system.decision` event: state digest, battery version, model id,
+                           # distributions, thresholds, chosen route, latency; appended to the ledger
+```
+
+Rules (from the guide, adopted verbatim):
+- Deterministic checks first; Jev only among allowed options; a favourable answer is evidence, not authority.
+- Every Choice gets a no-match option (`other` / `unsupported` / `unclear`). Third-party calibration collapses without it.
+- One shared state, all independent questions in one call. Never one call per candidate when a batch will do.
+- Pin the model id while thresholds are calibrated; replay labelled cases on upgrade.
+- Fail closed: a missing/failed decision is `review`, never `approve`. (Engram's current pattern of "empty result = success" is the opposite of this.)
+- Thresholds per question, per action, per risk class, in `settings.py` — not one global number.
+- Keep the receipt on the ledger. It is the provenance for the derived graph mutation and the training signal for the RSI loop.
+
+## 5. Rollout
+
+1. **Offline replay.** Build a labelled set from existing sessions: ~30 cases each for A1, A2, A3 (obvious / ambiguous / no-fit). Run in the Playground first, then via SDK; record distributions.
+2. **Shadow.** Run A1–A3 alongside current logic, write receipts, change nothing. Compare to current decisions and to human labels.
+3. **Assist.** Surface Jev's answer in admin prune previews and in extraction logs.
+4. **Limited automation.** Enable A1 (acceptance ceilings) and A4 (conflict rejection) — low blast radius. Then A2, then A3 with archive-before-delete enforced by code.
+5. **Retrieval-side (B1)** only after a fixed eval harness exists (see [landscape](memory-research-landscape.md) §3), because today's harness cannot see the effect.
+
+## 6. Risks specific to Engram
+
+- **Data egress.** State sent to Jev includes transcript excerpts. US-hosted, no ZDR on standard plans, retention "as long as reasonably necessary". This must pass ADR-0016/ADR-0029 tenant policy *before* any semantic call (the guide's "deterministic organisation policy first" rule). Some tenants will have to opt out; the design must degrade to the current rule path.
+- **Prompt injection via state.** Transcripts are untrusted; the vendor says Jev can be steered by injected instructions. Keep questions and criteria out of the state; treat "ignore the policy" text as evidence to classify.
+- **Vendor concentration.** Single hosted provider, early-access terms ("may not be suitable for production use", no publishing benchmarks). The port interface above keeps the domain free of vendor types; the fallback for every battery is the existing rule.
+- **Calibration drift.** Aliases (`jev-latest`) move without notice. Pin; recalibrate on change; keep the labelled set in the repo.
+
+## 7. Bottom line
+
+Jev's best use in Engram is not on the hot read path. It is as the **independent judge for async memory mutations** — extraction acceptance, entity merges, supersession, and deletion — where Engram currently either has no judge or lets the proposer grade itself, and where a typed, recorded decision doubles as the provenance record and the feedback signal the RSI loop needs. Retrieval-side admission (B1) is the second step once evaluation can measure it.
