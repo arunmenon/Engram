@@ -184,4 +184,30 @@ This is the most direct challenge to Engram's design among the papers so far, an
 
 ---
 
+## D7. "Self-Improving Agents" daily brief — X-pipeline snapshot, 2026-09-25
+
+**Received as:** a claude.ai artifact (insights / trends / glossary / raw feed; 245 posts, last 45 days). Secondary source: social posts summarising papers and product launches; nothing here is reproduced. Items worth a primary read are flagged **[fetch]**.
+
+### The brief's five insights, and what Engram should take from each
+
+| Insight (brief's wording, condensed) | Evidence cited | Engram reading |
+|---|---|---|
+| **Memory is getting a System-One controller; the LLM is leaving the hot path.** | **Jev-Mem** (arXiv 2609.23986): a System-One controller owns memory *typing, routing, budgeting, graph scoring and stopping*; LoCoMo LLM-judge 0.777 (+11 %), memory build 158 s (6.6× faster than the fastest competitor), query ~0.93 s. Supermemory put Jev on the recall/no-recall gate (digest D4); Vectorize's Hindsight shipped Jev reranking. | This is the [Jev map](jev-typed-decisions.md) taken to its conclusion — a two-tier stack where a decision model governs what enters and leaves context and every read/write is a logged, scored decision. Engram's version already exists on paper (Tier A gates + B0/B1); Jev-Mem is the first system to report numbers for it. **[fetch]** the paper: it is the closest published design to "receipts + gate + budget" and will say what the controller's question battery looks like. |
+| **Typed decisions displace LLM calls on bounded label sets — not yet inside open-ended agent steps.** | Deel: repeat-question matching 70 → 97 %, expense categorisation 50 → 86 %; MotherDuck `prompt_jev()`: 100k rows for $0.50 vs $37. **Counter-evidence:** a builder tested six Jev-style fast actions inside a coding agent and "none survived… too unreliable". | Confirms the boundary drawn in the Jev doc: use it on closed taxonomies (intent, source type, relation type, promote/review/discard) and on gates, not on open agent choices. The PDLC layer's decisions are mostly closed (ticket state, link type, supersession relation) — good fit. |
+| **Retrieval is becoming a learning signal: memory rewires on what helped.** | REALM (+7 LoCoMo, reconsolidates the activated subgraph after recall); **Hippo-memory** (TypeScript + SQLite, decay + retrieval strengthening + consolidation, MCP for Claude Code/Cursor, 74 % R@5 on LongMemEval with BM25 only); **Hindsight** (Vectorize, self-hosted, retain / recall / reflect, "recall isn't learning", LongMemEval SOTA claim with reproduction notes). | Three more data points for RSI T2 (reinforce on *helped*, not *returned*). Note the brief's own watch item: feedback loops where frequently-recalled-but-wrong memories get reinforced — exactly why the outcome signal, not the recall signal, must drive `S_boost`. Hippo-memory's number is a useful floor: BM25 + decay + strengthening alone reaches 74 % R@5. Engram's BM25 channel is dead (scale D2). |
+| **RSI is being measured, monitored and legislated before anyone has shown it compounding.** | A Google paper lets agents rewrite their entire harness (prompts, tools, memory, control flow, subagents) — read by builders "as a warning label"; Microsoft measures *agent taste* (picking the better branch mid-task); Mallen: continual learning erodes blocking monitors; a five-level RSI taxonomy says meta-improvement is undemonstrated; Anthropic proposes a pause framework; a US bill would ban RSI. | Reinforces the [RSI positioning](rsi-positioning.md) §4: Engram evolves *data* (memory, workflows), never its own code in production; every step auditable and reversible from the ledger. That is a governance story, not just an engineering one, and it is now a selling point. "Agent taste" (mid-task branch choice) is a metric the PDLC layer could expose from receipts + outcomes. |
+| **The judge got 200× cheaper and lost its reasons.** | One week of Jev replacing Gemini 3.1 as a pass/fail eval judge: same accuracy, ~200× cheaper ($0.01 → $0.00005), ~50× faster (10 s → 0.2 s); Datadog runs online + offline evals with Jev. Cost: verdicts are thresholded probabilities with no explanation, so "a score regression arrives without evidence" and it is harder to tell improvement from judge-gaming. | Same lesson as Beacon's `"noul"` bug (D3): keep the reasons elsewhere. For Engram's eval loop: cheap continuous judging is now affordable at every consolidation cycle, but the receipt must carry the state digest and the evidence ids so a regression can be explained after the fact; and the RSI loop must not tune against the judge it is scored by (frozen judge, held-out split — T5). |
+
+### Other items from the feed worth noting
+
+- **EvoSkill** (Sentient): turns failure traces into reusable skills with the model frozen; the feed claims 60+ citing papers. Another instance of the failure-derived lesson / negative-evidence node (RSI T3). **[fetch]**
+- **CL-Bench** (Asawa et al., UC Berkeley / Snorkel, Jun 2026): measures continual-learning gain across repeated tasks; best reported gain 25.4 %. A candidate outcome-linked benchmark for H4/H6 in the discovery plan. **[fetch]**
+- **GLiNER2.5-Decide**: an open compact-encoder decision model builders frame as the open alternative to Jev. Relevant to the vendor-concentration risk in the Jev doc §6 — the `ports/decision.py` interface should have a second adapter.
+- **Hindsight + Hippo-memory** join Instinct / Letta / ByteRover / MemPalace as local-first, LLM-light memory layers exposed over MCP. The market is converging on "own the store, keep the LLM off the hot path"; differentiation is in versioning, provenance and procedural memory — Engram's stated ground.
+- **Jev signup pause / rate limits** are flagged as an adoption cap; another reason the decision port must fall back to rules.
+
+**Verdict:** **context** for the brief as a whole; **adopt** the two-tier framing (decision controller + LLM reasoner) as the explicit architecture statement in the next ADR; **fetch** Jev-Mem, EvoSkill, CL-Bench for primary digests when intake resumes.
+
+---
+
 *Next entries are appended below as papers arrive.*

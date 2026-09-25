@@ -12,7 +12,7 @@ This pass digests those inputs and states a path forward. It does not change cod
 
 | File | What it is |
 |---|---|
-| [paper-digests.md](paper-digests.md) | One entry per paper/article received, with an adopt / adapt / context verdict. **Append here as papers arrive.** Current entries: D1 RSI taxonomy; D2 Mendel Gödel Machine; D3 Beacon (Asymptote Labs); D4 supermemory on Jev in memory pipelines; D5 Instinct memory teardown; D6 Just-in-Time Memory (Salesforce). |
+| [paper-digests.md](paper-digests.md) | One entry per paper/article received, with an adopt / adapt / context verdict. **Append here as papers arrive.** Current entries: D1 RSI taxonomy; D2 Mendel Gödel Machine; D3 Beacon (Asymptote Labs); D4 supermemory on Jev in memory pipelines; D5 Instinct memory teardown; D6 Just-in-Time Memory (Salesforce); D7 "Self-Improving Agents" daily brief (2026-09-25). Queued for primary reading: Jev-Mem (2609.23986), EvoSkill, CL-Bench. |
 | [memory-research-landscape.md](memory-research-landscape.md) | Survey of agent-memory, retrieval, benchmark, ontology-enforcement and SE-agent-memory work since March 2026, each item mapped to an Engram component. Includes the RSI memory/skill systems. |
 | [rsi-positioning.md](rsi-positioning.md) | Engram in the RSI taxonomy: which tenets to plug in (six, ranked), which not to, and a minimal implementation order. |
 | [jev-typed-decisions.md](jev-typed-decisions.md) | Verified facts about Jev / TypeSafe System One; a plug-in map to Engram's judgment points (five async gates first, retrieval admission second); rollout and risks. |
