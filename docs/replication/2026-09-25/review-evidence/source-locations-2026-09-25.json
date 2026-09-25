@@ -1,0 +1,102 @@
+{
+  "docs/adr/0011-ontological-foundation.md": {
+    "Status:": [
+      3
+    ],
+    "### 7. Schema Enforcement": [
+      387
+    ],
+    "## Amendment 2:": [
+      605
+    ]
+  },
+  "src/context_graph/domain/models.py": {
+    "class EdgeType": [
+      78
+    ],
+    "class NodeType": [
+      144
+    ],
+    "class Edge(": [
+      499
+    ]
+  },
+  "src/context_graph/api/dependencies.py": {
+    "async def require_tenant": [
+      40
+    ],
+    "async def require_api_key": [
+      130
+    ]
+  },
+  "src/context_graph/adapters/neo4j/queries.py": {
+    "CONSTRAINT_EVENT_PK =": [
+      16
+    ],
+    "MERGE_EVENT_NODE =": [
+      213
+    ]
+  },
+  "src/context_graph/domain/pagination.py": {
+    "def encode_cursor": [
+      12
+    ]
+  },
+  "src/context_graph/adapters/redis/lua/ingest.lua": {
+    "local existing_score": [
+      27
+    ],
+    "-- Step 2a:": [
+      43
+    ]
+  },
+  "src/context_graph/adapters/llm/client.py": {
+    "async def _raw_generate_text": [
+      522
+    ],
+    "async def extract_from_session": [
+      617
+    ],
+    "except orjson.JSONDecodeError": [
+      719
+    ]
+  },
+  "src/context_graph/worker/consumer.py": {
+    "async def _update_lag_metric": [
+      258
+    ],
+    "await self.process_message(entry_id, decoded_data)": [
+      363,
+      428
+    ]
+  },
+  "src/context_graph/worker/consolidation.py": {
+    "# 2. Archive and delete": [
+      556
+    ]
+  },
+  "src/context_graph/api/routes/users.py": {
+    "async def delete_user": [
+      143
+    ]
+  },
+  "src/context_graph/adapters/redis/trimmer.py": {
+    "async def archive_and_delete_expired_events": [
+      225
+    ],
+    "await archive_store.archive_events": [
+      298
+    ]
+  },
+  "src/context_graph/settings.py": {
+    "class LLMSettings": [
+      325
+    ],
+    "class AuthSettings": [
+      393
+    ],
+    "class TenantSettings": [
+      473
+    ]
+  }
+}
