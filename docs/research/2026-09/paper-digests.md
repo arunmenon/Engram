@@ -139,4 +139,49 @@ Author's rubric: single-fact recall ✅, temporal ✅, update/contradiction ✅,
 
 ---
 
+## D6. Just-in-Time Memory: Learning to Curate Task-Adaptive Memory for LLM Agents — Yefan Zhou, Yang Li, Zeyu Leo Liu, Semih Yavuz, Shafiq Joty (Salesforce AI Research); arXiv 2609.27334, 23 Sep 2026
+
+**Received as:** full PDF (25 pages), 2026-09-25; read in full.
+
+### What it does
+
+The paper attacks the dominant design of agentic memory — **write-time curation**: once a task ends, its trajectory is distilled into a fixed artifact (reflection, workflow, skill, reasoning strategy, memory items) that is later retrieved by similarity. Two costs: the artifact is decided *before the future query is known*, irreversibly discarding information; and one query-independent summary must serve many different downstream tasks (the same household trajectory teaches a state-change lesson to one task and a placement lesson to another). Learning a write-time curator is also hard because the value of a storage decision only shows up when a matching query arrives, possibly many tasks later (SkillOS has to group related tasks to manufacture a reward).
+
+**JITMem** keeps the memory bank as a *passive store of raw trajectories* (task + full observation/action sequence, no abstraction) and defers curation to read time:
+
+1. **Retrieve** top-k raw trajectories (BM25 over task descriptions only, k = 3).
+2. **Curate**: a curator LLM reads the current task *and* the retrieved raw traces and synthesises a compact, task-conditioned payload (relevant memories → strategies that worked → specific guidance for *this* task). The payload is ephemeral; it is never stored.
+3. **Execute** with a frozen executor, payload prepended.
+4. **Update**: the trajectory is appended to the bank only if an executor-as-judge deems the task solved (quality-gated storage).
+
+Because the payload is consumed on the same task, the curator can be trained with GRPO directly from immediate task reward — no delayed credit assignment, no task grouping, no auxiliary content-quality judge. The executor stays frozen, so one curator serves many executors.
+
+### Results
+
+| | ALFWorld SR | WebShop SR | τ²-bench micro |
+|---|---|---|---|
+| Best write-time baseline (SkillOS, RL-trained; ReasoningBank-GPT on τ²) | 61.2 | 16.5 | 71.7 |
+| **JITMem** (Qwen3-8B curator, RL-trained) | **77.4 (+16.2)** | **32.8 (+16.3)** | **75.6 (+3.9)** (untrained, GPT-5.4 curator) |
+| JITMem-base (untrained) | 60.5 | 11.7 | 68.9 |
+
+Key findings: (i) **even an untrained read-time curator matches or beats write-time methods** using the same model (WebShop with Gemini-2.5-Pro: 61.0 vs ReasoningBank 40.2 / SkillOS 41.0) — task-adaptive read-time curation is itself the main source of gain; (ii) the trained curator **transfers across executors** (trained with Qwen3-8B, within 1.4 SR of one trained with GPT-5.4); (iii) payloads are **compact**: +1.9K input tokens over no-memory vs +10.7K (ReasoningBank) and +13.4K (SkillOS), and 28–31 % fewer executor steps; (iv) **ablations**: removing task conditioning −3 to −11 SR; storing all trajectories with success/failure labels instead of filtering to successes −1.5 to −3.4; applying ReasoningBank-style distillation at write time instead of storing raw traces **−1.7 to −8.2**; removing retrieved trajectories from the trained curator −15, so RL learns to distil retrieved experience rather than to hallucinate hints; (v) memory helps most where tasks need **synthesised procedural guidance** (τ² Telecom +11.0); on fact-retrieval-shaped domains (Airline, Retail) no memory method beats no-memory beyond variance. The curator prompts all carry a de-hardcoding rule ("do not copy concrete identifiers… always look up the current case"); the judge prompt credits only outcomes that tool results confirm. Limitations (authors'): BM25 retriever may bottleneck at scale; one extra LLM call per task; payload format hand-designed per benchmark; curation once per task, not per step.
+
+### What it implies for Engram
+
+This is the most direct challenge to Engram's design among the papers so far, and it is partly right.
+
+1. **The ledger is a JITMem memory bank already.** Engram stores every event losslessly and forbids mutation; the paper's central claim — *never discard at write time* — is ADR-0004. What Engram lacks is the read side: nothing in the read path synthesises a task-conditioned payload from raw events. `/v1/context` returns scored nodes; `/v1/query/subgraph` returns a bounded subgraph. Both are *selection*, not *curation*. The Context Compaction Theory paper (landscape §2.4) makes the same point from the other direction: generation can need strictly less budget than selection.
+2. **Engram's write-time layers are exactly what the ablation penalises — if they are treated as the payload.** Consumer 2 (session-end extraction into Entity/Preference/Skill nodes) and Consumer 4 (episode/session summaries) are write-time distillation. The reconciliation is MemIR's (landscape §1.3): raw Events are *evidence*, the projected graph is *retrieval cues and structure* (which entity, which causal chain, which episode), and the Summary tier is a *cache* of common curations — none of them should be the only thing an agent can read. Today the whole retrieval path returns projections and never the raw payloads behind them (`payload_ref` is a pointer the read path does not follow). Fix: a read-time **curate** step that follows `payload_ref` for the selected Events and synthesises a task-conditioned briefing, with the graph used to *pick* the events, not to *summarise* them. Provenance carries through: the briefing cites the event ids it was built from.
+3. **Quality-gated storage vs the immutable ledger.** JITMem stores only judged-successful trajectories and shows that storing everything with labels is worse (the curator "cannot fully suppress the noise"). Engram must keep everything (audit, replay, GDPR, ReasoningBank-style failure lessons). Resolution: the ledger keeps all; the **procedural retrieval bank is a filtered view** — Episodes with `outcome = success` (RSI T2's outcome event) are what the curator sees by default; failures are retrievable on request for negative-evidence lessons (RSI T3). This is the same "filter at storage time provides a cleaner retrieval signal" result, implemented as an index rather than a delete.
+4. **Where read-time curation belongs, and where it does not.** It adds an LLM call per task, which violates the zero-LLM hot-path rule that Eywa and Engram's own design share. It belongs behind the **B0 gate** in the harness adapter ([Jev doc](jev-typed-decisions.md)): fire it at *task start* for `how_does`-shaped requests (the τ² Telecom result says that is where it pays), not on every `/context` call for fact lookups. The payload is ephemeral, but its **receipt** (query, event ids used, curator model, payload digest) is a ledger event — that is the retrieval receipt RSI T2 needs, and it makes outcome feedback attributable.
+5. **Read-time and write-time are not exclusive; they are the two ends of the RSI loop.** Write-time curation (Workflow induction, MGM-style comparative refinement, digest D2) produces *candidates* for what will be useful; read-time curation produces the *instance* for this task. The paper's own τ² payload shows the curator re-deriving an ordered diagnostic procedure from three raw transcripts on every request — exactly what a promoted Workflow node would cache. The right design: curate at read time from raw evidence; promote recurring curations to Workflow nodes with outcome statistics; let the curator retrieve Workflows *and* raw Episodes and choose. That keeps the paper's advantage (nothing lost, task-conditioned) and Engram's (versioned, provenance-bearing procedural memory).
+6. **Trainable curator = a component Engram can own.** A single small curator (8B) trained once on task reward transfers across executors. For the PDLC layer, "executor" is whichever coding agent the team uses (Beacon's 20 harnesses, digest D3); a curator trained on merged-PR outcomes would be the Engram-owned model in the loop, with the ledger as its training bank and the retrieval receipt as its reward link.
+7. **Retriever note.** BM25 over task descriptions only, k = 3, insensitive to k. Engram's BM25 channel is dead (scale D2) and its query embedding never sees content (catalogue I4). A `task_key`/task-description index is cheap and is what both MGM and JITMem retrieve on.
+
+**Verdict:** **adopt** — (a) a read-time `curate` step over raw event payloads for task-start requests, behind the B0 gate, with an ephemeral payload and a ledger receipt; (b) an outcome-filtered procedural view of Episodes as the curator's default bank; (c) a task-description index for retrieval. **Adapt** — reposition Consumer 2/4 outputs as retrieval cues and cached curations, not the sole read surface; make the read path able to follow `payload_ref`. **Context** — the curator-training recipe (GRPO on immediate task reward) as the long-term Engram-owned model.
+
+**Tension to record in an ADR.** ADR-0003 calls the Neo4j projection "query-optimised". This paper shows that for procedural memory the query-optimal representation is *raw traces plus a task-conditioned reader*, not a pre-abstracted graph. The graph remains right for lineage, entity and cross-session questions (MOOSEDev, landscape §6.3, is the counter-evidence in Engram's favour on supersession/negation queries). Both should be stated.
+
+---
+
 *Next entries are appended below as papers arrive.*
