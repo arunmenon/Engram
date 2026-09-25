@@ -41,6 +41,7 @@ Ordered by (impact × ease). Ids refer to the catalogue.
 
 | # | Judgment point | Today | With Jev | Caution |
 |---|---|---|---|---|
+| B0 | **Retrieve-or-not gate in the harness adapters** (new; not in the catalogue) | SDK/plugins always call `/v1/context` or `/subgraph` | In the harness hook (e.g. Claude Code `UserPromptSubmit`, LangChain callback), one call per prompt: Noul `memory_would_help`, Choice `intent`, Score `context_budget`. Honours "without using memory…". Only then call Engram with the chosen intent/budget | Cheapest and most user-visible Jev use; supermemory reports it works well in exactly this hook (digest D4). Lives in ADR-0015 adapters, not in the core |
 | B1 | **Neighbour / proactive-context admission** (R6, R8) | Every fetched neighbour is returned and labelled "proactive" with no relevance test | After graph expansion, one call over `{query, intent, candidate_nodes[]}` with a Noul `relevant_to_query` per candidate (Choice over candidate ids also works). Admit above threshold; record the distribution in `meta` | This is the vendor's "classifying RAG passages" pattern and the compaction pattern several third-party tools use. Adds ~0.2–0.5 s to `/subgraph`; run behind a flag and measure the counterfactual as the guide prescribes. Do **not** sort by raw probability across items — a third-party benchmark found probability ordering unreliable; use it as a gate and keep Engram's own scoring for rank |
 | B2 | **Intent classification** (R1, R2) | Keyword regex; optional LLM classifier | Choice over the 8 intents (+ `unclear`) with distribution; the distribution *is* Engram's multi-intent weight vector | Natural fit and cheap, but the keyword classifier is not the bottleneck today; the eval harness never even exercises it. Do B1 first |
 | B3 | **Importance at ingest** (I4, C5) | hint or constant 5; later overwritten by centrality | Score `salience` over `{event_type, tool, payload_excerpt}` at enrichment time; keep hint as a prior | Async, cheap. Gives the decay model a real importance signal instead of a constant |
@@ -51,6 +52,13 @@ Ordered by (impact × ease). Ids refer to the catalogue.
 - **Anything numeric or temporal**: recency, decay, tier assignment, episode boundaries — the jaggedness page says Jev reads dates as text. Keep these in code.
 - **Ranking by probability across items**: gate, don't sort.
 - **Replacing the event-envelope validator** (I1): exact rules belong in Pydantic.
+
+## 3a. Field evidence from other memory systems (Sep 2026)
+
+Two practitioner reports arrived after the map above was drafted; both confirm its shape and sharpen two rules.
+
+- **supermemory** (digest D4) benchmarked Jev on BEIR reranking: a **Noul used as a delete gate "kept nothing"**, while Noul-as-sort and a 10-level Score both worked (Score best). Rule: *for graded decisions use Score with an anchored rubric; reserve Noul for genuinely binary claims and calibrate its threshold per question* (A3 above should be a Score on `evidential_value`, not a Noul). Their sentence-level pre-extraction filter saved 58 % of tokens but broke contextuality — rule: *judge at the granularity where the state carries the context* (turn/episode, not sentence). Their harness-hook "should memory be used for this prompt" worked well → B0.
+- **Beacon** (digest D3) gates traces with three Nouls (`task_success`, `reusable_correction`, `evidence_supported`) then promote/review/discard. Two failures: asking Jev for a `reason` returned the literal string `"noul"` (a decision model cannot explain — the LLM or the trace must supply lesson text); and re-running evaluations overwrote reviewed candidate states. Both are already rules here: Tier C, and "keep the receipt on the ledger".
 
 ## 4. Integration shape
 

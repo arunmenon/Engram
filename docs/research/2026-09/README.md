@@ -12,7 +12,7 @@ This pass digests those inputs and states a path forward. It does not change cod
 
 | File | What it is |
 |---|---|
-| [paper-digests.md](paper-digests.md) | One entry per paper/article received, with an adopt / adapt / context verdict. **Append here as papers arrive.** |
+| [paper-digests.md](paper-digests.md) | One entry per paper/article received, with an adopt / adapt / context verdict. **Append here as papers arrive.** Current entries: D1 RSI taxonomy; D2 Mendel Gödel Machine; D3 Beacon (Asymptote Labs); D4 supermemory on Jev in memory pipelines; D5 Instinct memory teardown. |
 | [memory-research-landscape.md](memory-research-landscape.md) | Survey of agent-memory, retrieval, benchmark, ontology-enforcement and SE-agent-memory work since March 2026, each item mapped to an Engram component. Includes the RSI memory/skill systems. |
 | [rsi-positioning.md](rsi-positioning.md) | Engram in the RSI taxonomy: which tenets to plug in (six, ranked), which not to, and a minimal implementation order. |
 | [jev-typed-decisions.md](jev-typed-decisions.md) | Verified facts about Jev / TypeSafe System One; a plug-in map to Engram's judgment points (five async gates first, retrieval admission second); rollout and risks. |
@@ -36,7 +36,7 @@ The documents converge on one sequence. Each step is small, additive to the froz
 3. **Make memory updates explicit and gated** ([RSI](rsi-positioning.md) T1): proposal event → gate → committed version, with MemTX-style node state and TARL-style actions. Put the independent judge for extraction acceptance, entity merges, supersession and deletion behind the `ports/decision.py` interface, with Jev as the first adapter ([Jev](jev-typed-decisions.md) A1–A5) and the current rules as the fallback.
 4. **Stand up procedural memory** ([RSI](rsi-positioning.md) T3; [digest D2](paper-digests.md)): a stable `task_key` on events; Workflow induction from Episodes with per-task outcome records; comparative refinement (same workflow across tasks, sibling success on the same task); multi-parent SUPERSEDES that keeps sibling versions; a negative-evidence node; a "failed-task pool" pre-action retrieval mode. This is the RSI layer and the core of the PDLC product.
 5. **Replace the evaluation harness** ([landscape](memory-research-landscape.md) §3): remove label leakage, import the real scoring, freeze the judge, add a held-out split and paired-stats gating; run DreamBench-SWE, ForgetEval, MemOps, and MemDelta's one-variable protocol before publishing any graph-vs-vector number.
-6. **PDLC ontology and adapters** ([pdlc](pdlc-memory-layer.md)) once the grounding document settles the open questions.
+6. **PDLC ontology and adapters** ([pdlc](pdlc-memory-layer.md)) once the grounding document settles the open questions. Do not build 20 harness collectors: Beacon's OTel-normalised JSONL ([digest D3](paper-digests.md)) is a candidate ingest source; Engram's value is after capture. Put the retrieve-or-not gate ([Jev B0](jev-typed-decisions.md)) in the harness adapters.
 7. **Scoring refinements** ([landscape](memory-research-landscape.md) §8 item 7): per-edge-type volatility, co-activation strengthening, reinforce-on-used, silent maturation — contained changes to `scoring.py`, measured with the fixed harness.
 
 Items 1–3 are independent of the PDLC requirement and of Jev's commercial terms; they are the foundation whichever direction is chosen next.

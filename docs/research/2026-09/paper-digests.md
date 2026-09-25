@@ -72,4 +72,71 @@ Same budget, comparable token cost per operator, comparable wall-clock. Full Pol
 
 ---
 
+## D3. Beacon — the cross-harness self-improving memory layer (Asymptote Labs), Sep 2026
+
+**Received as:** X post screenshot + repo link, 2026-09-25. Sources read: [repo README](https://github.com/Asymptote-Labs/agent-beacon) (MIT), [PR #574 "memory candidate review lifecycle"](https://github.com/Asymptote-Labs/agent-beacon/pull/574), [issue #620](https://github.com/Asymptote-Labs/agent-beacon/issues/620), search excerpts. beacon.sh and the blog coverage were blocked.
+
+**What it does.** Captures full session history from 20+ coding-agent harnesses (Claude Code, Cursor, Codex, OpenCode, Cline, Devin, Gemini CLI, browser chat via extensions, cloud agents, SDKs) through OTLP, hooks, plugins and polling, and **normalises it into one OpenTelemetry-based event model**: sessions, prompts, responses, tool calls, commands, file activity, approvals, MCP interactions, token usage. Stored locally as JSONL (`~/.beacon/endpoint/logs/runtime.jsonl`), optionally forwarded to SIEMs/object stores. On top of that history: *"Run agents → capture → evaluate what worked → extract useful knowledge → review + approve → reuse across future agents."*
+
+**The Jev step** (from issue #620). Each trace is scored with three Noul questions:
+
+| id | question |
+|---|---|
+| `task_success` | Did the trace complete the user's engineering task successfully? |
+| `reusable_correction` | Does the trace contain a correction or debugging pattern that future agents should reuse? |
+| `evidence_supported` | Is the reusable lesson supported by concrete events in the trace? |
+
+An application policy maps the three probabilities to **promote / review / discard**. Promoted traces become *memory candidates*; a reviewer runs `beacon memory candidates list|show|approve|reject|supersede`; approved memories are persisted in a durable store with their review transitions, and packaged as Agent Skills (`beacon-memory-recall` — read approved memory before a task; `beacon-memory-distill` — dry-run, consented evaluation, lesson drafted from the source trace). The post reports 579 sessions across 5 harnesses normalised in the demo.
+
+**Two instructive defects.**
+1. **Issue #620:** every `reason` field across 75 questions came back as the literal string `"noul"`. The rubric asked a decision model to *explain*; it cannot generate text, so approved skills carried scores but no lesson — "the installed skill cannot teach a future agent anything beyond score values." Exactly the field guide's rule and [jev-typed-decisions.md](jev-typed-decisions.md) Tier C: lesson text must come from an LLM (or the trace), Jev only gates it.
+2. **PR #574 review:** re-running evaluations could overwrite reviewed candidates, resetting approved/rejected back to pending and clearing memory ids. A decision without a durable, versioned receipt is not a decision — the same gap the [catalogue](judgment-points-catalogue.md) found throughout Engram.
+
+**What it implies for Engram.**
+- Beacon is a *competitor on the capture side and a potential source on the memory side*. Its OTel-based normalised event model is what ADR-0001/0004 specified and the February research (`adr001-agent-frameworks.md`) recommended — a LangChain callback, an OpenAI-Agents tracing processor, an A2A listener — none of which Engram built. Beacon has built the collectors. Engram's differentiation is not capture; it is what happens after: provenance-bearing graph, versioned procedural memory, outcome-linked scoring, bounded retrieval.
+- Its rubric is a good **first battery for Engram's episode-level gate**: `task_success`, `reusable_correction`, `evidence_supported` map directly onto the outcome label (RSI T2), the Workflow/Lesson candidate (RSI T3) and the grounding check (Jev A1). Add a fourth Noul, `instance_specific` (TRACE's de-hardcoding rule), before promoting anything to a Workflow.
+- The candidate lifecycle (`candidate → approved / rejected / superseded`, with a human reviewer) is the MemTX/TARL state machine in miniature. Engram should adopt the same states on Lesson/Workflow nodes and keep the transitions as ledger events so they cannot be overwritten by a re-run (Beacon's bug).
+- Beacon writes memory as skill files per harness. Engram should instead *serve* approved memory over `/v1/context` and `how_does` intent with provenance, and can ingest Beacon's JSONL as an event source rather than rebuilding 20 collectors.
+
+**Verdict:** **adapt** — reuse the three-question rubric (+ `instance_specific`) as the first episode-gate battery; adopt the candidate lifecycle as node state with ledger-recorded transitions; treat Beacon's normalised JSONL as a candidate ingest adapter for the PDLC layer. **Context** on capture: do not compete on collectors.
+
+---
+
+## D4. "How Jev changes memory pipelines" — Dhravya Shah (supermemory), Sep 2026
+
+**Received as:** X post text, 2026-09-25. Empirical, vendor-adjacent (supermemory sells a memory product); numbers are theirs, unreproduced.
+
+**The general pipeline** the author observes across ChatGPT, Claude, Instinct, Openclaw, Hermes, Muse and customers: raw data → chunking/batching → **off-loop observation/learning** (background job, schedule or trigger) → stored context (markdown, vector, graph, KV) → summaries/profiles and search → harness injection (hooks, tools, system prompt). Engram matches this shape exactly (ledger → Consumer 2/4 → Neo4j → Atlas context).
+
+**Findings, by pipeline stage.**
+
+| Stage | Finding | Engram reading |
+|---|---|---|
+| **Reranking** (BEIR: SciFact, NFCorpus, TREC-COVID, FiQA, SCIDOCS) | Jev beat BM25 everywhere (+0.05 to +0.17 nDCG@10). **Noul-as-delete-gate failed (kept nothing)**; Noul-as-sort and a 10-level Score both worked, Score-10 best (SciFact 0.751). Beats bge-reranker-base on quality (0.612 vs 0.564) at ~20× cost; loses to jina-reranker-turbo (0.633) and to monoT5/RankGPT-4 on SciFact. Cost ≈ Voyage rerank-3. Author's call: stick with dedicated rerankers for now. | Confirms [Jev doc](jev-typed-decisions.md) B1's caution: use Score (ordered rubric) rather than a single Noul threshold when the decision is graded; and for pure reranking a distilled reranker (MemReranker, landscape §2.2) is the cheaper path. Jev's place is the *typed gate with a receipt*, not the ranker. |
+| **Chunking** | Ask per sentence "does this continue the previous thought?" and cut near a target size. Best on their messy/markdown/multilingual benchmark (Chroma's chunking-eval method), ~8–10× the cost of rule-based ($0.08 vs $0.008 per 1k docs). | Engram embeds only `event_type + tool` today (catalogue I4) and never chunks content. If content embedding is added, boundary decisions are a candidate — but the PDLC sources (tickets, PR diffs, doc sections) already carry structural boundaries; rule-based first. |
+| **Pre-observation filtering** | Sentence-level Noul "should this go to the extractor?" cut **58 % of content tokens**. But independent sentence classification **breaks contextuality** (assistant turns, early mentions referenced later); they could not give Jev enough context; conclusion: "Jev is not a very good compactor for memory" today. | Directly relevant to extraction cost (catalogue E1/E2: whole-session prompts, quadratic mid-session re-extraction). The lesson is *unit of judgment*: filter at turn/episode level with the surrounding state, not sentence level. Same caution as Governance Decay (landscape §2.5). |
+| **Harness decisions** | Jev in Claude Code's `UserPromptSubmit` hook decides *whether memory should be injected at all* for this prompt; honours "without using memory, tell me…"; author's view: models are bad at deciding *when* memory helps, so the harness should decide, and a decision model is the right tool. | A new judgment point Engram doesn't have: **should context be retrieved at all**, and with which intent/budget. It belongs in the SDK/harness adapters (ADR-0015), ahead of `/v1/context`, and is cheap (one Noul + one Choice per prompt). Adds to the Jev map as **B0**. |
+
+**Verdict:** **adopt** B0 (retrieve-or-not gate in the harness adapters) and the "Score over Noul-threshold for graded decisions" rule; **adapt** the pre-observation filter at episode granularity; **context** on reranking (use a reranker).
+
+---
+
+## D5. "I reverse-engineered Instinct's memory" — Dhravya Shah (supermemory), Sep 2026
+
+**Received as:** X post text, 2026-09-25. Black-box probing of a commercial iMessage assistant; the author states the reconstruction may be wrong in places and is a competitor.
+
+**What Instinct does (as reconstructed).** Memory is **git-tracked markdown files** with front-matter (`id`, `type ∈ {preference, person, organization, conversation}`, `aliases`), bodies as dated fact lists, and `[[id]]` links between files — "a densely interconnected set of files… graph-like". The answering model receives: current conversation, an identity **profile** (~4,250 tokens: life context, autonomy calibration, communication style), a memory one-pager, a compaction recap (~10k tokens), and a task board. **Retrieval is grep/keyword only** — no vectors, no BM25 — which is why every file has aliases. **Memory is read-only for the agent**; a background job (~every 24 h, inferred from a 23 h 16 min lag) reconciles: moves temporary details into workstreams, shortens durable records while linking to fuller notes, turns examples into traits, removes incidentals, replaces wrong facts with dated corrections. Old versions survive in git history and dated notes but are only found if the model looks. Forgetting is not automatic. Profile freshness lags up to two days, but dates in it let the agent discount it.
+
+Author's rubric: single-fact recall ✅, temporal ✅, update/contradiction ✅, abstention ✅, multi-hop across sessions weak, forgetting partial, **procedural/skill memory ❌**, implicit personalisation ❌, multimodal ❌, write-side cost likely expensive (reads grow with the store).
+
+**What it implies for Engram.**
+- Three independent systems now converge on the same design: Instinct, Letta's Context Repositories (landscape §4.3) and ByteRover's Context Tree (§4.6) all use **files + versioning + background reconciliation + read-only memory for the agent**. Engram's ledger + derived graph is the same architecture with a database instead of git and a stream instead of commits. The convergence validates the split; the question is what the graph buys over files.
+- What the graph should buy, and where Instinct is weak: **multi-hop across sessions** (Engram's cross-session entity bridging and CAUSED_BY traversal), **automatic forgetting** (decay tiers), **procedural memory** (Workflow nodes — absent in Instinct and in Engram's running code), **old versions surfaced by default** (SUPERSEDES with validity windows, not buried git history). These are the differentiators to make real, per the [landscape](memory-research-landscape.md) ranking.
+- Two cheap ideas worth taking: **aliases as first-class retrieval keys** (Engram's `DOMAIN_ALIAS_DICT` is a hard-coded payments/devtools list; aliases should be learned per entity and stored on the node), and **dated facts** so a stale profile is self-discounting (Engram's Atlas provenance already carries `occurred_at`; make the profile/summary tier carry it too).
+- The write-side cost warning ("reads grow with the store to write more") is Engram's extraction problem in another form (catalogue E9: entity resolution sees an arbitrary 1000 entities; E2: whole-session prompts). Known-entity injection scoped by alias/embedding recall, not "read everything", is the answer in both systems.
+
+**Verdict:** **context** for the architecture convergence; **adopt** learned per-entity aliases and dated summary/profile facts; reinforces the priority of procedural memory and automatic forgetting as the differentiators.
+
+---
+
 *Next entries are appended below as papers arrive.*
