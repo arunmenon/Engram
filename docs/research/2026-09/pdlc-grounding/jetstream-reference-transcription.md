@@ -1,6 +1,6 @@
 # Grounding document: "Nitin jetstream artifacts reference" — transcription (partial)
 
-**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1 and §3.3. Not yet received: §2.4, §3.2 body, the rest of Part 3 (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
+**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1–3.5, Part 4 §4.1–4.2 and the first due-diligence row. Not yet received: §2.4, the rest of Part 4 (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
 
 > **Confidentiality note.** This is an internal-programme document of the user's employer with named people. It is stored here because it is the grounding for [../pdlc-memory-layer.md](../pdlc-memory-layer.md); keep the branch private.
 
@@ -195,9 +195,11 @@ Note the method: *"built the way any dependency gets defined before its own team
 
 ### 3.2 What it provides
 
-Domain and tribal knowledge — "the facts a […]" *(rest not captured)*
+Domain and tribal knowledge — *"the facts a human author would fill in silently, and an agent with no organizational context cannot."*
 
-[…] C5 (Tool Access) names a candidate system in the same stream: the **MCP Hub**, which projects every tool as a CLI so tool-definition tokens stay near zero at session start.
+**C6's test:** *a change of backend touches no harness code.*
+
+C5 (Tool Access) names a candidate system in the same stream: the **MCP Hub**, which projects every tool as a CLI so tool-definition tokens stay near zero at session start.
 
 ### 3.3 The four call sites
 
@@ -208,12 +210,65 @@ Domain and tribal knowledge — "the facts a […]" *(rest not captured)*
 | Intake, Specification | A Spec references rather than inlines knowledge; Company Knowledge resolves that reference at build time |
 | Pull Requests | Adversarial review runs with the same knowledge that crafted the spec, **pinned as a snapshot** |
 
-**Transcription ends here** (2026-09-26, third batch; §3.2 body and everything after §3.3 still to come).
+*(text between §3.3 and §3.4 partly not captured; the fragment "[…] buildability scores stay comparable" precedes §3.4)*
+
+### 3.4 The fault-adjudication rule
+
+The one place the docs give Company Knowledge a **testable** failure mode:
+
+| Outcome | Fault |
+|---|---|
+| Not recoverable, missing piece was **spec-type information** | The spec |
+| Not recoverable, missing piece was **tribal knowledge** | Company Knowledge |
+| Recoverable, but the agent chose wrong anyway | The harness |
+
+> "This is what keeps 'Company Knowledge is cross-cutting' from becoming an excuse that absorbs every downstream failure: a gap only counts against Company Knowledge when the assumptions ledger shows the missing information was tribal, not structural."
+
+### 3.5 What it would need to be
+
+> "A single, entitlement-aware retrieval point that both loops can call at build time, that ingests the org's existing systems of record rather than becoming a new one, and that can be swapped or upgraded on the backend without either loop's code noticing."
+
+**The assumption, stated as an assumption:**
+
+> "**Assumption:** Engram, PayPal's certified context and knowledge layer (Engram - Home), matches that shape closely… **Whether Engram becomes the system that actually sits behind C6 is still open**; what Sections 5.1 through 5.3 fix is the shape whatever sits there has to have."
+
+⚠ The "Engram" linked there is **AI Tech's `agenticmemoryservice` in the AITMCP space — not the PAI Context Graph.**
+
+**Already live ahead of a formal owner:** *"the Outer Loop's Intake refine skill instructs the authoring agent to pull company knowledge that answers a* […]" *(rest not captured)*
+
+## PART 4 — The C6 proposal
+*Source: Company Knowledge: Reference Architecture (3119623953) — last edited 24 Sep*
+
+### 4.1 The contract, verbatim
+
+The only contract whose full text (statement + test) appears anywhere in Confluence:
+
+> "An agent reads, writes, and retrieves through one interface. The scope of each operation is declared. The store stays where it already lives. We integrate with the store. We do not absorb it.
+> **Test:** a change of backend touches no harness code."
+
+Three obligations fall out: **one interface (not one store), declared scope per call, backend independence proven by a passing swap test.**
+
+### 4.2 The headline finding
+
+> "**No single repo is a ready-made C6 knowledge interface.** Engram is the strongest service candidate but is itself one backend, not the adapter layer the contract requires. DeepInsights is the strongest contract-shape prior art but is a black box from here. **The interface itself does not exist yet anywhere in the estate.**"
+
+### 4.3 The eleven-repo due diligence
+
+| Repo | Verdict | Notes (right edge cut) |
+|---|---|---|
+| `agenticmemoryservice` ("Engram") | Service | Closest ready backend. Jav[a], MySQL + Ver[…] |
+| […] | | |
+
+**Transcription ends here** (2026-09-26, fourth batch; remaining due-diligence rows, §4.4+, the Knowledge Ontology and Courier vs. Endzone still to come).
 
 ---
 
 ## First read: what these pages change for Engram (to be revised when the rest arrives)
 
+> **⚠ Name collision, read first.** Inside the Jetstream pages, "Engram" means **AI Tech's `agenticmemoryservice`** (Java, MySQL + a vector store), "PayPal's certified context and knowledge layer". This repository is what the document calls the **PAI Context Graph**. Every sentence below that says "Engram" means this repository unless it says otherwise. Consequences: (a) the programme's "strongest service candidate" for C6 is the *other* Engram, and the due diligence rates it as a backend, not the adapter layer; (b) the stream-03 line "Dobby and Eng[ram] stay separate" almost certainly refers to that system too; (c) this repository has to be positioned by what it does, not by its name, and the name itself is a liability in any Jetstream conversation until it is disambiguated.
+
+
+0000. **The C6 contract is now verbatim, and the gap it names is the opportunity.** "One interface, not one store; declared scope per call; backend independence proven by a passing swap test; the store stays where it lives, we integrate, we do not absorb." The headline finding is that **the interface does not exist anywhere in the estate**; the best candidates are a backend (`agenticmemoryservice`) and a black box (DeepInsights). So the winning move for the PAI Context Graph is not "be the best backend" but **be the C6 adapter layer with a swap test**, and be *one* backend behind it — which is exactly the `ports/` + adapters structure this repo already has (EventStore / GraphStore protocols, harness adapters in ADR-0015). "Ingests the org's existing systems of record rather than becoming a new one" fits an event ledger that projects from sources; it does not fit a system that wants to own the knowledge. The **fault-adjudication rule** (§3.4) is the first outcome label the PDLC layer must record: for every non-recoverable failure, was the missing piece spec-type or tribal, per the assumptions ledger? That is a closed three-way label, it is the C9 signal that scores Company Knowledge, and it is a natural Jev Choice with the assumptions-ledger entry as state. "Entitlement-aware" makes ADR-0016/0029 tenant policy a contract requirement, not an option.
 0. **C6 is the whole game, and it is unowned.** "C6 Memory and Knowledge: one interface for agent read/write/retrieve, scoped per operation" has **no ratified holder**; so does C9 (evidence and eval), and C9 depends on an unowned autonomy-gate pipeline. Every contract is "one interface and one test". The Inner Loop's Spec step "resolves needed knowledge through C6". So the PDLC layer is not a schema Engram proposes; it is a **candidate implementation of C6** with a conformance test, and the self-review step's **assumptions ledger** ("ambiguity resolved by inference gets recorded, not silently discarded") is the first concrete write-side artefact the contract needs to carry. Engram's ledger-first design, per-operation scoping (tenant + run + stage), and provenance block map directly onto "scoped per operation". C9's signals (agreement, autonomy, quality, speed, cost per stage) are the outcome events P4 asks for; if C6 and C9 land together, the retrieval-receipt → outcome loop is a contract obligation rather than an Engram feature. C8 says OpenTelemetry GenAI spans are mandatory, which settles the ingest format question raised in digest D3 (Beacon's OTel-normalised JSONL).
 00. **C6's four call sites define the read API backward.** (a) Spec step: "what domain and tribal knowledge does this run need" — a task-conditioned briefing before Design, which is exactly the read-time curate step (digest D6, H3). (b) Triage: ticket corpus + org structure for routing — an entity/ownership graph query, Engram's `who_is`/`related` intents over Entity and UserProfile. (c) Specification: **a Spec references knowledge by reference and Company Knowledge resolves it at build time** — the reference must be a stable id with a version, i.e. a node id plus `global_position`, which Engram's provenance block already is. (d) Adversarial review: **the same knowledge that crafted the spec, pinned as a snapshot** — a point-in-time read ("as of position X"), which the immutable ledger supports natively and a mutable vector store cannot; this is the strongest argument for the ledger-first design in the whole document. Two more facts: "neither loop owns it", and the stream is specified "backward from what the callers require" — so the PDLC layer's first deliverable is the C6 interface (`retrieve`, `write`, `snapshot`) plus its one conformance test, not an ontology.
 000. **The Outer Loop supplies the outcome signals but has no contracts.** Escape rate (severity-weighted), change-failure rate from Operating detection, MTTD/MTTI/MTTR, RCA completion, spec-attributed fault rate, disposition accuracy — these are the outcomes a retrieval receipt should be joined to (H4). The Miro sketch of admission / build-success / completion contracts tied to a commit SHA is the natural place for a "which knowledge was served for this change" receipt. "A lower-env escape becomes a new upstream gate" and "RCA re-enters as a new Request" are the two negative-evidence edges the procedural-memory layer needs.
@@ -225,4 +280,4 @@ Domain and tribal knowledge — "the facts a […]" *(rest not captured)*
 6. **"Stream's own measures are an open question."** The discovery plan's metrics (ledger-vs-no-memory oracle pass rate, knowledge-update accuracy, feedback-loop rate, stale-flag precision) are a direct contribution to stream 03, and stream 04 is the telemetry backbone they should land on.
 7. **The commitment window is 3 months and one adopting organisation.** The discovery plan's five-week sequence fits inside it only if P1–P3 start now.
 
-**Still needed from the document:** §2.4, §3.2 body, and Part 3 onward — the C6 proposal and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
+**Still needed from the document:** §2.4, the rest of the eleven-repo table and Part 4 (§4.4+: retrieve/write/snapshot, sections 5.1–5.3 that "fix the shape") and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.

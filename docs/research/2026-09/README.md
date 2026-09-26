@@ -21,7 +21,7 @@ This pass digests those inputs and states a path forward. It does not change cod
 | [judgment-points-catalogue.md](judgment-points-catalogue.md) | Every rule, threshold, embedding or LLM decision in the current code, with inputs, output shape, cost, failure behaviour and whether a receipt is kept. Reference for the two documents above. |
 | [write-read-path-scale.md](write-read-path-scale.md) | Hop-by-hop write and read path, API surface, ADR-0018 claims vs code, three confirmed defects, ten ranked risks. |
 | [pdlc-memory-layer.md](pdlc-memory-layer.md) | First take on the PDLC knowledge/memory layer: ontology extension, retrieval modes, write-side integrations, evaluation, open questions. **Preliminary until the grounding document is received.** |
-| [pdlc-grounding/](pdlc-grounding/jetstream-reference-transcription.md) | Transcription of the grounding document ("Nitin jetstream artifacts reference") as it arrives, with a first read of what it changes. **Partial: §0, Part 1, Part 2 (contracts C1–C11, Outer Loop, seams), Part 3 §3.1 and §3.3 received 2026-09-26; the C6 proposal, the 11 ontology dimensions and the harness retrieval comparison still to come.** |
+| [pdlc-grounding/](pdlc-grounding/jetstream-reference-transcription.md) | Transcription of the grounding document ("Nitin jetstream artifacts reference") as it arrives, with a first read of what it changes. **Partial: §0, Part 1, Part 2 (contracts C1–C11, Outer Loop, seams), Part 3, Part 4 §4.1–4.2 received 2026-09-26 — **note the name collision: "Engram" in the programme is a different system**; the rest of the C6 proposal, the 11 ontology dimensions and the harness retrieval comparison still to come.** |
 
 ## How the analysis was produced, and how far to trust it
 
