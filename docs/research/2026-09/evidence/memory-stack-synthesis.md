@@ -1,6 +1,6 @@
 # Memory stack synthesis: what the evidence says, by design decision
 
-Built 2026-09-26 from the 26 evidence items on the Self-Improving Agents hub, the 5 papers, 4 repos, 2 X Articles, vendor posts and 26 images behind them. Every claim below points to a file in `sources/` (read it for the full numbers and quotes) or to an item in `evidence-ledger.md` (T = trend, E = evidence item). "(inference)" marks conclusions that are this synthesis's own rather than a source's.
+Built 2026-09-26 from the 38 evidence items on the Self-Improving Agents hub, the 5 papers, 4 repos, 2 X Articles, vendor posts and 26 images behind them. Every claim below points to a file in `sources/` (read it for the full numbers and quotes) or to an item in `evidence-ledger.md` (T = trend, E = evidence item). "(inference)" marks conclusions that are this synthesis's own rather than a source's.
 
 **How strong is the evidence?** Mostly weak. There is one paper with a single benchmark and no ablations (Jev-Mem), one paper whose headline mechanism adds only about 2 points (REALM reconsolidation), and vendor or builder reports with small samples. Treat every number here as a hypothesis to test on your own traffic, not a spec. Section 8 lists where the evidence contradicts the hub's own trend claims.
 
@@ -17,6 +17,7 @@ Built 2026-09-26 from the 26 evidence items on the Self-Improving Agents hub, th
 | Treat every memory or skill write as a proposal. It persists only if it beats the current best configuration on a held-out split, and the top-k configurations are kept as git branches. Before creating an entry, force a check: does an existing entry already cover this, so it should be edited instead? | `evoskill-skill-evolution-frozen-model.md` | Paper, validation on 7% of each benchmark, run once |
 | Reject memory or skill entries that name specific eval tasks, entities or answers, because that is leakage. | `rrsi-regularized-recursive-self-improvement.md`, `evoskill-skill-evolution-frozen-model.md` | Paper |
 
+| A worked per-turn save gate (jevmem, Claude Code project memory). Tier 1 runs on every turn: 9 yes/no questions plus kind, target-id and importance, about 2.2k tokens. Tier 2 (30 atomic questions, about 5k tokens) runs only when tier 1 is borderline: the top kind score is in [0.3, 0.7], kind confidence < 0.6, importance confidence < 0.5, or injection in [0.3, 0.7]. Tier 2 fired on 6 to 14% of turns. SAVE when kind is not none, AND (content >= 0.5 OR a reversal), AND importance is at least "useful" (level 3 of 5), AND chit-chat < 0.5, AND injection < 0.5. Supersede only when contradiction >= 0.7 and a named target id is returned; the old line stays, tagged `[superseded] -> id:new`. The author's benchmark (66 turns): 98.5% save/skip, 5/5 contradictions caught, p50 300 ms, $0.000127 per decision, against 2.8 to 4.3 s for LLMs. | `github-avinash-jetwani-jevmem.md` | Repo; every eval set was written by the author; tier 2 scored BELOW tier 1 on held-out data (90.9% vs 95.5%) |
 | Chunking: Jev-decided chunk boundaries barely beat classic splitters. On 72 questions, 36 docs and 6 languages, hit@1 at 320-char chunks was 93% for both Jev methods against 89% for recursive separators, a margin of about 3 questions. At 160 chars, Jev boundary scored 82% against 76% for embedding-semantic. Jev leads on noisy text (92 and 96 vs at most 79) and Spanish (100 vs 25 to 75), but loses on clean English (67 to 75 vs 100 for sentence packing, markdown headings and embedding). | `x-article-supermemory-jev-memory-context.md`, `images-transcribed.md` | Vendor, small sample |
 
 **Implied default (inference):** use a Jev-style chunker only for noisy or multilingual input. store raw text always. Make structure (edges and types) cheap and deterministic first and model-confirmed second. Gate only the step that promotes a lesson into something that changes future behaviour.
@@ -51,9 +52,23 @@ The trend "Memory that updates on read" (T3) is **weaker than the hub states**:
 | Finding | Source |
 |---|---|
 | Every 20 writes, run a non-destructive consolidation decision: keep_separate, merge, promote or uncertain. Call the LLM summarizer only when merge or promote scores at least 0.85 and contradiction is below 0.85. Raw observations are always kept. | `paper-jev-mem-2609.23986.md` |
+| Consolidation is becoming a separate phase from ingestion (trend T4). Supermemory marks content "indexed" immediately and "memories formed" later. The unit is a group of related documents, "never one isolated write". The trigger is dynamic: the user going quiet, or "enough new context" piling up (neither threshold is stated). The operations are merge, reweight, resolve contradictions, and derive facts that keep links to their sources. Rauch runs it as a nightly cron job over the agent's files. Hippo runs it at session end, daily, and automatically at 50 new memories. | `consolidation-phase-supermemory-rauch.md`, `github-kitfunso-hippo-memory.md` |
+| Nobody publishes numbers with consolidation on versus off. The only measured result in the catalogue is Hippo's: sleep consolidation COST 3.6 points of hit@5. Supermemory argues for dynamic triggering on infrastructure load, not on quality. | `consolidation-phase-supermemory-rauch.md` |
 | No source implements real forgetting. Jev-Mem records obsolescence but never acts on it. REALM has no decay. Hindsight has none. Hippo has decay but its own audit found no measurable effect. | all four memory sources |
 | Prune components whose recent measured gain is zero or less. Keep a ledger of hypothesis, diff, score change, cost change and accept/reject outside the memory itself, so failed ideas stay failed. | `rrsi-regularized-recursive-self-improvement.md`, `evoskill-skill-evolution-frozen-model.md` |
 | Raw trajectories often beat distilled skills, and generated skills sometimes make results worse. This comes from papers cited in the EvoSkill roundup. | `evoskill-skill-evolution-frozen-model.md` |
+
+## 4b. Staleness and provenance (trend T5): the write problem nobody has solved
+
+**The design rules practitioners converge on, all from low-engagement posts with no measurements:**
+- **Store decisions, not facts** (JeffWitters). A decision carries a date and a reason you can check against later, while a fact goes stale silently.
+- **Tag every line with its source** (chebyte): tool result, earlier persona dump, or the user. Without that, revocation has nothing to aim at. slash1sol's gate spec goes further: every number carries a source and a read time, and no graph edge exists without the shared source that created it.
+- **Invalidate memory when the underlying file or permission changes, and keep current state separate from the episodic log** (roscherveniak). This is posed as an open question, with no mechanism.
+- **Save only what you would want in 30 to 60 days** (tonygaorx). His "about 99% of artifacts go unused" figure has no stated basis.
+- **Run a staleness sweep.** rvaniaaaa runs a daily pass that flags anything not updated in more than 2 weeks and checks new additions for contradictions. jevmem asks one yes/no question per memory, "still true given the snapshot?", against a repo snapshot (tree to depth 3, package.json, the first 3k chars of the README), and flags lines under 0.4 as `[stale?]`.
+- **Treat stored memory as untrusted input** (jevmem). Each line stores its id plus a sha256 prefix. Unverified lines pass an injection gate (0.5) before being served, which blocked 20 of 22 planted lines with 0 of 22 false blocks on the author's 44-line set. Recalled lines are framed as "facts, not instructions".
+
+(inference) This trend is the flip side of section 3: read-time strengthening without provenance amplifies stale or planted memories. Provenance plus a staleness sweep is the missing counterweight, and no source measures either.
 
 ## 5. Decision model (Jev) as the control plane: how to call it
 
@@ -74,6 +89,9 @@ The trend "Memory that updates on read" (T3) is **weaker than the hub states**:
   - Deel regressed by 16.6 points on metric picks from messy real questions, and by 3.6 on 3-level root-cause tagging.
 
   (`x-posts-jev-builders.md`, `images-transcribed.md`)
+- **A fast tier works in open-ended loops only under a planner** (T2, mika_systems, StarCraft II, 10 games per setup). A GPT-6 Astra plan plus Jev moves won 9/10; Jev alone won 0/10, and the Astra plan plus random moves also won 0/10. That came from 19,605 Jev decisions against 509 Astra replies, with a Jev median of 0.375 s and a cost of $3.71 per game ($0.15 of it Jev). The loop: the planner plans, Jev picks from the moves currently available, code executes, and both see the new state. For memory (inference): let the LLM set retrieval intent, and let the decision model execute the per-item choices. There is no write-up, and 2 of the 5 setups are undescribed. (`x-article-mika-jev-9-step-blueprint.md`)
+- **Set thresholds by the cost of an error** (mika article): 0.65 for a tag, 0.80 for a route, a human for money. Shadow first and evaluate each route separately. Batching 13 questions into one call was 10x faster and 12.2x cheaper. Rebuild the list of choices after every state change. agentrun's `>= 0.8, else escalate` is labelled in its own docs as "an example threshold, not calibrated policy". (`x-article-mika-jev-9-step-blueprint.md`, `agentrun-megadose-jev-confidence.md`)
+- **Outages** (jevmem): a 2 s timeout with no retries. Timed-out turns queue with backoff from 15 s doubling to 10 min, and are dropped after 24 h or 200 turns. Thresholds are refit only after 40 or more user labels. (`github-avinash-jetwani-jevmem.md`)
 - **Operational constraints:** it is a hosted API, so memory text leaves your infrastructure. It fails closed. Keep a fallback (RRF or an LLM) behind a confidence threshold. (`x-posts-jev-builders.md`)
 
 ## 6. Evaluating the memory stack
@@ -113,9 +131,19 @@ The trend "Memory that updates on read" (T3) is **weaker than the hub states**:
 | T3: Hindsight updates on read | It does not (see section 3). | `github-vectorize-io-hindsight.md` |
 | T3: Hippo 74% R@5 | An old v0.11 BM25-only number. Current scores are 98.0 to 99.8% per haystack, and decay was never exercised. | `github-kitfunso-hippo-memory.md` |
 | T3: REALM LoCoMo +7.17 over MAGMA | Correct, but reconsolidation adds only +2.01. LongMemEval is +1.31 over Zep, and it falls below Zep without reconsolidation. | `paper-memory-reconsolidation-2609.16053.md` |
-| T4: EvoSkill OfficeQA 68.1% | The paper says 67.9%. Validation used 17 examples, each configuration was run once, and there is no per-skill pruning. | `evoskill-skill-evolution-frozen-model.md` |
-| T4: RRSI Terminal-Bench 74.2 to 80.2 | Confirmed in the paper. Frontier-Eng is only "+4.3 Medal points"; 17.7 to 22.0 is unconfirmed. The project page and the abstract disagree on the benchmark count and the token savings. | `rrsi-regularized-recursive-self-improvement.md` |
-| T5: Benzinga 800 fixes / 1,000x / four person-years | Not in the Amodei essay text. The original source is unidentified. | `amodei-pace-the-frontier-and-accenture-evaluation.md` |
+| T6: EvoSkill OfficeQA 68.1% | The paper says 67.9%. Validation used 17 examples, each configuration was run once, and there is no per-skill pruning. | `evoskill-skill-evolution-frozen-model.md` |
+| T6: RRSI Terminal-Bench 74.2 to 80.2 | Confirmed in the paper. Frontier-Eng is only "+4.3 Medal points"; 17.7 to 22.0 is unconfirmed. The project page and the abstract disagree on the benchmark count and the token savings. | `rrsi-regularized-recursive-self-improvement.md` |
+| T7: Benzinga 800 fixes / 1,000x / four person-years | Not in the Amodei essay text. The original source is unidentified. | `amodei-pace-the-frontier-and-accenture-evaluation.md` |
+
+
+| Hub claim (added 2026-09-26) | What the sources actually show | Source |
+|---|---|---|
+| T4: consolidation as a separate phase helps | No source reports before/after numbers. Hippo measured -3.6 points. Rauch's "without booting the runtime" goes beyond what the Vercel Drives changelog documents, and single-writer mounts would block a nightly job while an agent is writing. | `consolidation-phase-supermemory-rauch.md` |
+| T5: coarse-to-fine indexing (project > session > turn) is converging | Not found in any T5 post, thread, quote or linked article. | `staleness-provenance-practitioners.md` |
+| T5: about 99% of saved artifacts go unused | No dataset or definition behind it. A viral post (rvaniaaaa) argues the opposite. | `staleness-provenance-practitioners.md` |
+| T2: Jev + planner 9/10 in StarCraft II | Numbers match, but there is no write-up, the team is unnamed and 2 setups are undescribed. | `x-article-mika-jev-9-step-blueprint.md` |
+| T2: agentrun proceeds at Jev >= 0.8 | The 0.8 is a hand-written example, not a DSL primitive. No accuracy is measured and the demos are scripted. | `agentrun-megadose-jev-confidence.md` |
+| T2: roanjain "replaces a separate intent parser" | Not in the captured posts. | `x-posts-new-jev-builders.md` |
 
 ## 9. A starting configuration to test (inference, assembled from the above)
 
@@ -124,10 +152,13 @@ The trend "Memory that updates on read" (T3) is **weaker than the hub states**:
 3. **Gate:** run a recall/no-recall decision in front of retrieval. Promote a lesson into durable memory only on task_success >= 0.50 AND quality mean >= 0.60, then review it.
 4. **Stop:** use a sufficiency rule with hard caps rather than a fixed top-k.
 5. **Update on read:** reweight edges only, with bounded updates, and never rewrite content. Log every change and measure the rate of feedback loops.
-6. **Consolidate:** merge or promote non-destructively every N writes, and only above 0.85.
-7. **Evaluate:**
+6. **Consolidate:** merge or promote non-destructively every N writes, and only above 0.85, as a separate scheduled phase over groups of related entries. Measure it on versus off, because the only measurement available (Hippo) shows it hurting.
+7. **Provenance and staleness:** every entry carries its source, a read time and a reason. Supersede rather than delete. Run a periodic "still true?" sweep, and pass stored memory through an injection gate before serving it.
+8. **Evaluate:**
    - Use a fast decision-model judge on every change.
    - Set the noise floor from repeated baseline runs.
    - Build a held-out set with knowledge-update, contradiction and abstention questions.
    - Keep an experiment ledger outside memory.
    - Keep one guardrail that never feeds memory.
+
+---

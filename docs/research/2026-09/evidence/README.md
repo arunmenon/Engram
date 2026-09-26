@@ -1,8 +1,12 @@
+> **Repo note (Engram, 2026-09-26).** This folder holds **v2** of the catalogue exactly as received (README, synthesis, ledger, 30 source notes). Not stored here: the `papers/`, `media/`, `raw/` and `bin/` directories it refers to, and the generated single-file `memory-stack-evidence-bundle.md` (it is the concatenation of the files in this folder and would double the size of the tree; rebuild it with `cat README.md memory-stack-synthesis.md evidence-ledger.md sources/*.md` if a one-file handoff is needed). v1 (26 items, 24 notes) was stored as that single file in commit `3aa720c` and is superseded by these files. Engram's reading of the catalogue is digest D8 in [`../paper-digests.md`](../paper-digests.md).
+
 # Evidence catalogue: agentic memory, Jev, RSI
 
 A systematic catalogue of every piece of evidence behind the Trends tab of the Self-Improving Agents hub (https://claude.ai/artifact/HoJHLMXZE8vrnvNdh8gEcz). It was built on 2026-09-26 to feed a session that is tuning a memory stack.
 
-It covers 5 trends and 26 evidence items. Behind those are 86 X posts (the evidence posts plus their threads, quoted posts and linked posts), 2 X Articles, 5 arXiv papers (downloaded), 4 GitHub repos (read at pinned commits), about 15 web pages, and 26 images (transcribed).
+It covers 7 trends and 38 evidence items (37 distinct posts; the Hippo-memory post is cited under both T3 and T4). Behind those are 95 distinct X posts (the evidence posts plus their threads, quoted posts and linked posts), 3 X Articles fetched in full (plus 3 more reached through linked posts: kylejeong, rvaniaaaa, slash1sol), 5 arXiv papers (downloaded), 6 GitHub repos (read at pinned commits), about 17 web pages, and 54 image files (44 unique; all transcribed).
+
+Updated 2026-09-26 with 11 new evidence items: two new trends (T4 Consolidation as a separate phase from ingestion, T5 Staleness and provenance as the core memory-write problem) and additions to T1 and T2. Trend numbers follow the headings in `evidence-ledger.md`, so the former T4 (frozen-model self-improvement) and T5 (RSI oversight) are now T6 and T7.
 
 ## Where to start
 
@@ -41,20 +45,27 @@ Every note uses the same template (`raw/SOURCE_NOTE_TEMPLATE.md`): metadata, TL;
 | T1 | `github-asymptote-labs-agent-beacon.md` | repo | high |
 | T1 | `medium-bijit-jev-agent-harness.md` | builder writeup | medium |
 | T1/T2 | `docs-typesafe-jev-api.md` | API docs (copies in raw/jev-docs/) | high |
+| T1 | `github-avinash-jetwani-jevmem.md` | repo | high |
 | T2 Typed-decision tier displacing LLM calls | `x-posts-jev-builders.md` | X posts (verbatim) | medium |
 | T2 | `motherduck-prompt-jev.md` | vendor blog | low |
 | T2 | `datadog-jev-evals-agent-observability.md` | vendor blog | medium |
 | T2 | `github-diffpal-lintpal.md` | repo | low |
+| T2 | `x-article-mika-jev-9-step-blueprint.md` | X post + X Article | medium |
+| T2 | `agentrun-megadose-jev-confidence.md` | repo + news + X post | medium |
+| T1/T2 | `x-posts-new-jev-builders.md` | X posts (verbatim) + 2 linked X Articles | low |
 | T3 Memory that updates on read | `paper-memory-reconsolidation-2609.16053.md` | paper (PDF in papers/) | high |
 | T3 | `github-kitfunso-hippo-memory.md` | repo | high |
-| T4 Frozen-model self-improvement through harness and skills | `evoskill-skill-evolution-frozen-model.md` | blog + paper 2603.02766 | high |
-| T4 | `rrsi-regularized-recursive-self-improvement.md` | project page + paper 2609.24972 | high |
-| T4 | `sakana-rsi-lab.md` | lab pages | low |
-| T5 RSI as an explicit oversight object | `continual-learning-blocking-monitors-mallen.md` | LessWrong essay | high |
-| T5 | `china-ai-bulletin-12-rsi-levels.md` | newsletter + paper 2609.11873 | medium |
-| T5 | `amodei-pace-the-frontier-and-accenture-evaluation.md` | essay + vendor post | low |
-| T5 | `sanders-casar-superintelligence-ban.md` | news | low |
-| all | `images-transcribed.md` | 26 images, transcribed | high (it contains the contradicting numbers) |
+| T4 Consolidation as a separate phase from ingestion | `consolidation-phase-supermemory-rauch.md` | X posts + vendor changelog | high |
+| T4 | `github-kitfunso-hippo-memory.md` (also T3) | repo | high |
+| T5 Staleness and provenance as the core memory-write problem | `staleness-provenance-practitioners.md` | X posts (verbatim) + 2 linked X Articles | medium |
+| T6 Frozen-model self-improvement through harness and skills | `evoskill-skill-evolution-frozen-model.md` | blog + paper 2603.02766 | high |
+| T6 | `rrsi-regularized-recursive-self-improvement.md` | project page + paper 2609.24972 | high |
+| T6 | `sakana-rsi-lab.md` | lab pages | low |
+| T7 RSI as an explicit oversight object | `continual-learning-blocking-monitors-mallen.md` | LessWrong essay | high |
+| T7 | `china-ai-bulletin-12-rsi-levels.md` | newsletter + paper 2609.11873 | medium |
+| T7 | `amodei-pace-the-frontier-and-accenture-evaluation.md` | essay + vendor post | low |
+| T7 | `sanders-casar-superintelligence-ban.md` | news | low |
+| all | `images-transcribed.md` | 54 image files (44 unique), transcribed | high (it contains the contradicting numbers) |
 
 ## Papers (`papers/`)
 
@@ -75,9 +86,15 @@ Every note uses the same template (`raw/SOURCE_NOTE_TEMPLATE.md`): metadata, TL;
   - hippo-memory d4e1633
   - agent-beacon df0b21b
   - lintpal 905df34
+  - jevmem b881810
+  - agentrun e248ed6
 - **Failures and gaps:**
+  - Only post 1/7 of the roanjain thread was captured, and replies to JeffWitters and chebyte were not captured.
+  - The Megadose page was read with WebFetch (summarised); the agentrun details come from the repo.
   - The Medium page returned 403, so its full text came from the author's RSS feed.
   - The Vectorize article's second table has no caption, so its candidate count is unknown.
   - One Sakana leaderboard's scores are illegible.
   - Each note marks what is "not stated" and what is inference.
 - **Rebuild:** run `bin/evidence_collect.py`, then `bin/evidence_ledger.py`. The source notes and the synthesis were written by Claude from the fetched material and are not regenerated automatically.
+
+---
