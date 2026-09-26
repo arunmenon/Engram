@@ -24,6 +24,28 @@
 
 All new jobs write to Drive with the same helper the fetcher uses for hub data, with conversion disabled. Only the delta job touches the repository, and only to mirror Drive into `docs/research/queue/` and commit. Experiment cards accepted by the hypotheses agent are merged into `discovery-plan.md` by a person at the fortnightly review, not by the agent.
 
+## 1b. The bus: where each agent writes
+
+Google Drive, owner's My Drive, folder `research-bus` (https://drive.google.com/drive/folders/1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim). The folder holds its own `README.md`, five templates and `index.json`; the repository mirror is `docs/research/queue/`.
+
+| Folder | Id | Written by | Files |
+|---|---|---|---|
+| `cards/` | `1wCmR3VBI0GJThB7T9XtFdCkSg4VFkkjj` | triage | `PC-YYYYMMDD-NN.md`, once |
+| `notes/` | `1xZZ6Jr878OtaCMohKvRi1VQX_m3gGcPL` | triage | `<kind>-<slug>.md`, once |
+| `triage-log/` | `1IegV687s0fjdS8f3_SDI1GPfYat0HHrc` | triage | `YYYY-MM-DD.md` (second run of the day appends a new file `YYYY-MM-DD-2.md`) |
+| `delta/` | `1m0zNCGTapSFEd9alpujJXXyX-BFuAqed` | delta | `YYYY-WW.md` |
+| `decisions/` | `1Puptg6-Hj13TL6t2-zjBYll4BIq81Lt-` | hypotheses | `PC-YYYYMMDD-NN.<status>.json`, one per status change |
+| `experiments/` | `1jtLlsldQNNYl3BDJ3ezq-q24T2b3lXao` | hypotheses | `<E-or-H-id>.md` |
+| `verdicts/` | `1FZCKIEDjHGiEz0Ba8IToTrrNIDPkBNvJ` | hypotheses | `<E-or-H-id>.md` |
+| `watch/` | `1Gnm5VMrQNxa9S2By0P5GzoUxr1gvIjVM` | anyone; triage answers | `WR-YYYYMMDD-NN.md`, `WR-YYYYMMDD-NN.answer.md` |
+| root | `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim` | last writer | `index.json` |
+
+**Upload rules.** Plain `text/markdown` or `application/json`, conversion to Google Docs disabled, parent folder by id. List a folder by `parentId`, never by title search (the search index lags uploads by minutes). Never overwrite: a correction is a new file. If the existing hub uploader only handles its two JSON files, add `bin/bus_upload.py` around the same credentials with `upload(path, parent_id, mime)` and `list(parent_id)`.
+
+**Register access for the hypotheses agent.** Default: a read-only clone of the Engram repository on the same Mac, refreshed by the runner before each run, reading `docs/research/2026-09/discovery-plan.md`. Alternative if git is unwanted on that machine: the Monday delta job uploads `discovery-plan.md` to the bus root and the agent reads it from there.
+
+**Mirror.** The delta job downloads the whole bus into `docs/research/queue/` in the clone and commits on a branch the owner merges. That is the only write any of these agents makes to the repository.
+
 ## 2. Triage rubric (applied by 2b to every item, both feeds)
 
 Runs over `processed/` items from the last 24 h. Fast path first, so most of 500 items cost nothing.
