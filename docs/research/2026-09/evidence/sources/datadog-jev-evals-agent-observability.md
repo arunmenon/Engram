@@ -187,5 +187,3 @@ def judge(client, question, policy_context, reply, extra_questions=None):
 - What agreement rate with human reviewers, and what latency and cost per judgement, did Datadog observe?
 - What are the ANSWERED_THRESHOLD and HANDOFF_THRESHOLD values?
 - How repeatable is the output across calls (for self-consistency)?
-
----

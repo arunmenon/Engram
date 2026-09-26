@@ -44,5 +44,3 @@
 
 ## Open questions
 - Live precision of Jev on these rules, and cost per PR versus an LLM reviewer: not stated.
-
----

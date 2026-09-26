@@ -122,5 +122,3 @@ The six shown probabilities already sum to 1.00, so with 250 options this is an 
 - How does listwise Jev compare with a strong cross-encoder (bge-reranker, Cohere, Voyage) on LoCoMo?
 - Does round-based ranking for more than 250 candidates lose recall compared with a single call?
 - Would a cut with more levels (for example "first 20") recover the 19% gold loss?
-
----

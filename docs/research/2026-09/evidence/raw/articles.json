@@ -1,0 +1,266 @@
+{
+ "data": [
+  {
+   "article": {
+    "cover_media": "3_2103228826507497472",
+    "entities": {
+     "code": [
+      {
+       "code": "",
+       "content": "\n| | recall@1 | recall@5 | NDCG@10 | s/query |\n|---|---|---|---|---|\n| `local` MiniLM (current default) | 0.800 | 0.876 | 0.850 | 0.12 |\n| **Jev, ranking only (the default)** | **0.950** | **0.966** | **0.957** | **0.027** |",
+       "language": "none"
+      },
+      {
+       "code": "",
+       "content": "| | recall@1 | recall@5 | NDCG@10 | s/query |\n|---|---|---|---|---|\n| `local` MiniLM | 0.583 | 0.719 | 0.682 | 0.41 |\n| **Jev, ranking only** | **0.783** | **0.903** | **0.856** | **0.063** |",
+       "language": "none"
+      }
+     ],
+     "urls": [
+      {
+       "text": "https://hindsight.vectorize.io/blog/2026/08/24/knowledge-graphs-vs-vector-search"
+      },
+      {
+       "text": "https://hindsight.vectorize.io/blog/2026/09/23/bring-facts-not-beliefs"
+      },
+      {
+       "text": "https://hindsight.vectorize.io/blog/2026/09/21/version-0-10-1"
+      },
+      {
+       "text": "https://typesafe.ai/"
+      },
+      {
+       "text": "https://hindsight.vectorize.io/blog/2026/08/28/cross-encoder-reranking-agent-memory"
+      }
+     ]
+    },
+    "plain_text": "Hindsight 0.10.1 adds Jev as a reranker provider. Jev is an unusual model: it produces no text at all. You send it a passage and a typed question, and you get back a typed answer with a calibrated probability. TypeSafe calls this class of thing a System One model, after Kahneman's fast, automatic kind of thinking.\nThat shape is a good fit for reranking, which is not a writing task. There is a pile of candidate memories and a question about which ones matter, and the only thing you want back is an ordering.\nGetting there took longer than we expected, and two of the designs we tried failed outright. Here is what we learned.\nTL;DR\nThe obvious way to use it was the wrong one. We ask one question about the whole pool rather than one question per candidate.\nTwo designs failed with numbers attached, both about giving the model a way to say \"nothing here.\"\nRanking and filtering are different product decisions, so we ship one on and one off.\nThe scores are positions, not confidences, which has consequences downstream.\nIt measured well: recall@1 0.800 to 0.950 against our default at 30 candidates, and 0.12 to 0.027 seconds per query.\nIt is a hosted third-party API, which disqualifies it for some deployments no matter how good the numbers are.\n1. The obvious mapping was the wrong one\nJev gives you a small vocabulary of question types. Choice picks among unordered options and returns a probability for each. Score rates against ordered levels. Noul returns the probability that a yes/no proposition holds.\nFor reranking, Noul is the natural fit: ask \"is this candidate relevant to this query?\" for each one and sort by the probability. It is clean, it is what the primitive looks designed for, and at Jev's prices it is affordable in a way per-candidate LLM scoring never was. It is also, as far as we can tell, the pattern TypeSafe's own reranking material suggests.\nWe built that first, and then we stopped, because it is still pairwise. Three hundred candidates means three hundred round trips and three hundred judgements that never see each other. A cheap pairwise reranker is still a pairwise reranker.\nSo we used Choice instead, with the entire pool as options. One request, however many candidates, and the probabilities that come back are the ranking. The design note we left in the code:\nA Choice answers with a probability for every option, summing to 1, so handing it the whole pool returns the ranking in a single call. That beats scoring each candidate on its own: judged together the model only has to say which candidate beats which, instead of pinning every candidate to an absolute scale it must re-derive each time.\nThat is the lesson, and it generalises past this model. Relative judgement is an easier task than absolute judgement. Asking \"which of these is best\" avoids a question that scoring forces on you every single time: what does 0.6 actually mean?\nWe measured the two shapes against each other on the same model. On a 200-question LoCoMo set, listwise scored recall@1 0.94 against 0.87 for one call per candidate, at a thirtieth of the calls.\n2. \"None of these\" does not work as an option\nRanking is only half of what you want. The other half is knowing where relevance stops, so you are not handing an agent three hundred memories when four were relevant.\nThe obvious way to express that with a Choice is to add a \"none of these\" option. If the model picks it, nothing is relevant. It is the first thing anyone would try, and we tried it.\nIt fails badly. Choice options are unrivalled alternatives, not points on a scale, so \"none of these\" is not competing with the candidates on relevance. It simply wins outright whenever the query is hard. Thirty-five of two hundred questions came back completely empty.\nThe fix was to stop using the wrong primitive. The cut is a Score, whose levels are ordered, which is what a cut point actually needs. It sees the ranked shortlist and answers how far down relevance extends, with levels in plain language: only the first, the first two, the first three, the first five, the first ten, all of them. The model picks one, and there is no threshold for us to tune.\n3. Do not give it an escape hatch\nHaving built the Score, we made the same mistake one level down: we added a \"nothing is relevant\" level to it.\nSame failure, smaller. It cost 7% of queries returning nothing, and dropped gold retention from 0.81 to 0.65.\nSo there is deliberately no such level. At least one candidate always survives, and no query comes back empty. The reasoning we settled on is that recall runs on a pool retrieval has already judged plausible, so one weak memory the caller can dismiss beats silence.\nTwice in one feature, giving the model a clean way to answer \"nothing\" made it answer \"nothing\" far more often than the data justified. If we build another typed-decision integration, that is the thing we will look for first.\n4. Ranking and filtering are different decisions\nThe cut works, and the precision numbers are dramatic. On the 30-candidate run it keeps 1.6 candidates out of 30 and lifts the precision of what survives from 0.051 to 0.850, a factor of seventeen.\nIt also cuts 19% of the gold evidence. On a real bank it took 300 candidates down to 3.\nWe went back and forth on the default and landed on off. Better ordering is something everyone wants. Dropping most of the pool is a product decision about what your agent is for. If the consumer is an LLM prompt and every irrelevant memory is wasted context, that trade is excellent. If a human is going to read the list, or your agent needs to find a needle that ranked fourteenth, it is not.\nOne limit we should have documented earlier: the cut only ever sees the top twelve candidates, so with pruning on, recall returns at most twelve results regardless of pool size. The shortlist is capped at twelve and the depth is clamped to it. That is consistent with \"300 down to 3,\" but if you expected a large pool to yield a large relevant set, it will not.\n5. Positions are not confidences\nThe scores Jev hands back through this path are ranks, normalised into a 0 to 1 range. The top candidate is 1.0 and each next one is 1/n lower.\nA 0.7 therefore means \"the best of these,\" not \"relevant.\" Two different pools are not comparable, because each call's probabilities are normalised within that call. This is also why a pool larger than 250 is ranked in rounds and the round winners ranked against each other, rather than the rounds simply being concatenated.\nThe practical consequence is for anyone setting an absolute score floor on recall. For this provider, that floor filters on rank position rather than on relevance, which is almost certainly not what you meant. Worth knowing before you copy a threshold across from a different reranker.\n6. What we would tell you before you switch\nFour things that have nothing to do with quality.\nIt is a hosted third-party API. Jev runs at TypeSafe's endpoint and needs an API key. If your reason for self-hosting Hindsight is that memory contents must not leave your infrastructure, this sends candidate text to someone else's, and no benchmark makes that acceptable.\nIt fails closed. A reranker that keeps erroring propagates the failure after its retry budget. Configure a fallback chain with rrf last so a bad day degrades to fusion order rather than failing the recall outright. That matters more once there is a network hop in the path.\nIt is server-level. A bank cannot pick its own reranker, only turn reranking off. A multi-tenant deployment runs one for everybody.\nJev's context is 32,000 tokens for the state plus the questions, and this provider does not truncate candidate text before sending. A pool of unusually long memories is something to size up rather than assume.\nA thing we got right by accident\nWorth recording the one decision that made this cheap, because we made it for an unrelated reason.\nThe retrieval arms move ids and scores, not payloads. Full memory text is fetched only for the candidates that survive fusion and the 300-candidate cap, and that hydration step sits immediately before reranking because the reranker is the first stage that actually reads text.\nWe ordered it that way to keep the wide parallel arms light. The payoff arrived later: swapping in a provider that sends candidate text over the network cost us nothing extra, because by that point the set had already been narrowed and fetched exactly once.\nThe numbers\nMeasured on LoCoMo, gold defined as the dataset's own evidence turns, against the reranker Hindsight ships by default.\n30 candidates per query:\n \n",
+    "preview_text": "Hindsight 0.10.1 adds Jev as a reranker provider. Jev is an unusual model: it produces no text at all. You send it a passage and a typed question, and you get back a typed answer with a calibrated",
+    "title": "We Added Jev as a Reranker. Here's What We Learned"
+   },
+   "author_id": "1740439231091060736",
+   "created_at": "2026-09-24T21:09:05.000Z",
+   "edit_history_tweet_ids": [
+    "2103230262607761659"
+   ],
+   "id": "2103230262607761659",
+   "text": "Hindsight now includes @typesafeai Jev reranking capabilities! https://t.co/kFuue1i94z"
+  },
+  {
+   "article": {
+    "cover_media": "3_2103278997534916608",
+    "entities": {
+     "code": [
+      {
+       "code": "cost per 1k docs\n\nrule-based          $0.008  ██\nembedding semantic  $0.011  ██▌\njev continuation    $0.080  ██████████████████▍\njev boundary        $0.087  ████████████████████",
+       "content": "```\ncost per 1k docs\n\nrule-based          $0.008  ██\nembedding semantic  $0.011  ██▌\njev continuation    $0.080  ██████████████████▍\njev boundary        $0.087  ████████████████████\n```",
+       "language": "none"
+      },
+      {
+       "code": "Raw data (messages, files, tool output) ────────────→ Current context\n        │                                                    │\n        └→ Chunking / batching [fit into one model call]     │\n                      │                                      │\n          Observation / learning [off-loop]                  │\n          [background job, schedule, or trigger]             │\n                      │                                      │\n          Stored context                                     │\n          [markdown files, vector DB, graph, KV]             │\n                 │                    │                      │\n       Summaries / profiles     Search / reads ←── query ────┤\n       [one-pager, profile]     [grep, cosine, on demand]    │\n                 │                    │                      │\n                 └────────────────────┴──────────────────────┤\nHarness injection [hooks, tools, system prompt, recaps] ─────┤\n                                                             ↓\n                                                       Agent's answer",
+       "content": "```\nRaw data (messages, files, tool output) ────────────→ Current context\n        │                                                    │\n        └→ Chunking / batching [fit into one model call]     │\n                      │                                      │\n          Observation / learning [off-loop]                  │\n          [background job, schedule, or trigger]             │\n                      │                                      │\n          Stored context                                     │\n          [markdown files, vector DB, graph, KV]             │\n                 │                    │                      │\n       Summaries / profiles     Search / reads ←── query ────┤\n       [one-pager, profile]     [grep, cosine, on demand]    │\n                 │                    │                      │\n                 └────────────────────┴──────────────────────┤\nHarness injection [hooks, tools, system prompt, recaps] ─────┤\n                                                             ↓\n                                                       Agent's answer\n```",
+       "language": "none"
+      }
+     ],
+     "mentions": [
+      {
+       "end": 70,
+       "start": 59,
+       "username": "typesafeAI"
+      },
+      {
+       "end": 87,
+       "start": 75,
+       "username": "supermemory"
+      },
+      {
+       "end": 72,
+       "start": 60,
+       "username": "supermemory"
+      },
+      {
+       "end": 12,
+       "start": 0,
+       "username": "turbopuffer"
+      },
+      {
+       "end": 23,
+       "start": 13,
+       "username": "trychroma"
+      },
+      {
+       "end": 212,
+       "start": 200,
+       "username": "supermemory"
+      },
+      {
+       "end": 134,
+       "start": 122,
+       "username": "supermemory"
+      }
+     ],
+     "urls": [
+      {
+       "text": "https://x.com/DhravyaShah/status/2101745550752428340"
+      },
+      {
+       "text": "https://x.com/ErikKaum/status/2103169247102812334"
+      },
+      {
+       "text": "https://www.trychroma.com/research/evaluating-chunking"
+      },
+      {
+       "text": "https://x.com/supermemory/status/2097035274094272935?s=20"
+      },
+      {
+       "text": "https://supermemory.ai/docs/integrations/claude-code"
+      }
+     ]
+    },
+    "media_entities": [
+     "3_2103308612085174272",
+     "3_2103298687330119680",
+     "3_2103298194042163200",
+     "3_2103311341222256640",
+     "3_2103310683777753088",
+     "3_2103302515525931008"
+    ],
+    "plain_text": "Everyone is talking about how Jev (a new system 1 model by @typesafeAI that's really good at fast decisions) is changing computer use, browser use, labelling and many other things. It's exciting times, and it feels like a completely different paradigm of models.\nI've been working on agent memory for the last 3 years, and the founder of @supermemory. Things like this completely change the dynamics of what we do at supermemory and how memory works in general (there's no right answer yet :)) \nSo, we decided to explore how Jev can change, optimize, or improve our systems, or help us rethink how we do memory, and it's actually a lot of things throughout the pipeline!!\ngonna be a fun and a long read - so buckle up!\nhow people do memory right now.\nBefore we get into Jev-specific info, it helps to understand the _general_ pipeline / methods people do memory, and then working backwards. \nWe looked at all popular memory systems right now (ChatGPT, Claude, Instinct, Openclaw, Hermes, Muse, etc.) and have been deconstructing / learning about them for a long time now. If you haven't yet, you should read my blog about instinct https://x.com/DhravyaShah/status/2101745550752428340\nAll 'memory' pipelines that we've observed at scale, and even our cusomers, have a few things in common. It doesn't really matter if it's Markdown-based, Graph-based,  Fact-based etc, you can deduce it down to a few ~common points\n \nFinding relevant info / Retrieval It's not always retrieval as in RAG, but there almost always is a search step of sorts, which could be grep or cosine similarity\nChunking the data in order to do the observation (you can't fit the whole thing in another model, so you would batch / chunk it). This also applies to retrieval\nObservation / learning happens outside of the 'main loop' (the main agent is not always deciding to learn things, it's at some schedule or trigger)\nHarness-specific logic to bring this context back into the model\nWhen I do these explorations, I try to forget about supermemory's specific architecture and think from first principles. \nAnd well, we found that -\nIn this case, Jev actually applies to all of the above!!!!!\nThinking about it, we figured that Jev really does help in most of these - (even if it's not practical in production in all of them yet), it decreases cost, increases accuracy, or makes things faster throughout the pipeline.\nIt may or may not be the absolute best at everything, but this is more of an exploratory post, so we'll talk about them anyways. And, I'll especially include the things that Jev is not good at.\nThe way to think about Jev is that it's really good at taking decisions really fast, and can output structured choices and probabilities. Not text generation.\nNow, let's walk through them :)\nJev can make reranking better\nWe compared Jev as a reranker against other rerankers on public BEIR sets. \nWe ran it through SciFact, NFCorpus, TREC-COVID, FiQA, SCIDOCS and some more benchmarks\nHere’s what we found.\nJev always helped the first-stage list. On SciFact, NFCorpus, TREC-COVID, FiQA, SCIDOCS it beat base BM25 search every time - which was expected. (+0.05 to +0.17 nDCG@10). \n\nWe also tried different way of using Jev, and found that Noul-as-a-delete-gate failed (it kept nothing, for some reason). Noul-as-a-sort and Score-10 both worked (almost same); Score-10 was best among Jev-only methods (SciFact 0.751).\nIt is not the quality winner #1, and it is not cheap vs BGE. But, the quality is much better than avg vs bge-reranker-base, for example: Jev wins quality on the 3 overlapping sets (mean 0.612 vs 0.564) and costs ~$0.00037/q vs ~$0.00002/q (~20×). vs jina-reranker-turbo: Jev loses the mean (0.612 vs 0.633). vs monoT5 / RankGPT-4 on SciFact: 0.751 vs 0.766 / 0.756. \n\nAnd it's certainly better in quality than using any standard model for reranking.\nCost sits next to Voyage, not next to BGE. Jev $0.042/MTok ≈ Voyage rerank-3 $0.05/MTok. Cohere is $0.002/q (5× Jev). RankGPT-4 is ~$0.04/q. The turbopuffer blog (Jev vs Voyage/Luna) is a different bakeoff; it never included BGE.\nwe always maintain the SOTA cost-quality ratio reranking at @supermemory, so if you're a customer you don't really have to care about this, and we will keep running evals and remain frontier!\n@turbopuffer also did some work benchmarking these, https://x.com/ErikKaum/status/2103169247102812334 but they used GPT-5.6 sol Golden set to compare against, and we used public benchmarks. \n \n\nmy tldr here is that reranker models are pretty good! Jev does score REALLY well here, but it's a bit more expensive and I'd stick to reranker for now. But in the decision models world, i can see it become SOTA\numm wait, one more thought ill put out there: Could reranking models be used as we use Jev, if you reframe the question as a ranking? they are pretty good and pretty cheap! idk, that's a discussion for another day\nPerfectly accurate chunking, even across languages and messy data\nRight now, the popular ways of chunking are still a bit iffy. It's either too expensive (embedding based), or too deterministic (markdown heading based) or too vibes-based (sliding window chunking, fixed length chunking)\nIn all of these cases what we were seeing is that the chunks always had some issues.\n \nWith Jev, we can ask whether each sentence continues the previous thought or starts a new one, then use those answers to choose chunk boundaries near a target size.\nWe built an internal benchmark with messy data, markdown data, and also multi-lingual data. \n \nJev is pretty clearly the SOTA at chunking\nmulti-lingual chunking is especially hard because the semantic boundaries are not very well defined. In many languages we put english words in the middle, or the other way around.\nJev was able to perform pretty good even in these multi-lingual use cases :)\n \n(Shoutout to @trychroma for this way of thinking / benchmarking chunks - we took this as a reference to figure out \"What is good chunking\" https://www.trychroma.com/research/evaluating-chunking)\nThe caveat, again, is cost. Jev is MUCH more expensive than other chunking methods (mainly because they are... essentially free)\nBut, Jev is the best chunker.\n \nCleaning up context before observation\nRight now, for pretty much all memory cases, memory generation can get a bit expensive because of two things:\nA model has to look through pretty much all context, so inference is run twice\nIn order to learn / register something, you need to know what's already learnt. You can't just remember a name every time you see it, you need to know if you already know the name, different name, etc.\nMost of the conversation or document is not even important for memory. It is headings, audio checks, “no action items,” and talk that can stay searchable as source text. The idea was to put Jev in front of that call. Split the document into sentences, ask a yes/no (Noul) on each: should this go to the extractor at all? remove everything else. \nBasically a cheap filter before things go into the observer model. On our internal benchmark, Jev was able to save us 58% of content tokens!! This means that we could literally spend half as much for theoretically just benefits!\nThe catch\nHowever, obviously, this cut is not always free. Jev was good at removing a lot of this context, but removing some sentences independently seems to be the wrong direction, because of contextuality.\nOne example of this is assistant turns - Just trimming parts of it can damage the actual semantic meaning, which could be bad.\n \nAt the start of a legal document, or a conversation, a certain line/topic/word may not be useful, but it could be referenced sometime later on. We could not reliably figure out how to give Jev this full context because it's classifying sentences. \n\nEven doing it in different ways had various problems of the same nature, so, as of right now, Jev is not a very good compactor for memory!\nBecause we have a small specialized model doing the learnings (learner-1 https://x.com/supermemory/status/2097035274094272935?s=20), observation is insanely cheap anyways, so \nall roads lead to using @supermemory for memory :) if you're building an agent you should use it.\nHaving decisions in the harness made by Jev\nOne of the product lines we work on at supermemory is plugins for all popular agents. (The most popular and my favorite one is claude code - check it out https://supermemory.ai/docs/integrations/claude-code)\nIt automatically injects tokens to claude code to drive better outputs and improve personalization without damaging the context (avg tokens injected is  250 tokens, and you'll always know when it does)\n \nWe tried using Jev to take decisions at a claude code `UserPromptSubmit` hook, maybe it can figure out whether memory is needed or not for this query, but it still being a hook deciding the injection.\nI have spoken a lot about my opinion on hooks vs tools for giving the model memory and context - But the TLDR of it is that I believe models are very bad at deciding _when_ some memory should be helpful, but are getting better at longer context.\n\nwe try to provide a magical experience with supermemory - especially in plugins where we can build them specific to the harness. You should try our claude code plugin!\nSo, we don't want the model to decide when to bring in memories. Having jev decide _feels_ really good!\nSome people mention that they sometimes don't want the model to use memories for certain questions. Because Jev is just taking the decision to search or not, the user can literally just say \"without using memory, tell me...\"\nAnd Jev would decide to not use the memory (without a tool call, in UserPromptSubmit hook.\nSo, Jev is the perfect solution for making ad-hoc decisions on the harness, improving user love & satisfaction.\nClosing it out\nJev is an incredible new model. There's a lot of hype and most of it is justified! It can completely change a lot of the parts of how people do memory.\nAt the same time, It's not perfect for everything yet! \nWe have already started replacing a lot of our pipeline with decision models, and will continue doing work and research on them and writing about them! We also found ways to make supermemory _much_ cheaper through Jev... more about that soon.\nI'm biased, but if you're doing any context work (Memory, Retrieval, filesystems, even markdown), you should probably use @supermemory! ",
+    "preview_text": "Everyone is talking about how Jev (a new system 1 model by @typesafeAI that's really good at fast decisions) is changing computer use, browser use, labelling and many other things. It's exciting",
+    "title": "Jev changes a lot in memory & context engineering. Here's exactly how."
+   },
+   "author_id": "1136175005060878337",
+   "created_at": "2026-09-25T02:43:10.000Z",
+   "edit_history_tweet_ids": [
+    "2103314339239428201"
+   ],
+   "id": "2103314339239428201",
+   "text": "https://t.co/62lLXqT276"
+  },
+  {
+   "article": {
+    "cover_media": "3_2101680910726737920",
+    "entities": {
+     "code": [
+      {
+       "code": "mkdir jev-router; cd jev-router\npy -3.12 -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\npip install typesafe-sdk\n$env:TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"",
+       "content": "```powershell\nmkdir jev-router; cd jev-router\npy -3.12 -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\npip install typesafe-sdk\n$env:TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"\n```",
+       "language": "powershell"
+      },
+      {
+       "code": "observe → build allowlist → decide → execute → verify → observe again",
+       "content": "```plaintext\nobserve → build allowlist → decide → execute → verify → observe again\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "10,000 decisions × 1,000 tokens = 10M input tokens\n10M × $0.042 / 1M            = $0.42",
+       "content": "```plaintext\n10,000 decisions × 1,000 tokens = 10M input tokens\n10M × $0.042 / 1M            = $0.42\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "state + typed questions\n        ↓\nanswers + probabilities + confidence\n\n\nIt has three question primitives.",
+       "content": "```plaintext\nstate + typed questions\n        ↓\nanswers + probabilities + confidence\n\n\nIt has three question primitives.\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "mkdir jev-router && cd jev-router\npython3 -m venv .venv\nsource .venv/bin/activate\npip install typesafe-sdk\nexport TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"",
+       "content": "```bash\nmkdir jev-router && cd jev-router\npython3 -m venv .venv\nsource .venv/bin/activate\npip install typesafe-sdk\nexport TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"\n```",
+       "language": "bash"
+      },
+      {
+       "code": "import json\nfrom pathlib import Path\n\nfrom typesafe_sdk import Choice, Noul, Score, TypeSafeClient\n\nstate = {\n    \"request\": \"Compare three browser agents and draft a briefing\",\n    \"sources_found\": 3,\n    \"draft_exists\": False,\n    \"explicit_publish_approval\": False,\n}\n\nwith TypeSafeClient(model=\"jev-1.13.0\") as client:\n    result = client.system_one(\n        state=state,\n        questions={\n            \"next_worker\": Choice(\n                instructions=\"Which worker should act next?\",\n                criteria={\n                    \"research\": \"Evidence is missing or weak\",\n                    \"write\": \"Evidence is sufficient and no draft exists\",\n                    \"review\": \"A draft exists or the request is unclear\",\n                },\n            ),\n            \"evidence\": Score(\n                instructions=\"How well does the evidence support the briefing?\",\n                criteria=[\"Insufficient\", \"Useful but incomplete\", \"Sufficient\"],\n            ),\n            \"may_publish\": Noul(\n                instructions=\"The state contains explicit human approval to publish\"\n            ),\n        },\n    )\n\nroute = result.answers[\"next_worker\"]\ndestination = route.choice if route.confidence >= 0.80 else \"human_review\"\n\nhandoff = {\"destination\": destination, \"confidence\": route.confidence}\nPath(\"handoff.json\").write_text(json.dumps(handoff, indent=2))\nprint(handoff)",
+       "content": "```python\nimport json\nfrom pathlib import Path\n\nfrom typesafe_sdk import Choice, Noul, Score, TypeSafeClient\n\nstate = {\n    \"request\": \"Compare three browser agents and draft a briefing\",\n    \"sources_found\": 3,\n    \"draft_exists\": False,\n    \"explicit_publish_approval\": False,\n}\n\nwith TypeSafeClient(model=\"jev-1.13.0\") as client:\n    result = client.system_one(\n        state=state,\n        questions={\n            \"next_worker\": Choice(\n                instructions=\"Which worker should act next?\",\n                criteria={\n                    \"research\": \"Evidence is missing or weak\",\n                    \"write\": \"Evidence is sufficient and no draft exists\",\n                    \"review\": \"A draft exists or the request is unclear\",\n                },\n            ),\n            \"evidence\": Score(\n                instructions=\"How well does the evidence support the briefing?\",\n                criteria=[\"Insufficient\", \"Useful but incomplete\", \"Sufficient\"],\n            ),\n            \"may_publish\": Noul(\n                instructions=\"The state contains explicit human approval to publish\"\n            ),\n        },\n    )\n\nroute = result.answers[\"next_worker\"]\ndestination = route.choice if route.confidence >= 0.80 else \"human_review\"\n\nhandoff = {\"destination\": destination, \"confidence\": route.confidence}\nPath(\"handoff.json\").write_text(json.dumps(handoff, indent=2))\nprint(handoff)\n```",
+       "language": "python"
+      },
+      {
+       "code": "",
+       "content": "Model | Input / 1M | Output / 1M | Workload cost |\n|---|---:|---:|---:|\n| **Jev 1.13 direct** | **$0.042** | **$0** | **$0.42** |\n| GPT-5.6 Luna | $0.20 | $1.20 | $2.60 |\n| Gemini 3.8 Flash | $0.75 | $3.75 | $9.38 |\n| Claude Fable 5.1 | $10.00 | $50.00 | $125.00 |\n| GPT-6 Astra | $10.00 | $50.00 | $125.00",
+       "language": "none"
+      },
+      {
+       "code": "ONE STATE\n  ├─ Choice: which team?\n  ├─ Score: how urgent?\n  ├─ Noul: refund requested?\n  └─ Noul: human review required?\n             ↓\nCODE USES THE RELEVANT ANSWERS",
+       "content": "```plaintext\nONE STATE\n  ├─ Choice: which team?\n  ├─ Score: how urgent?\n  ├─ Noul: refund requested?\n  └─ Noul: human review required?\n             ↓\nCODE USES THE RELEVANT ANSWERS\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "",
+       "content": "Job | Best tool |\n|---|---|\n| Exact limits, arithmetic, permissions | Code |\n| Route, rank, score, yes/no judgment | Jev |\n| Write, explain, research, generate | LLM |\n| Irreversible action | Human approval + verification",
+       "language": "none"
+      }
+     ],
+     "tweets": [
+      {
+       "id": "2101022101750571357"
+      },
+      {
+       "id": "2100891604735099103"
+      },
+      {
+       "id": "2100814590300889426"
+      },
+      {
+       "id": "2100976648552169805"
+      }
+     ],
+     "urls": [
+      {
+       "text": "https://typesafe.ai/"
+      },
+      {
+       "text": "router.py"
+      },
+      {
+       "text": "https://console.typesafe.ai/playground"
+      },
+      {
+       "text": "https://docs.typesafe.ai/models"
+      },
+      {
+       "text": "https://console.typesafe.ai/keys"
+      },
+      {
+       "text": "https://x.com/ashish296/status/2101435992809038067"
+      }
+     ]
+    },
+    "media_entities": [
+     "3_2101653152218947584",
+     "3_2101652984014721024",
+     "3_2101683694003994625",
+     "3_2101654948429672448",
+     "3_2101652984597729280",
+     "3_2101652984815910912",
+     "3_2101652984023126016",
+     "3_2101652984799150080",
+     "3_2101654479032455168"
+    ],
+    "plain_text": "Your AI agent can write an entire report. How much are you paying it to decide which button to click?\nProbably more than you think. Most agents still call a full-size language model for decisions with only a few valid answers: which tool to run, where to route a task, or whether to retry, stop, or ask for review. Repeat that judgment thousands of times, and the cost and latency add up.\nJev, built by TypeSafe, is designed for those decisions. Give it the current state and the allowed answers. It returns a typed decision with probabilities and confidence that your code can use.\nBefore following the direct-API setup below, head to https://typesafe.ai/ and click Join Waitlist\n \nI applied and got access about an hour later. That was my experience; approval times can vary. Apply first, then use the guide to pick a decision worth testing while you wait.\nThe next nine steps cover the setup commands, a working router, token costs, failure cases, and four things developers have already built with Jev.\nStart with a decision your agent already makes repeatedly. By Step 04, you'll have the code to test it.\n \n01. Find the decisions hiding inside your agent\nRead your agent loop and circle every model call whose answer comes from a bounded set.\nGood Jev-shaped questions:\nRoute: research, write, review, or stop?\nClassify: billing, technical, sales, or spam?\nScore: irrelevant, useful, or critical?\nGate: safe to continue, yes or no?\nMatch: which candidate best fits this request?\nUse a generative model when the answer is open: writing, explaining, planning, summarizing, or generating code. Use ordinary code when an exact rule already solves the problem.\nSuppose an agent receives this job:\nResearch three browser agents, draft a briefing, and save it for review.\nResearch and writing remain generative work. Jev can judge whether the evidence is sufficient, which worker should act next, and whether the draft is ready for review. The filesystem must confirm that the file was actually saved.\nThat division keeps every component on a job it can verify.\nBefore adding Jev, run a three-part test:\nCan you list every acceptable answer before the call?\nCould a careful person make the judgment quickly from the supplied state?\nCan the application detect or recover from a wrong answer?\nThree yeses make a strong candidate. If the first answer is no, the task probably needs generation. If the third is no, keep a human at the decision point.\n \n \n02. Learn the contract: state in, decisions out\nJev behaves more like a function than a chatbot:\n \nChoice\nSelects one option from a list you define: a team, tool, workflow, risk class, or next action. The response includes the selected option, every option's probability, and confidence.\nScore\nPlaces the state on an ordered scale you describe: low/medium/high urgency or weak/partial/strong evidence. Each level needs a concrete description.\nNoul\nReturns the probability that a yes-or-no statement is true. Examples: “The user explicitly approved publishing” or “The message contains a phishing signal.”\nOne request can contain many questions. They all inspect the same state and run independently. A route, risk score, and approval signal can arrive together.\nOne question cannot read another question's answer. If decision B depends on decision A or on a newly fetched result, your code must make another call.\n \n \n03. Type-safe can still be wrong\nIf the only routes are research, write, and review, Jev cannot return malformed prose or invent a fourth route. It can still choose the wrong valid route.\nThat is the limit behind the “zero hallucinations” slogan. The output can be structurally valid and semantically wrong.\nConfidence needs the same caution. For Choice and Score, it describes how concentrated the returned distribution is. A 95/3/2 split is more decisive than 36/34/30. It does not promise 95% accuracy on your data.\nSet thresholds from labeled examples and the cost of being wrong:\n- A newsletter tag may auto-apply at 0.65.\n- A support ticket may route at 0.80.\n- A money transfer still needs deterministic checks and human approval.\nRun Jev in shadow mode first. Record its answer without allowing it to act. Compare it with human labels, measure false positives, and test whether low confidence predicts errors.\nDo this per route. An overall accuracy number can hide a classifier that handles routine support tickets well but repeatedly sends security incidents to the wrong queue. Track a confusion matrix, the share of decisions escalated to humans, and the cost of each failure type. A threshold should reflect consequences rather than make a dashboard look clean.\nType safety protects the shape of the answer. Your evaluation protects the system.\n \n \n04. Connect Jev and build one real router\nTry a decision in the TypeSafe Playground, then create an API key in key settings. Keep the key outside source files.\nmacOS / Linux\n \nWindows PowerShell\n \nCreate router.py:\n \nThe client reads TYPESAFE_API_KEY  from the environment. It uses the moving jev-latest alias by default; pin the version you evaluated when stable thresholds matter.\nThe model supplies a judgment. Your application owns the threshold, queue, fallback, and consequences.\n \n \n05. Ask independent questions together\nSending the same ticket five times for five independent questions wastes input tokens and round trips. Send one state with all five questions.\nTypeSafe's public cookbook tested 13 questions over one document. A batched request was reported as 10× faster and 12.2× cheaper than sequential calls, with the same answers.\n \nSpeculative questions are fine when they share the same state. Your code can ignore a bug-severity score if the request turns out to be billing.\nJev reads the state again on every request. Remove irrelevant history before reaching for the 64k-token limit.\n \n \n06. Keep code in charge of execution\nStrong Jev integrations rebuild the action menu from what the system can do right now.\nA browser agent can observe the page, list visible controls, and let Jev choose an action and target. Browser code performs the click and checks the next page state.\n \nApply the same pattern elsewhere:\n- Offer only tools allowed for this user.\n- Remove completed or unavailable actions.\n- Attach stable IDs to candidates.\n- Rebuild choices after every state change.\n- Send uncertainty and timeouts to a fallback.\nFor a large menu, filter obvious mismatches in code, Score the remaining candidates, and use Choice on the shortlist. Stable candidate IDs matter more than elegant labels: the model chooses an ID, while your application resolves it to the current tool or page element. After any click, write, or tool call, discard the old menu and observe again.\nEvery loop also needs maximum actions, a spending limit, persisted progress, duplicate protection, a kill switch, and human approval before irreversible actions.\nConfidence cannot prove that a refund was issued or a file was saved. Inspect the real system.\n \n \n07. Calculate the bill before repeating the headline\nJev 1.13 costs $0.042 per million input tokens on TypeSafe's direct API. Output tokens are unbilled.\nAt 1,000 input tokens per decision:\n \nFor 10,000 calls with 1,000 input and 50 output tokens each, public prices visible on September 20 produce this estimate:\n \nThis is cost arithmetic, not a quality benchmark. These models do different jobs.\nThe public seven-second flight demo reported 90,558 Jev input tokens: about $0.00380. A text helper brought the reported model total to roughly $0.00387. Browser infrastructure was outside that number, and the demo found flights rather than purchasing one.\nOn September 19, an independent builder reported $0.00003 for Jev versus $0.0134 for GPT-6 Astra across 14 decisions, with Jev 9.5× faster. It is one author's test, not a general benchmark.\nTrack cost per completed, verified task. One wrong route can cost more than thousands of cheap decisions.\n \n \n08. Know where Jev breaks\nTypeSafe's own model card lists clear weaknesses.\nDo not use Jev for exact arithmetic, counting, dates, or time calculations. Compute those in code. Do not use it to write, summarize, plan, or generate arbitrary text.\nLarge amounts of irrelevant state can reduce accuracy. Untrusted content can still manipulate a semantic judgment, so keep hard permissions in code and restrict the available actions.\nAvoid one vague “quality” score. Ask observable questions instead:\nDoes the answer address the request?\nDoes it use the supplied evidence?\nDoes it contradict a known fact?\nDoes it contain an untrusted instruction?\nJev is text-only, works best in English, and runs as a hosted API. TypeSafe says requests and responses are not used for training; zero-data retention is an enterprise option. Check the legal terms for your deployment.\nThe current weights, training data, and full RLCD recipe are not public enough for an outside team to reproduce the model. That does not make Jev unusable, but it changes the evaluation burden: vendor benchmark tables cannot substitute for a test set drawn from your own traffic. If state cannot leave your infrastructure, a local classifier or deterministic rules may be the better answer even when Jev is cheaper.\nThe boundary is practical:\n \n \n \n09. What developers have already released with Jev\nThe newest demos place Jev inside existing products and keep the final action elsewhere. Four patterns are already worth stealing.\nDetect slop while the user scrolls\nBilgil placed Jev in the browser and used it to score existing content in real time instead of asking a larger model to rewrite every post.\n \nThe use case fits Jev: the output is a bounded judgment, not new prose. Accuracy and false-positive data are still missing.\nHow to repeat it: extract the visible text, ask for a Score or Noul decision, and keep the original post untouched.\n \nChoose a UI instead of generating one\nChris Tate combined `json-render` with Jev. Jev selects from known components and actions; the renderer builds the interface.\n \nThe demo passed one million views. That makes it an excellent proof of interest, though its latency claim is not a published cross-workload benchmark.\nHow to repeat it: give Jev component IDs and allowed actions, then let deterministic code render the selected tree.\n \nStart a Mac action before the sentence ends\nInstant Rice built a voice workflow that begins opening an application before the speaker finishes speaking.\n \nFast intent classification is useful here because the action space is small. Operating-system permissions and confirmations must still protect destructive steps.\nHow to repeat it: stream the transcript, expose only reversible actions at first, and require confirmation before anything destructive.\n \nMatch 700 leads to the right message\nRomàn used Jev to compare 700 leads with outreach messages, score the matches, return confidence, and flag mismatches.\n \nThe author reported processing the batch in 40 seconds for $0.09. That proves the workflow is cheap enough to test at useful scale; whether the scores improve replies or revenue still needs an A/B test.\nHow to repeat it: define the traits of a strong match, score every lead against a closed set of messages, and send low-confidence pairs to review.\n \nFour products, four completely different surfaces: a feed, a generated interface, a voice-controlled desktop, and an outreach pipeline. The shared move is smaller than the demos make it look. Each builder found one repeated judgment, closed the answer space, and let ordinary code handle the consequence.\nThat is where Jev becomes useful. Not as the agent, the writer, or the product - as the fast decision layer between state and action.\nThe rule that survives the hype\nFrontier models still research, plan, explain, and generate. Jev handles bounded decisions between those steps.\nStart with one repeated decision. Give it a closed answer space. Run it in shadow mode, measure errors, add a fallback, and enable the lowest-risk branch first.\nThen replace the next expensive yes/no, route, rank, or score.",
+    "preview_text": "Your AI agent can write an entire report. How much are you paying it to decide which button to click?\nProbably more than you think. Most agents still call a full-size language model for decisions with",
+    "title": "Jev: The 9-Step Blueprint for Building a Faster Decision Brain for AI Agents"
+   },
+   "author_id": "710729445930356736",
+   "edit_history_tweet_ids": [
+    "2101686148338798610"
+   ],
+   "id": "2101686148338798610",
+   "text": "https://t.co/EvoaFa63Cd"
+  }
+ ],
+ "includes": {
+  "users": [
+   {
+    "id": "1740439231091060736",
+    "name": "Vectorize",
+    "username": "Vectorizeio"
+   },
+   {
+    "id": "1136175005060878337",
+    "name": "Dhravya Shah",
+    "username": "DhravyaShah"
+   }
+  ]
+ },
+ "meta": {
+  "result_count": 2
+ }
+}

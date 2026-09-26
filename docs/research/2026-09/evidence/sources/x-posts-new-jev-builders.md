@@ -244,5 +244,3 @@ The article's five images ("PICTURE 1" to "PICTURE 5") are transcribed in `image
 ## Open questions
 - What do roanjain's posts 2/7 to 7/7 say about questions, thresholds and latency?
 - Does compile-at-ingest beat retrieval on any measured task?
-
----

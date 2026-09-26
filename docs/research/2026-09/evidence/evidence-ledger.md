@@ -1458,7 +1458,7 @@ Every evidence bullet from the Self-Improving Agents hub (`reports/trends.md`, a
 > Anthropic and Accenture:
 > https://t.co/uKvopCOu7f
 
-- Link: https://darioamodei.com/post/we-must-pace-the-frontier (Dario Amodei — We Must Pace the Frontier)
+- Link: https://darioamodei.com/post/we-must-pace-the-frontier (Dario Amodei — We Must Pace the Frontier)
 - Link: https://www.anthropic.com/news/accenture-embedded-evaluation (Partnering with Accenture on embedded evaluation)
 
 </details>
@@ -1498,5 +1498,3 @@ Every evidence bullet from the Self-Improving Agents hub (`reports/trends.md`, a
 > w/ @_perloj: https://t.co/PbQe9mslMN
 
 - Link: https://www.nbcnews.com/politics/congress/bernie-sanders-greg-casar-propose-ai-superintelligence-ban-20-year-jai-rcna599460 (Bernie Sanders and Greg Casar propose AI ‘superintelligence’ ban with a 20-year jail penalty)
-
----

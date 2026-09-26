@@ -125,5 +125,3 @@ Design rules from DECISIONS.md worth copying:
 - Does injecting the top 5 lines improve task outcomes? Not measured.
 - How does the file behave over weeks: number of live lines, false `[stale?]` flags, superseded chains? Not measured.
 - `recallMin` of 0.05 on a softmax-like choice over up to 60 ids: how many injected lines are actually relevant? Not stated.
-
----

@@ -68,5 +68,3 @@ Benchmarks: coding (Terminal-Bench, SWE-bench Verified), agentic workspace (Harv
 - Values of b_min, b_max, T, n_prune, beta0, beta1, and number of H0 repeats.
 - Did evolved harnesses edit the memory component, and did those edits transfer?
 - Does the regularized loop keep compounding past the reported rounds, or plateau?
-
----

@@ -160,5 +160,3 @@ The trend "Memory that updates on read" (T3) is **weaker than the hub states**:
    - Build a held-out set with knowledge-update, contradiction and abstention questions.
    - Keep an experiment ledger outside memory.
    - Keep one guardrail that never feeds memory.
-
----

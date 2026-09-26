@@ -219,5 +219,3 @@ Prompts are quoted from Appendix B ("reproduced from the implementation, with ca
 - Do the thresholds transfer across domains given uncalibrated scores?
 - Does obsolescence ever affect retrieval, and how does the store behave over months of accumulation?
 - Were the cited evidence numbers checked: yes. LFrefman (0.777, +11.0%, 158 s, 6.6x, 0.93 s, -36.7%) and runbywren (0.777, +11%, 158 s, 6.6x, 0.93 s, -36.7%) match the abstract and Tables 1 and 2 exactly. LFrefman's description (System-One controller over typed, multi-relational memories running routing, budgeting, traversal, scoring, stopping) matches Section 3. Neither post mentions that the result is a single benchmark with no ablations, or that the "fastest competitor" for build time is Nemori while the latency baseline is MAGMA.
-
----

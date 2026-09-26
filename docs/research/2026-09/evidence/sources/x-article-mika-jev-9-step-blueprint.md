@@ -133,5 +133,3 @@ destination = route.choice if route.confidence >= 0.80 else "human_review"
 - What were setups 4 and 5?
 - Was Astra's plan passed into Jev's state, and how often was Astra re-invoked?
 - Does the 9/10 hold against other opponents or over more than 10 games?
-
----

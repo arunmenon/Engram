@@ -138,5 +138,3 @@ WHERE id = $3::uuid AND text = $4      -- optimistic concurrency on prior text
 - Is Jev used anywhere besides reranking (consolidation gating, recall gating, write filtering)? No other Jev call sites were found in `hindsight_api`. Reranking is the only integration at this commit.
 - Was the dropped `access_count` ever intended for use-based strengthening? The migration only says an `access_count_update` task "was never implemented".
 - How does the Jev cut interact with reflect's multi-call loop (12-result ceiling per recall)? Not measured in the repo.
-
----

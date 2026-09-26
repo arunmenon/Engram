@@ -157,5 +157,3 @@ const [reviewSandbox, testSandbox] = await Promise.all([
 - What idle duration and what amount of new context start a Supermemory dream?
 - Does dreaming change retrieval quality, and on which benchmark?
 - Can Drives be read and written without a Sandbox yet, and at what cost per consolidation run?
-
----

@@ -62,5 +62,3 @@
 - How quickly does a text memory store accumulate evasion in practice?
 - Can a writer model reliably classify "legitimate adaptation to a guardrail" vs "evasion"?
 - What "recent incidents" does the author's note refer to? Not stated.
-
----

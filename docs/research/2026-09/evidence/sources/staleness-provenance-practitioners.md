@@ -196,5 +196,3 @@ Concrete implementations already in the catalogue that answer these posts:
 - What fraction of saved entries in a real agent memory are ever recalled? No source measures it.
 - Does storing reasons with decisions measurably reduce stale-entry retrieval? Not tested.
 - Who has implemented invalidation on permission changes? None found.
-
----

@@ -186,5 +186,3 @@ jev boundary        $0.087  █████████████████�
 - What does the gate question for `UserPromptSubmit` look like, and what are its false-negative and false-positive rates for recall?
 - Would context-windowed filtering (sentence plus neighbours as state) keep most of the 58% saving without the meaning damage?
 - What were the "ways to make supermemory much cheaper through Jev"?
-
----

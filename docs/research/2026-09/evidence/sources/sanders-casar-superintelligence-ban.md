@@ -35,5 +35,3 @@ None.
 
 ## Open questions
 - Exact bill definition of recursive self-improvement.
-
----

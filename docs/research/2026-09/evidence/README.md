@@ -1,5 +1,3 @@
-> **Repo note (Engram, 2026-09-26).** This folder holds **v2** of the catalogue exactly as received (README, synthesis, ledger, 30 source notes). Not stored here: the `papers/`, `media/`, `raw/` and `bin/` directories it refers to, and the generated single-file `memory-stack-evidence-bundle.md` (it is the concatenation of the files in this folder and would double the size of the tree; rebuild it with `cat README.md memory-stack-synthesis.md evidence-ledger.md sources/*.md` if a one-file handoff is needed). v1 (26 items, 24 notes) was stored as that single file in commit `3aa720c` and is superseded by these files. Engram's reading of the catalogue is digest D8 in [`../paper-digests.md`](../paper-digests.md).
-
 # Evidence catalogue: agentic memory, Jev, RSI
 
 A systematic catalogue of every piece of evidence behind the Trends tab of the Self-Improving Agents hub (https://claude.ai/artifact/HoJHLMXZE8vrnvNdh8gEcz). It was built on 2026-09-26 to feed a session that is tuning a memory stack.
@@ -96,5 +94,3 @@ Every note uses the same template (`raw/SOURCE_NOTE_TEMPLATE.md`): metadata, TL;
   - One Sakana leaderboard's scores are illegible.
   - Each note marks what is "not stated" and what is inference.
 - **Rebuild:** run `bin/evidence_collect.py`, then `bin/evidence_ledger.py`. The source notes and the synthesis were written by Claude from the fetched material and are not regenerated automatically.
-
----

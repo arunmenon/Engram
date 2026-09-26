@@ -310,5 +310,3 @@ Not addressed at all (checked the full text; there is no discussion of cost, tok
 - Would reconsolidation still help on LongMemEval without the oracle-session question generation?
 - Why do the single-session assistant and single-session user categories "remain unchanged" under reconsolidation?
 - How does it perform on abstention, and does the "never return an empty seed set" rule hurt it?
-
----

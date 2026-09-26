@@ -41,5 +41,3 @@ Job page (Member of Technical Staff, Tokyo; full-time, visiting, internship): "D
 
 ## Open questions
 - Will the lab publish the promised negative results and safeguards?
-
----

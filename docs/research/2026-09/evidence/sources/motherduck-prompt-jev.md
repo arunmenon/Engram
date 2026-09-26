@@ -91,5 +91,3 @@ FROM preds;
 - What are the NULL rate and the per-class F1?
 - How does accuracy hold on multi-level or context-dependent labels?
 - What are the syntax and behaviour of score and yes/no modes?
-
----

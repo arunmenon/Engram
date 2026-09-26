@@ -91,5 +91,3 @@ Data setup: dataset clustered into K categories with an LLM classifier, then str
 - How does selection behave with 50+ skills whose descriptions compete for the context window?
 - Seed variance of the gains.
 - Can a verifier or self-play (CoEvoSkills, Ctx2Skill) replace ground truth without drift?
-
----
