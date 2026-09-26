@@ -5,8 +5,7 @@ artifact_type: proposal
 producer: triage
 run_id: <invocation id>
 idempotency_key: proposal:<claim cluster id>
-status: proposed
-created: YYYY-MM-DD
+created_at: <UTC>
 input_refs: [{artifact_id: <note id>, file_id: <drive id>, sha256: <digest>}]
 claim_cluster: <cluster id; ten posts about one result are one cluster>
 source_posts: []
@@ -19,10 +18,6 @@ component: <ecosystem component>
 decision_it_could_change: <one line>
 cost: S | M | L
 urgency: none
-decided_by: null
-decided_on: null
-decision_reason: null
-carded_as: null
 ---
 claim:
 proposed experiment:
