@@ -1,6 +1,6 @@
 # Grounding document: "Nitin jetstream artifacts reference" — transcription (partial)
 
-**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1–3.5, Part 4 §4.1–4.2 and the first due-diligence row. Not yet received: §2.4, the rest of Part 4 (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
+**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1–3.5, Part 4 §4.1–4.8 (due-diligence table cut after the first row), Part 5 §5.1 and group ① of §5.2. Not yet received: §2.4, the rest of the due-diligence table, ontology groups ② onward (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
 
 > **Confidentiality note.** This is an internal-programme document of the user's employer with named people. It is stored here because it is the grounding for [../pdlc-memory-layer.md](../pdlc-memory-layer.md); keep the branch private.
 
@@ -259,7 +259,79 @@ Three obligations fall out: **one interface (not one store), declared scope per 
 | `agenticmemoryservice` ("Engram") | Service | Closest ready backend. Jav[a], MySQL + Ver[…] |
 | […] | | |
 
-**Transcription ends here** (2026-09-26, fourth batch; remaining due-diligence rows, §4.4+, the Knowledge Ontology and Courier vs. Endzone still to come).
+*(remaining due-diligence rows not captured)*
+
+### 4.4 The proposed interface — three verbs
+
+One MCP-projected surface, consistent with C5's "projected as CLI" pattern.
+
+| Signature | Notes |
+|---|---|
+| `knowledge.retrieve(query, scope, kind)` | `kind` distinguishes semantic fact / episodic run-history / document-corpus search — *"different retrieval mechanics behind the same verb, not different verbs."* |
+| `knowledge.write(record, scope, kind)` | Only certified callers write a `fact`; any caller writes an `episode`. *"This mirrors Engram's own Facts/Episodes split, which is the right split; it should not be flattened."* |
+| `knowledge.snapshot(scope, as_of)` | A versioned, signed view of everything a scope could retrieve at a point in time. **"This verb does not exist in any repo surveyed as a first-class operation today… the single largest gap between what exists and what the C6 knowledge interface needs."** |
+
+`scope` is **mandatory on every call**: at minimum caller identity, space/domain, classification tier.
+
+### 4.5 Why snapshot is required — not invented for completeness
+
+Driven by an already-decided fitness function in `outer-loop-problems.md`:
+
+> "Buildability is a property of the spec *and* the knowledge configuration it runs in, never the spec alone."
+
+> "[The adversarial buildability reviewer runs against] a **pinned reviewer config**: a fixed, versioned reviewer setup whose model version, prompt, Company-Knowledge snapshot, and thresholds are held constant, so buildability scores stay comparable across spec versions and over time."
+
+> "If the C6 knowledge interface only exposes live retrieval, buildability scores drift for reasons that have nothing to do with the spec: the knowledge backend changed underneath the reviewer."
+
+`dejavu-toolkit`'s Ed25519-signed versioned catalog is named as *"materially cheaper than designing a new one."*
+
+### 4.6 The adapter layer
+
+Each backend keeps its own storage and retrieval mechanics. The gateway routes by `kind` and scope, and **normalises the response shape: content, provenance, freshness, confidence.**
+
+**Open question raised and left open:** how does the gateway compute `confidence`? One option floated — *"a typed, calibrated classifier (TypeSafe AI's Jev is one example of this model class) scoring each retrieval instead of a free-text judgment."* Notes it adds a synchronous external call with no retry or latency budget yet defined.
+
+### 4.7 Integration points
+
+| Point | How C6 is used |
+|---|---|
+| Inner Loop | Consumed through C4 — the harness declares it consumes memory/knowledge; the platform injects a scoped `knowledge.retrieve` capability witho[ut] the harness holding a credential. *No chan[ge] to C4's shape needed.* |
+| Outer Loop, Triage | `knowledge.retrieve(kind=documen[t])` against the ticket-corpus backend |
+| Outer Loop, Specification | Two distinct calls: the authoring agent cal[ls] `retrieve` while drafting; **the Spec artif[act] stores a `snapshot` id, not inlined conte[nt]** |
+| Outer Loop, PR review | Re-resolves the Spec's snapshot id to chec[k] the diff against acceptance criteria and th[e] assumptions ledger |
+| Knowledge-gap signal | Makes the fault-adjudication rule *executa[ble]*: because every retrieval is scoped and snapshotted, an adjudication agent can **replay what the interface returned** for a given scope at a given snapshot. Every confirmed gap is written back as a candid[ate] Fact through the certification path. |
+
+### 4.8 Open questions on this page
+
+1. **Does a "skill" request go through C6? — Resolved: no.** `contracts.md` (C4) lists skills as a sibling of memory, not a subset. `lep-tools` settles delivery: skill files are loaded by the agent loop via `route_to_expert`, never retrieved through a knowledge-query interface. `kind` stays closed at fact/episode/document. *A narrower question stays open* — whether skill-file **content** should live behind a versioned adapter even though **delivery** stays a C4 injection. Flagged for C4/C5's future holder.
+2. **DeepInsights internals** — production infrastructure with the closest contract shape, but its source has not been inspected. Backend or model for the gateway? Undetermined.
+3. **`knowledge-service`'s ownership and roadmap** — maintained by a separate team. Adopt as-is or fold its retrieval into Engram? *"An org question, not just a technical one."*
+4. **`eaintelligencemcpserv`** — referenced but not present locally; needs its own pass.
+
+**Explicitly out of scope:** the adapter interface's wire format (REST vs MCP tool schema vs both). Follow-ups expected for the wire-format spec and the DeepInsights due-diligence pass.
+
+## PART 5 — The ontology
+*Source: Knowledge Ontology (3120053683)*
+
+### 5.1 Why it is a separate page
+
+> "The reference architecture treats `knowledge.write` as a thin verb: certified callers write a `fact`, any caller writes an `episode`. **That split is not enough once both loops are expected to contribute knowledge, not just consume it.**"
+
+The parent defines the interface and the backends. This page defines *what kind of thing flows through it*, independent of which backend stores it.
+
+### 5.2 The eleven dimensions, grouped
+
+**① What kind of thing is it?**
+
+| # | Dimension | Content |
+|---|---|---|
+| 3 | Domain vs. practice | Domain-oriented (a business/product area) vs practice-oriented (how work gets done). *"These are not mutually exclusive… so this is a tag set, not a single enum."* |
+| 5 | Format plurality | Structured facts · free-text documents · embedded chunks · possibly tabular or code-shaped. Distinct from `kind`, which is a routing concern. |
+| 10 | Granularity | Field/fact vs document vs corpus. Due diligence found a mismatch: `biso_knowledgebase` is whole-file, `knowledge-service` is per-KB. The ontology should state a target the interface normalises toward. |
+
+**② Where did it come from, and who controls it?** *(not yet captured)*
+
+**Transcription ends here** (2026-09-26, fifth batch; ontology groups ② onward and Courier vs. Endzone still to come).
 
 ---
 
@@ -268,6 +340,7 @@ Three obligations fall out: **one interface (not one store), declared scope per 
 > **⚠ Name collision, read first.** Inside the Jetstream pages, "Engram" means **AI Tech's `agenticmemoryservice`** (Java, MySQL + a vector store), "PayPal's certified context and knowledge layer". This repository is what the document calls the **PAI Context Graph**. Every sentence below that says "Engram" means this repository unless it says otherwise. Consequences: (a) the programme's "strongest service candidate" for C6 is the *other* Engram, and the due diligence rates it as a backend, not the adapter layer; (b) the stream-03 line "Dobby and Eng[ram] stay separate" almost certainly refers to that system too; (c) this repository has to be positioned by what it does, not by its name, and the name itself is a liability in any Jetstream conversation until it is disambiguated.
 
 
+00000. **The three verbs are the API, and `snapshot` is the gap this repo already fills.** `retrieve(query, scope, kind)`, `write(record, scope, kind)`, `snapshot(scope, as_of)`, with `kind ∈ {fact, episode, document}` closed and `scope` mandatory (caller identity, space/domain, classification tier). The document says outright that **no surveyed repo has `snapshot` as a first-class operation and it is the single largest gap.** An append-only Redis Stream with `global_position` *is* a point-in-time view; `as_of` maps to a stream position, the Neo4j projection is rebuildable to that position, and signing a manifest of (scope, position, content hashes) is a small addition. That is the demo that wins C6, and it needs the ledger, not the graph. The *fact/episode* split maps onto Engram's extracted-and-certified nodes vs raw Event/Episode records, so "certified callers write facts, anyone writes episodes" is the extraction gate (Jev A1) plus the certification path in §4.7. The normalised response shape — **content, provenance, freshness, confidence** — is the Atlas node minus `scores`, plus a `freshness` field (which the staleness audit A6 supplies) and a `confidence` that the page itself proposes to compute with a typed classifier and names Jev; the page also names the two risks this pack already has answers for: a synchronous external call with no retry or latency budget (jevmem's 2 s timeout, queue, rule fallback). The **knowledge-gap signal** closes the loop: every retrieval is scoped and snapshotted, so an adjudication agent can *replay what the interface returned* — that is the retrieval receipt (path-forward step 2) stated as a contract obligation, and "every confirmed gap is written back as a candidate Fact through the certification path" is the gated update mechanism (RSI T1). Two more design constraints: skills do **not** go through C6 (C4 delivery), so procedural memory (Workflow nodes) must be exposed as `episode`-kind evidence or as facts, not as skill files; and the wire format (REST vs MCP tool schema) is explicitly deferred, so the adapter should be built as an MCP-projected CLI in front of the existing REST per C5's pattern.
 0000. **The C6 contract is now verbatim, and the gap it names is the opportunity.** "One interface, not one store; declared scope per call; backend independence proven by a passing swap test; the store stays where it lives, we integrate, we do not absorb." The headline finding is that **the interface does not exist anywhere in the estate**; the best candidates are a backend (`agenticmemoryservice`) and a black box (DeepInsights). So the winning move for the PAI Context Graph is not "be the best backend" but **be the C6 adapter layer with a swap test**, and be *one* backend behind it — which is exactly the `ports/` + adapters structure this repo already has (EventStore / GraphStore protocols, harness adapters in ADR-0015). "Ingests the org's existing systems of record rather than becoming a new one" fits an event ledger that projects from sources; it does not fit a system that wants to own the knowledge. The **fault-adjudication rule** (§3.4) is the first outcome label the PDLC layer must record: for every non-recoverable failure, was the missing piece spec-type or tribal, per the assumptions ledger? That is a closed three-way label, it is the C9 signal that scores Company Knowledge, and it is a natural Jev Choice with the assumptions-ledger entry as state. "Entitlement-aware" makes ADR-0016/0029 tenant policy a contract requirement, not an option.
 0. **C6 is the whole game, and it is unowned.** "C6 Memory and Knowledge: one interface for agent read/write/retrieve, scoped per operation" has **no ratified holder**; so does C9 (evidence and eval), and C9 depends on an unowned autonomy-gate pipeline. Every contract is "one interface and one test". The Inner Loop's Spec step "resolves needed knowledge through C6". So the PDLC layer is not a schema Engram proposes; it is a **candidate implementation of C6** with a conformance test, and the self-review step's **assumptions ledger** ("ambiguity resolved by inference gets recorded, not silently discarded") is the first concrete write-side artefact the contract needs to carry. Engram's ledger-first design, per-operation scoping (tenant + run + stage), and provenance block map directly onto "scoped per operation". C9's signals (agreement, autonomy, quality, speed, cost per stage) are the outcome events P4 asks for; if C6 and C9 land together, the retrieval-receipt → outcome loop is a contract obligation rather than an Engram feature. C8 says OpenTelemetry GenAI spans are mandatory, which settles the ingest format question raised in digest D3 (Beacon's OTel-normalised JSONL).
 00. **C6's four call sites define the read API backward.** (a) Spec step: "what domain and tribal knowledge does this run need" — a task-conditioned briefing before Design, which is exactly the read-time curate step (digest D6, H3). (b) Triage: ticket corpus + org structure for routing — an entity/ownership graph query, Engram's `who_is`/`related` intents over Entity and UserProfile. (c) Specification: **a Spec references knowledge by reference and Company Knowledge resolves it at build time** — the reference must be a stable id with a version, i.e. a node id plus `global_position`, which Engram's provenance block already is. (d) Adversarial review: **the same knowledge that crafted the spec, pinned as a snapshot** — a point-in-time read ("as of position X"), which the immutable ledger supports natively and a mutable vector store cannot; this is the strongest argument for the ledger-first design in the whole document. Two more facts: "neither loop owns it", and the stream is specified "backward from what the callers require" — so the PDLC layer's first deliverable is the C6 interface (`retrieve`, `write`, `snapshot`) plus its one conformance test, not an ontology.
@@ -280,4 +353,4 @@ Three obligations fall out: **one interface (not one store), declared scope per 
 6. **"Stream's own measures are an open question."** The discovery plan's metrics (ledger-vs-no-memory oracle pass rate, knowledge-update accuracy, feedback-loop rate, stale-flag precision) are a direct contribution to stream 03, and stream 04 is the telemetry backbone they should land on.
 7. **The commitment window is 3 months and one adopting organisation.** The discovery plan's five-week sequence fits inside it only if P1–P3 start now.
 
-**Still needed from the document:** §2.4, the rest of the eleven-repo table and Part 4 (§4.4+: retrieve/write/snapshot, sections 5.1–5.3 that "fix the shape") and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
+**Still needed from the document:** §2.4, the rest of the eleven-repo table, ontology groups ② onward (dimensions 1, 2, 4, 6–9, 11) and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
