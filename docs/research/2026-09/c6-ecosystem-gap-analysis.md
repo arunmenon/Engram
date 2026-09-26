@@ -6,14 +6,14 @@
 
 ---
 
-## 0. Revision after the refresh addendum (same day)
+## 0. Note after the refresh addendum (same day)
 
-The [refresh addendum](pdlc-grounding/jetstream-refresh-addendum-transcription.md) adds two facts that change this analysis's shape without changing its layers:
+The [refresh addendum](pdlc-grounding/jetstream-refresh-addendum-transcription.md) adds two facts. Neither reduces the scope of this analysis; both add integration points to it.
 
-- **Sanctum MCP Gateway** (PAI, live on BYOA, `retrieve` + WIP `write`, `evidence[]` with `validity{status, last_updated, verified_by, expires_at}`, rank-fused `score`, `domain` default-open, `content_type` includes `skill`, no `snapshot`, permissioning "under consideration") is already the L4 shell from the same org as the PCG. **Read every "Absent" in L4 below as "absent in Sanctum, contribute it there"**, not as "build a gateway". The PCG becomes the L2 ledger and the snapshot/receipt substrate *under* Sanctum, plus one registered backend.
-- **DeepInsights** is a production backend behind Endzone and GSE (3,900+ users, 5,600+ repos), with strong per-call scope, mandatory provenance and absolute read/write separation, ~50 tools, no snapshot. It is the primary `kind=document` registry entry and the right **second backend for the swap test** (replacing Endzone's local KB in §6).
+- **Sanctum MCP Gateway** (PAI, live on BYOA) has `retrieve` and a WIP `write`, an `evidence[]` response with a `validity` block, rank-fused scores, `domain` default-open, `content_type` that includes `skill`, no `snapshot`, no receipts, and permissioning "under consideration". It is an early PAI artefact that proves the MCP-projected surface works and gives a response shape worth adopting. It is not a gateway in the sense of §3: no registry, no scope resolver, no fusion across backends, no snapshot composition, no receipts. **Every layer and component below still has to be built.** Sanctum is where the L9 MCP projection and the response schema should converge, so the two PAI efforts ship one surface rather than two.
+- **DeepInsights** is a production backend behind Endzone and GSE with strong per-call scope, mandatory provenance and absolute read/write separation, ~50 tools, no snapshot. It is a first-class **registry entry** for `kind=document` over code and wikis and the right second backend for the swap test. It is not a gateway and does not want to be one.
 
-Consequences carried through below: the response schema adopts Sanctum's `evidence[]` + `validity` rather than inventing one; the two contract conflicts (skills through C6, default-open scope) are logged as contributions the scope resolver and closed `kind` make to Sanctum; the sequence in §6 targets Sanctum's repo; and question 5 in §7 gains a twin about Sanctum. `snapshot` is now confirmed absent in three independent places, which makes it the PCG's single clearest contribution.
+So the plan is unchanged in shape: the PCG's ledger is the core; the ten layers and sixteen components are built around it; and the result is **married to what PayPal is already building** at three seams: Sanctum for the MCP surface and response schema, DeepInsights and AMS as registered backends with manifests, and the harnesses through C4 injection. `snapshot` is now confirmed absent in three independent places, which makes it the clearest thing the ledger contributes, but it is one component of sixteen, not the whole contribution.
 
 ## 1. The target is an ecosystem, not a store
 
@@ -48,8 +48,8 @@ Legend for *Gap*: **Have** (design exists and holds up), **Extend** (exists, nee
 | L2 | Tenant / scope on every record | Tenant prefix (ADR-0018), entity resolution tenant-blind | **Extend**: scope = tenant + space/domain + classification tier + caller identity | AMS has space-scoping and certification | No |
 | L3 | PCG as one backend | Graph projection, intents, decay, Atlas | **Have** as a backend; **demote** as the read surface. The graph answers lineage, supersession, entity and "why" questions; it is not the default `retrieve` | — | No |
 | L3 | Other backends | None registered | **Absent**: backend registry with capability manifests (kinds served, scopes, freshness SLA, snapshot support, entitlement model) | Each hub is a manifest entry | No |
-| L4 | One interface, three verbs | REST `/v1/events`, `/context`, `/subgraph`, `/lineage` | **Extend**: Sanctum already exposes `retrieve`/`write`; the PCG contributes `snapshot` and becomes a backend behind it | **Sanctum** (two verbs, live); DeepInsights (many tools, backend) | — |
-| L4 | `scope` mandatory, entitlement-aware | Tenant only | **Absent** in Sanctum too (`domain="auto"`, `USER_NAME` self-asserted): scope resolver against C10 identity and classification tiers; least-privilege intersection across hubs | DeepInsights does per-call scope well (model to copy) | Deterministic only. **Never a model call.** |
+| L4 | One interface, three verbs | REST `/v1/events`, `/context`, `/subgraph`, `/lineage` | **Extend**: `retrieve/write/snapshot` as the public verbs over the full gateway (§3); converge the MCP projection with Sanctum's so PAI ships one surface | Sanctum (two verbs, early, live); DeepInsights (many tools, backend) | — |
+| L4 | `scope` mandatory, entitlement-aware | Tenant only | **Absent**: scope resolver against C10 identity and classification tiers; least-privilege intersection across hubs (Sanctum is default-open here too) | DeepInsights does per-call scope well (model to copy) | Deterministic only. **Never a model call.** |
 | L4 | Routing by `kind` + scope | Intent classifier (8 intents, keyword) | **Extend**: intent becomes one input; route is a *closed menu over the registry* | — | **Yes** (Choice over backends, see §3) |
 | L4 | Fusion across backends | Single-store retrieval | **Absent**: RRF k=60 across backends, then one listwise rerank | Hindsight, Jev-Mem designs | **Yes** (listwise Choice, ≥1 result) |
 | L4 | Response normalisation: content, provenance, freshness, confidence | Atlas node has content + provenance + scores | **Extend**: adopt Sanctum's `evidence[]` + `validity{status, last_updated, verified_by, expires_at}`; the staleness audit (A6) writes `validity`; `score` stays rank-fused | Sanctum (better specified than the reference architecture) | **Yes** for confidence (Score), with a local fallback |
@@ -148,8 +148,8 @@ These are the pieces neither the PCG nor any named hub has. They are the build l
 
 | Weeks | Deliverable | Proves |
 |---|---|---|
-| 1–3 | Conformance kit against Sanctum's existing verbs; `snapshot` added to Sanctum backed by the PCG ledger; scope schema (mandatory, closes `domain="auto"`); Courier link-resolution demo with snapshot id in the Spec | The interface exists; `snapshot` exists; a harness uses it with no credential |
-| 3–5 | Registry + **DeepInsights** as second backend behind Sanctum; **swap test passes**; RRF fusion; receipts | Backend independence; federation over two real backends |
+| 1–3 | Conformance kit (three verbs, scope schema, response schema aligned with Sanctum's `evidence[]`/`validity`); PCG behind all three verbs with snapshot by position; Courier link-resolution demo with snapshot id in the Spec | The interface exists; `snapshot` exists; a harness uses it with no credential |
+| 3–5 | Registry with manifests; DeepInsights as second backend; **swap test passes**; RRF fusion; receipts; MCP projection converged with Sanctum | Backend independence; federation over two real backends; one PAI surface |
 | 5–7 | Snapshot materialisation for position-less backends (Confluence via Endzone's ingest); PR-review re-resolution of the Spec's snapshot; assumptions ledger | The pinned-reviewer fitness function can run |
 | 6–9 | G2/G4/G6 in shadow with receipts; rule fallbacks and latency budgets; fault adjudication (G11) on a labelled set | Where a decision model earns its place, measured, not assumed |
 | 8–11 | Certification path; supersession; knowledge-gap write-back; staleness sweep; Slack connector | Both loops contribute knowledge, not just consume it |
@@ -164,6 +164,6 @@ Discovery hypotheses map onto this: H1/H2 in weeks 5–7 once two backends are l
 3. Snapshot semantics for external systems of record: is materialise-and-sign acceptable for Confluence and Jira content, and what retention applies to materialised copies per tier?
 4. Decision-model hosting: which team operates the in-house System One endpoint, and what latency and model-pinning guarantees does it give the gateway?
 5. AMS's role: a certified-fact backend behind the gateway, with its certification path reused for L6? That turns the name collision into a division of labour.
-5b. Sanctum's role: is it the C6 gateway of record for PAI, and will its owners take `snapshot`, mandatory scope, receipts and a closed `kind` as contributions? Why are neither Sanctum nor the PCG in the due diligence?
+5b. Sanctum: converge on one PAI MCP surface and one response schema? Who owns the merged surface? Why are neither Sanctum nor the PCG in the due diligence?
 6. Outcome signals: will the Outer Loop adopt the admission/build-success/completion contracts, and can they carry a receipt id?
 7. Latency budget per call site: the Spec step can afford seconds; the C4-injected `retrieve` inside an Endzone loop cannot.
