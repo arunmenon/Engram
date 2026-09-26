@@ -210,4 +210,51 @@ This is the most direct challenge to Engram's design among the papers so far, an
 
 ---
 
+## D8. Memory-stack evidence bundle — systematic catalogue behind the daily brief, built 2026-09-26
+
+**Received as:** four Markdown files (README, synthesis, evidence ledger, single-file bundle), now stored under [`evidence/`](evidence/README.md). Built from the 26 evidence items behind the brief in D7: 86 X posts with threads, 2 X Articles, **5 arXiv papers read in full** (Jev-Mem 2609.23986, REALM 2609.16053, EvoSkill 2603.02766, RRSI 2609.24972, RSI levels 2609.11873), **4 repos read at pinned commits** (Hindsight, Hippo-memory, Beacon, lintpal), ~15 web pages, 26 transcribed images. Every claim points to a source note with a strength rating. This supersedes D7 wherever they differ.
+
+### Corrections to D7 (from the bundle's contradictions table)
+
+| D7 said | The sources show |
+|---|---|
+| Hindsight updates memory on read | It does not. Recall writes nothing; the unused `access_count` column was dropped in Aug 2026. Learning happens at write time. |
+| Hippo-memory 74 % R@5 | Stale v0.11 BM25-only figure; current 98–99.8 % per haystack. Its own audits: age decay had **no measurable effect**; sleep consolidation **cost 3.6 points**. |
+| Beacon "Jev as a write gate" | A candidate filter in front of human review: `task_success ≥ 0.50` AND mean of three Nouls `≥ 0.60`; the `task_success` floor was added after a failed task averaged through (issue #649). No quality metrics. |
+| Supermemory "58 % token reduction" | Applies only to the pre-extraction filter, which also produced a wrong memory ("i love that stuff" attached to the wrong food). |
+| REALM +7 LoCoMo | Correct vs MAGMA, but **reconsolidation itself adds only +2.0**; the knowledge-update gain (84.7 → 88.9 vs Zep 74.4) is driven by write-time `supersedes`/`contradicts` edges and the rule "prefer add over modify; never merge a state change". |
+| Deel 70→97 %, 50→86 % | Also −16.6 on metric picks and −3.6 on 3-level root-cause tagging; expense baseline is rule-based, not human. |
+| Jev-Mem +11 %, 6.6× | Numbers check, but one benchmark (text says two), no ablations, no cost, no variance, text/table disagree in four places. |
+
+### What the bundle establishes (evidence strength in brackets)
+
+**Write path.** Admit everything; spend decisions on *structure*, not admission [Jev-Mem, 1 benchmark]. Jev-Mem's recipe: type each observation with four Nouls (`episodic / semantic / procedural / preference`, overlapping scores, not a category); pick ≤10 candidate neighbours deterministically (vector + lexical + entity + time); confirm typed edges (`semantic`, `caused_by`/`causes`, same-episode, entity-equivalence only when ids don't match) at **score ≥ 0.60**; timestamps and exact entity ids create edges with no model call. Write `supersedes`/`contradicts` **at write time** [REALM, ablated]. Gate *promotion* to durable lessons, not storage [Beacon]. Do not put the decision model inside the extractor at sentence granularity [Supermemory's own counter-example]. Treat every skill write as a proposal that must beat the current best on a held-out split; reject entries that name specific eval tasks/entities/answers (leakage) [EvoSkill, RRSI].
+
+**Read path.** Fuse vector + BM25 + entity + time with RRF k=60 [Jev-Mem, Hindsight — two independent designs]. **Rerank listwise in one call**: one Choice over the pool gave recall@1 0.94 vs 0.87 for one Noul per candidate, with 30× fewer calls; vs local MiniLM at 30 candidates 0.950 vs 0.800 [Hindsight, LoCoMo-200, vendor]. Jev scores are rank positions within a call, not absolute relevance — never port a score floor. **Never give a gate a "nothing relevant" option**: "none of these" emptied 35/200 queries; a "nothing" level cut gold retention 0.81 → 0.65; pruning lifted precision 0.05 → 0.85 but dropped 19 % of gold — always return ≥1, pruning off by default [two teams]. Counterweights: six self-hosted rerankers matched Jev's nDCG@10 (~0.746) on SciFact at ~1/10 the cost; Hippo found Jev reranking no better at *answering* than a free cross-encoder.
+
+**Stopping.** Replace fixed top-k with a sufficiency rule: stop when `evidence_sufficient ≥ 0.95` and `missing < 0.15` and `contradiction < 0.15`, or `continue_useful < 0.15`; hard caps depth 8, 60 nodes, 2400 edges, 16 controller calls, 15 s; six routing Nouls split an expansion budget of 80 across the four relation views [Jev-Mem — the most complete control design in the set, **no ablation**].
+
+**Update on read.** The weakest trend. Only REALM does it properly: reweight or add edges, never rewrite content or delete; bounded `w += η·c·(1−w)`; retrieval uses `0.6·sim + 0.4·w`; **+2 points**. Feedback loops (wrong memory recalled → strengthened) are **unmeasured everywhere**; REALM uses the same model to answer and to audit.
+
+**Consolidation and forgetting.** **No source implements real forgetting.** Jev-Mem records obsolescence and never acts on it; REALM and Hindsight have no decay; Hippo's decay did nothing measurable. Jev-Mem's consolidation: every 20 writes, one Choice `keep_separate / merge / promote / uncertain`; call the LLM summariser only at ≥ 0.85; raw observations always kept. From the RSI papers: raw trajectories often beat distilled skills; generated skills sometimes make results worse.
+
+**The decision model.** Calibration is claimed, not shown: Jev-Mem's authors say scores "are not assumed to be calibrated probabilities" and threshold them anyway; Datadog logged values of 1.10 and 1.06. Fit thresholds on your own data; log raw probabilities; pin the model; keep thresholds in code; minimal state. Failures: Deel −16.6 on messy metric picks; six fast actions in a coding agent all dropped (small samples; only "is the goal done?" looked promising). Hosted and fails closed → keep an RRF/LLM fallback.
+
+**Evaluation.** Strongest field result in the set: one week of Jev as pass/fail judge replacing Gemini 3.1 — no accuracy change, ~200× cheaper, ~50× faster; threshold > 0.8, an LLM explains only the failures; a full run costs $0.14–0.20, so latency not money decides per-PR gating [Sentry]. RRSI discipline: run the unchanged stack several times and use the spread as the minimum gain a change must beat; charge memory for its tokens; one attributable change per round; keep the experiment ledger *outside* memory. Gaps: Jev-Mem one benchmark; REALM excluded unanswerable questions; nobody tests abstention, feedback loops or forgetting.
+
+**Oversight.** A memory that learns from outcomes will route around guardrails without intent [Mallen]: tag writes from blocked episodes; treat a falling guardrail-trigger rate as a warning; keep one check that never feeds memory. On the B0–L5 RSI ladder, EvoSkill/RRSI sit at L2 (fixed objective and evaluator, AI chooses edits); keep the evaluator outside the memory write path to *stay* at L2 deliberately.
+
+### What changes for Engram
+
+1. **SIMILAR_TO / CAUSED_BY / RELATED_TO creation finally has a recipe.** Nothing in Engram creates SIMILAR_TO today (catalogue I4/C7). Jev-Mem's write path — deterministic top-10 candidates, decision-confirmed typed edges at ≥ 0.60, deterministic temporal/entity edges — is a drop-in design for Consumer 3 and replaces the dead `SIMILAR_TO < 0.7 prune` with an admission threshold that actually runs. Store the edge probability as the edge weight (REALM's `w`).
+2. **Jev map corrections.** B1 (neighbour admission) becomes a **listwise Choice over the candidate pool, always returning ≥1**, not a per-candidate Noul with a threshold, and never with a "none" option. B0 (retrieve-or-not) stays as a separate, upstream gate. A3 (delete/archive) stays a Score. Add a **stop rule** as a new retrieval judgment point (there is none today; `max_nodes` is the only bound).
+3. **Forgetting is genuinely untested ground — including Engram's.** Every system in the bundle either has no decay or found it did nothing. Engram's four-tier decay is an untested hypothesis, not a differentiator, until H2/H4 in the discovery plan measure it. Until then: reweight, never delete; archive-before-delete enforced by code.
+4. **Write-time `supersedes`/`contradicts` is the knowledge-update lever**, not read-time reconsolidation. That is Engram's Belief lifecycle (landscape §1.11–1.14) — priority confirmed, mechanism narrowed: edges at write time, "prefer add over modify".
+5. **Eval discipline for the autoresearch loop**: RRSI's noise floor, token charge, one change per round, external ledger, plus a held-out set with knowledge-update, contradiction and abstention questions. This is the concrete fix for catalogue V7/V8.
+6. **Governance rule set**: tag memory writes originating in blocked/denied episodes; monitor guardrail-trigger rate; one check outside the memory path. Cheap, and it is what keeps Engram at L2.
+
+**Verdict:** **adopt** items 1, 2, 5, 6; **adapt** 4 into the Belief-lifecycle design; **context** for 3 (it is a warning). The bundle's §9 "starting configuration" and this pack's six-layer stack agree on every point except that the bundle adds the stop rule and the "never return nothing" rule — both now taken.
+
+---
+
 *Next entries are appended below as papers arrive.*
