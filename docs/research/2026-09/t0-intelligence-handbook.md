@@ -48,18 +48,19 @@ Google Drive, owner's My Drive, folder `research-bus` (https://drive.google.com/
 
 ## 2. Triage rubric (applied by 2b to every item, both feeds)
 
-Runs over `processed/` items from the last 24 h. Fast path first, so most of 500 items cost nothing.
+Runs over items **not yet in the checkpoint's consumed set** (never "the last 24 h"): the checkpoint in `checkpoints/triage.json` holds consumed post ids, the last batch consumed per feed, and a durable pending backlog with `retry_after`, `attempts` and `blocked_reason`. A missed run or a deferred item is picked up from the backlog, not lost.
 
-1. **Fast discard** (rule, no model): retweet-like text, no link and no number and no named system, engagement below a floor (e.g. views < 200 and likes < 3 after 3 h) unless the handle is on the watchlist. Log counts only.
-2. **Cluster** by expanded link target (or `t.co` if unexpanded), quoted post, and near-duplicate text. One cluster = one candidate.
-3. **Primary source reachable?** For each cluster, fetch the target: arXiv abstract page, GitHub README at HEAD (record the commit), vendor post, docs page. If none is reachable, **park** with reason. Items with only a screenshot of numbers are parked until the image is transcribed (the digest can be asked for that via a watch request).
-4. **Type and strength:** paper with ablation › paper single benchmark › repo read at pinned commit › vendor benchmark › builder report with numbers › opinion. Record which.
-5. **Pillar and component:** one of R1–R7 (see the programme plan) and a component from the ecosystem map. Unknown is allowed; "all" is not.
-6. **Bet mapping:** supports / contradicts / would create, against the H-ids in the discovery plan. Contradictions go into the contradictions table as an open row.
-7. **Note or not:** write an evidence note only for strength ≥ vendor benchmark, or for anything that contradicts a held belief. Everything else is a one-line entry in the triage log.
-8. **Card or not:** write a proposal card only when the note implies an arm-vs-arm test we could run within the quarter. A note without a card is fine. A card without a note is not allowed.
+1. **Prioritise, do not hard-discard.** Engagement, watchlist membership, presence of a link or a number order the examination queue. Nothing is dropped for low engagement alone; a bounded **exploration sample** (e.g. 5 % of low-engagement items) is examined every run and the monthly missed-item audit reports what it found.
+2. **Cluster by source and claim:** expanded link target (or `t.co` if unexpanded), quoted post, near-duplicate text, and the specific result being repeated. Ten posts about one benchmark are one cluster. Record the origin chain post → paper/repo → table or section → note, and shared authors, orgs, datasets and harnesses for independence.
+3. **Primary source reachable?** Fetch the target: arXiv page, GitHub README at HEAD (record the commit), vendor post, docs. If none, park with `retry_after` and `blocked_reason`. Image-only numbers are parked until transcribed (a watch request to the digest).
+4. **Verify the relevant part**, not the abstract: for material numbers read the table, methods and limitations; record baseline, intervention, units, n, dataset, model, budget, uncertainty and evaluation method, `unknown` where absent; keep a short excerpt and locator.
+5. **Grade on five dimensions:** directness, control quality, independence, reproducibility, applicability. No single ladder.
+6. **Label:** primary pillar (R1–R8) by the claim tested, optional secondary pillars, tags (mechanism, workload, lifecycle stage, `shared_state`, `cost`). Unknown is allowed; "all" is not.
+7. **Beliefs affected:** supports / contradicts / would create, against `beliefs.md` ids. A contradiction is written as an open row in the note and surfaced at the top of the next delta.
+8. **Note or not:** one note per claim cluster when the evidence is direct or controlled, or when it contradicts a belief. Everything else is a one-line entry in the triage log.
+9. **Card or not:** a card only when the note implies an arm-vs-arm test we could run this quarter; it states the decision it could change. A card without a note is not allowed. There is no card quota.
 
-Budget guard: at most 12 notes and 6 cards per run; the rest carry over with `deferred: true`.
+Budget guard: at most 12 notes and 6 cards per run; the rest go to the backlog with `deferred`, not dropped. Every run writes a new checkpoint file that `supersedes` the last.
 
 ## 3. Formats
 
@@ -99,7 +100,9 @@ why it matters for us: <two sentences, pillar language>
 
 **Triage log** Drive `triage-log/YYYY-MM-DD.md`: counts per rubric step, the one-line entries for items that got no note, cap hits per query, deferred items.
 
-## 4. The handshake: files and who writes them
+## 4. The handshake: files, roles and the rules that make it reliable
+
+The full contract, envelope and rules are in [`../queue/README.md`](../queue/README.md) (v2). The parts triage must obey: every artifact carries the envelope (`artifact_id`, `producer`, `run_id`, `input_refs` with Drive file ids and hashes, `idempotency_key`); uploads are idempotent (list the destination by parent id, skip if the key exists, retry with backoff); the index is written only by the projector; verdicts are valid only with run and review references; a card never authorises a run.
 
 ```
 T0 triage agent                 Drive: research-bus/                 T5 hypotheses agent
@@ -121,9 +124,13 @@ Rules: only the hypotheses agent writes to `decisions/`, `experiments/`, `verdic
 
 Why not have the digest decide? It carries the narrative load, its outputs are prose, and it has no view of the harness, the register or the statistics. Why not have the hypotheses agent read raw items? Because 500 items a day is T0's problem to compress. The card is the compression.
 
-## 5. The T5 hypotheses agent (scheduled, daily 09:15 IST, same machine)
+## 5. The T5 roles (scheduled, same machine; one runner per role, non-overlap lock)
 
-Lists Drive `cards/` by parent id and `decisions/` by parent id; a card with no decision file is `proposed`. For each: check the register (read-only checkout of `2026-09/discovery-plan.md`) for an existing H or E (merge); check cost against the current queue and the week-6 gates (accept or reject, reason required); for accepted ones write `experiments/<E-id>.md` with dataset id, predeclared margin, sample-size note and dates, and a decision file with `carded_as`. Writes `verdicts/<id>.md` when a run closes. Regenerates `index.json`. It never edits the repository; a person merges `experiments/` into the register at the fortnightly review. This agent is one of the team of agents; the interactive Claude Code session reviews its decisions fortnightly rather than making them daily.
+- **Hypotheses / portfolio (daily 09:15).** Folds `decisions/` deterministically (each event names its predecessor; conflicts are surfaced, not resolved by timestamp). For each `proposed` card: dedup at claim level against the register and open experiments (merge); map to beliefs; prioritise by the decision it could change against total execution and review cost, with an exploration allowance; **upload the experiment spec first**, verify its hash, then write the decision that references it. Rejections carry a reason. Never edits the repository; a person merges accepted specs into the register at the fortnightly review.
+- **Challenger (on trigger).** For expensive runs, central-belief changes, novelty claims, contradictory sources, promotions, and a random sample of accepted and rejected cards: writes `reviews/` with `ready | revise | insufficient_evidence`, states what was checked and what was not, files targeted watch requests. Informs the portfolio role; does not change its decisions silently. The external reviewer has offered this role.
+- **Executor (on `accepted` + `ready` where required, inside the standing budget policy).** Runs the frozen spec, writes the `runs/` bundle (manifest, raw outputs, resources, failures, deviations). Never certifies its own result.
+- **Verdict (after a complete run bundle).** Protocol compliance, statistics, disposition including `inconclusive`; issues belief revision events; valid only with references to the run bundle and any required review.
+- **Projector (Mondays, with the delta).** Immutable index snapshots, the non-authoritative latest pointer, the weekly delta, the mirror into the repository.
 
 ## 6. Watchlist and queries to propose to curation this week
 
@@ -133,7 +140,7 @@ Lists Drive `cards/` by parent id and `decisions/` by parent id; a card with no 
 
 ## 7. Metrics the delta reports every week
 
-Items fetched; clusters; primary-source rate; notes written; cards proposed, accepted, merged, rejected; median days from card to decision; verdicts landed; contradictions open; watch requests open and overdue; queries at the cap; API requests used. Targets for the first month: primary-source rate ≥ 60 % of clusters that reach step 3; ≥ 3 cards per week; median card-to-decision ≤ 7 days; zero cards older than 14 days without a decision.
+**Operations:** last successful run per role; backlog age; duplicates suppressed; artifacts with missing references; retries; budget used; queries at the cap; API requests. **Research quality:** primary-source rate; claim corrections surfaced; independent source groups per trend; missed-item audit result; informative experiments completed (including inconclusive); decisions changed; belief revisions; replication failures; median card-to-decision days; cards older than 14 days without a decision (target zero). No card quota.
 
 ## 8. Week 1 checklist
 
@@ -144,3 +151,4 @@ Items fetched; clusters; primary-source rate; notes written; cards proposed, acc
 - [ ] Backfill: run triage once over the last 14 days of `processed/` (expect a burst of notes; cap at 30, defer the rest).
 - [ ] File the first watch requests from T2–T4 (§6 of the programme plan lists them).
 - [ ] First delta the following Monday.
+- [ ] **Acceptance exercise before automation** (from review 2): run one proposal through the whole loop by hand: a vendor post repeated by two accounts and narrowed by a primary source → one cluster and one note with the correction → one spec → a challenger review that finds a missing budget control → a revised authorised run → an inconclusive verdict → the belief stays qualified and a watch request is filed. Then repeat with an upload timeout, a duplicate scheduler invocation and a two-day outage: no extra run, no lost proposal, no fabricated verdict.

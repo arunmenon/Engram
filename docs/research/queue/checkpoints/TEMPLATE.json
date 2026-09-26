@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "artifact_id": "CKPT-triage-YYYYMMDDTHHMMSSZ",
+  "artifact_type": "checkpoint",
+  "producer": "triage",
+  "run_id": "<invocation id>",
+  "created_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "supersedes": "CKPT-triage-<previous>",
+  "consumed_source_ids": ["<post id>", "..."],
+  "consumed_upto": {"memory_feed_batch": "signals-YYYYMMDD-HHMMSS", "decision_feed_batch": "..."},
+  "pending": [
+    {"cluster_id": "...", "reason": "no primary source | image only | deferred by budget", "attempts": 1, "retry_after": "YYYY-MM-DD", "first_seen": "YYYY-MM-DD"}
+  ]
+}

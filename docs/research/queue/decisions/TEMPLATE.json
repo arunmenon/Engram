@@ -1,9 +1,16 @@
 {
-  "id": "PC-YYYYMMDD-NN",
+  "schema_version": 1,
+  "artifact_id": "DEC-YYYYMMDD-NN",
+  "artifact_type": "decision",
+  "producer": "hypotheses",
+  "run_id": "<job invocation id>",
+  "created_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "idempotency_key": "decision:<card_id>:<status>:<prev_decision_id>",
+  "card_id": "PC-YYYYMMDD-NN",
+  "prev_decision_id": null,
+  "expected_prior_status": "proposed",
   "status": "accepted | merged | rejected | withdrawn",
-  "decided_by": "T5-hypotheses-agent | <person>",
-  "decided_on": "YYYY-MM-DDTHH:MM:SSZ",
   "reason": "one or two sentences",
-  "carded_as": "H12 | E-YYYYMMDD-NN | null",
-  "merged_into": "H3 | null"
+  "input_refs": [{"artifact_id": "E-YYYYMMDD-NN", "file_id": "<drive id>", "sha256": "<digest>"}],
+  "merged_into": null
 }

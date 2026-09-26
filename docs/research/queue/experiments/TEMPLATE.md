@@ -1,9 +1,20 @@
 ---
-id: E-YYYYMMDD-NN            # or an existing H-id when extending it
+schema_version: 1
+artifact_id: E-YYYYMMDD-NN
+artifact_type: experiment
+producer: hypotheses
+run_id: <invocation id>
+idempotency_key: experiment:<card id>
 from_card: PC-YYYYMMDD-NN
 owner: T2 | T3 | T4 | T5
 track: A | B | C
-pillar: R1..R7
+pillar_primary: R1..R8
+beliefs_affected: [B..]
+review_required: true | false
+budget: {tokens: , cost_usd: , wall_clock_h: }
+authorized_executor: <role>
+outcomes: {positive: <action>, negative: <action>, inconclusive: <action>}
+prior_attempts: []
 dataset: <frozen dataset id>
 status: queued | running | closed
 start: YYYY-MM-DD

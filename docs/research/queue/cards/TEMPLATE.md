@@ -1,13 +1,22 @@
 ---
-id: PC-YYYYMMDD-NN
+schema_version: 1
+artifact_id: PC-YYYYMMDD-NN
+artifact_type: proposal
+producer: triage
+run_id: <invocation id>
+idempotency_key: proposal:<claim cluster id>
 status: proposed
 created: YYYY-MM-DD
-source_note: evidence/sources/<file>.md
+input_refs: [{artifact_id: <note id>, file_id: <drive id>, sha256: <digest>}]
+claim_cluster: <cluster id; ten posts about one result are one cluster>
 source_posts: []
 strength: paper-ablated | paper-single-benchmark | repo-pinned | vendor-benchmark | builder-report | opinion
-pillar: R1..R7
+pillar_primary: R1..R8
+pillar_secondary: []
+tags: {mechanism: [], workload: [], lifecycle_stage: [], evidence: {directness: , control: , independence: , reproducibility: , applicability: }}
+beliefs_affected: [B..]
 component: <ecosystem component>
-bets: {supports: [], contradicts: [], creates: []}
+decision_it_could_change: <one line>
 cost: S | M | L
 urgency: none
 decided_by: null

@@ -8,19 +8,22 @@ We are building a **memory ecosystem for agents that do engineering work**: a su
 
 Proving grounds, in order of how much they tell us per week: (a) public benchmarks with executable oracles; (b) open coding-agent harnesses we can instrument ourselves (hooks in Claude Code, OpenHands, Aider-class tools); (c) our own agents doing our own work, dogfood; (d) the enterprise design partner, whose eleven-contract programme is the hardest and most informative environment but also the slowest. The design partner is **one** of four. Its contract details live in Appendix A and nowhere else in this document.
 
-## 1. Seven research pillars, from the September pack
+## 1. Eight research pillars (topic taxonomy, v2 after review 2)
 
-Each pillar has a one-line thesis, what the evidence says today, and the hypotheses it owns. Pillars are the organising unit; tracks (§2) are the teams.
+Pillars are the labelling vocabulary and the grouping for the register. Beliefs are kept separately in [beliefs.md](beliefs.md) so that revising a belief never relabels the archive.
 
-| # | Pillar | Thesis | Evidence today | Owns |
-|---|---|---|---|---|
-| R1 | **Evidence substrate** | Raw, positioned, provenance-carrying events are the bank; receipts and replay are the discipline that makes memory auditable | JITMem, Eywa/MemIR/MemTX provenance line; receipts absent everywhere; replay demanded by any reviewer that must reproduce a decision | P1–P5, P0 fixtures, H1 |
-| R2 | **Update mechanics** | Memory writes are proposals; an independent judge accepts, supersedes or rejects; never delete; consolidation and forgetting are unproven | REALM write-time edges; jevmem two-signal supersede; Hippo −3.6, Human-Inspired 48.4 for aggressive consolidation; no forgetting win anywhere | H9, supersession, certification, gated updates (RSI T1) |
-| R3 | **Read strategy** | Task-conditioned read-time curation beats write-time distillation; the graph is an index for lineage/supersession/entity questions until it earns more; stop rules over fixed k | JITMem; MOOSEDev typed-question result vs top-k; Selective-Forgetting negative for graph-at-matched-roots; Jev-Mem stop rule unablated | H2, H3, H7, H8 |
-| R4 | **Judgment layer** | Small typed decision models belong at closed-menu judgment points, deterministic rules first, one scorer shadowed at a time; never generation, never alone in an open loop | listwise 0.94 vs 0.87; planner+decider 9/10 vs 0/10; escalation tier lost on held-out; calibration claimed not shown; Sentry judge 200× cheaper | H5, H10b, scorer port, admission, confidence components |
-| R5 | **Outcome and procedural memory** | The RSI angle: memory that learns from outcomes needs receipts joined to results, negative evidence, comparative induction across tasks, and stays at RSI level L2 | MGM comparative evolution; ReasoningBank/Memp; raw trajectories often beat distilled skills; feedback-loop rate unmeasured anywhere; Mallen guardrail-routing risk | H4, H6, task_key, failed-task pool, governance checks |
-| R6 | **Evaluation science** | Nothing ships on a number we did not produce under a frozen judge, held-out split, clustered paired statistics and a cost charge | RRSI discipline; label leakage in our own harness (V1–V8); review 1's statistics corrections | harness, noise floor, ledger, every verdict |
-| R7 | **Interop and federation** | Memory lives among other stores; one scoped interface, registry of backends, declared snapshot levels, swap-testable; the store stays where it lives | the design partner's C6 text; Sanctum/DeepInsights/AMS as three real hubs; nobody has snapshot; RRF as baseline only | federation gateway, registry, snapshot levels, conformance kit |
+| Id | Pillar (topic label) | Thesis | Boundary |
+|---|---|---|---|
+| R1 | Evidence and reproducibility | Decisions need identifiable source evidence and an explicit replay guarantee | evidence identity and preservation; what was served and can it be reproduced |
+| R2 | State evolution and lifecycle | Updates, supersession, consolidation and retirement need distinct semantics | durable state changes to memory: write gates, supersession, consolidation mechanisms, retention, suppression, erasure |
+| R3 | Retrieval and context assembly | Select sufficient authorised evidence within a bounded budget | request-time evidence selection: hybrid retrieval, traversal, curation, stopping, budgets |
+| R4 | Decision quality and abstention | Automate a decision only when its error costs and uncertainty are understood | rules, classifiers, NLI, rerankers, typed decision models, larger models and human review as candidate implementations; abstention; calibration; escalation |
+| R5 | Learning from experience | Outcomes may improve future behaviour if attribution and transfer are valid | receipts joined to outcomes, negative evidence, procedure induction, transfer, harmful reinforcement, self-improvement levels |
+| R6 | Evaluation and research integrity | Conclusions require traceable protocols, independent checks and uncertainty | whether an evaluation supports its conclusion: leakage, judge bias, statistics, cost accounting, replication |
+| R7 | Interoperability and coordination contracts | Agents and stores need explicit, testable exchange and capability semantics | cross-store compatibility: interfaces, registries, replay levels, swap tests, mappings, multi-agent handoff contracts |
+| R8 | Trust and governance | Evidence cannot authorise its own use, execution or promotion | identity, permissions, suppression, poisoned or injected evidence, execution authority, review ownership, recovery |
+
+**Labelling rules.** Topic labels are not beliefs: an agent classifies a graph-retrieval paper under R3 whether it supports or contradicts our preferred design. Assign one **primary** pillar by the claim being tested and optional **secondary** pillars; add separate tags for mechanism, workload, lifecycle stage and evidence dimensions (directness, control quality, independence, reproducibility, applicability). A paper can contain several claims with different labels. Cross-cutting tags carried on every item: `shared_state` (multi-agent), `cost`. Vendors and models are source tags, never pillar boundaries. Current beliefs live in the [belief register](beliefs.md) and change only through revision events.
 
 ## 2. Tracks
 
@@ -36,15 +39,16 @@ Six tracks. Each has a mission, scope, pillars served, proving grounds, delivera
 
 **Do not collect.** Re-posts with nothing new; threads without a primary source; anything from the design partner's internal systems.
 
-**Triage rubric.** (1) primary source reachable, else park; (2) type: paper ablated / paper single-benchmark / repo at pinned commit / vendor benchmark / builder report with numbers / opinion; (3) strength grade as in the evidence catalogue; (4) pillar and component mapping; (5) bet mapping: supports, contradicts, or creates an H; (6) contradiction check against the catalogue.
+**Triage rubric.** (1) cluster by source and claim; (2) primary source reachable, else park with retry; (3) verify the relevant table or method, not the abstract: baseline, intervention, units, n, dataset, model, budget, uncertainty, evaluation method, `unknown` where absent; (4) evidence dimensions: directness, control quality, independence (shared authors, orgs, datasets, harnesses), reproducibility, applicability; (5) primary and secondary pillar plus tags; (6) beliefs affected: supports, contradicts, or would create; (7) contradiction against the belief register. Engagement prioritises examination; it is never the sole reason to discard. Keep a bounded exploration sample of low-engagement items and audit misses monthly.
 
 **Outputs.**
-- *Evidence note*, the `evidence/sources/` template: metadata, TL;DR, claims, numbers table with n and conditions, implementable mechanism, limitations and counter-evidence, takeaways, open questions; verbatim quotes for anything numeric.
+- *Evidence note*, one per **claim cluster** (ten posts repeating one benchmark are one result), the `evidence/sources/` template: metadata, TL;DR, claims, numbers table with n and conditions, implementable mechanism, limitations and counter-evidence, takeaways, open questions; verbatim quotes for anything numeric.
 - *Proposal card* to T5 intake: `id · claim (falsifiable) · source + strength · pillar/component · bets affected · proposed arms, metric, kill · cost S/M/L · urgency`.
-- *Weekly delta*, Monday noon, one page: beliefs changed (with the note), beliefs held, new cards, contradictions opened/closed, landscape diff (who shipped what, who raised what), parked count.
+- *Trend object* per theme: `trend_id · window · claim_ids · independent source groups · observed volume · query/watchlist version · cap and coverage limits · counterevidence · maturity (attention | implementation | controlled evidence | independent replication | adoption) · beliefs affected · proposed action`. Volume is normalised for watchlist and query changes; an attention trend is market intelligence, not confirmation.
+- *Weekly delta*, Monday noon, one page: belief revisions (with evidence refs), beliefs held, cards and decisions, verdicts, contradictions, trends by maturity, landscape diff, capture health (items, clusters, primary-source rate, cap hits, missed-item audit), operations (last successful run per role, backlog age, duplicates suppressed, missing references, retries, budget).
 - *Monthly*: refresh `memory-research-landscape.md` and the contradictions table; a competitive one-pager (capabilities claimed vs shown, per system).
 
-**Interfaces.** All through the Google Drive bus `research-bus` (ids and rules in [`../queue/README.md`](../queue/README.md)): cards and notes out, decisions and verdicts back, watch requests from any track. T5 answers each card within fourteen days. Kill rule: no primary source after four weeks → opinion.
+**Interfaces.** All through the Google Drive bus `research-bus` (ids and rules in [`../queue/README.md`](../queue/README.md)): cards and notes out, decisions and verdicts back, watch requests from any track. T5 answers each card within fourteen days. Success is measured by informative experiments and decisions changed, not by cards per week; a quiet week can be correct. Kill rule: no primary source after four weeks → opinion.
 
 **Needs from the CTO.** The scraper's current flow, fields, volume, output location and readers; then T0's handbook is fitted to it in week 1.
 
@@ -85,9 +89,9 @@ Six tracks. Each has a mission, scope, pillars served, proving grounds, delivera
 
 **Weeks 1–2.** Agree arms and datasets with T5 on day 1; build H1/H7/H3 arms against T1's endpoint and the public sets; write the gated-write port spec.
 
-### T3 · Judgment lab (greenfield; pillar R4)
+### T3 · Decision-quality lab (greenfield; pillar R4)
 
-**Mission.** Find which judgment points earn a typed decision model and which stay rules, with labelled data and shadow runs; deliver one scorer that survives.
+**Mission.** Find which decisions can be automated at a known error cost, which stay rules, and where abstention is required; candidate implementations are rules, NLI, rerankers, typed decision models, larger models and human review. Deliver one scorer that survives an independent challenge.
 
 **Scope in.** Scorer port (typed input; label + abstain + diagnostics; model/version/timing); rule baseline per decision; label sets split by project and time (write admission ≥90; supersession pairs; injection benign set ≥149 independent; listwise rerank pools); H5 with escalation evaluated on the borderline population; H10b; confidence exposed as components plus one named ordinal score; per-route confusion matrices; latency classes. **Scope out.** Anything in a serving path before a shadow result; fault attribution beyond proposal-with-review.
 
@@ -119,13 +123,15 @@ Six tracks. Each has a mission, scope, pillars served, proving grounds, delivera
 
 **Weeks 1–2.** Snapshot-levels note and fixture kit on days 1–3; Claude Code hook adapter by day 5; kit against PCG by day 10; the partner owners meeting scheduled in parallel, not on the critical path.
 
-### T5 · Hypotheses and experiments (pillar R6, serves all)
+### T5 · Hypotheses, experiments and beliefs (pillar R6, serves all)
 
-**Mission.** Own the register, the frozen harness, the statistics, the datasets and the ledger; run the queue across all tracks; issue verdicts nobody overrides.
+**Mission.** Own the register, the belief register, the frozen harness, the statistics, the datasets and the ledger; run the queue across all tracks; issue verdicts that reference run bundles and reviews; revise beliefs through events.
+
+**Roles inside T5** (responsibilities, not seven agents; one scheduler can invoke bounded roles, with proposer, executor and evaluator inputs kept separate): *hypotheses/portfolio* (mapping to beliefs, dedup at claim level, experiment specs, queue decisions, prioritised by decision value against total cost with an exploration allowance); *independent challenger* (attribution, baselines, leakage, alternatives, budget; outcome `ready | revise | insufficient_evidence`; triggered for expensive runs, central-belief changes, novelty claims, contradictory sources, promotions, plus a random sample); *executor* (runs the frozen spec inside the standing budget policy, produces the `runs/` bundle, never certifies its own result); *verdict* (protocol compliance, statistics, disposition including `inconclusive`); *projector* (indexes, weekly delta, mirror). The external reviewer has offered to take the challenger role and later bounded execution.
 
 **Scope in.** Register as experiment cards; intake from T0 cards and T1–T4 requests; harness freeze (real embeddings, query text embedded, intent from the classifier, scoring from the domain module, held-out split by project/time, frozen `evaluate()`); noise floor; clustered paired statistics, predeclared margins, locked final sets, sample-size table; the external experiment ledger; verdict publication; benchmark maintenance. **Scope out.** Building what is tested.
 
-**Where.** The hypotheses agent writes decisions, experiment cards and verdicts to the Drive bus (`decisions/`, `experiments/`, `verdicts/`); a person merges accepted experiment cards into the register at the fortnightly review. **Formats.** *Experiment card:* `id · owner · track · claim · arms · dataset id · metric · margin · sample size and power note · kill · unlocks · cost · dates`. *Verdict:* kill / promote / narrow-and-rerun; effect with clustered interval; cost delta; deviations; one paragraph.
+**Where.** The hypotheses agent writes decisions, experiment cards and verdicts to the Drive bus (`decisions/`, `experiments/`, `verdicts/`); a person merges accepted experiment cards into the register at the fortnightly review. **Formats.** *Experiment card:* the decision it could change and why now; competing explanations and the simplest credible baseline; frozen dataset, task-family split, scorer, code and config versions; primary metric, practical margin, uncertainty method, explicit positive / negative / inconclusive outcomes and the action each triggers; budget, dependencies, authorised executor, review requirement; links to prior attempts. *Verdict:* kill / promote / narrow-and-rerun / inconclusive; effect with clustered interval; cost; deviations; belief revisions issued; valid only with references to a complete run bundle and the required review. Templates on the bus and in `queue/`.
 
 | Wk | Deliverable |
 |---|---|
@@ -158,6 +164,10 @@ Six tracks. Each has a mission, scope, pillars served, proving grounds, delivera
 **Decision rights.** T5 decides verdicts; disagreement files a new card. T1 decides ledger internals, not the shared schema. T2 decides mechanism designs behind ports; T4 decides what enters a serving path. T3 decides what goes to shadow. T4 with each proving ground's owner decides contract interpretation, recorded as ADRs. CTO decides scope, staffing, parking, at the three reviews.
 
 **Not staffed this quarter.** Chat/Slack ingestion, governance console, automatic fault attribution, broad ontology, decay tuning. Procedural-memory induction (R5, H6) is staffed only if H3 passes at week 6; until then R5 is carried by T5's H4 join-coverage measurement and T4's outcome hooks.
+
+## 3b. Standing policy for autonomous runs (CTO to set in week 1)
+
+Permitted datasets; token and cost budget per run and per week; concurrency; environments; which runs require an independent review before execution. Routine runs proceed inside the policy; exceptions enter the review queue. The repository register is authoritative; the bus `experiments/` folder is its inbox.
 
 ## 4. Review #1 (week 2) asks
 

@@ -7,7 +7,7 @@
 | Loop | Cadence | Input | Output | Kill / promote rule |
 |---|---|---|---|---|
 | **Intelligence** | weekly, Mon | X scrape + arXiv (cs.AI/cs.SE, memory·provenance·agents) + GitHub releases of the 10 landscape systems + vendor changelogs | one-page delta: beliefs changed / held / to test, each mapped to an ecosystem component; catalogue-grade (primary read, strength, contradictions) | a belief with no primary source after 4 weeks is demoted to opinion |
-| **Research** | fortnightly | [discovery plan](discovery-plan.md) register | per hypothesis: kill / promote to MVP / narrow and rerun; experiment ledger entry | no result without a predeclared kill criterion; one attributable change per round |
+| **Research** | fortnightly | [discovery plan](discovery-plan.md) register, [belief register](beliefs.md) | per hypothesis: kill / promote / narrow-and-rerun / inconclusive; belief revision events; experiment ledger entry | no verdict without a run bundle and, where required, an independent review; one attributable change per round |
 | **MVP** | monthly | promoted hypotheses | one swappable component behind a port, raced against the incumbent on the frozen harness | keep only if it beats the incumbent at matched budget on the held-out split |
 | **Course-correct** | weeks 2, 6, 12 | full documents (gap analysis, reconciliation, plan), not summaries | positioning revised; bets re-ranked; one claim dropped; one thing added | external reviewer rotates; every finding gets conceded/held with a reason |
 
