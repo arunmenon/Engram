@@ -15,6 +15,17 @@ The [refresh addendum](pdlc-grounding/jetstream-refresh-addendum-transcription.m
 
 So the plan is unchanged in shape: the PCG's ledger is the core; the ten layers and sixteen components are built around it; and the result is **married to what PayPal is already building** at three seams: Sanctum for the MCP surface and response schema, DeepInsights and AMS as registered backends with manifests, and the harnesses through C4 injection. `snapshot` is now confirmed absent in three independent places, which makes it the clearest thing the ledger contributes, but it is one component of sixteen, not the whole contribution.
 
+### 0.1 Corrections after review 1 (same day)
+
+The [first external review](reviews/2026-09-26-review-1-research-direction.md) ([reconciliation](review-reconciliation-1.md)) corrects four things in this document. They are applied in place below and summarised here.
+
+- **`snapshot` is three guarantees, not one.** L1 *served-bundle replay*: return exactly what a scope was served, later. L2 *frozen-corpus query*: ask a new question against everything the scope could have retrieved at `as_of`. L3 *coordinated cross-store instant*: L2 with consistency across backends. Materialise-on-retrieve delivers **L1 only**. Backends with native versioning and enumeration can offer L2 by reference; position-less sources offer L2 only with owner-approved retained copies, otherwise they declare L2 unsupported. L3 is a version vector, not an instant, unless capture windows and late-arrival rules are declared. The programme must ratify which level C6 requires; the pinned-reviewer fitness function needs L1 for re-resolution and L2 for new adversarial questions.
+- **The ledger is not necessary for snapshots and is not novel.** Version pins plus retained objects plus a signed manifest suffice. The ledger's jobs are receipts, retained served artifacts, ordering of decisions, recovery, and being one registered backend. "Single clearest contribution" language is withdrawn; the contribution is the *replay and receipt discipline*, whichever store holds it.
+- **Admission may be empty.** The listwise reranker never gets a "none" option; the *admission* decision is separate, deterministic-first, and may return empty, insufficient or abstain with partial evidence labelled. Forcing an item into a build-time answer turns absence into an apparent fact.
+- **Authorisation is live, twice.** The scope resolver produces the menu, but entitlements are checked against the source before content enters routing or model context and again before serving; historical evidence is intersected with current entitlement and suppression; a snapshot never transfers permission; a reviewer lacking the author's rights gets a typed access failure, never substituted content.
+
+Also adopted: fault adjudication carries `unknown / insufficient_evidence / multiple` and human review; confidence is exposed as components plus a named ordinal score, never a probability; the served briefing is retained as the replay artifact; bitemporal fields (valid time and observation time) on every item; components 17–19 in §4.
+
 ## 1. The target is an ecosystem, not a store
 
 The document defines C6 backward from its callers: one interface, declared scope per call, integrate-not-absorb, backend independence proven by a swap test, three verbs, `snapshot` as the largest gap, a normalised response of content + provenance + freshness + confidence, a fault-adjudication rule, and a knowledge-gap write-back path. It also names at least eight knowledge holders that already exist and will keep existing: AMS, DeepInsights, `knowledge-service`, `biso_knowledgebase`, `dejavu-toolkit`, `eaintelligencemcpserv`, Endzone's embedded KB, and the systems of record themselves (Jira, Confluence, Slack, GitHub, runbooks, backlog KB, skill packs).
@@ -53,11 +64,11 @@ Legend for *Gap*: **Have** (design exists and holds up), **Extend** (exists, nee
 | L4 | Routing by `kind` + scope | Intent classifier (8 intents, keyword) | **Extend**: intent becomes one input; route is a *closed menu over the registry* | — | **Yes** (Choice over backends, see §3) |
 | L4 | Fusion across backends | Single-store retrieval | **Absent**: RRF k=60 across backends, then one listwise rerank | Hindsight, Jev-Mem designs | **Yes** (listwise Choice, ≥1 result) |
 | L4 | Response normalisation: content, provenance, freshness, confidence | Atlas node has content + provenance + scores | **Extend**: adopt Sanctum's `evidence[]` + `validity{status, last_updated, verified_by, expires_at}`; the staleness audit (A6) writes `validity`; `score` stays rank-fused | Sanctum (better specified than the reference architecture) | **Yes** for confidence (Score), with a local fallback |
-| L4 | `snapshot(scope, as_of)` | Stream position exists; no verb, no manifest, no signing | **Extend** for PCG-held data (position pin); **Absent** for external backends (materialise-and-sign) | dejavu-toolkit's Ed25519 versioned catalog | No |
+| L4 | `snapshot(scope, as_of)` at a declared level (L1 replay / L2 frozen corpus / L3 cross-store instant, §0.1) | Stream position exists; no verb, no manifest, no signing | **Extend** for PCG-held data (L2 by position); **Absent** elsewhere: L1 by retained served artifacts; L2 only where a backend versions and enumerates natively or an owner approves retained copies; unsupported levels declared per backend | dejavu-toolkit's Ed25519 versioned catalog; native versioned stores | No |
 | L4 | Receipts and replay | Nothing | **Absent**: retrieval receipt (scope, snapshot, backends asked, items served, distributions) as a ledger event; replay tool | Nobody | No |
 | L4 | Injection gate on served memory | Nothing | **Absent** (Jev B5) | jevmem pattern | **Yes** (Noul) |
 | L4 | Budgets, stop rule | `max_nodes`, `max_depth` | **Extend**: per-call token/latency budget; sufficiency stop across federation rounds | Jev-Mem design | **Yes** (B4) |
-| L5 | Task-conditioned briefing | Consumer 4 summaries (write-time) | **Extend**: `curate` step over raw evidence at Spec time; summaries become cache | Nobody | Retrieve-or-not gate (B0) |
+| L5 | Task-conditioned briefing, replayable | Consumer 4 summaries (write-time) | **Extend**: `curate` step over raw evidence at Spec time; the served briefing is retained (bytes or immutable reference, input spans, hashes, model/prompt/config versions) so PR review reuses it; re-curation is a new version | Nobody | Retrieve-or-not gate (B0) |
 | L6 | fact vs episode write; certified callers only | Everything is an event; extraction self-certifies | **Extend**: `write(kind=episode)` = append event; `write(kind=fact)` = proposal → gate → certified, with source class and reason | AMS has a certification path | **Yes** (A1 acceptance, A5 supersede) |
 | L6 | Knowledge-gap → candidate Fact | Nothing | **Absent**: adjudication result becomes a proposal on the certification path | — | **Yes** (adjudication) |
 | L6 | Supersession, never delete | Belief/SUPERSEDES designed, never created | **Extend**: two-signal supersede, old stays, excluded from default recall | Endzone `inactive:` flags | **Yes** (A5) |
@@ -81,19 +92,19 @@ Legend for *Gap*: **Have** (design exists and holds up), **Extend** (exists, nee
 The document's rule is that memory systems stay independent and the store stays where it lives. So the gateway is not a consolidation; it is a **query planner over a registry of heterogeneous backends** with a normalised output and a snapshot discipline. Its components:
 
 1. **Backend registry.** One manifest per hub: kinds served (fact/episode/document), scopes and tiers it may serve, freshness SLA, whether it supports `as_of` natively, its entitlement model, cost and latency profile, health. Manifests are versioned and are part of the snapshot.
-2. **Scope resolver.** Caller identity (C10) → allowed spaces, tiers, backends. Deterministic. Runs first, and its output is the *closed menu* every later decision chooses from.
+2. **Scope resolver and live authorisation.** Caller identity (C10) → allowed spaces, tiers, backends. Deterministic. Runs first, and its output is the *closed menu* every later decision chooses from. It does not replace source entitlements: each item is authorised against its source before it enters routing or model context and again before serving; on replay, historical evidence is intersected with current entitlement and suppression.
 3. **Planner.** Given (query, scope, kind, budget): which backends, in what order, with what per-backend budget, how many rounds. This is where the harness's intent (LLM-set) meets per-item choices (decider-set), the planner + decider split that won in the evidence.
 4. **Fan-out and fusion.** Parallel calls with budgets; RRF k=60; deterministic dedup by content hash and source id.
-5. **Rerank and admission.** One listwise decision over the fused pool; always ≥1 item; no "none" option; pruning off by default.
+5. **Rerank, then admit.** One listwise decision orders the fused pool (no "none" option for the ranker). A separate admission step, deterministic first, decides what is served and may return empty, insufficient or abstain, with partial evidence labelled.
 6. **Normaliser.** Every item → {content, provenance (source system, source id, source position/version, backend, retrieved_at), freshness, confidence, ontology tags (dims 3, 5, 6, 10)}.
-7. **Snapshot composer.** For backends with positions (PCG ledger, dejavu catalog): pin the position. For backends without (Confluence pages, most hubs): **materialise** the returned items into the ledger and pin *that*. The snapshot manifest is the set of per-backend pins plus content hashes, signed (dejavu's Ed25519 pattern). `as_of` resolves against manifests, never against live backends.
+7. **Snapshot composer, per level (§0.1).** L1: retain the served bundle and pin it. L2: pin native versions where a backend versions and enumerates; otherwise owner-approved retained copies, or declare L2 unsupported for that backend. The manifest records per-backend level, pins, content hashes, capture window and late-arrival rule, signed (dejavu's Ed25519 pattern). `as_of` resolves against manifests, never against live backends, and never silently downgrades a level.
 8. **Receipt writer.** Every `retrieve` and `snapshot` emits a ledger event: scope, plan, backends asked, items served, distributions, budget used. This is what adjudication replays.
 9. **Served-memory guard.** Injection gate and classification-tier redaction on the way out.
 10. **Fallback plane.** Every model-backed decision has a rule-based fallback and a latency budget; on timeout the rule runs and the receipt records which path was taken.
 
-### 3.1 Typed decisions in the gateway
+### 3.1 Decision points in the gateway
 
-The gateway is the best place in the whole stack for a decision model, because every choice it makes is over a **closed, freshly rebuilt menu** (the registry after scope resolution, the fused candidate pool, the fixed ontology tags). That is exactly the shape the evidence says works, and none of it requires the model to generate anything.
+**Deterministic, never overridden by a model:** backend eligibility from scope, hard budget split and caps, certified-write permission, expiry, exact-version and exact-duplicate checks, policy enforcement, admission of an empty result. **Model-assisted, behind one versioned scorer port with a rule baseline, shadowed one at a time:** the table below. The gateway is a good home for a decision model because each of these choices is over a closed, freshly rebuilt menu (the registry after scope resolution, the fused candidate pool, fixed tag sets), and none requires generation. That is a reason to *test* them here, not a reason to ship thirteen at once.
 
 | # | Decision | Shape | State | Menu | Fallback | Latency class |
 |---|---|---|---|---|---|---|
@@ -102,12 +113,12 @@ The gateway is the best place in the whole stack for a decision model, because e
 | G3 | Per-backend budget split | Score `expected_yield` (2–5 levels) | same | same | equal split | same call as G2 |
 | G4 | **Listwise rerank** across fused pool | Choice over candidates | query, intent, candidates[] | fused pool (≤ ~40) | RRF order | sync, ≤500 ms |
 | G5 | Sufficiency / stop | Nouls `sufficient`, `missing`, `contradiction`, `continue_useful` | query, selected items, round | — | hard caps | sync per round |
-| G6 | **Confidence** per served item | Score over {content, provenance, freshness, agreement with other items} | item + neighbours | 5-level | provenance-derived heuristic | sync, batched with G4 |
+| G6 | **Confidence** per served item, exposed as components (authenticity, certification status, temporal validity, relevance, entailment, completeness) plus one named ordinal decision score; never a probability | Score per component | item + neighbours | 5-level | provenance-derived heuristic | sync, batched with G4 |
 | G7 | Ontology tagging (dims 3, 5, 6, 10) at serve time | Choice per dimension | item | fixed tag sets | untagged | async or batched |
 | G8 | Injection / untrusted content | Noul `contains_instructions_for_automated_system` | item text | — | serve with "facts not instructions" frame | async at ingest; cached by hash |
 | G9 | Write admission: fact vs episode vs none; certified? | Choice `kind` + Noul `quote_supports` + Choice `source_class` | record, caller, evidence | closed | episode only | async |
 | G10 | Supersession | Choice `relation ∈ {same, supersedes, contradicts, unrelated}` + named target | pair | candidates sharing entity | none (keep both) | async |
-| G11 | **Fault adjudication** | Choice `{spec, tribal, harness}` | assumptions-ledger entry, replayed receipt, failure | 3 options | human | async |
+| G11 | Fault adjudication (proposal only) | Choice `{spec, tribal, harness, multiple, unknown, insufficient_evidence}`; human reviews; controlled repair (supply the alleged missing fact, hold inputs fixed) is the stronger evidence | assumptions-ledger entry, replayed receipt, failure | 6 options | human | async |
 | G12 | Staleness ("still true given snapshot?") | Noul, batched 60 per call | item + current source snapshot | — | age-based flag | scheduled |
 | G13 | Cross-hub duplicate / conflict | Noul `same_claim` + Choice `which_is_authoritative` | two items + manifests | 2 options | prefer higher-tier source | async, cached |
 
@@ -137,6 +148,9 @@ These are the pieces neither the PCG nor any named hub has. They are the build l
 14. **Eval harness with pinned reviewer config** and the RRSI discipline (noise floor, held-out, one change per round, external ledger).
 15. **Ontology schema registry**, gateway-held and versioned with the manifest, starting with the four dimensions the response must carry.
 16. **Governance console**: entitlements, tiers, receipts audit, staleness flags, guardrail-trigger rate, blocked-episode tags.
+17. **Boundary lifecycle** (from review 1): capability and version negotiation per backend, schema migration, source identity and deduplication, explicit lossy ontology mappings, snapshot availability leases and expiry, signature-key rotation, deletion overrides, authorisation-safe diagnostics.
+18. **Failure semantics**: atomic receipt-and-publish, idempotent retries, partial backend outcomes, cancellation, backpressure, per-tenant cost controls, typed access/unavailable results that never substitute current content.
+19. **Bitemporal fields** on every served item: valid time and observation time, so late-arriving facts cannot leak into historical answers; declared capture windows per snapshot.
 
 ## 5. What the PCG keeps, and what it stops claiming
 
@@ -148,14 +162,15 @@ These are the pieces neither the PCG nor any named hub has. They are the build l
 
 | Weeks | Deliverable | Proves |
 |---|---|---|
-| 1–3 | Conformance kit (three verbs, scope schema, response schema aligned with Sanctum's `evidence[]`/`validity`); PCG behind all three verbs with snapshot by position; Courier link-resolution demo with snapshot id in the Spec | The interface exists; `snapshot` exists; a harness uses it with no credential |
+| 1–2 | **P0**: owners in one room (gateway, production knowledge service, adopter, identity, C9); ratify snapshot level and scope semantics; the Spec-to-PR-review replay experiment over two real backends with mutation, revocation, curator change, outage and swap; pass = exact authorised replay or explicit denial/unavailable, zero violations | Whether C6 is feasible and owned before anything is optimised |
+| 2–3 | Conformance kit from P0 fixtures (three verbs, scope schema, response schema aligned with Sanctum's `evidence[]`/`validity`, declared snapshot levels); PCG behind all three verbs; Courier link-resolution demo with snapshot id in the Spec | The interface exists; a harness uses it with no credential |
 | 3–5 | Registry with manifests; DeepInsights as second backend; **swap test passes**; RRF fusion; receipts; MCP projection converged with Sanctum | Backend independence; federation over two real backends; one PAI surface |
 | 5–7 | Snapshot materialisation for position-less backends (Confluence via Endzone's ingest); PR-review re-resolution of the Spec's snapshot; assumptions ledger | The pinned-reviewer fitness function can run |
 | 6–9 | G2/G4/G6 in shadow with receipts; rule fallbacks and latency budgets; fault adjudication (G11) on a labelled set | Where a decision model earns its place, measured, not assumed |
-| 8–11 | Certification path; supersession; knowledge-gap write-back; staleness sweep; Slack connector | Both loops contribute knowledge, not just consume it |
+| 8–11 | Certification path; supersession; knowledge-gap write-back as reviewed proposals; source-change invalidation before any periodic staleness sweep | Both loops contribute knowledge, not just consume it |
 | 10–12 | C9 signals joined to receipts; eval harness with pinned config; noise floor; H1/H2/H4 first numbers | Stream 03's "own measures" exist |
 
-Discovery hypotheses map onto this: H1/H2 in weeks 5–7 once two backends are live; H5 (typed gate) and H10 (provenance/injection) in weeks 6–9; H4 and H9 after outcomes flow.
+Out of the twelve weeks (kept on the map, not in the pilot): chat/Slack ingestion, governance console, automatic fault attribution, the broad ontology, most model-assisted decisions. Not cut under any pressure: tenant isolation, retention and deletion, explicit partial failures, idempotent writes, recovery tests, early evaluation. Discovery hypotheses map onto this: H1/H2 in weeks 5–7 once two backends are live; H5 (typed gate) and H10 (provenance/injection) in weeks 6–9; H4 and H9 after outcomes flow.
 
 ## 7. Questions to take to the programme
 

@@ -292,4 +292,10 @@ This is the most direct challenge to Engram's design among the papers so far, an
 
 ---
 
+### Correction to D8 after review 1 (2026-09-26)
+
+The external review ([reconciliation](review-reconciliation-1.md)) caught a conflation. D8 said REALM's knowledge-update gain (84.72 → 88.89) "is driven by write-time `supersedes`/`contradicts` edges" and that "reconsolidation adds only +2". Per REALM Table 3 the 84.72 → 88.89 comparison **is** reconsolidation off/on on the knowledge-update subset; the +2.01 / +2.13 figures are the overall LoCoMo / LongMemEval deltas. The write-time edges are part of the base system that reaches 84.72 against Zep's 74.40, which is why the pack still prioritises them, but the sentence as written was wrong. Separately, D8's "no source measures consolidation on/off" conflated REALM's *reconsolidation* (read-triggered edge reweighting) with scheduled *summarising consolidation*. The corrected claim: no source measures scheduled summarising consolidation on/off; the nearest measurements are negative (Hippo −3.6 pp; Human-Inspired Memory, arXiv 2605.08538: raw 78.4, dedup-only 76.8, aggressive consolidation 48.4 on LongMemEval-S), and reconsolidation is positive but small. Both appear in [discovery H9](discovery-plan.md) as separate mechanisms. Two papers the review adds for later reading: Execution Provenance (2609.25913; +4.55 Full Support@2048 with candidates and seeds fixed, a targeted graph result) and GroupMemBench (2605.14498).
+
+---
+
 *Next entries are appended below as papers arrive.*

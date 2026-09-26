@@ -10,11 +10,24 @@
 - **Charge memory for its tokens.** Report Δscore alongside Δtokens and Δlatency; a gain that costs more than `b0 + b1·gain` tokens is rejected.
 - **Experiment ledger outside memory** (`tests/eval/ledger.jsonl`): hypothesis, diff, score Δ, cost Δ, accept/reject. Failed ideas stay failed.
 - **Frozen judge, held-out split.** The judge and the held-out set are never inputs to the thing being tuned (catalogue V2/V3/V8).
+- **Statistics (from review 1).** Repeated runs estimate model variance, not generalisation. Use paired, task-family-clustered intervals, predeclared practical margins and a locked final evaluation. "No significant harm" is not non-inferiority. Zero false positives in 50 independent benign cases bounds the rate at about 5.8 % (one-sided 95 %); showing < 2 % needs about 149 independent cases; correlated cases need more.
 - **Held-out set must contain** knowledge updates, contradictions, abstention/unanswerable questions, long-hop causal chains and workflow-knowledge questions (MemTrace, MemFail, LongMemEval-V2, Ground Truth First). Today's `tests/eval` datasets contain none of these and leak labels.
 
-## Prerequisites (week 1)
+## P0 — the first experiment (week 1, before H1/H2)
 
-Not hypotheses; blocking defects. Without them H1–H7 cannot be measured honestly.
+Adopted from review 1. One real Spec-to-PR-review flow over two real backends (one with native versioning, one without) and one harness:
+
+1. Retrieve authorised evidence for a Spec; capture the declared snapshot level, manifest, receipt and the served briefing.
+2. Mutate: update a source, revoke the reviewer's access to one item, introduce a late-arriving fact, change the curating model, take one backend offline.
+3. Replay at PR review: return the exact authorised artifact, or an explicit denied/unavailable result. Never silently substitute current content.
+4. Ask a *new* question against the same snapshot, to show whether the implementation holds a frozen corpus (L2) or only a served bundle (L1).
+5. Swap adapters with no harness change; verify content, provenance, abstention, scope, failure semantics and recorded cost.
+
+**Pass:** a jointly accepted contract and zero violations in these fixtures. Not a statistical claim. **Fail:** any silent substitution, any permission transfer through a snapshot, any level claimed but not delivered. This decides whether C6 is feasible and owned before any read path is optimised.
+
+## Prerequisites (week 1–2)
+
+Not hypotheses; blocking defects. Without them H1–H10 cannot be measured honestly. Add to P1: restart/replay and boundary-sized batch tests, payload round-trip verification, tenant-negative tests, archive recovery.
 
 | # | Item | Why it blocks |
 |---|---|---|
@@ -30,7 +43,7 @@ Not hypotheses; blocking defects. Without them H1–H7 cannot be measured honest
 - **Claim:** verbatim event retrieval (BM25 + recency over raw payloads, no graph, no extraction) already gives a large gain on multi-session SE tasks.
 - **Setup:** DreamBench-SWE (60 three-session sequences, executable oracles). Arms: no memory; ledger-only retrieval.
 - **Metric:** oracle pass count /180.
-- **Kill:** ledger-only < 2× no-memory (the paper reports ~4×).
+- **Kill:** paired improvement below a predeclared absolute margin (e.g. +10 oracle passes /180) with a clustered interval excluding it. A relative target is wrong at high baselines. Include a plain lexical/hybrid baseline as a third arm.
 - **Unlocks:** the floor every later layer must beat; the "verbatim first" story for the PDLC layer.
 
 ### H2 — The graph adds lift over flat vector at matched budget
@@ -44,7 +57,7 @@ Not hypotheses; blocking defects. Without them H1–H7 cannot be measured honest
 - **Claim:** a task-conditioned briefing synthesised from raw payloads (JITMem-style) beats returning Consumer 4 summaries or extracted Workflow text.
 - **Setup:** same task set (τ²-bench Telecom-style multi-step procedures, or a PDLC seed set); three arms: session summary; Workflow node text; curated briefing from top-3 raw episodes.
 - **Metric:** downstream task success (frozen executor), input tokens, executor steps.
-- **Kill:** curated ≤ best write-time arm + noise floor, or curated tokens > 1.5× write-time arm.
+- **Kill:** curated ≤ best write-time arm + margin, or evidence-omission rate above the write-time arm, or the served briefing cannot be replayed byte-identical at review. Token ceiling predeclared with a product reason, not 1.5× by fiat.
 - **Unlocks:** whether Consumer 4 summaries remain a read surface or become cache; the `curate` step design.
 
 ### H4 — Outcome-linked reinforcement beats access-count reinforcement
@@ -59,7 +72,7 @@ Not hypotheses; blocking defects. Without them H1–H7 cannot be measured honest
 - **Setup:** 90 labelled extracted items (30 obvious / 30 ambiguous / 30 no-fit); shadow-run the gate; fit thresholds on half, test on the other half.
 - **Metric:** precision/recall of accepted items vs labels; calibration (reliability by probability band) — do **not** assume calibration (bundle §5).
 - **Kill:** F1 not better than self-reported confidence + noise, or ECE > 0.15 on the test half.
-- **Sub-question (added from jevmem):** one cheap battery vs cheap-plus-escalation when borderline. jevmem's escalation tier scored *below* the cheap tier on held-out (90.9 % vs 95.5 %); do not assume the larger battery wins.
+- **Sub-question (added from jevmem, corrected by review 1):** evaluate the cascade on the *borderline population it routes*, not on aggregate averages; compare cheap-only, expensive-only and full cascade on expected error cost, coverage and p95 latency, with separate fitting, calibration and test sets split by project and time. jevmem's aggregate result (90.9 % vs 95.5 %) does not generalise either way.
 - **Unlocks:** the Jev layer (and its egress and vendor risk); if killed, use an open decision model (GLiNER2.5-Decide) or a small NLI model instead.
 
 ### H6 — Comparative evidence produces better workflows than single-trajectory induction
@@ -80,28 +93,28 @@ Not hypotheses; blocking defects. Without them H1–H7 cannot be measured honest
 - **Claim:** Jev-Mem's sufficiency stop (`sufficient ≥ 0.95`, `missing < 0.15`, `contradiction < 0.15`, `continue_useful < 0.15`) returns fewer tokens at equal accuracy than `max_nodes`.
 - **Setup:** H2's harness; arms: fixed k; stop rule with Engram-fit thresholds; hard caps identical.
 - **Metric:** accuracy, retrieved tokens, rounds.
-- **Kill:** accuracy drop > noise floor, or token saving < 20 %.
+- **Kill:** predeclared non-inferiority margin violated (clustered interval), or token saving < 20 %; also measure false-sufficiency and abstention rates.
 - **Unlocks:** Jev B4; unablated in the source, so this is the ablation.
 
 ### H9 — Consolidation earns its keep (on / off / trigger)
 - **Claim:** Consumer 4's summaries and merges improve retrieval or knowledge-update accuracy at equal token budget, and a per-session idle + volume trigger is no worse than the fixed 6 h schedule.
-- **Setup:** H2's harness plus the LongMemEval knowledge-update subset; arms: Consumer 4 off; 6 h cron; volume trigger (N new events per session, N swept); unit of consolidation is a related group (Episode), never a single write.
+- **Setup:** H2's harness plus the LongMemEval knowledge-update subset. Separate the mechanisms (review 1): summary generation, topology repair/reweighting (REALM-style reconsolidation), pruning, and schedule. Change one at a time. Arms per mechanism: off; event-triggered; scheduled.
 - **Metric:** hit@5 and knowledge-update accuracy; served tokens; number of Summary nodes read at query time.
-- **Kill:** any consolidation arm ≤ off + noise floor (Hippo measured −3.6 pp; no source in the bundle reports a positive number). If killed, summaries become cache for read-time curation (H3), not a read surface.
+- **Kill:** any arm ≤ off + margin. Prior evidence by mechanism: summarising consolidation negative (Hippo −3.6 pp; Human-Inspired Memory raw 78.4 vs aggressive 48.4), reconsolidation positive but small (REALM +2.01 / +2.13). If summarisation is killed, summaries become cache for read-time curation (H3), not a read surface.
 - **Unlocks:** whether Consumer 4 keeps its scheduler or becomes event-driven; whether SUMMARIZES nodes are retrievable.
 
 ### H10 — Provenance-gated serving: staleness audit and injection gate
 - **Claim:** (a) a batched "still true given the current snapshot?" Noul over live Decisions/Beliefs flags stale items with high precision without deleting anything; (b) an injection gate over unverified extracted items before they are served blocks planted instructions with near-zero false blocks; (c) with both on, H4's feedback-loop rate falls.
 - **Setup:** seed a project history with ~50 Decisions whose underlying file/dependency later changes and ~50 that stay valid; plant ~40 instruction-bearing lines among extracted memories; snapshot = repo tree, manifest fields, README head (jevmem recipe). Run the audit as a Consumer 4 job; run the gate in the `/v1/context` serving path in shadow mode first.
 - **Metric:** stale-flag precision/recall at the flag threshold (fit on half, test on half); injection block rate and false-block rate (jevmem: 20/22 blocked, 0/22 false on 44 lines); added serving latency; H4 feedback-loop rate with and without.
-- **Kill:** stale-flag precision < 0.8 at recall ≥ 0.7; injection false-block rate > 2 %; or serving latency +> 150 ms p95 for the gate. Flags never delete: a killed audit costs nothing but a field.
+- **Kill (per intervention, measured separately):** staleness audit: precision < 0.8 at recall ≥ 0.7, or no gain over source-change invalidation (test that first); injection gate: false-block upper bound (one-sided 95 %) above 2 %, which needs ≥ 149 independent benign cases, or serving latency +> 150 ms p95; feedback-loop effect: no reduction in H4's loop rate. A combined gain attributes nothing. Flags never delete.
 - **Unlocks:** Jev A6 and B5; the PDLC layer's "invalidate when the underlying artefact changes" rule; the provenance counterweight that makes H4's reinforcement safe to ship.
 
 ## Sequencing
 
 | Week | Work | Depends on |
 |---|---|---|
-| 1 | P1–P4 | — |
+| 1 | P0, then P1–P5 | — |
 | 2 | H1, H2 (shared benchmark setup); noise floor established | P1–P3 |
 | 3 | H3, H5 (both need receipts and the gate port) | P4 |
 | 4 | H8 alongside H2's harness; H4 on the replayed stream | H2, P4 |
