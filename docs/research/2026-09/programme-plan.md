@@ -44,7 +44,7 @@ Six tracks. Each has a mission, scope, pillars served, proving grounds, delivera
 - *Weekly delta*, Monday noon, one page: beliefs changed (with the note), beliefs held, new cards, contradictions opened/closed, landscape diff (who shipped what, who raised what), parked count.
 - *Monthly*: refresh `memory-research-landscape.md` and the contradictions table; a competitive one-pager (capabilities claimed vs shown, per system).
 
-**Interfaces.** Watch requests from any track with a due week. T5 answers each card accept / merge / reject within the fortnight. Kill rule: no primary source after four weeks → opinion.
+**Interfaces.** All through the Google Drive bus `research-bus` (ids and rules in [`../queue/README.md`](../queue/README.md)): cards and notes out, decisions and verdicts back, watch requests from any track. T5 answers each card within fourteen days. Kill rule: no primary source after four weeks → opinion.
 
 **Needs from the CTO.** The scraper's current flow, fields, volume, output location and readers; then T0's handbook is fitted to it in week 1.
 
@@ -125,7 +125,7 @@ Six tracks. Each has a mission, scope, pillars served, proving grounds, delivera
 
 **Scope in.** Register as experiment cards; intake from T0 cards and T1–T4 requests; harness freeze (real embeddings, query text embedded, intent from the classifier, scoring from the domain module, held-out split by project/time, frozen `evaluate()`); noise floor; clustered paired statistics, predeclared margins, locked final sets, sample-size table; the external experiment ledger; verdict publication; benchmark maintenance. **Scope out.** Building what is tested.
 
-**Formats.** *Experiment card:* `id · owner · track · claim · arms · dataset id · metric · margin · sample size and power note · kill · unlocks · cost · dates`. *Verdict:* kill / promote / narrow-and-rerun; effect with clustered interval; cost delta; deviations; one paragraph.
+**Where.** The hypotheses agent writes decisions, experiment cards and verdicts to the Drive bus (`decisions/`, `experiments/`, `verdicts/`); a person merges accepted experiment cards into the register at the fortnightly review. **Formats.** *Experiment card:* `id · owner · track · claim · arms · dataset id · metric · margin · sample size and power note · kill · unlocks · cost · dates`. *Verdict:* kill / promote / narrow-and-rerun; effect with clustered interval; cost delta; deviations; one paragraph.
 
 | Wk | Deliverable |
 |---|---|

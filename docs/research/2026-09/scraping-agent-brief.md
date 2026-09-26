@@ -58,9 +58,15 @@ Keep the daily digest and hub as they are. The digest is the narrative; notes an
 
 ## 6. How this reaches the experiment queue
 
-Both you and the hypotheses agent work in a checkout of the Engram repository, branch `queue/auto`, directory `docs/research/queue/`. You write cards and notes there and push. The hypotheses agent checks out periodically, reads new cards, and moves each one to accepted, merged or rejected with a reason within fourteen days; accepted cards become experiment cards in the register with a dataset, margin and dates, and verdicts come back into `queue/verdicts/`. You read verdicts so the delta can report them. Nothing is deleted; every status change records who, when and why. Anyone can file a watch request in `queue/watch/`; you answer it with a note, a card, or "nothing found".
+The bus is a shared Google Drive folder, `research-bus` (folder ids in `docs/research/queue/README.md`). You upload with the same helper that publishes the hub data, conversion disabled, and you list folders by parent id.
 
-The hypotheses agent lives on the same machine as you and runs on its own schedule. It does not read raw items; it reads cards. You do not decide what gets tested; you decide what is worth a card.
+- You write **notes** to `notes/`, **cards** to `cards/` (once, never edited), **triage logs** to `triage-log/`, and the Monday **delta** to `delta/`.
+- The hypotheses agent, on the same machine on its own schedule, reads `cards/` and answers each with a file in `decisions/` (`accepted`, `merged`, `rejected`, with a reason) within fourteen days; accepted cards get an experiment card in `experiments/`; when an experiment closes, a verdict lands in `verdicts/`.
+- You read `verdicts/` and `decisions/` so the weekly delta can report them. Anyone can drop a request in `watch/`; you answer with `WR-….answer.md` pointing to a note, a card, or "nothing found".
+- Nothing is edited or deleted after upload. Status is the newest decision file. `index.json` at the root is a convenience the last writer regenerates.
+- The delta job mirrors the whole folder into the repository's `docs/research/queue/` every Monday, so history and review live in git.
+
+You do not decide what gets tested; you decide what is worth a card. The hypotheses agent does not read raw items; it reads cards.
 
 ## 7. Things we already know, so you do not re-report them
 
