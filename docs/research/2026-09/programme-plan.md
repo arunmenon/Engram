@@ -1,255 +1,176 @@
-# Programme plan — workstreams, charters, interfaces, first two weeks
+# Programme plan — a memory ecosystem, built as parallel tracks
 
-**Date:** 2026-09-26. **Companion to:** [operating-plan.md](operating-plan.md) (cadences and gates) and [discovery-plan.md](discovery-plan.md) (the hypothesis register). This document is the concrete layer: who does what, with which inputs and outputs, in which format, and what each team does in weeks 1 and 2. Staffing assumption: five workstreams, each with a lead; a person may lead one and sit on another. Where staffing is thinner, merge WS3 into WS2 and WS4 into WS5 and keep the gates.
+**Date:** 2026-09-26 (rewritten the same day; the first version was framed by one design partner's contract and is superseded). **Companions:** [operating-plan.md](operating-plan.md) for cadences, [discovery-plan.md](discovery-plan.md) for the hypothesis register, [c6-ecosystem-gap-analysis.md](c6-ecosystem-gap-analysis.md) for the component map.
 
-```
-                 ┌──────────────────────────┐
-   X / arXiv /   │ WS1  Intelligence        │  weekly delta + proposal cards
-   GitHub / blogs│ (scraping team)          ├──────────────────────────────┐
-                 └──────────────────────────┘                              ▼
-                                                            ┌──────────────────────────┐
-                 ┌──────────────────────────┐  experiment   │ WS5  Hypotheses &        │
-                 │ WS2  Engram core         │  requests ───▶│      Experiments         │
-                 │ (brownfield: ledger,     │◀── verdicts   │ (register, harness,      │
-                 │  receipts, one backend)  │               │  statistics, ledger)     │
-                 └──────────┬───────────────┘               └───────────┬──────────────┘
-                            │ verbs, receipts, L1 snapshot               │ verdicts
-                 ┌──────────▼───────────────┐               ┌───────────▼──────────────┐
-                 │ WS3  Federation &        │  scorer port  │ WS4  Decision &          │
-                 │      contract            │◀─────────────▶│      curation lab        │
-                 │ (greenfield: gateway,    │               │ (greenfield: typed       │
-                 │  registry, P0, swap)     │               │  decisions, curation)    │
-                 └──────────────────────────┘               └──────────────────────────┘
-                            ▲ design partner (owners, backends, harnesses)
-```
+## 0. The frame
 
----
+We are building a **memory ecosystem for agents that do engineering work**: a substrate that keeps evidence, a set of mechanisms that decide what memory becomes, read strategies that turn it into context, a judgment layer, an outcome loop that lets it improve, and an interop layer so it lives among other stores. Engram is the substrate MVP and one cog. Everything else is either a research question, a greenfield lab, or a proving ground.
 
-## WS1 · Intelligence (the scraping team)
+Proving grounds, in order of how much they tell us per week: (a) public benchmarks with executable oracles; (b) open coding-agent harnesses we can instrument ourselves (hooks in Claude Code, OpenHands, Aider-class tools); (c) our own agents doing our own work, dogfood; (d) the enterprise design partner, whose eleven-contract programme is the hardest and most informative environment but also the slowest. The design partner is **one** of four. Its contract details live in Appendix A and nowhere else in this document.
 
-**Mission.** Turn the X scrape into a weekly, evidence-graded picture of what is moving in agent memory, provenance, typed decisions and self-improving agents, mapped onto our ecosystem components, so that WS5 receives testable proposals rather than links.
+## 1. Seven research pillars, from the September pack
 
-**In scope.** Collection, triage, primary-source reading, evidence notes, contradiction tracking, the weekly delta, proposal cards. **Out of scope.** Deciding what we build. Opinions without a primary source.
+Each pillar has a one-line thesis, what the evidence says today, and the hypotheses it owns. Pillars are the organising unit; tracks (§2) are the teams.
 
-### What to scrape
+| # | Pillar | Thesis | Evidence today | Owns |
+|---|---|---|---|---|
+| R1 | **Evidence substrate** | Raw, positioned, provenance-carrying events are the bank; receipts and replay are the discipline that makes memory auditable | JITMem, Eywa/MemIR/MemTX provenance line; receipts absent everywhere; replay demanded by any reviewer that must reproduce a decision | P1–P5, P0 fixtures, H1 |
+| R2 | **Update mechanics** | Memory writes are proposals; an independent judge accepts, supersedes or rejects; never delete; consolidation and forgetting are unproven | REALM write-time edges; jevmem two-signal supersede; Hippo −3.6, Human-Inspired 48.4 for aggressive consolidation; no forgetting win anywhere | H9, supersession, certification, gated updates (RSI T1) |
+| R3 | **Read strategy** | Task-conditioned read-time curation beats write-time distillation; the graph is an index for lineage/supersession/entity questions until it earns more; stop rules over fixed k | JITMem; MOOSEDev typed-question result vs top-k; Selective-Forgetting negative for graph-at-matched-roots; Jev-Mem stop rule unablated | H2, H3, H7, H8 |
+| R4 | **Judgment layer** | Small typed decision models belong at closed-menu judgment points, deterministic rules first, one scorer shadowed at a time; never generation, never alone in an open loop | listwise 0.94 vs 0.87; planner+decider 9/10 vs 0/10; escalation tier lost on held-out; calibration claimed not shown; Sentry judge 200× cheaper | H5, H10b, scorer port, admission, confidence components |
+| R5 | **Outcome and procedural memory** | The RSI angle: memory that learns from outcomes needs receipts joined to results, negative evidence, comparative induction across tasks, and stays at RSI level L2 | MGM comparative evolution; ReasoningBank/Memp; raw trajectories often beat distilled skills; feedback-loop rate unmeasured anywhere; Mallen guardrail-routing risk | H4, H6, task_key, failed-task pool, governance checks |
+| R6 | **Evaluation science** | Nothing ships on a number we did not produce under a frozen judge, held-out split, clustered paired statistics and a cost charge | RRSI discipline; label leakage in our own harness (V1–V8); review 1's statistics corrections | harness, noise floor, ledger, every verdict |
+| R7 | **Interop and federation** | Memory lives among other stores; one scoped interface, registry of backends, declared snapshot levels, swap-testable; the store stays where it lives | the design partner's C6 text; Sanctum/DeepInsights/AMS as three real hubs; nobody has snapshot; RRF as baseline only | federation gateway, registry, snapshot levels, conformance kit |
 
-| Source | What | Why |
-|---|---|---|
-| X | Accounts and keywords in the watchlist below; **always expand** threads, quoted posts, linked articles and images; capture engagement numbers and timestamps | It is where builders post before they write papers; the two evidence bundles came from here |
-| arXiv | Daily listings for cs.AI, cs.SE, cs.IR, cs.CL filtered by: agent memory, episodic/procedural memory, provenance, retrieval receipts, reproducible retrieval, memory consolidation, forgetting, typed decision / classifier-in-the-loop, self-improving agents, harness evolution, traceability, requirements-to-code | Primary sources; the pack has ~60, needs the weekly stream |
-| GitHub | Releases, changelogs, closed issues tagged memory/retrieval for the landscape set: Graphiti, Hindsight, Hippo-memory, Beacon, Mem0, MemOS, Letta, MemPalace, jevmem, agentrun, MGM, lintpal | Shipped behaviour beats announced behaviour |
-| Vendor posts | TypeSafe docs and cookbook, supermemory, vectorize, Zep, Datadog, Sentry engineering, Vercel changelog | Field numbers and failure reports |
-| Benchmarks | LongMemEval, LoCoMo, DreamBench-SWE, MemDelta, MemFail, MemTrace, MOOSEDev, GroupMemBench: new versions, leaderboard changes, critiques | Our harness depends on them |
+## 2. Tracks
 
-**Watchlist to start** (extend weekly): the authors and orgs behind the sources above; the Jev builder set from the bundles (supermemory, vectorize, Asymptote Labs, jevmem, agentrun, mika_systems, rbro112/Sentry, Deel, MotherDuck, Datadog); RSI authors (Yaowei Zheng, Sakana, the MGM group); memory-benchmark authors. Keywords: "memory layer", "context graph", "provenance", "retrieval receipt", "snapshot", "point-in-time", "supersedes", "assumptions ledger", "Jev", "System One", "typed decision", "noul", "consolidation", "forgetting", "self-improving", "harness", "skills evolution", "traceability", "C6"-style contract language.
+Six tracks. Each has a mission, scope, pillars served, proving grounds, deliverables by week, and its first two weeks. Staffing assumption: one lead per track; leads may sit on a second track. If fewer, merge T3 labs into T2 and keep the gates.
 
-**Do not collect:** re-posts with no new content, engagement-bait threads without a primary source, anything from the design partner's internal systems.
+### T0 · Intelligence (the scraping team)
 
-### Triage rubric (applied to every item before it becomes a note)
+**Mission.** A weekly, evidence-graded picture of what is moving across all seven pillars and the competitive landscape, delivered as proposal cards WS-T5 can test, not as links.
 
-1. **Primary source reachable?** paper, repo, docs, or a builder's own post with numbers. If not: park, do not summarise.
-2. **Type:** paper (ablated / unablated), repo (read at pinned commit), vendor benchmark, builder report, opinion.
-3. **Strength:** as in the evidence catalogue (paper with ablation > paper single benchmark > repo read > vendor benchmark > builder report with numbers > opinion).
-4. **Component mapping:** which ecosystem layer or component it touches (ledger, gateway, snapshot, receipts, admission, curation, certification, scorer, consolidation, staleness, eval harness, harness adapters, ontology).
-5. **Bet mapping:** which hypothesis in the register it supports, contradicts, or would create.
-6. **Contradiction check:** does it disagree with something already in the catalogue? Log it in the contradictions table either way.
+**Scrape.** X (watchlist below, always expand threads, quotes, links, images, capture engagement and time); arXiv daily cs.AI/cs.SE/cs.IR/cs.CL filtered by pillar keywords; GitHub releases and closed issues for the landscape set (Graphiti, Hindsight, Hippo-memory, Beacon, Mem0, MemOS, Letta, MemPalace, jevmem, agentrun, MGM, lintpal, plus OpenHands and Claude Code hooks ecosystems); vendor posts (TypeSafe, supermemory, vectorize, Zep, Datadog, Sentry engineering); benchmark changes (LongMemEval, LoCoMo, DreamBench-SWE, MemDelta, MemFail, MemTrace, MOOSEDev, GroupMemBench); funding and launch announcements in agent memory.
 
-### Output formats
+**Watchlist to start.** Authors and orgs behind every source in the pack; the Jev builder set; RSI authors; memory-benchmark authors; the memory-startup set (Mem0, Zep, Letta, supermemory, vectorize, MemOS). Keywords per pillar: R1 provenance, receipt, replay, snapshot, point-in-time, ledger; R2 supersede, consolidation, forgetting, reconsolidation, gated write; R3 curation, just-in-time, context engineering, graph RAG, stop rule; R4 Jev, System One, typed decision, noul, classifier-in-the-loop, calibration; R5 self-improving, skill evolution, procedural memory, outcome, RSI, harness; R6 memory benchmark, leakage, held-out, ablation; R7 memory interface, MCP memory, federation, knowledge gateway.
 
-**Evidence note** (one per source that passes triage; the existing `evidence/sources/` template): metadata, TL;DR, claims, numbers table with n and conditions, mechanism details you could implement, limitations and counter-evidence, takeaways for our stack, open questions. Verbatim quotes for anything numeric.
+**Do not collect.** Re-posts with nothing new; threads without a primary source; anything from the design partner's internal systems.
 
-**Proposal card** (only when an item implies a testable change; goes to WS5):
+**Triage rubric.** (1) primary source reachable, else park; (2) type: paper ablated / paper single-benchmark / repo at pinned commit / vendor benchmark / builder report with numbers / opinion; (3) strength grade as in the evidence catalogue; (4) pillar and component mapping; (5) bet mapping: supports, contradicts, or creates an H; (6) contradiction check against the catalogue.
 
-```
-id: PC-<yyyymmdd>-<n>
-claim: <one sentence, falsifiable>
-source: <note id>, strength: <grade>
-component: <layer/component>       bets: <H-ids affected>
-proposed experiment: <arm A vs arm B, metric, what would kill it>
-cost to test: <S/M/L>              urgency: <why now, or none>
-```
+**Outputs.**
+- *Evidence note*, the `evidence/sources/` template: metadata, TL;DR, claims, numbers table with n and conditions, implementable mechanism, limitations and counter-evidence, takeaways, open questions; verbatim quotes for anything numeric.
+- *Proposal card* to T5 intake: `id · claim (falsifiable) · source + strength · pillar/component · bets affected · proposed arms, metric, kill · cost S/M/L · urgency`.
+- *Weekly delta*, Monday noon, one page: beliefs changed (with the note), beliefs held, new cards, contradictions opened/closed, landscape diff (who shipped what, who raised what), parked count.
+- *Monthly*: refresh `memory-research-landscape.md` and the contradictions table; a competitive one-pager (capabilities claimed vs shown, per system).
 
-**Weekly delta** (Monday, one page, to WS5 and CTO): (1) beliefs changed, each with the note that changed it; (2) beliefs held under new evidence; (3) new proposal cards; (4) contradictions opened or closed; (5) the landscape table diff (who shipped what); (6) items parked for lack of a primary source, count only.
+**Interfaces.** Watch requests from any track with a due week. T5 answers each card accept / merge / reject within the fortnight. Kill rule: no primary source after four weeks → opinion.
 
-**Monthly:** refresh `memory-research-landscape.md` and the contradictions table in `evidence/memory-stack-synthesis.md`.
+**Needs from the CTO.** The scraper's current flow, fields, volume, output location and readers; then T0's handbook is fitted to it in week 1.
 
-### Interfaces and SLAs
+**Weeks 1–2.** W1 install rubric and templates on the existing flow; expand watchlist across pillars; backfill 14 days; first delta Monday W2. W2 first cards; first competitive one-pager; open watch requests from T2–T4.
 
-- Deliver the weekly delta by Monday 12:00. Proposal cards go straight into WS5's intake; WS5 replies accept / merge / reject within the fortnight.
-- WS5 and WS2–4 may file **watch requests** (a source, a system, a question) with a due week; WS1 acknowledges in the next delta.
-- Kill rule: a belief with no primary source after four weeks is demoted to opinion in the ledger.
+### T1 · Engram core (brownfield; pillar R1, serves all)
 
-### What WS1 needs from the CTO before Monday
+**Mission.** Make the MVP the trustworthy substrate: correct ledger at scale, scope on every record, receipts and retained served artifacts, point-in-time reads over its own data, a versioned public interface, the graph as a lineage/supersession/entity backend.
 
-- The current scraper's flow, fields, volume and where output lands, so the triage rubric and note template are fitted to it rather than bolted on.
-- Who reads the raw stream and who writes notes (two roles; can be the same person).
-- Access to the `evidence/` folder as the note store, or an agreed alternative.
-
-### Weeks 1–2
-
-- W1: install the rubric and templates on the existing flow; expand the watchlist; backfill notes for anything in the last 14 days that passes triage; first delta Monday of W2.
-- W2: first proposal cards; open watch requests from WS3 (DeepInsights and Sanctum public artefacts, dejavu-style signed catalogues, any "snapshot" or point-in-time retrieval work) and WS4 (typed-decision escalation results, injection-gate evaluations, curation replay).
-
----
-
-## WS2 · Engram core (brownfield)
-
-**Mission.** Make the existing MVP the trustworthy ledger, receipt and replay substrate of the ecosystem, and one registered backend behind the C6 verbs. Not the gateway, not the read surface of record.
-
-**In scope.** Ledger correctness and scale, tenant/scope on every record, receipts as ledger events, retained served artifacts, L1 snapshot by position, the three verbs over PCG-held data, the Atlas response extended to the agreed schema, the graph as a lineage/supersession/entity backend. **Out of scope.** Cross-backend federation (WS3), model-assisted decisions (WS4), harness adapters beyond what P0 needs.
-
-### Deliverables
+**Scope in.** P1–P5; receipt event types and replay CLI; `retrieve/write/snapshot` over PCG data (write kinds episode vs fact-as-proposal; snapshot by stream position); response schema with provenance, validity, bitemporal fields; SUPERSEDES with two-signal rule and superseded state; fixtures and seeded histories for T5. **Scope out.** Federation, model-assisted decisions, harness adapters beyond what the proving grounds need, decay tuning, consolidation summaries.
 
 | Wk | Deliverable | Done when |
 |---|---|---|
-| 1 | P1 fixes: bulk-ingest payload loss, RediSearch prefix, retention double prefix; plus restart/replay, boundary-batch, payload round-trip, tenant-negative, archive-recovery tests | tests green on a fresh stack; ingest contract documented |
-| 1–2 | P2: tenant/scope through entity resolution; scope schema `{caller, space/domain, classification_tier}` on every record | tenant-negative tests pass; no cross-scope leakage in a seeded test |
-| 2 | Receipt event types: `retrieval.receipt`, `decision.receipt`, `snapshot.manifest`; retained served artifact by hash | every `/context` call emits a receipt; replay CLI returns the served bundle byte-identical |
-| 2–3 | `retrieve/write/snapshot` over PCG data; `write(kind=episode)` = append; `write(kind=fact)` = proposal state; `snapshot(scope, as_of)` = L2 by stream position for PCG-held data | conformance kit (WS3) passes against PCG alone |
-| 3–4 | Response schema aligned with the agreed `evidence[]` + `validity` shape; bitemporal fields (valid time, observation time) | schema validated in the kit; Atlas kept as internal shape |
-| 4–6 | Graph re-scoped: lineage, supersession, entity queries as a backend; SUPERSEDES with two-signal rule and `superseded` state; SIMILAR_TO/CAUSED_BY creation per the Jev-Mem recipe behind a flag | H7 arms runnable; H2 arm runnable |
-| ongoing | Fixtures and datasets for WS5 (seeded histories with supersession, contradictions, unavailable sources, second tenant) | WS5 accepts them into the frozen harness |
+| 1 | P1 defects fixed with failing-then-passing tests; restart/replay, boundary-batch, payload round-trip, tenant-negative, archive-recovery tests | green on a fresh stack; ingest contract documented |
+| 1–2 | Scope `{caller, space, tier}` on every record; tenant through entity resolution | no cross-scope leakage in a seeded test |
+| 2 | `retrieval.receipt`, `decision.receipt`, `snapshot.manifest`; served artifact retained by hash; replay CLI | every context call emits a receipt; replay is byte-identical |
+| 2–3 | Three verbs over PCG data; snapshot by position | conformance kit (T4) passes against PCG alone |
+| 3–4 | Response schema (content, provenance, validity, freshness, confidence components, valid/observation time) | validated in the kit |
+| 4–6 | Graph re-scoped as a backend; SUPERSEDES real; SIMILAR_TO/CAUSED_BY creation behind a flag | H2 and H7 arms runnable |
+| ongoing | Seeded fixture sets (supersession, contradictions, unavailable source, second tenant, late fact) | accepted into the frozen harness |
 
-**Kill/keep rules.** Keep the positioned ledger, provenance block, ports, tenancy, crypto-shred. Stop investing in decay tiers and consolidation summaries until H9 says otherwise. Do not build a second gateway.
+**Weeks 1–2.** Days 1–2 reproduce and fix the three defects; days 3–5 scope schema and negative tests; week 2 receipts, replay CLI, first verbs, running endpoint to T4, first fixtures to T5.
 
-### Weeks 1–2, concretely
+### T2 · Memory mechanics lab (greenfield; pillars R2, R3)
 
-- Day 1–2: reproduce the three confirmed defects with failing tests; fix; add the test list above.
-- Day 3–5: scope schema; tenant through entity resolution; negative tests.
-- Week 2: receipts and retained artifacts; replay CLI; first pass of the three verbs; hand WS3 a running PCG endpoint and WS5 the first seeded fixture set.
+**Mission.** Settle, with measurements, how memory should be written, updated, consolidated and read. This is where most of the research pack's open questions live and where the product's second-order differentiation will come from.
 
----
+**Scope in.** Gated writes (proposal → judge → commit) and the certification path; two-signal supersession; consolidation split by mechanism (summary generation, topology reweighting, pruning, schedule) with on/off arms; forgetting as a cost/quality trade, never as a default; read-time curation with the served artifact retained; graph vs hybrid at matched units and tokens; typed supersession/completeness queries vs SQL vs top-k; stop rule vs fixed k. **Scope out.** The decision model itself (T3), the interface (T4).
 
-## WS3 · Federation and contract (greenfield, with the design partner)
-
-**Mission.** Prove C6 is feasible and owned by running one real Spec-to-PR-review flow over two real backends, then grow the federation gateway from those fixtures: registry, scope resolver, fusion, normalisation, snapshot composition, receipts, swap test, one converged MCP surface.
-
-**In scope.** P0, conformance kit, registry and manifests, scope resolver and live authorisation, RRF fusion baseline, snapshot levels and manifest, MCP projection converged with the existing PAI surface, Courier link-resolution adapter, Endzone/DeepInsights as registered backends. **Out of scope.** Model-assisted routing or rerank until WS4 hands over a shadow-ready scorer; ontology beyond the four response dimensions.
-
-### P0 specification (week 1–2)
-
-*Participants:* gateway owner, production knowledge-service owner, adopting harness owner, identity, C9 contact, WS2 lead, WS3 lead.
-*Pre-meeting artefacts (WS3 prepares):* one-page responsibility map with working name; the three snapshot levels written out with what each backend can support; the fixture list below; the conformance kit skeleton.
-*Decisions to leave the room with:* which snapshot level C6 requires; who owns C6 for the pilot; which two backends and which harness; where the converged MCP surface lives.
-
-*Fixtures (each is a test with a pass condition):*
-
-| # | Fixture | Pass |
-|---|---|---|
-| F1 | Retrieve for a Spec; capture manifest, receipt, served briefing | all three present, hashes match |
-| F2 | Update a source item after capture; replay at review | served bundle returned unchanged; current content never substituted |
-| F3 | Revoke reviewer's access to one served item; replay | typed denied result for that item; no leak in diagnostics |
-| F4 | Late-arriving fact with valid time before `as_of`; replay | excluded, with observation time recorded |
-| F5 | Change the curating model; replay | original briefing returned; re-curation is a new version, diffed |
-| F6 | Take one backend offline; retrieve and replay | explicit unavailable; partial result labelled; receipt records it |
-| F7 | New question against the same snapshot | answered from frozen corpus (L2) or explicitly unsupported for that backend; never from live |
-| F8 | Swap backend adapters | harness code unchanged; content, provenance, abstention, scope, failure semantics, cost equivalent |
-| F9 | Second tenant / other space | nothing crosses |
-| F10 | Empty result | admission returns empty with reason; no forced item |
-
-*Pass:* zero violations, an accountable owner, a ratified snapshot level. *Fail modes to report honestly:* a backend cannot support the ratified level; security blocks retained copies; ownership unresolved.
-
-### Deliverables after P0
+**Proving grounds.** Public benchmarks first (DreamBench-SWE, LongMemEval-S knowledge-update subset, MOOSEDev question classes); then our own agents' histories; the design partner only where a mechanism needs real specs.
 
 | Wk | Deliverable |
 |---|---|
-| 2–3 | Conformance kit v0 from F1–F10; registry manifest format; scope resolver (deterministic) |
-| 3–4 | Two backends registered (PCG, DeepInsights); RRF k=60 fusion baseline; normaliser to the agreed schema; MCP projection converged with the existing surface; Courier link-resolution adapter storing a snapshot id in the Spec |
-| 5–6 | Receipts durable in the partner flow; L1 replay live; second harness; swap test green in CI; snapshot manifest signed; capability negotiation per backend |
-| 7–12 | L2 where backends allow; PR-review re-resolution; certification path hand-off to WS2; C9 signals joined to receipts |
+| 1–2 | Arms built on T5's harness for H1 (raw vs none vs hybrid), H7 (typed queries vs SQL vs top-k), H3 (extractive vs cached summary vs curated briefing with retained artifact) |
+| 3–4 | H1, H7 verdicts; gated-write MVP behind a port (proposal state, judge port, commit, supersede) raced against the current extraction path |
+| 5–6 | H2 (graph vs hybrid) and H8 (stop rule) verdicts; H3 verdict; consolidation mechanisms separated and instrumented for H9 |
+| 7–12 | H9 by mechanism; forgetting as explicit lifecycle (expiry, suppression, archive) measured on cost; curate step promoted or demoted; certification path MVP |
 
-### Weeks 1–2, concretely
+**Weeks 1–2.** Agree arms and datasets with T5 on day 1; build H1/H7/H3 arms against T1's endpoint and the public sets; write the gated-write port spec.
 
-- Day 1: responsibility map, working name, snapshot-levels note, fixture list to participants.
-- Day 2–3: owners meeting; decisions recorded as ADRs.
-- Day 4–10: run F1–F10 against PCG plus the second backend with whatever adapters exist, even crude ones; log every violation; kit skeleton grows from the fixtures.
+### T3 · Judgment lab (greenfield; pillar R4)
 
----
+**Mission.** Find which judgment points earn a typed decision model and which stay rules, with labelled data and shadow runs; deliver one scorer that survives.
 
-## WS4 · Decision and curation lab (greenfield research MVPs)
+**Scope in.** Scorer port (typed input; label + abstain + diagnostics; model/version/timing); rule baseline per decision; label sets split by project and time (write admission ≥90; supersession pairs; injection benign set ≥149 independent; listwise rerank pools); H5 with escalation evaluated on the borderline population; H10b; confidence exposed as components plus one named ordinal score; per-route confusion matrices; latency classes. **Scope out.** Anything in a serving path before a shadow result; fault attribution beyond proposal-with-review.
 
-**Mission.** Find out, with labelled data and shadow runs, which judgment points earn a typed decision model and which stay rules; and whether read-time curation can be both useful and replayable.
-
-**In scope.** The scorer port and rule baselines; label collection; H3, H5, H10; the two-tier escalation question; supersession and write-admission batteries; staleness via source-change invalidation before any model sweep. **Out of scope.** Anything in the serving path without a shadow result; fault adjudication automation (proposal-only, with review).
-
-### Deliverables
-
-| Wk | Deliverable | Done when |
-|---|---|---|
-| 1 | Scorer port spec: typed input, label + abstain + diagnostics + model/version/timing; rule baseline per decision; latency classes | port compiles against a rule-only adapter |
-| 1–2 | Label sets: write admission (≥90: obvious/ambiguous/no-fit, split by project and time), supersession pairs, injection benign set (≥149 independent) | frozen, held out from tuning |
-| 2–4 | H5: rules vs NLI/reranker vs typed model on admission, in shadow, fit on half, test on the other; escalation evaluated on the borderline population | verdict with clustered intervals and error cost |
-| 3–4 | H3: extractive bundle vs cached summary vs task-conditioned briefing, with the served artifact retained and replay checked | verdict on task success, omission rate, tokens, replayability |
-| 5–6 | H10a source-change invalidation vs periodic sweep; H10b injection gate false-block bound | verdicts; gate ships only if the one-sided bound clears 2 % |
-| 7–12 | One scorer in production shadow behind WS3's port (likely admission or listwise rerank); G6 confidence components; supersession battery | receipts show model vs rule path per call |
-
-**Rules.** No threshold copied from another system. Every battery ships with a shadow phase and a per-route confusion matrix. Cheap battery first; escalation only if the borderline-population test says so.
-
-### Weeks 1–2, concretely
-
-- Day 1–3: port spec and rule baselines; agree the label schema with WS5.
-- Day 4–10: collect and freeze the three label sets from the partner's real material where permitted, otherwise from seeded fixtures; build H3's three arms on WS5's harness.
-
----
-
-## WS5 · Hypotheses and experiments
-
-**Mission.** Own the register, the frozen harness, the statistics and the experiment ledger; run the queue; issue verdicts nobody can argue with.
-
-**In scope.** The discovery plan as the single register; intake of proposal cards and experiment requests; dataset curation and held-out splits; the frozen `evaluate()`; noise floor; clustered paired statistics; the external experiment ledger; verdict publication; benchmark maintenance. **Out of scope.** Building the components under test.
-
-### Intake and cards
-
-**Experiment request** (from WS2–4) and **proposal card** (from WS1) both land in intake. WS5 converts accepted ones into an **experiment card**:
-
-```
-id: H<n> or E-<yyyymmdd>-<n>      owner: <WS>      track: A/B/C
-claim · arms · dataset (frozen id) · metric · predeclared margin · sample size and power note
-kill criterion · what a pass unlocks · cost (runs, tokens, people-days) · start/verdict dates
-```
-
-**Verdict** (published to the ledger and the weekly delta): kill / promote / narrow-and-rerun; effect with clustered interval; cost delta; deviations from the card; one paragraph of interpretation, no more.
-
-### Deliverables
+**Proving grounds.** Our own labelled sets from public benchmarks and dogfood first; partner material where permitted.
 
 | Wk | Deliverable |
 |---|---|
-| 1 | Harness freeze: real embeddings, query text embedded (not gold), intent from the classifier, scoring imported from the domain module, held-out split by project/time, frozen `evaluate()`; statistics gate documented (clustered paired intervals, predeclared margins, locked final set, sample-size table) |
-| 1–2 | Noise floor from ≥5 baseline runs; datasets: DreamBench-SWE subset, LongMemEval-S knowledge-update subset, seeded PDLC history from WS2, label sets from WS4 |
-| 2 | Register rewritten as experiment cards; queue for weeks 3–6 published with owners and dates |
-| 3–6 | Run H1, H7, H2, H8 (track B) and host H3, H5, H10 (track C); fortnightly verdicts; ledger current |
-| 6 | Week-6 gate report per track: decidable or not, with the sample sizes actually collected |
-| 7–12 | H4 join-coverage measurement (observational), H9 by mechanism, H6 if unlocked; second-half queue from review #2 |
+| 1 | Port spec; rule baselines for admission, route, rerank, supersession, injection; label schema agreed with T5 |
+| 1–2 | Three label sets frozen and held out |
+| 2–4 | H5: rules vs NLI/reranker vs typed model on admission, in shadow; cascade evaluated on borderline cases |
+| 5–6 | H10b injection gate bound; listwise rerank vs RRF order in shadow; verdicts |
+| 7–12 | One scorer in production shadow behind T4's port (admission or rerank); confidence components live in receipts; supersession battery |
 
-### Weeks 1–2, concretely
+**Rules.** No threshold copied from elsewhere; cheap battery first; every battery ships with shadow and a confusion matrix; models never override the deterministic set.
 
-- Day 1–3: harness freeze and statistics gate; publish the sample-size table (e.g. 149 benign cases for a 2 % false-block bound; paired n for a +10/180 margin at the measured noise floor).
-- Day 4–7: noise floor; dataset ids frozen; intake open.
-- Week 2: cards for H1, H7, H2, H8, H3, H5, H10 with dates; first fortnightly verdict meeting scheduled.
+### T4 · Interop and proving grounds (greenfield; pillar R7, hosts R1 fixtures)
 
----
+**Mission.** Make the substrate usable from real agents in real environments, and prove it can live among other stores: harness adapters for the open proving grounds, the federation gateway, registry, declared snapshot levels, swap test, and the design-partner pilot as one instance of all of that.
 
-## Interfaces at a glance
+**Scope in.** Adapters: Claude Code hooks (prompt-submit retrieve-or-not, session-end write), OpenHands or equivalent, our own agents; the federation gateway (registry with manifests, deterministic scope resolver and live authorisation, RRF fusion baseline, normaliser, snapshot composer per level, receipt writer, admission that may be empty, fallback plane); conformance kit with adversarial fixtures; the design-partner pilot (Appendix A). **Scope out.** Model-assisted routing until T3 hands over a shadow-ready scorer.
+
+| Wk | Deliverable |
+|---|---|
+| 1 | Snapshot levels written (L1 served-bundle replay, L2 frozen corpus, L3 cross-store instant); conformance fixtures F1–F10 (Appendix A) as a generic kit, partner-neutral; first open-harness adapter (Claude Code hooks) against T1's endpoint |
+| 2 | Kit v0 runs against PCG alone; registry manifest format; scope resolver; design-partner P0 run if the owners meeting has happened, otherwise the kit runs against PCG plus one open backend (e.g. a local vector store) |
+| 3–4 | Two backends registered; RRF fusion; normaliser; swap test green in CI; second open-harness adapter; dogfood on our own work begins |
+| 5–6 | Receipts durable in at least one live harness; L1 replay live; partner backends registered if available |
+| 7–12 | L2 where backends allow; PR-review re-resolution in whichever proving ground has reviews; capability negotiation; C9-style outcome join where the environment emits outcomes |
+
+**Weeks 1–2.** Snapshot-levels note and fixture kit on days 1–3; Claude Code hook adapter by day 5; kit against PCG by day 10; the partner owners meeting scheduled in parallel, not on the critical path.
+
+### T5 · Hypotheses and experiments (pillar R6, serves all)
+
+**Mission.** Own the register, the frozen harness, the statistics, the datasets and the ledger; run the queue across all tracks; issue verdicts nobody overrides.
+
+**Scope in.** Register as experiment cards; intake from T0 cards and T1–T4 requests; harness freeze (real embeddings, query text embedded, intent from the classifier, scoring from the domain module, held-out split by project/time, frozen `evaluate()`); noise floor; clustered paired statistics, predeclared margins, locked final sets, sample-size table; the external experiment ledger; verdict publication; benchmark maintenance. **Scope out.** Building what is tested.
+
+**Formats.** *Experiment card:* `id · owner · track · claim · arms · dataset id · metric · margin · sample size and power note · kill · unlocks · cost · dates`. *Verdict:* kill / promote / narrow-and-rerun; effect with clustered interval; cost delta; deviations; one paragraph.
+
+| Wk | Deliverable |
+|---|---|
+| 1 | Harness freeze; statistics gate; sample-size table (e.g. 149 benign cases for a 2 % false-block bound) |
+| 1–2 | Noise floor from ≥5 runs; dataset ids frozen (DreamBench-SWE subset, LongMemEval-S knowledge-update, MOOSEDev classes, seeded histories from T1, label sets from T3) |
+| 2 | Register rewritten as cards; weeks 3–6 queue published |
+| 3–6 | Run and host H1, H7, H2, H8 (T2), H3 (T2), H5, H10b (T3); fortnightly verdicts |
+| 6 | Gate report per track: decidable or not with the samples actually collected |
+| 7–12 | H4 join coverage (observational), H9 by mechanism, H6 if H3 passed; second-half queue from review #2 |
+
+### T6 · Positioning and market (CTO-owned, part-time)
+
+**Mission.** Keep the company's claim narrower than its ambition and truer than its competitors': *authorised, replayable evidence for agents doing engineering work, across the stores a company already has.* Decide the name. Decide what is open source.
+
+**Deliverables.** Week 1: working name and a one-page responsibility map (what Engram is, what the ecosystem is, what we do not claim). Week 2: competitive one-pager with T0 (claimed vs shown per system). Week 6: positioning revised after review #2; open-source decision (candidate: the conformance kit and the receipt/snapshot schemas, because standards spread by being adopted). Week 12: the quarter's evidence pack for whoever needs convincing next.
+
+## 3. Interfaces, decision rights, what is not staffed
 
 | From → To | Artefact | Cadence |
 |---|---|---|
-| WS1 → WS5, CTO | weekly delta, proposal cards | Mon |
-| WS2/3/4 → WS5 | experiment requests, fixtures, datasets, label sets | as ready |
-| WS5 → all | experiment cards, verdicts, ledger | fortnightly |
-| WS2 → WS3 | running PCG endpoint, verbs, receipts, L1/L2 snapshot | wk 2, then continuous |
-| WS3 → WS2 | conformance kit results, schema changes, registry manifest | wk 2, then continuous |
-| WS4 → WS3 | shadow-ready scorer behind the port | wk 7+ |
-| WS3 → WS4 | receipts with model-vs-rule path, borderline cases for labelling | wk 5+ |
-| CTO → all | bets re-ranked after each review; scope decisions | wk 2, 6, 12 |
+| T0 → T5, CTO | weekly delta, proposal cards, monthly competitive one-pager | Mon; monthly |
+| T1 → T2, T3, T4 | running endpoint, verbs, receipts, snapshot by position, fixtures | wk 2, continuous |
+| T2, T3 → T5 | experiment requests, arms, label sets | as ready |
+| T5 → all | cards, verdicts, ledger, gate reports | fortnightly; wk 6, 12 |
+| T3 → T4 | shadow-ready scorer behind the port | wk 7+ |
+| T4 → T3 | receipts with model-vs-rule path; borderline cases | wk 5+ |
+| T4 → T1 | kit results, schema changes, registry manifest | wk 2, continuous |
+| CTO → all | bets re-ranked; scope; parked list | wk 2, 6, 12 |
 
-## Decision rights
+**Decision rights.** T5 decides verdicts; disagreement files a new card. T1 decides ledger internals, not the shared schema. T2 decides mechanism designs behind ports; T4 decides what enters a serving path. T3 decides what goes to shadow. T4 with each proving ground's owner decides contract interpretation, recorded as ADRs. CTO decides scope, staffing, parking, at the three reviews.
 
-- WS5 decides verdicts. Nobody overrides a verdict; they file a new card.
-- WS3 decides contract interpretation *with the partner's owner*; records it as an ADR.
-- WS2 decides ledger internals; cannot change the agreed response schema alone.
-- WS4 decides which decision goes to shadow; WS3 decides when it enters the serving path.
-- CTO decides scope, staffing, and what is parked, at the three reviews.
+**Not staffed this quarter.** Chat/Slack ingestion, governance console, automatic fault attribution, broad ontology, decay tuning. Procedural-memory induction (R5, H6) is staffed only if H3 passes at week 6; until then R5 is carried by T5's H4 join-coverage measurement and T4's outcome hooks.
 
-## What is deliberately not staffed this quarter
+## 4. Review #1 (week 2) asks
 
-Chat/Slack ingestion, governance console, automatic fault attribution, broad ontology, procedural-memory induction, decay tuning. Each has a named unlock in the register; none has a team until then.
+Send the full documents. Ask: which pillar is under-served by the tracks; which hypothesis to cut from weeks 3–6; whether week-6 gates are decidable with collectable samples; what T0 is structurally blind to; whether the proving-ground order (benchmarks → open harnesses → dogfood → partner) is right.
+
+---
+
+## Appendix A · Proving ground D: the enterprise design partner
+
+Kept here so it informs the tracks without framing them. Details in the [transcriptions](pdlc-grounding/jetstream-reference-transcription.md) and the [gap analysis](c6-ecosystem-gap-analysis.md).
+
+- **What it gives us:** a written knowledge contract (one interface, declared scope, integrate-not-absorb, swap test), a demand for point-in-time reads driven by a pinned-reviewer fitness function, a testable fault-adjudication rule, three real knowledge hubs to federate, three harnesses with no working memory, and a three-month window.
+- **P0 owners meeting:** gateway owner, production knowledge-service owner, adopting harness owner, identity, evaluation contact, T1 and T4 leads. Leave with: the snapshot level the contract requires; an accountable owner; two backends and one harness; where the converged MCP surface lives. Pre-reads: responsibility map, snapshot-levels note, fixture list, kit skeleton.
+- **Fixtures F1–F10** (generic; the same kit runs on every proving ground): F1 capture manifest/receipt/briefing; F2 source updated after capture → served bundle unchanged; F3 access revoked → typed denial, no leak; F4 late-arriving fact → excluded with observation time; F5 curator changed → original returned, re-curation versioned; F6 backend offline → explicit unavailable, partial labelled; F7 new question at same snapshot → L2 or explicit unsupported, never live; F8 adapter swap → harness unchanged, equivalent results; F9 second tenant → nothing crosses; F10 empty result → returned as empty with reason.
+- **Pass:** zero violations, owner named, level ratified. **Honest fail modes:** a hub cannot support the level; security blocks retained copies; ownership unresolved.
+- **Sequence within the partner:** P0 (wk 1–2) → kit and converged surface (wk 2–4) → two hubs, receipts, L1 replay (wk 5–6) → L2 where possible, review re-resolution, outcome join (wk 7–12).

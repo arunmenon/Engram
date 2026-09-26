@@ -1,6 +1,6 @@
 # Operating plan — memory ecosystem, Q4 2026
 
-**Date:** 2026-09-26. **Owner:** CTO. **Horizon:** 12 weeks, reviewed at week 2, 6, 12. **Premise:** Engram is one cog (ledger, receipts, one backend). The product is authorised, replayable evidence for engineering decisions across existing knowledge stores. Documents now earn their place only by changing a bet; the ratio flips to experiments first.
+**Date:** 2026-09-26. **Owner:** CTO. **Horizon:** 12 weeks, reviewed at week 2, 6, 12. **Premise:** Engram is one cog (ledger, receipts, one backend). The product is authorised, replayable evidence for agents doing engineering work, across the stores a company already has. Track A below is the enterprise proving ground, one of four (benchmarks, open harnesses, dogfood, partner); see [programme-plan.md](programme-plan.md). Documents now earn their place only by changing a bet; the ratio flips to experiments first.
 
 ## 1. Four loops
 
