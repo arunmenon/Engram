@@ -68,7 +68,7 @@ The bus is a shared Google Drive folder, `research-bus` (folder ids in `docs/res
 - You write **notes** to `notes/`, **cards** to `cards/` (once, never edited), **triage logs** to `triage-log/`, and the Monday **delta** to `delta/`.
 - The hypotheses agent, on the same machine on its own schedule, reads `cards/` and answers each with a file in `decisions/` (`accepted`, `merged`, `rejected`, with a reason) within fourteen days; accepted cards get an experiment card in `experiments/`; when an experiment closes, a verdict lands in `verdicts/`.
 - You read `verdicts/` and `decisions/` so the weekly delta can report them. Anyone can drop a request in `watch/`; you answer with `WR-….answer.md` pointing to a note, a card, or "nothing found".
-- Nothing is edited or deleted after upload. Status is the newest decision file. `index.json` at the root is a convenience the last writer regenerates.
+- Nothing is edited or deleted after upload. A card's status is the decision chain in `decisions/` (each event names its predecessor). Every artifact carries the envelope from the bus README: stable `artifact_id`, `producer`, `run_id`, `input_refs` with Drive file ids and hashes, `idempotency_key`. Before uploading, list the destination by parent id and skip if your idempotency key is already there. Keep your consumed ids and pending backlog in `checkpoints/`; never work from "the last 24 hours". The index is written only by the projector.
 - The delta job mirrors the whole folder into the repository's `docs/research/queue/` every Monday, so history and review live in git.
 
 You do not decide what gets tested; you decide what is worth a card. The hypotheses agent does not read raw items; it reads cards.

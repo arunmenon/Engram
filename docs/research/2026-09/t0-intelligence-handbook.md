@@ -16,29 +16,34 @@
 |---|---|---|---|---|---|
 | 1 Fetch | existing | every 3 h | X API | `inbox/*.jsonl` | deterministic |
 | 2 Digest | existing | +30 min | `inbox/` | reports, `insights.json`; moves to `processed/` | headless Claude |
-| **2b Triage** | **new** `bin/triage_run.sh` + `bin/triage_prompt.md` | **daily 07:15** (after the 06:43 digest) and **13:15** | today's `processed/*.jsonl` (both feeds), `insights.json`, `trends.md`; Drive `watch/`, `verdicts/`, `notes/` | Drive `notes/`, `cards/`, `triage-log/`, `index.json` | headless Claude |
+| **2b Triage** | **new** `bin/triage_run.sh` + `bin/triage_prompt.md` | **daily 07:15** (after the 06:43 digest) and **13:15** | today's `processed/*.jsonl` (both feeds), `insights.json`, `trends.md`; Drive `watch/`, `verdicts/`, `notes/` | Drive `notes/`, `cards/`, `triage-log/`, `checkpoints/` | headless Claude |
 | 3 Curation | existing, plus one input | daily 22:17 | + Drive `triage-log/` cap counts and `watch/` requests | `reports/curation-*.md` (now also proposes query splits and the three request params) | headless Claude |
 | **2c Weekly delta** | **new** `bin/delta_run.sh` + `bin/delta_prompt.md` | **Mondays 08:15** | Drive `triage-log/`, `cards/`, `decisions/`, `verdicts/`; `insights.json`, `trends.md`, `voices-*.json` | Drive `delta/YYYY-WW.md`; mirrors the whole bus into the repo's `docs/research/queue/` and commits; refreshes the contradictions table monthly | headless Claude |
-| **2d Hypotheses** | **new** `bin/hypotheses_run.sh` + `bin/hypotheses_prompt.md` | **daily 09:15** | Drive `cards/`, `decisions/`, `experiments/`; the register `2026-09/discovery-plan.md` (read-only checkout) | Drive `decisions/`, `experiments/`, `verdicts/`, `index.json` | headless Claude |
+| **2d Hypotheses** | **new** `bin/hypotheses_run.sh` + `bin/hypotheses_prompt.md` | **daily 09:15** | Drive `cards/`, `decisions/`, `experiments/`, `reviews/`, `runs/`; the register and belief register (read-only checkout) | Drive `experiments/` (before the decision), `decisions/`, `verdicts/`, `beliefs/`, `checkpoints/` | headless Claude |
+| **2e Challenger** | **new** `bin/challenger_run.sh` + `bin/challenger_prompt.md` | on trigger (see §5) | Drive `experiments/`, `notes/`, beliefs, prior `runs/` | Drive `reviews/`, `watch/` | headless Claude or the external reviewer |
 | 4 Publish | existing manual | on demand | | hub | owner |
 
 All new jobs write to Drive with the same helper the fetcher uses for hub data, with conversion disabled. Only the delta job touches the repository, and only to mirror Drive into `docs/research/queue/` and commit. Experiment cards accepted by the hypotheses agent are merged into `discovery-plan.md` by a person at the fortnightly review, not by the agent.
 
 ## 1b. The bus: where each agent writes
 
-Google Drive, owner's My Drive, folder `research-bus` (https://drive.google.com/drive/folders/1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim). The folder holds its own `README.md`, five templates and `index.json`; the repository mirror is `docs/research/queue/`.
+Google Drive, owner's My Drive, folder `research-bus` (https://drive.google.com/drive/folders/1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim). The folder holds its own `README.md` (v2), nine templates and a non-authoritative `index-latest.json`; the repository mirror is `docs/research/queue/`.
 
 | Folder | Id | Written by | Files |
 |---|---|---|---|
 | `cards/` | `1wCmR3VBI0GJThB7T9XtFdCkSg4VFkkjj` | triage | `PC-YYYYMMDD-NN.md`, once |
 | `notes/` | `1xZZ6Jr878OtaCMohKvRi1VQX_m3gGcPL` | triage | `<kind>-<slug>.md`, once |
-| `triage-log/` | `1IegV687s0fjdS8f3_SDI1GPfYat0HHrc` | triage | `YYYY-MM-DD.md` (second run of the day appends a new file `YYYY-MM-DD-2.md`) |
+| `triage-log/` | `1IegV687s0fjdS8f3_SDI1GPfYat0HHrc` | triage | one file per run, named by `run_id` |
 | `delta/` | `1m0zNCGTapSFEd9alpujJXXyX-BFuAqed` | delta | `YYYY-WW.md` |
 | `decisions/` | `1Puptg6-Hj13TL6t2-zjBYll4BIq81Lt-` | hypotheses | `PC-YYYYMMDD-NN.<status>.json`, one per status change |
 | `experiments/` | `1jtLlsldQNNYl3BDJ3ezq-q24T2b3lXao` | hypotheses | `<E-or-H-id>.md` |
 | `verdicts/` | `1FZCKIEDjHGiEz0Ba8IToTrrNIDPkBNvJ` | hypotheses | `<E-or-H-id>.md` |
 | `watch/` | `1Gnm5VMrQNxa9S2By0P5GzoUxr1gvIjVM` | anyone; triage answers | `WR-YYYYMMDD-NN.md`, `WR-YYYYMMDD-NN.answer.md` |
-| root | `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim` | last writer | `index.json` |
+| `checkpoints/` | `1QYRgiygmdLL1-ji5gPeZmwmKGiVfQdDY` | each producer, own files | `CKPT-<role>-<timestamp>.json`, each superseding the last |
+| `reviews/` | `1UlI6SHC21hXcqvAUg0diGImJP04yU7NT` | challenger | `REV-*.md` |
+| `runs/` | `1-kGw29D0i3b0OGOJbCLhqdc3NV8Bkd0b` | executor | `RUN-*.md` plus output files |
+| `beliefs/` | `1wiSGxJCsAwQJcePkj5M5HSXpFkanzZtG` | hypotheses / person | `BR-*.json` |
+| root | `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim` | projector only | `index-latest.json` pointer; immutable snapshots live in `delta/` |
 
 **Upload rules.** Plain `text/markdown` or `application/json`, conversion to Google Docs disabled, parent folder by id. List a folder by `parentId`, never by title search (the search index lags uploads by minutes). Never overwrite: a correction is a new file. If the existing hub uploader only handles its two JSON files, add `bin/bus_upload.py` around the same credentials with `upload(path, parent_id, mime)` and `list(parent_id)`.
 
@@ -90,7 +95,7 @@ why it matters for us: <two sentences, pillar language>
 
 **Experiment card** Drive `experiments/<E-or-H-id>.md`, written by the hypotheses agent for accepted proposals (template in `queue/experiments/TEMPLATE.md`); a person merges it into the register at the fortnightly review.
 
-**Index** Drive `index.json` at the bus root: `[{id, status, pillar, component, bets, strength, cost, created, decided_on, carded_as}]`, regenerated from `cards/` + `decisions/` by whichever agent ran last. Convenience, never source of truth.
+**Index** written only by the projector (the Monday delta job): immutable `delta/index-<watermark>.json` snapshots folded from `cards/` + `decisions/`, and a root `index-latest.json` pointer. Convenience, never source of truth; no other agent writes an index.
 
 **Watch request** Drive `watch/WR-YYYYMMDD-NN.md`: `from: T2|T3|T4|T5|CTO · what · why · due: <week>`. Answered by a new file `watch/WR-YYYYMMDD-NN.answer.md` pointing at a note, a card, or saying "nothing found <date>".
 
@@ -116,7 +121,6 @@ writes card (once) ───────────▶ cards/PC-*.md ───�
 reads verdicts ◀─────────────── verdicts/<id>.md             ◀────── writes when an experiment closes
 reads watch requests ◀───────── watch/WR-*.md                ◀────── any track or the CTO files one
 answers ──────────────────────▶ watch/WR-*.answer.md
-regenerates ──────────────────▶ index.json                   ◀────── regenerates
 Monday: mirrors the tree ─────▶ repo docs/research/queue/ (git = archive)
 ```
 
