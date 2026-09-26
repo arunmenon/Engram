@@ -1,6 +1,6 @@
 # Grounding document: "Nitin jetstream artifacts reference" — transcription (partial)
 
-**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 (spine, Inner Loop steps, C1–C11 contracts; holder column cut). Not yet received: the rest of Part 2 (Outer Loop, decision S0), Part 3 (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
+**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1 and §3.3. Not yet received: §2.4, §3.2 body, the rest of Part 3 (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
 
 > **Confidentiality note.** This is an internal-programme document of the user's employer with named people. It is stored here because it is the grounding for [../pdlc-memory-layer.md](../pdlc-memory-layer.md); keep the branch private.
 
@@ -143,13 +143,80 @@ The distinction: *"The Inner Loop answers whether* […]" — [rest of the parag
 
 **Unresolved:** C6 and C9 have no ratified holder. C9 also depends on the six-stage autonomy-gate pipeline, itself unowned (decision S0, […]
 
-**Transcription ends here** (2026-09-26, second batch).
+*(§2.4 not captured.)*
+
+### 2.5 Outer Loop — four spine stages
+
+| Stage | Key facets | Status |
+|---|---|---|
+| Intake | Triage, Specification, Decomposition, Value, Effort, Prioritization | Specification and Decomposition resolved; rest open |
+| Pull Requests | Risk routing, AI review, disposition, auto-merge gating | Open; model defined, not calibrated |
+| CI/CD | Tier 1 fast checks, Tier 2 batched CI, per-environment gates | Verification-vs-deploy boundary resolved |
+| Operating | Detect, diagnose, mitigate, RCA (DORA + MTT* metrics) | Open; environment not fully characterised |
+
+**Intake detail.** Specification *(resolved)*: intent, acceptance criteria, scope, dependencies; interactive creation; **references rather than inlines knowledge**; fitness is adversarial buildability pass-rate against a **pinned reviewer config** plus spec-attributed fault rate; ambiguities logged in an assumptions ledger. Decomposition *(resolved, soft boundary)*: Intake alone cuts a document into Specs; below the Spec, Intake and Inner Loop both split units, measured jointly. Value, Effort, Prioritization, Triage — all **open**.
+
+**Pull Requests detail.** Allocation is risk-based: broad cheap AI review on everything, human escalation only where risk warrants, auto-merge once safety is demonstrated. Fitness is severity-weighted escape rate, bounded by a cost budget and a friction guard. **Binding rule: auto-merge requires proven disposition accuracy plus Operating's revert-plus-detection.**
+
+**CI/CD detail.** Tier 1 (fast, per-PR): ML test selection, static analysis, lint; gates the merge queue. Tier 2 (batched, 5–15 min windows): full tests, perf with anomaly detection, contract tests, instrumentation checks. Per-environment gates: dev, staging, canary, prod verify independently; *"a lower-env escape becomes a new upstream gate."* **Resolved boundary:** CI/CD owns the pass/fail gate; Operating owns deploy/promote/rollout and canary/detection.
+
+**Operating detail.** Telemetry runs through OpenTelemetry to Datadog. *"Site-level monitoring is consistent; team-level coverage is not. Auto-rollback exists in theory, not yet configured or tested."* Operating detection is ground truth for escape rate and DORA change-failure-rate. Metrics: MTTD/detection coverage · MTTI/diagnosis accuracy · MTTR/auto-mitigation rate · RCA completion rate.
+
+### 2.6 The Outer Loop has no contract set
+
+> "Nothing in `outer-loop/`, `program-management/`, or `shared/` defines an interface list for Intake, Pull Requests, CI/CD, or Operating the way `inner-loop/contracts.md` defines C1 through C11."
+
+The word "contract" appears in the Outer Loop docs only in two non-architectural senses: the **spec contract** (the fixed schema a ticket must conform to) and ordinary **external-dependency** usage.
+
+One unformalised analog: a Miro board from the Outer Loop workstream sketches three PR-lifecycle contracts — an **admission contract**, **build-success conditions**, and a **completion contract** tied to the latest commit SHA. Explicitly a whiteboard proposal, not adopted.
+
+**Open question:** should the Outer Loop get its own numbered contract set? Not yet decided.
+
+### 2.7 Cross-loop seams
+
+- Intake ↔ Inner Loop: shared decomposition cut below the Spec
+- Pull Requests ↔ Inner Loop: the revise/fix round-trip is Inner Loop work
+- Pull Requests ↔ CI/CD: PRs decide what verification is needed; CI/CD runs it
+- Pull Requests ↔ Operating: auto-merge depends on Operating's detect-plus-rollback
+- CI/CD ↔ Operating: gate vs. deploy/rollout ownership; feedback on escapes
+- Operating ↔ Intake: RCA and incident feedback re-enter as new Requests
+- Inner Loop ↔ Company Knowledge: the Spec step draws on it through C6; **neither loop owns it**
+- Intake ↔ Company Knowledge: Triage routing and Spec creation draw on it directly
+- Pull Requests ↔ Company Knowledge: adversarial review runs with the same knowledge that crafted the spec, **pinned as a snapshot**
+
+## PART 3 — Company Knowledge as the third stream
+*Source: Component Architecture §5*
+
+### 3.1 It is not a stage — it is a stream both loops call into
+
+> "Company Knowledge is not a stage in either loop's spine. It is a separate Jetstream workstream that both loops call into directly, from three separate points."
+
+Note the method: *"built the way any dependency gets defined before its own team has written a spec: **backward, from what the two loops that call into it already require**."*
+
+### 3.2 What it provides
+
+Domain and tribal knowledge — "the facts a […]" *(rest not captured)*
+
+[…] C5 (Tool Access) names a candidate system in the same stream: the **MCP Hub**, which projects every tool as a CLI so tool-definition tokens stay near zero at session start.
+
+### 3.3 The four call sites
+
+| Caller | What it needs |
+|---|---|
+| Inner Loop, Spec step | Resolves what domain and tribal knowledge a run needs, before Design starts |
+| Intake, Triage | The ticket corpus and org structure, to route correctly. *"Without it, routing accuracy has nothing to route against."* |
+| Intake, Specification | A Spec references rather than inlines knowledge; Company Knowledge resolves that reference at build time |
+| Pull Requests | Adversarial review runs with the same knowledge that crafted the spec, **pinned as a snapshot** |
+
+**Transcription ends here** (2026-09-26, third batch; §3.2 body and everything after §3.3 still to come).
 
 ---
 
 ## First read: what these pages change for Engram (to be revised when the rest arrives)
 
 0. **C6 is the whole game, and it is unowned.** "C6 Memory and Knowledge: one interface for agent read/write/retrieve, scoped per operation" has **no ratified holder**; so does C9 (evidence and eval), and C9 depends on an unowned autonomy-gate pipeline. Every contract is "one interface and one test". The Inner Loop's Spec step "resolves needed knowledge through C6". So the PDLC layer is not a schema Engram proposes; it is a **candidate implementation of C6** with a conformance test, and the self-review step's **assumptions ledger** ("ambiguity resolved by inference gets recorded, not silently discarded") is the first concrete write-side artefact the contract needs to carry. Engram's ledger-first design, per-operation scoping (tenant + run + stage), and provenance block map directly onto "scoped per operation". C9's signals (agreement, autonomy, quality, speed, cost per stage) are the outcome events P4 asks for; if C6 and C9 land together, the retrieval-receipt → outcome loop is a contract obligation rather than an Engram feature. C8 says OpenTelemetry GenAI spans are mandatory, which settles the ingest format question raised in digest D3 (Beacon's OTel-normalised JSONL).
+00. **C6's four call sites define the read API backward.** (a) Spec step: "what domain and tribal knowledge does this run need" — a task-conditioned briefing before Design, which is exactly the read-time curate step (digest D6, H3). (b) Triage: ticket corpus + org structure for routing — an entity/ownership graph query, Engram's `who_is`/`related` intents over Entity and UserProfile. (c) Specification: **a Spec references knowledge by reference and Company Knowledge resolves it at build time** — the reference must be a stable id with a version, i.e. a node id plus `global_position`, which Engram's provenance block already is. (d) Adversarial review: **the same knowledge that crafted the spec, pinned as a snapshot** — a point-in-time read ("as of position X"), which the immutable ledger supports natively and a mutable vector store cannot; this is the strongest argument for the ledger-first design in the whole document. Two more facts: "neither loop owns it", and the stream is specified "backward from what the callers require" — so the PDLC layer's first deliverable is the C6 interface (`retrieve`, `write`, `snapshot`) plus its one conformance test, not an ontology.
+000. **The Outer Loop supplies the outcome signals but has no contracts.** Escape rate (severity-weighted), change-failure rate from Operating detection, MTTD/MTTI/MTTR, RCA completion, spec-attributed fault rate, disposition accuracy — these are the outcomes a retrieval receipt should be joined to (H4). The Miro sketch of admission / build-success / completion contracts tied to a commit SHA is the natural place for a "which knowledge was served for this change" receipt. "A lower-env escape becomes a new upstream gate" and "RCA re-enters as a new Request" are the two negative-evidence edges the procedural-memory layer needs.
 1. **Memory is declared out of scope for consolidation.** The programme's own text says memory systems "stay independent", and the stream-03 row names two of them and says they stay separate (the second name is cut at "Eng…"; if it is Engram, Engram is already on the programme's map). Positioning follows: Engram is not a candidate for the shared foundation, it is an independent capability that must conform to the interoperability contracts. The contract that matters is **C6** (Company Knowledge), whose proposal is the most recently edited page. Everything in [pdlc-memory-layer.md](../pdlc-memory-layer.md) about "ontology enforcement" has to be expressed as *what flows through C6*, not as Engram's private schema.
 2. **The spine is the PDLC ontology's backbone**, and it is richer than requirement → HLD/LLD → tickets → PR. Stages: Request, Spec, Decomposition, Sequence, Change (review-ready), Pull Request, adversarial review, Merge, Tier 1 / Tier 2 CI, environment gate, Deploy, Observation, Detection, Diagnosis, Mitigation, RCA, Escape. The **feedback edge (escapes, RCA → INTAKE) is the outcome loop** the discovery plan's P4 (`task_key`, `task.outcome`) exists for: an RCA that points back at a Request is negative evidence attached to the Decision and Change that produced it.
 3. **The architecture track is a Decision ledger by definition** — "decisions recorded as they are made rather than published once as a document". That is the T5 rule (decision + date + reason) already adopted in digest D8, and it is a concrete first tenant for Engram's Decision/SUPERSEDES machinery: an append-only queue of component definitions, interfaces and contracts, with supersession, that any harness can query.
@@ -158,4 +225,4 @@ The distinction: *"The Inner Loop answers whether* […]" — [rest of the parag
 6. **"Stream's own measures are an open question."** The discovery plan's metrics (ledger-vs-no-memory oracle pass rate, knowledge-update accuracy, feedback-loop rate, stale-flag precision) are a direct contribution to stream 03, and stream 04 is the telemetry backbone they should land on.
 7. **The commitment window is 3 months and one adopting organisation.** The discovery plan's five-week sequence fits inside it only if P1–P3 start now.
 
-**Still needed from the document:** the rest of Part 2 (Outer Loop, the "distinction" paragraph, decision S0 and the autonomy-gate pipeline), the C6 proposal and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
+**Still needed from the document:** §2.4, §3.2 body, and Part 3 onward — the C6 proposal and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
