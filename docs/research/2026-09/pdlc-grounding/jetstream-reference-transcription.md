@@ -1,6 +1,6 @@
 # Grounding document: "Nitin jetstream artifacts reference" — transcription (partial)
 
-**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1–3.5, Part 4 §4.1–4.8 (due-diligence table cut after the first row), Part 5 §5.1 and group ① of §5.2. Not yet received: §2.4, the rest of the due-diligence table, ontology groups ② onward (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
+**Received:** 2026-09-26, as 11 photographs of a Markdown artifact rendered on screen. **Coverage:** §0 Orientation, Part 1 (§1.1–1.5, partially cut at column edges), Part 2 §2.1–2.3 and §2.5–2.7 (spine, Inner Loop steps, C1–C11 contracts with holder column cut, Outer Loop stages, seams), Part 3 §3.1–3.5, Part 4 §4.1–4.8 (due-diligence table cut after the first row), Part 5 §5.1–5.4 (dimensions 3, 5, 6, 10 only), Part 6 in full. Not yet received: §2.4, the rest of the due-diligence table, ontology dimensions 1, 2, 4, 7, 8, 9, 11, Part 7 (Company Knowledge reference architecture: the C6 proposal, 11-repo due diligence, retrieve/write/snapshot), the Knowledge Ontology (11 dimensions), and Courier vs. Endzone (how the two harnesses retrieve today). Text in `[…]` is cut off in the photo; text in `[word?]` is a reconstruction.
 
 > **Confidentiality note.** This is an internal-programme document of the user's employer with named people. It is stored here because it is the grounding for [../pdlc-memory-layer.md](../pdlc-memory-layer.md); keep the branch private.
 
@@ -329,9 +329,90 @@ The parent defines the interface and the backends. This page defines *what kind 
 | 5 | Format plurality | Structured facts · free-text documents · embedded chunks · possibly tabular or code-shaped. Distinct from `kind`, which is a routing concern. |
 | 10 | Granularity | Field/fact vs document vs corpus. Due diligence found a mismatch: `biso_knowledgebase` is whole-file, `knowledge-service` is per-KB. The ontology should state a target the interface normalises toward. |
 
-**② Where did it come from, and who controls it?** *(not yet captured)*
+**② Where did it come from, and who controls it?** *(not captured: dimensions 1, 2, 4 and probably 11)*
 
-**Transcription ends here** (2026-09-26, fifth batch; ontology groups ② onward and Courier vs. Endzone still to come).
+**③** *(heading and dimensions 7, 8, 9 not captured; the last row ends "…where 7 or 8 leave ambiguity. TypeSafe's Jev named as one technique — 'a technique, not an answer to who owns this schema or when the check runs.'")*
+
+**④ How is it found?**
+
+| # | Dimension | Content |
+|---|---|---|
+| 6 | Retrieval and ranking as classification | Emergent classification: how something ranks at query time, especially for chunks never explicitly tagged. *"The ontology is not purely a write-time metadata schema."* **Open question:** *should ranking-derived classification be written back as explicit metadata, or stay purely a runtime signal?* |
+
+### 5.3 Where it feeds back into the reference architecture
+
+- Dimensions **1, 2** extend §1.3's `knowledge.write` and §1.6's write-back loop
+- Dimension **4** extends §1.5 (`knowledge.snapshot`)
+- Dimensions **3, 5, 6, 10** are new metadata the gateway's response normalisation must carry
+- Dimensions **7, 8, 9** are **new and not yet reflected anywhere in the reference architecture**
+
+### 5.4 Not yet resolved
+
+> "This page raises the dimensions; it does not yet propose a schema. Next step is deciding which of these are mandatory metadata on every artifact versus backend-specific extensions, and **whether any existing repo (most likely Engram, given it already has certification and space-scoping) is the right place to hold this schema versus making it a gateway-level concern** that all backends normalize into."
+
+Local source: `knowledge-memory-evals-docs/knowledge-ontology.md` in `jetstream-working-docs`.
+
+## PART 6 — Harness reality check
+*Source: Courier vs. Endzone (3105194428). Source-verified against both codebases — "No aspirational/README-only claims included."*
+
+### 6.1 What each is
+
+| | Courier | Endzone |
+|---|---|---|
+| One sentence | One Jira ticket → one PR, via a fixed scripted sequence | An always-on agent looping — reading, searching, editing, testing — choosing its own next action |
+| Shape | A checklist, same order every run | Open-ended loop, no fixed step order |
+| Error catching | Fixed checkpoints in the checklist (test-run, code-review, review-gate with up to 3 retries) | No checkpoints — an **acceptance gate** watches every action and intervenes on risky ones |
+| Output | One PR plus a Jira comment | Usually a PR; can also update its own KB or comment |
+
+### 6.2 Courier's retrieval — there isn't any
+
+> "There is **no vector search, no embeddings, and no re-ranking** anywhere in this pipeline — every source is either linked in the ticket and fetched whole, or it doesn't exist as far as Courier is concerned."
+
+It regex-scrapes the ticket body for Confluence and Slack URLs and fetches whatever it finds, concatenated as-is. *"A relevant doc that wasn't linked in the ticket is invisible to Courier."* The first point anything judges relevance is the coding agent itself, at implement time.
+
+⚠ **Memory is wired in but inert.**
+
+> "`memory-recall` and `memory-write` exist as real module classes with typed Zod schemas and a place in the executor pipeline — **they aren't missing, they're stubs.** `MemoryRecallModule.execute()` ignores its input and always returns `{ memories: [], context: "" }`; `MemoryWriteModule.execute()` always returns `{ stored: false }` without touching disk. Both carry the same comment: *'Deferred (Mastra integration not yet implemented).'*"
+
+### 6.3 Endzone's retrieval — real, with a caveat
+
+A genuine ingestion pipeline: Confluence pages chunked and embedded, repo `**/*.md` globbed and embedded, auto-generated runbooks re-indexed every 60 seconds, backlog issues chunked per (issue, state) with superseded versions flagged `inactive:`. **Slack is not ingested at all** — its one gap relative to Courier.
+
+Ranking: over-fetch `top_k × 3`, drop inactive, then apply a priority boost —
+
+```
+score = similarity + 0.3 × (issue_priority ÷ max_priority_in_batch)
+```
+
+*"A high-priority backlog item can outrank something with higher raw similarity but lower ticket priority."*
+
+⚠ **Memory is two disconnected systems, and the semantic half is dormant.**
+
+> "The first is a plain scoped key-value store… It has a dormant semantic-search path: an `embedding` column and a cosine-similarity query using the sqlite-vec extension — but every one of the ~30 call sites that write a `Memory` row constructs it without ever setting `embedding`, so that column is always `NULL` and the search always falls back to plain recency ordering. It has never actually been semantic search in production."
+
+A second system, the `KnowledgeWrite` tool, writes into the real embedded KB and *is* searched by similarity. *"The two systems share nothing — different tables, different search mechanics, different scoping rules — despite both being called 'memory.'"*
+
+### 6.4 Knowledge source matrix
+
+| Category | Courier | Endzone |
+|---|---|---|
+| Jira | Direct fetch (REST → MCP fallback) | Same, once at task creation, **no refresh** |
+| Confluence | Only pages linked in the ticket; no search | Explicit URLs ingested into the vector KB |
+| Slack | MCP-only, linked-in-ticket only | **Not implemented** |
+| GitHub repos | Not a knowledge source | Cloned, docs chunked/embedded |
+| Runbooks | Not present | Auto-generated, re-indexed every 60 s |
+| Domain / skill packs | Filesystem lookup via env var | No equivalent |
+| Backlog / plan issues | Not present | Own KB: as-is + proposed states, versioned |
+| Agent-written memory | Stubbed | Two mechanisms; the searchable one is `KnowledgeWrite`, the other is dormant |
+| Vector store / RAG | None | Implemented |
+
+## PART 7 — Master list of open questions
+Consolidated from all five pages.
+
+### 7.1 Ownership and ratification
+*(not yet captured)*
+
+**Transcription ends here** (2026-09-26, sixth batch; Part 7 and ontology dimensions 1, 2, 4, 7, 8, 9, 11 still to come).
 
 ---
 
@@ -340,6 +421,7 @@ The parent defines the interface and the backends. This page defines *what kind 
 > **⚠ Name collision, read first.** Inside the Jetstream pages, "Engram" means **AI Tech's `agenticmemoryservice`** (Java, MySQL + a vector store), "PayPal's certified context and knowledge layer". This repository is what the document calls the **PAI Context Graph**. Every sentence below that says "Engram" means this repository unless it says otherwise. Consequences: (a) the programme's "strongest service candidate" for C6 is the *other* Engram, and the due diligence rates it as a backend, not the adapter layer; (b) the stream-03 line "Dobby and Eng[ram] stay separate" almost certainly refers to that system too; (c) this repository has to be positioned by what it does, not by its name, and the name itself is a liability in any Jetstream conversation until it is disambiguated.
 
 
+000000. **The harnesses have no working memory today, so the C6 adapter is greenfield on the read side.** Courier: no retrieval at all, memory modules are stubs returning empty. Endzone: a real embedded KB with a priority-boosted similarity score, but its "memory" is a key-value store whose semantic path has never run in production, and a second, unconnected `KnowledgeWrite` store. Consequences: (a) the B0 retrieve-or-not gate and the C4-injected `knowledge.retrieve` have **no incumbent to displace** in either harness; (b) Courier's "linked in the ticket or invisible" is exactly the Spec-references-knowledge model in §3.3 done by hand, so the first Courier integration is *resolve the ticket's links through C6 and add the snapshot id*, nothing more; (c) Endzone's per-(issue, state) chunking with `inactive:` flags on superseded versions is a hand-rolled SUPERSEDES edge, and its 60-second runbook re-index is a source-of-record ingest — both are things the ledger does natively; (d) Endzone's KB is the obvious **second backend for the swap test** (swap between the PAI Context Graph and Endzone's KB behind `retrieve`, harness code unchanged); (e) Slack is unserved by Endzone and only link-fetched by Courier, so a Slack-thread ingest is the one source both harnesses lack. On the ontology: dimension 6 ("retrieval and ranking as classification", write back or runtime signal?) is the H4 question in the programme's words — the pack's answer is *runtime signal plus receipt, never silent write-back* until H4/H10 show the feedback loop is safe; dimensions 3, 5, 6, 10 are response-normalisation metadata the Atlas node must carry; 7, 8, 9 are unreflected anywhere and the one visible fragment ties them to a typed check that names Jev "as a technique, not an answer to who owns this schema". §5.4 asks whether the schema lives in a backend ("most likely Engram", the *other* Engram) or in the gateway; the pack's position is **gateway-level, held in the adapter layer, versioned with the snapshot manifest**, because a backend-held schema fails the swap test.
 00000. **The three verbs are the API, and `snapshot` is the gap this repo already fills.** `retrieve(query, scope, kind)`, `write(record, scope, kind)`, `snapshot(scope, as_of)`, with `kind ∈ {fact, episode, document}` closed and `scope` mandatory (caller identity, space/domain, classification tier). The document says outright that **no surveyed repo has `snapshot` as a first-class operation and it is the single largest gap.** An append-only Redis Stream with `global_position` *is* a point-in-time view; `as_of` maps to a stream position, the Neo4j projection is rebuildable to that position, and signing a manifest of (scope, position, content hashes) is a small addition. That is the demo that wins C6, and it needs the ledger, not the graph. The *fact/episode* split maps onto Engram's extracted-and-certified nodes vs raw Event/Episode records, so "certified callers write facts, anyone writes episodes" is the extraction gate (Jev A1) plus the certification path in §4.7. The normalised response shape — **content, provenance, freshness, confidence** — is the Atlas node minus `scores`, plus a `freshness` field (which the staleness audit A6 supplies) and a `confidence` that the page itself proposes to compute with a typed classifier and names Jev; the page also names the two risks this pack already has answers for: a synchronous external call with no retry or latency budget (jevmem's 2 s timeout, queue, rule fallback). The **knowledge-gap signal** closes the loop: every retrieval is scoped and snapshotted, so an adjudication agent can *replay what the interface returned* — that is the retrieval receipt (path-forward step 2) stated as a contract obligation, and "every confirmed gap is written back as a candidate Fact through the certification path" is the gated update mechanism (RSI T1). Two more design constraints: skills do **not** go through C6 (C4 delivery), so procedural memory (Workflow nodes) must be exposed as `episode`-kind evidence or as facts, not as skill files; and the wire format (REST vs MCP tool schema) is explicitly deferred, so the adapter should be built as an MCP-projected CLI in front of the existing REST per C5's pattern.
 0000. **The C6 contract is now verbatim, and the gap it names is the opportunity.** "One interface, not one store; declared scope per call; backend independence proven by a passing swap test; the store stays where it lives, we integrate, we do not absorb." The headline finding is that **the interface does not exist anywhere in the estate**; the best candidates are a backend (`agenticmemoryservice`) and a black box (DeepInsights). So the winning move for the PAI Context Graph is not "be the best backend" but **be the C6 adapter layer with a swap test**, and be *one* backend behind it — which is exactly the `ports/` + adapters structure this repo already has (EventStore / GraphStore protocols, harness adapters in ADR-0015). "Ingests the org's existing systems of record rather than becoming a new one" fits an event ledger that projects from sources; it does not fit a system that wants to own the knowledge. The **fault-adjudication rule** (§3.4) is the first outcome label the PDLC layer must record: for every non-recoverable failure, was the missing piece spec-type or tribal, per the assumptions ledger? That is a closed three-way label, it is the C9 signal that scores Company Knowledge, and it is a natural Jev Choice with the assumptions-ledger entry as state. "Entitlement-aware" makes ADR-0016/0029 tenant policy a contract requirement, not an option.
 0. **C6 is the whole game, and it is unowned.** "C6 Memory and Knowledge: one interface for agent read/write/retrieve, scoped per operation" has **no ratified holder**; so does C9 (evidence and eval), and C9 depends on an unowned autonomy-gate pipeline. Every contract is "one interface and one test". The Inner Loop's Spec step "resolves needed knowledge through C6". So the PDLC layer is not a schema Engram proposes; it is a **candidate implementation of C6** with a conformance test, and the self-review step's **assumptions ledger** ("ambiguity resolved by inference gets recorded, not silently discarded") is the first concrete write-side artefact the contract needs to carry. Engram's ledger-first design, per-operation scoping (tenant + run + stage), and provenance block map directly onto "scoped per operation". C9's signals (agreement, autonomy, quality, speed, cost per stage) are the outcome events P4 asks for; if C6 and C9 land together, the retrieval-receipt → outcome loop is a contract obligation rather than an Engram feature. C8 says OpenTelemetry GenAI spans are mandatory, which settles the ingest format question raised in digest D3 (Beacon's OTel-normalised JSONL).
@@ -353,4 +435,4 @@ The parent defines the interface and the backends. This page defines *what kind 
 6. **"Stream's own measures are an open question."** The discovery plan's metrics (ledger-vs-no-memory oracle pass rate, knowledge-update accuracy, feedback-loop rate, stale-flag precision) are a direct contribution to stream 03, and stream 04 is the telemetry backbone they should land on.
 7. **The commitment window is 3 months and one adopting organisation.** The discovery plan's five-week sequence fits inside it only if P1–P3 start now.
 
-**Still needed from the document:** §2.4, the rest of the eleven-repo table, ontology groups ② onward (dimensions 1, 2, 4, 6–9, 11) and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
+**Still needed from the document:** §2.4, the rest of the eleven-repo table, ontology dimensions 1, 2, 4, 7, 8, 9, 11, Part 7 (master list of open questions) and its retrieve/write/snapshot operations (this is the API Engram has to present), the 11 ontology dimensions (the node/edge vocabulary), and the Courier vs. Endzone retrieval comparison.
