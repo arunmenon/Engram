@@ -1,6 +1,6 @@
 # Gap analysis: from the PAI Context Graph to a C6 memory ecosystem
 
-**Date:** 2026-09-26. **Inputs:** the Jetstream grounding document ([transcription](pdlc-grounding/jetstream-reference-transcription.md)), this pack's research ([README](README.md)), the evidence catalogue ([D8](paper-digests.md)). **Level:** architecture and components, not code. A code reset is assumed; what this repo has is treated as *capabilities and design decisions*, not files.
+**Date:** 2026-09-26. **Inputs:** the Jetstream grounding document ([transcription](pdlc-grounding/jetstream-reference-transcription.md)), this pack's research ([README](README.md)), the evidence catalogue ([D8](paper-digests.md)). **Level:** architecture and components, not code. A code reset is assumed; what this repo has is treated as *capabilities and design decisions*, not files. **Assumption (set 2026-09-26):** a System One decision model is available inside PayPal, either Jev under an enterprise arrangement or an open equivalent hosted locally. Data-egress and vendor questions are out of scope for this analysis.
 
 **Naming.** "PAI Context Graph" (PCG) is this repository. "AMS" is AI Tech's `agenticmemoryservice`, which the programme calls Engram. "Gateway" is the C6 adapter layer that the document says does not exist anywhere.
 
@@ -57,7 +57,7 @@ Legend for *Gap*: **Have** (design exists and holds up), **Extend** (exists, nee
 | L7 | Buildability with pinned snapshot | Nothing | **Absent**: eval harness that pins model, prompt, snapshot id, thresholds | outer-loop-problems.md defines it | Jev as pass/fail judge (Sentry pattern) |
 | L7 | Outcome-linked receipts | Nothing (H4) | **Absent** | — | No |
 | L7 | Noise floor, held-out, one change per round | Eval harness leaks labels (V1–V8) | **Replace** | — | No |
-| L8 | Classification tiers, entitlements | Tenant policy (ADR-0016/0029), GDPR crypto-shred | **Extend**: tier is a scope field and a routing constraint; egress policy per tier (decides whether Jev can be called at all) | C10 holder | No |
+| L8 | Classification tiers, entitlements | Tenant policy (ADR-0016/0029), GDPR crypto-shred | **Extend**: tier is a scope field and a routing constraint | C10 holder | No |
 | L8 | Staleness sweep, provenance per item | Decay by age only | **Absent** (A6, P5) | jevmem pattern | **Yes** (Noul batch) |
 | L8 | Oversight | None | **Absent**: blocked-episode tagging, guardrail-trigger rate, one check outside the write path | — | No |
 | L9 | C4 capability injection, no credentials in harness | SDK/plugins call REST directly with keys | **Extend**: platform-injected scoped capability; MCP-projected CLI (C5 pattern) | MCP Hub | No |
@@ -104,9 +104,9 @@ The gateway is the best place in the whole stack for a decision model, because e
 
 Rules that carry over unchanged from the evidence: fit every threshold on the programme's own labelled set (≥ 40 labels per battery before refitting); log raw distributions in the receipt; pin the model version and record it in the snapshot manifest; shadow each decision per route before enabling; never copy a threshold from another system; the cheap battery first, escalation only when borderline and only if the held-out split shows it helps.
 
-### 3.2 The constraint the document does not mention
+### 3.2 Operating the decision plane
 
-Jev is a hosted, US-based API without zero-data-retention on standard terms. `scope.classification_tier` therefore decides **whether a System One call is allowed at all**, before it decides anything else. The gateway needs the egress rule as a deterministic step between the scope resolver and every model-backed decision: above some tier, G2–G13 run on a local decision model or on rules, and the receipt says so. This is also the answer to the document's own "adds a synchronous external call with no retry or latency budget yet defined": the budget is per decision, the retry is none on the hot path, and the fallback is the rule.
+With the model available in-house, the remaining engineering questions are latency and fallback, not access. Each decision in §3.1 carries a latency class and a rule fallback; the gateway records in the receipt which path ran. The document's own note that a typed classifier "adds a synchronous external call with no retry or latency budget yet defined" is answered per decision: a budget in the low hundreds of milliseconds for the synchronous ones (G2–G6), no retry on the hot path, batch every question that shares a state into one call, and asynchronous or scheduled execution for the rest (G7–G13). Pin the model version and record it in the snapshot manifest so buildability scores do not drift when the decider changes.
 
 ## 4. Components that do not exist anywhere yet
 
@@ -114,7 +114,7 @@ These are the pieces neither the PCG nor any named hub has. They are the build l
 
 1. **Conformance kit**: the three verbs as an executable spec, a scope schema, the response schema, and the swap test (run the same harness against two backends, assert identical harness code and equivalent results). Ship this first; it is what makes a thing "C6".
 2. **Backend registry and manifests** (§3, item 1).
-3. **Scope resolver and tier-based egress policy** (§3, items 2 and §3.2).
+3. **Scope resolver** (§3, item 2).
 4. **Snapshot service**: manifest format, signing, materialisation for position-less backends, `as_of` resolution, retention of manifests.
 5. **Receipt store and replay tool**: the ledger event types plus a CLI that reproduces what a scope saw at a snapshot.
 6. **Assumptions ledger**: record type, write API at self-review, link to Spec and Change.
@@ -142,7 +142,7 @@ These are the pieces neither the PCG nor any named hub has. They are the build l
 | 1–3 | Conformance kit; PCG behind `retrieve/write/snapshot`; scope schema; snapshot by position; Courier link-resolution demo with snapshot id in the Spec | The interface exists; `snapshot` exists; a harness uses it with no credential |
 | 3–5 | Registry + Endzone KB as second backend; **swap test passes**; RRF fusion; receipts | Backend independence; federation over two real backends |
 | 5–7 | Snapshot materialisation for position-less backends (Confluence via Endzone's ingest); PR-review re-resolution of the Spec's snapshot; assumptions ledger | The pinned-reviewer fitness function can run |
-| 6–9 | G2/G4/G6 in shadow with receipts; tier-based egress rule; local fallback; fault adjudication (G11) on a labelled set | Where a decision model earns its place, measured, not assumed |
+| 6–9 | G2/G4/G6 in shadow with receipts; rule fallbacks and latency budgets; fault adjudication (G11) on a labelled set | Where a decision model earns its place, measured, not assumed |
 | 8–11 | Certification path; supersession; knowledge-gap write-back; staleness sweep; Slack connector | Both loops contribute knowledge, not just consume it |
 | 10–12 | C9 signals joined to receipts; eval harness with pinned config; noise floor; H1/H2/H4 first numbers | Stream 03's "own measures" exist |
 
@@ -153,7 +153,7 @@ Discovery hypotheses map onto this: H1/H2 in weeks 5–7 once two backends are l
 1. Who ratifies C6, and would a running conformance kit with a passing swap test be accepted as the ratification artefact?
 2. Schema location: gateway-held (this analysis) vs backend-held (§5.4 leans AMS). The swap test cannot pass with a backend-held schema.
 3. Snapshot semantics for external systems of record: is materialise-and-sign acceptable for Confluence and Jira content, and what retention applies to materialised copies per tier?
-4. Egress: which classification tiers may ever reach a hosted decision model? This decides how much of §3.1 is Jev and how much is local.
+4. Decision-model hosting: which team operates the in-house System One endpoint, and what latency and model-pinning guarantees does it give the gateway?
 5. AMS's role: a certified-fact backend behind the gateway, with its certification path reused for L6? That turns the name collision into a division of labour.
 6. Outcome signals: will the Outer Loop adopt the admission/build-success/completion contracts, and can they carry a receipt id?
 7. Latency budget per call site: the Spec step can afford seconds; the C4-injected `retrieve` inside an Endzone loop cannot.
