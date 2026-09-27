@@ -1,4 +1,6 @@
-# Research bus — v2 after review 2
+# Research bus — repository mirror of the contract
+
+> **Authoritative copy:** `README.md` (v4) at the Drive root and `~/MemoryRSI-Signals/bin/bus.py`. This file is kept in step by hand and by the Monday mirror; where they differ, Drive wins. Additions since v2 as built: `briefs/`, `desk/` (with the rewritten pointer `desk-latest.json`), `telemetry/`; status chain `proposed → recommended | merged | rejected → accepted | rejected | deferred`, `overruled` returns to `recommended`; only a person writes `accepted`; specs carry an execution packet; uploads are serialised under a machine-wide lock as well as idempotency-keyed.
 
 **Transport:** Google Drive folder `research-bus` (root id `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim`). **Archive:** this directory, mirrored from Drive every Monday by the delta job. Agents write to Drive; humans and cloud sessions read either. Context for agents: `2026-09/scraping-agent-brief.md`, `2026-09/t0-intelligence-handbook.md`; beliefs: `2026-09/beliefs.md`.
 

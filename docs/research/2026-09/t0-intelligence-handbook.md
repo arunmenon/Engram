@@ -1,5 +1,7 @@
 # T0 Intelligence handbook — fitted to the X signals pipeline
 
+> **2026-09-27:** the loop is built and running on the Mac; see the [builder's briefing](research-loop-briefing-2026-09-27.md) and [loop state](research-loop-state.md). Where this handbook and the bus README v4 at the Drive root disagree, **README v4 and `bin/bus.py` win**. The main differences: hypotheses *recommends* and never accepts; a person accepts, rejects, defers or overrules on the desk daily; specs carry an execution packet; briefs and a desk exist; the challenger is Codex on a schedule; a Jev shadow runs inside triage; the desk projector runs every 30 minutes.
+
 **Date:** 2026-09-26. **Fits:** the pipeline described in [evidence/pipeline-flow.md](evidence/pipeline-flow.md) (fetch every 3 h, digest 30 min later, curation daily, hub publish manual; ~450–700 raw items/day, 5–25 insights/day; no per-item status, no queue, no weekly rollup). **Audience:** the agents that run this, and the one person who applies config.
 
 ## 0. Design decisions
@@ -67,6 +69,10 @@ Runs over items **not yet in the checkpoint's consumed set** (never "the last 24
 
 Budget guard: at most 12 notes and 6 cards per run; the rest go to the backlog with `deferred`, not dropped. Every run writes a new checkpoint file that `supersedes` the last.
 
+## 2b. Jev shadow inside triage (built; no effect on outputs yet)
+
+After staging, one batched typed-decision call per priority cluster: pillar choice, the five evidence scores, and a same-claim probability against each existing note. Results are hidden from the agent and compared afterwards; agreement numbers go into the triage log and the weekly delta. Shadow for at least one week on our own corpus before Jev is allowed to prune the queue or block a duplicate. When it is promoted, it prunes only with a rule fallback and never gets a "nothing matches" option as a gate.
+
 ## 3. Formats
 
 **Evidence note.** The existing `evidence/sources/` template, unchanged: metadata (URL, type, date, commit or version, relevance), TL;DR, claims, numbers table with n and conditions, mechanism details, limitations and counter-evidence, takeaways, open questions. Verbatim quotes for anything numeric. File name `evidence/sources/<kind>-<slug>.md`.
@@ -124,7 +130,7 @@ answers ──────────────────────▶ wa
 Monday: mirrors the tree ─────▶ repo docs/research/queue/ (git = archive)
 ```
 
-Rules: only the hypotheses agent writes to `decisions/`, `experiments/`, `verdicts/`; only the triage agent writes to `cards/`, `notes/`, `triage-log/`; anyone writes to `watch/`; nothing is edited or deleted after upload; `withdrawn` is a decision file like any other; the register in the repository is changed only by a person at the fortnightly review, from `experiments/`.
+Rules as built: triage writes `notes/`, `cards/`, `triage-log/`; hypotheses writes `experiments/`, `briefs/`, and decisions `recommended | merged | rejected | withdrawn`; the challenger writes `reviews/`; **a person** writes `accepted | rejected | deferred | overruled` from the desk; every job writes `telemetry/`. Status chain: `proposed → recommended | merged | rejected → accepted | rejected | deferred`; `overruled` returns a card to `recommended`. The publisher refuses `accepted` from any agent. Nothing is edited or deleted after upload. The register in the repository is updated from accepted specs at the fortnightly review.
 
 Why not have the digest decide? It carries the narrative load, its outputs are prose, and it has no view of the harness, the register or the statistics. Why not have the hypotheses agent read raw items? Because 500 items a day is T0's problem to compress. The card is the compression.
 
