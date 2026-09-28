@@ -60,3 +60,8 @@ Items 1–3 are independent of the PDLC requirement and of Jev's commercial term
 ## Branch note
 
 These documents are written on `claude/wonderful-ramanujan-2cxghz` (currently identical to `main` plus this folder). The newest application code is on `feature/autoresearch-eval-scoring` (= `dev` + evaluation tooling); `main` carries an older version of the same features and diverges from `dev` in 8 frontend and 3 backend files. Reconciling `main` and `dev` is a prerequisite for step 1 and is documented in the gap analysis branch.
+
+## Executor output (2026-09-28)
+
+- `../../../harness/` — T4 experiment harness (commit 004f652b): `gate_eval` for E-20260928-06-r2, `linkstale` for E-20260928-07-r2, `memdec` setup for E-20260928-12. Standard library, 10 tests. See `harness/README.md` for what every runner enforces and the open items for the T4 owner.
+- `../queue/runs/RUN-E-20260928-06-r2-20260928T190735Z.md`, `RUN-E-20260928-07-r2-…`, `RUN-E-20260928-12-…` — git mirror of the three run bundles written to the bus `runs/` folder. All three are `setup_only` with `run_eligibility: blocked`: every accepted spec's challenger review is `revise` and no decision carries a waiver, the datasets are not frozen (and two are not permitted under POLICY-v1.1 as sourced), and this session has no model-endpoint egress. Spend: 0 calls, 0 USD.
