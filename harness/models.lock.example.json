@@ -1,0 +1,11 @@
+{
+ "_note": "Copy to models.lock.json and fill every pin before a run. Values here are placeholders the preflight rejects until the template hashes match and a model version is pinned at freeze.",
+ "jev_model": "jev-latest",
+ "jev_model_version_pinned": "",
+ "api_endpoint": "https://api.typesafe.ai/v1/systemone",
+ "api_version": "v1",
+ "decoding": {"note": "TypeSafe exposes no decoding parameters on /v1/systemone; record the served model version instead"},
+ "template_sha256": {"noul_quote_supports_item.json": "", "choice_source_type.json": ""},
+ "choice_classes": [{"rubric_id": "user_stated"}, {"rubric_id": "tool_result"}, {"rubric_id": "inferred"}, {"rubric_id": "imported"}],
+ "laya": {"included": false, "reason": "licence not confirmed from a frozen model-card file (E-20260928-06-r2 arms)"}
+}

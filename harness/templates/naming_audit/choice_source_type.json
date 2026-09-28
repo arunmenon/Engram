@@ -1,0 +1,94 @@
+{
+ "template_id": "choice_source_type",
+ "decision_type": "choice",
+ "render_as": "choice",
+ "state_fields": [
+  "transcript_excerpt",
+  "item",
+  "quote"
+ ],
+ "question": "Read `transcript_excerpt`, the extracted memory `item`, and the supporting `quote`. Decide which kind of source the item rests on. Choose exactly one option; the option descriptions define what each option means.",
+ "rubrics": [
+  {
+   "rubric_id": "user_stated",
+   "text": "The user said it directly in the transcript excerpt, in their own words, as a fact, preference, decision or instruction about themselves or their work."
+  },
+  {
+   "rubric_id": "tool_result",
+   "text": "The content comes from a tool or system output shown in the transcript excerpt (a command result, file content, search result, API response), not from something the user said."
+  },
+  {
+   "rubric_id": "inferred",
+   "text": "Neither the user nor a tool stated it; the item is a conclusion drawn from behaviour, patterns or indirect evidence in the transcript excerpt."
+  },
+  {
+   "rubric_id": "imported",
+   "text": "The content was brought into the conversation from an external document, prior memory or pasted material that the transcript excerpt quotes or references rather than originates."
+  }
+ ],
+ "name_sets": {
+  "N": [
+   "user-stated",
+   "tool-result",
+   "inferred",
+   "imported"
+  ],
+  "R": [
+   "tgwkqb",
+   "oaivwm",
+   "usvzqd",
+   "bgirah"
+  ],
+  "L": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ]
+ },
+ "random_names_seed": 20260928,
+ "bindings": {
+  "aligned": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "shift1": [
+   1,
+   2,
+   3,
+   0
+  ],
+  "shift2": [
+   2,
+   3,
+   0,
+   1
+  ],
+  "shift3": [
+   3,
+   0,
+   1,
+   2
+  ]
+ },
+ "binding_note": "bindings[name] = rubric index bound to name slot j, i.e. name j is bound to rubric (j + s) mod 4; with aligned this is a Latin square.",
+ "orders": {
+  "canonical": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "reversed": [
+   3,
+   2,
+   1,
+   0
+  ]
+ },
+ "runs_per_aligned_cell": 2,
+ "gold_column": "gold_source_type",
+ "wording_status": "drafted by the executor from jev-typed-decisions.md A1 (Choice source_type) with the option names E-20260928-06-r2 prescribes; not yet confirmed as the current H5 wording by the T4 owner"
+}

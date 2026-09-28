@@ -1,0 +1,61 @@
+{
+ "template_id": "noul_quote_supports_item",
+ "decision_type": "noul",
+ "render_as": "choice_two_option",
+ "render_note": "The TypeSafe Noul primitive has no option names or option order, so every cell of this template (all three name sets, both bindings, both orders) is rendered through the Choice primitive with exactly two options. Name set N with the aligned binding is therefore the H5 Noul question carried by a two-option Choice, not the native Noul call. This is an open item for the T4 owner before freeze; the harness records render_as in run_manifest.json.",
+ "state_fields": [
+  "transcript_excerpt",
+  "item",
+  "quote"
+ ],
+ "question": "Read `transcript_excerpt`, the extracted memory `item`, and the supporting `quote`. Decide whether `quote`, as it appears in `transcript_excerpt`, supports `item`. Choose exactly one option; the option descriptions define what each option means.",
+ "rubrics": [
+  {
+   "rubric_id": "supports",
+   "text": "The quote is present in the transcript excerpt and, read in context, states or directly implies the content of the item. A reader who saw only the quote and its surrounding sentences would agree the item is grounded in it."
+  },
+  {
+   "rubric_id": "does_not_support",
+   "text": "The quote is absent from the transcript excerpt, or is present but does not state or directly imply the content of the item: the item adds facts, changes the meaning, generalises beyond what was said, or rests on inference the quote does not carry."
+  }
+ ],
+ "name_sets": {
+  "N": [
+   "yes",
+   "no"
+  ],
+  "R": [
+   "vriwzy",
+   "bgdzol"
+  ],
+  "L": [
+   "A",
+   "B"
+  ]
+ },
+ "random_names_seed": 20260928,
+ "bindings": {
+  "aligned": [
+   0,
+   1
+  ],
+  "reassigned": [
+   1,
+   0
+  ]
+ },
+ "orders": {
+  "canonical": [
+   0,
+   1
+  ],
+  "reversed": [
+   1,
+   0
+  ]
+ },
+ "runs_per_aligned_cell": 2,
+ "gold_column": "gold_quote_supports_item",
+ "positive_class": "supports",
+ "wording_status": "drafted by the executor from jev-typed-decisions.md A1 (Noul quote_supports_item); not yet confirmed as the current H5 wording by the T4 owner"
+}
