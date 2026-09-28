@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-13",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T051328Z-1b49",
+ "created_at": "2026-09-27T05:16:04Z",
+ "idempotency_key": "decision:PC-20260927-02:recommended:DEC-20260927-07",
+ "card_id": "PC-20260927-02",
+ "prev_decision_id": "DEC-20260927-07",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Superseding spec E-20260927-01-r2 answers REV-20260927-07 with a provenance allowlist and logged payload checks that keep evaluator outcomes away from both judges, a predeclared invalid-call and retry policy with all-attempt cost and a 0.98 completion floor, a deterministic threshold tie rule, repeat dispatch reconciled with cost, per-split family and failure-cluster minimums with design-effect power and family-level flip bounds, and every missing packet item turned into a machine-checked not_runnable condition. It can still move B14 with a local calibration measurement and decides which judge gates the P3 harness, so it is worth running once policy and the harness exist.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260927-01-r2",
+   "file_id": "1-KvuLONr35rax0tC_Ifs98-fhHkImVBy",
+   "sha256": "154725bcc69796faf71bf580ca76000a032dd5fd34c8c9fe6dbae1048f83855e"
+  }
+ ],
+ "merged_into": null
+}

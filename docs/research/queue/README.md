@@ -1,8 +1,10 @@
-# Research bus — v3 (CTO gate, telemetry, desk)
+# Research bus — v4 (CTO gate, telemetry, desk, briefs)
 
 **Transport:** this Google Drive folder, `research-bus` (root id `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim`). **Archive:** the Engram repository, `docs/research/queue/`, mirrored from here every Monday by the delta job. Agents write here; humans and cloud sessions read either. Context for agents in the repository: `docs/research/2026-09/scraping-agent-brief.md`, `t0-intelligence-handbook.md`; beliefs: `beliefs.md`.
 
-**What v3 changes (2026-09-26, decided by the CTO):** (1) the hypotheses agent no longer accepts experiments; it writes `recommended`, and only a person writes `accepted` or `rejected`, daily, from the desk. (2) Every agent run appends one record to `telemetry/`. (3) A `desk/` folder holds the projector's rollup that the CTO desk page reads. Everything else is v2 unchanged.
+**What v4 adds (2026-09-26, decided by the CTO):** a `briefs/` folder: for every recommended experiment the hypotheses agent also writes a plain-language brief for the CTO (the question, why now, the evidence in words, the reviewer's concerns, what approval commits to, a suggested action). The desk shows the brief first and the spec behind it. Everything else is v3 unchanged.
+
+**What v3 changed (2026-09-26, decided by the CTO):** (1) the hypotheses agent no longer accepts experiments; it writes `recommended`, and only a person writes `accepted` or `rejected`, daily, from the desk. (2) Every agent run appends one record to `telemetry/`. (3) A `desk/` folder holds the projector's rollup that the CTO desk page reads. Everything else is v2 unchanged.
 
 ## Folders
 
@@ -21,6 +23,7 @@
 | `watch/` | `1Gnm5VMrQNxa9S2By0P5GzoUxr1gvIjVM` | anyone; triage answers | requests and `.answer` files |
 | `delta/` | `1m0zNCGTapSFEd9alpujJXXyX-BFuAqed` | delta (projector) | weekly delta; **immutable index snapshots** `index-<watermark>.json` |
 | `telemetry/` | `12a92Fp9sWmteVP475mktGRp2KOCSxle4` | every job, own records | `TEL-<run_id>.json`: role, feed, started, finished, status, counts, errors. One per run, never edited |
+| `briefs/` | `1Mov-T2i5qkwf70EFO1H_Ls8UvjcE58rk` | hypotheses | `BRIEF-<card id>-<spec id>.md`: plain-language brief for the CTO on one recommended spec; one per spec version, never edited |
 | `desk/` | `1FdGJ9RJ_fbGyy9ddeNBx52yxlbw4SQA9` | desk projector | `desk-latest.json` (pointer, rewritten) and immutable `desk-<watermark>.json` rollups the CTO desk page reads |
 | root | `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim` | — | `README.md`, templates, `policy.md` (standing policy; **unset** until the CTO writes it); `index-latest.json` is a non-authoritative pointer written only by the projector |
 

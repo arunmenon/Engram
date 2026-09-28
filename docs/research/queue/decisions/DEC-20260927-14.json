@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-14",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T051328Z-1b49",
+ "created_at": "2026-09-27T05:16:04Z",
+ "idempotency_key": "decision:PC-SURVEY-20260927-01:recommended:none",
+ "card_id": "PC-SURVEY-20260927-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Can move B1 (working): DFAH found frontier decision unanimity of only 64 to 94% at T=0, so retained artifacts may show what was served without letting a reviewer re-derive the decision, and E-20260927-02 measures that on 50 of our Spec-to-PR-review cases. Now because P0 is ratifying the replay contract and receipt schema in weeks 1 to 2, and the fixture is cheap (S) on the P0 harness.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260927-02",
+   "file_id": "1wq9NUfzFklg8DNpRCMGmwHI_upRfKGYP",
+   "sha256": "ac5a5db7f9f423428e90ab600532288c95de4c1e1bb386a2fe16433bad7aed73"
+  }
+ ],
+ "merged_into": null
+}

@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260926-08",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260926T133420Z-4f35",
+ "created_at": "2026-09-26T13:40:18Z",
+ "idempotency_key": "decision:PC-20260926-04:recommended:DEC-20260926-04",
+ "card_id": "PC-20260926-04",
+ "prev_decision_id": "DEC-20260926-04",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised spec E-20260926-03-r2 adds a raw per-source threshold arm (A3), cross-fits over whole sessions or documents, makes held-out Brier and log loss the calibration endpoint, and reports selection precision only as a rank-invariance check, so no gain is attributed to recalibration that per-source thresholding explains; it rests on N-20260926-07 alone. It can move B14 (working) only by what the data show, before H5 and H10b set probability thresholds and bands; completing the packet is a prerequisite and it stays queued while policy is unset.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260926-03-r2",
+   "file_id": "1tC9Aj90hytm7WV7L4rf-AVosldA2LRI5",
+   "sha256": "6767110e9443de589bfe4cea2c781d92a4fb1bdcc59a513f6e140931477ebb10"
+  }
+ ],
+ "merged_into": null
+}

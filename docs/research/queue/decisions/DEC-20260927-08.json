@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-08",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T034502Z-8bdb",
+ "created_at": "2026-09-27T03:58:00Z",
+ "idempotency_key": "decision:PC-20260927-03:merged:none",
+ "card_id": "PC-20260927-03",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "merged",
+ "reason": "Same arms as the open spec E-20260926-06: a single Choice vs one yes/no per candidate in one request, over identical fused pools, so the same run answers it. Its revision E-20260926-06-r2, written today, adds the card's split by number of gold-relevant items (1 vs at least 3), with nDCG@10 and the card's predeclared margins.",
+ "input_refs": [],
+ "merged_into": "E-20260926-06"
+}

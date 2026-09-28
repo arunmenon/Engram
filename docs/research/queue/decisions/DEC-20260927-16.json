@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-16",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T051328Z-1b49",
+ "created_at": "2026-09-27T05:16:04Z",
+ "idempotency_key": "decision:PC-SURVEY-20260927-03:recommended:none",
+ "card_id": "PC-SURVEY-20260927-03",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Can move B16 (lead) and tests B7 against its strongest simple baseline: CL-Bench found raw in-context history gained more than ACE playbooks and agent notes (20.1 vs 8.6 and 7.8% with GPT-5.4), yet none of H3's arms is raw history, so E-20260927-03 adds raw-history and stateless arms on DreamBench-SWE. Now because H3 and E-20260926-04-r2 are about to decide whether Consumer 4 outputs are read surfaces, and that decision is unsound without this baseline.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260927-03",
+   "file_id": "1-tLwpEZfs97ryA1lXKp7ybEgGDjR1R2f",
+   "sha256": "448f49c8373357152e71a90def70590b9d6d441d4c6221d5d9956196482232a8"
+  }
+ ],
+ "merged_into": null
+}

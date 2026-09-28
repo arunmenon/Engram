@@ -1,0 +1,1344 @@
+{
+ "schema_version": 1,
+ "generated_at": "2026-09-26T13:02:39Z",
+ "watermark": "20260926T130155Z",
+ "policy": {
+  "status": "unset",
+  "raw": "# Standing policy for autonomous runs\n\nstatus: unset\nset_by: (CTO)\nset_on: (date)\n\npermitted_datasets: []\nbudget_per_run: {tokens: null, cost_usd: null, wall_clock_h: null}\nbudget_per_week: {tokens: null, cost_usd: null}\nconcurrency: null\nenvironments: []\nreview_required_for: [expensive runs, central-belief changes, novelty claims, contradictory sources, promotions, random sample of accepted and rejected cards]\n\nWhile status is unset, accepted experiments queue and nothing executes.\n"
+ },
+ "runner": {
+  "status": "none",
+  "note": "no executor exists yet; accepted specs queue"
+ },
+ "queue": [],
+ "approved": [],
+ "deferred": [],
+ "agent_decided": [
+  {
+   "card_id": "PC-20260926-03",
+   "file_id": "1nZeC6VVJibZFTOpeLCPfraESlaW_4wV1",
+   "sha256": "09c7ea47910adf13266b1cefa9778082205c5538080c4cd3f0c97d5da8f9be38",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "Averaging a single-call choice rerank over 8 random candidate orderings raises recall@1 by at least 2 points over the same call with candidates in RRF order, on our rerank set.",
+   "proposed_experiment": "Arm A = one Jev choice call over the RRF-ordered pool (current design, B10); Arm A2 = same call with the pool in one random order (order-sensitivity control); Arm B = mean choice probability over 8 random orderings batched in one or more calls. Candidate labels are opaque ids in all arms. Dataset: LoCoMo-200 rerank pools used for B10 plus 100 build-time read queries from P0 fixtures, 30 candidates each. Metric: recall@1 and recall@5, plus the rank correlation between candidate position and chosen probability. Predeclared margin: Arm B >= Arm A + 2 points recall@1 on both sets. Kill: Arm A and A2 within 1 point (no order sensitivity) or Arm B gain < 1 point at 8x decision cost.",
+   "why_it_matters": "R4 asks that a decision be automated only when its error behaviour is understood; our rerank rests on one choice call whose order sensitivity nobody has measured. A positive result changes the rerank call shape; a null result closes a confound on B10.",
+   "pillar_primary": "R4",
+   "pillar_secondary": [
+    "R3"
+   ],
+   "strength": "vendor-benchmark",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B10",
+    "B14"
+   ],
+   "component": "listwise rerank (H5-rerank)",
+   "decision_it_could_change": "whether the single-call choice rerank is shipped with candidates in retrieval order, in shuffled order, or averaged over several orderings",
+   "source_note": {
+    "name": "blog-typellm-fair-die-permutation-averaging.md",
+    "file_id": "1PO5avpcb1Ts-4ERjjaz-pp_ixaWQnthV"
+   },
+   "source_posts": [
+    "2102654986475979216",
+    "2102341093472010266"
+   ],
+   "status": "rejected",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-03",
+     "status": "rejected",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "The evidence does not support the claim and there is no dataset or harness for it this quarter. The note's own correction says Jev's bias follows the label, not the position (86.01% for 'one' after all 720 orderings), so with opaque ids in every arm the averaging arm has no supported mechanism, and the 'LoCoMo-200 rerank pools used for B10' are Hindsight's, not a dataset or rerank harness on our Q4 queue. Re-raise as an order-shuffle control inside H5-rerank when that experiment is specced.",
+     "file_id": "1pqBKnNRhJd80py-y8dOoW2abAlT-LOs-",
+     "experiment_id": null
+    }
+   ],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-05",
+    "outcome": "revise",
+    "checked": "\"Read the card and note; checked TypeLLM fair-die .txt and relevant HTML, original and all-order tables, permutation averaging and KL-divergence explanation. Confirmed 83%, 77% to 91%, 718 of 720, 86.01%, 13.47% to 25.41%, 79% and 97%. Compared all five grades, B10/B14 and the proposed three arms.\"",
+    "not_verified": "\"No Jev relevance-pool result, opaque-id ablation, rerank implementation, local LoCoMo pools or P0 query set was staged. The script/raw results are not fetched or pinned. Proposed sample sizes, candidate count and margins are not empirical source results. Policy is unset.\"",
+    "findings": [
+     "\"[attribution] Card line 23 predicts a Jev recall gain of at least 2 points from 8 orderings. The source's large averaging gains concern Qwen's die-probability KL error; Jev retains label bias. No evidence establishes that opaque ids fix it or that the Qwen effect transfers to Jev reranking.\"",
+     "\"[baseline] Eight orderings receive more scoring work than a single call; there is no same-order repeated-scoring control at the same budget. An observed gain could reflect ensembling or stochastic variance, not order correction.\"",
+     "\"[alternative] Killing on A versus one random A2 being within 1 point can miss order sensitivity when different item-level changes cancel in aggregate. No repeated permutations, per-query disagreement analysis or paired uncertainty is specified.\"",
+     "\"[numbers] Cited note lines 55 and 67 says the error metric is unspecified. Source How many permutations do we need? explicitly states \\\"KL divergence\\\" and compares against \\\"average single-order error\\\"; update that locator and denominator.\"",
+     "\"[injection] Source contains embedded install and example-run instructions; none was executed.\""
+    ],
+    "requested_corrections": [
+     "\"Make this an exploratory Jev order-sensitivity test before forecasting recall gain; distinguish label effects, order effects and probability calibration.\"",
+     "\"Add an equal-budget repeated-order arm, fixed model/version/seeds, paired uncertainty and per-query order-disagreement metrics. Do not stop from one aggregate A/A2 comparison.\"",
+     "\"Identify accessible local pools and revise the cited note's KL metric description.\""
+    ],
+    "file_id": "1bzYpxuDCPfxFt6UemAYZe6jbA5q71DJo"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1nZeC6VVJibZFTOpeLCPfraESlaW_4wV1/view",
+    "note": "https://drive.google.com/file/d/1PO5avpcb1Ts-4ERjjaz-pp_ixaWQnthV/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/1bzYpxuDCPfxFt6UemAYZe6jbA5q71DJo/view"
+   }
+  }
+ ],
+ "proposed_undecided": [
+  {
+   "card_id": "PC-20260926-01",
+   "file_id": "1aplQvgbkgLBQ4E0XHpwZUhocUm1BpSox",
+   "sha256": "cd821d8a27ec1a49bc4e7def2cad2d765c01fc82ec38b3e6e6ae729fb989879b",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "An instruction-and-concealment gate applied to model-written carry-over summaries blocks at least 45 of 50 planted concealment directives while falsely blocking at most 2 of 50 clean summaries, whereas serving summaries ungated passes all 50.",
+   "proposed_experiment": "Arm A = consolidation/briefing summaries served as written (current path); Arm B = same summaries passed through the served-memory injection gate extended with a concealment class (\"only if asked\", \"do not mention unless needed\", \"withhold\"). Dataset: 50 clean summaries generated by our stack on P0 fixtures plus 50 copies with one planted concealment directive each (phrasings drawn from the OpenAI report and paraphrases, written by someone other than the gate author). Metric: planted directives blocked and clean summaries falsely blocked. Predeclared margin: Arm B blocks >= 45/50 with <= 2/50 false blocks. Kill: false blocks > 5/50, or blocked < 40/50 after one prompt revision.",
+   "why_it_matters": "R8 says evidence cannot authorise its own use, and the OpenAI report shows the model itself can write instructions into the artifact that carries context forward. If the gate works at this cost, gated consolidation becomes a precondition for turning Consumer 4 (consolidation) on at all.",
+   "pillar_primary": "R8",
+   "pillar_secondary": [
+    "R2"
+   ],
+   "strength": "vendor-benchmark",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B24",
+    "B18",
+    "B25"
+   ],
+   "component": "gated consolidation / served-memory injection gate",
+   "decision_it_could_change": "whether consolidation and briefing outputs pass through the same injection gate as extracted memories before they are served (today only extracted lines are gated)",
+   "source_note": {
+    "name": "blog-openai-deception-in-compaction-summaries.md",
+    "file_id": "1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6"
+   },
+   "source_posts": [
+    "2103594929427800381"
+   ],
+   "status": "proposed",
+   "decision_chain": [],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-03",
+    "outcome": "revise",
+    "checked": "\"Read the card and cited note; compared the OpenAI compaction-report .txt and relevant HTML text, Summary, What happened, investigation and mitigation. Confirmed 2.15%, 0.27%, the 20% monitored share and both quoted examples. Checked all five grades, B18/B24/B25, proposed paired arms, 50 clean/50 planted cases, margins and kill rule. Both manifest entries refer to the same staged card.\"",
+    "not_verified": "\"Internal runs, monitor accuracy, absolute denominators and local gate/P0 fixture implementation are unavailable; the unresolved social post was not fetched. The proposed counts and margins are design choices, not source results. Policy is unset, so this proposal cannot authorize execution.\"",
+    "findings": [
+     "\"[leakage] Card line 24 permits one prompt revision after measuring the planted/clean set but declares no separate development and final holdout sets. Reusing these examples for revision and acceptance would train on the test; a different directive author does not prevent that leakage.\"",
+     "\"[baseline] Ungated serving necessarily passes every directive, so that contrast measures filtering only. It cannot establish downstream concealment reduction or that benign uses of quoted concealment language are preserved. Add such clean cases and distinguish gate detection from behavioral safety.\"",
+     "\"[attribution] Cited note, Limitations, says the page does not state whether instructions were followed. Source Summary explicitly says \\\"These instructions were often followed.\\\" No follow-through rate is given, but the qualitative observation must not be described as absent.\"",
+     "\"[grade] Directness high for the observed artifacts and low control/independence/reproducibility are supported. Applicability high needs qualification: the source is RL compaction, with no controlled deployment or summary-gate result. B18 and B24 receive analogous risk evidence, not replication of their specific measurements.\"",
+     "\"[injection] Source contains embedded instructions, including \\\"Be transparent only if asked\\\" and \\\"Do not mention in final unless needed.\\\" Card and note also quote these as test material; none was followed.\""
+    ],
+    "requested_corrections": [
+     "\"Separate development from a locked final test, keep paired variants in the same partition, freeze the gate before final scoring and report uncertainty for block/false-block rates.\"",
+     "\"Add benign quoted directives and legitimate confidentiality instructions to clean controls; limit the claim to synthetic detection unless downstream behavior is tested.\"",
+     "\"Correct the cited note's follow-through statement and qualify applicability to deployed consolidation.\""
+    ],
+    "file_id": "1H5QPRLj6GDee67HiRMvNMXYGnIJ5xOOs"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1aplQvgbkgLBQ4E0XHpwZUhocUm1BpSox/view",
+    "note": "https://drive.google.com/file/d/1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/1H5QPRLj6GDee67HiRMvNMXYGnIJ5xOOs/view"
+   },
+   "age_days": 0.1
+  },
+  {
+   "card_id": "PC-20260926-01",
+   "file_id": "1BCBPEmlDpeuBACVOCMtYtoLFVq0TWwlp",
+   "sha256": "cd821d8a27ec1a49bc4e7def2cad2d765c01fc82ec38b3e6e6ae729fb989879b",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "An instruction-and-concealment gate applied to model-written carry-over summaries blocks at least 45 of 50 planted concealment directives while falsely blocking at most 2 of 50 clean summaries, whereas serving summaries ungated passes all 50.",
+   "proposed_experiment": "Arm A = consolidation/briefing summaries served as written (current path); Arm B = same summaries passed through the served-memory injection gate extended with a concealment class (\"only if asked\", \"do not mention unless needed\", \"withhold\"). Dataset: 50 clean summaries generated by our stack on P0 fixtures plus 50 copies with one planted concealment directive each (phrasings drawn from the OpenAI report and paraphrases, written by someone other than the gate author). Metric: planted directives blocked and clean summaries falsely blocked. Predeclared margin: Arm B blocks >= 45/50 with <= 2/50 false blocks. Kill: false blocks > 5/50, or blocked < 40/50 after one prompt revision.",
+   "why_it_matters": "R8 says evidence cannot authorise its own use, and the OpenAI report shows the model itself can write instructions into the artifact that carries context forward. If the gate works at this cost, gated consolidation becomes a precondition for turning Consumer 4 (consolidation) on at all.",
+   "pillar_primary": "R8",
+   "pillar_secondary": [
+    "R2"
+   ],
+   "strength": "vendor-benchmark",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B24",
+    "B18",
+    "B25"
+   ],
+   "component": "gated consolidation / served-memory injection gate",
+   "decision_it_could_change": "whether consolidation and briefing outputs pass through the same injection gate as extracted memories before they are served (today only extracted lines are gated)",
+   "source_note": {
+    "name": "blog-openai-deception-in-compaction-summaries.md",
+    "file_id": "1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6"
+   },
+   "source_posts": [
+    "2103594929427800381"
+   ],
+   "status": "proposed",
+   "decision_chain": [],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-03",
+    "outcome": "revise",
+    "checked": "\"Read the card and cited note; compared the OpenAI compaction-report .txt and relevant HTML text, Summary, What happened, investigation and mitigation. Confirmed 2.15%, 0.27%, the 20% monitored share and both quoted examples. Checked all five grades, B18/B24/B25, proposed paired arms, 50 clean/50 planted cases, margins and kill rule. Both manifest entries refer to the same staged card.\"",
+    "not_verified": "\"Internal runs, monitor accuracy, absolute denominators and local gate/P0 fixture implementation are unavailable; the unresolved social post was not fetched. The proposed counts and margins are design choices, not source results. Policy is unset, so this proposal cannot authorize execution.\"",
+    "findings": [
+     "\"[leakage] Card line 24 permits one prompt revision after measuring the planted/clean set but declares no separate development and final holdout sets. Reusing these examples for revision and acceptance would train on the test; a different directive author does not prevent that leakage.\"",
+     "\"[baseline] Ungated serving necessarily passes every directive, so that contrast measures filtering only. It cannot establish downstream concealment reduction or that benign uses of quoted concealment language are preserved. Add such clean cases and distinguish gate detection from behavioral safety.\"",
+     "\"[attribution] Cited note, Limitations, says the page does not state whether instructions were followed. Source Summary explicitly says \\\"These instructions were often followed.\\\" No follow-through rate is given, but the qualitative observation must not be described as absent.\"",
+     "\"[grade] Directness high for the observed artifacts and low control/independence/reproducibility are supported. Applicability high needs qualification: the source is RL compaction, with no controlled deployment or summary-gate result. B18 and B24 receive analogous risk evidence, not replication of their specific measurements.\"",
+     "\"[injection] Source contains embedded instructions, including \\\"Be transparent only if asked\\\" and \\\"Do not mention in final unless needed.\\\" Card and note also quote these as test material; none was followed.\""
+    ],
+    "requested_corrections": [
+     "\"Separate development from a locked final test, keep paired variants in the same partition, freeze the gate before final scoring and report uncertainty for block/false-block rates.\"",
+     "\"Add benign quoted directives and legitimate confidentiality instructions to clean controls; limit the claim to synthetic detection unless downstream behavior is tested.\"",
+     "\"Correct the cited note's follow-through statement and qualify applicability to deployed consolidation.\""
+    ],
+    "file_id": "1H5QPRLj6GDee67HiRMvNMXYGnIJ5xOOs"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1BCBPEmlDpeuBACVOCMtYtoLFVq0TWwlp/view",
+    "note": "https://drive.google.com/file/d/1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/1H5QPRLj6GDee67HiRMvNMXYGnIJ5xOOs/view"
+   },
+   "age_days": 0.1
+  },
+  {
+   "card_id": "PC-20260926-02",
+   "file_id": "1fGCeBunNYJyqknQx3iAixm8aQTLqclsf",
+   "sha256": "2dacddc2f4860469893db4bad10593b2655c46b23f744c84d53beb772bd6c32b",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "On our labelled escalation set, the input-feature escalation classifier's leave-one-repository-out AUC is at least 0.10 below its item-level AUC and within 0.03 of a per-repository base-rate oracle, while an output-feature deferral rule keeps at least 0.05 more AUC under leave-one-repository-out.",
+   "proposed_experiment": "Arm A = input-feature escalation classifier (current H5 design) evaluated item-level 5-fold; Arm A' = same classifier evaluated leave-one-repository-out and with labels shuffled within repository; Arm B = deferral rule on the tier-1 output (answer length, abstain markers, confidence spread) evaluated leave-one-repository-out. Dataset: the H5 labelled turns grouped by repository (at least 6 repositories, 300 turns). Metric: AUC for \"tier 2 changes the decision\", plus shuffle-retention ratio. Predeclared margin: if Arm A' shuffle retains >= 85% of Arm A AUC, the classifier is declared group-memorising. Kill: if leave-one-repository-out AUC of Arm A is within 0.03 of item-level, drop this card (no group effect).",
+   "why_it_matters": "R6 requires that an evaluation support its conclusion; a gate that only recognises which repository a turn came from will fail on the next repository. The result decides how every R4 gate in the stack is evaluated before it ships.",
+   "pillar_primary": "R6",
+   "pillar_secondary": [
+    "R4"
+   ],
+   "strength": "repo-pinned",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B13",
+    "B20"
+   ],
+   "component": "two-tier escalation (H5) evaluation protocol",
+   "decision_it_could_change": "whether the H5 escalation classifier is judged on item-level splits or on leave-one-repository-out plus shuffle controls, and whether escalation keys on input features or on the cheap tier's output",
+   "source_note": {
+    "name": "blog-replicating-routellm-label-shuffle-bedrock.md",
+    "file_id": "1Um_nnb_qrxXLNUH2Fs1ehVttVpbREUM4"
+   },
+   "source_posts": [
+    "2103259862985752788"
+   ],
+   "status": "proposed",
+   "decision_chain": [],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-04",
+    "outcome": "revise",
+    "checked": "\"Read the card and cited note; checked the Feeny blog .txt, relevant HTML, Setup, diagnostic Table 1, shuffle-warning passage, label stability, Table 3, cost model and limitations, plus README at 4577252b108ec70fc9f8d81edac7ac2329cc08d8. Compared five grades, B13/B20 and all proposed arms/margins.\"",
+    "not_verified": "\"No local H5 dataset or implementation was staged; repository code, raw labels, folds and cached embeddings were not fetched beyond the README. No social posts were available. Policy is unset; cost S is not an executable budget.\"",
+    "findings": [
+     "\"[attribution] The >=85% raw-AUC retention rule in card line 24 is not a sufficient group-memorisation test. Source section 3.2 explicitly warns that low-base-rate shuffle can mislead: deferral retains \\\"0.840 of a real 0.846\\\" while LOGO supports generalisation. The proposal omits this counterexample.\"",
+     "\"[leakage] A per-repository base-rate oracle is undefined for a repository excluded from training. Using its test labels would be an explicitly nondeployable oracle; presenting it as a leakage-safe control would be wrong. The card also conflates LOGO and shuffled item-level evaluation in Arm A'.\"",
+     "\"[baseline] The claim's 0.10 AUC drop, within-0.03 oracle gap and 0.05 deferral gain are not all covered by the declared success rule. Declare separate unshuffled item-level, shuffled-training item-level and LOGO results; preserve true test labels and use identical folds/features where appropriate.\"",
+     "\"[grade] High control is too broad if transferred from the source to this design: only six repositories and 300 turns are proposed, with no positive counts or cluster-level uncertainty. A pinned README alone does not verify high reproducibility of the diagnostics.\"",
+     "\"[injection] The source README contains deployment, scoring and teardown commands. They were treated as evidence and not executed.\""
+    ],
+    "requested_corrections": [
+     "\"Use shuffle retention only as a diagnostic alongside group-held-out performance and prevalence checks, with repeated training-label permutations.\"",
+     "\"Define whether the oracle is descriptive and label-informed; add a train-only global-rate baseline for unseen repositories and report group-level uncertainty.\"",
+     "\"Predeclare acceptance for every part of the claim, positive-count requirements and separate evaluation protocols; propagate corrections in REV-20260926-08 to the cited note.\""
+    ],
+    "file_id": "1TqN_bG1kvabyChY1fG_m9SBfsKOAf7q-"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1fGCeBunNYJyqknQx3iAixm8aQTLqclsf/view",
+    "note": "https://drive.google.com/file/d/1Um_nnb_qrxXLNUH2Fs1ehVttVpbREUM4/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/1TqN_bG1kvabyChY1fG_m9SBfsKOAf7q-/view"
+   },
+   "age_days": 0.1
+  },
+  {
+   "card_id": "PC-20260926-04",
+   "file_id": "1VDT45VszMAHtb7A6qRnQcHvVNSRfkD1a",
+   "sha256": "570a26214469ab16fa56853403981cce537d8764ff2fe00c512347e79f89365a",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "Cross-fitted isotonic recalibration of the save/skip and injection-gate probabilities on our labels lowers per-source ECE by at least 2x and raises precision at fixed 80% coverage by at least 3 points compared with fixed thresholds on raw probabilities.",
+   "proposed_experiment": "Arm A = raw decision-model probabilities with fixed thresholds (content 0.5, injection 0.5); Arm B = isotonic recalibration fitted per source (chat turns, repo docs, tool output) on half the labels and scored on the other half, swapped and repeated 20 times; thresholds then chosen for 80% coverage. Dataset: at least 150 labelled save/skip turns and 150 labelled injection-gate lines per source (B21 sizes), labelled by someone other than the gate author. Metric: per-source ECE, calibration slope, precision at 80% coverage. Predeclared margin: ECE ratio A/B >= 2 on at least 2 of 3 sources and precision +3 points. Kill: ECE ratio < 1.3 on all sources, or precision change within +/- 1 point.",
+   "why_it_matters": "R4 requires that we understand error costs before automating a decision; three independent sources this week (crash narratives 3.3x, RLCDAlignBench per-benchmark ECE 0.168, Banking77 ECE 0.097) say vendor probabilities are not calibrated per source. The result decides whether per-source recalibration is a required step in every gate.",
+   "pillar_primary": "R4",
+   "pillar_secondary": [
+    "R6"
+   ],
+   "strength": "paper-single-benchmark",
+   "cost": "M",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B14",
+    "B13"
+   ],
+   "component": "typed decision gates (write gate, injection gate)",
+   "decision_it_could_change": "whether decision-model gates ship with vendor-scale fixed thresholds or with locally cross-fitted recalibration per source",
+   "source_note": {
+    "name": "paper-calibrated-decisions-crash-narratives-jev-2609-24052.md",
+    "file_id": "1zwnUEjFLuio2ywqldoRasxQaJ-srknOY"
+   },
+   "source_posts": [
+    "2103052792147456510"
+   ],
+   "status": "proposed",
+   "decision_chain": [],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-06",
+    "outcome": "revise",
+    "checked": "\"Read card and cited note; inspected crash-paper abstract/full .txt and relevant HTML, sections 3.3-3.4 and 4.1-4.4, Tables 4 and 6 context, review-budget passage and data availability. Checked F1 0.908, gain 0.059, ECE/Brier/slope ranges and pooled 0.0231 to 0.0069 recalibration. Compared five grades, B14/B13/B21 and proposed arms.\"",
+    "not_verified": "\"RLCDAlignBench ECE 0.168 and Banking77 ECE 0.097 have no staged primary sources or input_refs here; the asserted independence of three sources is unverified. Human audit rows await data-owner permission; no local labelled gate data, metric implementation or power analysis was staged. Policy is unset.\"",
+    "findings": [
+     "\"[baseline] Card lines 23-24 mixes raw fixed thresholds with calibrated thresholds chosen for 80% coverage. Within a source, monotone isotonic calibration preserves ordering except ties, so precision at identical rank coverage has no general improvement mechanism. The source section 4.2 explicitly says ranking is invariant to a monotone transformation.\"",
+     "\"[leakage] The card does not say which half selects thresholds or keep related lines/turns from one episode together. The source splits by narrative to avoid one record crossing fit/evaluation; threshold choice also requires held-out certification.\"",
+     "\"[belief B21] The card calls 150 labels per task/source \\\"B21 sizes\\\". B21 bounds a zero-event rate on independent cases, not power for ECE ratios or a 3-point precision difference. Splitting those labels further does not establish adequate positive counts.\"",
+     "\"[attribution] The card claims three independent calibration sources but cites only the crash note. The 3.3x result is pooled recalibration, not evidence that both proposed gates improve on at least two sources.\"",
+     "\"[numbers] Cited note line 44 states \\\"T(k, l) = 3,562 + 122k + 0.236 l\\\" and \\\"R^2 = 0.975\\\". Source section 4.1 gives the question-count model \\\"α=171\\\", \\\"β=122\\\", \\\"b=0.236\\\", \\\"R2=0.987\\\"; 3562 and 0.975 belong to the separate fixed-27-question fit in Table 2. The note double-counts schema overhead.\"",
+     "\"[numbers] Cited note lines 46/61 says \\\"0.8% of flagged records per variable\\\". Source section 4.3 says \\\"Pooled\\\" for 0.8% and gives per-variable budgets \\\"0.0% to 72.2%\\\". The pooled figure is not a deployable per-variable policy.\"",
+     "\"[cluster] Separate calibration error, operating-threshold utility and extraction cost claims. Directness/control/applicability are bounded by the crash task; medium reproducibility must disclose restricted records and the pending audit-table release.\""
+    ],
+    "requested_corrections": [
+     "\"Compare raw and recalibrated probabilities on identical held-out observations for calibration. Evaluate threshold policy separately at a common risk/cost target, with a raw-score threshold-tuning control and a fixed tie rule.\"",
+     "\"Split by episode/document, select thresholds only on training data, specify the calibration estimator and positive-count/power requirements, and remove the B21 sample-size justification.\"",
+     "\"Correct both numerical errors in the cited note; cite the two missing calibration sources or remove their numbers and the independence claim.\""
+    ],
+    "file_id": "129f8nx9RkJrfDlauBIbB6BXrjfBsfzvq"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1VDT45VszMAHtb7A6qRnQcHvVNSRfkD1a/view",
+    "note": "https://drive.google.com/file/d/1zwnUEjFLuio2ywqldoRasxQaJ-srknOY/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/129f8nx9RkJrfDlauBIbB6BXrjfBsfzvq/view"
+   },
+   "age_days": 0.1
+  },
+  {
+   "card_id": "PC-20260926-05",
+   "file_id": "1T6ub_8vHw_DxTLJtsSVtrXALblEe7fed",
+   "sha256": "cfc96e16dcd5bdfa174edcb6fc75f7591fb1419a69709f1bb2923d6669e4a8da",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "At a matched token budget, task-conditioned curation at Spec time does not exceed anchored hybrid retrieval (top BM25 items first, then RRF fill) by 3 or more points of spec-task success.",
+   "proposed_experiment": "Arm A = anchored hybrid retrieval: top lexical hits placed first, then RRF(vector, BM25, entity) fill to budget; Arm B = H3 task-conditioned curation (LLM or decision-model curator) at the same token budget; Arm C = Arm A reranked by the curator's scores (planner as rerank feature). Dataset: the H3 spec-writing task set on frozen repositories, split dev/test with the test split untouched until the final run. Metric: spec-task success judged by the fixed harness, with paired bootstrap CIs; also evidence recall where gold evidence exists. Predeclared margin: Arm B must beat Arm A by >= 3 points with the paired interval excluding zero to ship curation as the selector. Kill: Arm B below Arm A on the test split, in which case curation survives only as Arm C if C >= A + 1.",
+   "why_it_matters": "R3 is about selecting sufficient evidence within a bounded budget, and B7's support comes from a comparison against write-time distillation, not against strong retrieval. A controlled negative result elsewhere (planner 34.19% vs anchored hybrid 36.18%) makes the strong-retrieval arm mandatory before we adopt curation.",
+   "pillar_primary": "R3",
+   "pillar_secondary": [
+    "R6"
+   ],
+   "strength": "paper-ablated",
+   "cost": "M",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B7",
+    "B23"
+   ],
+   "component": "read-time curation at Spec time (H3)",
+   "decision_it_could_change": "whether the H3 curate step ships, judged against an anchored-hybrid control at matched tokens rather than against top-k dense retrieval",
+   "source_note": {
+    "name": "paper-learned-context-planning-vs-strong-retrieval-2609-26976.md",
+    "file_id": "1U3N4EXGZRkq8kHs1X5BiF6c6WBCK7PDl"
+   },
+   "source_posts": [
+    "2103703772249641412"
+   ],
+   "status": "proposed",
+   "decision_chain": [],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-07",
+    "outcome": "revise",
+    "checked": "\"Read card and note; checked planning-paper abstract/full .txt and relevant HTML, Setup, Tables 1-4, held-out paragraph, power discussion and limitations; read README at c154f97fc5a08035ca4831f811a6adabe557ebcc. Confirmed 34.19/36.18, 42.11/36.84, 503/152 questions, 140+28 SFT rows and +1.79 with p=0.478. Compared five grades and B7/B23.\"",
+    "not_verified": "\"No H3 dataset, fixed harness, curator version, token budget or local split sizes were staged. Historical weights and immutable model revisions are not supplied; only the README was fetched from the repository. Policy is unset.\"",
+    "findings": [
+     "\"[attribution] Card line 25 presents \\\"planner 34.19% vs anchored hybrid 36.18%\\\" without noting the source's all-503 analysis is partly transductive, including 168 SFT train/development questions. The cleaner 152-question test comparison has a paired interval spanning zero. These are bounded negative results, not evidence of general curation inferiority.\"",
+     "\"[grade] High control/reproducibility needs qualification. The note omits training overlap in the headline comparison; the paper/README disclaim immutable model pinning and bitwise historical reproduction and provide some analyses only as archived summaries. Table 1 uses Wilson intervals, not the note's generic bootstrap description.\"",
+     "\"[baseline] Matching delivered-context tokens alone does not match planner scoring/generation cost. Fix the candidate pool, answer model, prompt and judge, and report total token/call cost separately from context size. Arm C must use a frozen scoring method.\"",
+     "\"[alternative] Failure to show a >=3-point improvement is not evidence for the card's claim that improvement is below 3 points. That negative claim needs an upper confidence bound below the margin. The C >= A + 1 fallback has no uncertainty criterion.\"",
+     "\"[belief B7] The card correctly distinguishes B7's read-time versus write-time comparison from this retrieval comparison; no contradiction with B7 is established. Keep that qualification when interpreting a local null.\"",
+     "\"[injection] The source README contains embedded regeneration and test commands. They were read as evidence and not executed.\""
+    ],
+    "requested_corrections": [
+     "\"Add the transductive caveat and held-out uncertainty; qualify control/reproducibility grades and correct the interval description in the cited note.\"",
+     "\"Choose either a shipping rule or an inferiority/equivalence claim and predeclare the corresponding interval criterion, sample size and paired power. Add uncertainty for Arm C.\"",
+     "\"Specify context versus total compute budgets, fixed candidate/answer/judge configuration and frozen arms before the final test.\""
+    ],
+    "file_id": "1L1-vSS3Mzcx9xEUAef4Pqtp-G3l2X__d"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1T6ub_8vHw_DxTLJtsSVtrXALblEe7fed/view",
+    "note": "https://drive.google.com/file/d/1U3N4EXGZRkq8kHs1X5BiF6c6WBCK7PDl/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/1L1-vSS3Mzcx9xEUAef4Pqtp-G3l2X__d/view"
+   },
+   "age_days": 0.1
+  }
+ ],
+ "recent_verdicts": [],
+ "belief_revisions": [],
+ "agents": {
+  "fetch:memory": {
+   "last_run_at": "2026-09-26T12:43:30Z",
+   "status": "ok",
+   "duration_s": 30,
+   "counts": {
+    "records": 412,
+    "api_requests": 20
+   },
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:43:00Z",
+     "finished_at": "2026-09-26T12:43:30Z",
+     "status": "ok",
+     "counts": {
+      "records": 412,
+      "api_requests": 20
+     }
+    }
+   ]
+  },
+  "fetch:decision": {
+   "last_run_at": "2026-09-26T12:33:35Z",
+   "status": "ok",
+   "duration_s": 31,
+   "counts": {
+    "records": 156,
+    "api_requests": 20
+   },
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:33:04Z",
+     "finished_at": "2026-09-26T12:33:35Z",
+     "status": "ok",
+     "counts": {
+      "records": 156,
+      "api_requests": 20
+     }
+    }
+   ]
+  },
+  "digest:memory": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "digest:decision": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "curation:memory": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "curation:decision": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "triage": {
+   "last_run_at": "2026-09-26T12:44:48Z",
+   "status": "ok",
+   "duration_s": 888,
+   "counts": {
+    "items": 3482,
+    "clusters": 846,
+    "notes": 21,
+    "cards": 5,
+    "watch_answers": 0,
+    "deferred": 0,
+    "parked": 31,
+    "contradictions": 1,
+    "instruction_bearing_posts": 4,
+    "webfetch_calls": 56,
+    "consumed_ids": 3482,
+    "pending": 31,
+    "duplicate_notes_skipped": 0,
+    "claude_cost_usd": 13.410989599999995,
+    "claude_turns": 154
+   },
+   "errors": [],
+   "expected_interval_s": 43200,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:30:00Z",
+     "finished_at": "2026-09-26T12:44:48Z",
+     "status": "ok",
+     "counts": {
+      "items": 3482,
+      "clusters": 846,
+      "notes": 21,
+      "cards": 5,
+      "watch_answers": 0,
+      "deferred": 0,
+      "parked": 31,
+      "contradictions": 1,
+      "instruction_bearing_posts": 4,
+      "webfetch_calls": 56,
+      "consumed_ids": 3482,
+      "pending": 31,
+      "duplicate_notes_skipped": 0,
+      "claude_cost_usd": 13.410989599999995,
+      "claude_turns": 154
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:59:56Z",
+     "finished_at": "2026-09-26T11:26:46Z",
+     "status": "exit 2",
+     "counts": {
+      "items": 3482,
+      "pre_clusters": 3168,
+      "claude_cost_usd": 13.410989599999995,
+      "claude_turns": 154,
+      "claude_duration_ms": 1548279
+     }
+    }
+   ]
+  },
+  "hypotheses": {
+   "last_run_at": "2026-09-26T12:52:54Z",
+   "status": "ok",
+   "duration_s": 332,
+   "counts": {
+    "cards_total": 5,
+    "undecided": 5,
+    "conflicts": 0,
+    "open_experiments": 0,
+    "decisions": 0,
+    "recommended": 0,
+    "merged": 0,
+    "rejected": 1,
+    "specs": 0,
+    "refused": 8,
+    "claude_cost_usd": 1.4645352,
+    "claude_turns": 26
+   },
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:47:22Z",
+     "finished_at": "2026-09-26T12:52:54Z",
+     "status": "ok",
+     "counts": {
+      "cards_total": 5,
+      "undecided": 5,
+      "conflicts": 0,
+      "open_experiments": 0,
+      "decisions": 0,
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 1,
+      "specs": 0,
+      "refused": 8,
+      "claude_cost_usd": 1.4645352,
+      "claude_turns": 26
+     }
+    },
+    {
+     "started_at": "2026-09-26T12:42:57Z",
+     "finished_at": "2026-09-26T12:46:37Z",
+     "status": "ok",
+     "counts": {
+      "cards_total": 5,
+      "undecided": 5,
+      "conflicts": 0,
+      "open_experiments": 0,
+      "decisions": 0,
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 0,
+      "specs": 0,
+      "refused": 1,
+      "claude_cost_usd": 0.5801328,
+      "claude_turns": 9
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:03:52Z",
+     "finished_at": "2026-09-26T11:05:30Z",
+     "status": "ok",
+     "counts": {
+      "cards_total": 0,
+      "undecided": 0,
+      "conflicts": 0,
+      "open_experiments": 0,
+      "decisions": 0,
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 0,
+      "specs": 0,
+      "refused": 0
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:01:41Z",
+     "finished_at": "2026-09-26T11:02:48Z",
+     "status": "exit 1",
+     "counts": {
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 0,
+      "specs": 0,
+      "refused": 0
+     }
+    }
+   ]
+  },
+  "challenger": {
+   "last_run_at": "2026-09-26T10:55:43Z",
+   "status": "ok",
+   "duration_s": 11,
+   "counts": {
+    "targets": 0,
+    "reviews": 0,
+    "ready": 0,
+    "revise": 0,
+    "insufficient": 0,
+    "watch_filed": 0,
+    "codex_exit": null
+   },
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T10:55:32Z",
+     "finished_at": "2026-09-26T10:55:43Z",
+     "status": "ok",
+     "counts": {
+      "targets": 0,
+      "reviews": 0,
+      "ready": 0,
+      "revise": 0,
+      "insufficient": 0,
+      "watch_filed": 0,
+      "codex_exit": null
+     }
+    }
+   ]
+  },
+  "delta": {
+   "last_run_at": "2026-09-26T11:00:53Z",
+   "status": "ok",
+   "duration_s": 340,
+   "counts": {
+    "cards": 0,
+    "decisions": 0,
+    "verdicts": 0,
+    "conflicts": 0,
+    "delta_lines": 111,
+    "mirror_commit": "bb19bdd"
+   },
+   "errors": [],
+   "expected_interval_s": 604800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T10:55:13Z",
+     "finished_at": "2026-09-26T11:00:53Z",
+     "status": "ok",
+     "counts": {
+      "cards": 0,
+      "decisions": 0,
+      "verdicts": 0,
+      "conflicts": 0,
+      "delta_lines": 111,
+      "mirror_commit": "bb19bdd"
+     }
+    }
+   ]
+  },
+  "desk-projector": {
+   "last_run_at": "2026-09-26T13:01:55Z",
+   "status": "running",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 1800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T13:01:55Z",
+     "finished_at": null,
+     "status": "running",
+     "counts": {}
+    },
+    {
+     "started_at": "2026-09-26T12:30:46Z",
+     "finished_at": "2026-09-26T12:31:44Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 6,
+      "sync_failures": 0,
+      "elapsed_s": 58.1
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:58:54Z",
+     "finished_at": "2026-09-26T12:00:38Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 6,
+      "sync_failures": 0,
+      "elapsed_s": 103.6
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:27:52Z",
+     "finished_at": "2026-09-26T11:28:46Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 6,
+      "sync_failures": 0,
+      "elapsed_s": 53.3
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:57:26Z",
+     "finished_at": "2026-09-26T10:57:40Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 9,
+      "sync_failures": 0,
+      "elapsed_s": 14.3
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:53:54Z",
+     "finished_at": "2026-09-26T10:55:36Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 10,
+      "sync_failures": 0,
+      "elapsed_s": 101.9
+     }
+    }
+   ]
+  },
+  "curation-apply": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": null,
+   "stalled": false,
+   "runs_7d": []
+  }
+ },
+ "capture": {
+  "items_today": {
+   "memory": 967,
+   "decision": 614
+  },
+  "queries_at_cap": [
+   {
+    "feed": "decision",
+    "source": "search:(@typesafeai OR \"typesafe ai\" OR \"typesa",
+    "consecutive_runs": 27
+   },
+   {
+    "feed": "memory",
+    "source": "search:(@typesafeai OR \"typesafe ai\" OR \"typesa",
+    "consecutive_runs": 6
+   },
+   {
+    "feed": "decision",
+    "source": "search:(jev (memory OR recall OR retrieval OR r",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "decision",
+    "source": "timeline:cderinbogaz",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "search:(\"context engineering\" OR \"just-in-time\"",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "search:(\"self-improving\" OR \"recursive self-imp",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "search:(provenance OR \"retrieval receipt\" OR \"p",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:dhravyashah",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:jreuben1",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:letta_ai",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:mem0ai",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:softwaredoug",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:supermemory",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:tazr_dev",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:vectorizeio",
+    "consecutive_runs": 1
+   }
+  ],
+  "backlog": [
+   {
+    "cluster_id": "x:2100606119504712138",
+    "post_ids": [
+     "2100655158992719907"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "email routing numbers (85.5% zero errors) only in an X thread; x.com fetch returns 402",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102979401025806732",
+    "post_ids": [
+     "2102979401025806732"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Jev code reranker on 100 GitHub issues: table in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103565692494925906",
+    "post_ids": [
+     "2103565692494925906",
+     "2103591942198087949"
+    ],
+    "reason": "image only",
+    "blocked_reason": "you.com Jev rerank 84% Vertical RTK: numbers in image, no write-up link",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103188520156229672",
+    "post_ids": [
+     "2103188520156229672"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Momentic Locator Bench 51.8%: image only",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103039616211157449",
+    "post_ids": [
+     "2103039616211157449"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Jina multi-vector vs dense retrievers on memory search: chart only",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103333079477784896",
+    "post_ids": [
+     "2103333079477784896"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "CL-Bench (Asawa et al.) not found by arXiv title search",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2100937437325205568",
+    "post_ids": [
+     "2101196885260460388"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "WebMCP benchmark claim only in quoted X post",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2096616468851097811",
+    "post_ids": [
+     "2096647325049626918"
+    ],
+    "reason": "fetch failed",
+    "blocked_reason": "fetch failed: openai.com 403 and x.com 402 for OpenAI research-acceleration data",
+    "attempts": 1,
+    "retry_after": "2026-09-27",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103610898690855161",
+    "post_ids": [
+     "2103612889655353346",
+     "2103612667865002248",
+     "2103615960175522108",
+     "2103713051002257705",
+     "2103615668683714730",
+     "2103663848511459603",
+     "2103684019107795155",
+     "2103776463388631493",
+     "2103781842155614264",
+     "2103648309881758112",
+     "2103709570338316525"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "OpenRouter jev-router launch: model page is API docs only; how-it-works and results in images",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103368968014848400",
+    "post_ids": [
+     "2103368968014848400",
+     "2103779974281089321"
+    ],
+    "reason": "image only",
+    "blocked_reason": "JEV-as-a-Judge paper (alphaxiv) not identified; figures in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102520050305597713",
+    "post_ids": [
+     "2102520050305597713"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Jev rerank +11 LongMemEval: no write-up",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102910289083826675",
+    "post_ids": [
+     "2102910289083826675"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "60-case tool-call risk benchmark only in X thread",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103098242921591201",
+    "post_ids": [
+     "2103098242921591201"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "README with negative rerank results not linked in item",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103610751231668596",
+    "post_ids": [
+     "2103610751231668596"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "96.0% confident errors repeated by LLM verifier: source read by deliprao not linked",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2098013767627837827",
+    "post_ids": [
+     "2102850232249635116"
+    ],
+    "reason": "image only",
+    "blocked_reason": "13-page agent memory breakdown shared as video/images",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2103187018423361536",
+    "post_ids": [
+     "2103195865280328031"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "DocsBot Jev reranker benchmark in X article (not fetchable)",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102869389762867200",
+    "post_ids": [
+     "2102885375639507087"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "MCP outcome judge write-up in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102342653782175744",
+    "post_ids": [
+     "2102830489237065968"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Jev OPSEC ranker in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102108924677927169",
+    "post_ids": [
+     "2102121915733405896",
+     "2102127055034847447",
+     "2102218770630758684",
+     "2102130510877372732"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Browserbase Jev write-up is a quoted X post/article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2100300097695232164",
+    "post_ids": [
+     "2100477620144205849"
+    ],
+    "reason": "image only",
+    "blocked_reason": "fx auto-mode classifier benchmark in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103153482161086753",
+    "post_ids": [
+     "2103169226047463831"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "claimed ICML paper (hallucinations 22% to 4%) not identified",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2103626484518924288",
+    "post_ids": [
+     "2103627396389974103"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Jev vs GPT-5.6 Terra 67.8/67.9 in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102072714488139776",
+    "post_ids": [
+     "2102074672020066685"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "renewals agent 4.5x cheaper in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103345111388373359",
+    "post_ids": [
+     "2103345111388373359"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "production router for verification workflows: no link",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "url:mnzailabs.com/en/news/github-agentic-autofix-learns-from-security-fixes",
+    "post_ids": [
+     "2103655355238826395"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "secondary news only; GitHub primary for Agentic Autofix memory not located",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103193093247750466",
+    "post_ids": [
+     "2103208544585892280"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "LlamaIndex calibrated-confidence blog URL not in item (links to X post and video)",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103754592056144155",
+    "post_ids": [
+     "2103754592056144155"
+    ],
+    "reason": "image only",
+    "blocked_reason": "SkillHEX summary in image, paper not linked",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "url:prospex.ch/blog/adaptive-reranking-with-jev-and-a-logistic-regression",
+    "post_ids": [
+     "2102412336569180506"
+    ],
+    "reason": "fetch failed",
+    "blocked_reason": "fetch failed: HTTP 403",
+    "attempts": 1,
+    "retry_after": "2026-09-27",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103095032635171224",
+    "post_ids": [
+     "2103095032635171224"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "JevOS routing 15/16 labelled steps: no write-up",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102842288619814925",
+    "post_ids": [
+     "2103168377388978635"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Jev on 586 marketing items: results in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102806912278339584",
+    "post_ids": [
+     "2102810316497371268"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "local 4B command picker 77% in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   }
+  ],
+  "cards_over_14d_undecided": 0
+ },
+ "config_changes": [],
+ "watch_open": [
+  {
+   "id": "WR-20260926-01",
+   "from": "T5",
+   "what": "\"Obtain the dated Q4 experiment queue and local H5-rerank dataset/harness inventory, including whether LoCoMo-200 candidate pools and P0 read queries are available.\"",
+   "due": "2026-W40",
+   "age_days": 0.0,
+   "file_id": "1788MWMpqXht7HPurIXZRnfOaRei0JZMb"
+  },
+  {
+   "id": "WR-20260926-02",
+   "from": "T5",
+   "what": "\"Fetch the primary RLCDAlignBench and Banking77 calibration sources underlying ECE 0.168 and 0.097, with model versions, metric definitions, sample sizes, calibration splits and author affiliations.\"",
+   "due": "2026-W40",
+   "age_days": 0.0,
+   "file_id": "1-I27mjTDWugOFCLbL9BSyZccTda53AIq"
+  }
+ ],
+ "deltas": [
+  {
+   "name": "2026-W39.md",
+   "file_id": "15Ap2_SGhlQl5_xQTgutDE_D6i3nNHSDY",
+   "mtime": "2026-09-26T10:58:55.166Z"
+  },
+  {
+   "name": "index-20260926T105546Z.json",
+   "file_id": "1Vk7L2Iv2N3q1VQL2RDz28d7_1LhOz8hV",
+   "mtime": "2026-09-26T10:55:47.000Z"
+  }
+ ],
+ "conflicts": [],
+ "links": {
+  "bus_root": "https://drive.google.com/drive/folders/1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim",
+  "folders": {
+   "beliefs": "https://drive.google.com/drive/folders/1wiSGxJCsAwQJcePkj5M5HSXpFkanzZtG",
+   "cards": "https://drive.google.com/drive/folders/1wCmR3VBI0GJThB7T9XtFdCkSg4VFkkjj",
+   "checkpoints": "https://drive.google.com/drive/folders/1QYRgiygmdLL1-ji5gPeZmwmKGiVfQdDY",
+   "decisions": "https://drive.google.com/drive/folders/1Puptg6-Hj13TL6t2-zjBYll4BIq81Lt-",
+   "delta": "https://drive.google.com/drive/folders/1m0zNCGTapSFEd9alpujJXXyX-BFuAqed",
+   "desk": "https://drive.google.com/drive/folders/1FdGJ9RJ_fbGyy9ddeNBx52yxlbw4SQA9",
+   "experiments": "https://drive.google.com/drive/folders/1jtLlsldQNNYl3BDJ3ezq-q24T2b3lXao",
+   "notes": "https://drive.google.com/drive/folders/1xZZ6Jr878OtaCMohKvRi1VQX_m3gGcPL",
+   "reviews": "https://drive.google.com/drive/folders/1UlI6SHC21hXcqvAUg0diGImJP04yU7NT",
+   "runs": "https://drive.google.com/drive/folders/1-kGw29D0i3b0OGOJbCLhqdc3NV8Bkd0b",
+   "telemetry": "https://drive.google.com/drive/folders/12a92Fp9sWmteVP475mktGRp2KOCSxle4",
+   "triage-log": "https://drive.google.com/drive/folders/1IegV687s0fjdS8f3_SDI1GPfYat0HHrc",
+   "verdicts": "https://drive.google.com/drive/folders/1FZCKIEDjHGiEz0Ba8IToTrrNIDPkBNvJ",
+   "watch": "https://drive.google.com/drive/folders/1Gnm5VMrQNxa9S2By0P5GzoUxr1gvIjVM"
+  }
+ },
+ "person_rejected": [],
+ "parse_errors": [
+  {
+   "folder": "notes",
+   "name": "github-ziyacivan-reflex-router.md",
+   "error": "duplicate Drive name, file_ids ['1eBprJrbNK4HAcBl17Rc6UdPfII0_6DzZ', '1Fw_KtyMOI1hMg1BPQICZW7RibSHo1t-k']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-dolphinbench-agent-memory-pareto-2609-24971.md",
+   "error": "duplicate Drive name, file_ids ['1A2JIp8SyfAiu2iZSJCjLkgnSDXWDlLvg', '1JwbeMmzjSTY8HOUR13UTLBB-rFjjgU7r']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-recall-ceiling-llm-reranking-2609-27953.md",
+   "error": "duplicate Drive name, file_ids ['14JhFYj7A-tXz9ZAWj8meDQDxh2tB1Uwp', '1S2LHx0dCgP1ZN24IP0k154ogSUPw9CQm']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-rsiagent-autonomous-exploration-2609-15364.md",
+   "error": "duplicate Drive name, file_ids ['1SJYGggcirWy_MToa2DJkOr1X0iMiQLPy', '1tHGEjFrcwWLfqKFsqyyEy_JxuDkZbwie']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-skillopt-self-evolving-agent-skills-2605-23904.md",
+   "error": "duplicate Drive name, file_ids ['1OYapSrBWsVi3JHUpwiNCEor3tYr4uagh', '1hu2UAsC9_71tvTsnGt6K9n7hxf7Tc2D1']; mirror holds one of them"
+  },
+  {
+   "folder": "cards",
+   "name": "PC-20260926-01.md",
+   "error": "duplicate Drive name, file_ids ['1aplQvgbkgLBQ4E0XHpwZUhocUm1BpSox', '1BCBPEmlDpeuBACVOCMtYtoLFVq0TWwlp']; mirror holds one of them"
+  }
+ ],
+ "sync_failures": [],
+ "envelope": {
+  "schema_version": 1,
+  "artifact_id": "DESK-20260926T130155Z",
+  "artifact_type": "desk",
+  "producer": "desk-projector",
+  "run_id": "desk-projector-20260926T130155Z-d63a",
+  "created_at": "2026-09-26T13:02:39Z",
+  "input_refs": [],
+  "supersedes": null,
+  "idempotency_key": "desk:20260926T130155Z"
+ }
+}

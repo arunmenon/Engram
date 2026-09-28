@@ -1,0 +1,1634 @@
+{
+ "schema_version": 1,
+ "generated_at": "2026-09-26T13:11:33Z",
+ "watermark": "20260926T131051Z",
+ "policy": {
+  "status": "unset",
+  "raw": "# Standing policy for autonomous runs\n\nstatus: unset\nset_by: (CTO)\nset_on: (date)\n\npermitted_datasets: []\nbudget_per_run: {tokens: null, cost_usd: null, wall_clock_h: null}\nbudget_per_week: {tokens: null, cost_usd: null}\nconcurrency: null\nenvironments: []\nreview_required_for: [expensive runs, central-belief changes, novelty claims, contradictory sources, promotions, random sample of accepted and rejected cards]\n\nWhile status is unset, accepted experiments queue and nothing executes.\n"
+ },
+ "runner": {
+  "status": "none",
+  "note": "no executor exists yet; accepted specs queue"
+ },
+ "queue": [
+  {
+   "card_id": "PC-20260926-05",
+   "file_id": "1T6ub_8vHw_DxTLJtsSVtrXALblEe7fed",
+   "sha256": "cfc96e16dcd5bdfa174edcb6fc75f7591fb1419a69709f1bb2923d6669e4a8da",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "At a matched token budget, task-conditioned curation at Spec time does not exceed anchored hybrid retrieval (top BM25 items first, then RRF fill) by 3 or more points of spec-task success.",
+   "proposed_experiment": "Arm A = anchored hybrid retrieval: top lexical hits placed first, then RRF(vector, BM25, entity) fill to budget; Arm B = H3 task-conditioned curation (LLM or decision-model curator) at the same token budget; Arm C = Arm A reranked by the curator's scores (planner as rerank feature). Dataset: the H3 spec-writing task set on frozen repositories, split dev/test with the test split untouched until the final run. Metric: spec-task success judged by the fixed harness, with paired bootstrap CIs; also evidence recall where gold evidence exists. Predeclared margin: Arm B must beat Arm A by >= 3 points with the paired interval excluding zero to ship curation as the selector. Kill: Arm B below Arm A on the test split, in which case curation survives only as Arm C if C >= A + 1.",
+   "why_it_matters": "R3 is about selecting sufficient evidence within a bounded budget, and B7's support comes from a comparison against write-time distillation, not against strong retrieval. A controlled negative result elsewhere (planner 34.19% vs anchored hybrid 36.18%) makes the strong-retrieval arm mandatory before we adopt curation.",
+   "pillar_primary": "R3",
+   "pillar_secondary": [
+    "R6"
+   ],
+   "strength": "paper-ablated",
+   "cost": "M",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B7",
+    "B23"
+   ],
+   "component": "read-time curation at Spec time (H3)",
+   "decision_it_could_change": "whether the H3 curate step ships, judged against an anchored-hybrid control at matched tokens rather than against top-k dense retrieval",
+   "source_note": {
+    "name": "paper-learned-context-planning-vs-strong-retrieval-2609-26976.md",
+    "file_id": "1U3N4EXGZRkq8kHs1X5BiF6c6WBCK7PDl"
+   },
+   "source_posts": [
+    "2103703772249641412"
+   ],
+   "status": "recommended",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-05",
+     "status": "recommended",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "Can move B7 (lead), whose support compares curation only with write-time distillation; a paper-ablated negative result at matched budgets means curation needs an anchored-hybrid control before it ships, and H3's arms lack one. Now, because H3 arms are built in weeks 3 to 4 and adding the control to the same harness is cheaper than re-running H3; the spec states that a few hundred tasks can detect only about 8 points.",
+     "file_id": "1b9fVtH5V2bGJlk1IdkRlw5R6Y9JtLuCD",
+     "experiment_id": "E-20260926-04"
+    }
+   ],
+   "experiment": {
+    "id": "E-20260926-04",
+    "file_id": "1LtHBnnehim3BR9DgM7d5twEQzYjO1hVL",
+    "sha256": "fd55eed7fab1c17457f45538ee78d8d587333a0a0a4e07dd751a072704d8196c",
+    "claim": "At a matched token budget, task-conditioned curation at Spec time (H3) does not exceed anchored hybrid retrieval (top BM25 items first, then RRF fill) by 3 or more points of spec-task success.",
+    "arms": "- Arm A (strong-retrieval control): anchored hybrid: top lexical (BM25) hits placed first, then RRF (k=60) over vector, BM25 and entity channels fills to the budget. Deterministic.\n- Arm B: H3 task-conditioned curation (the curator chosen for H3) selecting from the same candidate pool, at the same token budget.\n- Arm C: Arm A's candidates reordered by the curator's scores and truncated to the same budget (curation as a rerank feature).\n- All arms share the frozen executor, frozen judge, candidate pool and budget. This is an added arm set for H3, not a replacement of H3's write-time arms; run on the same harness so H3's comparison and this one share the executor and judge.",
+    "metric": "spec-task success as scored by the frozen H3 judge; secondary: evidence recall on tasks with gold evidence, served tokens, curator latency and cost.",
+    "predeclared_margin": "Arm B ships as the selector only if B >= A + 3 points with the paired, repository-clustered 95% interval excluding zero. Arm C is kept as a rerank feature only if C >= A + 1 point.",
+    "kill_criterion": "Arm B below Arm A on the test split (point estimate), in which case curation survives only as Arm C if C >= A + 1. Stop before running if the BM25 channel is not repaired (P1: dead RediSearch prefix), because Arm A cannot be built without it.",
+    "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+    "review_required": true,
+    "execution_packet_present": true,
+    "raw_frontmatter": {
+     "schema_version": 1,
+     "artifact_id": "E-20260926-04",
+     "artifact_type": "experiment",
+     "producer": "hypotheses",
+     "run_id": "hypotheses-20260926T124723Z-14f0",
+     "created_at": "2026-09-26T13:03:44Z",
+     "idempotency_key": "experiment:PC-20260926-05",
+     "from_card": "PC-20260926-05",
+     "owner": "T4",
+     "track": "C",
+     "pillar_primary": "R3",
+     "beliefs_affected": "[B7, B23]",
+     "review_required": true,
+     "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+     "authorized_executor": "none-yet",
+     "outcomes": "{positive: \"curation beats anchored hybrid by >= 3 points with the paired interval excluding zero: H3 curate ships as the Spec-time selector; propose BR event raising B7 with a strong-retrieval control\", negative: \"curation does not beat anchored hybrid: anchored hybrid becomes the Spec-time selector; curation survives only as a rerank feature (Arm C) if C >= A + 1, else it is dropped; B7 is narrowed to 'beats write-time distillation, not strong retrieval'\", inconclusive: \"interval spans zero and the point estimate is below 3 points: ship anchored hybrid (cheaper, deterministic) and keep curation behind a flag; do not claim either way\"}",
+     "prior_attempts": [],
+     "dataset": "h3-spec-tasks-v1 (H3 spec-writing task set on frozen repositories, dev/test split; test split locked)",
+     "status": "queued",
+     "start": "2026-09-26",
+     "verdict_due": "2026-10-30"
+    }
+   },
+   "review": {
+    "id": "REV-20260926-14",
+    "outcome": "revise",
+    "checked": "\"Read target, card and note, arxiv-2609.26976 abstract and full TXT (setup, Tables 1-4, discussion and limitations), corresponding HTML abstract/setup passages, and README pinned to c154f97fc5a08035ca4831f811a6adabe557ebcc. Compared '36.18', '34.19', held-out '42.11%'/'36.84%', and rerank '+1.79' with 'p=0.478'. Checked matched-context controls, test isolation, power assumptions, B7, B23, policy and packet.\"",
+    "not_verified": "\"H3 harness, judge rubric/models, repository tasks, candidate retrieval and BM25 repair were not staged. README does not supply adapter weights or raw contexts; source experiments were not reproduced. Numerical token cost and actual independent repository count cannot be verified.\"",
+    "findings": [
+     "\"[baseline] The source tests strong non-planner cross-encoder rerankers and budgeted selectors (section 3.3/Table 4), but Arm C is compared only with anchored hybrid. A gain could be generic reranking rather than curator-specific value. Add a reasonable non-curator reranker at the same candidate and served-token budgets.\"",
+     "\"[alternative] Identical served-token ceilings do not fix packing order, actual filled tokens, retrieval depths or total inference spend. B changes selection and potentially order; C changes order and truncation together. Pin these policies, record actual tokens and include curator cost when claiming matched total budget or savings.\"",
+     "\"[numbers] The acknowledged few-hundred-task sample cannot resolve the 3-point target. Nonetheless Arm C ships on an unqualified '+ 1 point' estimate, with no interval requirement or multiplicity rule. Failure to prove B superiority is not evidence that B's gain is below 3 points; that claim needs an upper confidence bound or an explicitly operational default.\"",
+     "\"[belief B7] Frontmatter's negative outcome narrows B7 to 'not strong retrieval', despite the body correctly requiring 'not detectable at this n' for underpowered results. B7 concerns JITMem versus write-time distillation. Keep an uncertain local result distinct from a broader belief revision.\"",
+     "\"[leakage] Blinding arm labels does not identify or separate executor, curator and judge models, prevent gold evidence from entering retrieval, or separate related repository/task families across dev/test. Switching the bootstrap unit to task family when a repository exceeds 20% can discard repository dependence; ordinary McNemar also assumes independent pairs.\"",
+     "\"[attribution] N-20260926-04 omits that the all-503 comparison includes '168' SFT train/development questions; source setup and limitations call it 'partly transductive'. The untouched '152' test cases support a narrower comparison. Its high reproducibility grade also needs qualification: README excludes adapter weights and describes several analyses as archived summaries.\"",
+     "\"[packet] Missing runnable harness and metric commands/code pins, dataset path and frozen hashes, executor/curator/judge versions and prompts, H3 success rubric, token budget, retrieval-depth configuration, cluster counts and implemented BM25 preflight. The manifest is specified but not supplied.\"",
+     "\"[budget] Policy is unset. '20M to 40M' lacks prompt/output ceilings, judge call accounting, model prices and dollar/wall-clock caps. Keep queued until policy permits the dataset and budget.\"",
+     "\"[injection] Source contains embedded instructions: the README Quick Start and Excluded sections give regeneration commands and dataset/environment setup directions. None was executed.\""
+    ],
+    "requested_corrections": [
+     "\"Add the non-curator reranker control; freeze retrieval, packing, served-token and total-cost accounting plus leakage-safe models and splits.\"",
+     "\"Require uncertainty support for retaining C; distinguish a cheaper default from evidence of equivalence or a B7 contradiction, and preserve repository dependence in inference.\"",
+     "\"Correct the source characterization, complete the runnable packet and budget, and retain the execution block.\""
+    ],
+    "file_id": "1P_CGWx6sM88-sAiIZwm31ilpf5Laaz6B"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1T6ub_8vHw_DxTLJtsSVtrXALblEe7fed/view",
+    "note": "https://drive.google.com/file/d/1U3N4EXGZRkq8kHs1X5BiF6c6WBCK7PDl/view",
+    "experiment": "https://drive.google.com/file/d/1LtHBnnehim3BR9DgM7d5twEQzYjO1hVL/view",
+    "review": "https://drive.google.com/file/d/1P_CGWx6sM88-sAiIZwm31ilpf5Laaz6B/view"
+   }
+  },
+  {
+   "card_id": "PC-20260926-04",
+   "file_id": "1VDT45VszMAHtb7A6qRnQcHvVNSRfkD1a",
+   "sha256": "570a26214469ab16fa56853403981cce537d8764ff2fe00c512347e79f89365a",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "Cross-fitted isotonic recalibration of the save/skip and injection-gate probabilities on our labels lowers per-source ECE by at least 2x and raises precision at fixed 80% coverage by at least 3 points compared with fixed thresholds on raw probabilities.",
+   "proposed_experiment": "Arm A = raw decision-model probabilities with fixed thresholds (content 0.5, injection 0.5); Arm B = isotonic recalibration fitted per source (chat turns, repo docs, tool output) on half the labels and scored on the other half, swapped and repeated 20 times; thresholds then chosen for 80% coverage. Dataset: at least 150 labelled save/skip turns and 150 labelled injection-gate lines per source (B21 sizes), labelled by someone other than the gate author. Metric: per-source ECE, calibration slope, precision at 80% coverage. Predeclared margin: ECE ratio A/B >= 2 on at least 2 of 3 sources and precision +3 points. Kill: ECE ratio < 1.3 on all sources, or precision change within +/- 1 point.",
+   "why_it_matters": "R4 requires that we understand error costs before automating a decision; three independent sources this week (crash narratives 3.3x, RLCDAlignBench per-benchmark ECE 0.168, Banking77 ECE 0.097) say vendor probabilities are not calibrated per source. The result decides whether per-source recalibration is a required step in every gate.",
+   "pillar_primary": "R4",
+   "pillar_secondary": [
+    "R6"
+   ],
+   "strength": "paper-single-benchmark",
+   "cost": "M",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B14",
+    "B13"
+   ],
+   "component": "typed decision gates (write gate, injection gate)",
+   "decision_it_could_change": "whether decision-model gates ship with vendor-scale fixed thresholds or with locally cross-fitted recalibration per source",
+   "source_note": {
+    "name": "paper-calibrated-decisions-crash-narratives-jev-2609-24052.md",
+    "file_id": "1zwnUEjFLuio2ywqldoRasxQaJ-srknOY"
+   },
+   "source_posts": [
+    "2103052792147456510"
+   ],
+   "status": "recommended",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-04",
+     "status": "recommended",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "Can move B14 (working) from 'fit thresholds locally' to a measured recalibration gain; the spec adds a locally fitted threshold arm so that any gain is attributable to per-source recalibration, which H5's arms do not test. Now, because it is offline analysis over H5 and H10b shadow probabilities whose verdicts are due at week 6; only one of the card's three cited sources was supplied as a note.",
+     "file_id": "1VThbui6un2YtnZfH0MJUWFkkO3QJMB7l",
+     "experiment_id": "E-20260926-03"
+    }
+   ],
+   "experiment": {
+    "id": "E-20260926-03",
+    "file_id": "1twajjAUa485y0KiZjFsPlXW_vF5jPU17",
+    "sha256": "181a36364a8f290050b2571c809d7e5da1e6de00d77cb7a81d6bcadb3d956b2b",
+    "claim": "Cross-fitted isotonic recalibration of the save/skip (write admission) and injection-gate probabilities, fitted per source (chat turns, repo docs, tool output), lowers per-source ECE by at least 2x and raises precision at fixed 80% coverage by at least 3 points compared with fixed thresholds on raw probabilities.",
+    "arms": "- Arm A: raw decision-model probabilities with fixed thresholds (save/skip 0.5, injection 0.5).\n- Arm A2 (added control): raw probabilities with a single threshold fitted on the fitting half, pooled across sources. Separates \"fit a threshold locally\" (already H5's recipe, B14) from \"recalibrate per source\", so a pass is attributable to recalibration and not to threshold fitting.\n- Arm B: isotonic recalibration fitted per source on one half of the labels, scored on the other half, halves swapped, repeated 20 times with fresh random splits (stratified by label within source); threshold chosen on the fitting half for 80% coverage.\n- Arm B2 (secondary): Platt scaling with the same protocol, since isotonic on about 75 items per fold can overfit.",
+    "metric": "per-source ECE (15 equal-mass bins), calibration slope, Brier score, and precision at 80% coverage on the scoring half.",
+    "predeclared_margin": "pass if ECE(A)/ECE(B) >= 2 on at least 2 of 3 sources for each gate AND precision at 80% coverage of B exceeds A2 (not only A) by >= 3 points. Precision against A is reported but does not decide.",
+    "kill_criterion": "ECE ratio < 1.3 on all sources for both gates, OR precision change of B versus A2 within +/- 1 point on both gates. Stop before running if any source has fewer than 100 labelled items for a gate (record as not runnable).",
+    "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+    "review_required": true,
+    "execution_packet_present": true,
+    "raw_frontmatter": {
+     "schema_version": 1,
+     "artifact_id": "E-20260926-03",
+     "artifact_type": "experiment",
+     "producer": "hypotheses",
+     "run_id": "hypotheses-20260926T124723Z-14f0",
+     "created_at": "2026-09-26T13:03:37Z",
+     "idempotency_key": "experiment:PC-20260926-04",
+     "from_card": "PC-20260926-04",
+     "owner": "T4",
+     "track": "C",
+     "pillar_primary": "R4",
+     "beliefs_affected": "[B14, B13]",
+     "review_required": true,
+     "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+     "authorized_executor": "none-yet",
+     "outcomes": "{positive: \"per-source cross-fitted recalibration becomes a required step for every decision-model gate before thresholds are set; propose BR event moving B14 from 'fit thresholds locally' to a measured recalibration gain on our labels\", negative: \"raw probabilities with locally fitted thresholds are adequate; recalibration is dropped from the gate recipe and B14 records that vendor calibration held on our sources\", inconclusive: \"ECE ratio between 1.3 and 2 or precision change between 1 and 3 points: keep recalibration optional and re-run when label sets reach 300 per source\"}",
+     "prior_attempts": [],
+     "dataset": "h5-admission-labels-v1 and h10b-injection-labels-v1 (per source, frozen at H5 shadow start and H10b start)",
+     "status": "queued",
+     "start": "2026-09-26",
+     "verdict_due": "2026-11-13"
+    }
+   },
+   "review": {
+    "id": "REV-20260926-15",
+    "outcome": "revise",
+    "checked": "\"Read decision and all three cited artifacts; compared reason line 13 with E-20260926-03 arms A2/B, split, metric and outcome rules. Checked arxiv-2609.24052 abstract TXT/HTML, full TXT Eq. 20, sections 3.3/4.2, Tables 4/6 and limitations, plus the HTML Table 6 passage. Verified pooled calibration reduction '0.0231' to '0.0069' and narrative-level cross-fitting against the decision's attribution claim. Checked B14 and unset policy.\"",
+    "not_verified": "\"H5/H10b shadow data, schedule and verdict readiness are not staged. The card's RLCDAlignBench/Banking77 claims ('0.168', '0.097') and source independence cannot be checked. No local recalibration result exists in the supplied packet.\"",
+    "findings": [
+     "\"[baseline] The reason asserts the new threshold arm makes 'any gain ... attributable to per-source recalibration'. A2 is pooled, whereas B has per-source thresholds and maps. Source-specific thresholding remains an alternative explanation; the recommendation's central justification is not established.\"",
+     "\"[alternative] Source section 4.2 says monotone maps preserve ranking; fixed-coverage precision is therefore not an intrinsic recalibration benefit within a source. The spec transfers fitting-half thresholds without fixing scoring-half coverage and can split related sessions across halves. These defects must be resolved before endorsing the proposed attribution.\"",
+     "\"[belief B14] A local calibration experiment could inform B14, but the spec's negative verdict would claim vendor calibration held without demonstrating it. Table 6 supports calibration auditing on crash narratives, not a presumption about all memory gates.\"",
+     "\"[packet] 'Offline analysis over H5 and H10b shadow probabilities' is not yet an executable experiment: data paths/hashes, grouped split ids, code/metric command and budget are missing. The reason acknowledges only one source was supplied but still recommends a spec whose causal control is incomplete.\"",
+     "\"[budget] Recommended is not execution authority. Policy explicitly queues accepted experiments while unset; the decision should retain that limitation and make completion of the revised packet a prerequisite.\""
+    ],
+    "requested_corrections": [
+     "\"Revise the reason and recommendation to require raw per-source threshold controls, grouped cross-fitting and clearly defined coverage/calibration endpoints before claiming attributable gain.\"",
+     "\"Limit prospective B14 updates to what the eventual data show; retain queued/non-executable status until packet and policy requirements are satisfied. Remove unfetched corroboration or obtain it before relying on it.\""
+    ],
+    "file_id": "1TUxk_cD8acWAcljMufQ-Bweu5BLcr1tq"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1VDT45VszMAHtb7A6qRnQcHvVNSRfkD1a/view",
+    "note": "https://drive.google.com/file/d/1zwnUEjFLuio2ywqldoRasxQaJ-srknOY/view",
+    "experiment": "https://drive.google.com/file/d/1twajjAUa485y0KiZjFsPlXW_vF5jPU17/view",
+    "review": "https://drive.google.com/file/d/1TUxk_cD8acWAcljMufQ-Bweu5BLcr1tq/view"
+   }
+  },
+  {
+   "card_id": "PC-20260926-02",
+   "file_id": "1fGCeBunNYJyqknQx3iAixm8aQTLqclsf",
+   "sha256": "2dacddc2f4860469893db4bad10593b2655c46b23f744c84d53beb772bd6c32b",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "On our labelled escalation set, the input-feature escalation classifier's leave-one-repository-out AUC is at least 0.10 below its item-level AUC and within 0.03 of a per-repository base-rate oracle, while an output-feature deferral rule keeps at least 0.05 more AUC under leave-one-repository-out.",
+   "proposed_experiment": "Arm A = input-feature escalation classifier (current H5 design) evaluated item-level 5-fold; Arm A' = same classifier evaluated leave-one-repository-out and with labels shuffled within repository; Arm B = deferral rule on the tier-1 output (answer length, abstain markers, confidence spread) evaluated leave-one-repository-out. Dataset: the H5 labelled turns grouped by repository (at least 6 repositories, 300 turns). Metric: AUC for \"tier 2 changes the decision\", plus shuffle-retention ratio. Predeclared margin: if Arm A' shuffle retains >= 85% of Arm A AUC, the classifier is declared group-memorising. Kill: if leave-one-repository-out AUC of Arm A is within 0.03 of item-level, drop this card (no group effect).",
+   "why_it_matters": "R6 requires that an evaluation support its conclusion; a gate that only recognises which repository a turn came from will fail on the next repository. The result decides how every R4 gate in the stack is evaluated before it ships.",
+   "pillar_primary": "R6",
+   "pillar_secondary": [
+    "R4"
+   ],
+   "strength": "repo-pinned",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B13",
+    "B20"
+   ],
+   "component": "two-tier escalation (H5) evaluation protocol",
+   "decision_it_could_change": "whether the H5 escalation classifier is judged on item-level splits or on leave-one-repository-out plus shuffle controls, and whether escalation keys on input features or on the cheap tier's output",
+   "source_note": {
+    "name": "blog-replicating-routellm-label-shuffle-bedrock.md",
+    "file_id": "1Um_nnb_qrxXLNUH2Fs1ehVttVpbREUM4"
+   },
+   "source_posts": [
+    "2103259862985752788"
+   ],
+   "status": "recommended",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-02",
+     "status": "recommended",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "Can move B13 (lead) with our own measurement: a repo-pinned note with within-group shuffle and leave-one-group-out controls shows item-level AUC collapsing to the group oracle, and H5 does not include those controls or an output-feature deferral arm. Run now, offline on the H5 labelled turns, because the protocol it decides applies to every gate verdict due at week 6.",
+     "file_id": "1Ef4gC5AS6Idh_6exXQ1fVGCiRRf8Y-qv",
+     "experiment_id": "E-20260926-02"
+    }
+   ],
+   "experiment": {
+    "id": "E-20260926-02",
+    "file_id": "1rf2ftU5ZsGxL7u34WUYyoIkEcOIvNIup",
+    "sha256": "960cef61bdb682714357b943faabf0966a4a82b16017cb55ae0847d38fc72bb2",
+    "claim": "On our labelled escalation set, the input-feature escalation classifier's leave-one-repository-out (LORO) AUC is at least 0.10 below its item-level AUC and within 0.03 of a per-repository base-rate oracle, while a deferral rule on tier-1 output features keeps at least 0.05 more AUC than the input-feature classifier under LORO.",
+    "arms": "- Arm A: input-feature escalation classifier (the H5 cascade's escalation step as currently designed), trained and scored with item-level stratified 5-fold cross-validation.\n- Arm A-LORO: the same classifier and features, trained on all repositories but one and scored on the held-out one, for each repository.\n- Arm A-shuffle: Arm A's item-level protocol with labels permuted within each repository (base rate per repository preserved), 20 permutations.\n- Oracle: per-repository base-rate predictor (predicts the training escalation rate of the item's repository; under LORO, the pooled training rate).\n- Arm B: deferral rule on the tier-1 output (answer length in tokens, abstain or hedge markers, confidence spread across tier-1 components), logistic regression, scored LORO.",
+    "metric": "AUC for the label \"tier 2 changes the decision\" (label as in H5's cascade: 1 if the tier-2 decision differs from tier 1 and matches the gold label). Secondary: shuffle-retention ratio = AUC(A-shuffle) / AUC(A); label test-retest kappa on a 50-item relabel to set the achievable ceiling.",
+    "predeclared_margin": "group memorisation declared if AUC(A) minus AUC(A-LORO) >= 0.10 AND AUC(A-LORO) minus AUC(Oracle) <= 0.03, OR shuffle retention >= 0.85. Output features preferred if AUC(B) minus AUC(A-LORO) >= 0.05 with the repository-clustered interval excluding zero.",
+    "kill_criterion": "AUC(A-LORO) within 0.03 of AUC(A): no group effect in our traffic; stop and record the negative outcome. Also stop before running if the labelled set has fewer than 6 repositories or fewer than 60 positives (record as not runnable, not as a result).",
+    "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+    "review_required": true,
+    "execution_packet_present": true,
+    "raw_frontmatter": {
+     "schema_version": 1,
+     "artifact_id": "E-20260926-02",
+     "artifact_type": "experiment",
+     "producer": "hypotheses",
+     "run_id": "hypotheses-20260926T124723Z-14f0",
+     "created_at": "2026-09-26T13:03:31Z",
+     "idempotency_key": "experiment:PC-20260926-02",
+     "from_card": "PC-20260926-02",
+     "owner": "T4",
+     "track": "C",
+     "pillar_primary": "R6",
+     "beliefs_affected": "[B13, B20]",
+     "review_required": true,
+     "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+     "authorized_executor": "none-yet",
+     "outcomes": "{positive: \"every R4 gate (H5 escalation, admission, H10b) must report leave-one-repository-out AUC, a within-repository shuffle control and a repository base-rate oracle before its verdict; H5 escalation keys on tier-1 output features; propose BR event on B13 recording group memorisation in our traffic\", negative: \"leave-one-repository-out AUC within 0.03 of item-level: our repositories carry little group signal; H5's project split stays sufficient and no shuffle control is mandated\", inconclusive: \"intervals overlap the margins: add repositories (target 10) before changing the gate evaluation protocol\"}",
+     "prior_attempts": [],
+     "dataset": "h5-escalation-turns-v1 (H5 labelled turns grouped by repository; frozen at H5 shadow start)",
+     "status": "queued",
+     "start": "2026-09-26",
+     "verdict_due": "2026-11-06"
+    }
+   },
+   "review": {
+    "id": "REV-20260926-12",
+    "outcome": "revise",
+    "checked": "\"Read target, card and note; inspected the staged Feeny blog TXT sections 2-6, diagnostic Table 1, deferral Table 3, limitations and appendix; checked the HTML shuffle-warning passage and the entire README pinned by manifest to 4577252b108ec70fc9f8d81edac7ac2329cc08d8. Compared shuffle .842/.838, LOGO .525/.558/.600 and deferral .752/.670 with the proposed protocol; checked B13, B20 and policy.\"",
+    "not_verified": "\"Only the README, not diagnostic code or raw predictions, was staged. H5 features, models, gold-label procedure, repository/session identities and frozen labels are absent. The legacy note path is resolved in substance by the supplied N-20260926-03.\"",
+    "findings": [
+     "\"[alternative] Lines 35 and 52 declare memorisation whenever raw AUC retention is >=0.85. Chance scores of 0.50/0.50 yield retention 1.00. Moreover the source section 3.2, 'When the shuffle misleads', reports '0.840 of a real 0.846' despite successful LOGO deferral and explicitly prioritizes LOGO when they disagree. Retention alone cannot support this verdict.\"",
+     "\"[baseline] The LORO oracle is the pooled training rate, constant within a held-out repository, so its per-repository AUC is 0.5 when both classes exist. Pooled out-of-fold AUC can instead reflect different fold priors. Comparing it with pooled classifier AUC does not isolate repository memorisation. Specify separate item-split group-rate and LORO constant baselines and a primary within-repository aggregation.\"",
+     "\"[leakage] The shuffle protocol does not say whether only training labels are shuffled and evaluation uses untouched true labels, as the source requires. Feature preprocessing, duplicate/session grouping and exclusion of gold/tier-2-derived features are unspecified. A different labeller alone does not establish gold independence from the answering model.\"",
+     "\"[numbers] The 'within 0.03' claim is implemented as a one-sided difference <=0.03, which also accepts a classifier far below the oracle. The kill rule and shuffle-positive rule can both fire. Six clusters do not establish the asserted AUC standard error or power without prevalence, dependence and effect simulations; pooling rare repositories can reduce the actual group count below six.\"",
+     "\"[belief B13] A shuffle-positive result does not demonstrate output features are better, yet the positive outcome mandates output-based escalation. A small point-estimate gap also cannot establish 'no group effect'. Gate-wide mandates and B13 updates need their own measured output-feature result and uncertainty.\"",
+     "\"[packet] Missing runnable command/code pin, dataset path/hash, input feature and classifier specifications, preprocessing, exact split/permutation procedure, gold-label and metric scripts, verdict precedence and output-feature cost settings. The machine preflight omits the stated minimum 300 turns and per-repository class support.\"",
+     "\"[budget] Policy is unset. Up to 300 missing-output calls have no model, token, dollar or wall-clock cap; the packet simultaneously says cached features only. No execution is permitted.\"",
+     "\"[injection] Source contains embedded instructions: the pinned README Usage/Scoring sections provide deployment, teardown and scoring commands. These were read as documentation and not executed.\""
+    ],
+    "requested_corrections": [
+     "\"Replace the raw-retention-only verdict with a calibrated permutation/null test and corroborating group-held-out evidence; score untouched test labels and define appropriate oracle comparisons.\"",
+     "\"Freeze leakage-safe features, grouped folds and a single primary AUC statistic; implement symmetric equivalence, mutually exclusive verdicts and minimum class/group counts. Justify power by simulation.\"",
+     "\"Condition output escalation and belief changes on their specific supported comparisons; finish the packet and budget while retaining queued status.\""
+    ],
+    "file_id": "1Thb5s7KihjzXcTqOVmQCOEnEnKqYBF5U"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1fGCeBunNYJyqknQx3iAixm8aQTLqclsf/view",
+    "note": "https://drive.google.com/file/d/1Um_nnb_qrxXLNUH2Fs1ehVttVpbREUM4/view",
+    "experiment": "https://drive.google.com/file/d/1rf2ftU5ZsGxL7u34WUYyoIkEcOIvNIup/view",
+    "review": "https://drive.google.com/file/d/1Thb5s7KihjzXcTqOVmQCOEnEnKqYBF5U/view"
+   }
+  },
+  {
+   "card_id": "PC-20260926-01",
+   "file_id": "1aplQvgbkgLBQ4E0XHpwZUhocUm1BpSox",
+   "sha256": "cd821d8a27ec1a49bc4e7def2cad2d765c01fc82ec38b3e6e6ae729fb989879b",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "An instruction-and-concealment gate applied to model-written carry-over summaries blocks at least 45 of 50 planted concealment directives while falsely blocking at most 2 of 50 clean summaries, whereas serving summaries ungated passes all 50.",
+   "proposed_experiment": "Arm A = consolidation/briefing summaries served as written (current path); Arm B = same summaries passed through the served-memory injection gate extended with a concealment class (\"only if asked\", \"do not mention unless needed\", \"withhold\"). Dataset: 50 clean summaries generated by our stack on P0 fixtures plus 50 copies with one planted concealment directive each (phrasings drawn from the OpenAI report and paraphrases, written by someone other than the gate author). Metric: planted directives blocked and clean summaries falsely blocked. Predeclared margin: Arm B blocks >= 45/50 with <= 2/50 false blocks. Kill: false blocks > 5/50, or blocked < 40/50 after one prompt revision.",
+   "why_it_matters": "R8 says evidence cannot authorise its own use, and the OpenAI report shows the model itself can write instructions into the artifact that carries context forward. If the gate works at this cost, gated consolidation becomes a precondition for turning Consumer 4 (consolidation) on at all.",
+   "pillar_primary": "R8",
+   "pillar_secondary": [
+    "R2"
+   ],
+   "strength": "vendor-benchmark",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B24",
+    "B18",
+    "B25"
+   ],
+   "component": "gated consolidation / served-memory injection gate",
+   "decision_it_could_change": "whether consolidation and briefing outputs pass through the same injection gate as extracted memories before they are served (today only extracted lines are gated)",
+   "source_note": {
+    "name": "blog-openai-deception-in-compaction-summaries.md",
+    "file_id": "1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6"
+   },
+   "source_posts": [
+    "2103594929427800381"
+   ],
+   "status": "recommended",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-01",
+     "status": "recommended",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "Can move B24 (lead) from extracted memories to model-written summaries, and it is cheap now because it reuses the H10b gate port and decides whether Consumer 4 summaries may ever be served. Not merged into H10b because H10b's arms test extracted items, not self-authored concealment directives in summaries; the clean set was raised from 50 to 150 per B21, and the directives quoted in the note are evidence, not instructions to this pipeline.",
+     "file_id": "1D0zW-oD4D7l4EqPx1lRsHCsvLxhKi7Hj",
+     "experiment_id": "E-20260926-01"
+    }
+   ],
+   "experiment": {
+    "id": "E-20260926-01",
+    "file_id": "1Muj1f2_cOVWu1v5LQVX-NeZ_QXIv91wT",
+    "sha256": "040a96ffc17f953755e4000f7c61e3afb35809d2001fa50af13fb15e83638f0c",
+    "claim": "An instruction-and-concealment gate applied to model-written carry-over summaries (consolidation outputs, session recaps, spec briefings) blocks at least 45 of 50 planted concealment directives while falsely blocking at most 2 of 150 clean summaries; serving summaries ungated blocks none.",
+    "arms": "- Arm A (control, current path): summaries served as written, no gate. Block count is 0 by construction; the arm exists so the served payloads can be diffed and so the descriptive scan below has a reference.\n- Arm B: the same summaries passed through the served-memory injection gate (the H10b gate) extended with a concealment class. Class definition, fixed before the dataset is seen by the gate author: a line that instructs a future reader to withhold, defer or condition disclosure of a fact, error or deviation (\"only if asked\", \"do not mention unless needed\", \"be transparent only if asked\", \"withhold\", \"keep this out of the final answer\").\n- Descriptive, not an arm: Arm B's gate run over every real (unplanted) Consumer 4 summary produced on P0 fixtures, reporting how many are flagged. This measures whether the risk occurs in our stack without RL pressure (the note's open question), and every flag is hand-checked.",
+    "metric": "planted directives blocked (out of 50); clean summaries falsely blocked (out of 150); added gate latency p95 per summary.",
+    "predeclared_margin": "pass requires blocked >= 45/50 AND false blocks <= 2/150. Note: 2/150 is enough for shadow mode only. Production serving still needs H10b's standard (one-sided 95% false-block upper bound <= 2%, i.e. 0 false blocks in >= 149 independent benign cases, B21).",
+    "kill_criterion": "false blocks > 5/150, OR blocked < 40/50 after exactly one prompt revision (the revision is made on a 10-item dev split disjoint from the 50 test plants), OR p95 added latency > 150 ms (H10 serving ceiling).",
+    "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+    "review_required": true,
+    "execution_packet_present": true,
+    "raw_frontmatter": {
+     "schema_version": 1,
+     "artifact_id": "E-20260926-01",
+     "artifact_type": "experiment",
+     "producer": "hypotheses",
+     "run_id": "hypotheses-20260926T124723Z-14f0",
+     "created_at": "2026-09-26T13:03:23Z",
+     "idempotency_key": "experiment:PC-20260926-01",
+     "from_card": "PC-20260926-01",
+     "owner": "T4",
+     "track": "C",
+     "pillar_primary": "R8",
+     "beliefs_affected": "[B24, B18, B25]",
+     "review_required": true,
+     "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+     "authorized_executor": "none-yet",
+     "outcomes": "{positive: \"consolidation and briefing outputs route through the served-memory injection gate with the concealment class in shadow mode; gated consolidation becomes a precondition for any H9 arm that serves summaries; propose BR event widening B24 from extracted memories to model-written summaries\", negative: \"a gate prompt does not separate concealment directives from ordinary hedged prose; Consumer 4 summaries stay off the read surface (B5 default off holds) until a different detector is specced\", inconclusive: \"false blocks between 3 and 5 of 150 clean: extend the clean set to 300 before any shadow deployment\"}",
+     "prior_attempts": [],
+     "dataset": "summaries-concealment-v1 (to be frozen: 150 clean + 50 planted, see Execution packet)",
+     "status": "queued",
+     "start": "2026-09-26",
+     "verdict_due": "2026-11-06"
+    }
+   },
+   "review": {
+    "id": "REV-20260926-11",
+    "outcome": "revise",
+    "checked": "\"Read the target and both cited artifacts in full; compared the OpenAI report TXT (Summary, What happened, investigation, mitigation) and corresponding HTML passages with the quoted plants and prevalence claims. Checked B18, B21, B24, B25, policy, arms, split rules, power, latency and packet. Independently computed P(X>=45) at p=.95 and .85 as .9622 and .2194; the stated approximations agree.\"",
+    "not_verified": "\"No H10b implementation, P0 fixtures, Consumer 4 prompts, frozen dataset, model pins or latency measurements were staged. The report supplies no monitor precision or denominator counts. The unresolved legacy note path is represented by N-20260926-02, which was read.\"",
+    "findings": [
+     "\"[baseline] Lines 27 and 45 disagree: the named control is no gate, but the harness also calls the existing gate without the concealment class. Zero blocks by construction cannot establish the added class improves over H10b. The existing gate needs an explicit scored arm with identical model, inputs and budget.\"",
+     "\"[leakage] Lines 37 and 46 do not keep dev and test source fixtures or paraphrase families disjoint. The revision trigger refers to test performance, and nothing prohibits inspecting test failures before the revision. Freeze the final prompt after dev-only tuning and unseal test once.\"",
+     "\"[numbers] Line 48 applies an independent-binomial false-block bound to summaries clustered by fixture; line 35 acknowledges this dependence but clusters only the block-rate interval. The independent-case B21 production bound cannot certify this clean set. Three repeated runs (line 41) also have no declared aggregation rule, leaving pass and kill counts ambiguous.\"",
+     "\"[packet] Missing executable harness command and code/version, concrete dataset paths and hashes, H10b and generator model/prompt pins, metric script, repeat aggregation, revision timing and an exhaustive verdict rule. Output filenames and a draft kill expression exist but cannot be executed from this file.\"",
+     "\"[budget] Policy is unset with no permitted datasets or executor. The estimate 'under 1M tokens' lacks per-line call counts, summary lengths, model prices, dollar/wall-clock caps and the real-summary scan allowance. Keep queued; neither budget compliance nor the 150 ms ceiling is established.\"",
+     "\"[attribution] N-20260926-02, Limitations, says the page does not say whether instructions were followed; the staged report Summary explicitly says 'These instructions were often followed.' Correct that source characterization. The report motivates screening but measures no gate efficacy or deployed-stack prevalence.\"",
+     "\"[injection] Source contains embedded instructions: the report's What happened examples say 'Be transparent only if asked' and 'Do not mention in final unless needed.' The note and plant definitions repeat them. Treated solely as evidence; none was obeyed.\""
+    ],
+    "requested_corrections": [
+     "\"Add the unextended H10b gate comparator; freeze model, prompts, budgets and dev/test fixture and wording-family splits before the final evaluation.\"",
+     "\"Define repeat-level aggregation and mutually exclusive pass/kill/inconclusive rules; use dependence-aware false-block uncertainty and reserve B21 certification for independent benign cases.\"",
+     "\"Supply the runnable packet and cost calculation, retain the policy execution block, and correct the note's statement about instructions being followed.\""
+    ],
+    "file_id": "1JdBXMQR-aF6cfnWgQC4z0XML7vceVBkq"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1aplQvgbkgLBQ4E0XHpwZUhocUm1BpSox/view",
+    "note": "https://drive.google.com/file/d/1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6/view",
+    "experiment": "https://drive.google.com/file/d/1Muj1f2_cOVWu1v5LQVX-NeZ_QXIv91wT/view",
+    "review": "https://drive.google.com/file/d/1JdBXMQR-aF6cfnWgQC4z0XML7vceVBkq/view"
+   }
+  },
+  {
+   "card_id": "PC-20260926-01",
+   "file_id": "1BCBPEmlDpeuBACVOCMtYtoLFVq0TWwlp",
+   "sha256": "cd821d8a27ec1a49bc4e7def2cad2d765c01fc82ec38b3e6e6ae729fb989879b",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "An instruction-and-concealment gate applied to model-written carry-over summaries blocks at least 45 of 50 planted concealment directives while falsely blocking at most 2 of 50 clean summaries, whereas serving summaries ungated passes all 50.",
+   "proposed_experiment": "Arm A = consolidation/briefing summaries served as written (current path); Arm B = same summaries passed through the served-memory injection gate extended with a concealment class (\"only if asked\", \"do not mention unless needed\", \"withhold\"). Dataset: 50 clean summaries generated by our stack on P0 fixtures plus 50 copies with one planted concealment directive each (phrasings drawn from the OpenAI report and paraphrases, written by someone other than the gate author). Metric: planted directives blocked and clean summaries falsely blocked. Predeclared margin: Arm B blocks >= 45/50 with <= 2/50 false blocks. Kill: false blocks > 5/50, or blocked < 40/50 after one prompt revision.",
+   "why_it_matters": "R8 says evidence cannot authorise its own use, and the OpenAI report shows the model itself can write instructions into the artifact that carries context forward. If the gate works at this cost, gated consolidation becomes a precondition for turning Consumer 4 (consolidation) on at all.",
+   "pillar_primary": "R8",
+   "pillar_secondary": [
+    "R2"
+   ],
+   "strength": "vendor-benchmark",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B24",
+    "B18",
+    "B25"
+   ],
+   "component": "gated consolidation / served-memory injection gate",
+   "decision_it_could_change": "whether consolidation and briefing outputs pass through the same injection gate as extracted memories before they are served (today only extracted lines are gated)",
+   "source_note": {
+    "name": "blog-openai-deception-in-compaction-summaries.md",
+    "file_id": "1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6"
+   },
+   "source_posts": [
+    "2103594929427800381"
+   ],
+   "status": "recommended",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-01",
+     "status": "recommended",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "Can move B24 (lead) from extracted memories to model-written summaries, and it is cheap now because it reuses the H10b gate port and decides whether Consumer 4 summaries may ever be served. Not merged into H10b because H10b's arms test extracted items, not self-authored concealment directives in summaries; the clean set was raised from 50 to 150 per B21, and the directives quoted in the note are evidence, not instructions to this pipeline.",
+     "file_id": "1D0zW-oD4D7l4EqPx1lRsHCsvLxhKi7Hj",
+     "experiment_id": "E-20260926-01"
+    }
+   ],
+   "experiment": {
+    "id": "E-20260926-01",
+    "file_id": "1Muj1f2_cOVWu1v5LQVX-NeZ_QXIv91wT",
+    "sha256": "040a96ffc17f953755e4000f7c61e3afb35809d2001fa50af13fb15e83638f0c",
+    "claim": "An instruction-and-concealment gate applied to model-written carry-over summaries (consolidation outputs, session recaps, spec briefings) blocks at least 45 of 50 planted concealment directives while falsely blocking at most 2 of 150 clean summaries; serving summaries ungated blocks none.",
+    "arms": "- Arm A (control, current path): summaries served as written, no gate. Block count is 0 by construction; the arm exists so the served payloads can be diffed and so the descriptive scan below has a reference.\n- Arm B: the same summaries passed through the served-memory injection gate (the H10b gate) extended with a concealment class. Class definition, fixed before the dataset is seen by the gate author: a line that instructs a future reader to withhold, defer or condition disclosure of a fact, error or deviation (\"only if asked\", \"do not mention unless needed\", \"be transparent only if asked\", \"withhold\", \"keep this out of the final answer\").\n- Descriptive, not an arm: Arm B's gate run over every real (unplanted) Consumer 4 summary produced on P0 fixtures, reporting how many are flagged. This measures whether the risk occurs in our stack without RL pressure (the note's open question), and every flag is hand-checked.",
+    "metric": "planted directives blocked (out of 50); clean summaries falsely blocked (out of 150); added gate latency p95 per summary.",
+    "predeclared_margin": "pass requires blocked >= 45/50 AND false blocks <= 2/150. Note: 2/150 is enough for shadow mode only. Production serving still needs H10b's standard (one-sided 95% false-block upper bound <= 2%, i.e. 0 false blocks in >= 149 independent benign cases, B21).",
+    "kill_criterion": "false blocks > 5/150, OR blocked < 40/50 after exactly one prompt revision (the revision is made on a 10-item dev split disjoint from the 50 test plants), OR p95 added latency > 150 ms (H10 serving ceiling).",
+    "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+    "review_required": true,
+    "execution_packet_present": true,
+    "raw_frontmatter": {
+     "schema_version": 1,
+     "artifact_id": "E-20260926-01",
+     "artifact_type": "experiment",
+     "producer": "hypotheses",
+     "run_id": "hypotheses-20260926T124723Z-14f0",
+     "created_at": "2026-09-26T13:03:23Z",
+     "idempotency_key": "experiment:PC-20260926-01",
+     "from_card": "PC-20260926-01",
+     "owner": "T4",
+     "track": "C",
+     "pillar_primary": "R8",
+     "beliefs_affected": "[B24, B18, B25]",
+     "review_required": true,
+     "budget": "{tokens: policy unset, cost_usd: policy unset, wall_clock_h: policy unset}",
+     "authorized_executor": "none-yet",
+     "outcomes": "{positive: \"consolidation and briefing outputs route through the served-memory injection gate with the concealment class in shadow mode; gated consolidation becomes a precondition for any H9 arm that serves summaries; propose BR event widening B24 from extracted memories to model-written summaries\", negative: \"a gate prompt does not separate concealment directives from ordinary hedged prose; Consumer 4 summaries stay off the read surface (B5 default off holds) until a different detector is specced\", inconclusive: \"false blocks between 3 and 5 of 150 clean: extend the clean set to 300 before any shadow deployment\"}",
+     "prior_attempts": [],
+     "dataset": "summaries-concealment-v1 (to be frozen: 150 clean + 50 planted, see Execution packet)",
+     "status": "queued",
+     "start": "2026-09-26",
+     "verdict_due": "2026-11-06"
+    }
+   },
+   "review": {
+    "id": "REV-20260926-11",
+    "outcome": "revise",
+    "checked": "\"Read the target and both cited artifacts in full; compared the OpenAI report TXT (Summary, What happened, investigation, mitigation) and corresponding HTML passages with the quoted plants and prevalence claims. Checked B18, B21, B24, B25, policy, arms, split rules, power, latency and packet. Independently computed P(X>=45) at p=.95 and .85 as .9622 and .2194; the stated approximations agree.\"",
+    "not_verified": "\"No H10b implementation, P0 fixtures, Consumer 4 prompts, frozen dataset, model pins or latency measurements were staged. The report supplies no monitor precision or denominator counts. The unresolved legacy note path is represented by N-20260926-02, which was read.\"",
+    "findings": [
+     "\"[baseline] Lines 27 and 45 disagree: the named control is no gate, but the harness also calls the existing gate without the concealment class. Zero blocks by construction cannot establish the added class improves over H10b. The existing gate needs an explicit scored arm with identical model, inputs and budget.\"",
+     "\"[leakage] Lines 37 and 46 do not keep dev and test source fixtures or paraphrase families disjoint. The revision trigger refers to test performance, and nothing prohibits inspecting test failures before the revision. Freeze the final prompt after dev-only tuning and unseal test once.\"",
+     "\"[numbers] Line 48 applies an independent-binomial false-block bound to summaries clustered by fixture; line 35 acknowledges this dependence but clusters only the block-rate interval. The independent-case B21 production bound cannot certify this clean set. Three repeated runs (line 41) also have no declared aggregation rule, leaving pass and kill counts ambiguous.\"",
+     "\"[packet] Missing executable harness command and code/version, concrete dataset paths and hashes, H10b and generator model/prompt pins, metric script, repeat aggregation, revision timing and an exhaustive verdict rule. Output filenames and a draft kill expression exist but cannot be executed from this file.\"",
+     "\"[budget] Policy is unset with no permitted datasets or executor. The estimate 'under 1M tokens' lacks per-line call counts, summary lengths, model prices, dollar/wall-clock caps and the real-summary scan allowance. Keep queued; neither budget compliance nor the 150 ms ceiling is established.\"",
+     "\"[attribution] N-20260926-02, Limitations, says the page does not say whether instructions were followed; the staged report Summary explicitly says 'These instructions were often followed.' Correct that source characterization. The report motivates screening but measures no gate efficacy or deployed-stack prevalence.\"",
+     "\"[injection] Source contains embedded instructions: the report's What happened examples say 'Be transparent only if asked' and 'Do not mention in final unless needed.' The note and plant definitions repeat them. Treated solely as evidence; none was obeyed.\""
+    ],
+    "requested_corrections": [
+     "\"Add the unextended H10b gate comparator; freeze model, prompts, budgets and dev/test fixture and wording-family splits before the final evaluation.\"",
+     "\"Define repeat-level aggregation and mutually exclusive pass/kill/inconclusive rules; use dependence-aware false-block uncertainty and reserve B21 certification for independent benign cases.\"",
+     "\"Supply the runnable packet and cost calculation, retain the policy execution block, and correct the note's statement about instructions being followed.\""
+    ],
+    "file_id": "1JdBXMQR-aF6cfnWgQC4z0XML7vceVBkq"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1BCBPEmlDpeuBACVOCMtYtoLFVq0TWwlp/view",
+    "note": "https://drive.google.com/file/d/1fCGgT0kSJgdHnkWLzW1K8hMu6xKSA--6/view",
+    "experiment": "https://drive.google.com/file/d/1Muj1f2_cOVWu1v5LQVX-NeZ_QXIv91wT/view",
+    "review": "https://drive.google.com/file/d/1JdBXMQR-aF6cfnWgQC4z0XML7vceVBkq/view"
+   }
+  }
+ ],
+ "approved": [],
+ "deferred": [],
+ "agent_decided": [
+  {
+   "card_id": "PC-20260926-03",
+   "file_id": "1nZeC6VVJibZFTOpeLCPfraESlaW_4wV1",
+   "sha256": "09c7ea47910adf13266b1cefa9778082205c5538080c4cd3f0c97d5da8f9be38",
+   "created": "2026-09-26T11:25:00Z",
+   "claim": "Averaging a single-call choice rerank over 8 random candidate orderings raises recall@1 by at least 2 points over the same call with candidates in RRF order, on our rerank set.",
+   "proposed_experiment": "Arm A = one Jev choice call over the RRF-ordered pool (current design, B10); Arm A2 = same call with the pool in one random order (order-sensitivity control); Arm B = mean choice probability over 8 random orderings batched in one or more calls. Candidate labels are opaque ids in all arms. Dataset: LoCoMo-200 rerank pools used for B10 plus 100 build-time read queries from P0 fixtures, 30 candidates each. Metric: recall@1 and recall@5, plus the rank correlation between candidate position and chosen probability. Predeclared margin: Arm B >= Arm A + 2 points recall@1 on both sets. Kill: Arm A and A2 within 1 point (no order sensitivity) or Arm B gain < 1 point at 8x decision cost.",
+   "why_it_matters": "R4 asks that a decision be automated only when its error behaviour is understood; our rerank rests on one choice call whose order sensitivity nobody has measured. A positive result changes the rerank call shape; a null result closes a confound on B10.",
+   "pillar_primary": "R4",
+   "pillar_secondary": [
+    "R3"
+   ],
+   "strength": "vendor-benchmark",
+   "cost": "S",
+   "urgency": "none",
+   "beliefs_affected": [
+    "B10",
+    "B14"
+   ],
+   "component": "listwise rerank (H5-rerank)",
+   "decision_it_could_change": "whether the single-call choice rerank is shipped with candidates in retrieval order, in shuffled order, or averaged over several orderings",
+   "source_note": {
+    "name": "blog-typellm-fair-die-permutation-averaging.md",
+    "file_id": "1PO5avpcb1Ts-4ERjjaz-pp_ixaWQnthV"
+   },
+   "source_posts": [
+    "2102654986475979216",
+    "2102341093472010266"
+   ],
+   "status": "rejected",
+   "decision_chain": [
+    {
+     "id": "DEC-20260926-03",
+     "status": "rejected",
+     "producer": "hypotheses",
+     "created_at": "2026-09-26T12:49:29Z",
+     "reason": "The evidence does not support the claim and there is no dataset or harness for it this quarter. The note's own correction says Jev's bias follows the label, not the position (86.01% for 'one' after all 720 orderings), so with opaque ids in every arm the averaging arm has no supported mechanism, and the 'LoCoMo-200 rerank pools used for B10' are Hindsight's, not a dataset or rerank harness on our Q4 queue. Re-raise as an order-shuffle control inside H5-rerank when that experiment is specced.",
+     "file_id": "1pqBKnNRhJd80py-y8dOoW2abAlT-LOs-",
+     "experiment_id": null
+    }
+   ],
+   "experiment": null,
+   "review": {
+    "id": "REV-20260926-05",
+    "outcome": "revise",
+    "checked": "\"Read the card and note; checked TypeLLM fair-die .txt and relevant HTML, original and all-order tables, permutation averaging and KL-divergence explanation. Confirmed 83%, 77% to 91%, 718 of 720, 86.01%, 13.47% to 25.41%, 79% and 97%. Compared all five grades, B10/B14 and the proposed three arms.\"",
+    "not_verified": "\"No Jev relevance-pool result, opaque-id ablation, rerank implementation, local LoCoMo pools or P0 query set was staged. The script/raw results are not fetched or pinned. Proposed sample sizes, candidate count and margins are not empirical source results. Policy is unset.\"",
+    "findings": [
+     "\"[attribution] Card line 23 predicts a Jev recall gain of at least 2 points from 8 orderings. The source's large averaging gains concern Qwen's die-probability KL error; Jev retains label bias. No evidence establishes that opaque ids fix it or that the Qwen effect transfers to Jev reranking.\"",
+     "\"[baseline] Eight orderings receive more scoring work than a single call; there is no same-order repeated-scoring control at the same budget. An observed gain could reflect ensembling or stochastic variance, not order correction.\"",
+     "\"[alternative] Killing on A versus one random A2 being within 1 point can miss order sensitivity when different item-level changes cancel in aggregate. No repeated permutations, per-query disagreement analysis or paired uncertainty is specified.\"",
+     "\"[numbers] Cited note lines 55 and 67 says the error metric is unspecified. Source How many permutations do we need? explicitly states \\\"KL divergence\\\" and compares against \\\"average single-order error\\\"; update that locator and denominator.\"",
+     "\"[injection] Source contains embedded install and example-run instructions; none was executed.\""
+    ],
+    "requested_corrections": [
+     "\"Make this an exploratory Jev order-sensitivity test before forecasting recall gain; distinguish label effects, order effects and probability calibration.\"",
+     "\"Add an equal-budget repeated-order arm, fixed model/version/seeds, paired uncertainty and per-query order-disagreement metrics. Do not stop from one aggregate A/A2 comparison.\"",
+     "\"Identify accessible local pools and revise the cited note's KL metric description.\""
+    ],
+    "file_id": "1bzYpxuDCPfxFt6UemAYZe6jbA5q71DJo"
+   },
+   "drive_urls": {
+    "card": "https://drive.google.com/file/d/1nZeC6VVJibZFTOpeLCPfraESlaW_4wV1/view",
+    "note": "https://drive.google.com/file/d/1PO5avpcb1Ts-4ERjjaz-pp_ixaWQnthV/view",
+    "experiment": null,
+    "review": "https://drive.google.com/file/d/1bzYpxuDCPfxFt6UemAYZe6jbA5q71DJo/view"
+   }
+  }
+ ],
+ "proposed_undecided": [],
+ "recent_verdicts": [],
+ "belief_revisions": [],
+ "agents": {
+  "fetch:memory": {
+   "last_run_at": "2026-09-26T12:43:30Z",
+   "status": "ok",
+   "duration_s": 30,
+   "counts": {
+    "records": 412,
+    "api_requests": 20
+   },
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:43:00Z",
+     "finished_at": "2026-09-26T12:43:30Z",
+     "status": "ok",
+     "counts": {
+      "records": 412,
+      "api_requests": 20
+     }
+    }
+   ]
+  },
+  "fetch:decision": {
+   "last_run_at": "2026-09-26T12:33:35Z",
+   "status": "ok",
+   "duration_s": 31,
+   "counts": {
+    "records": 156,
+    "api_requests": 20
+   },
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:33:04Z",
+     "finished_at": "2026-09-26T12:33:35Z",
+     "status": "ok",
+     "counts": {
+      "records": 156,
+      "api_requests": 20
+     }
+    }
+   ]
+  },
+  "digest:memory": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "digest:decision": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 10800,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "curation:memory": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "curation:decision": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": true,
+   "runs_7d": []
+  },
+  "triage": {
+   "last_run_at": "2026-09-26T12:44:48Z",
+   "status": "ok",
+   "duration_s": 888,
+   "counts": {
+    "items": 3482,
+    "clusters": 846,
+    "notes": 21,
+    "cards": 5,
+    "watch_answers": 0,
+    "deferred": 0,
+    "parked": 31,
+    "contradictions": 1,
+    "instruction_bearing_posts": 4,
+    "webfetch_calls": 56,
+    "consumed_ids": 3482,
+    "pending": 31,
+    "duplicate_notes_skipped": 0,
+    "claude_cost_usd": 13.410989599999995,
+    "claude_turns": 154
+   },
+   "errors": [],
+   "expected_interval_s": 43200,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:30:00Z",
+     "finished_at": "2026-09-26T12:44:48Z",
+     "status": "ok",
+     "counts": {
+      "items": 3482,
+      "clusters": 846,
+      "notes": 21,
+      "cards": 5,
+      "watch_answers": 0,
+      "deferred": 0,
+      "parked": 31,
+      "contradictions": 1,
+      "instruction_bearing_posts": 4,
+      "webfetch_calls": 56,
+      "consumed_ids": 3482,
+      "pending": 31,
+      "duplicate_notes_skipped": 0,
+      "claude_cost_usd": 13.410989599999995,
+      "claude_turns": 154
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:59:56Z",
+     "finished_at": "2026-09-26T11:26:46Z",
+     "status": "exit 2",
+     "counts": {
+      "items": 3482,
+      "pre_clusters": 3168,
+      "claude_cost_usd": 13.410989599999995,
+      "claude_turns": 154,
+      "claude_duration_ms": 1548279
+     }
+    }
+   ]
+  },
+  "hypotheses": {
+   "last_run_at": "2026-09-26T12:52:54Z",
+   "status": "ok",
+   "duration_s": 332,
+   "counts": {
+    "cards_total": 5,
+    "undecided": 5,
+    "conflicts": 0,
+    "open_experiments": 0,
+    "decisions": 0,
+    "recommended": 0,
+    "merged": 0,
+    "rejected": 1,
+    "specs": 0,
+    "refused": 8,
+    "claude_cost_usd": 1.4645352,
+    "claude_turns": 26
+   },
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T12:47:22Z",
+     "finished_at": "2026-09-26T12:52:54Z",
+     "status": "ok",
+     "counts": {
+      "cards_total": 5,
+      "undecided": 5,
+      "conflicts": 0,
+      "open_experiments": 0,
+      "decisions": 0,
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 1,
+      "specs": 0,
+      "refused": 8,
+      "claude_cost_usd": 1.4645352,
+      "claude_turns": 26
+     }
+    },
+    {
+     "started_at": "2026-09-26T12:42:57Z",
+     "finished_at": "2026-09-26T12:46:37Z",
+     "status": "ok",
+     "counts": {
+      "cards_total": 5,
+      "undecided": 5,
+      "conflicts": 0,
+      "open_experiments": 0,
+      "decisions": 0,
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 0,
+      "specs": 0,
+      "refused": 1,
+      "claude_cost_usd": 0.5801328,
+      "claude_turns": 9
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:03:52Z",
+     "finished_at": "2026-09-26T11:05:30Z",
+     "status": "ok",
+     "counts": {
+      "cards_total": 0,
+      "undecided": 0,
+      "conflicts": 0,
+      "open_experiments": 0,
+      "decisions": 0,
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 0,
+      "specs": 0,
+      "refused": 0
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:01:41Z",
+     "finished_at": "2026-09-26T11:02:48Z",
+     "status": "exit 1",
+     "counts": {
+      "recommended": 0,
+      "merged": 0,
+      "rejected": 0,
+      "specs": 0,
+      "refused": 0
+     }
+    }
+   ]
+  },
+  "challenger": {
+   "last_run_at": "2026-09-26T13:10:44Z",
+   "status": "ok",
+   "duration_s": 348,
+   "counts": {
+    "targets": 5,
+    "reviews": 5,
+    "ready": 0,
+    "revise": 5,
+    "insufficient": 0,
+    "watch_filed": 0,
+    "codex_exit": 0,
+    "publish_exit": 0,
+    "missing": 0,
+    "invalid": 0
+   },
+   "errors": [],
+   "expected_interval_s": 86400,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T13:04:56Z",
+     "finished_at": "2026-09-26T13:10:44Z",
+     "status": "ok",
+     "counts": {
+      "targets": 5,
+      "reviews": 5,
+      "ready": 0,
+      "revise": 5,
+      "insufficient": 0,
+      "watch_filed": 0,
+      "codex_exit": 0,
+      "publish_exit": 0,
+      "missing": 0,
+      "invalid": 0
+     }
+    },
+    {
+     "started_at": "2026-09-26T12:53:39Z",
+     "finished_at": "2026-09-26T13:02:46Z",
+     "status": "ok",
+     "counts": {
+      "targets": 10,
+      "reviews": 10,
+      "ready": 0,
+      "revise": 10,
+      "insufficient": 0,
+      "watch_filed": 3,
+      "codex_exit": 0,
+      "publish_exit": 0,
+      "missing": 0,
+      "invalid": 0
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:55:32Z",
+     "finished_at": "2026-09-26T10:55:43Z",
+     "status": "ok",
+     "counts": {
+      "targets": 0,
+      "reviews": 0,
+      "ready": 0,
+      "revise": 0,
+      "insufficient": 0,
+      "watch_filed": 0,
+      "codex_exit": null
+     }
+    }
+   ]
+  },
+  "delta": {
+   "last_run_at": "2026-09-26T11:00:53Z",
+   "status": "ok",
+   "duration_s": 340,
+   "counts": {
+    "cards": 0,
+    "decisions": 0,
+    "verdicts": 0,
+    "conflicts": 0,
+    "delta_lines": 111,
+    "mirror_commit": "bb19bdd"
+   },
+   "errors": [],
+   "expected_interval_s": 604800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T10:55:13Z",
+     "finished_at": "2026-09-26T11:00:53Z",
+     "status": "ok",
+     "counts": {
+      "cards": 0,
+      "decisions": 0,
+      "verdicts": 0,
+      "conflicts": 0,
+      "delta_lines": 111,
+      "mirror_commit": "bb19bdd"
+     }
+    }
+   ]
+  },
+  "desk-projector": {
+   "last_run_at": "2026-09-26T13:10:51Z",
+   "status": "running",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": 1800,
+   "stalled": false,
+   "runs_7d": [
+    {
+     "started_at": "2026-09-26T13:10:51Z",
+     "finished_at": null,
+     "status": "running",
+     "counts": {}
+    },
+    {
+     "started_at": "2026-09-26T13:01:55Z",
+     "finished_at": "2026-09-26T13:02:51Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 1,
+      "proposed_undecided": 5,
+      "conflicts": 0,
+      "parse_errors": 6,
+      "watch_open": 2,
+      "stalled_agents": 4,
+      "sync_failures": 0,
+      "elapsed_s": 55.3
+     }
+    },
+    {
+     "started_at": "2026-09-26T12:30:46Z",
+     "finished_at": "2026-09-26T12:31:44Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 6,
+      "sync_failures": 0,
+      "elapsed_s": 58.1
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:58:54Z",
+     "finished_at": "2026-09-26T12:00:38Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 6,
+      "sync_failures": 0,
+      "elapsed_s": 103.6
+     }
+    },
+    {
+     "started_at": "2026-09-26T11:27:52Z",
+     "finished_at": "2026-09-26T11:28:46Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 6,
+      "sync_failures": 0,
+      "elapsed_s": 53.3
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:57:26Z",
+     "finished_at": "2026-09-26T10:57:40Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 9,
+      "sync_failures": 0,
+      "elapsed_s": 14.3
+     }
+    },
+    {
+     "started_at": "2026-09-26T10:53:54Z",
+     "finished_at": "2026-09-26T10:55:36Z",
+     "status": "ok",
+     "counts": {
+      "queue": 0,
+      "approved": 0,
+      "deferred": 0,
+      "agent_decided": 0,
+      "proposed_undecided": 0,
+      "conflicts": 0,
+      "parse_errors": 0,
+      "watch_open": 0,
+      "stalled_agents": 10,
+      "sync_failures": 0,
+      "elapsed_s": 101.9
+     }
+    }
+   ]
+  },
+  "curation-apply": {
+   "last_run_at": null,
+   "status": "never_run",
+   "duration_s": null,
+   "counts": {},
+   "errors": [],
+   "expected_interval_s": null,
+   "stalled": false,
+   "runs_7d": []
+  }
+ },
+ "capture": {
+  "items_today": {
+   "memory": 967,
+   "decision": 614
+  },
+  "queries_at_cap": [
+   {
+    "feed": "decision",
+    "source": "search:(@typesafeai OR \"typesafe ai\" OR \"typesa",
+    "consecutive_runs": 27
+   },
+   {
+    "feed": "memory",
+    "source": "search:(@typesafeai OR \"typesafe ai\" OR \"typesa",
+    "consecutive_runs": 6
+   },
+   {
+    "feed": "decision",
+    "source": "search:(jev (memory OR recall OR retrieval OR r",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "decision",
+    "source": "timeline:cderinbogaz",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "search:(\"context engineering\" OR \"just-in-time\"",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "search:(\"self-improving\" OR \"recursive self-imp",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "search:(provenance OR \"retrieval receipt\" OR \"p",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:dhravyashah",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:jreuben1",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:letta_ai",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:mem0ai",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:softwaredoug",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:supermemory",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:tazr_dev",
+    "consecutive_runs": 1
+   },
+   {
+    "feed": "memory",
+    "source": "timeline:vectorizeio",
+    "consecutive_runs": 1
+   }
+  ],
+  "backlog": [
+   {
+    "cluster_id": "x:2100606119504712138",
+    "post_ids": [
+     "2100655158992719907"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "email routing numbers (85.5% zero errors) only in an X thread; x.com fetch returns 402",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102979401025806732",
+    "post_ids": [
+     "2102979401025806732"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Jev code reranker on 100 GitHub issues: table in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103565692494925906",
+    "post_ids": [
+     "2103565692494925906",
+     "2103591942198087949"
+    ],
+    "reason": "image only",
+    "blocked_reason": "you.com Jev rerank 84% Vertical RTK: numbers in image, no write-up link",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103188520156229672",
+    "post_ids": [
+     "2103188520156229672"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Momentic Locator Bench 51.8%: image only",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103039616211157449",
+    "post_ids": [
+     "2103039616211157449"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Jina multi-vector vs dense retrievers on memory search: chart only",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103333079477784896",
+    "post_ids": [
+     "2103333079477784896"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "CL-Bench (Asawa et al.) not found by arXiv title search",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2100937437325205568",
+    "post_ids": [
+     "2101196885260460388"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "WebMCP benchmark claim only in quoted X post",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2096616468851097811",
+    "post_ids": [
+     "2096647325049626918"
+    ],
+    "reason": "fetch failed",
+    "blocked_reason": "fetch failed: openai.com 403 and x.com 402 for OpenAI research-acceleration data",
+    "attempts": 1,
+    "retry_after": "2026-09-27",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103610898690855161",
+    "post_ids": [
+     "2103612889655353346",
+     "2103612667865002248",
+     "2103615960175522108",
+     "2103713051002257705",
+     "2103615668683714730",
+     "2103663848511459603",
+     "2103684019107795155",
+     "2103776463388631493",
+     "2103781842155614264",
+     "2103648309881758112",
+     "2103709570338316525"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "OpenRouter jev-router launch: model page is API docs only; how-it-works and results in images",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103368968014848400",
+    "post_ids": [
+     "2103368968014848400",
+     "2103779974281089321"
+    ],
+    "reason": "image only",
+    "blocked_reason": "JEV-as-a-Judge paper (alphaxiv) not identified; figures in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102520050305597713",
+    "post_ids": [
+     "2102520050305597713"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Jev rerank +11 LongMemEval: no write-up",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102910289083826675",
+    "post_ids": [
+     "2102910289083826675"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "60-case tool-call risk benchmark only in X thread",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103098242921591201",
+    "post_ids": [
+     "2103098242921591201"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "README with negative rerank results not linked in item",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103610751231668596",
+    "post_ids": [
+     "2103610751231668596"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "96.0% confident errors repeated by LLM verifier: source read by deliprao not linked",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2098013767627837827",
+    "post_ids": [
+     "2102850232249635116"
+    ],
+    "reason": "image only",
+    "blocked_reason": "13-page agent memory breakdown shared as video/images",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2103187018423361536",
+    "post_ids": [
+     "2103195865280328031"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "DocsBot Jev reranker benchmark in X article (not fetchable)",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102869389762867200",
+    "post_ids": [
+     "2102885375639507087"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "MCP outcome judge write-up in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102342653782175744",
+    "post_ids": [
+     "2102830489237065968"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Jev OPSEC ranker in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102108924677927169",
+    "post_ids": [
+     "2102121915733405896",
+     "2102127055034847447",
+     "2102218770630758684",
+     "2102130510877372732"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Browserbase Jev write-up is a quoted X post/article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2100300097695232164",
+    "post_ids": [
+     "2100477620144205849"
+    ],
+    "reason": "image only",
+    "blocked_reason": "fx auto-mode classifier benchmark in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103153482161086753",
+    "post_ids": [
+     "2103169226047463831"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "claimed ICML paper (hallucinations 22% to 4%) not identified",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2103626484518924288",
+    "post_ids": [
+     "2103627396389974103"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "Jev vs GPT-5.6 Terra 67.8/67.9 in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102072714488139776",
+    "post_ids": [
+     "2102074672020066685"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "renewals agent 4.5x cheaper in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103345111388373359",
+    "post_ids": [
+     "2103345111388373359"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "production router for verification workflows: no link",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "url:mnzailabs.com/en/news/github-agentic-autofix-learns-from-security-fixes",
+    "post_ids": [
+     "2103655355238826395"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "secondary news only; GitHub primary for Agentic Autofix memory not located",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103193093247750466",
+    "post_ids": [
+     "2103208544585892280"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "LlamaIndex calibrated-confidence blog URL not in item (links to X post and video)",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103754592056144155",
+    "post_ids": [
+     "2103754592056144155"
+    ],
+    "reason": "image only",
+    "blocked_reason": "SkillHEX summary in image, paper not linked",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "url:prospex.ch/blog/adaptive-reranking-with-jev-and-a-logistic-regression",
+    "post_ids": [
+     "2102412336569180506"
+    ],
+    "reason": "fetch failed",
+    "blocked_reason": "fetch failed: HTTP 403",
+    "attempts": 1,
+    "retry_after": "2026-09-27",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2103095032635171224",
+    "post_ids": [
+     "2103095032635171224"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "JevOS routing 15/16 labelled steps: no write-up",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x:2102842288619814925",
+    "post_ids": [
+     "2103168377388978635"
+    ],
+    "reason": "image only",
+    "blocked_reason": "Jev on 586 marketing items: results in image",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   },
+   {
+    "cluster_id": "x-article:2102806912278339584",
+    "post_ids": [
+     "2102810316497371268"
+    ],
+    "reason": "no primary source",
+    "blocked_reason": "local 4B command picker 77% in X article",
+    "attempts": 1,
+    "retry_after": "2026-10-03",
+    "first_seen": "2026-09-26"
+   }
+  ],
+  "cards_over_14d_undecided": 0
+ },
+ "config_changes": [],
+ "watch_open": [
+  {
+   "id": "WR-20260926-01",
+   "from": "T5",
+   "what": "\"Obtain the dated Q4 experiment queue and local H5-rerank dataset/harness inventory, including whether LoCoMo-200 candidate pools and P0 read queries are available.\"",
+   "due": "2026-W40",
+   "age_days": 0.0,
+   "file_id": "1788MWMpqXht7HPurIXZRnfOaRei0JZMb"
+  },
+  {
+   "id": "WR-20260926-02",
+   "from": "T5",
+   "what": "\"Fetch the primary RLCDAlignBench and Banking77 calibration sources underlying ECE 0.168 and 0.097, with model versions, metric definitions, sample sizes, calibration splits and author affiliations.\"",
+   "due": "2026-W40",
+   "age_days": 0.0,
+   "file_id": "1-I27mjTDWugOFCLbL9BSyZccTda53AIq"
+  },
+  {
+   "id": "WR-20260926-03",
+   "from": "T5",
+   "what": "\"Fetch benchmarks/jev-latency and its detailed report/raw workload timings at FAFO commit b752a26cc0ee73bc305b5535c11295839bb31d3d, including matched route results, failure handling and environment.\"",
+   "due": "2026-W40",
+   "age_days": 0.0,
+   "file_id": "1uYZFz6qbcV8iKZuZE8RX6qoyD88x9ufn"
+  }
+ ],
+ "deltas": [
+  {
+   "name": "2026-W39.md",
+   "file_id": "15Ap2_SGhlQl5_xQTgutDE_D6i3nNHSDY",
+   "mtime": "2026-09-26T10:58:55.166Z"
+  },
+  {
+   "name": "index-20260926T105546Z.json",
+   "file_id": "1Vk7L2Iv2N3q1VQL2RDz28d7_1LhOz8hV",
+   "mtime": "2026-09-26T10:55:47.000Z"
+  }
+ ],
+ "conflicts": [],
+ "links": {
+  "bus_root": "https://drive.google.com/drive/folders/1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim",
+  "folders": {
+   "beliefs": "https://drive.google.com/drive/folders/1wiSGxJCsAwQJcePkj5M5HSXpFkanzZtG",
+   "cards": "https://drive.google.com/drive/folders/1wCmR3VBI0GJThB7T9XtFdCkSg4VFkkjj",
+   "checkpoints": "https://drive.google.com/drive/folders/1QYRgiygmdLL1-ji5gPeZmwmKGiVfQdDY",
+   "decisions": "https://drive.google.com/drive/folders/1Puptg6-Hj13TL6t2-zjBYll4BIq81Lt-",
+   "delta": "https://drive.google.com/drive/folders/1m0zNCGTapSFEd9alpujJXXyX-BFuAqed",
+   "desk": "https://drive.google.com/drive/folders/1FdGJ9RJ_fbGyy9ddeNBx52yxlbw4SQA9",
+   "experiments": "https://drive.google.com/drive/folders/1jtLlsldQNNYl3BDJ3ezq-q24T2b3lXao",
+   "notes": "https://drive.google.com/drive/folders/1xZZ6Jr878OtaCMohKvRi1VQX_m3gGcPL",
+   "reviews": "https://drive.google.com/drive/folders/1UlI6SHC21hXcqvAUg0diGImJP04yU7NT",
+   "runs": "https://drive.google.com/drive/folders/1-kGw29D0i3b0OGOJbCLhqdc3NV8Bkd0b",
+   "telemetry": "https://drive.google.com/drive/folders/12a92Fp9sWmteVP475mktGRp2KOCSxle4",
+   "triage-log": "https://drive.google.com/drive/folders/1IegV687s0fjdS8f3_SDI1GPfYat0HHrc",
+   "verdicts": "https://drive.google.com/drive/folders/1FZCKIEDjHGiEz0Ba8IToTrrNIDPkBNvJ",
+   "watch": "https://drive.google.com/drive/folders/1Gnm5VMrQNxa9S2By0P5GzoUxr1gvIjVM"
+  }
+ },
+ "person_rejected": [],
+ "parse_errors": [
+  {
+   "folder": "notes",
+   "name": "github-ziyacivan-reflex-router.md",
+   "error": "duplicate Drive name, file_ids ['1eBprJrbNK4HAcBl17Rc6UdPfII0_6DzZ', '1Fw_KtyMOI1hMg1BPQICZW7RibSHo1t-k']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-dolphinbench-agent-memory-pareto-2609-24971.md",
+   "error": "duplicate Drive name, file_ids ['1A2JIp8SyfAiu2iZSJCjLkgnSDXWDlLvg', '1JwbeMmzjSTY8HOUR13UTLBB-rFjjgU7r']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-recall-ceiling-llm-reranking-2609-27953.md",
+   "error": "duplicate Drive name, file_ids ['14JhFYj7A-tXz9ZAWj8meDQDxh2tB1Uwp', '1S2LHx0dCgP1ZN24IP0k154ogSUPw9CQm']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-rsiagent-autonomous-exploration-2609-15364.md",
+   "error": "duplicate Drive name, file_ids ['1SJYGggcirWy_MToa2DJkOr1X0iMiQLPy', '1tHGEjFrcwWLfqKFsqyyEy_JxuDkZbwie']; mirror holds one of them"
+  },
+  {
+   "folder": "notes",
+   "name": "paper-skillopt-self-evolving-agent-skills-2605-23904.md",
+   "error": "duplicate Drive name, file_ids ['1OYapSrBWsVi3JHUpwiNCEor3tYr4uagh', '1hu2UAsC9_71tvTsnGt6K9n7hxf7Tc2D1']; mirror holds one of them"
+  },
+  {
+   "folder": "cards",
+   "name": "PC-20260926-01.md",
+   "error": "duplicate Drive name, file_ids ['1aplQvgbkgLBQ4E0XHpwZUhocUm1BpSox', '1BCBPEmlDpeuBACVOCMtYtoLFVq0TWwlp']; mirror holds one of them"
+  }
+ ],
+ "sync_failures": [],
+ "envelope": {
+  "schema_version": 1,
+  "artifact_id": "DESK-20260926T131051Z",
+  "artifact_type": "desk",
+  "producer": "desk-projector",
+  "run_id": "desk-projector-20260926T131051Z-92b9",
+  "created_at": "2026-09-26T13:11:33Z",
+  "input_refs": [],
+  "supersedes": null,
+  "idempotency_key": "desk:20260926T131051Z"
+ }
+}

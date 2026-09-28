@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-02",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T034502Z-8bdb",
+ "created_at": "2026-09-27T03:58:00Z",
+ "idempotency_key": "decision:PC-20260926-C04:recommended:DEC-20260926-13",
+ "card_id": "PC-20260926-C04",
+ "prev_decision_id": "DEC-20260926-13",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision r2 answers REV-20260926-21. The local reranker is chosen on a separate dev split before test. The judge is a separate model and is blinded. The run follows an exact dispatch list (about 32M tokens). B10's LoCoMo result is left intact, and the answer-level and call-shape results are recorded separately. It also absorbs PC-20260927-03's split by number of relevant items, so one run decides both whether memory text goes to a hosted reranker and which call shape to use. The vendor figures remain unverified and policy is unset.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260926-06-r2",
+   "file_id": "1-Nm058hCA2DpoaLC5QgWVTS7PRIum8MD",
+   "sha256": "31b2520798ab77f91515d5b2f793648383b35c52a65f527606557d53d7aca3bc"
+  }
+ ],
+ "merged_into": null
+}

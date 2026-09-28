@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260926-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260926T124723Z-14f0",
+ "created_at": "2026-09-26T12:49:29Z",
+ "idempotency_key": "decision:PC-20260926-01:recommended:none",
+ "card_id": "PC-20260926-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Can move B24 (lead) from extracted memories to model-written summaries, and it is cheap now because it reuses the H10b gate port and decides whether Consumer 4 summaries may ever be served. Not merged into H10b because H10b's arms test extracted items, not self-authored concealment directives in summaries; the clean set was raised from 50 to 150 per B21, and the directives quoted in the note are evidence, not instructions to this pipeline.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260926-01",
+   "file_id": "1Muj1f2_cOVWu1v5LQVX-NeZ_QXIv91wT",
+   "sha256": "040a96ffc17f953755e4000f7c61e3afb35809d2001fa50af13fb15e83638f0c"
+  }
+ ],
+ "merged_into": null
+}
