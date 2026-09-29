@@ -1,0 +1,65 @@
+{
+ "build_manifest": {
+  "built_at": "2026-09-29T05:32:02Z",
+  "candidate_pairs": 9090,
+  "candidates_sha256": "c12942f0796edc6c0f0e65cdce220b508d20fcb48742ce971009c26ffd9fb37f",
+  "conversations": [
+   "conv-47",
+   "conv-49"
+  ],
+  "edges_C": 1251,
+  "edges_C_sha256": "f7a3ad8a18dc5d0264be9f348e5667852b3eba71ee14127b5a9432b00a207e9b",
+  "edges_C_twice_identical": true,
+  "extracted_sessions": 45,
+  "extracted_sha256": "a4ed53b6726f5c7646b8c38f2f98cca334658da692b987bc277f74e5aaa14a19",
+  "extracted_source": "/Users/arunmenon/MemoryRSI-Signals/work/labelling-engram/harness/data/raw/locomo/terra/extracted.jsonl",
+  "nodes": 920,
+  "nodes_sha256": "b0197192173674c52dcddbcfa33bd59b1ce420bb290628654a2982e158aee673",
+  "questions": 292,
+  "questions_sha256": "524a4bc4d19bfb48308fc2473ceefb581669b47924db5fdb0c912c022c8f7eb4"
+ },
+ "bundle": {
+  "build_cost": {
+   "jev_mean_latency_s_per_write": 0.387,
+   "jev_usd_per_1000_writes": 0.093,
+   "jev_wall_s_918_writes_8_parallel": 44.6
+  },
+  "calls": {
+   "jev_link": 918,
+   "judge_batches": 24,
+   "reader_batches": 90
+  },
+  "dataset": "LINK-ASF-LOCOMO (LoCoMo conv-47, conv-49 selection) with nodes from the gpt-5.6-terra LoCoMo build",
+  "dataset_manifest_sha256": "f0c2eebf8c238d7d1f9f8faea791d9a74150f1b816d9cd741bc5ddc286b3af51",
+  "ended_at": "2026-09-29T05:45:00Z",
+  "finalised_at": "2026-09-29T05:41:58Z",
+  "harness_commit": "f0d6533f248e386316425b7121505a94e4a7482b",
+  "jev_tokens": {
+   "input": 2031657,
+   "output": 551772
+  },
+  "model_pins": {
+   "jev": "jev-1.13.0",
+   "judge": "codex gpt-6-astra reasoning medium (40 answers per call)",
+   "node_extractor": "gpt-5.6-terra (existing build, not re-run)",
+   "reader": "claude-sonnet-5-5 (claude -p, no tools, 10 questions per call)"
+  },
+  "rerun_note": "first Jev linking pass read the Noul answer from the wrong key (probability instead of noul) and produced 0 edges; parser fixed and the pass rerun (same 918 calls, about 0.09 USD); the first pass's outputs were overwritten",
+  "run_id": "E-20260928-18-r2-20260929T053158Z",
+  "spec_file_id": "1u_SyMUUghISC5sbQmnHVgLalHO1YBVZE",
+  "spec_id": "E-20260928-18-r2",
+  "spec_sha256": "56b0b6022136ee626c4acaf522b0002e681f180e47c472f7998618efb2d144ee",
+  "started_at": "2026-09-29T05:31:58Z",
+  "status": "partial",
+  "usd": {
+   "jev": 0.0853,
+   "judge_codex": "subscription (not metered here)",
+   "reader_claude": 26.44
+  }
+ },
+ "ended_at": "2026-09-29T05:45:00Z",
+ "first_cut": "LoCoMo only",
+ "harness_commit": "f0d6533f248e386316425b7121505a94e4a7482b",
+ "spec": "E-20260928-18-r2",
+ "started_at": "2026-09-29T05:31:58Z"
+}
