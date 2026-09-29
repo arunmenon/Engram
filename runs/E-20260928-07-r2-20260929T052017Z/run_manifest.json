@@ -1,0 +1,79 @@
+{
+ "budget": {
+  "calls": 2260,
+  "caps": {
+   "calls": 2400,
+   "cost_usd": 2000.0,
+   "tokens": 500000000,
+   "wall_clock_s": 86400.0
+  },
+  "cost_usd": 0.0,
+  "tokens": 2510095
+ },
+ "bundle": {
+  "billed_input_tokens": 2439975,
+  "billed_output_tokens": 70120,
+  "calls": 2260,
+  "dataset": "LINK-STALE-200",
+  "dataset_manifest_sha256": "024970d298ee9e29a9f5152c55395dff888f7cc45542013ba550992fea9f827b",
+  "ended_at": "2026-09-29T05:36:11Z",
+  "finalised_at": "2026-09-29T05:37:25Z",
+  "harness_commit": "4e1bb1f49dc1a2191420ecf5aa8f1cded2455600",
+  "labels": "model labels (Claude labels, Codex review, max 3 rounds), used as gold per policy v2",
+  "model_pins": {
+   "jev": "jev-1.13.0 (requested and reported)"
+  },
+  "pre_run_fixes": [
+   "bytes_present compares JSON-escaped neighbour fragments (was raw newline-joined text; 0 of 2,260 passed in the render-only replay, now 2,260 of 2,260)",
+   "nbr_tokens carried from the frozen dataset into every item and probe row (scorer no longer uses the bytes/4 fallback)",
+   "failed calls retried up to 3 times (1 call needed a retry)"
+  ],
+  "run_id": "E-20260928-07-r2-20260929T052017Z",
+  "source_class_provenance": "event-type",
+  "spec_file_id": "1FLC1Q3loKcLpiZyuG2_dqtCsrgf1Og-W",
+  "spec_id": "E-20260928-07-r2",
+  "spec_sha256": "ec5507618cea940d24263412d0ef7072b355ba146c954f6c0491d5ca3af64c35",
+  "started_at": "2026-09-29T05:20:22Z",
+  "status": "complete",
+  "usd_basis": "input tokens x 0.042 USD per million (Jev list rate used by genigrep da10c5e)",
+  "usd_estimate": 0.1025
+ },
+ "call_count": 2260,
+ "command": "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/linkstale/run.py --manifest /private/tmp/claude-501/-Users-arunmenon-MemoryRSI-Signals-work-executor-engram/3c31a4a6-fd80-4420-a1cf-c11684dd8f2c/scratchpad/cfg07.json",
+ "dataset": "LINK-STALE-200",
+ "dataset_manifest_sha256": "024970d298ee9e29a9f5152c55395dff888f7cc45542013ba550992fea9f827b",
+ "decoding": {
+  "note": "TypeSafe exposes no decoding parameters on /v1/systemone; served model version recorded instead"
+ },
+ "ended_at": "2026-09-29T05:36:11Z",
+ "git_clean": true,
+ "harness_commit": "4e1bb1f49dc1a2191420ecf5aa8f1cded2455600",
+ "jev_model": "jev-1.13.0",
+ "jev_model_version_pinned": "jev-1.13.0",
+ "opinion_rule_sha256": "be9f593a9612c9eeef064318f57fa7f027533d7692ae5da0ca3cace8ae62aee8",
+ "policy_snapshot": {
+  "budget_per_run": {
+   "cost_usd": 2000.0,
+   "tokens": 500000000,
+   "wall_clock_h": 24.0
+  },
+  "budget_per_week": {
+   "cost_usd": 10000.0,
+   "runs": 1000
+  },
+  "concurrency": 1,
+  "dogfood_tenants_named": [],
+  "permitted_datasets": "[public benchmarks, seeded fixtures, the Engram repository's own history]",
+  "policy_sha256": "b22dfab07df9e60f4952ddd3bd2f9467dff1f3fcf65fa6306f51945ec42ec191",
+  "policy_version": "2.0",
+  "status": "set"
+ },
+ "render_only": false,
+ "request_schema_version": "systemone v1 {state, model, questions}",
+ "rows_rendered": 2260,
+ "source_class_provenance": "event-type",
+ "spec": "E-20260928-07-r2",
+ "started_at": "2026-09-29T05:20:22Z",
+ "stop_reason": null,
+ "template_sha256": "d67d3cbbe63846938f6267bb4a015fc5790fd2ebcdd3d3b43be6ffbe5787fe2a"
+}

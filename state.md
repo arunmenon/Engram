@@ -5,8 +5,8 @@
 | 1 | Jev write gate + naming audit | E-20260928-06-r2 | H5-labelled-90 frozen | **done** (first cut = full design) | runs/E-20260928-06-r2-20260929T041426Z; 4,320 Jev calls; spec rule positive (neutral names), H5 killed (Jev worse than extractor confidence, ECE 0.31); bus RUN-E-20260928-06-r2-20260929T045459Z. Laya arm not run (licence). |
 | 2 | Jev reranking filter | E-20260928-19 | CODEQ-ASF-80 frozen | not started | |
 | 3 | Jev links at write time | E-20260928-18 | LINK-ASF-LOCOMO frozen | not started | |
-| 4 | Stray opinion sways Jev | E-20260928-07-r2 | LINK-STALE-200 frozen | not started | bytes_present + nbr_tokens bugs to fix first |
-| 5 | Open model as extractor | E-20260928-20 | SEATSWAP-LOCOMO-PDLC frozen | not started | |
+| 4 | Stray opinion sways Jev | E-20260928-07-r2 | LINK-STALE-200 frozen | **done** (full design) | runs/E-20260928-07-r2-20260929T052017Z; 2,260 Jev calls; harness bugs fixed first (commit 3039c31); rule negative (d1 pass), d2 also pass (C2 cuts capture 32% to 23%); bus RUN-E-20260928-07-r2. Ran while item 2's local cross-encoder scoring was still going (no hosted calls overlapped item 2's Jev calls). |
+| 5 | Open model as extractor | E-20260928-20-r2 | SEATSWAP-LOCOMO-PDLC frozen | **blocked** (failed bundle on bus) | runs/E-20260928-20-r2-20260929T052655Z; OpenAI and HF credits exhausted, 16 GB Mac cannot hold gemma-4-31b. Pipeline built (seatswap.answer), 559 questions frozen, 4 gemma sessions extracted. Resume steps in RESULT.md. |
 | 6 | Small model for what to remember | E-20260928-12-r2 | MEMDEC building | blocked on dataset | |
 
 ## Environment notes (2026-09-29)
