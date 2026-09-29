@@ -1,27 +1,35 @@
 {
- "spec": "E-20260928-20-r2",
- "status": "failed",
- "reason": "no host: OpenAI credits exhausted, Hugging Face Inference Providers credits depleted, 16 GB Mac cannot hold gemma-4-31b",
- "harness_commit": "4e1bb1f49dc1a2191420ecf5aa8f1cded2455600",
- "started_at": "2026-09-29T05:21:00Z",
- "ended_at": "2026-09-29T05:30:00Z",
- "dataset": "SEATSWAP-LOCOMO-PDLC",
- "dataset_manifest_sha256": "3389d839f06cb8639af6ed4c7e455e4f48e8fb16aa614e0c7028c93534488994",
- "model_pins": {
-  "extractor_B": "huggingface/google/gemma-4-31B-it (HF router)",
-  "extractor_A": "gpt-5.6-terra (existing labelling-session build, 231/272 sessions)",
-  "reader": "deepseek-ai/DeepSeek-V3.2 (planned)",
-  "judge": "Qwen/Qwen3-235B-A22B-Instruct-2507 (planned)"
+ "bundle": {
+  "finalised_at": "2026-09-29T05:29:29Z",
+  "run_id": "E-20260928-20-r2-20260929T052655Z",
+  "spec_file_id": "1-IUnh8f-3iC5M3xUaL3SB_os7TRLKzea",
+  "spec_id": "E-20260928-20-r2",
+  "spec_sha256": "34125e337a16ce09bf8c1889fa33a1d0318d34d4e39002c82f4308983a4b78f9",
+  "status": "failed"
  },
  "calls": {
   "gemma_extraction": 11,
   "gemma_ok": 4,
   "probe_calls": 8
  },
- "tokens": {
-  "gemma_prompt": 15475,
-  "gemma_completion": 3964
+ "dataset": "SEATSWAP-LOCOMO-PDLC",
+ "dataset_manifest_sha256": "3389d839f06cb8639af6ed4c7e455e4f48e8fb16aa614e0c7028c93534488994",
+ "ended_at": "2026-09-29T05:30:00Z",
+ "harness_commit": "4e1bb1f49dc1a2191420ecf5aa8f1cded2455600",
+ "model_pins": {
+  "extractor_A": "gpt-5.6-terra (existing labelling-session build, 231/272 sessions)",
+  "extractor_B": "huggingface/google/gemma-4-31B-it (HF router)",
+  "judge": "Qwen/Qwen3-235B-A22B-Instruct-2507 (planned)",
+  "reader": "deepseek-ai/DeepSeek-V3.2 (planned)"
  },
- "usd": "under 0.05 (HF router, partial)",
- "questions_sha256": "dafd4fd8b2e25c4d8dce7a6d152b53a5c68f8751e2c3d6158e964320f0af46c9"
+ "questions_sha256": "dafd4fd8b2e25c4d8dce7a6d152b53a5c68f8751e2c3d6158e964320f0af46c9",
+ "reason": "no host: OpenAI credits exhausted, Hugging Face Inference Providers credits depleted, 16 GB Mac cannot hold gemma-4-31b",
+ "spec": "E-20260928-20-r2",
+ "started_at": "2026-09-29T05:21:00Z",
+ "status": "failed",
+ "tokens": {
+  "gemma_completion": 3964,
+  "gemma_prompt": 15475
+ },
+ "usd": "under 0.05 (HF router, partial)"
 }
