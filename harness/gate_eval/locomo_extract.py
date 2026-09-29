@@ -36,6 +36,9 @@ EVENT_NAMESPACE = uuid.UUID("7d4c3c1e-5b7a-4f0e-9d7a-6c1f2b3a4d5e")
 # Per-session record of every model call made through litellm.acompletion.
 _call_log: dict[str, list[dict]] = {}
 _current_session: dict[str, str] = {}
+# Raw model replies per session, kept so that items the client's quote validation
+# drops (the extractor's unsupported quotes) can be recovered for the no_fit bucket.
+_raw_responses: dict[str, list[str]] = {}
 _original_acompletion = litellm.acompletion
 
 
@@ -50,6 +53,7 @@ async def _recording_acompletion(*args, **kwargs):
         raise
     content = response.choices[0].message.content or ""
     usage = getattr(response, "usage", None)
+    _raw_responses.setdefault(session_id, []).append(content)
     record.update(
         ok=True,
         content_sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
@@ -182,7 +186,9 @@ async def run(args: argparse.Namespace) -> None:
     tasks = [asyncio.create_task(extract_one(client, s, semaphore), name=f"t{i}") for i, s in enumerate(todo)]
     with open(args.out / "extracted.jsonl", "a", encoding="utf-8") as items_fh, open(
         done_path, "a", encoding="utf-8"
-    ) as done_fh, open(calls_path, "a", encoding="utf-8") as calls_fh:
+    ) as done_fh, open(calls_path, "a", encoding="utf-8") as calls_fh, open(
+        args.out / "raw_responses.jsonl", "a", encoding="utf-8"
+    ) as raw_fh:
         for finished in asyncio.as_completed(tasks):
             session, result = await finished
             calls = _call_log.get(session["session_id"], [])
@@ -190,11 +196,13 @@ async def run(args: argparse.Namespace) -> None:
             response_sha = good[-1]["content_sha256"] if good else None
             for row in item_rows(session["session_id"], result, response_sha):
                 items_fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+            raw_fh.write(json.dumps({"session_id": session["session_id"], "responses": _raw_responses.get(session["session_id"], [])},
+                                    ensure_ascii=False) + "\n")
             calls_fh.write(
                 json.dumps({"session_id": session["session_id"], "failed": not good, "calls": calls}, sort_keys=True) + "\n"
             )
             done_fh.write(session["session_id"] + "\n")
-            items_fh.flush(); done_fh.flush(); calls_fh.flush()
+            items_fh.flush(); done_fh.flush(); calls_fh.flush(); raw_fh.flush()
             print(session["session_id"], "failed" if not good else "ok", flush=True)
 
     write_manifest(args, settings, sessions)
