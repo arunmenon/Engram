@@ -1,0 +1,26 @@
+{
+ "spec": "E-20260928-19-r2",
+ "variant": "frozenkw",
+ "keywords": "frozen dataset keywords, written by claude-opus-5-5, which also wrote the gold spans",
+ "repository": "apache/opendal",
+ "repo_commit": "5af2bd77c325fa4cb4e0940f31c30705c16382d6",
+ "genigrep_commit": "da10c5e82845356cebc5b8f918389d0025f08eaf",
+ "engine_config_sha256": "f075a3cd1fed2817b974523a3daa63e474b8a0237c2110ab51b849fc62a6b728",
+ "jev_model": "jev-1.13.0",
+ "cross_encoder": "BAAI/bge-reranker-v2-m3 @953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+ "harness_commit": "f49b114a7d89b8fdb5676f43329719e17d8f645f",
+ "dataset_manifest_sha256": "78b9bcded3395c1dad4b61ac64f591998f713ce21e2568dc7f6dee7b948c44b0",
+ "questions_sha256": "38cada72373be425c2153a664dd1cc99a65738c970399a9654324ae918ad5456",
+ "gold_sha256": "364c9345bed39a764f360ea6327c2ac2af6bcde882f9d8a0a6bde8b35c38068d",
+ "pool_sha256": "1109b372e27867a3ff96e38931bdb823b6a84b7cadf261b57bad0c02476b799c",
+ "validity": {
+  "span_agreement_f1_ge_0_6": true,
+  "keywords_sha256_matches_frozen": true,
+  "keyword_author_not_gold_annotator": false,
+  "repo_commit_matches_pin": true,
+  "pool_sha256_matches_frozen": true,
+  "engine_config_matches": true,
+  "secret_flag_share_le_0_01": true
+ },
+ "keyword_patch_note": "arm C re-expresses genigrep's selection and T2 filter in Python with normalised lexical scores (no patch file to genigrep)"
+}

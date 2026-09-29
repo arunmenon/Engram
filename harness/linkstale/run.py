@@ -99,6 +99,12 @@ def main(argv: list[str] | None = None) -> int:
             calls.append(row); return
         guard.check_before_call(time.time())
         res = client.call(body)
+        attempts = 1
+        while res.status == "failed" and attempts < 4:  # fast-track policy v2: retry, counted in attempts
+            time.sleep(2 ** attempts)
+            res = client.call(body)
+            attempts += 1
+        row["attempts"] = attempts
         row.update({"status": res.status, "billed_input_tokens": res.input_tokens, "billed_output_tokens": res.output_tokens,
                     "model_reported": res.model_reported, "latency_ms": round(res.latency_ms, 2), "error": res.error})
         if res.status == "ok":
