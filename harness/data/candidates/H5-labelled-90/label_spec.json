@@ -1,0 +1,8 @@
+{
+ "instructions": "You are labelling memory items that a system extracted from a two-person conversation (LoCoMo benchmark). Each row gives `transcript_excerpt` (turns as \"[speaker] text\"), `item` (a one-sentence rendering of the extracted memory item) and `quote` (the text the system cited as its evidence). Label two columns per row.\n\n`gold_quote_supports_item`: `supports` if the quote, read in the excerpt, states or directly implies the item; otherwise `does_not_support`. A quote that does not appear in the transcript excerpt is `does_not_support`. Judge the item as a whole, including its polarity and category; numeric strength, proficiency and weight values are not part of the judgement.\n\n`gold_source_type`: how the item's knowledge reaches the memory: `user_stated` (a speaker says it about themselves in the conversation), `tool_result` (it comes from a tool output; there are no tools in this data, so this should be rare or absent), `inferred` (the item is a conclusion drawn from what was said rather than something said outright), `imported` (it comes from an external record brought into the conversation). Leave it null when no option fits.\n\nDo not edit the excerpt, item or quote. Judge only from the row.",
+ "columns": {
+  "gold_quote_supports_item": {"type": "choice", "values": ["supports", "does_not_support"]},
+  "gold_source_type": {"type": "choice", "values": ["user_stated", "tool_result", "inferred", "imported"], "nullable": true}
+ },
+ "batch_size": 15
+}
