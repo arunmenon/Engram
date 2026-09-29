@@ -163,6 +163,8 @@ def codex_review(batch: list[dict], spec: dict, labels: dict, workdir: Path, cel
 def normalise(value, col: dict):
     if col["type"] != "choice":
         return value
+    if isinstance(value, str) and value.strip() in col["values"]:
+        return value.strip()
     if value in (None, "", "null", "none", "None"):
         return None
     return str(value).strip()
