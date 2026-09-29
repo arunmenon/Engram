@@ -1,0 +1,193 @@
+{
+ "G": 76,
+ "budget": {
+  "calls": 4320,
+  "caps": {
+   "calls": 9072,
+   "cost_usd": 2000.0,
+   "tokens": 500000000,
+   "wall_clock_s": 86400.0
+  },
+  "cost_usd": 0.0,
+  "tokens": 4118326
+ },
+ "bundle": {
+  "billed_input_tokens": 3911892,
+  "billed_output_tokens": 206434,
+  "calls": 4320,
+  "dataset": "H5-labelled-90",
+  "dataset_manifest_sha256": "a10f6655cb23d4dafbb86e276f77d6e3972805ebae18763fb71d8b5536acae8e",
+  "ended_at": "2026-09-29T04:45:31Z",
+  "extra_outputs": [
+   "h5_score.json",
+   "h5_verdict.json"
+  ],
+  "finalised_at": "2026-09-29T04:54:59Z",
+  "harness_commit": "3ce0cc231d3ddb0013b5aa6ac276fe6ddba64c84",
+  "labels": "model labels (Claude claude-opus-5-5 labels, Codex gpt-6-astra review, max 3 rounds), used as gold per policy v2",
+  "latency_ms_p50": 375.53,
+  "latency_ms_p95": 572.66,
+  "model_pins": {
+   "jev": "jev-1.13.0 (requested and reported)",
+   "laya": "not run: licence not confirmed from a frozen model-card file"
+  },
+  "post_run_fixes": [
+   "payload check recomputed offline with tiktoken o200k_base name-token counts (gate_eval.payload_recheck); runner's crude count had flagged 1,620 rows; runner verdicts kept as payload_check_runner and invalid_items_runner.csv"
+  ],
+  "run_id": "E-20260928-06-r2-20260929T041426Z",
+  "spec_file_id": "1Gk7I_hW7PrvVyplusSK9ohLV44JnE6-g",
+  "spec_id": "E-20260928-06-r2",
+  "spec_sha256": "866d2f63c1486f2fe27bb0ab1b0873c65395d5a30210bdc755f9fc9d92f243ba",
+  "started_at": "2026-09-29T04:14:26Z",
+  "status": "complete",
+  "usd_basis": "input tokens x 0.042 USD per million (Jev list rate used by genigrep da10c5e); output tokens not priced separately",
+  "usd_estimate": 0.1643
+ },
+ "call_count": 4320,
+ "command": "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/naming_audit.py --manifest /Users/arunmenon/MemoryRSI-Signals/work/datasets/frozen/H5-labelled-90/manifest.json --templates templates/naming_audit/ --models locks/E-20260928-06-r2.models.lock.json --policy /Users/arunmenon/MemoryRSI-Signals/desk/policy-v2.md --out ../runs/E-20260928-06-r2-20260929T041426Z",
+ "dataset": "H5-labelled-90",
+ "dataset_manifest_sha256": "a10f6655cb23d4dafbb86e276f77d6e3972805ebae18763fb71d8b5536acae8e",
+ "ended_at": "2026-09-29T04:45:31Z",
+ "git_clean": true,
+ "harness_commit": "3ce0cc231d3ddb0013b5aa6ac276fe6ddba64c84",
+ "items_per_document_distribution": [
+  3,
+  3,
+  2,
+  2,
+  2,
+  2,
+  2,
+  2,
+  2,
+  2,
+  2,
+  2,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "mean_cluster_size": 1.1842105263157894,
+ "models_lock": {
+  "api_endpoint": "https://api.typesafe.ai/v1/systemone",
+  "api_version": "v1",
+  "choice_classes": [
+   {
+    "rubric_id": "user_stated"
+   },
+   {
+    "rubric_id": "tool_result"
+   },
+   {
+    "rubric_id": "inferred"
+   },
+   {
+    "rubric_id": "imported"
+   }
+  ],
+  "decoding": {
+   "note": "TypeSafe exposes no decoding parameters on /v1/systemone; record the served model version instead"
+  },
+  "jev_model": "jev-1.13.0",
+  "jev_model_version_pinned": "jev-1.13.0",
+  "laya": {
+   "included": false,
+   "reason": "licence not confirmed from a frozen model-card file (E-20260928-06-r2 arms)"
+  },
+  "pinned_from": "first response 2026-09-29: request jev-latest reported model jev-1.13.0",
+  "template_sha256": {
+   "choice_source_type.json": "3b52d37326ff84b6f772d284d9c2050db7c91dd052ae6b44ca24942bfaa62317",
+   "noul_quote_supports_item.json": "69aadbbe7f75022e402688f35b911d9905b5ff26d1a118ce88c9a3bb74e25665"
+  }
+ },
+ "n_items_this_run": 90,
+ "payload_check_limitation": "relative token check only; identical rubric loss in all cells is undetectable (REV-20260928-24)",
+ "policy_snapshot": {
+  "budget_per_run": {
+   "cost_usd": 2000.0,
+   "tokens": 500000000,
+   "wall_clock_h": 24.0
+  },
+  "budget_per_week": {
+   "cost_usd": 10000.0,
+   "runs": 1000
+  },
+  "concurrency": 1,
+  "dogfood_tenants_named": [],
+  "permitted_datasets": "[public benchmarks, seeded fixtures, the Engram repository's own history]",
+  "policy_sha256": "b22dfab07df9e60f4952ddd3bd2f9467dff1f3fcf65fa6306f51945ec42ec191",
+  "policy_version": "2.0",
+  "status": "set"
+ },
+ "render_only": false,
+ "rows_ok": 4320,
+ "rows_rendered": 4320,
+ "spec": "E-20260928-06-r2",
+ "started_at": "2026-09-29T04:14:26Z",
+ "stop_reason": null,
+ "template_render_modes": {
+  "choice_source_type": "choice",
+  "noul_quote_supports_item": "choice_two_option"
+ }
+}

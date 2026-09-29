@@ -46,21 +46,22 @@ def idf_of(document_frequency: int, total_files: int) -> float:
 
 
 def rg_files(repo: Path, flagged: set[str]) -> list[str]:
-    args = ["rg", "--files", "--hidden"] + [a for g in EXCLUDE_GLOBS for a in ("-g", g)]
-    out = subprocess.run(args, cwd=repo, capture_output=True, text=True, check=True).stdout
-    return sorted(p for p in out.splitlines() if p and p not in flagged)
+    args = ["rg", "--files", "--hidden"] + [a for g in EXCLUDE_GLOBS for a in ("-g", g)] + ["."]
+    out = subprocess.run(args, cwd=repo, capture_output=True, text=True, check=True, stdin=subprocess.DEVNULL).stdout
+    return sorted(p.removeprefix("./") for p in out.splitlines() if p and p.removeprefix("./") not in flagged)
 
 
 def rg_keyword(repo: Path, keyword: str, flagged: set[str]) -> dict[str, list[int]]:
     args = ["rg", "-n", "-i", "-F", "--no-heading", "--hidden", "-e", keyword] + \
-           [a for g in EXCLUDE_GLOBS for a in ("-g", g)]
-    proc = subprocess.run(args, cwd=repo, capture_output=True, text=True)
+           [a for g in EXCLUDE_GLOBS for a in ("-g", g)] + ["."]
+    proc = subprocess.run(args, cwd=repo, capture_output=True, text=True, stdin=subprocess.DEVNULL)
     hits: dict[str, list[int]] = defaultdict(list)
     for line in proc.stdout.splitlines():
         parts = line.split(":", 2)
-        if len(parts) < 3 or not parts[1].isdigit() or parts[0] in flagged:
+        path = parts[0].removeprefix("./")
+        if len(parts) < 3 or not parts[1].isdigit() or path in flagged:
             continue
-        hits[parts[0]].append(int(parts[1]))
+        hits[path].append(int(parts[1]))
     return hits
 
 
@@ -180,6 +181,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--secret-scan", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--questions", type=Path, default=None, help="question rows with keywords (default: the frozen set)")
     args = parser.parse_args(argv)
 
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=args.repo, text=True).strip()
@@ -190,7 +192,8 @@ def main(argv: list[str] | None = None) -> int:
     findings = json.loads(args.secret_scan.read_text())
     flagged = {f["File"] for f in findings}
     all_tracked = subprocess.check_output(["git", "ls-files"], cwd=args.repo, text=True).splitlines()
-    questions = read_jsonl(args.dataset / "questions.jsonl")
+    questions_path = args.questions or (args.dataset / "questions.jsonl")
+    questions = read_jsonl(questions_path)
     gold = {r["question_id"]: r for r in read_jsonl(args.dataset / "gold.jsonl")}
     excluded_questions = sorted(q for q, r in gold.items() if any(s["path"] in flagged for s in r["spans"]))
 
@@ -217,7 +220,8 @@ def main(argv: list[str] | None = None) -> int:
         "ctags": "Universal Ctags 6.2.1", "ripgrep": subprocess.check_output(["rg", "--version"], text=True).splitlines()[0],
         "window_lines": WINDOW_LINES, "pool_cap": POOL_CAP, "definition_seed_windows": DEFINITION_SEED_WINDOWS,
         "identifiers_per_window": IDENTIFIERS_PER_WINDOW, "n_questions": len(stats_rows),
-        "pool_sha256": sha256_file(args.out / "pool.jsonl"),
+        "pool_sha256": sha256_file(args.out / "pool.jsonl"), "questions_path": str(questions_path),
+        "questions_sha256": sha256_file(questions_path),
         "mean_pool_size": sum(s["pool_size"] for s in stats_rows) / max(1, len(stats_rows)),
     })
     print(f"pool: {len(stats_rows)} questions, {len(pool_rows)} windows, excluded {excluded_questions}")
