@@ -72,12 +72,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--max-calls", type=int, default=9072, help="hard call cap from the spec (9,072)")
     p.add_argument("--usd-per-call", type=float, default=None, help="list price per call for the cost cap")
     p.add_argument("--render-only", action="store_true", help="render and hash every request, make no calls")
+    p.add_argument("--retries", type=int, default=3, help="retries per failed call (fast-track policy v2; counted in attempts)")
     p.add_argument("--allow-dirty", action="store_true", help="engineering only; a real run must be clean")
     args = p.parse_args(argv)
 
     started_wall = time.time()
     try:
-        repo_root = repo_root_from(args.manifest.resolve())
+        repo_root = repo_root_from(Path(__file__).resolve())  # the harness repo; frozen datasets live outside it
         git = require_clean_tree(repo_root, allow_dirty=args.allow_dirty)
         policy = parse_policy(args.policy)
         require_policy_set(policy)
@@ -153,6 +154,12 @@ def main(argv: list[str] | None = None) -> int:
                     if client is not None:
                         guard.check_before_call(time.time())
                         result = client.call(body)
+                        attempts = 1
+                        while result.status == "failed" and attempts < args.retries + 1:
+                            time.sleep(2 ** attempts)
+                            result = client.call(body)
+                            attempts += 1
+                        row["attempts"] = attempts
                         row.update({
                             "status": result.status, "billed_input_tokens": result.input_tokens,
                             "billed_output_tokens": result.output_tokens, "latency_ms": round(result.latency_ms, 2),
