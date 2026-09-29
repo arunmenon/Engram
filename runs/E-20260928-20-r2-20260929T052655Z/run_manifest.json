@@ -1,0 +1,27 @@
+{
+ "spec": "E-20260928-20-r2",
+ "status": "failed",
+ "reason": "no host: OpenAI credits exhausted, Hugging Face Inference Providers credits depleted, 16 GB Mac cannot hold gemma-4-31b",
+ "harness_commit": "4e1bb1f49dc1a2191420ecf5aa8f1cded2455600",
+ "started_at": "2026-09-29T05:21:00Z",
+ "ended_at": "2026-09-29T05:30:00Z",
+ "dataset": "SEATSWAP-LOCOMO-PDLC",
+ "dataset_manifest_sha256": "3389d839f06cb8639af6ed4c7e455e4f48e8fb16aa614e0c7028c93534488994",
+ "model_pins": {
+  "extractor_B": "huggingface/google/gemma-4-31B-it (HF router)",
+  "extractor_A": "gpt-5.6-terra (existing labelling-session build, 231/272 sessions)",
+  "reader": "deepseek-ai/DeepSeek-V3.2 (planned)",
+  "judge": "Qwen/Qwen3-235B-A22B-Instruct-2507 (planned)"
+ },
+ "calls": {
+  "gemma_extraction": 11,
+  "gemma_ok": 4,
+  "probe_calls": 8
+ },
+ "tokens": {
+  "gemma_prompt": 15475,
+  "gemma_completion": 3964
+ },
+ "usd": "under 0.05 (HF router, partial)",
+ "questions_sha256": "dafd4fd8b2e25c4d8dce7a6d152b53a5c68f8751e2c3d6158e964320f0af46c9"
+}

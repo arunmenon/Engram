@@ -171,18 +171,29 @@ def cmd_cross(args) -> int:
     import torch
     from sentence_transformers import CrossEncoder
     device = "mps" if torch.backends.mps.is_available() else "cpu"
-    model = CrossEncoder(str(args.model_dir), device=device, max_length=1024)
+    model = CrossEncoder(str(args.model_dir), device=device, max_length=args.max_length,
+                         model_kwargs={"torch_dtype": torch.float16} if device == "mps" else {})
     pools = pool_by_question(args.run)
     questions = {q["question_id"]: q for q in read_jsonl(args.run / "questions.jsonl")}
-    out, token_count = {}, 0
-    for qid in sorted(pools):
-        pairs = [(questions[qid]["question"], render_window(w)) for w in pools[qid]]
-        token_count += sum(len(model.tokenizer(q, p, truncation=True, max_length=1024)["input_ids"]) for q, p in pairs)
-        values = model.predict(pairs, batch_size=16, show_progress_bar=False)
-        out[qid] = {w["window_id"]: float(v) for w, v in zip(pools[qid], values)}
-        print(f"cross {qid} {len(pairs)}", file=sys.stderr)
+    partial_path = args.run / "cross_scores.partial.jsonl"
+    done = {r["question_id"]: r for r in read_jsonl(partial_path)} if partial_path.exists() else {}
+    with open(partial_path, "a") as partial:
+        for n, qid in enumerate(sorted(pools)):
+            if qid in done:
+                continue
+            pairs = [(questions[qid]["question"], render_window(w)) for w in pools[qid]]
+            tokens = sum(len(model.tokenizer(q, p, truncation=True, max_length=args.max_length)["input_ids"]) for q, p in pairs)
+            values = model.predict(pairs, batch_size=16, show_progress_bar=False)
+            row = {"question_id": qid, "tokens": tokens, "scores": {w["window_id"]: float(v) for w, v in zip(pools[qid], values)}}
+            partial.write(json.dumps(row) + "\n")
+            partial.flush()
+            done[qid] = row
+            print(f"{utc_now()} cross {n + 1}/{len(pools)} {qid} {len(pairs)}", file=sys.stderr, flush=True)
     write_json(args.run / "cross_scores.json", {"model": "BAAI/bge-reranker-v2-m3", "revision": args.model_dir.name,
-                                                "device": device, "max_length": 1024, "tokens": token_count, "scores": out})
+                                                "device": device, "dtype": "float16" if device == "mps" else "float32",
+                                                "max_length": args.max_length, "tokens": sum(r["tokens"] for r in done.values()),
+                                                "scores": {q: r["scores"] for q, r in done.items()}})
+    partial_path.unlink()
     return 0
 
 
@@ -397,6 +408,7 @@ def main(argv: list[str] | None = None) -> int:
     p_cross = sub.add_parser("cross")
     p_cross.add_argument("--run", type=Path, required=True)
     p_cross.add_argument("--model-dir", type=Path, required=True)
+    p_cross.add_argument("--max-length", type=int, default=512)
     p_score = sub.add_parser("score")
     p_score.add_argument("--run", type=Path, required=True)
     p_score.add_argument("--dataset", type=Path, required=True)

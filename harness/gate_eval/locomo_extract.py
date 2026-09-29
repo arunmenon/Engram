@@ -171,6 +171,9 @@ async def run(args: argparse.Namespace) -> None:
     done = set(done_path.read_text().split()) if done_path.exists() else set()
     calls_path = args.out / "extraction_calls.jsonl"
     todo = [s for s in sessions if s["session_id"] not in done]
+    if args.sessions_file:
+        wanted = {line.strip() for line in args.sessions_file.read_text().splitlines() if line.strip()}
+        todo = [s for s in todo if s["session_id"] in wanted]
     if args.limit:
         todo = todo[: args.limit]
 
@@ -243,6 +246,7 @@ def main() -> None:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--concurrency", type=int, default=8)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--sessions-file", type=Path, default=None, help="extract only the session ids listed (one per line)")
     parser.add_argument("--drop-params", action="store_true", help="set litellm.drop_params (model rejects temperature)")
     args = parser.parse_args()
     litellm.drop_params = args.drop_params

@@ -1,0 +1,2473 @@
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+2026-09-29 10:57:42 [info     ] extraction_llm_success         entities=4 interests=3 model_id=huggingface/google/gemma-4-31B-it preferences=3 session_id=conv-26:session_4 skills=1
+conv-26:session_4 ok
+`max_retries` is not supported. It will be ignored.
+2026-09-29 10:58:22 [info     ] extraction_llm_success         entities=3 interests=4 model_id=huggingface/google/gemma-4-31B-it preferences=2 session_id=conv-26:session_2 skills=2
+conv-26:session_2 ok
+`max_retries` is not supported. It will be ignored.
+2026-09-29 10:58:25 [info     ] extraction_llm_success         entities=5 interests=6 model_id=huggingface/google/gemma-4-31B-it preferences=3 session_id=conv-26:session_8 skills=2
+conv-26:session_8 ok
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:26 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_11
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:27 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_11
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:27 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_11
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_11 failed
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:28 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_12
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:29 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_12
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:30 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_12
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_12 failed
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:30 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_13
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:31 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_13
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:32 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_13
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_13 failed
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:33 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_14
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:34 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_14
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:34 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_14
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_14 failed
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:35 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_15
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:36 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_15
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+2026-09-29 10:58:36 [info     ] extraction_llm_success         entities=6 interests=4 model_id=huggingface/google/gemma-4-31B-it preferences=4 session_id=conv-26:session_7 skills=1
+conv-26:session_7 ok
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:37 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_15
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_15 failed
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:37 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_16
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:38 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_17
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:38 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_16
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:38 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_17
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:39 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_16
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_16 failed
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:39 [error    ] extraction_llm_error           attempt=2 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_17
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+conv-26:session_17 failed
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:39 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_18
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+`max_retries` is not supported. It will be ignored.
+`max_retries` is not supported. It will be ignored.
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:40 [error    ] extraction_llm_error           attempt=0 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_19
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-09-29 10:58:40 [error    ] extraction_llm_error           attempt=1 model_id=huggingface/google/gemma-4-31B-it session_id=conv-26:session_18
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 400, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 338, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 848, in post
+    await _raise_masked_async_error(e, stream)
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/http_handler.py", line 544, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_text, text=_text) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '402 Payment Required' for url 'https://router.huggingface.co/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 649, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 714, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 514, in async_completion
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 417, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/llms/custom_httpx/llm_http_handler.py", line 6215, in _handle_error
+    raise provider_error
+litellm.llms.huggingface.common_utils.HuggingFaceError: {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 581, in extract_from_session
+    raw_text = await self._call_llm(prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py", line 527, in _call_llm
+    response = await litellm.acompletion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    )
+    ^
+  File "/Users/arunmenon/MemoryRSI-Signals/work/executor-engram/harness/gate_eval/locomo_extract.py", line 49, in _recording_acompletion
+    response = await _original_acompletion(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/chat_completions/dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/rust_bridge/dispatch.py", line 83, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 2160, in wrapper_async
+    raise e
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/utils.py", line 1972, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/main.py", line 702, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2700, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2555, in exception_type
+    _map_huggingface_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 1548, in _map_huggingface_exception
+    raise APIError(
+    ...<5 lines>...
+    )
+litellm.exceptions.APIError: litellm.APIError: HuggingfaceException - {"error":"You have depleted your monthly included credits. Purchase pre-paid credits to continue using Inference Providers. Alternatively, subscribe to PRO to get 20x more included usage."} LiteLLM Retried: 2 times
