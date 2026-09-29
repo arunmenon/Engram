@@ -1,0 +1,163 @@
+{
+ "A_refit_beats_C_macro_f1": false,
+ "contrasts": {
+  "A_paper_minus_C_macro_f1": {
+   "G": 169,
+   "ci95_two_sided": [
+    -0.033315158162361524,
+    0.16686457239340236
+   ],
+   "lb95": -0.01663265867472863,
+   "point": 0.07163329663791251,
+   "resamples_valid": 10000,
+   "ub95": 0.15142375841784406
+  },
+  "A_refit_minus_C_macro_f1": {
+   "G": 169,
+   "ci95_two_sided": [
+    -0.048711808836306436,
+    0.10280595009173399
+   ],
+   "lb95": -0.03665537399078922,
+   "point": 0.02876092199659508,
+   "resamples_valid": 10000,
+   "ub95": 0.089940213903976
+  },
+  "A_refit_minus_C_trace_link_precision": {
+   "G": 169,
+   "ci95_two_sided": [
+    0.07500215005574906,
+    0.1983397873899705
+   ],
+   "lb95": 0.08556785171373882,
+   "point": 0.13622852835421972,
+   "resamples_valid": 10000,
+   "ub95": 0.18843160151032678
+  }
+ },
+ "gold_counts_test": {
+  "blocks": 0,
+  "implements": 56,
+  "none": 167,
+  "refines": 15,
+  "satisfies": 11,
+  "verifies": 51
+ },
+ "negative_trace_link_precision": false,
+ "outcome": "inconclusive",
+ "part": "PDLC trace-link arm (link metrics only; no LLM linker B, no answer endpoint)",
+ "pass_to_pass_agreement_A_refit": 0.94,
+ "summary": {
+  "A_paper": {
+   "links_predicted": 108.0,
+   "macro_f1": 0.7486560417998014,
+   "per_type": {
+    "implements": {
+     "f1": 0.9634139560745066,
+     "precision": 0.9875378523177266,
+     "recall": 0.9404761904761904
+    },
+    "refines": {
+     "f1": 0.7724137931034484,
+     "precision": 0.7904761904761904,
+     "recall": 0.7555555555555555
+    },
+    "satisfies": {
+     "f1": 0.5087719298245613,
+     "precision": 0.5787037037037037,
+     "recall": 0.45454545454545453
+    },
+    "verifies": {
+     "f1": 0.7500244881966891,
+     "precision": 0.9791666666666666,
+     "recall": 0.6078431372549019
+    }
+   },
+   "trace_link_precision": 0.9259216917909651
+  },
+  "A_refit": {
+   "links_predicted": 135.66666666666666,
+   "macro_f1": 0.705783667158484,
+   "per_type": {
+    "implements": {
+     "f1": 0.9605201531807036,
+     "precision": 0.9815894797026873,
+     "recall": 0.9404761904761904
+    },
+    "refines": {
+     "f1": 0.7724137931034484,
+     "precision": 0.7904761904761904,
+     "recall": 0.7555555555555555
+    },
+    "satisfies": {
+     "f1": 0.3548629148629148,
+     "precision": 0.23520565456049325,
+     "recall": 0.7272727272727272
+    },
+    "verifies": {
+     "f1": 0.7353378074868688,
+     "precision": 0.9312860750360751,
+     "recall": 0.6078431372549019
+    }
+   },
+   "trace_link_precision": 0.7599909045918435
+  },
+  "C": {
+   "links_predicted": 202.0,
+   "macro_f1": 0.6770227451618889,
+   "per_type": {
+    "implements": {
+     "f1": 0.918918918918919,
+     "precision": 0.9272727272727272,
+     "recall": 0.9107142857142857
+    },
+    "refines": {
+     "f1": 0.4482758620689655,
+     "precision": 0.3023255813953488,
+     "recall": 0.8666666666666667
+    },
+    "satisfies": {
+     "f1": 0.5116279069767442,
+     "precision": 0.34375,
+     "recall": 1.0
+    },
+    "verifies": {
+     "f1": 0.8292682926829268,
+     "precision": 0.7083333333333334,
+     "recall": 1.0
+    }
+   },
+   "trace_link_precision": 0.6237623762376238
+  }
+ },
+ "thresholds_by_pass": {
+  "1": {
+   "blocks": 0.3,
+   "implements": 0.5,
+   "refines": 0.6,
+   "satisfies": 0.4,
+   "verifies": 0.5
+  },
+  "2": {
+   "blocks": 0.3,
+   "implements": 0.45,
+   "refines": 0.6,
+   "satisfies": 0.35,
+   "verifies": 0.55
+  },
+  "3": {
+   "blocks": 0.3,
+   "implements": 0.5,
+   "refines": 0.6,
+   "satisfies": 0.4,
+   "verifies": 0.55
+  }
+ },
+ "types_scored": [
+  "implements",
+  "verifies",
+  "refines",
+  "satisfies"
+ ],
+ "weights": "unweighted (no inclusion probabilities recorded in the frozen sample)"
+}
