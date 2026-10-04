@@ -533,6 +533,21 @@ class MigrationSettings(BaseSettings):
     sample_sessions: int = 50
 
 
+class KeywordSearchSettings(BaseSettings):
+    """Keyword (BM25) retrieval channel, shared by every event-log backend.
+
+    See ``domain/keyword_search.py``.
+    """
+
+    model_config = {"env_prefix": "CG_KEYWORD_"}
+
+    # Searchable text built from an event's payload at ingest, in characters
+    text_max_chars: int = 8000
+
+    # Distinct query terms looked up (any may match)
+    max_query_terms: int = 16
+
+
 class StorageSettings(BaseSettings):
     """Storage backend selection per port (ADR-0019).
 
@@ -581,6 +596,7 @@ class Settings(BaseSettings):
     storage: StorageSettings = Field(default_factory=StorageSettings)
     spanner: SpannerSettings = Field(default_factory=SpannerSettings)
     migration: MigrationSettings = Field(default_factory=MigrationSettings)
+    keyword: KeywordSearchSettings = Field(default_factory=KeywordSearchSettings)
 
     @model_validator(mode="after")
     def _resolve_consumer_aliases(self) -> Settings:

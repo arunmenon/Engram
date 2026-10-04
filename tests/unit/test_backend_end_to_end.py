@@ -112,7 +112,13 @@ async def _run_flow(
             for body in (
                 _event(root, session_id, 3),
                 _event(child, session_id, 2, parent_event_id=root),
-                _event(grandchild, session_id, 1, parent_event_id=child),
+                _event(
+                    grandchild,
+                    session_id,
+                    1,
+                    parent_event_id=child,
+                    payload={"content": "Deploy failed: the database migration timed out"},
+                ),
             ):
                 response = await client.post("/v1/events", json=body)
                 assert response.status_code == 201, response.text
@@ -165,6 +171,20 @@ async def _run_flow(
             ).json()
             assert set(subgraph["nodes"]) >= {root, child, grandchild}
             assert subgraph["meta"]["retrieval_channels"]["graph"] == 3
+            # Keyword channel: tool names and payload text are searchable
+            assert subgraph["meta"]["retrieval_channels"]["bm25"] == 3
+            keyword = (
+                await client.post(
+                    "/v1/query/subgraph",
+                    json={
+                        "query": "why did the database migration fail?",
+                        "session_id": session_id,
+                        "agent_id": "a",
+                    },
+                )
+            ).json()
+            assert keyword["meta"]["retrieval_channels"]["bm25"] == 1
+            assert grandchild in keyword["nodes"]
 
             health = (await client.get("/v1/health")).json()
             assert health["event_log"] == {"backend": backend, "ok": True}

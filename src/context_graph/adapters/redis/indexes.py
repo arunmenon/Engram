@@ -41,6 +41,8 @@ def event_index_fields() -> list[TagField | NumericField | TextField]:
         # Full-text fields for BM25 retrieval (L4 hybrid search)
         TextField("$.summary", as_name="summary", weight=2.0),
         TextField("$.keywords", as_name="keywords", weight=1.5),
+        # Payload text built at ingest (domain/keyword_search.py)
+        TextField("$.search_text", as_name="search_text", weight=1.0),
     ]
 
 
@@ -50,7 +52,7 @@ async def ensure_event_index(client: Redis, index_name: str, prefix: str = "evt:
     This is idempotent — if the index already exists, the call is a no-op.
     """
     try:
-        await client.ft(index_name).info()  # type: ignore[no-untyped-call]
+        info = await client.ft(index_name).info()  # type: ignore[no-untyped-call]
         log.info("redisearch_index_exists", index_name=index_name)
     except Exception:  # noqa: BLE001
         # Index doesn't exist yet — create it
@@ -60,3 +62,40 @@ async def ensure_event_index(client: Redis, index_name: str, prefix: str = "evt:
             definition=event_index_definition(prefix),
         )
         log.info("redisearch_index_created", index_name=index_name)
+        return
+    await _add_missing_text_fields(client, index_name, info)
+
+
+def _attribute_names(info: Any) -> set[str]:
+    """Attribute names from FT.INFO (dict or flat-list replies, bytes or str)."""
+
+    def text(value: Any) -> str:
+        return value.decode() if isinstance(value, bytes) else str(value)
+
+    attributes = info.get("attributes", []) if isinstance(info, dict) else []
+    names: set[str] = set()
+    for attribute in attributes:
+        items = list(attribute)
+        for index in range(len(items) - 1):
+            if text(items[index]) == "attribute":
+                names.add(text(items[index + 1]))
+    return names
+
+
+async def _add_missing_text_fields(client: Redis, index_name: str, info: Any) -> None:
+    """Add text fields introduced after the index was created (FT.ALTER).
+
+    RediSearch re-scans existing documents for the new field.
+    """
+    existing = _attribute_names(info)
+    if not existing:
+        # Unrecognised FT.INFO reply: altering blindly could duplicate fields
+        log.warning("redisearch_index_fields_unknown", index_name=index_name)
+        return
+    for field in event_index_fields():
+        if isinstance(field, TextField) and field.as_name not in existing:
+            field_args = field.redis_args()  # type: ignore[no-untyped-call]
+            await client.execute_command(  # type: ignore[no-untyped-call]
+                "FT.ALTER", index_name, "SCHEMA", "ADD", *field_args
+            )
+            log.info("redisearch_field_added", index_name=index_name, field=field.as_name)

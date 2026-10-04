@@ -46,6 +46,49 @@ class TestKeywordIndex:
         assert await index.search("nothing-matches-this", session_id=session) == []
         assert isinstance(index.scores_are_native, bool)
 
+    async def test_question_finds_payload_text(self, log_harness: LogHarness) -> None:
+        """A natural-language question matches events by any of its terms.
+
+        Events carry no summary or keywords: the text comes from their
+        payload at ingest, as it does for every real event.
+        """
+        session = f"conf-{uuid4().hex[:8]}"
+        texts = {
+            "most": "Payment declined for card 4242 after the fraud check",
+            "some": "Card details updated on the profile page",
+            "none": "Weather forecast requested for Lisbon",
+        }
+        events = {key: make_event(session_id=session) for key in texts}
+        for key, event in events.items():
+            await log_harness.log.append(event, payload={"content": texts[key]})
+        elsewhere = make_event(session_id=f"conf-{uuid4().hex[:8]}")
+        await log_harness.log.append(elsewhere, payload={"content": texts["most"]})
+        index = log_harness.keyword_index
+        assert index is not None
+
+        question = "Why was the payment for card 4242 declined?"
+        hits = await index.search(question, session_id=session, limit=10)
+
+        _assert_well_formed(hits)
+        assert [hit.id for hit in hits] == [
+            str(events["most"].event_id),
+            str(events["some"].event_id),
+        ]
+        anywhere = await index.search(question, limit=10)
+        assert str(elsewhere.event_id) in {hit.id for hit in anywhere}
+        assert await index.search("why did it?", session_id=session) == []
+
+    async def test_search_text_is_stored_at_ingest(self, log_harness: LogHarness) -> None:
+        event = make_event(session_id=f"conf-{uuid4().hex[:8]}", tool_name="web_search")
+        payload = {"input": {"query": "spanner pricing"}, "output": "Enterprise edition"}
+        await log_harness.log.append(event, payload=payload)
+
+        (document,) = await log_harness.log.get_documents([str(event.event_id)])
+
+        assert document is not None
+        assert document["search_text"] == "web_search spanner pricing Enterprise edition"
+        assert document["payload"] == payload
+
 
 class TestVectorIndex:
     async def test_hits_are_well_formed(self, graph: GraphBackend) -> None:

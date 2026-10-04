@@ -53,6 +53,7 @@ src/context_graph/
         forgetting.py         # Retention tier enforcement
         extraction.py         # Extraction target models
         entity_resolution.py  # Three-tier entity resolution
+        keyword_search.py     # search_text built from payload at ingest; any-term query terms (keyword channel)
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
         event_log.py          # EventLog protocol: worker reads, retention, ordered read_after; MigrationTarget (ADR-0019)

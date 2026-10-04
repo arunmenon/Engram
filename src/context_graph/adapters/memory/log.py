@@ -11,9 +11,12 @@ not need Redis. Semantics follow the Redis adapter:
   and, when given, ``payload``;
 - ``search`` filters are exact, case-insensitive tag matches plus an
   inclusive time range, ordered by ``occurred_at``;
-- ``search_bm25`` matches every query term against the ``summary`` and
-  ``keywords`` fields (as the RediSearch index does) and ranks by a
-  weighted term count. Scores are not BM25.
+- stored documents also carry ``search_text``, built from the payload at
+  ingest (``domain/keyword_search.py``);
+- ``search_bm25`` matches documents containing any query term in
+  ``summary``, ``keywords`` or ``search_text`` (the RediSearch index's
+  fields and weights) and ranks by a saturating, IDF-weighted term count.
+  Scores are not BM25.
 
 Single-process and not durable.
 
@@ -22,7 +25,7 @@ Source: ADR-0004, ADR-0010, ADR-0014, ADR-0019
 
 from __future__ import annotations
 
-import re
+import math
 import time
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -31,8 +34,10 @@ import orjson
 import structlog
 
 from context_graph.adapters.memory.stream import MemoryStream, position_sort_key
+from context_graph.domain.keyword_search import event_search_text, query_terms, tokenize
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
+from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -45,12 +50,7 @@ log = structlog.get_logger(__name__)
 # Same field weights as the RediSearch event index (adapters/redis/indexes.py)
 SUMMARY_WEIGHT = 2.0
 KEYWORDS_WEIGHT = 1.5
-
-_TOKEN = re.compile(r"[\w]+", re.UNICODE)
-
-
-def _tokens(text: str) -> list[str]:
-    return [t.lower() for t in _TOKEN.findall(text)]
+SEARCH_TEXT_WEIGHT = 1.0
 
 
 def _epoch_ms(moment: datetime) -> int:
@@ -77,8 +77,10 @@ class MemoryEventLog:
         self,
         stream: MemoryStream | None = None,
         clock: Callable[[], float] = time.time,
+        keyword: KeywordSearchSettings | None = None,
     ) -> None:
         self._clock = clock
+        self._keyword = keyword or KeywordSearchSettings()
         self._stream = stream if stream is not None else MemoryStream("events", clock=clock)
         self._documents: dict[str, dict[str, Any]] = {}
         self._dedup: dict[str, _DedupRecord] = {}
@@ -114,6 +116,9 @@ class MemoryEventLog:
         document: dict[str, Any] = orjson.loads(event.model_dump_json())
         if payload is not None:
             document["payload"] = payload
+        search_text = event_search_text(event, payload, self._keyword.text_max_chars)
+        if search_text:
+            document["search_text"] = search_text
         return await self._store(event_id, event.session_id, _epoch_ms(event.occurred_at), document)
 
     async def _store(
@@ -271,28 +276,41 @@ class MemoryEventLog:
         session_id: str | None = None,
         limit: int = 50,
     ) -> list[Event]:
-        if not query_text or not query_text.strip():
-            return []
-        terms = set(_tokens(query_text))
+        terms = query_terms(query_text or "", self._keyword.max_query_terms)
         if not terms:
             return []
 
-        scored: list[tuple[float, dict[str, Any]]] = []
+        weighted: list[tuple[dict[str, float], dict[str, Any]]] = []
+        document_frequency: dict[str, int] = dict.fromkeys(terms, 0)
+        candidates = 0
         for document in self._documents.values():
             if session_id and not _tag_equal(document.get("session_id"), session_id):
                 continue
-            summary_tokens = _tokens(str(document.get("summary") or ""))
+            candidates += 1
             keywords = document.get("keywords") or []
-            keyword_tokens = _tokens(" ".join(str(k) for k in keywords))
-            if not terms <= set(summary_tokens) | set(keyword_tokens):
-                continue
-            score = sum(
-                SUMMARY_WEIGHT * summary_tokens.count(term)
-                + KEYWORDS_WEIGHT * keyword_tokens.count(term)
-                for term in terms
+            fields = (
+                (SUMMARY_WEIGHT, tokenize(str(document.get("summary") or ""))),
+                (KEYWORDS_WEIGHT, tokenize(" ".join(str(k) for k in keywords))),
+                (SEARCH_TEXT_WEIGHT, tokenize(str(document.get("search_text") or ""))),
             )
-            scored.append((score, document))
+            frequencies = {
+                term: sum(weight * tokens.count(term) for weight, tokens in fields)
+                for term in terms
+            }
+            frequencies = {term: tf for term, tf in frequencies.items() if tf > 0}
+            if not frequencies:
+                continue
+            for term in frequencies:
+                document_frequency[term] += 1
+            weighted.append((frequencies, document))
 
+        def score(frequencies: dict[str, float]) -> float:
+            return sum(
+                math.log(1 + candidates / document_frequency[term]) * tf / (tf + 1)
+                for term, tf in frequencies.items()
+            )
+
+        scored = [(score(frequencies), document) for frequencies, document in weighted]
         scored.sort(key=lambda item: (-item[0], position_sort_key(item[1]["global_position"])))
         return [self._event(d) for _score, d in scored[:limit]]
 

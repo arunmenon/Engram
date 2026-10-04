@@ -23,8 +23,10 @@ from redis.asyncio import Redis
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.redis.errors import translate_redis_error
 from context_graph.adapters.redis.indexes import ensure_event_index
+from context_graph.domain.keyword_search import event_search_text, query_terms
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
+from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
     from context_graph.domain.models import EventQuery
@@ -80,6 +82,7 @@ def _event_to_json_bytes(
     event: Event,
     occurred_at_epoch_ms: int,
     payload: dict[str, Any] | None = None,
+    search_text_max_chars: int | None = None,
 ) -> bytes:
     """Serialize an event to JSON bytes with the epoch_ms field injected.
 
@@ -91,6 +94,10 @@ def _event_to_json_bytes(
     data["occurred_at_epoch_ms"] = occurred_at_epoch_ms
     if payload is not None:
         data["payload"] = payload
+    if search_text_max_chars is not None:
+        search_text = event_search_text(event, payload, search_text_max_chars)
+        if search_text:
+            data["search_text"] = search_text
     return orjson.dumps(data)
 
 
@@ -116,15 +123,23 @@ class RedisEventStore:
     Satisfies the ``context_graph.ports.event_store.EventStore`` protocol.
     """
 
-    def __init__(self, client: Redis, settings: RedisSettings) -> None:
+    def __init__(
+        self,
+        client: Redis,
+        settings: RedisSettings,
+        keyword: KeywordSearchSettings | None = None,
+    ) -> None:
         self._client = client
         self._settings = settings
+        self._keyword = keyword or KeywordSearchSettings()
         self._script_sha: str | None = None
 
     # -- lifecycle ----------------------------------------------------------
 
     @classmethod
-    async def create(cls, settings: RedisSettings) -> RedisEventStore:
+    async def create(
+        cls, settings: RedisSettings, keyword: KeywordSearchSettings | None = None
+    ) -> RedisEventStore:
         """Factory: create a connected store from settings."""
         client = Redis(
             host=settings.host,
@@ -133,7 +148,7 @@ class RedisEventStore:
             password=settings.password.get_secret_value() if settings.password else None,
             decode_responses=False,
         )
-        store = cls(client=client, settings=settings)
+        store = cls(client=client, settings=settings, keyword=keyword)
         await store._register_script()
         return store
 
@@ -190,7 +205,12 @@ class RedisEventStore:
         event_id_str = str(event.event_id)
         json_key = f"{self._settings.event_key_prefix}{event_id_str}"
         occurred_at_epoch_ms = _event_to_epoch_ms(event)
-        event_json = _event_to_json_bytes(event, occurred_at_epoch_ms, payload=payload)
+        event_json = _event_to_json_bytes(
+            event,
+            occurred_at_epoch_ms,
+            payload=payload,
+            search_text_max_chars=self._keyword.text_max_chars,
+        )
 
         if self._script_sha is None:
             await self._register_script()
@@ -243,7 +263,12 @@ class RedisEventStore:
             json_key = f"{self._settings.event_key_prefix}{event_id_str}"
             occurred_at_epoch_ms = _event_to_epoch_ms(event)
             event_payload = payloads[idx] if payloads and idx < len(payloads) else None
-            event_json = _event_to_json_bytes(event, occurred_at_epoch_ms, payload=event_payload)
+            event_json = _event_to_json_bytes(
+                event,
+                occurred_at_epoch_ms,
+                payload=event_payload,
+                search_text_max_chars=self._keyword.text_max_chars,
+            )
             session_stream_key = f"events:session:{event.session_id}"
 
             pipe.evalsha(
@@ -378,20 +403,17 @@ class RedisEventStore:
     ) -> list[Event]:
         """Full-text search events using RediSearch BM25 scoring.
 
-        Searches across the ``summary`` and ``keywords`` text fields.
+        Matches events containing any query term in ``summary``,
+        ``keywords`` or ``search_text`` (``domain/keyword_search.py``).
         Optionally filters by session_id. Results are ordered by BM25
         relevance (RediSearch default for text queries).
         """
-        if not query_text or not query_text.strip():
+        terms = query_terms(query_text or "", self._keyword.max_query_terms)
+        if not terms:
             return []
 
-        # Sanitize query text for RediSearch: escape special chars
-        sanitized = query_text.strip()
-        for ch in r"@{}\[]()|-!~*:^/\"'<>=;,$&+":
-            sanitized = sanitized.replace(ch, f"\\{ch}")
-
-        # Build query: full-text search on summary/keywords
-        parts: list[str] = [sanitized]
+        # Terms are word characters only, none of them query syntax
+        parts: list[str] = [f"({'|'.join(terms)})"]
         if session_id:
             escaped_session = _escape_tag_value(session_id)
             parts.append(f"@session_id:{{{escaped_session}}}")

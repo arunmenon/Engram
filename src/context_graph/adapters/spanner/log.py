@@ -35,8 +35,10 @@ import structlog
 
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.spanner.errors import translate_spanner_error
+from context_graph.domain.keyword_search import event_search_text, query_terms
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
+from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
     from context_graph.domain.models import EventQuery
@@ -63,6 +65,7 @@ EVENT_COLUMNS = [
     "summary",
     "keywords",
     "legacy_position",
+    "search_text",
 ]
 
 # Columns that rebuild a position
@@ -133,9 +136,16 @@ class SpannerEventLog:
     Satisfies ``EventLog``, ``EventStoreAdmin`` and ``HealthCheckable``.
     """
 
-    def __init__(self, database: Any, *, shards: int = 16) -> None:
+    def __init__(
+        self,
+        database: Any,
+        *,
+        shards: int = 16,
+        keyword: KeywordSearchSettings | None = None,
+    ) -> None:
         self._database = database
         self._shards = shards
+        self._keyword = keyword or KeywordSearchSettings()
 
     @property
     def database(self) -> Any:
@@ -212,6 +222,7 @@ class SpannerEventLog:
             _text(doc.get("summary")),
             _text(doc.get("keywords")),
             doc.get("legacy_position"),
+            _text(doc.get("search_text")),
         ]
 
     def _append_entries_sync(
@@ -260,11 +271,13 @@ class SpannerEventLog:
             for item in results
         ]
 
-    @staticmethod
-    def _document(event: Event, payload: dict[str, Any] | None) -> dict[str, Any]:
+    def _document(self, event: Event, payload: dict[str, Any] | None) -> dict[str, Any]:
         document: dict[str, Any] = orjson.loads(event.model_dump_json())
         if payload is not None:
             document["payload"] = payload
+        search_text = event_search_text(event, payload, self._keyword.text_max_chars)
+        if search_text:
+            document["search_text"] = search_text
         return document
 
     async def append(self, event: Event, payload: dict[str, Any] | None = None) -> str:
@@ -501,13 +514,18 @@ class SpannerEventLog:
         session_id: str | None = None,
         limit: int = 50,
     ) -> list[tuple[Event, float]]:
-        """Full-text search returning events with their Spanner ``SCORE``, best first."""
+        """Full-text search returning events with their Spanner ``SCORE``, best first.
+
+        Matches events containing any query term (``domain/keyword_search.py``).
+        """
         from google.cloud.spanner_v1 import param_types
 
-        if not query_text or not query_text.strip():
+        terms = query_terms(query_text or "", self._keyword.max_query_terms)
+        if not terms:
             return []
         where = ["document IS NOT NULL", "SEARCH(text_tokens, @q)"]
-        params: dict[str, Any] = {"q": query_text.strip(), "limit": limit}
+        # Terms are word characters only, none of them query syntax
+        params: dict[str, Any] = {"q": " OR ".join(terms), "limit": limit}
         types: dict[str, Any] = {"q": param_types.STRING, "limit": param_types.INT64}
         if session_id:
             where.append("session_tag = @session")

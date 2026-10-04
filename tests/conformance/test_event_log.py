@@ -179,8 +179,9 @@ class TestSearch:
         )
         await log_harness.set_document_fields(str(unrelated.event_id), {"summary": "lunch"})
 
+        # Any term matches; the event with both terms ranks first
         both = await log.search_bm25("deploy rollback", session_id=session)
-        assert [e.event_id for e in both] == [rollback.event_id]
+        assert [e.event_id for e in both] == [rollback.event_id, deploy.event_id]
         deploys = await log.search_bm25("deploy", session_id=session)
         assert {e.event_id for e in deploys} == {rollback.event_id, deploy.event_id}
         by_keyword = await log.search_bm25("release", session_id=session)

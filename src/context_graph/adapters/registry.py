@@ -217,7 +217,7 @@ async def _open_redis_log(
 
     redis_settings = settings.redis
     if prepare_ingest:
-        redis_event_log = await RedisEventStore.create(redis_settings)
+        redis_event_log = await RedisEventStore.create(redis_settings, keyword=settings.keyword)
         await redis_event_log.ensure_indexes()
         closers.append(redis_event_log.close)
         redis_client = redis_event_log.client
@@ -231,7 +231,9 @@ async def _open_redis_log(
             ),
             decode_responses=False,
         )
-        redis_event_log = RedisEventStore(client=redis_client, settings=redis_settings)
+        redis_event_log = RedisEventStore(
+            client=redis_client, settings=redis_settings, keyword=settings.keyword
+        )
         closers.append(redis_client.aclose)
 
     consumer_settings = settings.consumer
@@ -259,7 +261,7 @@ def _open_memory_log(
     from context_graph.adapters.memory.subscription import MemorySubscription
 
     consumer_settings = settings.consumer
-    memory_log = MemoryEventLog(MemoryStream(consumer_settings.source))
+    memory_log = MemoryEventLog(MemoryStream(consumer_settings.source), keyword=settings.keyword)
 
     def open_subscription(group_name: str, consumer_name: str) -> Subscription:
         return MemorySubscription(
@@ -282,7 +284,9 @@ def _open_spanner_log(
 
     spanner_settings = settings.spanner
     consumer_settings = settings.consumer
-    spanner_log = SpannerEventLog(database, shards=spanner_settings.shards)
+    spanner_log = SpannerEventLog(
+        database, shards=spanner_settings.shards, keyword=settings.keyword
+    )
 
     def open_subscription(group_name: str, consumer_name: str) -> Subscription:
         return SpannerSubscription(

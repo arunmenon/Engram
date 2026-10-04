@@ -59,9 +59,13 @@ def schema_statements(embedding_dimensions: int) -> list[str]:
             dedup_active BOOL NOT NULL,
             summary STRING(MAX),
             keywords STRING(MAX),
+            search_text STRING(MAX),
             summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,
             keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,
-            text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens])) HIDDEN
+            search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,
+            text_tokens TOKENLIST AS (
+                TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])
+            ) HIDDEN
         ) PRIMARY KEY (event_id)""",
         "CREATE INDEX EventsByShardPosition ON Events (shard, commit_ts, batch_index)",
         "CREATE INDEX EventsBySession ON Events (session_id, commit_ts, batch_index)",

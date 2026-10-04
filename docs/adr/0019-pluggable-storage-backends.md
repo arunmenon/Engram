@@ -237,7 +237,7 @@ Step 3 (proof) is implemented: conformance suites for all five ports, and an in-
 - Step 2 removed `Neo4jGraphStore._bump_access_counts`, which an integration test still calls; restored as a delegate to the graph reads.
 
 **Known gaps:**
-- **Keyword (BM25) channel:** RediSearch indexes `$.summary` and `$.keywords` on event documents, but ingested events never carry those fields (the `Event` model has neither), so the keyword seed channel finds nothing in practice. The memory backend mirrors this; the suite exercises the index by writing those fields directly. Making the channel useful needs a decision on what text events should carry.
+- **Keyword (BM25) channel:** RediSearch indexes `$.summary` and `$.keywords` on event documents, but ingested events never carry those fields (the `Event` model has neither), so the keyword seed channel finds nothing in practice. The memory backend mirrors this; the suite exercises the index by writing those fields directly. Making the channel useful needs a decision on what text events should carry. *(Resolved: see "Keyword channel fix" below.)*
 - **PDLC question set:** "graph answers on the PDLC question set" (§5) waits for the ADR-0018 generic projector; the ontology packs are not implemented yet.
 - **Generic operations:** the ADR-0018 generic graph operations (`upsert_nodes`, `neighbors`, …) and generic fallbacks for named operations are not added. Each backend implements the named operations directly; the memory backend shows what a fallback would compute.
 
@@ -333,4 +333,29 @@ The dual-run test keeps one worker per side and flushes the idle tail explicitly
 - Soak on real traffic, and the retrieval evals for the BM25 ranking change (brief phase 3 exit). The comparison isolates the graph, and keyword ranking is not compared.
 - The GCS archive copy.
 - Cutover and the rollback rehearsal (phase 4). The runbook is `docs/runbooks/storage-migration.md`.
+
+## Keyword channel fix (2026-10-04)
+
+The keyword (BM25) seed channel found nothing (see the step 3 findings) for two reasons:
+- **Nothing to match:** only `summary` and `keywords` were indexed, and nothing writes them to the ledger. Enrichment writes keywords to the graph node only.
+- **Every word had to match:** every backend required all query terms, so a natural-language question almost never matched.
+
+| Change | Where | Notes |
+|---|---|---|
+| Search text at ingest | `domain/keyword_search.py` (`event_search_text`); `append` in the memory, Redis and Spanner logs | **Contents:** the tool name, then the payload's string values (`content`, `input`, `output` first, then the rest). **Where it lives:** stored as `search_text` on the event document. **Size cap:** `CG_KEYWORD_TEXT_MAX_CHARS` (8000), cut on a word boundary. **Immutability:** written once with the event and never changed afterwards, so the ledger stays immutable (ADR-0004). |
+| Indexed on every backend | Redis `$.search_text` TEXT (weight 1.0, after `summary` 2.0 and `keywords` 1.5); Spanner `search_text` column in `text_tokens`; memory scoring | **Redis:** an existing index gets the field via `FT.ALTER` at start-up, and RediSearch re-scans existing documents. **Spanner:** the column is in the DDL for new databases. None exist outside the emulator, so there is no `ALTER` path. |
+| Any-term queries | `domain/keyword_search.py` (`query_terms`); `search_bm25` / `search_scored` on every backend | **Terms:** lowercased word tokens, minus RediSearch's default stopwords plus question words, auxiliaries and pronouns, deduplicated, capped by `CG_KEYWORD_MAX_QUERY_TERMS` (16). **Matching:** a document matching any term is a hit, ranked by the backend: Redis BM25 (`(t1\|t2)`), Spanner `SCORE` (`t1 OR t2`), memory a saturating IDF-weighted count. **No terms:** a query of only stopwords searches nothing. |
+
+**Tests:**
+- **Conformance** (`test_search_indexes.py`):
+  - a question matches events through their payload text, best match first;
+  - the session filter and stopword-only queries behave;
+  - `search_text` is stored at ingest.
+- **Changed case:** "deploy rollback" now returns both deploy events, with the event that has both terms ranked first. It used to return only that event.
+- **End to end** (memory and Spanner): through the API, the subgraph query's `bm25` channel returns seeds, and a question about one event's payload finds that event.
+- **Redis:** mocked unit tests pin the `FT.SEARCH` query, the stored document and the `FT.ALTER` upgrade. Redis Stack was not available to run the conformance cases.
+
+**Not done:**
+- events ingested before this change have no `search_text`; there is no backfill, because no deployment holds history;
+- ranking quality is unmeasured; the retrieval evals should cover the channel.
 

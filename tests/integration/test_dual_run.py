@@ -110,7 +110,10 @@ async def dual_stores(monkeypatch: pytest.MonkeyPatch) -> tuple[Settings, Stores
     monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
     settings = Settings()
 
-    primary = await open_stores(settings, prepare_ingest=True)
+    try:
+        primary = await asyncio.wait_for(open_stores(settings, prepare_ingest=True), timeout=10)
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"Neo4j unreachable: {exc}")
     try:
         reachable = await asyncio.wait_for(primary.graph.health_ping(), timeout=5)
     except Exception:  # noqa: BLE001
