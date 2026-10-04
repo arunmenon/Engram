@@ -513,3 +513,34 @@ class TestConsumerLagMetric:
             await consumer.run()
             # Should be called at iterations 2 and 4
             assert mock_lag.call_count == 2
+
+
+class TestIdleHook:
+    """on_idle runs after a read of new items that returns nothing."""
+
+    @pytest.mark.asyncio()
+    async def test_on_idle_called_only_on_empty_reads_and_errors_do_not_stop_loop(self):
+        redis = AsyncMock()
+        redis.xautoclaim.return_value = (b"0-0", [], [])
+        redis.xpending_range.return_value = []
+
+        consumer = StubConsumer(redis, "grp", "c1", "stream:test")
+        new_reads = [[], [(b"stream:test", [(b"1-0", {b"event_id": b"e1"})])], []]
+
+        async def _xreadgroup_side_effect(**kwargs):
+            if kwargs["streams"]["stream:test"] == "0":
+                return []  # pending drain: nothing pending
+            if not new_reads:
+                consumer._stopped = True
+                return []
+            return new_reads.pop(0)
+
+        redis.xreadgroup.side_effect = _xreadgroup_side_effect
+
+        idle_hook = AsyncMock(side_effect=[RuntimeError("flush failed"), None, None])
+        with patch.object(consumer, "on_idle", idle_hook):
+            await consumer.run()
+
+        # Empty read, delivery, empty read, final empty read that stops the loop
+        assert idle_hook.await_count == 3
+        assert consumer.processed == [("1-0", {"event_id": "e1"})]

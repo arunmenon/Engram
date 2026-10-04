@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections import OrderedDict
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
 import pytest
 
+from context_graph.adapters.memory.graph import MemoryGraphStore
+from context_graph.adapters.memory.log import MemoryEventLog
+from context_graph.adapters.memory.subscription import MemorySubscription
 from context_graph.domain.models import Event
+from context_graph.settings import Settings
 from context_graph.worker.projection import ProjectionConsumer
 from tests.unit.redis_ports import redis_ports
 
@@ -163,3 +170,100 @@ class TestMicroBatching:
             await consumer.process_message("entry-0", {"event_id": "evt-1"})
 
         graph_mock.merge_event_nodes_batch.assert_called_once()
+
+
+def _event(session_id: str, minutes_ago: int) -> Event:
+    return Event(
+        event_id=uuid4(),
+        event_type="tool.execute",
+        occurred_at=datetime.now(UTC) - timedelta(minutes=minutes_ago),
+        session_id=session_id,
+        agent_id="agent-1",
+        trace_id="trace-1",
+        payload_ref="payload:1",
+        tool_name="grep",
+    )
+
+
+class TestIdleFlush:
+    """A partial batch is projected and acked once deliveries stop (no stop() needed)."""
+
+    @staticmethod
+    def _in_memory_consumer(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> tuple[ProjectionConsumer, MemoryEventLog, MemoryGraphStore, MemorySubscription]:
+        monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+        settings = Settings()
+        event_log = MemoryEventLog()
+        graph_store = MemoryGraphStore()
+        subscription = MemorySubscription(
+            event_log.stream, settings.consumer.group_projection, "projection-1"
+        )
+        consumer = ProjectionConsumer(
+            subscription=subscription,
+            event_log=event_log,
+            graph_store=graph_store,
+            settings=settings,
+        )
+        return consumer, event_log, graph_store, subscription
+
+    @pytest.mark.asyncio
+    async def test_burst_below_batch_size_is_projected_and_acked_while_running(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        consumer, event_log, graph_store, subscription = self._in_memory_consumer(monkeypatch)
+        task = asyncio.create_task(consumer.run())
+        try:
+            burst = [_event("sess-idle", minutes_ago=3 - i) for i in range(3)]
+            assert len(burst) < consumer._BATCH_SIZE
+            for event in burst:
+                await event_log.append(event)
+
+            projected_ids = {str(event.event_id) for event in burst}
+            for _ in range(100):
+                await asyncio.sleep(0.02)
+                graph_ids = {node_id for label, node_id in graph_store.nodes if label == "Event"}
+                pending = await subscription.delivery_counts(100)
+                if projected_ids <= graph_ids and not pending:
+                    break
+
+            # Projected and acked while the worker keeps running: no new
+            # delivery arrived and stop() was never called.
+            assert not task.done()
+            assert not consumer._stopped
+            assert projected_ids <= graph_ids
+            assert pending == {}
+            assert await subscription.lag() == 0
+            assert consumer._buffer == []
+        finally:
+            consumer.stop()
+            await asyncio.wait_for(task, timeout=5)
+
+    @pytest.mark.asyncio
+    async def test_idle_waits_for_batch_timeout(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        consumer, _event_log, _graph_store, _subscription = self._in_memory_consumer(monkeypatch)
+        consumer._BATCH_TIMEOUT_MS = 60_000
+        consumer._buffer.append(("1-0", {"event_id": "evt-1"}))
+        with patch.object(consumer, "_flush_buffer", new_callable=AsyncMock) as flush:
+            await consumer.on_idle()
+        flush.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_idle_flush_failure_leaves_items_unacked(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        consumer, event_log, graph_store, subscription = self._in_memory_consumer(monkeypatch)
+        await subscription.ensure_group()
+        await event_log.append(_event("sess-fail", minutes_ago=1))
+        (delivery,) = await subscription.read_new(10, 0)
+        await consumer.process_message(delivery.position, delivery.fields)
+        consumer._last_flush_time = 0.0
+
+        failing = AsyncMock(side_effect=RuntimeError("graph down"))
+        with (
+            patch.object(graph_store, "merge_event_nodes_batch", failing),
+            pytest.raises(RuntimeError),
+        ):
+            await consumer.on_idle()
+
+        assert delivery.position in await subscription.delivery_counts(100)
