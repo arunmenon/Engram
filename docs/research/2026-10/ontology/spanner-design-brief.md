@@ -65,7 +65,7 @@ S, M, L = small, medium, large.
 - **D3. Hotspot avoidance and ordering.** Never key or index by a monotonically increasing value alone. The ledger key is `event_id` (random UUIDs). The time index leads with `shard = hash(session_id) mod N` (N = 16 to start), so one session's events stay in one shard and in order; consumers poll each shard. A very busy single session would concentrate on one shard; acceptable at today's scale, revisit with load tests.
 - **D4. Graph layout:** schemaless Nodes and Edges tables with dynamic labels and JSON properties, hot fields as real columns (graph gap analysis §3). A new ontology pack needs no DDL.
 - **D5. Projection stays asynchronous.** Ledger and graph share a database, but the graph is still a derived, rebuildable projection (ADR-0005). There are no cross-store transactions in the write path.
-- **D6. Backend neutrality first** (ADR-0018 rule 11, extended to the ledger). All new code uses the `EventStore` and `GraphStore` ports only. Each backend passes one conformance suite: same events in, same answers out.
+- **D6. Backend neutrality first** (ADR-0018 rule 11; generalised to every store in ADR-0019, pluggable storage backends). All new code uses the `EventStore` and `GraphStore` ports only. Each backend passes one conformance suite: same events in, same answers out.
 
 ## 6. Migration plan
 
