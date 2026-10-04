@@ -189,3 +189,27 @@ Both predate this change; they are queued separately.
 **Remaining for step 2:**
 - Consolidation still reads hot-tier ages from `settings.redis`.
 - `Stores.graph` is typed as the Neo4j adapter, because callers use it as `GraphMaintenance` and `UserStore` too.
+
+## Step 2 implementation (2026-10-04)
+
+Step 2 (ports narrowed) is implemented. API responses are unchanged: existing retrieval, admin and worker tests pass unmodified, or with only their mock wiring changed.
+
+| Item | Where | Notes |
+|---|---|---|
+| Neutral errors | `ports/errors.py`; `adapters/errors.py` (`translate_errors` class decorator); `adapters/{redis,neo4j}/errors.py` | `StorageError` with `ConflictError`, `NotFoundError`, `UnavailableError`, `StorageTimeoutError` (also a built-in `TimeoutError`) and `InvalidRequestError`. The `Error` suffix follows the repo's lint rule (N818). Public coroutine methods of every storage adapter translate driver exceptions and chain the original. Unhandled errors still become a 500, so responses are unchanged. |
+| Named operations (C6) | `GraphMaintenance.session_agent_id`, `session_events`, `session_event_timeline`, `events_for_pruning`, `delete_all(confirm=True)` | The six raw-Cypher calls in consolidation and admin are gone. Each operation sends the same Cypher, pinned in `test_named_graph_operations.py`. `delete_all` refuses unless `confirm=True`. `run_session_query` stays on the frozen port, marked deprecated. A test fails if anything outside `adapters/` calls it. |
+| Search ports (C4) | `ports/search.py` (`SearchHit(id, rank, score)`, `KeywordIndex`, `VectorIndex`); `adapters/search.py` | Scores are in 0–1. The vector index returns cosine (native). The keyword index derives its score from rank, because `search_bm25` returns no scores, and says so via `scores_are_native`. RRF fuses on rank only, so seeds are unchanged. |
+| Retrieval engine (C3) | `retrieval/engine.py`, `retrieval/atlas.py`; `ports/graph_reads.py` (`GraphReads`); `adapters/neo4j/graph_reads.py`; `ports/retrieval.py` | `get_subgraph`, `get_context` and `get_lineage` moved unchanged into a backend-neutral engine. It composes `GraphReads`, `KeywordIndex` and `VectorIndex` and owns the embedding service, intent classifier, LLM client and settings. The Neo4j reads send the Cypher that was inline before. A test bans adapter imports from `retrieval/`, and engine tests run it on in-memory fakes. |
+| Compatibility | `adapters/neo4j/retrieval.py`; `Neo4jGraphStore.get_*` | `RetrievalPipeline(RetrievalDeps(...))` is now a thin subclass of the engine, and the store's frozen query methods delegate to it. The existing pipeline, timeout and hybrid-retrieval tests pass unmodified. |
+| API wiring | `api/app.py`, `api/dependencies.get_retrieval` | The app builds `RetrievalEngine` from the `Stores` bundle. The context, lineage and query routes depend on the `Retrieval` port; their HTTP contract is unchanged, but their injected dependency changed (`query.py` is a frozen file, and only that line changed). The graph store is opened with only its own settings (`Neo4jSettings`, `QuerySettings`). |
+| Step-1 leftovers | `ports/graph_backend.py`; `RetentionSettings.log_*` | `Stores.graph` is typed `GraphBackend` (GraphStore + GraphMaintenance + UserStore + `reads`), and mypy confirms the Neo4j adapter satisfies it. Hot-tier ages moved to `CG_RETENTION_LOG_*`, falling back to the old `CG_REDIS_*` names. |
+
+**Behaviour notes:**
+- Workers now open the graph store with `QuerySettings`, so `CG_QUERY_DEFAULT_TIMEOUT_MS` also bounds the extraction worker's entity vector search. The defaults are unchanged.
+- Consolidation skips a session whose events carry no `agent_id`. The field is required on ingest, so this cannot occur with valid data.
+
+**Not done in step 2:**
+- Generic fallbacks for named operations, built from the basic operations, come with the in-memory backend in step 3.
+- `VectorIndex` covers queries only; embedding writes still go through `GraphStore.store_event_embedding`.
+- The extraction worker still calls `search_similar_entities` directly (entity resolution, not retrieval).
+- Not run against a live Neo4j: no Docker daemon in this environment. Equivalence rests on the pinned Cypher and the unchanged tests.

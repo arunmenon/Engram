@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from context_graph.ports.graph_store import GraphStore
     from context_graph.ports.health import HealthCheckable
     from context_graph.ports.maintenance import GraphMaintenance
+    from context_graph.ports.retrieval import Retrieval
     from context_graph.ports.user_store import UserStore
     from context_graph.settings import Settings
 
@@ -41,6 +42,19 @@ def get_event_store(request: Request) -> EventStore:
 def get_graph_store(request: Request) -> GraphStore:
     """Return the graph store from app state."""
     return request.app.state.graph_store  # type: ignore[no-any-return]
+
+
+def get_retrieval(request: Request) -> Retrieval:
+    """Return the retrieval engine from app state (ADR-0019 C3).
+
+    Falls back to the graph store, whose deprecated query methods delegate
+    to the same engine, when no engine was attached (for example in apps
+    assembled by tests).
+    """
+    retrieval = getattr(request.app.state, "retrieval", None)
+    if retrieval is None:
+        return request.app.state.graph_store  # type: ignore[no-any-return]
+    return retrieval  # type: ignore[no-any-return]
 
 
 def get_event_store_admin(request: Request) -> EventStoreAdmin:

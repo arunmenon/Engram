@@ -9,31 +9,22 @@ Source: ADR-0003, ADR-0005, ADR-0009
 
 from __future__ import annotations
 
-import base64
-import time
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
 from neo4j import AsyncGraphDatabase
 
+from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.neo4j import queries
+from context_graph.adapters.neo4j.errors import translate_neo4j_error
+from context_graph.adapters.neo4j.graph_reads import Neo4jGraphReads
 from context_graph.adapters.neo4j.retrieval import RetrievalDeps, RetrievalPipeline
-from context_graph.domain.lineage import validate_traversal_bounds
 from context_graph.domain.models import (
-    AtlasEdge,
-    AtlasNode,
     AtlasResponse,
     EdgeType,
-    NodeScores,
-    Pagination,
-    Provenance,
-    QueryCapacity,
-    QueryMeta,
 )
-from context_graph.domain.pagination import decode_cursor, encode_cursor
-from context_graph.domain.scoring import score_node
-from context_graph.metrics import GRAPH_QUERY_DURATION
+from context_graph.ports.errors import InvalidRequestError
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -88,6 +79,7 @@ _BATCH_EDGE_QUERIES: dict[str, str] = {
 }
 
 
+@translate_errors(translate_neo4j_error)
 class Neo4jGraphStore:
     """Neo4j implementation of the GraphStore protocol.
 
@@ -130,7 +122,10 @@ class Neo4jGraphStore:
         self._intent_classifier = intent_classifier
         self._ppr_settings = ppr_settings
 
-        # Wire up the retrieval pipeline (separated for SRP)
+        self._reads = Neo4jGraphReads(self._driver, self._database)
+
+        # Retrieval pipeline behind the deprecated get_context/get_lineage/
+        # get_subgraph methods (ADR-0019 C3: new code uses RetrievalEngine)
         self._retrieval = RetrievalPipeline(
             RetrievalDeps(
                 driver=self._driver,
@@ -146,6 +141,11 @@ class Neo4jGraphStore:
                 search_similar_entities=self.search_similar_entities,
             )
         )
+
+    @property
+    def reads(self) -> Neo4jGraphReads:
+        """Bounded graph reads for the retrieval engine (ADR-0019 GraphReads port)."""
+        return self._reads
 
     # ------------------------------------------------------------------
     # Node operations
@@ -412,76 +412,13 @@ class Neo4jGraphStore:
 
     # ------------------------------------------------------------------
     # Phase 3: Query methods
+    #
+    # Deprecated (ADR-0019 C3): retrieval lives in
+    # context_graph.retrieval.RetrievalEngine, which the API builds from
+    # the storage ports. These methods stay because the GraphStore port is
+    # frozen; they delegate to the same engine, wired with the optional
+    # constructor dependencies.
     # ------------------------------------------------------------------
-
-    def _build_atlas_node(
-        self,
-        record_props: dict[str, Any],
-        scores: NodeScores,
-        retrieval_reason: str = "direct",
-    ) -> AtlasNode:
-        """Convert Neo4j record properties to an AtlasNode with provenance."""
-        event_id = record_props.get("event_id", "")
-        occurred_at_raw = record_props.get("occurred_at")
-        if isinstance(occurred_at_raw, str):
-            occurred_at = datetime.fromisoformat(occurred_at_raw)
-        else:
-            occurred_at = datetime.now(UTC)
-
-        provenance = Provenance(
-            event_id=event_id,
-            global_position=record_props.get("global_position", ""),
-            source="redis",
-            occurred_at=occurred_at,
-            session_id=record_props.get("session_id", ""),
-            agent_id=record_props.get("agent_id", ""),
-            trace_id=record_props.get("trace_id", ""),
-        )
-
-        attributes = {
-            k: v
-            for k, v in record_props.items()
-            if k
-            not in {
-                "event_id",
-                "global_position",
-                "session_id",
-                "agent_id",
-                "trace_id",
-            }
-        }
-
-        return AtlasNode(
-            node_id=event_id,
-            node_type="Event",
-            attributes=attributes,
-            provenance=provenance,
-            scores=scores,
-            retrieval_reason=retrieval_reason,
-        )
-
-    async def _embed_query(self, query_text: str | None) -> list[float] | None:
-        """Embed query text if embedding service is available."""
-        if self._embedding_service is None or not query_text:
-            return None
-        try:
-            return await self._embedding_service.embed_text(query_text)
-        except Exception:
-            logger.warning("query_embedding_failed", query=query_text[:50])
-            return None
-
-    async def _bump_access_counts(self, event_ids: list[str]) -> None:
-        """Increment access_count for a batch of event nodes."""
-        if not event_ids:
-            return
-        now_iso = datetime.now(UTC).isoformat()
-        async with self._driver.session(database=self._database) as session:
-            await session.execute_write(
-                lambda tx: tx.run(
-                    queries.BATCH_UPDATE_ACCESS_COUNT,
-                    {"event_ids": event_ids, "now": now_iso},
-                )
-            )
 
     async def get_context(
         self,
@@ -492,235 +429,13 @@ class Neo4jGraphStore:
         cursor: str | None = None,
     ) -> AtlasResponse:
         """Assemble working memory context for a session."""
-        start_ms = time.monotonic_ns()
-
-        # Embed query text for relevance scoring
-        query_embedding = await self._embed_query(query)
-
-        # Decode cursor for keyset pagination
-        cursor_ts: str | None = None
-        cursor_id: str | None = None
-        if cursor:
-            cursor_ts, cursor_id = decode_cursor(cursor)
-
-        # Build Cypher with optional cursor WHERE clause
-        fetch_limit = max_nodes + 1  # fetch one extra to detect has_more
-        if cursor_ts:
-            cypher = (
-                "MATCH (e:Event {session_id: $session_id}) "
-                "WHERE e.occurred_at > $cursor_ts "
-                "   OR (e.occurred_at = $cursor_ts AND e.event_id > $cursor_id) "
-                "RETURN e ORDER BY e.occurred_at ASC LIMIT $limit"
-            )
-            params: dict[str, Any] = {
-                "session_id": session_id,
-                "cursor_ts": cursor_ts,
-                "cursor_id": cursor_id,
-                "limit": fetch_limit,
-            }
-        else:
-            cypher = queries.GET_SESSION_EVENTS
-            params = {"session_id": session_id, "limit": fetch_limit}
-
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(cypher, params, timeout=self._query_timeout_s)
-            records = [record async for record in result]
-
-        has_more = len(records) > max_nodes
-        if has_more:
-            records = records[:max_nodes]
-
-        nodes: dict[str, AtlasNode] = {}
-        scored_entries: list[tuple[str, dict[str, Any], NodeScores]] = []
-
-        for record in records:
-            props = dict(record["e"])
-            event_id = props.get("event_id", "")
-            scores = score_node(
-                props,
-                query_embedding=query_embedding,
-                s_base=self._decay.s_base,
-                s_boost=self._decay.s_boost,
-                w_recency=self._decay.weight_recency,
-                w_importance=self._decay.weight_importance,
-                w_relevance=self._decay.weight_relevance,
-                w_user_affinity=self._decay.weight_user_affinity,
-            )
-            scored_entries.append((event_id, props, scores))
-
-        # Sort by composite decay_score descending, take top max_nodes
-        scored_entries.sort(key=lambda x: x[2].decay_score, reverse=True)
-        scored_entries = scored_entries[:max_nodes]
-
-        for event_id, props, scores in scored_entries:
-            nodes[event_id] = self._build_atlas_node(props, scores)
-
-        # Bump access counts
-        event_ids = [eid for eid, _, _ in scored_entries]
-        await self._bump_access_counts(event_ids)
-
-        # Fetch edges between session events
-        edges: list[AtlasEdge] = []
-        if event_ids:
-            async with self._driver.session(database=self._database) as session:
-                edge_result = await session.run(
-                    queries.GET_SESSION_EDGES,
-                    {"session_id": session_id, "event_ids": event_ids},
-                    timeout=self._query_timeout_s,
-                )
-                edge_records = [record async for record in edge_result]
-            for erec in edge_records:
-                edges.append(
-                    AtlasEdge(
-                        source=erec["source"],
-                        target=erec["target"],
-                        edge_type=erec["edge_type"],
-                        properties=dict(erec["props"]) if erec["props"] else {},
-                    )
-                )
-
-        # Build pagination cursor from last record
-        next_cursor: str | None = None
-        if has_more and records:
-            last_props = dict(records[-1]["e"])
-            last_ts = last_props.get("occurred_at", "")
-            last_eid = last_props.get("event_id", "")
-            if last_ts and last_eid:
-                next_cursor = encode_cursor(str(last_ts), str(last_eid))
-
-        elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
-        GRAPH_QUERY_DURATION.labels(query_type="context").observe(elapsed_ms / 1000.0)
-
-        meta = QueryMeta(
-            query_ms=elapsed_ms,
-            nodes_returned=len(nodes),
-            truncated=has_more,
-            capacity=QueryCapacity(
-                max_nodes=max_nodes,
-                used_nodes=len(nodes),
-                max_depth=max_depth,
-            ),
-        )
-
-        return AtlasResponse(
-            nodes=nodes,
-            edges=edges,
-            pagination=Pagination(cursor=next_cursor, has_more=has_more),
-            meta=meta,
-        )
+        return await self._retrieval.get_context(session_id, max_nodes, query, max_depth, cursor)
 
     async def get_lineage(
         self, query: LineageQuery, query_text: str | None = None
     ) -> AtlasResponse:
         """Traverse lineage (CAUSED_BY chains) from a node."""
-        start_ms = time.monotonic_ns()
-
-        # Embed query text for relevance scoring
-        query_embedding = await self._embed_query(query_text)
-
-        clamped_depth, clamped_nodes, _timeout = validate_traversal_bounds(
-            max_depth=query.max_depth,
-            max_nodes=query.max_nodes,
-            timeout_ms=5000,
-        )
-
-        # Decode cursor as offset for lineage pagination
-        offset = 0
-        if query.cursor:
-            try:
-                offset = int(base64.urlsafe_b64decode(query.cursor.encode()).decode())
-            except (ValueError, Exception):
-                offset = 0
-
-        fetch_limit = clamped_nodes + 1
-
-        async with self._driver.session(database=self._database) as session:
-            result = await session.run(
-                queries.GET_LINEAGE,
-                {
-                    "node_id": query.node_id,
-                    "max_depth": clamped_depth,
-                    "max_nodes": fetch_limit,
-                },
-                timeout=self._query_timeout_s,
-            )
-            records = [record async for record in result]
-
-        # Apply offset for pagination
-        if offset > 0:
-            records = records[offset:]
-
-        has_more = len(records) > clamped_nodes
-        if has_more:
-            records = records[:clamped_nodes]
-
-        nodes: dict[str, AtlasNode] = {}
-        edges: list[AtlasEdge] = []
-        seen_edges: set[tuple[str, str]] = set()
-
-        for record in records:
-            chain_nodes = record["chain_nodes"]
-            chain_rels = record["chain_rels"]
-
-            for neo_node in chain_nodes:
-                props = dict(neo_node)
-                event_id = props.get("event_id", "")
-                if event_id and event_id not in nodes:
-                    scores = score_node(
-                        props,
-                        query_embedding=query_embedding,
-                        s_base=self._decay.s_base,
-                        s_boost=self._decay.s_boost,
-                        w_recency=self._decay.weight_recency,
-                        w_importance=self._decay.weight_importance,
-                        w_relevance=self._decay.weight_relevance,
-                        w_user_affinity=self._decay.weight_user_affinity,
-                    )
-                    nodes[event_id] = self._build_atlas_node(props, scores)
-
-            for rel in chain_rels:
-                start_eid = dict(rel.start_node).get("event_id", "")
-                end_eid = dict(rel.end_node).get("event_id", "")
-                edge_key = (start_eid, end_eid)
-                if edge_key not in seen_edges:
-                    seen_edges.add(edge_key)
-                    edges.append(
-                        AtlasEdge(
-                            source=start_eid,
-                            target=end_eid,
-                            edge_type="CAUSED_BY",
-                            properties=dict(rel),
-                        )
-                    )
-
-        await self._bump_access_counts(list(nodes.keys()))
-
-        # Build next cursor (offset-based)
-        next_cursor: str | None = None
-        if has_more:
-            next_offset = offset + clamped_nodes
-            next_cursor = base64.urlsafe_b64encode(str(next_offset).encode()).decode()
-
-        elapsed_ms = int((time.monotonic_ns() - start_ms) / 1_000_000)
-        GRAPH_QUERY_DURATION.labels(query_type="lineage").observe(elapsed_ms / 1000.0)
-
-        meta = QueryMeta(
-            query_ms=elapsed_ms,
-            nodes_returned=len(nodes),
-            truncated=has_more,
-            capacity=QueryCapacity(
-                max_nodes=clamped_nodes,
-                used_nodes=len(nodes),
-                max_depth=clamped_depth,
-            ),
-        )
-
-        return AtlasResponse(
-            nodes=nodes,
-            edges=edges,
-            pagination=Pagination(cursor=next_cursor, has_more=has_more),
-            meta=meta,
-        )
+        return await self._retrieval.get_lineage(query, query_text)
 
     async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
         """Delegate to the retrieval pipeline for subgraph queries."""
@@ -934,8 +649,47 @@ class Neo4jGraphStore:
 
         return await maintenance.update_importance_from_centrality(self._driver, self._database)
 
+    # -- Named operations (ADR-0019 C6) ----------------------------------
+
+    async def session_agent_id(self, session_id: str) -> str | None:
+        """Return the agent id recorded on a session's events, or None."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.session_agent_id(self._driver, self._database, session_id)
+
+    async def session_events(self, session_id: str, limit: int) -> list[dict[str, Any]]:
+        """Return a session's event properties ordered by occurred_at."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.session_events(self._driver, self._database, session_id, limit)
+
+    async def session_event_timeline(self, session_id: str) -> list[dict[str, Any]]:
+        """Return id, type, time, tool and status for a session's events, in time order."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.session_event_timeline(self._driver, self._database, session_id)
+
+    async def events_for_pruning(self, limit: int) -> list[dict[str, Any]]:
+        """Return the oldest events with the fields retention pruning decides on."""
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.events_for_pruning(self._driver, self._database, limit)
+
+    async def delete_all(self, *, confirm: bool = False) -> None:
+        """Delete the whole graph. Admin-only; refuses unless ``confirm`` is True."""
+        from context_graph.adapters.neo4j import maintenance
+
+        if not confirm:
+            msg = "delete_all requires confirm=True"
+            raise InvalidRequestError(msg)
+        await maintenance.delete_all(self._driver, self._database)
+
     async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
-        """Run an arbitrary read query and return records as dicts."""
+        """Run an arbitrary read query and return records as dicts.
+
+        Deprecated (ADR-0019): use the named operations above. Kept because
+        the GraphMaintenance port is frozen; no caller outside adapters/ uses it.
+        """
         async with self._driver.session(database=self._database) as session:
             result = await session.run(cypher, params)
             records = [record async for record in result]

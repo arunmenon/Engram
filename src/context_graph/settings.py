@@ -125,6 +125,12 @@ class RetentionSettings(BaseSettings):
     # Orphan cleanup batch size (nodes per transaction) — ADR-0014 Amendment
     orphan_cleanup_batch_size: int = 500
 
+    # ADR-0019: event log hot-tier retention, backend-neutral. A value not
+    # set here falls back to its old CG_REDIS_* setting (see Settings).
+    log_hot_window_days: int = 7  # was CG_REDIS_HOT_WINDOW_DAYS
+    log_retention_ceiling_days: int = 90  # was CG_REDIS_RETENTION_CEILING_DAYS
+    log_session_index_max_age_hours: int = 168  # was CG_REDIS_SESSION_STREAM_RETENTION_HOURS
+
 
 class QuerySettings(BaseSettings):
     """Bounded query limits (ADR-0001, ADR-0009)."""
@@ -472,6 +478,14 @@ _CONSUMER_REDIS_ALIASES = {
 }
 
 
+# RetentionSettings field -> the RedisSettings field it replaces (ADR-0019)
+_RETENTION_REDIS_ALIASES = {
+    "log_hot_window_days": "hot_window_days",
+    "log_retention_ceiling_days": "retention_ceiling_days",
+    "log_session_index_max_age_hours": "session_stream_retention_hours",
+}
+
+
 class StorageSettings(BaseSettings):
     """Storage backend selection per port (ADR-0019).
 
@@ -527,6 +541,11 @@ class Settings(BaseSettings):
         for consumer_field, redis_field in _CONSUMER_REDIS_ALIASES.items():
             if consumer_field not in explicitly_set:
                 setattr(consumer, consumer_field, getattr(self.redis, redis_field))
+        retention = self.retention
+        retention_set = retention.model_fields_set
+        for retention_field, redis_field in _RETENTION_REDIS_ALIASES.items():
+            if retention_field not in retention_set:
+                setattr(retention, retention_field, getattr(self.redis, redis_field))
         if not self.storage.archive:
             self.storage.archive = self.archive.backend
         return self

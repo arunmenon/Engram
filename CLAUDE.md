@@ -33,7 +33,7 @@ A traceability-first context graph service for AI agents. Captures immutable eve
 2. **Immutable events** — never mutate the event ledger; append-only with idempotent ingestion via Lua dedup script
 3. **Derived projection** — Neo4j is disposable and rebuildable from Redis events
 4. **Framework-agnostic domain** — `domain/` package must have zero imports from FastAPI or any web framework
-4a. **Backend-neutral core** (ADR-0019) — only `adapters/` imports `redis`, `neo4j` or other storage libraries; everything else opens stores via `adapters/registry.py` and uses `ports/` (enforced by `tests/unit/test_hex_purity.py`)
+4a. **Backend-neutral core** (ADR-0019) — only `adapters/` imports `redis`, `neo4j` or other storage libraries; everything else opens stores via `adapters/registry.py` and uses `ports/` (enforced by `tests/unit/test_hex_purity.py`). No query text crosses a port: add a named operation instead of calling `run_session_query`.
 5. **Bounded queries** — all graph queries enforce depth, node count, and timeout limits
 6. **System-owned retrieval** — the context graph infers intent, selects seeds, and surfaces proactive context
 
@@ -57,11 +57,21 @@ src/context_graph/
         event_store.py        # EventStore protocol
         event_log.py          # EventLog protocol: worker reads + retention (ADR-0019)
         subscription.py       # Subscription protocol: consumer groups (ADR-0019)
+        graph_reads.py        # GraphReads protocol: bounded reads for retrieval (ADR-0019)
+        graph_backend.py      # GraphBackend: GraphStore + GraphMaintenance + UserStore + reads
+        search.py             # KeywordIndex / VectorIndex, SearchHit with 0-1 scores (ADR-0019)
+        retrieval.py          # Retrieval protocol used by context/lineage/query routes
+        errors.py             # Neutral storage errors; adapters translate driver errors
+    retrieval/                # Backend-neutral retrieval engine (ADR-0019) — ports only
+        engine.py             # get_subgraph / get_context / get_lineage
+        atlas.py              # Atlas node + adjacency helpers
         graph_store.py        # GraphStore protocol
         embedding.py          # EmbeddingService protocol
         extraction.py         # ExtractionService protocol
     adapters/
         registry.py           # Opens stores by CG_STORAGE_* (ADR-0019); the only way in from api/ and worker/
+        search.py             # KeywordIndex/VectorIndex over EventStore/GraphStore search methods
+        errors.py             # translate_errors class decorator
         redis/                # Redis Stack EventStore implementation
             store.py          # XADD, JSON.SET, FT.SEARCH
             subscription.py   # Consumer groups: XREADGROUP, XACK, XAUTOCLAIM, DLQ
@@ -70,6 +80,8 @@ src/context_graph/
         neo4j/                # Neo4j GraphStore implementation
             store.py          # MERGE-based Cypher
             queries.py        # Intent-weighted traversals
+            graph_reads.py    # GraphReads implementation (Cypher for the retrieval engine)
+            retrieval.py      # Compatibility: RetrievalPipeline = engine wired to a Neo4j driver
             maintenance.py    # Batch pruning, centrality
             user_queries.py   # User subgraph queries
         llm/                  # LLM client adapter

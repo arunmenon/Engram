@@ -547,3 +547,86 @@ async def update_importance_from_centrality(
 
     log.info("updated_importance_from_centrality", updated_count=updated)
     return updated
+
+
+# ---------------------------------------------------------------------------
+# Named operations (ADR-0019 C6): replace query text passed through
+# GraphMaintenance.run_session_query. Each issues the Cypher its caller
+# previously sent, in an auto-commit session as run_session_query did.
+# ---------------------------------------------------------------------------
+
+SESSION_AGENT_ID = (
+    "MATCH (e:Event {session_id: $sid}) RETURN DISTINCT e.agent_id AS agent_id LIMIT 1"
+)
+
+SESSION_EVENTS = (
+    "MATCH (e:Event {session_id: $session_id}) RETURN e ORDER BY e.occurred_at LIMIT $limit"
+)
+
+SESSION_EVENT_TIMELINE = (
+    "MATCH (e:Event {session_id: $sid}) "
+    "RETURN e.event_id AS event_id, e.event_type AS event_type, "
+    "e.occurred_at AS occurred_at, e.tool_name AS tool_name, "
+    "e.status AS status "
+    "ORDER BY e.occurred_at"
+)
+
+EVENTS_FOR_PRUNING = (
+    "MATCH (e:Event) "
+    "RETURN e.event_id AS event_id, e.occurred_at AS occurred_at, "
+    "e.importance_score AS importance_score, "
+    "coalesce(e.access_count, 0) AS access_count, "
+    "e.similarity_score AS similarity_score "
+    "ORDER BY e.occurred_at "
+    "LIMIT $batch_limit"
+)
+
+DELETE_ALL = "MATCH (n) DETACH DELETE n"
+
+
+async def _run(
+    driver: AsyncDriver, database: str, cypher: str, params: dict[str, Any]
+) -> list[dict[str, Any]]:
+    async with driver.session(database=database) as session:
+        result = await session.run(cypher, params)
+        records = [record async for record in result]
+    return [dict(r) for r in records]
+
+
+async def session_agent_id(driver: AsyncDriver, database: str, session_id: str) -> str | None:
+    """Return the agent id recorded on a session's events, or None if there are none."""
+    records = await _run(driver, database, SESSION_AGENT_ID, {"sid": session_id})
+    if not records:
+        return None
+    agent_id: str | None = records[0]["agent_id"]
+    return agent_id
+
+
+async def session_events(
+    driver: AsyncDriver, database: str, session_id: str, limit: int
+) -> list[dict[str, Any]]:
+    """Return a session's event node properties ordered by occurred_at."""
+    records = await _run(
+        driver, database, SESSION_EVENTS, {"session_id": session_id, "limit": limit}
+    )
+    return [dict(r.get("e", r)) for r in records]
+
+
+async def session_event_timeline(
+    driver: AsyncDriver, database: str, session_id: str
+) -> list[dict[str, Any]]:
+    """Return id, type, time, tool and status for a session's events, in time order."""
+    return await _run(driver, database, SESSION_EVENT_TIMELINE, {"sid": session_id})
+
+
+async def events_for_pruning(
+    driver: AsyncDriver, database: str, limit: int
+) -> list[dict[str, Any]]:
+    """Return the oldest events with the fields retention pruning decides on."""
+    return await _run(driver, database, EVENTS_FOR_PRUNING, {"batch_limit": limit})
+
+
+async def delete_all(driver: AsyncDriver, database: str) -> None:
+    """Delete every node and relationship in the graph."""
+    await _run(driver, database, DELETE_ALL, {})
+    log.warning("graph_deleted_all")

@@ -20,6 +20,8 @@ import orjson
 import structlog
 from redis.asyncio import Redis
 
+from context_graph.adapters.errors import translate_errors
+from context_graph.adapters.redis.errors import translate_redis_error
 from context_graph.adapters.redis.indexes import ensure_event_index
 from context_graph.domain.models import Event
 
@@ -106,6 +108,7 @@ def _deserialize_event(raw_json: bytes | str) -> Event:
 # ---------------------------------------------------------------------------
 
 
+@translate_errors(translate_redis_error)
 class RedisEventStore:
     """EventStore implementation backed by Redis Stack.
 

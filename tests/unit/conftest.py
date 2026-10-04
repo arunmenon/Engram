@@ -164,6 +164,21 @@ class StubGraphStore:
     async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
         return []
 
+    async def session_agent_id(self, session_id: str) -> str | None:
+        return None
+
+    async def session_events(self, session_id: str, limit: int) -> list[dict[str, Any]]:
+        return []
+
+    async def session_event_timeline(self, session_id: str) -> list[dict[str, Any]]:
+        return []
+
+    async def events_for_pruning(self, limit: int) -> list[dict[str, Any]]:
+        return []
+
+    async def delete_all(self, *, confirm: bool = False) -> None:
+        return None
+
     # UserStore protocol
     async def get_user_profile(self, user_id: str) -> dict[str, Any] | None:
         return None

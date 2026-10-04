@@ -35,6 +35,9 @@ def mock_settings():
     settings.retention.cold_hours = 720
     settings.retention.cold_min_importance = 5
     settings.retention.cold_min_access_count = 3
+    settings.retention.log_hot_window_days = 7
+    settings.retention.log_retention_ceiling_days = 90
+    settings.retention.log_session_index_max_age_hours = 168
     return settings
 
 
@@ -207,8 +210,8 @@ class TestTrimEventLogWiring:
         await consumer._trim_event_log()
 
         mock_event_log.housekeep.assert_called_once_with(
-            retention_ceiling_days=mock_settings.redis.retention_ceiling_days,
-            session_index_max_age_hours=mock_settings.redis.session_stream_retention_hours,
+            retention_ceiling_days=mock_settings.retention.log_retention_ceiling_days,
+            session_index_max_age_hours=mock_settings.retention.log_session_index_max_age_hours,
         )
 
     @pytest.mark.asyncio()
@@ -218,7 +221,7 @@ class TestTrimEventLogWiring:
 
         mock_event_log.trim.assert_called_once()
         call_kwargs = mock_event_log.trim.call_args.kwargs
-        assert call_kwargs["max_age_days"] == mock_settings.redis.hot_window_days
+        assert call_kwargs["max_age_days"] == mock_settings.retention.log_hot_window_days
         groups = call_kwargs["consumer_groups"]
         assert "graph-projection" in groups
         assert "session-extraction" in groups
@@ -235,7 +238,7 @@ class TestTrimEventLogWiring:
         await consumer_with_archive._trim_event_log()
 
         mock_event_log.expire.assert_called_once_with(
-            max_age_days=mock_settings.redis.retention_ceiling_days,
+            max_age_days=mock_settings.retention.log_retention_ceiling_days,
             archive_store=consumer_with_archive._archive_store,
         )
 
@@ -247,7 +250,7 @@ class TestTrimEventLogWiring:
         await consumer._trim_event_log()
 
         mock_event_log.expire.assert_called_once_with(
-            max_age_days=mock_settings.redis.retention_ceiling_days,
+            max_age_days=mock_settings.retention.log_retention_ceiling_days,
             archive_store=None,
         )
 
@@ -376,20 +379,16 @@ class TestLLMConsolidationWiring:
         llm.generate_text.return_value = "Agent searched files and found results."
 
         # Simulate session events: 2 events in 1 episode
-        gm.run_session_query.return_value = [
+        gm.session_events.return_value = [
             {
-                "e": {
-                    "event_id": "evt-1",
-                    "occurred_at": "2025-01-01T12:00:00+00:00",
-                    "event_type": "tool.execute",
-                }
+                "event_id": "evt-1",
+                "occurred_at": "2025-01-01T12:00:00+00:00",
+                "event_type": "tool.execute",
             },
             {
-                "e": {
-                    "event_id": "evt-2",
-                    "occurred_at": "2025-01-01T12:01:00+00:00",
-                    "event_type": "agent.invoke",
-                }
+                "event_id": "evt-2",
+                "occurred_at": "2025-01-01T12:01:00+00:00",
+                "event_type": "agent.invoke",
             },
         ]
         gm.write_summary_with_edges.return_value = None
@@ -411,13 +410,11 @@ class TestLLMConsolidationWiring:
 
         llm.generate_text.return_value = None
 
-        gm.run_session_query.return_value = [
+        gm.session_events.return_value = [
             {
-                "e": {
-                    "event_id": "evt-1",
-                    "occurred_at": "2025-01-01T12:00:00+00:00",
-                    "event_type": "tool.execute",
-                }
+                "event_id": "evt-1",
+                "occurred_at": "2025-01-01T12:00:00+00:00",
+                "event_type": "tool.execute",
             },
         ]
         gm.write_summary_with_edges.return_value = None
@@ -434,13 +431,11 @@ class TestLLMConsolidationWiring:
         """When no llm_client, episode summaries use deterministic template."""
         gm = consumer._graph_maintenance
 
-        gm.run_session_query.return_value = [
+        gm.session_events.return_value = [
             {
-                "e": {
-                    "event_id": "evt-1",
-                    "occurred_at": "2025-01-01T12:00:00+00:00",
-                    "event_type": "tool.execute",
-                }
+                "event_id": "evt-1",
+                "occurred_at": "2025-01-01T12:00:00+00:00",
+                "event_type": "tool.execute",
             },
         ]
         gm.write_summary_with_edges.return_value = None

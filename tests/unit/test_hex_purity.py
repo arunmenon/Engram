@@ -203,3 +203,35 @@ class TestStoragePortsExist:
 
         for name in ("get_documents", "read_session_ids", "trim", "expire", "housekeep"):
             assert hasattr(EventLog, name)
+
+
+class TestNoQueryTextAcrossPorts:
+    """ADR-0019 C6: nothing outside adapters/ passes query text to a store."""
+
+    @pytest.mark.parametrize(
+        "module_file",
+        NON_ADAPTER_FILES,
+        ids=[str(p.relative_to(PACKAGE_DIR)) for p in NON_ADAPTER_FILES],
+    )
+    def test_no_run_session_query_calls(self, module_file: Path) -> None:
+        source = module_file.read_text()
+        tree = ast.parse(source, filename=str(module_file))
+        calls = [
+            node.lineno
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "run_session_query"
+        ]
+        assert calls == [], f"{module_file.name} calls run_session_query at lines {calls}"
+
+
+RETRIEVAL_FILES = sorted((PACKAGE_DIR / "retrieval").glob("*.py"))
+
+
+@pytest.mark.parametrize("module_file", RETRIEVAL_FILES, ids=[p.name for p in RETRIEVAL_FILES])
+def test_retrieval_engine_imports_no_adapter(module_file: Path) -> None:
+    """ADR-0019 C3: the retrieval engine composes ports only."""
+    imports = _get_imports(module_file)
+    violations = [i for i in imports if i.startswith("context_graph.adapters")]
+    assert violations == [], f"{module_file.name} imports adapters: {violations}"

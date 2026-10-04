@@ -47,7 +47,10 @@ class _AdminGraphStore(StubGraphStore):
     async def get_graph_stats(self) -> dict[str, Any]:
         return self._graph_stats
 
-    async def run_session_query(self, cypher: str, params: dict[str, Any]) -> list[dict[str, Any]]:
+    async def session_event_timeline(self, session_id: str) -> list[dict[str, Any]]:
+        return self._session_query_results
+
+    async def events_for_pruning(self, limit: int) -> list[dict[str, Any]]:
         return self._session_query_results
 
 

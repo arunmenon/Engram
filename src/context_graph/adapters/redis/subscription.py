@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from context_graph.adapters.errors import translate_errors
+from context_graph.adapters.redis.errors import translate_redis_error
 from context_graph.ports.subscription import Delivery
 
 if TYPE_CHECKING:
@@ -34,6 +36,7 @@ def _decode_fields(data: dict[Any, Any]) -> dict[str, str]:
     }
 
 
+@translate_errors(translate_redis_error)
 class RedisStreamSubscription:
     """Consumer group over a Redis Stream.
 

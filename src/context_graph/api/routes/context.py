@@ -12,23 +12,23 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
-from context_graph.api.dependencies import get_graph_store
+from context_graph.api.dependencies import get_retrieval
 from context_graph.domain.models import AtlasResponse  # noqa: TCH001 — runtime: response_model
-from context_graph.ports.graph_store import GraphStore  # noqa: TCH001 — runtime: Depends()
+from context_graph.ports.retrieval import Retrieval  # noqa: TCH001 — runtime: Depends()
 
 router = APIRouter(tags=["context"])
 
-GraphStoreDep = Annotated[GraphStore, Depends(get_graph_store)]
+RetrievalDep = Annotated[Retrieval, Depends(get_retrieval)]
 
 
 @router.get("/context/{session_id}", response_model=AtlasResponse)
 async def get_session_context(
     session_id: str,
-    graph_store: GraphStoreDep,
+    retrieval: RetrievalDep,
     max_nodes: int = Query(default=100, ge=1, le=500),
     max_depth: int = Query(default=3, ge=1, le=10),
     query: str | None = Query(default=None),
     cursor: str | None = Query(default=None, description="Pagination cursor"),
 ) -> AtlasResponse:
     """Assemble working memory context for a session, ranked by decay score."""
-    return await graph_store.get_context(session_id, max_nodes, query, max_depth, cursor=cursor)
+    return await retrieval.get_context(session_id, max_nodes, query, max_depth, cursor=cursor)

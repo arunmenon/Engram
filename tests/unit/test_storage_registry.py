@@ -38,6 +38,27 @@ class TestConsumerSettingAliases:
         assert Settings().consumer.group_enrichment == "new"
 
 
+class TestRetentionSettingAliases:
+    def test_defaults_match_redis_settings(self) -> None:
+        settings = Settings()
+        assert settings.retention.log_hot_window_days == settings.redis.hot_window_days
+        assert (
+            settings.retention.log_retention_ceiling_days == settings.redis.retention_ceiling_days
+        )
+        assert (
+            settings.retention.log_session_index_max_age_hours
+            == settings.redis.session_stream_retention_hours
+        )
+
+    def test_old_and_new_names(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("CG_REDIS_HOT_WINDOW_DAYS", "3")
+        monkeypatch.setenv("CG_REDIS_RETENTION_CEILING_DAYS", "30")
+        monkeypatch.setenv("CG_RETENTION_LOG_RETENTION_CEILING_DAYS", "45")
+        retention = Settings().retention
+        assert retention.log_hot_window_days == 3
+        assert retention.log_retention_ceiling_days == 45
+
+
 class TestStorageSettings:
     def test_defaults_are_todays_backends(self) -> None:
         storage = Settings().storage
@@ -105,23 +126,21 @@ class TestOpenStores:
         graph.close.assert_awaited_once()
 
     @pytest.mark.asyncio()
-    async def test_graph_options_receive_event_log(self) -> None:
-        captured: dict[str, object] = {}
-
-        def graph_options(event_log: object) -> dict[str, object]:
-            captured["event_log"] = event_log
-            return {"event_store": event_log}
-
+    async def test_graph_takes_only_its_own_settings(self) -> None:
         with (
             patch("redis.asyncio.Redis", return_value=AsyncMock()),
             patch(
                 "context_graph.adapters.neo4j.store.Neo4jGraphStore", return_value=AsyncMock()
             ) as graph_cls,
         ):
-            stores = await open_stores(Settings(), graph_options=graph_options)
+            settings = Settings()
+            stores = await open_stores(settings)
 
-        assert captured["event_log"] is stores.event_log
-        assert graph_cls.call_args.kwargs == {"event_store": stores.event_log}
+        assert graph_cls.call_args.args == (settings.neo4j,)
+        assert graph_cls.call_args.kwargs == {"query_settings": settings.query}
+        assert stores.graph_reads is graph_cls.return_value.reads
+        assert stores.backends["keyword_index"] == "redis"
+        assert stores.backends["vector_index"] == "neo4j"
 
     @pytest.mark.asyncio()
     async def test_archive_opened_on_request(

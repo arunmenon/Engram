@@ -147,16 +147,7 @@ async def reconsolidate(
         if not should_reconsolidate(count, threshold) and not session_id:
             continue
 
-        records = await graph_maint.run_session_query(
-            "MATCH (e:Event {session_id: $sid}) "
-            "RETURN e.event_id AS event_id, e.event_type AS event_type, "
-            "e.occurred_at AS occurred_at, e.tool_name AS tool_name, "
-            "e.status AS status "
-            "ORDER BY e.occurred_at",
-            {"sid": sid},
-        )
-
-        event_dicts = list(records)
+        event_dicts = await graph_maint.session_event_timeline(sid)
         if not event_dicts:
             continue
 
@@ -240,18 +231,7 @@ async def prune(
     retention = settings.retention
 
     prune_batch_limit = 10_000
-    records = await graph_maint.run_session_query(
-        "MATCH (e:Event) "
-        "RETURN e.event_id AS event_id, e.occurred_at AS occurred_at, "
-        "e.importance_score AS importance_score, "
-        "coalesce(e.access_count, 0) AS access_count, "
-        "e.similarity_score AS similarity_score "
-        "ORDER BY e.occurred_at "
-        "LIMIT $batch_limit",
-        {"batch_limit": prune_batch_limit},
-    )
-
-    event_dicts = list(records)
+    event_dicts = await graph_maint.events_for_pruning(prune_batch_limit)
 
     actions = get_pruning_actions(
         events=event_dicts,
@@ -339,7 +319,7 @@ async def replay(
     logger.warning("replay_started")
 
     # Step 1: Clear the graph
-    await graph_maint.run_session_query("MATCH (n) DETACH DELETE n", {})
+    await graph_maint.delete_all(confirm=True)
 
     # Step 2: Re-create constraints via graph store
     await graph_store.ensure_constraints()

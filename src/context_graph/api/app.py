@@ -29,6 +29,7 @@ from context_graph.api.routes.lineage import router as lineage_router
 from context_graph.api.routes.query import router as query_router
 from context_graph.api.routes.simulate import router as simulate_router
 from context_graph.api.routes.users import router as users_router
+from context_graph.retrieval import RetrievalEngine
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
@@ -85,26 +86,29 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("llm_client_unavailable")
 
     # -- Startup: open the configured stores (ADR-0019) -------------------
-    # Retrieval dependencies still ride on the graph store until ADR-0019
-    # step 2 moves the retrieval engine out of the graph adapter.
-    stores = await open_stores(
-        settings,
-        prepare_ingest=True,
-        graph_options=lambda event_log: {
-            "embedding_service": embedding_service,
-            "query_settings": settings.query,
-            "decay_settings": settings.decay,
-            "intent_classifier": intent_classifier,
-            "llm_client": llm_client,
-            "event_store": event_log,
-            "ppr_settings": settings.ppr,
-        },
+    stores = await open_stores(settings, prepare_ingest=True)
+
+    # Retrieval engine: composes the storage ports and owns its own
+    # dependencies (ADR-0019 C3)
+    retrieval = RetrievalEngine(
+        stores.graph_reads,
+        decay=settings.decay,
+        keyword_index=stores.keyword_index,
+        vector_index=stores.vector_index,
+        embedding_service=embedding_service,
+        intent_classifier=intent_classifier,
+        llm_client=llm_client,
+        ppr_settings=settings.ppr,
+        query_timeout_s=settings.query.default_timeout_ms / 1000.0,
+        neighbor_limit=settings.query.default_neighbor_limit,
+        provenance_source=settings.storage.event_log,
     )
 
     app.state.settings = settings
     app.state.stores = stores
     app.state.event_store = stores.event_log
     app.state.graph_store = stores.graph
+    app.state.retrieval = retrieval
 
     logger.info(
         "app_started",

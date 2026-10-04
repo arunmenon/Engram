@@ -116,16 +116,15 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
             max_retries=settings.llm.max_retries,
         )
 
-        # Tier 2b: Semantic entity matching via embedding service + graph vector index
+        # Tier 2b: Semantic entity matching via embedding service + graph vector index.
+        # The graph store needs no embedding service: it only used one for
+        # retrieval, which now lives in RetrievalEngine (ADR-0019 C3).
         embedding_service = _open_embedding_service(
             settings,
             "embedding_service_unavailable",
             "Install sentence-transformers: pip install context-graph[embedding]",
         )
-        stores = await open_stores(
-            settings,
-            graph_options=lambda _event_log: {"embedding_service": embedding_service},
-        )
+        stores = await open_stores(settings)
         if embedding_service is not None:
             log.info("embedding_service_initialized", model=settings.embedding.model_name)
 

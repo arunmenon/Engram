@@ -5,8 +5,9 @@ here and never import an adapter by name. Backends are chosen by
 ``StorageSettings`` (``CG_STORAGE_*``); each port maps backend names to an
 opener. Unknown names fail at start-up with the supported list.
 
-Step 1 registers today's backends only: Redis for the event log and
-subscriptions, Neo4j for the graph, filesystem or GCS for the archive.
+Today's backends are registered: Redis for the event log, subscriptions
+and keyword index; Neo4j for the graph and vector index; filesystem or
+GCS for the archive.
 
 Source: ADR-0019
 """
@@ -14,16 +15,18 @@ Source: ADR-0019
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import structlog
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from context_graph.adapters.neo4j.store import Neo4jGraphStore
     from context_graph.ports.archive import ArchiveStore
     from context_graph.ports.event_log import EventLog
+    from context_graph.ports.graph_backend import GraphBackend
+    from context_graph.ports.graph_reads import GraphReads
+    from context_graph.ports.search import KeywordIndex, VectorIndex
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
@@ -32,6 +35,8 @@ log = structlog.get_logger(__name__)
 EVENT_LOG_BACKENDS = ("redis",)
 SUBSCRIPTION_BACKENDS = ("redis",)
 GRAPH_BACKENDS = ("neo4j",)
+KEYWORD_INDEX_BACKENDS = ("redis",)
+VECTOR_INDEX_BACKENDS = ("neo4j",)
 ARCHIVE_BACKENDS = ("fs", "gcs")
 
 
@@ -50,15 +55,13 @@ def _require(port: str, backend: str, supported: tuple[str, ...]) -> None:
 
 @dataclass
 class Stores:
-    """The opened stores, one attribute per port.
-
-    ``graph`` is typed as the Neo4j adapter for now because callers still
-    use its methods beyond the ``GraphStore`` port (as ``GraphMaintenance``
-    and ``UserStore``); ADR-0019 step 2 narrows this.
-    """
+    """The opened stores, one attribute per port."""
 
     event_log: EventLog
-    graph: Neo4jGraphStore
+    graph: GraphBackend
+    graph_reads: GraphReads
+    keyword_index: KeywordIndex
+    vector_index: VectorIndex
     archive: ArchiveStore | None
     backends: dict[str, str]
     _subscription_opener: Callable[[str, str], Subscription]
@@ -79,7 +82,6 @@ async def open_stores(
     *,
     prepare_ingest: bool = False,
     with_archive: bool = False,
-    graph_options: Callable[[EventLog], dict[str, Any]] | None = None,
 ) -> Stores:
     """Open the configured stores.
 
@@ -88,14 +90,16 @@ async def open_stores(
         prepare_ingest: Load ingest scripts and search indexes on the event
             log (the API does; workers only read).
         with_archive: Open the archive store (only consolidation archives).
-        graph_options: Extra constructor options for the graph store, given
-            the opened event log. Retrieval dependencies travel this way
-            until ADR-0019 step 2 moves them out of the graph adapter.
+
+    Stores take only their own settings; retrieval dependencies (embedding,
+    intent, LLM) belong to ``context_graph.retrieval.RetrievalEngine``.
     """
     storage = settings.storage
     _require("event_log", storage.event_log, EVENT_LOG_BACKENDS)
     _require("subscription", storage.subscription, SUBSCRIPTION_BACKENDS)
     _require("graph", storage.graph, GRAPH_BACKENDS)
+    _require("keyword_index", storage.keyword_index, KEYWORD_INDEX_BACKENDS)
+    _require("vector_index", storage.vector_index, VECTOR_INDEX_BACKENDS)
     if storage.subscription != storage.event_log:
         msg = (
             f"Subscription backend {storage.subscription!r} cannot read event log "
@@ -147,10 +151,17 @@ async def open_stores(
     # -- Graph (Neo4j) -----------------------------------------------------
     from context_graph.adapters.neo4j.store import Neo4jGraphStore
 
-    options = graph_options(event_log) if graph_options is not None else {}
-    graph = Neo4jGraphStore(settings.neo4j, **options)
+    graph = Neo4jGraphStore(settings.neo4j, query_settings=settings.query)
     await graph.ensure_constraints()
     closers.append(graph.close)
+
+    # -- Search indexes ----------------------------------------------------
+    # RediSearch BM25 is served by the Redis event log; the Neo4j vector
+    # index by the Neo4j graph store.
+    from context_graph.adapters.search import EventStoreKeywordIndex, GraphVectorIndex
+
+    keyword_index = EventStoreKeywordIndex(event_log)
+    vector_index = GraphVectorIndex(graph)
 
     # -- Archive -----------------------------------------------------------
     archive = _open_archive(settings, closers) if with_archive else None
@@ -158,11 +169,16 @@ async def open_stores(
     return Stores(
         event_log=event_log,
         graph=graph,
+        graph_reads=graph.reads,
+        keyword_index=keyword_index,
+        vector_index=vector_index,
         archive=archive,
         backends={
             "event_log": storage.event_log,
             "subscription": storage.subscription,
             "graph": storage.graph,
+            "keyword_index": storage.keyword_index,
+            "vector_index": storage.vector_index,
             "archive": storage.archive,
         },
         _subscription_opener=open_subscription,

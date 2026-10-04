@@ -163,23 +163,14 @@ class ConsolidationConsumer(BaseConsumer):
         # Step 2b: Create agent-level summaries
         agent_sessions: dict[str, list[str]] = {}
         for session_id in sessions_to_consolidate:
-            records = await gm.run_session_query(
-                "MATCH (e:Event {session_id: $sid}) RETURN DISTINCT e.agent_id AS agent_id LIMIT 1",
-                {"sid": session_id},
-            )
-            if records:
-                agent_id = records[0]["agent_id"]
+            agent_id = await gm.session_agent_id(session_id)
+            if agent_id is not None:
                 agent_sessions.setdefault(agent_id, []).append(session_id)
 
         for agent_id, sids in agent_sessions.items():
             all_agent_events: list[dict[str, Any]] = []
             for sid in sids:
-                records = await gm.run_session_query(
-                    "MATCH (e:Event {session_id: $session_id}) "
-                    "RETURN e ORDER BY e.occurred_at LIMIT $limit",
-                    {"session_id": sid, "limit": 1000},
-                )
-                all_agent_events.extend(dict(r.get("e", r)) for r in records)
+                all_agent_events.extend(await gm.session_events(sid, limit=1000))
 
             if all_agent_events:
                 agent_summary = create_summary_from_events(
@@ -221,14 +212,8 @@ class ConsolidationConsumer(BaseConsumer):
             event_count=event_count,
         )
 
-        # Fetch session events from Neo4j via protocol
-        records = await gm.run_session_query(
-            "MATCH (e:Event {session_id: $session_id}) "
-            "RETURN e ORDER BY e.occurred_at LIMIT $limit",
-            {"session_id": session_id, "limit": event_count},
-        )
-
-        events = [dict(r.get("e", r)) for r in records]
+        # Fetch session events from the graph via a named operation
+        events = await gm.session_events(session_id, limit=event_count)
         if not events:
             return
 
@@ -358,12 +343,12 @@ class ConsolidationConsumer(BaseConsumer):
         cleanup. The storage layout behind each step belongs to the EventLog
         adapter (ADR-0019).
         """
-        retention_settings = self._settings.redis
+        retention_settings = self._settings.retention
         consumer_settings = self._settings.consumer
 
         # 1. Trim the hot window, keeping entries still pending for any group
         trimmed = await self._event_log.trim(
-            max_age_days=retention_settings.hot_window_days,
+            max_age_days=retention_settings.log_hot_window_days,
             consumer_groups=[
                 consumer_settings.group_projection,
                 consumer_settings.group_extraction,
@@ -374,14 +359,14 @@ class ConsolidationConsumer(BaseConsumer):
 
         # 2. Archive and delete expired events, or plain delete if no archive store
         archived, deleted = await self._event_log.expire(
-            max_age_days=retention_settings.retention_ceiling_days,
+            max_age_days=retention_settings.log_retention_ceiling_days,
             archive_store=self._archive_store,
         )
 
         # 3. Clean up dedup records and stale session indexes (ADR-0014)
         housekeeping = await self._event_log.housekeep(
-            retention_ceiling_days=retention_settings.retention_ceiling_days,
-            session_index_max_age_hours=retention_settings.session_stream_retention_hours,
+            retention_ceiling_days=retention_settings.log_retention_ceiling_days,
+            session_index_max_age_hours=retention_settings.log_session_index_max_age_hours,
         )
 
         log.info(
