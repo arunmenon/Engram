@@ -17,11 +17,18 @@ how a graph built under ``old`` is brought to ``new``:
   by building a fresh projection from the ledger under the new version
   (blue/green), gated on the packs' evaluation sets, then switching.
 
+A rule keeps its identity when it upserts, transitions and links the same
+types by the same key expressions; a changed or removed identity is
+breaking (a replay would leave the old nodes behind as duplicates), while
+changed values, conditions or target states are a mapping change. A widened
+enum is additive; a narrowed one is breaking. Endpoints are compared as the
+types they allow, so widening to a pack wildcard is additive.
+
 It also checks each pack's own version against what changed in it
 (``version_problems``): a pack whose content changed must have a higher
-version; a breaking change needs a new major version (a new minor one
-before 1.0); a mapping or additive change needs at least a new minor one,
-or a patch for fixes that only add projection rules' fields.
+version; a breaking change needs a new major version, and a mapping or
+additive change a new minor one. Before 1.0 (semver's initial development)
+a breaking change needs a new minor version and anything else a patch.
 
 ``eval_required`` lists packs whose retrieval section changed: decision 10
 says their weights are not trusted until their evaluation set passes.
@@ -80,6 +87,21 @@ def _spec(spec: Any) -> str:
     return _canonical(spec.model_dump() if hasattr(spec, "model_dump") else spec)
 
 
+def _spec_change(before: Any, after: Any) -> ChangeKind:
+    """``none``, ``additive`` (an enum widened) or ``breaking`` (any other type change)."""
+    if _spec(before) == _spec(after):
+        return "none"
+    old_values, new_values = getattr(before, "enum", None), getattr(after, "enum", None)
+    if old_values is not None and new_values is not None and set(old_values) <= set(new_values):
+        return "additive"
+    return "breaking"
+
+
+def _endpoints(registry: OntologyRegistry, types: set[str], packs: set[str]) -> set[str]:
+    """The node types an edge end allows: named types plus every type of a wildcard pack."""
+    return types | {name for name, t in registry.node_types.items() if t.pack in packs}
+
+
 def _parse_version(version: str) -> tuple[int, int, int]:
     parts = [int(p) for p in version.split(".")[:3] if p.isdigit()]
     while len(parts) < 3:
@@ -88,8 +110,10 @@ def _parse_version(version: str) -> tuple[int, int, int]:
 
 
 def _needed_bump(kind: ChangeKind, old: tuple[int, int, int]) -> Literal["major", "minor", "patch"]:
+    if old[0] < 1:
+        return "minor" if kind == "breaking" else "patch"
     if kind == "breaking":
-        return "major" if old[0] >= 1 else "minor"
+        return "major"
     if kind in ("mapping", "additive"):
         return "minor"
     return "patch"
@@ -139,8 +163,12 @@ def _compare_nodes(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
         for prop, spec in before.properties.items():
             if prop not in after.properties:
                 plan.note("breaking", f"node type {name}: property {prop} removed", pack)
-            elif _spec(spec) != _spec(after.properties[prop]):
+                continue
+            change = _spec_change(spec, after.properties[prop])
+            if change == "breaking":
                 plan.note("breaking", f"node type {name}: property {prop} changed type", pack)
+            elif change == "additive":
+                plan.note("additive", f"node type {name}: property {prop} enum widened", pack)
         for prop in sorted(set(after.properties) - set(before.properties)):
             plan.note("additive", f"node type {name}: property {prop} added", pack)
         old_life, new_life = before.lifecycle, after.lifecycle
@@ -172,18 +200,24 @@ def _compare_edges(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
             plan.note("breaking", f"edge type {name} removed", before.pack)
             continue
         pack = after.pack
-        dropped = sorted(
-            (before.from_types - after.from_types) | (before.to_types - after.to_types)
-        ) + sorted((before.from_packs - after.from_packs) | (before.to_packs - after.to_packs))
+        old_from = _endpoints(old, before.from_types, before.from_packs)
+        old_to = _endpoints(old, before.to_types, before.to_packs)
+        new_from = _endpoints(new, after.from_types, after.from_packs)
+        new_to = _endpoints(new, after.to_types, after.to_packs)
+        dropped = sorted((old_from - new_from) | (old_to - new_to))
         if dropped:
             plan.note("breaking", f"edge type {name}: endpoints removed: {dropped}", pack)
+        widened = False
         for prop, spec in before.properties.items():
             if prop not in after.properties:
                 plan.note("breaking", f"edge type {name}: property {prop} removed", pack)
-            elif _spec(spec) != _spec(after.properties[prop]):
+                continue
+            change = _spec_change(spec, after.properties[prop])
+            if change == "breaking":
                 plan.note("breaking", f"edge type {name}: property {prop} changed type", pack)
-        added = (after.from_types - before.from_types) | (after.to_types - before.to_types)
-        if added or set(after.properties) - set(before.properties):
+            widened = widened or change == "additive"
+        added = (new_from - old_from) | (new_to - old_to)
+        if added or widened or set(after.properties) - set(before.properties):
             plan.note("additive", f"edge type {name}: endpoints or properties added", pack)
     for name in sorted(set(new.edge_types) - set(old.edge_types)):
         plan.note("additive", f"edge type {name} added", new.edge_types[name].pack)
@@ -204,8 +238,42 @@ def _rules(registry: OntologyRegistry) -> dict[str, list[str]]:
     }
 
 
+def _identity(rule: Any) -> str:
+    """What a rule writes, by type and key expression; not the values it sets."""
+    data = rule.model_dump(by_alias=True)
+    ends = ("from", "to", "to_each")
+    keep = ("type", "key", "node_id", "match", "match_any_prefix", *ends)
+
+    def strip(value: Any) -> Any:
+        """Keep a part's type and key expressions (and its endpoints'), drop set values."""
+        if not isinstance(value, dict):
+            return value
+        return {k: (strip(v) if k in ends else v) for k, v in value.items() if k in keep and v}
+
+    upserts = [strip(u) for u in data.get("upsert") or []]
+    transition = data.get("transition")
+    edges = [strip(e) for e in data.get("edges") or []]
+    return _canonical(
+        {
+            "upsert": upserts,
+            "transition": None
+            if transition is None
+            else {"type": transition.get("type"), "key": transition.get("key")},
+            "edges": edges,
+        }
+    )
+
+
+def _identities(registry: OntologyRegistry) -> dict[str, list[str]]:
+    return {
+        event: sorted(_identity(rule) for _pack, rule in rules)
+        for event, rules in registry.projection_rules.items()
+    }
+
+
 def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
     before, after = _rules(old), _rules(new)
+    old_ids, new_ids = _identities(old), _identities(new)
     for event in sorted(set(before) | set(after)):
         old_rules, new_rules = before.get(event, []), after.get(event, [])
         if old_rules == new_rules:
@@ -214,6 +282,13 @@ def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
         pack = owner.pack if owner is not None else None
         if not new_rules:
             plan.note("breaking", f"projection of {event} removed", pack)
+            continue
+        missing = [i for i in old_ids.get(event, []) if i not in new_ids.get(event, [])]
+        if missing:
+            # A replay would write nodes under new keys and leave the old ones behind
+            plan.note(
+                "breaking", f"projection of {event}: a rule's keys changed or it was removed", pack
+            )
             continue
         if set(old_rules) - set(new_rules):
             # A changed rule: what it wrote before may differ from what it writes now

@@ -18,12 +18,13 @@ from context_graph.ontology import BUILTIN_PACK_DIR, load_pack_file, load_regist
 from context_graph.ontology.evaluation import f1_score
 from context_graph.ontology.rebuild import RebuildRefusedError, rebuild
 from context_graph.ontology.versioning import (
+    STATE_REF,
     OntologyChangeRefusedError,
     read_state,
     reconcile,
     record_state,
 )
-from context_graph.ports.pack_graph import NodeRef
+from context_graph.ports.pack_graph import NodeRef, NodeWrite
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
@@ -268,7 +269,7 @@ class TestReconcile:
         assert node["status"] == "closed"  # the transition was not undone
         state = await read_state(graph)
         assert state is not None and state.version == mapped.version
-        assert state.properties["replayed_events"] == 2
+        assert state.properties["replayed_events"] == 3  # every pack event, in log order
 
         broken = _registry(**{"version: 1.0.0": "version: 2.0.0", "number: int": "number: string"})
         with pytest.raises(OntologyChangeRefusedError, match="number changed type"):
@@ -329,11 +330,14 @@ class TestRebuild:
     async def test_failing_or_missing_gate(self, tmp_path: Path) -> None:
         registry = _registry(**DEMO_INTENTS)
         log = await _ledger()
-        missing = await rebuild(
-            log, MemoryGraphStore(), PackProjector(registry, frozenset()), _settings(), eval_dirs=[]
-        )
-        assert not missing.passed
-        assert missing.gate[0].problem == "no evaluation set demo.eval.yaml"
+        with pytest.raises(RebuildRefusedError, match="no evaluation set demo.eval.yaml"):
+            await rebuild(
+                log,
+                MemoryGraphStore(),
+                PackProjector(registry, frozenset()),
+                _settings(),
+                eval_dirs=[],
+            )
         _eval_set(tmp_path, ["Ticket:t|2"])
         failing = await rebuild(
             log,
@@ -382,3 +386,180 @@ def test_pack_model_round_trip_through_canonical_json() -> None:
         assert Pack.model_validate(json.loads(pack.canonical_json())).canonical_json() == (
             pack.canonical_json()
         )
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 review regressions (ADR-0018 implementation notes)
+# ---------------------------------------------------------------------------
+
+OPENED_UPSERT = (
+    "      - {type: Ticket, key: {tracker: $.tracker, number: $.number}, set: {title: $.title}}\n"
+)
+TRANSITION = {OPENED_UPSERT: OPENED_UPSERT + "    transition: {type: Ticket, to: open}\n"}
+OPTIONS: dict[str, Any] = {"allow_breaking": False, "batch_size": 2, "lookup_limit": 100}
+
+
+class TestReviewFindings:
+    async def test_a_mapping_replay_keeps_later_states(self) -> None:
+        base = _registry(**TRANSITION)
+        log, graph = await _ledger(), MemoryGraphStore()
+        await _project_all(log, graph, base)
+        await reconcile(graph, log, PackProjector(base, frozenset()), **OPTIONS)
+        assert (await graph.get_nodes([TICKET]))[TICKET]["status"] == "closed"
+        mapped = _registry(
+            **TRANSITION,
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}}\n    transition": (
+                    "set: {title: $.summary}}\n    transition"
+                ),
+            },
+        )
+        plan = await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        assert plan.kind == "mapping"
+        node = (await graph.get_nodes([TICKET]))[TICKET]
+        assert node["title"] == "SA"
+        assert node["status"] == "closed"  # opened replayed, then closed replayed after it
+
+    async def test_an_unparsable_state_is_breaking_not_a_crash(self) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await record_state(graph, BASE, applied="initial")
+        await graph.upsert_nodes([NodeWrite(STATE_REF, {"packs_json": "{not json"})])
+        with pytest.raises(OntologyChangeRefusedError, match="no longer loads"):
+            await reconcile(graph, log, PackProjector(BASE, frozenset()), **OPTIONS)
+        plan = await reconcile(
+            graph, log, PackProjector(BASE, frozenset()), **(OPTIONS | {"allow_breaking": True})
+        )
+        assert plan.kind == "breaking"
+        assert (await read_state(graph)).packs is not None  # type: ignore[union-attr]
+
+    async def test_allowed_breaking_change_still_replays_changed_rules(self) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await _project_all(log, graph, BASE)
+        await reconcile(graph, log, PackProjector(BASE, frozenset()), **OPTIONS)
+        new = _registry(
+            **{
+                "version: 1.0.0": "version: 2.0.0",
+                "sha: string}": "sha: text}",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        plan = await reconcile(
+            graph, log, PackProjector(new, frozenset()), **(OPTIONS | {"allow_breaking": True})
+        )
+        assert plan.kind == "breaking"
+        assert (await graph.get_nodes([TICKET]))[TICKET]["title"] == "SA"
+
+    async def test_version_problems_refuse_unless_allowed(self) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await reconcile(graph, log, PackProjector(BASE, frozenset()), **OPTIONS)
+        unbumped = _registry(**{"sha: string}": "sha: string, x: string}"})
+        with pytest.raises(OntologyChangeRefusedError, match="pack versions"):
+            await reconcile(graph, log, PackProjector(unbumped, frozenset()), **OPTIONS)
+        plan = await reconcile(
+            graph,
+            log,
+            PackProjector(unbumped, frozenset()),
+            **(OPTIONS | {"allow_version_problems": True}),
+        )
+        assert plan.kind == "additive"
+
+    async def test_a_graph_whose_gate_failed_is_refused(self, tmp_path: Path) -> None:
+        registry = _registry(**DEMO_INTENTS)
+        log, target = await _ledger(), MemoryGraphStore()
+        _eval_set(tmp_path, ["Ticket:t|2"])
+        report = await rebuild(
+            log, target, PackProjector(registry, frozenset()), _settings(), eval_dirs=[tmp_path]
+        )
+        assert not report.passed
+        with pytest.raises(OntologyChangeRefusedError, match="evaluation gate failed"):
+            await reconcile(target, log, PackProjector(registry, frozenset()), **OPTIONS)
+
+    async def test_eval_required_is_recorded_as_pending(self) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await reconcile(graph, log, PackProjector(BASE, frozenset()), **OPTIONS)
+        with_intents = _registry(**{"version: 1.0.0": "version: 1.1.0", **DEMO_INTENTS})
+        await reconcile(graph, log, PackProjector(with_intents, frozenset()), **OPTIONS)
+        assert (await read_state(graph)).properties["eval_pending"] == ["demo"]  # type: ignore[union-attr]
+
+    @pytest.mark.parametrize(
+        ("replacements", "kind"),
+        [
+            # A changed key expression would leave the old nodes behind
+            ({"number: $.number}, set": "number: $.title}, set"}, "breaking"),
+            # Widening an enum or endpoints to a pack wildcard is additive
+            (
+                {
+                    "title: string}": "title: string, prio: {enum: [low, high, urgent]}}",
+                },
+                "additive",
+            ),
+            (
+                {"RESOLVES: {from: [Fix], to: [Ticket]}": "RESOLVES: {from: [Fix], to: '*'}"},
+                "additive",
+            ),
+        ],
+    )
+    def test_classification_of_rule_keys_enums_and_wildcards(
+        self, replacements: dict[str, str], kind: str
+    ) -> None:
+        plan = classify_change(
+            BASE, _registry(**{"version: 1.0.0": "version: 2.0.0", **replacements})
+        )
+        assert plan.kind == kind, plan.reasons
+
+    def test_an_enum_widening_is_additive(self) -> None:
+        narrow = _registry(**{"title: string}": "title: string, prio: {enum: [low, high]}}"})
+        wide = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "title: string}": "title: string, prio: {enum: [low, high, urgent]}}",
+            }
+        )
+        assert classify_change(narrow, wide).kind == "additive"
+        assert classify_change(wide, narrow).kind == "breaking"
+
+    def test_before_1_0_a_patch_is_enough_for_additive(self) -> None:
+        old = _registry(**{"version: 1.0.0": "version: 0.1.0"})
+        new = _registry(
+            **{"version: 1.0.0": "version: 0.1.1", "sha: string}": "sha: string, x: string}"}
+        )
+        assert classify_change(old, new).version_problems == []
+
+    async def test_a_target_with_data_but_no_state_is_refused(self) -> None:
+        log, target = await _ledger(), MemoryGraphStore()
+        await _project_all(log, target, BASE)
+        live = await _ledger()
+        replay_graph = MemoryGraphStore()
+        from context_graph.ontology.rebuild import project_ledger
+
+        await project_ledger(
+            live, replay_graph, PackProjector(BASE, frozenset()), _settings(), batch_size=10
+        )
+        with pytest.raises(RebuildRefusedError, match="not empty"):
+            await rebuild(
+                live,
+                replay_graph,
+                PackProjector(BASE, frozenset()),
+                _settings(),
+                eval_dirs=[],
+                skip_gate=True,
+            )
+
+    async def test_a_failing_event_is_isolated_and_reported(self) -> None:
+        log, target = await _ledger(), MemoryGraphStore()
+        (_first, second, _third) = await log.read_after(None, 10)
+        original = target.merge_event_nodes_batch
+
+        async def failing(nodes: list[Any]) -> Any:
+            if any(str(n.event_id) == second.event_id for n in nodes):
+                raise RuntimeError("write failed")
+            return await original(nodes)
+
+        target.merge_event_nodes_batch = failing  # type: ignore[method-assign]
+        report = await rebuild(
+            log, target, PackProjector(BASE, frozenset()), _settings(), eval_dirs=[], skip_gate=True
+        )
+        assert report.dead_lettered == [second.position]
+        assert not report.passed
+        assert (await target.get_nodes([TICKET]))[TICKET]["status"] == "closed"

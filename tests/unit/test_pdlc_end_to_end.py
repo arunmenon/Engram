@@ -32,7 +32,9 @@ from context_graph.api.app import create_app, lifespan
 from context_graph.domain.models import Event
 from context_graph.domain.pack_extraction import extraction_profiles
 from context_graph.domain.projection import event_to_node
-from context_graph.ontology.rebuild import rebuild
+from context_graph.migration.compare import compare_graphs
+from context_graph.ontology.__main__ import same_graph, target_settings
+from context_graph.ontology.rebuild import RebuildRefusedError, rebuild
 from context_graph.ontology.runtime import configured_projector
 from context_graph.ontology.versioning import reconcile
 from context_graph.ports.pack_graph import NodeRef
@@ -127,7 +129,7 @@ async def test_webhooks_build_a_pdlc_graph(
 
     monkeypatch.setattr(stores, "close", keep_open)
     try:
-        await _run(monkeypatch, settings, stores, tmp_path)
+        await _run(monkeypatch, settings, stores, tmp_path, backend)
     finally:
         if backend == "spanner":
             with contextlib.suppress(Exception):
@@ -138,7 +140,11 @@ async def test_webhooks_build_a_pdlc_graph(
 
 
 async def _run(
-    monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stores, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch,
+    settings: Settings,
+    stores: Stores,
+    tmp_path: Path,
+    backend: str,
 ) -> None:
     async def shared_stores(*_args: object, **_kwargs: object) -> Stores:
         return stores
@@ -203,7 +209,7 @@ async def _run(
             await _drain(projection, stores, settings.consumer.group_projection)
             await _check_graph(stores.graph)
             await _check_queries(client)
-            await _check_versioning(client, settings, stores, tmp_path)
+            await _check_versioning(client, settings, stores, tmp_path, backend)
             await _check_extraction(client, settings, stores)
 
 
@@ -265,7 +271,11 @@ async def _check_graph(graph: GraphBackend) -> None:
 
 
 async def _check_versioning(
-    client: httpx.AsyncClient, settings: Settings, stores: Stores, tmp_path: Path
+    client: httpx.AsyncClient,
+    settings: Settings,
+    stores: Stores,
+    tmp_path: Path,
+    backend: str,
 ) -> None:
     """The graph records its ontology; a gated rebuild from the same ledger (ADR-0018 phase 3)."""
     projector = configured_projector(settings.ontology)
@@ -292,19 +302,38 @@ async def _check_versioning(
         "questions:\n"
         "  - id: trace\n"
         "    query: Where is PAY-341 deployed? Trace it.\n"
-        "    expected: ['Change:acme/payments|7']\n"
+        "    expected: ['Change:acme/payments|7', 'Change:acme/payments|8']\n"
         "    answer: {node_type: Change}\n"
-        "  - id: unreviewed\n"
-        "    query: Which pull requests were merged without an approving review?\n"
-        "    expected: []\n"
+        "  - id: untested\n"
+        "    query: Which tickets have no tests?\n"
+        "    expected: ['WorkItem:jira|PAY-300', 'WorkItem:jira|PAY-341']\n"
         "    answer: {reasons: [no_link]}\n"
     )
-    target = MemoryGraphStore()
-    report = await rebuild(stores.event_log, target, projector, settings, eval_dirs=[tmp_path])
-    assert report.passed, report.as_dict()
-    assert report.events >= len(DELIVERIES)
-    rebuilt = await target.get_nodes([NodeRef("Change", "Change:acme/payments|7")])
-    assert rebuilt[NodeRef("Change", "Change:acme/payments|7")]["status"] == "merged"
+    # Blue/green into a fresh graph of the same kind: a new Spanner database; a
+    # memory graph otherwise (Neo4j Community serves one database)
+    target_stores: Stores | None = None
+    target: GraphBackend = MemoryGraphStore()
+    if backend == "spanner":
+        green = target_settings(
+            [f"CG_SPANNER_DATABASE=green{uuid4().hex[:10]}", "CG_SPANNER_CREATE_IF_MISSING=true"]
+        )
+        assert not same_graph(settings, green)
+        target_stores = await open_stores(green)
+        target = target_stores.graph
+    try:
+        report = await rebuild(stores.event_log, target, projector, settings, eval_dirs=[tmp_path])
+        assert report.passed, report.as_dict()
+        assert report.events >= len(DELIVERIES)
+        assert [r.mean_f1 for r in report.gate] == [1.0], report.gate[0].as_dict()
+        comparison = await compare_graphs(stores.graph, target, sample_sessions=0)
+        assert comparison.ok, comparison.as_dict()
+        with pytest.raises(RebuildRefusedError):  # the live graph is never a target
+            await rebuild(stores.event_log, stores.graph, projector, settings, eval_dirs=[tmp_path])
+    finally:
+        if target_stores is not None:
+            with contextlib.suppress(Exception):
+                await asyncio.to_thread(target_stores.event_log.database.drop)  # type: ignore[attr-defined]
+            await target_stores.close()
 
 
 class LinkingModel:

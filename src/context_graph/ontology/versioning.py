@@ -51,25 +51,41 @@ REBUILD_HINT = "python -m context_graph.ontology rebuild --target KEY=VALUE ..."
 class OntologyChangeRefusedError(RuntimeError):
     """A breaking ontology change cannot be applied to a live graph."""
 
-    def __init__(self, plan: ChangePlan) -> None:
+    def __init__(self, plan: ChangePlan, hint: str | None = None) -> None:
         self.plan = plan
         reasons = "; ".join(r for r in plan.reasons if r)[:2000]
         super().__init__(
-            f"breaking ontology change ({reasons}). Build a fresh projection under the new "
-            f"packs and switch to it ({REBUILD_HINT}), or set CG_ONTOLOGY_ALLOW_BREAKING=true "
-            "to keep what the old rules wrote"
+            f"ontology change refused ({reasons}). "
+            + (
+                hint
+                or f"Build a fresh projection under the new packs and switch to it "
+                f"({REBUILD_HINT}), or set CG_ONTOLOGY_ALLOW_BREAKING=true to keep what "
+                "the old rules wrote"
+            )
         )
 
 
 @dataclass
 class RecordedOntology:
     version: str
-    packs: list[Pack]
+    # None when the stored packs no longer parse (the pack model changed)
+    packs: list[Pack] | None
     recorded_at: str
     properties: dict[str, Any]
 
     def registry(self) -> OntologyRegistry:
+        if self.packs is None:
+            raise OntologyError([f"the recorded packs of {self.version} no longer parse"])
         return OntologyRegistry(self.packs)
+
+    @property
+    def failed_gate(self) -> bool:
+        """A rebuild whose evaluation gate ran and failed."""
+        return (
+            self.properties.get("applied") == "rebuild"
+            and self.properties.get("gate_passed") is False
+            and not self.properties.get("gate_skipped")
+        )
 
 
 async def read_state(graph: PackGraph) -> RecordedOntology | None:
@@ -77,10 +93,11 @@ async def read_state(graph: PackGraph) -> RecordedOntology | None:
     props = found.get(STATE_REF)
     if not props:
         return None
-    packs_json = props.get("packs_json")
-    packs: list[Pack] = []
-    if isinstance(packs_json, str):
-        packs = [Pack.model_validate(data) for data in json.loads(packs_json)]
+    packs: list[Pack] | None = None
+    try:
+        packs = [Pack.model_validate(data) for data in json.loads(str(props.get("packs_json")))]
+    except (ValueError, TypeError) as exc:  # JSON or pydantic validation errors
+        log.warning("recorded_ontology_unparsable", error=str(exc)[:500])
     return RecordedOntology(
         version=str(props.get("version", "")),
         packs=packs,
@@ -115,27 +132,28 @@ async def record_state(
     )
 
 
-async def recorded_registry(
-    graph: PackGraph,
-) -> tuple[RecordedOntology | None, OntologyRegistry | None]:
-    """The recorded state and its registry; the registry is None when it no longer loads."""
-    state = await read_state(graph)
+def plan_for_state(state: RecordedOntology | None, registry: OntologyRegistry) -> ChangePlan:
+    """How a graph with this recorded state is brought to ``registry``."""
     if state is None:
-        return None, None
+        return classify_change(None, registry)
     try:
-        return state, state.registry()
+        recorded = state.registry()
     except (OntologyError, ValueError) as exc:
         log.warning("recorded_ontology_unloadable", version=state.version, error=str(exc)[:500])
-        return state, None
-
-
-async def plan_change(graph: PackGraph, registry: OntologyRegistry) -> ChangePlan:
-    state, recorded = await recorded_registry(graph)
-    if state is not None and recorded is None:
         plan = ChangePlan()
         plan.note("breaking", f"the recorded ontology {state.version} no longer loads")
         return plan
     return classify_change(recorded, registry)
+
+
+async def plan_change(graph: PackGraph, registry: OntologyRegistry) -> ChangePlan:
+    return plan_for_state(await read_state(graph), registry)
+
+
+@dataclass
+class ReplayReport:
+    replayed: int = 0
+    failed: list[str] | None = None
 
 
 async def replay_event_types(
@@ -146,24 +164,33 @@ async def replay_event_types(
     *,
     batch_size: int,
     lookup_limit: int,
-) -> int:
-    """Project the ledger's events of these types again (in log order); returns how many."""
-    replayed = 0
+) -> ReplayReport:
+    """Project the ledger's events of these types again, in log order.
+
+    One event's failure is logged and reported; the replay goes on, as the
+    projection worker dead-letters a failing event and goes on.
+    """
+    report = ReplayReport(failed=[])
     cursor: str | None = None
     while True:
         entries = await event_log.read_after(cursor, batch_size)
         if not entries:
-            return replayed
+            return report
         cursor = entries[-1].position
         for entry in entries:
             document = entry.document
             if document is None or document.get("event_type") not in event_types:
                 continue
-            event = Event.model_validate(document, strict=False)
-            if event.global_position is None:
-                event = event.model_copy(update={"global_position": entry.position})
-            await apply_plan(graph, projector.plan(event, document), lookup_limit)
-            replayed += 1
+            try:
+                event = Event.model_validate(document, strict=False)
+                if event.global_position is None:
+                    event = event.model_copy(update={"global_position": entry.position})
+                await apply_plan(graph, projector.plan(event, document), lookup_limit)
+                report.replayed += 1
+            except Exception:
+                log.exception("ontology_replay_event_failed", position=entry.position)
+                assert report.failed is not None
+                report.failed.append(entry.position)
 
 
 async def reconcile(
@@ -174,27 +201,56 @@ async def reconcile(
     allow_breaking: bool,
     batch_size: int,
     lookup_limit: int,
+    allow_version_problems: bool = False,
 ) -> ChangePlan:
     """Bring the graph's recorded ontology to the projector's (see module docstring)."""
     registry = projector.registry
-    plan = await plan_change(graph, registry)
-    for problem in plan.version_problems:
-        log.warning("ontology_version_problem", problem=problem)
+    state = await read_state(graph)
+    if state is not None and state.failed_gate and not allow_breaking:
+        msg = (
+            f"this graph was rebuilt for {state.version} but its evaluation gate failed "
+            f"({state.properties.get('gate')}); fix the packs or the evaluation set and "
+            "rebuild, or set CG_ONTOLOGY_ALLOW_BREAKING=true"
+        )
+        raise OntologyChangeRefusedError(ChangePlan(kind="breaking", reasons=[msg]))
+    plan = plan_for_state(state, registry)
     if plan.kind == "none":
         return plan
     log.info("ontology_change", **plan.as_dict())
+    if plan.version_problems and not allow_version_problems:
+        raise OntologyChangeRefusedError(
+            ChangePlan(
+                kind=plan.kind, reasons=["pack versions: " + "; ".join(plan.version_problems)]
+            ),
+            hint="bump the pack versions, or set CG_ONTOLOGY_ALLOW_VERSION_PROBLEMS=true",
+        )
     if plan.kind == "breaking" and not allow_breaking:
         raise OntologyChangeRefusedError(plan)
-    replayed = 0
-    if plan.kind == "mapping":
-        replayed = await replay_event_types(
+    replay = ReplayReport(failed=[])
+    if plan.replay_event_types:
+        # Every event type with pack rules, in log order: replaying only the changed
+        # types would apply their transitions over states later events set
+        replay = await replay_event_types(
             event_log,
             graph,
             projector,
-            plan.replay_event_types,
+            set(registry.projection_rules),
             batch_size=batch_size,
             lookup_limit=lookup_limit,
         )
-        log.info("ontology_mapping_replayed", events=replayed)
-    await record_state(graph, registry, applied=plan.kind, extra={"replayed_events": replayed})
+        log.info(
+            "ontology_mapping_replayed", events=replay.replayed, failed=len(replay.failed or [])
+        )
+    await record_state(
+        graph,
+        registry,
+        applied=plan.kind,
+        extra={
+            "replayed_events": replay.replayed,
+            "replay_failures": (replay.failed or [])[:100],
+            # Decision 10: these packs' weights wait on their evaluation sets
+            # (python -m context_graph.ontology evaluate --record)
+            "eval_pending": sorted(plan.eval_required),
+        },
+    )
     return plan

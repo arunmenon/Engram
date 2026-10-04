@@ -138,7 +138,13 @@ def _cypher_file_statements() -> set[str]:
 
 def test_generated_neo4j_schema_equals_constraints_file(registry: OntologyRegistry) -> None:
     generated = {_normalise(s) for s in schema_statements(registry, embedding_dimensions=384)}
-    assert generated == _cypher_file_statements()
+    # The recorded-ontology node's constraint is generated only (the file is frozen)
+    state = _normalise(
+        "CREATE CONSTRAINT ontologystate_pk IF NOT EXISTS FOR (n:OntologyState) "
+        "REQUIRE n.node_id IS UNIQUE"
+    )
+    assert state in generated
+    assert generated - {state} == _cypher_file_statements()
 
 
 class TestPdlcPack:

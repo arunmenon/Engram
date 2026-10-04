@@ -655,9 +655,20 @@ class GraphOperations:
             for w in writes
             if self._ref_key(w.source) in existing and self._ref_key(w.target) in existing
         ]
+        written = len(items)
+        create_only = {
+            key
+            for w in writes
+            if w.create_only
+            for key in [(self._ref_key(w.source), w.edge_type, self._ref_key(w.target))]
+        }
+        if create_only:
+            sources = sorted({key[0] for key in create_only})
+            present = {key for key, _props in await self._edges(sources=sources)}
+            items = [item for item in items if not (item[0] in create_only and item[0] in present)]
         if items:
             await self._upsert_edges(items)
-        return len(items)
+        return written
 
     async def change_states(self, changes: list[StateChange]) -> int:
         return await self._apply_state_changes(changes) if changes else 0

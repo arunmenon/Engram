@@ -248,3 +248,40 @@ Tests:
 Still open:
 - **Embeddings:** the extraction prompt offers known items by word match. A vector match over `embed_fields` needs embeddings for pack types (also needed by `similarity` questions).
 - **Edge provenance:** a proposed link records its trust and method, but not which event proposed it.
+
+#### Phase 3 review round
+
+An independent reviewer reported 24 findings on commit `b223c58`, with reproduction scripts for the main ones. What was done with each:
+
+| # | Finding | Severity | Outcome |
+|---|---|---|---|
+| 1 | A proposed link overwrote an existing one: a tool-declared `confirmed` link, or a person's `rejected` one, became `proposed` and `untrusted` | blocking | Fixed: `EdgeWrite.create_only` (a new field with a default) sets properties only when the edge is created. Neo4j uses `ON CREATE SET`; memory and Spanner skip edges that exist. Extraction writes links create-only. Conformance cases on all three backends |
+| 2 | A mapping replay of only the changed event types applied their transitions over states set later (a resolved incident went back to `detected`) | blocking | Fixed: a mapping change replays every event type with pack rules, in log order, so later transitions apply again after earlier ones. Concurrent replays from replicas starting together are idempotent, but they can interleave with live events. **Operating rule:** roll out a mapping change with one projection replica first |
+| 3 | A recorded state that no longer parses crashed the worker, and `ALLOW_BREAKING` could not get past it | blocking | Fixed: an unparsable state is classified `breaking` ("no longer loads"), refused, and can be overridden. `status` and `GET /v1/ontology` report it |
+| 4 | The blue/green switch could lose the events written between the rebuild and the switch; the derived consumer groups never ran on green | blocking | Fixed by procedure, documented in the CLI and `rebuild.py`: deploy green with new consumer group names. New groups read the ledger from the start on every backend (checked in each subscription adapter). The projection group replays onto the rebuilt graph idempotently and then follows live events, and the derived groups build their part of green |
+| 5 | A changed key expression, or a removed rule, was classified `mapping`, so a replay left duplicates | should-fix | Fixed: rules are compared by identity (the types, keys and endpoints they write). A lost identity is `breaking`; changed values, conditions or target states are `mapping` |
+| 6 | Widening an enum, or widening endpoints to a pack wildcard, was `breaking` | should-fix | Fixed: enum subsets are additive, and endpoints are compared as the types they allow |
+| 7 | With `ALLOW_BREAKING`, mapping changes were not replayed | should-fix | Fixed: any plan with changed rules replays, whatever its kind |
+| 8 | Version problems were only logged; the docstring's patch exception was not implemented; pre-1.0 rules were too strict | should-fix | Fixed: `reconcile` refuses version problems unless `CG_ONTOLOGY_ALLOW_VERSION_PROBLEMS`. Before 1.0, breaking changes need a minor bump and everything else a patch. The patch exception was removed from the docstring |
+| 9 | Decision 10 was not enforced on live graphs | should-fix | Partly fixed: `reconcile` records the packs whose retrieval changed as `eval_pending`, shown by `status` and `GET /v1/ontology`. `ontology evaluate --record` runs their sets on the live graph and clears it. Retrieval does not yet withhold pending weights; that is left to the operator |
+| 10 | A rebuild whose gate failed was recorded, and nothing read the result | should-fix | Fixed: the projection worker refuses to start on a graph whose rebuild gate failed (overridable) |
+| 11 | Weak rebuild target checks: a non-empty target without state was accepted; a misspelled `--target` key rebuilt into the live graph; the live graph itself was accepted | should-fix | Fixed: a `--target` key must name a setting. The CLI refuses a target that selects the configured graph. `rebuild` refuses a live projection (one a worker reconciled), and a graph that holds data but records no ontology, unless `--force`. Not fixed: the first start on a pre-phase-3 graph cannot know what it was built with, so it records `initial` |
+| 12 | One failing event aborted a replay or a rebuild; expired documents went unreported | should-fix | Fixed: replay isolates and reports each failure. Rebuild retries a failed batch one event at a time, reports failing events (and then fails), and counts `missing_documents` |
+| 13 | Eval-set errors came only after the full build | should-fix | Fixed: the sets are loaded and checked before the build; a missing or invalid set refuses the rebuild |
+| 14 | Known-item lookup scans whole labels on each source event | should-fix | Not changed: it uses `search_nodes`, which, as phase 2 recorded, scans the label on memory and Spanner, bounded by `extraction_known_limit` results. An indexed (full-text or vector) path for pack types is the open item already listed |
+| 15 | Proposals from a trusted source are marked `trusted` | design question | Kept, and documented: `source_trust` says who supplied the text, not how sure the inference is. An extracted node is `status: proposed` with `method: extracted` and a capped `confidence`. Extracted links are `proposed`, and those never corroborate (phase 2) |
+| 16 | Extracted values were unbounded and loosely typed; self-loops and repeated refs were accepted | should-fix | Fixed: values are at most `CG_ONTOLOGY_EXTRACTION_MAX_VALUE_CHARS` (4000), objects and lists are refused where the type is scalar, self-links are refused, and a repeated ref is refused |
+| 17 | Rolling back to an older image is refused as breaking | should-fix | Documented: a rollback is run with `CG_ONTOLOGY_ALLOW_BREAKING=true` (and, for a mapping, it replays) |
+| 18 | Replicas starting together could create two `OntologyState` nodes on Neo4j | should-fix, unverified | Fixed: Neo4j gets an `ontologystate_pk` uniqueness constraint. It is generated only; the frozen `constraints.cypher` is unchanged |
+| 19 | The extraction hash field came from `text_fields[0]`, not from the pack's rule; `sha256` truncates at 100k; `updated_at` format differed | nit | Fixed: the hashed property is read from the rule that keys the type by `sha256($.f)` and sets a property from `$.f`. Values are bounded below the truncation length. Times use projection's canonical form |
+| 20 | Types with `id_property`, or a content key with no text field, would be built wrongly | nit | Fixed: such proposable types are left out of the profile (`skipped`) |
+| 21 | Known-item labels were outside the data fence | nit | Fixed: known items are fenced like the text, and the prompt says fenced content is data |
+| 22 | Small inefficiencies | nit | Partly fixed: link targets are computed once, and `GET /v1/ontology` reads the state once. `LedgerReplay` still lets the consumer fetch documents again |
+| 23 | Magic numbers | nit | Fixed: the label length is a setting. The ref and word patterns are format constants, commented |
+| 24 | Tests that could pass vacuously | — | Fixed: the end-to-end test rebuilds into a fresh Spanner database on the Spanner run (memory otherwise; Neo4j Community has one database) and compares the rebuilt graph with the live one (`migration.compare_graphs`). Its eval set has only non-empty answers. It shows the live graph is refused as a target. New regression cases cover findings 1–3, 5–8, 10–13 and 16 |
+
+Regression cases:
+- `tests/unit/test_pack_versioning.py::TestReviewFindings`;
+- `tests/unit/test_pack_extraction.py::TestReviewFindings`;
+- `tests/unit/test_ontology_cli.py`;
+- `tests/conformance/test_pack_graph.py::TestCreateOnlyEdges`.

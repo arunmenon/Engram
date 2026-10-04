@@ -10,16 +10,25 @@ A breaking pack change is not applied to the live graph. Instead:
    the new graph (``ontology/evaluation.py``).
 3. **Record**: the new graph records the packs, ``applied: rebuild`` and
    the gate results (``ontology/versioning.py``).
-4. **Switch**: when the gate passes, the API and workers are pointed at
-   the new graph by configuration (the storage settings the rebuild was
-   given). Neo4j Community has no database aliases, so the switch is a
-   settings change and a restart, not a server-side alias. The old graph
-   is dropped once the switch holds.
+4. **Switch**: when the gate passes, the API and workers are deployed
+   with the storage settings the rebuild was given and new consumer group
+   names (``CG_CONSUMER_GROUP_*``). New groups read the ledger from the
+   start on every backend, so the projection group replays onto the
+   rebuilt graph (idempotent upserts) and then follows live events: no
+   event written between the rebuild and the switch is lost. Enrichment,
+   extraction and consolidation groups build their part of the new graph
+   the same way. Neo4j Community has no database aliases, so the switch is
+   a settings change and a restart, not a server-side alias. The old graph
+   is dropped once the switch holds. A graph whose gate failed is refused
+   by the projection worker (``ontology/versioning.reconcile``).
 
-The ledger is never changed. Enrichment, extraction and consolidation
-build on the projection; their workers are run against the new graph
-after the switch (their consumer groups start from the ledger's
-beginning on a new backend).
+The ledger is never changed. Refused targets: one that records another
+version, a live projection (a graph the workers reconciled), or one that
+holds data but records no ontology (``--force`` overrides these). Running
+the rebuild again into its own target re-projects it (idempotent).
+Evaluation sets are checked before the build. A batch that fails is
+retried one event at a time and failing events are reported; entries whose
+documents expired from the ledger are counted (``missing_documents``).
 
 Backend-neutral: ``EventLog`` and ``GraphBackend`` from the registry.
 """
@@ -31,7 +40,8 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from context_graph.ontology.evaluation import EvalReport, run_gate
+from context_graph.domain.ontology import OntologyError
+from context_graph.ontology.evaluation import EvalReport, check_eval_sets, run_gate
 from context_graph.ontology.versioning import read_state, record_state
 from context_graph.ports.subscription import Delivery
 from context_graph.retrieval.artifacts import ArtifactRetriever
@@ -68,6 +78,8 @@ class LedgerReplay:
         self._batch_size = batch_size
         self._cursor: str | None = None
         self.read = 0
+        # Entries whose document has expired from the ledger (not projected)
+        self.missing_documents = 0
         self.dead_lettered: list[str] = []
 
     @property
@@ -99,6 +111,7 @@ class LedgerReplay:
         if entries:
             self._cursor = entries[-1].position
         self.read += len(entries)
+        self.missing_documents += sum(1 for e in entries if e.document is None)
         return [Delivery(e.position, {"event_id": e.event_id}) for e in entries]
 
     async def ack(self, *positions: str) -> None:
@@ -115,6 +128,7 @@ class LedgerReplay:
 class RebuildReport:
     version: str
     events: int = 0
+    missing_documents: int = 0
     dead_lettered: list[str] = field(default_factory=list)
     gate: list[EvalReport] = field(default_factory=list)
     gate_skipped: bool = False
@@ -130,10 +144,33 @@ class RebuildReport:
             "version": self.version,
             "passed": self.passed,
             "events": self.events,
+            "missing_documents": self.missing_documents,
             "dead_lettered": self.dead_lettered[:100],
             "gate_skipped": self.gate_skipped,
             "gate": [report.as_dict() for report in self.gate],
         }
+
+
+class _RebuildConsumer(ProjectionConsumer):
+    """The projection consumer, isolating failures to single events.
+
+    A failed batch is retried one event at a time; an event that still
+    fails is dead-lettered into the report, as the live worker would.
+    """
+
+    async def _flush_buffer(self) -> None:
+        batch = self._buffer[:]
+        try:
+            await super()._flush_buffer()
+        except Exception:
+            log.exception("ontology_rebuild_batch_failed", events=len(batch))
+            for entry in batch:
+                self._buffer = [entry]
+                try:
+                    await super()._flush_buffer()
+                except Exception:
+                    log.exception("ontology_rebuild_event_failed", position=entry[0])
+                    await self._dead_letter_message(entry[0], entry[1], 1)
 
 
 async def project_ledger(
@@ -146,7 +183,7 @@ async def project_ledger(
 ) -> LedgerReplay:
     """Project every ledger event into ``graph``, as the projection worker would."""
     replay = LedgerReplay(event_log, batch_size)
-    consumer = ProjectionConsumer(
+    consumer = _RebuildConsumer(
         subscription=replay,
         event_log=event_log,
         graph_store=graph,
@@ -177,12 +214,28 @@ async def rebuild(
     """Build, gate and record a projection of the ledger in ``target`` (see module docstring)."""
     registry = projector.registry
     state = await read_state(target)
-    if state is not None and state.version != registry.version and not force:
-        msg = (
-            f"the target graph holds a projection under ontology {state.version}; "
-            f"rebuild into an empty graph for {registry.version}"
-        )
-        raise RebuildRefusedError(msg)
+    if not force:
+        if state is not None and state.version != registry.version:
+            msg = (
+                f"the target graph holds a projection under ontology {state.version}; "
+                f"rebuild into an empty graph for {registry.version}"
+            )
+            raise RebuildRefusedError(msg)
+        if state is not None and state.properties.get("applied") != "rebuild":
+            msg = (
+                f"the target graph is a live projection (applied: "
+                f"{state.properties.get('applied')}), not a rebuild"
+            )
+            raise RebuildRefusedError(msg)
+        if state is None and (await target.get_graph_stats()).get("total_nodes", 0):
+            msg = "the target graph is not empty and records no ontology (the live graph?)"
+            raise RebuildRefusedError(msg)
+    if not skip_gate:
+        # Check the evaluation sets before the (long) build, not after it
+        try:
+            check_eval_sets(registry, eval_dirs)
+        except OntologyError as exc:
+            raise RebuildRefusedError("; ".join(exc.problems)) from exc
     await target.ensure_constraints()
     await target.ensure_pack_schema(registry, settings.embedding.dimensions)
 
@@ -191,6 +244,7 @@ async def rebuild(
         event_log, target, projector, settings, batch_size=settings.ontology.replay_batch_size
     )
     report.events = replay.read
+    report.missing_documents = replay.missing_documents
     report.dead_lettered = replay.dead_lettered
     log.info(
         "ontology_rebuild_projected", events=replay.read, dead_lettered=len(replay.dead_lettered)
@@ -221,6 +275,7 @@ async def rebuild(
         applied="rebuild",
         extra={
             "rebuild_events": report.events,
+            "missing_documents": report.missing_documents,
             "gate_passed": report.passed,
             "gate_skipped": report.gate_skipped,
             "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in report.gate],

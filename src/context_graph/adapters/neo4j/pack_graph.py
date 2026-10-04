@@ -130,7 +130,7 @@ class Neo4jPackGraph:
             await self._pack_write(statements)
 
     async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
-        groups: dict[tuple[str, str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
+        groups: dict[tuple[str, str, str, str, str, bool], list[dict[str, Any]]] = defaultdict(list)
         for write in writes:
             group = (
                 _label(write.source.label),
@@ -138,6 +138,7 @@ class Neo4jPackGraph:
                 _edge_type(write.edge_type),
                 _label(write.target.label),
                 _property(write.target.key_property),
+                write.create_only,
             )
             groups[group].append(
                 {
@@ -150,10 +151,13 @@ class Neo4jPackGraph:
             (
                 f"UNWIND $rows AS row MATCH (a:{source} {{{source_key}: row.source}}) "
                 f"MATCH (b:{target} {{{target_key}: row.target}}) "
-                f"MERGE (a)-[r:{edge_type}]->(b) SET r += row.props RETURN count(r)",
+                f"MERGE (a)-[r:{edge_type}]->(b) {'ON CREATE SET' if create_only else 'SET'} "
+                "r += row.props RETURN count(r)",
                 {"rows": rows},
             )
-            for (source, source_key, edge_type, target, target_key), rows in groups.items()
+            for (source, source_key, edge_type, target, target_key, create_only), rows in (
+                groups.items()
+            )
         ]
         return sum(await self._pack_write(statements)) if statements else 0
 

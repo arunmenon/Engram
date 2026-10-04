@@ -18,7 +18,7 @@ from fastapi.responses import ORJSONResponse
 
 from context_graph.domain.ontology import EnumSpec
 from context_graph.domain.pack_extraction import extraction_profiles
-from context_graph.ontology.versioning import plan_change, read_state
+from context_graph.ontology.versioning import plan_for_state, read_state
 
 if TYPE_CHECKING:
     from context_graph.domain.ontology import OntologyRegistry, PropertySpec
@@ -42,6 +42,7 @@ def describe(registry: OntologyRegistry, settings: Settings) -> dict[str, Any]:
         max_nodes=ontology.extraction_max_nodes,
         max_links=ontology.extraction_max_links,
         max_text_chars=ontology.extraction_max_text_chars,
+        max_value_chars=ontology.extraction_max_value_chars,
     )
     return {
         **registry.summary(),
@@ -103,7 +104,7 @@ async def get_ontology(request: Request) -> ORJSONResponse:
     body = describe(registry, settings)
     try:
         state = await read_state(graph)
-        plan = await plan_change(graph, registry)
+        plan = plan_for_state(state, registry)
     except Exception:
         log.exception("ontology_graph_state_unavailable")
         body["graph"] = {"error": "the graph's ontology state could not be read"}
@@ -116,6 +117,8 @@ async def get_ontology(request: Request) -> ORJSONResponse:
             "recorded_at": state.recorded_at,
             "applied": state.properties.get("applied"),
             "packs": state.properties.get("packs"),
+            "eval_pending": state.properties.get("eval_pending", []),
+            "gate_passed": state.properties.get("gate_passed"),
         }
     )
     body["change"] = plan.as_dict()

@@ -180,3 +180,29 @@ class TestReviewFindings:
         await graph.upsert_nodes([NodeWrite(ref, {"environment": "prod"}) for ref in refs])
         found = await graph.find_nodes("Deployment", {"environment": "prod"}, 2)
         assert [n["node_id"] for n in found] == ["Deployment:a", "Deployment:b"]
+
+
+class TestCreateOnlyEdges:
+    """Phase 3 review: a proposal never changes an existing link (ADR-0018 notes)."""
+
+    async def test_existing_edge_is_left_as_it_is(self, graph: GraphBackend) -> None:
+        await graph.upsert_nodes([_change(), NodeWrite(ITEM, {})])
+        declared = {"link_status": "confirmed", "confidence": 1.0}
+        await graph.upsert_edges([EdgeWrite("IMPLEMENTS", CHANGE, ITEM, declared)])
+        proposed = {"link_status": "proposed", "confidence": 0.5}
+        await graph.upsert_edges(
+            [EdgeWrite("IMPLEMENTS", CHANGE, ITEM, proposed, create_only=True)]
+        )
+        (row,) = await graph.neighbors([CHANGE], ["IMPLEMENTS"], "out", 10)
+        assert row["properties"]["link_status"] == "confirmed"
+        assert row["properties"]["confidence"] == 1.0
+
+    async def test_new_edge_is_created(self, graph: GraphBackend) -> None:
+        await graph.upsert_nodes([_change(), NodeWrite(ITEM, {})])
+        proposed = {"link_status": "proposed", "confidence": 0.5}
+        written = await graph.upsert_edges(
+            [EdgeWrite("IMPLEMENTS", CHANGE, ITEM, proposed, create_only=True)]
+        )
+        assert written == 1
+        (row,) = await graph.neighbors([CHANGE], ["IMPLEMENTS"], "out", 10)
+        assert row["properties"]["link_status"] == "proposed"

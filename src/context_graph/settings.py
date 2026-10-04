@@ -567,11 +567,16 @@ class OntologySettings(BaseSettings):
     extraction_max_text_chars: int = 20_000
     extraction_known_limit: int = 30
     extraction_search_terms: int = 12
+    # Characters of one proposed property value, and of a known item's label
+    extraction_max_value_chars: int = 4000
+    extraction_label_chars: int = 160
 
     # Versioning (ADR-0018 decision 8): the projection worker refuses a
     # breaking pack change on a live graph unless this is set; ledger events
     # read per batch when a mapping change replays or a rebuild projects
     allow_breaking: bool = False
+    # ...and a pack whose version does not rise with what changed in it
+    allow_version_problems: bool = False
     replay_batch_size: int = 500
 
     @field_validator("packs", "pack_dirs", "trusted_sources", mode="before")

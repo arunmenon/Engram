@@ -87,6 +87,7 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
                 stores.event_log,
                 projector,
                 allow_breaking=settings.ontology.allow_breaking,
+                allow_version_problems=settings.ontology.allow_version_problems,
                 batch_size=settings.ontology.replay_batch_size,
                 lookup_limit=settings.ontology.lookup_limit,
             )
@@ -115,6 +116,7 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
             max_nodes=ontology.extraction_max_nodes,
             max_links=ontology.extraction_max_links,
             max_text_chars=ontology.extraction_max_text_chars,
+            max_value_chars=ontology.extraction_max_value_chars,
         )
         log.info(
             "pack_extraction_profiles",

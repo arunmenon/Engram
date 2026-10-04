@@ -27,7 +27,12 @@ if TYPE_CHECKING:
 
 def schema_statements(registry: OntologyRegistry, embedding_dimensions: int) -> list[str]:
     """``CREATE ... IF NOT EXISTS`` statements for every node type in the registry."""
-    statements: list[str] = []
+    # The graph's recorded ontology (ontology/versioning.py): one node, kept
+    # unique so replicas starting together cannot record it twice
+    statements: list[str] = [
+        "CREATE CONSTRAINT ontologystate_pk IF NOT EXISTS FOR (n:OntologyState) "
+        "REQUIRE n.node_id IS UNIQUE"
+    ]
     for name, node_type in registry.node_types.items():
         lower = name.lower()
         definition = node_type.definition

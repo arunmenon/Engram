@@ -5,9 +5,11 @@ Usage:
         The loaded packs, the version the configured graph records, and how
         the change between them would be applied (JSON).
 
-    python -m context_graph.ontology evaluate [--eval-dir DIR]
+    python -m context_graph.ontology evaluate [--eval-dir DIR] [--record]
         Run the evaluation sets of the active packs with intents on the
-        configured graph. Exits 1 when a set fails or is missing.
+        configured graph. Exits 1 when a set fails or is missing. With
+        --record, the graph's state records the result (clearing
+        ``eval_pending`` when every set passes; decision 10).
 
     python -m context_graph.ontology rebuild --target KEY=VALUE [...] [--eval-dir DIR]
                                              [--skip-gate] [--force]
@@ -15,8 +17,16 @@ Usage:
         settings with the ``--target`` overrides select (for example
         ``CG_NEO4J_URI=bolt://green:7687`` or ``CG_SPANNER_DATABASE=engram_v2``),
         run the evaluation gate on it and record the result. Exits 0 when
-        the gate passes; switch by deploying with the same overrides. Exits
-        1 when the gate fails and 2 when the target holds another version.
+        the gate passes, 1 when it fails, and 2 when the rebuild is refused
+        (the target is the live graph, holds another version or other data,
+        an override names no setting, or an evaluation set is missing).
+
+        Switch by deploying with the same overrides plus new consumer group
+        names (``CG_CONSUMER_GROUP_*``): new groups read the ledger from the
+        start, so the projection group replays onto the rebuilt graph
+        (idempotently) and then follows live events with no gap, and the
+        enrichment, extraction and consolidation groups build their part of
+        the new graph.
 
 Evaluation sets are ``<pack>.eval.yaml`` in ``--eval-dir``, then in
 ``CG_ONTOLOGY_PACK_DIRS``, then next to the built-in packs.
@@ -33,12 +43,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import orjson
+from pydantic_settings import BaseSettings
 
 from context_graph.adapters.registry import open_stores
 from context_graph.ontology.evaluation import run_gate
 from context_graph.ontology.rebuild import RebuildRefusedError, rebuild
 from context_graph.ontology.runtime import configured_projector
-from context_graph.ontology.versioning import plan_change, read_state
+from context_graph.ontology.versioning import plan_for_state, read_state, record_state
 from context_graph.retrieval.artifacts import ArtifactRetriever
 from context_graph.settings import Settings
 
@@ -64,17 +75,45 @@ def _environment(overrides: dict[str, str]) -> Iterator[None]:
                 os.environ[key] = value
 
 
+def known_settings_keys() -> set[str]:
+    """Every ``CG_*`` environment name a setting reads."""
+    keys = set()
+    for name, field in Settings.model_fields.items():
+        model = field.annotation
+        if isinstance(model, type) and issubclass(model, BaseSettings):
+            prefix = str(model.model_config.get("env_prefix", ""))
+            keys |= {f"{prefix}{inner}".upper() for inner in model.model_fields}
+        else:
+            keys.add(f"CG_{name}".upper())
+    return keys
+
+
 def target_settings(overrides: list[str]) -> Settings:
     """The configured settings with ``KEY=VALUE`` environment overrides applied."""
     pairs: dict[str, str] = {}
+    known = known_settings_keys()
     for item in overrides:
         key, sep, value = item.partition("=")
         if not sep or not key.startswith("CG_"):
             msg = f"--target takes CG_KEY=VALUE, got {item!r}"
             raise SystemExit(msg)
+        if key.upper() not in known:
+            msg = f"--target {key} is not a setting (a misspelling would rebuild the live graph)"
+            raise SystemExit(msg)
         pairs[key] = value
     with _environment(pairs):
         return Settings()
+
+
+def same_graph(source: Settings, target: Settings) -> bool:
+    """Whether two configurations select the same graph (a rebuild would overwrite it)."""
+    backend = source.storage.graph
+    if backend != target.storage.graph or backend == "memory":
+        return False
+    section = {"neo4j": "neo4j", "spanner": "spanner"}.get(backend)
+    if section is None:
+        return False
+    return bool(getattr(source, section).model_dump() == getattr(target, section).model_dump())
 
 
 def _eval_dirs(settings: Settings, given: list[str]) -> list[Path]:
@@ -102,7 +141,7 @@ async def run_status(settings: Settings) -> int:
     stores = await open_stores(settings)
     try:
         state = await read_state(stores.graph)
-        plan = await plan_change(stores.graph, projector.registry)
+        plan = plan_for_state(state, projector.registry)
         _print(
             {
                 "loaded": projector.registry.summary(),
@@ -113,6 +152,8 @@ async def run_status(settings: Settings) -> int:
                     "recorded_at": state.recorded_at,
                     "applied": state.properties.get("applied"),
                     "packs": state.properties.get("packs"),
+                    "eval_pending": state.properties.get("eval_pending", []),
+                    "gate_passed": state.properties.get("gate_passed"),
                 },
                 "change": plan.as_dict(),
             }
@@ -122,7 +163,7 @@ async def run_status(settings: Settings) -> int:
         await stores.close()
 
 
-async def run_evaluate(settings: Settings, eval_dirs: list[str]) -> int:
+async def run_evaluate(settings: Settings, eval_dirs: list[str], *, record: bool) -> int:
     projector = configured_projector(settings.ontology)
     stores = await open_stores(settings)
     try:
@@ -134,7 +175,20 @@ async def run_evaluate(settings: Settings, eval_dirs: list[str]) -> int:
             max_nodes=settings.query.default_max_nodes,
         )
         _print([report.as_dict() for report in reports])
-        return 0 if all(report.passed for report in reports) else 1
+        passed = all(report.passed for report in reports)
+        state = await read_state(stores.graph)
+        if record and state is not None and state.version == registry.version:
+            # Decision 10: the packs' weights are trusted once their sets pass
+            await record_state(
+                stores.graph,
+                registry,
+                applied=str(state.properties.get("applied", "")),
+                extra={
+                    "eval_pending": [] if passed else sorted(r.pack for r in reports),
+                    "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in reports],
+                },
+            )
+        return 0 if passed else 1
     finally:
         await stores.close()
 
@@ -147,6 +201,9 @@ async def run_rebuild(
     skip_gate: bool,
     force: bool,
 ) -> int:
+    if same_graph(settings, target):
+        print("refused: --target selects the configured (live) graph", file=sys.stderr)  # noqa: T201
+        return 2
     projector = configured_projector(target.ontology)
     source = await open_stores(settings)
     destination = await open_stores(target)
@@ -178,12 +235,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target", action="append", default=[], help="rebuild: CG_KEY=VALUE")
     parser.add_argument("--skip-gate", action="store_true", help="rebuild: record without eval")
     parser.add_argument("--force", action="store_true", help="rebuild: over another version")
+    parser.add_argument("--record", action="store_true", help="evaluate: record the result")
     args: Any = parser.parse_args(argv)
     settings = Settings()
     if args.command == "status":
         return asyncio.run(run_status(settings))
     if args.command == "evaluate":
-        return asyncio.run(run_evaluate(settings, args.eval_dir))
+        return asyncio.run(run_evaluate(settings, args.eval_dir, record=args.record))
     if not args.target:
         parser.error("rebuild needs at least one --target CG_KEY=VALUE naming the new graph")
     return asyncio.run(

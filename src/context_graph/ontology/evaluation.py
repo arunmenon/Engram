@@ -166,6 +166,25 @@ async def run_eval_set(
     return report
 
 
+def check_eval_sets(registry: OntologyRegistry, search_dirs: list[Path]) -> None:
+    """Every pack that needs an evaluation set has one that loads; else OntologyError."""
+    problems = []
+    for name in packs_needing_eval(registry):
+        path = find_eval_set(name, search_dirs)
+        if path is None:
+            problems.append(f"no evaluation set {name}.eval.yaml")
+            continue
+        try:
+            eval_set = load_eval_set(path)
+        except OntologyError as exc:
+            problems.extend(exc.problems)
+            continue
+        if eval_set.pack != name:
+            problems.append(f"{path} is for pack {eval_set.pack}")
+    if problems:
+        raise OntologyError(problems)
+
+
 async def run_gate(
     registry: OntologyRegistry,
     retriever: ArtifactRetriever,

@@ -55,7 +55,6 @@ log = structlog.get_logger(__name__)
 WORD = re.compile(r"[a-z0-9][a-z0-9_.\-/]{3,}")
 # Properties shown as a known item's label, first present wins
 LABEL_FIELDS = ("title", "statement", "name", "catalog_name", "display_name", "body")
-LABEL_LENGTH = 160
 
 
 class ModelUnavailableError(RuntimeError):
@@ -68,11 +67,11 @@ def search_terms(text: str, limit: int) -> list[str]:
     return words[:limit]
 
 
-def _label(node: dict[str, Any]) -> str:
+def _label(node: dict[str, Any], length: int) -> str:
     for name in LABEL_FIELDS:
         value = node.get(name)
         if isinstance(value, str) and value.strip():
-            return value.strip().replace("\n", " ")[:LABEL_LENGTH]
+            return value.strip().replace("\n", " ")[:length]
     return ""
 
 
@@ -101,6 +100,7 @@ class PackExtractionConsumer(BaseConsumer):
         self._known_limit = settings.ontology.extraction_known_limit
         self._search_terms = settings.ontology.extraction_search_terms
         self._lookup_limit = settings.ontology.lookup_limit
+        self._label_chars = settings.ontology.extraction_label_chars
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         event_id = data.get("event_id")
@@ -162,7 +162,9 @@ class PackExtractionConsumer(BaseConsumer):
         refs = [write.ref for write in own if write.ref.key_property == "node_id"]
         found = await self._graph.get_nodes(refs) if refs else {}
         for ref, node in found.items():
-            known.setdefault(ref.key, KnownItem(ref.key, ref.label, _label(node)))
+            known.setdefault(
+                ref.key, KnownItem(ref.key, ref.label, _label(node, self._label_chars))
+            )
         terms = search_terms(text, self._search_terms)
         targets = sorted(set().union(*profile.link_targets().values())) if profile.edges else []
         registry = self._projector.registry
@@ -181,5 +183,7 @@ class PackExtractionConsumer(BaseConsumer):
             for node, _matched in rows:
                 node_id = node.get("node_id")
                 if isinstance(node_id, str):
-                    known.setdefault(node_id, KnownItem(node_id, label, _label(node)))
+                    known.setdefault(
+                        node_id, KnownItem(node_id, label, _label(node, self._label_chars))
+                    )
         return list(known.values())[: self._known_limit]

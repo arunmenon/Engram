@@ -51,13 +51,17 @@ class NodeWrite:
 class EdgeWrite:
     """MERGE one edge per (source, type, target), then set ``properties``.
 
-    Nothing is written when either endpoint does not exist.
+    Nothing is written when either endpoint does not exist. With
+    ``create_only``, ``properties`` are set only when the edge is created:
+    an existing edge (a link a tool declared, or a person rejected) is left
+    as it is.
     """
 
     edge_type: str
     source: NodeRef
     target: NodeRef
     properties: dict[str, Any] = field(default_factory=dict)
+    create_only: bool = False
 
 
 @dataclass(frozen=True)
