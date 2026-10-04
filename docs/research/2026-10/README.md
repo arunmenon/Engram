@@ -9,7 +9,7 @@
 - [ontology/pdlc.pack.yaml](ontology/pdlc.pack.yaml) — draft PDLC pack in the proposed format, internally consistent (no dangling endpoints, every rule on a declared event).
 - [ontology/competency-check.md](ontology/competency-check.md) and [ontology/competency-questions.yaml](ontology/competency-questions.yaml) — 30 PDLC questions checked against the pack; produced v0.3 (four new links, five fields) and the finding that 8 of 30 questions are not graph walks.
 - [ontology/mapping-step2.md](ontology/mapping-step2.md) — OpenDAL, Kafka and GitLab samples mapped onto the pack; produced v0.4 (Component, Release, AMENDS, git-only rule).
-- **[../../adr/0019-pluggable-storage-backends.md](../../adr/0019-pluggable-storage-backends.md) — draft ADR: ingestion and retrieval decoupled from Redis, Neo4j and Spanner (five storage ports, registry, conformance suites, in-memory reference backend).**
+- **[../../adr/0019-pluggable-storage-backends.md](../../adr/0019-pluggable-storage-backends.md) — draft ADR: ingestion and retrieval decoupled from Redis, Neo4j and Spanner (five storage ports, registry, conformance suites, in-memory reference backend; revised after one review pass).**
 - **[ontology/spanner-design-brief.md](ontology/spanner-design-brief.md) — consolidated design brief for Engram on Spanner (ledger and graph), reviewed once; supersedes the two documents below for decisions.**
 - [ontology/spanner-everywhere.md](ontology/spanner-everywhere.md) — Spanner replacing Redis as well as Neo4j: what changes, cost, options; recommends staged (graph first, ledger second) if GCP is the target.
 - [ontology/spanner-graph-gap-analysis.md](ontology/spanner-graph-gap-analysis.md) — Neo4j to Spanner Graph gap analysis; spike, no code.
