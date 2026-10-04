@@ -27,6 +27,7 @@ from context_graph.api.routes.events import router as events_router
 from context_graph.api.routes.feedback import router as feedback_router
 from context_graph.api.routes.health import router as health_router
 from context_graph.api.routes.lineage import router as lineage_router
+from context_graph.api.routes.ontology import router as ontology_router
 from context_graph.api.routes.query import router as query_router
 from context_graph.api.routes.simulate import router as simulate_router
 from context_graph.api.routes.users import router as users_router
@@ -167,6 +168,7 @@ def create_app() -> FastAPI:
     app.include_router(context_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(query_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(artifacts_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(ontology_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(lineage_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(entities_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(feedback_router, prefix="/v1", dependencies=api_key_deps)

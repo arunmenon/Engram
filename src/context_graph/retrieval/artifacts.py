@@ -236,9 +236,7 @@ class ArtifactRetriever:
         if completeness:
             # The completeness edge comes from that intent's own weights, not a tie's
             assert intent is not None
-            own = {
-                e: w for e, w in intent.weights.items() if w > 0 and e in self._artifact_edges
-            }
+            own = {e: w for e, w in intent.weights.items() if w > 0 and e in self._artifact_edges}
             reports = await self._missing_links(query, own, result, depth)
         else:
             await self._traverse(result, weights, direction, depth, query.max_nodes)

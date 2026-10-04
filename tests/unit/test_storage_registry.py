@@ -173,6 +173,7 @@ class TestWorkerSubscriptions:
             "enrichment": ("enrichment", "enrichment-1"),
             "extraction": ("session-extraction", "extraction-1"),
             "consolidation": ("consolidation", "consolidation-1"),
+            "pack_extraction": ("pack-extraction", "pack-extraction-1"),  # ADR-0018 phase 3
         }
 
     @pytest.mark.asyncio()

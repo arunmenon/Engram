@@ -466,6 +466,7 @@ class ConsumerSettings(BaseSettings):
     group_extraction: str = "session-extraction"  # was CG_REDIS_GROUP_EXTRACTION
     group_enrichment: str = "enrichment"  # was CG_REDIS_GROUP_ENRICHMENT
     group_consolidation: str = "consolidation"  # was CG_REDIS_GROUP_CONSOLIDATION
+    group_pack_extraction: str = "pack-extraction"  # ADR-0018: LLM extraction for packs
     block_timeout_ms: int = 5000  # was CG_REDIS_BLOCK_TIMEOUT_MS
 
 
@@ -557,6 +558,21 @@ class OntologySettings(BaseSettings):
     retrieval_scan_limit: int = 5000
     retrieval_max_query_length: int = 2000
     retrieval_max_seed_ids: int = 50
+
+    # Pack extraction (python -m context_graph.worker --consumer pack_extraction):
+    # proposals accepted per event, prose sent to the model, existing items
+    # offered as link targets, and the words of the text searched for them
+    extraction_max_nodes: int = 20
+    extraction_max_links: int = 40
+    extraction_max_text_chars: int = 20_000
+    extraction_known_limit: int = 30
+    extraction_search_terms: int = 12
+
+    # Versioning (ADR-0018 decision 8): the projection worker refuses a
+    # breaking pack change on a live graph unless this is set; ledger events
+    # read per batch when a mapping change replays or a rebuild projects
+    allow_breaking: bool = False
+    replay_batch_size: int = 500
 
     @field_validator("packs", "pack_dirs", "trusted_sources", mode="before")
     @classmethod

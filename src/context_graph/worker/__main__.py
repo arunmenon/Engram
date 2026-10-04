@@ -5,6 +5,7 @@ Usage:
     python -m context_graph.worker --consumer enrichment
     python -m context_graph.worker --consumer extraction
     python -m context_graph.worker --consumer consolidation
+    python -m context_graph.worker --consumer pack_extraction
 
 Opens the configured stores (CG_STORAGE_*, ADR-0019) using CG_* environment
 variables, instantiates the requested consumer, and runs its loop until SIGTERM.
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 
 log = structlog.get_logger(__name__)
 
-VALID_CONSUMERS = ("projection", "enrichment", "extraction", "consolidation")
+VALID_CONSUMERS = ("projection", "enrichment", "extraction", "consolidation", "pack_extraction")
 
 
 # Consumer type -> (ConsumerSettings field holding its group, consumer name)
@@ -38,6 +39,7 @@ CONSUMER_SUBSCRIPTIONS: dict[str, tuple[str, str]] = {
     "enrichment": ("group_enrichment", "enrichment-1"),
     "extraction": ("group_extraction", "extraction-1"),
     "consolidation": ("group_consolidation", "consolidation-1"),
+    "pack_extraction": ("group_pack_extraction", "pack-extraction-1"),
 }
 
 
@@ -71,12 +73,26 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
 
     if consumer_type == "projection":
         from context_graph.ontology.runtime import configured_projector
+        from context_graph.ontology.versioning import reconcile
         from context_graph.worker.projection import ProjectionConsumer
 
         projector = configured_projector(settings.ontology)
         stores = await open_stores(settings)
         await stores.graph.ensure_pack_schema(projector.registry, settings.embedding.dimensions)
         log.info("ontology_loaded", **projector.registry.summary())
+        # Record the ontology version; replay changed rules; refuse breaking changes
+        try:
+            await reconcile(
+                stores.graph,
+                stores.event_log,
+                projector,
+                allow_breaking=settings.ontology.allow_breaking,
+                batch_size=settings.ontology.replay_batch_size,
+                lookup_limit=settings.ontology.lookup_limit,
+            )
+        except Exception:
+            await stores.close()
+            raise
         return ProjectionConsumer(
             subscription=stores.subscription(group_name, consumer_name),
             event_log=stores.event_log,
@@ -84,6 +100,42 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
             settings=settings,
             pack_projector=projector,
             pack_lookup_limit=settings.ontology.lookup_limit,
+        ), stores
+
+    if consumer_type == "pack_extraction":
+        from context_graph.adapters.llm.client import LLMExtractionClient
+        from context_graph.domain.pack_extraction import extraction_profiles
+        from context_graph.ontology.runtime import configured_projector
+        from context_graph.worker.pack_extraction import PackExtractionConsumer
+
+        projector = configured_projector(settings.ontology)
+        ontology = settings.ontology
+        profiles = extraction_profiles(
+            projector.registry,
+            max_nodes=ontology.extraction_max_nodes,
+            max_links=ontology.extraction_max_links,
+            max_text_chars=ontology.extraction_max_text_chars,
+        )
+        log.info(
+            "pack_extraction_profiles",
+            packs=[p.pack_name for p in profiles],
+            sources=sorted({s for p in profiles for s in p.sources}),
+        )
+        stores = await open_stores(settings)
+        return PackExtractionConsumer(
+            subscription=stores.subscription(group_name, consumer_name),
+            event_log=stores.event_log,
+            graph=stores.graph,
+            profiles=profiles,
+            projector=projector,
+            model=LLMExtractionClient(
+                model_id=settings.llm.model_id,
+                temperature=settings.llm.temperature,
+                max_tokens=settings.llm.max_tokens,
+                timeout=settings.llm.timeout_seconds,
+                max_retries=settings.llm.max_retries,
+            ),
+            settings=settings,
         ), stores
 
     if consumer_type == "enrichment":

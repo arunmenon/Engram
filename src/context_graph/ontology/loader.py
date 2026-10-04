@@ -132,12 +132,17 @@ _PackLoader.add_constructor(_TAG + "float", _construct_float)
 _PackLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping)
 
 
-def parse_pack(text: str, source: str = "<pack>") -> Pack:
-    """Parse and check one pack's YAML text."""
+def load_yaml(text: str, source: str) -> Any:
+    """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
     try:
-        data = yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
     except yaml.YAMLError as exc:
         raise OntologyError([f"{source}: {exc}"]) from exc
+
+
+def parse_pack(text: str, source: str = "<pack>") -> Pack:
+    """Parse and check one pack's YAML text."""
+    data = load_yaml(text, source)
     if not isinstance(data, dict):
         raise OntologyError([f"{source}: a pack must be a mapping"])
     try:
@@ -152,6 +157,15 @@ def parse_pack(text: str, source: str = "<pack>") -> Pack:
 
 def load_pack_file(path: Path) -> Pack:
     return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+
+
+def find_eval_set(name: str, search_dirs: list[Path]) -> Path | None:
+    """A pack's evaluation set, ``<name>.eval.yaml``, in the search dirs or built in."""
+    for directory in [*search_dirs, BUILTIN_PACK_DIR]:
+        candidate = directory / f"{name}.eval.yaml"
+        if candidate.is_file():
+            return candidate
+    return None
 
 
 def find_pack(name: str, search_dirs: list[Path]) -> Path:

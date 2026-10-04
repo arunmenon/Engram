@@ -27,3 +27,11 @@ class ExtractionService(Protocol):
         provenance references back to source events.
         """
         ...
+
+
+class TextGenerator(Protocol):
+    """A language model that answers a prompt with text (pack extraction, ADR-0018)."""
+
+    async def generate_text(self, prompt: str) -> str | None:
+        """The model's answer, or None when the call failed."""
+        ...

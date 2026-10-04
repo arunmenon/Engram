@@ -58,6 +58,8 @@ src/context_graph/
         pack_expressions.py   # Projection-rule value language ($.x, $event.x, regex, map, sha256, ...)
         pack_projection.py    # PackProjector: event + pack rules -> node/edge/state writes (no I/O)
         pack_intents.py       # RegistryIntents: intent classification, weights, seed strategy from packs
+        pack_extraction.py    # ExtractionProfile from packs: prompt, output schema, answer -> plan
+        pack_versioning.py    # classify_change: none / additive / mapping / breaking; pack version checks
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
         event_log.py          # EventLog protocol: worker reads, retention, ordered read_after; MigrationTarget (ADR-0019)
@@ -109,12 +111,16 @@ src/context_graph/
             client.py         # Instructor/litellm
     api/                      # FastAPI layer
         app.py                # Factory: create_app()
-        routes/               # events, context, query, artifacts, lineage, health, entities, admin, users, webhooks
+        routes/               # events, context, query, artifacts, ontology, lineage, health, entities, admin, users, webhooks
         middleware.py         # Error handling, metrics
         dependencies.py       # Dependency injection
     ontology/                 # Pack files and loader (ADR-0018); CG_ONTOLOGY_PACKS selects packs (core always)
         loader.py             # Strict YAML parsing, pack lookup, load_registry()
         runtime.py            # configured_registry / configured_projector from CG_ONTOLOGY_*
+        versioning.py         # Graph's recorded ontology (OntologyState); reconcile at projection start
+        evaluation.py         # <pack>.eval.yaml sets: the gate for retrieval weights
+        rebuild.py            # Blue/green: ledger -> fresh graph via LedgerReplay, gate, record
+        __main__.py           # python -m context_graph.ontology status|evaluate|rebuild --target CG_KEY=VALUE
         packs/                # core, memory, user (today's schema) and pdlc .pack.yaml
     migration/                # Ledger copy, mirror (dual run) and comparison between backends (ADR-0019 §7)
         mirror.py             # LogMirror: ordered read → import with legacy_position; target is its checkpoint
@@ -125,6 +131,7 @@ src/context_graph/
         consumer.py           # Base consumer class (backend-neutral, over Subscription)
         projection.py         # Consumer 1: structural graph projection + ontology pack rules
         pack_projection.py    # apply_plan: pack projection plans through PackGraph
+        pack_extraction.py    # LLM proposals from pack extraction sources (group pack-extraction)
         extraction.py         # Consumer 2: LLM session extraction
         enrichment.py         # Consumer 3: embeddings, SIMILAR_TO, REFERENCES
         consolidation.py      # Consumer 4: summaries, forgetting, patterns

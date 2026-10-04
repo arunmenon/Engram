@@ -23,13 +23,21 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import httpx
+import orjson
 import pytest
 
+from context_graph.adapters.memory.graph import MemoryGraphStore
 from context_graph.adapters.registry import Stores, open_stores
 from context_graph.api.app import create_app, lifespan
+from context_graph.domain.models import Event
+from context_graph.domain.pack_extraction import extraction_profiles
+from context_graph.domain.projection import event_to_node
+from context_graph.ontology.rebuild import rebuild
 from context_graph.ontology.runtime import configured_projector
+from context_graph.ontology.versioning import reconcile
 from context_graph.ports.pack_graph import NodeRef
 from context_graph.settings import Settings
+from context_graph.worker.pack_extraction import PackExtractionConsumer
 from context_graph.worker.projection import ProjectionConsumer
 
 if TYPE_CHECKING:
@@ -82,7 +90,9 @@ async def _drain(consumer: ProjectionConsumer, stores: Stores, group: str) -> No
         pytest.param("neo4j", marks=pytest.mark.integration),
     ],
 )
-async def test_webhooks_build_a_pdlc_graph(monkeypatch: pytest.MonkeyPatch, backend: str) -> None:
+async def test_webhooks_build_a_pdlc_graph(
+    monkeypatch: pytest.MonkeyPatch, backend: str, tmp_path: Path
+) -> None:
     for port in STORAGE_PORTS:
         monkeypatch.setenv(f"CG_STORAGE_{port}", backend)
     if backend == "neo4j":
@@ -117,7 +127,7 @@ async def test_webhooks_build_a_pdlc_graph(monkeypatch: pytest.MonkeyPatch, back
 
     monkeypatch.setattr(stores, "close", keep_open)
     try:
-        await _run(monkeypatch, settings, stores)
+        await _run(monkeypatch, settings, stores, tmp_path)
     finally:
         if backend == "spanner":
             with contextlib.suppress(Exception):
@@ -127,7 +137,9 @@ async def test_webhooks_build_a_pdlc_graph(monkeypatch: pytest.MonkeyPatch, back
         await close()
 
 
-async def _run(monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stores) -> None:
+async def _run(
+    monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stores, tmp_path: Path
+) -> None:
     async def shared_stores(*_args: object, **_kwargs: object) -> Stores:
         return stores
 
@@ -191,6 +203,8 @@ async def _run(monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stor
             await _drain(projection, stores, settings.consumer.group_projection)
             await _check_graph(stores.graph)
             await _check_queries(client)
+            await _check_versioning(client, settings, stores, tmp_path)
+            await _check_extraction(client, settings, stores)
 
 
 async def _check_queries(client: httpx.AsyncClient) -> None:
@@ -248,3 +262,123 @@ async def _check_graph(graph: GraphBackend) -> None:
     assert [r["source_key"] for r in parents] == ["WorkItem:jira|PAY-300"]
     deployments = await graph.find_nodes("Deployment", {"environment": "production"}, 10)
     assert [d["status"] for d in deployments] == ["succeeded"]
+
+
+async def _check_versioning(
+    client: httpx.AsyncClient, settings: Settings, stores: Stores, tmp_path: Path
+) -> None:
+    """The graph records its ontology; a gated rebuild from the same ledger (ADR-0018 phase 3)."""
+    projector = configured_projector(settings.ontology)
+    plan = await reconcile(
+        stores.graph,
+        stores.event_log,
+        projector,
+        allow_breaking=False,
+        batch_size=100,
+        lookup_limit=settings.ontology.lookup_limit,
+    )
+    assert plan.kind == "initial"
+    response = await client.get("/v1/ontology")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["graph"]["version"] == body["version"] == projector.registry.version
+    assert body["change"]["kind"] == "none"
+    assert body["node_types"]["Change"]["key"] == ["repo", "number"]
+    assert body["extraction"][0]["pack"] == "pdlc"
+    assert body["extraction"][0]["propose_nodes"] == ["Constraint", "Decision", "Lesson"]
+
+    (tmp_path / "pdlc.eval.yaml").write_text(
+        "pack: pdlc\n"
+        "questions:\n"
+        "  - id: trace\n"
+        "    query: Where is PAY-341 deployed? Trace it.\n"
+        "    expected: ['Change:acme/payments|7']\n"
+        "    answer: {node_type: Change}\n"
+        "  - id: unreviewed\n"
+        "    query: Which pull requests were merged without an approving review?\n"
+        "    expected: []\n"
+        "    answer: {reasons: [no_link]}\n"
+    )
+    target = MemoryGraphStore()
+    report = await rebuild(stores.event_log, target, projector, settings, eval_dirs=[tmp_path])
+    assert report.passed, report.as_dict()
+    assert report.events >= len(DELIVERIES)
+    rebuilt = await target.get_nodes([NodeRef("Change", "Change:acme/payments|7")])
+    assert rebuilt[NodeRef("Change", "Change:acme/payments|7")]["status"] == "merged"
+
+
+class LinkingModel:
+    """Test double for the model: proposes one decision about the first known component."""
+
+    def __init__(self) -> None:
+        self.prompts: list[str] = []
+
+    async def generate_text(self, prompt: str) -> str | None:
+        self.prompts.append(prompt)
+        components = [
+            line[2:].split(" ")[0]
+            for line in prompt.splitlines()
+            if line.startswith("- Component:")
+        ]
+        links = (
+            [{"type": "APPLIES_TO", "from": "n1", "to": components[0], "confidence": 0.6}]
+            if components
+            else []
+        )
+        return orjson.dumps(
+            {
+                "nodes": [
+                    {"ref": "n1", "type": "Decision", "statement": DECIDED, "confidence": 0.9}
+                ],
+                "links": links,
+            }
+        ).decode()
+
+
+DECIDED = "Refund retries use idempotency keys"
+
+
+async def _check_extraction(client: httpx.AsyncClient, settings: Settings, stores: Stores) -> None:
+    """Prose in, a proposed Decision linked to a known component out (ADR-0018 phase 3)."""
+    event_id = str(uuid4())
+    response = await client.post(
+        "/v1/events",
+        json={
+            "event_id": event_id,
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-02T09:00:00Z",
+            "session_id": "design-review",
+            "agent_id": "agent-1",
+            "trace_id": "t",
+            "payload_ref": "p",
+            "payload": {"content": "For acme/payments we decided: " + DECIDED + "."},
+        },
+    )
+    assert response.status_code in (200, 201), response.text
+    projector = configured_projector(settings.ontology)
+    (profile,) = extraction_profiles(
+        projector.registry, max_nodes=5, max_links=5, max_text_chars=2000
+    )
+    model = LinkingModel()
+    consumer = PackExtractionConsumer(
+        subscription=stores.subscription("pack-extraction", "e2e"),
+        event_log=stores.event_log,
+        graph=stores.graph,
+        profiles=[profile],
+        projector=projector,
+        model=model,
+        settings=settings,
+    )
+    (document,) = await stores.event_log.get_documents([event_id])
+    assert document is not None
+    await stores.graph.merge_event_node(event_to_node(Event.model_validate(document, strict=False)))
+    await consumer.process_message("e2e", {"event_id": event_id})
+    (prompt,) = model.prompts
+    assert "- Component:" in prompt  # found by the words of the text
+    decision = NodeRef("Decision", "Decision:" + hashlib.sha256(DECIDED.encode()).hexdigest())
+    node = (await stores.graph.get_nodes([decision]))[decision]
+    assert node["status"] == "proposed"
+    assert node["source_trust"] == "untrusted"
+    applies = await stores.graph.neighbors([decision], ["APPLIES_TO"], "out", 10)
+    assert len(applies) == 1
+    assert applies[0]["properties"]["link_status"] == "proposed"
