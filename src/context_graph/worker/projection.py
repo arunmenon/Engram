@@ -68,12 +68,22 @@ class ProjectionConsumer(BaseConsumer):
         """Buffer a stream entry for micro-batch projection.
 
         Events are buffered and flushed when either _BATCH_SIZE is reached
-        or _BATCH_TIMEOUT_MS has elapsed since the last flush.
+        or _BATCH_TIMEOUT_MS has elapsed since the last flush. A partial
+        batch left when traffic stops is flushed by ``on_idle``.
         """
         self._buffer.append((entry_id, data))
 
+        if len(self._buffer) >= self._BATCH_SIZE or self._batch_timeout_elapsed():
+            await self._flush_buffer()
+
+    def _batch_timeout_elapsed(self) -> bool:
         elapsed_ms = (time.monotonic() - self._last_flush_time) * 1000.0
-        if len(self._buffer) >= self._BATCH_SIZE or elapsed_ms >= self._BATCH_TIMEOUT_MS:
+        return elapsed_ms >= self._BATCH_TIMEOUT_MS
+
+    async def on_idle(self) -> None:
+        """Flush a partial batch once reads go quiet and the batch timeout has passed."""
+        if self._buffer and self._batch_timeout_elapsed():
+            log.debug("flushing_buffer_on_idle", buffered=len(self._buffer))
             await self._flush_buffer()
 
     async def _flush_buffer(self) -> None:

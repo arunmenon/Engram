@@ -109,7 +109,8 @@ class BaseConsumer:
 
         Drains this consumer's pending items, then reads new items,
         dispatching each to ``process_message`` and acknowledging on
-        success. Loops until ``stop()`` is called.
+        success. A read that returns nothing calls ``on_idle``. Loops
+        until ``stop()`` is called.
         """
         await self.ensure_group()
         log.info(
@@ -165,6 +166,18 @@ class BaseConsumer:
             if loop_iteration % self._LAG_METRIC_INTERVAL == 0:
                 await self._update_lag_metric()
 
+            if not deliveries:
+                try:
+                    await self.on_idle()
+                except Exception:
+                    CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
+                    log.exception(
+                        "idle_hook_failed",
+                        group=self._group_name,
+                        consumer=self._consumer_name,
+                    )
+                continue
+
             for delivery in deliveries:
                 entry_id = delivery.position
                 try:
@@ -202,6 +215,14 @@ class BaseConsumer:
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a single delivered item. Override in subclasses."""
         raise NotImplementedError
+
+    async def on_idle(self) -> None:
+        """Hook called when a read of new items returns nothing.
+
+        Batching consumers override this to flush buffered items once
+        traffic stops, instead of waiting for the next delivery or
+        ``stop()``. Errors are logged and the loop continues.
+        """
 
     async def on_stop(self) -> None:
         """Cleanup hook called after the main loop exits.
