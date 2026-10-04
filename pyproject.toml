@@ -35,6 +35,9 @@ embedding = [
 gcs = [
     "google-cloud-storage>=2.14",
 ]
+spanner = [
+    "google-cloud-spanner>=3.50",
+]
 infra-test = [
     "redis>=5.0",
     "neo4j>=5.25",
@@ -83,6 +86,17 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = ["redis.*", "neo4j.*", "litellm", "litellm.*", "sentence_transformers", "sentence_transformers.*", "google.cloud.*", "google.auth.*", "google.api_core.*"]
 ignore_missing_imports = true
+
+# The Spanner client (optional extra) ships partial type hints; its key and
+# type helpers are untyped. With it installed, ``google.cloud`` is a real
+# package, so the optional ``google.cloud.storage`` import must not error.
+[[tool.mypy.overrides]]
+module = ["context_graph.adapters.spanner.*"]
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = ["context_graph.adapters.gcs.*"]
+disable_error_code = ["attr-defined"]
 
 [tool.coverage.run]
 source = ["src/context_graph"]

@@ -51,12 +51,19 @@ class TestAppend:
         assert first == second
         assert await log.stream_length() == 1  # type: ignore[attr-defined]
 
-    async def test_positions_increase(self, log_harness: LogHarness) -> None:
+    async def test_positions_are_distinct_and_follow_log_order(
+        self, log_harness: LogHarness
+    ) -> None:
+        # Positions are opaque (ADR-0019): only distinctness and the order
+        # the log reports them in are part of the contract.
         log = log_harness.log
         session = _session()
-        positions = [await log.append(make_event(session_id=session)) for _ in range(3)]
+        events = [make_event(session_id=session) for _ in range(3)]
+        positions = [await log.append(event) for event in events]
         assert len(set(positions)) == 3
-        assert positions == sorted(positions, key=lambda p: tuple(map(int, p.split("-"))))
+        assert await log.read_session_ids(session) == [str(e.event_id) for e in events]
+        documents = await log.get_documents([str(e.event_id) for e in events])
+        assert [d["global_position"] for d in documents if d] == positions
 
     async def test_batch_append_dedups_within_batch(self, log_harness: LogHarness) -> None:
         log = log_harness.log
@@ -200,9 +207,11 @@ class TestRetention:
         pending = await subscription.read_pending(10)
         await subscription.ack(*(d.position for d in delivered + pending))
         await asyncio.sleep(0.01)
-        # The group's last delivered entry is kept; everything before goes.
-        assert await log.trim(max_age_days=0, consumer_groups=["conf-group"]) == 2
-        assert await log.stream_length() == 1  # type: ignore[attr-defined]
+        # Everything is acknowledged: older entries go. Redis keeps the
+        # group's last delivered entry (XTRIM MINID); keeping it is allowed.
+        trimmed = await log.trim(max_age_days=0, consumer_groups=["conf-group"])
+        assert trimmed in (2, 3)
+        assert await log.stream_length() == 3 - trimmed  # type: ignore[attr-defined]
 
     async def test_trim_without_groups_drops_old_entries(self, log_harness: LogHarness) -> None:
         log = log_harness.log

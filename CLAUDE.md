@@ -72,11 +72,18 @@ src/context_graph/
         registry.py           # Opens stores by CG_STORAGE_* (ADR-0019); the only way in from api/ and worker/
         search.py             # KeywordIndex/VectorIndex over EventStore/GraphStore search methods
         errors.py             # translate_errors class decorator
+        graph_ops.py          # Generic GraphBackend methods over 8 storage primitives (memory, Spanner)
         memory/               # In-memory reference backend for every port (CG_STORAGE_*=memory)
             log.py            # EventLog
             stream.py         # Stream + consumer groups shared by log and subscriptions
             subscription.py   # Subscription
-            graph.py          # GraphBackend (GraphStore, GraphMaintenance, UserStore, GraphReads)
+            graph.py          # Graph primitives for graph_ops
+        spanner/              # Cloud Spanner backend for every port (CG_STORAGE_*=spanner, CG_SPANNER_*)
+            schema.py         # DDL: Events, consumer tables, GraphNodes/GraphEdges, property graph, indexes
+            log.py            # EventLog: commit-ts positions, sharded by session, full-text search
+            subscription.py   # Consumer groups: per-shard cursors, deliveries, dead letters
+            graph.py          # Graph primitives + GQL lineage and vector-index fast paths
+            search.py         # KeywordIndex with native SCORE
         redis/                # Redis Stack EventStore implementation
             store.py          # XADD, JSON.SET, FT.SEARCH
             subscription.py   # Consumer groups: XREADGROUP, XACK, XAUTOCLAIM, DLQ
@@ -190,7 +197,7 @@ Optional: `tool_name`, `parent_event_id` (UUID), `ended_at`, `status`, `schema_v
 - Event types: dot-namespaced (`agent.invoke`, `tool.execute`)
 - Edge types: UPPER_SNAKE_CASE (`CAUSED_BY`, `SIMILAR_TO`)
 - Redis keys: colon-namespaced (`evt:{event_id}`, `events:{session_id}`)
-- Storage backends: a new or changed adapter must pass `tests/conformance/` (ADR-0019 §5); the memory backend is the reference and runs in the unit job, Redis and Neo4j run in the integration job
+- Storage backends: a new or changed adapter must pass `tests/conformance/` (ADR-0019 §5); the memory backend is the reference and runs in the unit job, Redis, Neo4j and Spanner (emulator, `CG_SPANNER_EMULATOR_HOST`) run as `integration`
 
 ## API Response Pattern
 

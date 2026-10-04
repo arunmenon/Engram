@@ -486,6 +486,35 @@ _RETENTION_REDIS_ALIASES = {
 }
 
 
+class SpannerSettings(BaseSettings):
+    """Cloud Spanner connection and layout (ADR-0019 step 4, Spanner design brief).
+
+    Set ``emulator_host`` (for example ``localhost:9010``) to use the local
+    Spanner emulator; the client then needs no credentials. Against a real
+    instance, credentials come from Application Default Credentials.
+    """
+
+    model_config = {"env_prefix": "CG_SPANNER_"}
+
+    project: str = "engram-local"
+    instance: str = "engram"
+    database: str = "engram"
+    emulator_host: str | None = None
+
+    # Create the instance (emulator only) and database when missing. For
+    # local development and tests; real instances are provisioned outside.
+    create_if_missing: bool = False
+
+    # Session shards for the ledger's time index (design brief D3)
+    shards: int = 16
+
+    # Subscription polling interval while waiting for new events (D2)
+    poll_interval_ms: int = 50
+
+    # Entity embedding size for the vector index (matches the Neo4j index)
+    embedding_dimensions: int = 384
+
+
 class StorageSettings(BaseSettings):
     """Storage backend selection per port (ADR-0019).
 
@@ -532,6 +561,7 @@ class Settings(BaseSettings):
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
     simulation: SimulationSettings = Field(default_factory=SimulationSettings)
     storage: StorageSettings = Field(default_factory=StorageSettings)
+    spanner: SpannerSettings = Field(default_factory=SpannerSettings)
 
     @model_validator(mode="after")
     def _resolve_consumer_aliases(self) -> Settings:

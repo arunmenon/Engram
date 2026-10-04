@@ -1,7 +1,7 @@
 """Translate driver exceptions to the neutral storage errors (ADR-0019).
 
 ``translate_errors(translator)`` is a class decorator: it wraps every
-public coroutine method so a driver exception leaving the adapter becomes
+public coroutine method, including inherited ones, so a driver exception leaving the adapter becomes
 a ``context_graph.ports.errors`` exception, chained to the original.
 Exceptions that are not driver errors (``ValueError``, ``StorageError``,
 cancellation) pass through unchanged.
@@ -46,8 +46,13 @@ def translate_errors(
     """Wrap the public coroutine methods of a class with ``translator``."""
 
     def decorate(cls: ClassT) -> ClassT:
-        for name, member in list(vars(cls).items()):
-            if name.startswith("_") or not inspect.iscoroutinefunction(member):
+        # Inherited methods count too: a backend built on a shared base
+        # (adapters.graph_ops) must not leak driver errors through them.
+        for name in dir(cls):
+            if name.startswith("_"):
+                continue
+            member = inspect.getattr_static(cls, name)
+            if not inspect.iscoroutinefunction(member):
                 continue
             if getattr(member, "__translates_errors__", False):
                 continue

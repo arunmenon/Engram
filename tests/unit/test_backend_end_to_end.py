@@ -1,15 +1,22 @@
-"""End-to-end run on the in-memory backend (ADR-0019 §6).
+"""End-to-end run on a single non-default backend (ADR-0019 §6, step 4).
 
 Proof that nothing above the ports depends on Redis or Neo4j: with every
-``CG_STORAGE_*`` set to ``memory``, events go in through the real API,
+``CG_STORAGE_*`` set to one backend, events go in through the real API,
 the real projection and enrichment workers drain their subscriptions,
 and context, lineage, subgraph and health answer through the real routes
 and retrieval engine.
+
+- ``memory`` always runs;
+- ``spanner`` runs against the Spanner emulator when
+  ``CG_SPANNER_EMULATOR_HOST`` is set (marked ``integration``), in a fresh
+  database that is dropped afterwards.
 """
 
 from __future__ import annotations
 
 import asyncio
+import contextlib
+import os
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -56,15 +63,38 @@ def _event(event_id: str, session_id: str, minutes_ago: int, **extra: object) ->
 
 
 @pytest.mark.asyncio()
-async def test_api_and_workers_run_on_memory_backends(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize(
+    "backend", ["memory", pytest.param("spanner", marks=pytest.mark.integration)]
+)
+async def test_api_and_workers_run_on_one_backend(
+    monkeypatch: pytest.MonkeyPatch, backend: str
+) -> None:
     for port in STORAGE_PORTS:
-        monkeypatch.setenv(f"CG_STORAGE_{port}", "memory")
+        monkeypatch.setenv(f"CG_STORAGE_{port}", backend)
+    if backend == "spanner":
+        emulator = os.environ.get("CG_SPANNER_EMULATOR_HOST")
+        if not emulator:
+            pytest.skip("Spanner emulator not configured (CG_SPANNER_EMULATOR_HOST)")
+        pytest.importorskip("google.cloud.spanner")
+        monkeypatch.setenv("CG_SPANNER_DATABASE", f"e2e{uuid4().hex[:12]}")
+        monkeypatch.setenv("CG_SPANNER_CREATE_IF_MISSING", "true")
     monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
     monkeypatch.delenv("CG_AUTH_API_KEY", raising=False)
     settings = Settings()
 
-    # One process: the API and the workers share the same in-memory stores.
+    # One process: the API and the workers share the same stores.
     stores = await open_stores(settings, prepare_ingest=True)
+    try:
+        await _run_flow(monkeypatch, settings, stores, backend)
+    finally:
+        if backend == "spanner":
+            with contextlib.suppress(Exception):
+                await asyncio.to_thread(stores.event_log.database.drop)  # type: ignore[attr-defined]
+
+
+async def _run_flow(
+    monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stores, backend: str
+) -> None:
 
     async def shared_stores(*_args: object, **_kwargs: object) -> Stores:
         return stores
@@ -119,7 +149,7 @@ async def test_api_and_workers_run_on_memory_backends(monkeypatch: pytest.Monkey
             context = (await client.get(f"/v1/context/{session_id}")).json()
             assert set(context["nodes"]) == {root, child, grandchild}
             node = context["nodes"][root]
-            assert node["provenance"]["source"] == "memory"
+            assert node["provenance"]["source"] == backend
             assert node["provenance"]["global_position"]
             assert node["attributes"]["keywords"] == ["tool", "execute", "grep"]
 
@@ -137,5 +167,5 @@ async def test_api_and_workers_run_on_memory_backends(monkeypatch: pytest.Monkey
             assert subgraph["meta"]["retrieval_channels"]["graph"] == 3
 
             health = (await client.get("/v1/health")).json()
-            assert health["event_log"] == {"backend": "memory", "ok": True}
-            assert health["graph"] == {"backend": "memory", "ok": True}
+            assert health["event_log"] == {"backend": backend, "ok": True}
+            assert health["graph"] == {"backend": backend, "ok": True}

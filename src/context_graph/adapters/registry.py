@@ -11,6 +11,8 @@ Registered backends:
 - ``neo4j``: graph and vector index;
 - ``memory``: every port, in process (reference backend, ADR-0019 §6),
   not durable and not shared between processes;
+- ``spanner``: every port, in one Cloud Spanner database (``CG_SPANNER_*``;
+  the emulator via ``CG_SPANNER_EMULATOR_HOST``); needs ``.[spanner]``;
 - ``fs`` / ``gcs``: archive.
 
 The keyword index is served by the event log backend and the vector
@@ -22,7 +24,7 @@ Source: ADR-0019
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -39,11 +41,11 @@ if TYPE_CHECKING:
 
 log = structlog.get_logger(__name__)
 
-EVENT_LOG_BACKENDS = ("redis", "memory")
-SUBSCRIPTION_BACKENDS = ("redis", "memory")
-GRAPH_BACKENDS = ("neo4j", "memory")
-KEYWORD_INDEX_BACKENDS = ("redis", "memory")
-VECTOR_INDEX_BACKENDS = ("neo4j", "memory")
+EVENT_LOG_BACKENDS = ("redis", "memory", "spanner")
+SUBSCRIPTION_BACKENDS = ("redis", "memory", "spanner")
+GRAPH_BACKENDS = ("neo4j", "memory", "spanner")
+KEYWORD_INDEX_BACKENDS = ("redis", "memory", "spanner")
+VECTOR_INDEX_BACKENDS = ("neo4j", "memory", "spanner")
 ARCHIVE_BACKENDS = ("fs", "gcs")
 
 
@@ -127,17 +129,34 @@ async def open_stores(
 
     closers: list[Callable[[], Awaitable[None]]] = []
 
+    spanner_database: Any = None
+    if "spanner" in (storage.event_log, storage.graph):
+        import asyncio
+
+        from context_graph.adapters.spanner.schema import open_database
+
+        spanner_database = await asyncio.to_thread(open_database, settings.spanner)
+
     if storage.event_log == "memory":
         event_log, open_subscription = _open_memory_log(settings)
+    elif storage.event_log == "spanner":
+        event_log, open_subscription = _open_spanner_log(settings, spanner_database)
     else:
         event_log, open_subscription = await _open_redis_log(settings, prepare_ingest, closers)
 
-    if storage.graph == "memory":
+    if storage.graph == "spanner":
+        from context_graph.adapters.spanner.graph import SpannerGraphStore
+
+        graph: GraphBackend = SpannerGraphStore(
+            spanner_database,
+            embedding_dimensions=settings.spanner.embedding_dimensions,
+            decay_settings=settings.decay,
+            ppr_settings=settings.ppr,
+        )
+    elif storage.graph == "memory":
         from context_graph.adapters.memory.graph import MemoryGraphStore
 
-        graph: GraphBackend = MemoryGraphStore(
-            decay_settings=settings.decay, ppr_settings=settings.ppr
-        )
+        graph = MemoryGraphStore(decay_settings=settings.decay, ppr_settings=settings.ppr)
     else:
         from context_graph.adapters.neo4j.store import Neo4jGraphStore
 
@@ -151,7 +170,15 @@ async def open_stores(
     # memory log's term match); vector search by the graph store.
     from context_graph.adapters.search import EventStoreKeywordIndex, GraphVectorIndex
 
-    keyword_index = EventStoreKeywordIndex(event_log)
+    keyword_index: KeywordIndex
+    if storage.keyword_index == "spanner":
+        from context_graph.adapters.spanner.log import SpannerEventLog
+        from context_graph.adapters.spanner.search import SpannerKeywordIndex
+
+        assert isinstance(event_log, SpannerEventLog)
+        keyword_index = SpannerKeywordIndex(event_log)
+    else:
+        keyword_index = EventStoreKeywordIndex(event_log)
     vector_index = GraphVectorIndex(graph)
 
     # -- Archive -----------------------------------------------------------
@@ -243,6 +270,31 @@ def _open_memory_log(
         )
 
     return memory_log, open_subscription
+
+
+def _open_spanner_log(
+    settings: Settings,
+    database: Any,
+) -> tuple[EventLog, Callable[[str, str], Subscription]]:
+    """Spanner event log plus subscriptions over the same database."""
+    from context_graph.adapters.spanner.log import SpannerEventLog
+    from context_graph.adapters.spanner.subscription import SpannerSubscription
+
+    spanner_settings = settings.spanner
+    consumer_settings = settings.consumer
+    spanner_log = SpannerEventLog(database, shards=spanner_settings.shards)
+
+    def open_subscription(group_name: str, consumer_name: str) -> Subscription:
+        return SpannerSubscription(
+            database,
+            group_name,
+            consumer_name,
+            shards=spanner_settings.shards,
+            claim_idle_ms=consumer_settings.claim_idle_ms,
+            poll_interval_ms=spanner_settings.poll_interval_ms,
+        )
+
+    return spanner_log, open_subscription
 
 
 def _open_archive(

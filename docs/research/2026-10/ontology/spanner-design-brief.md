@@ -129,3 +129,22 @@ One independent review (Fable 5.1, short pass). Its 12 findings were checked aga
 | 12 | API files use Redis directly | minor | listed in scope |
 
 Reviewer's verdict: fit for a decision-maker once findings 1–6 were fixed. They are.
+
+## 12. Verification on the emulator (2026-10-04, ADR-0019 step 4)
+
+Checked on Cloud Spanner emulator 1.5.58 with `google-cloud-spanner` 3.71 (§9 items):
+
+| Item | Result |
+|---|---|
+| Property graphs with `DYNAMIC LABEL` / `DYNAMIC PROPERTIES` | work; dynamic properties come back as JSON, so comparisons need a cast (`start.node_id` on a key column works directly) |
+| GQL quantified paths (`TRAIL ... ->{1,n}`), `NODES(p)` | work; used for lineage |
+| GQL limits on the emulator | the quantified edge variable cannot be used in `WHERE` or a subquery ("Failed to find column `$element_table.e#7`"); `ARRAY_TRANSFORM` lambdas are not supported. Put depth in the quantifier and read paths with `NODES(p)` |
+| Full-text search (`TOKENIZE_FULLTEXT`, `TOKENLIST_CONCAT`, search index, `SEARCH`, `SCORE`) | works; `SEARCH` matches all terms, as RediSearch's default |
+| Vector index, `APPROX_COSINE_DISTANCE`, `COSINE_DISTANCE` | work |
+| Commit timestamps in keys and indexes; generated columns from JSON | work |
+| Async Python client (G12) | not used; the sync client runs in worker threads (`asyncio.to_thread`) and passes the suites |
+| D2 consumer reads | implemented with reads inside read-write transactions instead of a strong read plus a returned read timestamp; range locks give the same no-skip guarantee |
+| Client gotcha | `ARRAY<FLOAT64>` values must be Python floats; a list with an int fails the commit |
+| Database creation | about 0.03 s on the emulator, so tests use a fresh database each |
+
+Still unverified (needs a real instance): the Enterprise-edition requirement and prices, concurrent producers and consumer crashes (the emulator serialises read-write transactions), hotspot behaviour, ranking parity with BM25, approximate-vector recall.

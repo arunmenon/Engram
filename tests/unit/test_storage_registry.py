@@ -83,7 +83,7 @@ class TestOpenStores:
     async def test_unknown_backend_rejected_before_connecting(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setenv("CG_STORAGE_GRAPH", "spanner")
+        monkeypatch.setenv("CG_STORAGE_GRAPH", "cassandra")
         with (
             patch("redis.asyncio.Redis") as redis_cls,
             pytest.raises(UnknownBackendError, match="CG_STORAGE_GRAPH"),

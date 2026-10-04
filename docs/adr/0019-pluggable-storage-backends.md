@@ -240,3 +240,46 @@ Step 3 (proof) is implemented: conformance suites for all five ports, and an in-
 - **Keyword (BM25) channel:** RediSearch indexes `$.summary` and `$.keywords` on event documents, but ingested events never carry those fields (the `Event` model has neither), so the keyword seed channel finds nothing in practice. The memory backend mirrors this; the suite exercises the index by writing those fields directly. Making the channel useful needs a decision on what text events should carry.
 - **PDLC question set:** "graph answers on the PDLC question set" (§5) waits for the ADR-0018 generic projector; the ontology packs are not implemented yet.
 - **Generic operations:** the ADR-0018 generic graph operations (`upsert_nodes`, `neighbors`, …) and generic fallbacks for named operations are not added. Each backend implements the named operations directly; the memory backend shows what a fallback would compute.
+
+## Step 4 implementation: Spanner on the emulator (2026-10-04)
+
+Spanner is a registered backend for all five ports (`CG_STORAGE_*=spanner`), built to the Spanner design brief and verified on the Cloud Spanner emulator (1.5.58, `google-cloud-spanner` 3.71). No GCP resources were created.
+
+| Item | Where | Notes |
+|---|---|---|
+| Schema | `adapters/spanner/schema.py` | One database. **Ledger:** `Events`, keyed by `event_id`, with a sharded time index `(shard, commit_ts, batch_index)` (D3), a session index, and a full-text search index over `summary` + `keywords`. **Consumer groups:** `ConsumerGroups`, `ConsumerCursors`, `ConsumerDeliveries`, `ConsumerDeadLetters`. **Graph:** schemaless `GraphNodes` / `GraphEdges` (JSON properties, dynamic labels) with `CREATE PROPERTY GRAPH EngramGraph` (D4), plus a cosine vector index on entity embeddings. `CG_SPANNER_CREATE_IF_MISSING` creates the emulator instance and database. |
+| EventLog | `adapters/spanner/log.py` | Positions are `<commit ts to ns>/<batch index>/<event id>`, fixed width (D1). Append is one read-write transaction: a live duplicate returns its position, otherwise the row is written with the commit timestamp (G2). Redis's four retention structures map to four flags on one row; a row is deleted once all four are cleared (G7). Keyword search uses `SEARCH`/`SCORE` (G6). |
+| Subscription | `adapters/spanner/subscription.py` | Per-group, per-shard cursors; a deliveries table replaces the pending list; claim, retry counts and dead letters as the port requires (G3, G4). Reads poll inside read-write transactions. Spanner locks the ranges a transaction reads, so a producer either commits before the read (and is seen) or after it with a later timestamp: the cursor never skips. This gives D2's guarantee without a separate read-timestamp step. |
+| Graph | `adapters/spanner/graph.py`; shared `adapters/graph_ops.py` | The graph methods come from a new generic layer built on eight storage primitives, shared with the memory backend. These are §1's "generic fallbacks". Spanner supplies the primitives (key-range reads, index reads, mutations) and two native fast paths: lineage as a GQL `TRAIL` quantified path (G9) and entity similarity via `APPROX_COSINE_DISTANCE` on the vector index (G10). |
+| Search | `adapters/spanner/search.py` | Keyword hits carry Spanner's native `SCORE`, normalised to [0, 1] by the best hit. |
+| Errors | `adapters/spanner/errors.py` | google-api-core exceptions map to the neutral set. The error-translation decorator now also wraps inherited methods. |
+
+**Results on the emulator:**
+- All 85 conformance cases pass on Spanner (EventLog 18, Subscription 15, GraphStore 24, UserStore 8, GraphReads 17, search 3).
+- The end-to-end run passes with every backend set to `spanner`: ingest through the API, the real projection and enrichment workers, then context, lineage, subgraph and health.
+- Across all backends: 236 conformance cases pass, with the Redis event-log suite skipped here for lack of Redis Stack; 1444 unit plus conformance tests pass.
+
+**Suite changes:** two assertions encoded Redis details and were relaxed to the port's contract:
+- positions were parsed as `<ms>-<seq>`; positions are opaque;
+- trim had to keep the group's last delivered entry, a quirk of `XTRIM MINID`.
+
+**How to run locally:**
+```
+# download the emulator from storage.googleapis.com/cloud-spanner-emulator/releases/<version>/
+./gateway_main --hostname 127.0.0.1 --grpc_port 9010 --http_port 9020
+pip install -e ".[dev,spanner]"
+CG_SPANNER_EMULATOR_HOST=127.0.0.1:9010 pytest tests/conformance -m integration -k spanner
+```
+`gcloud emulators spanner start` and the `gcr.io/cloud-spanner-emulator/emulator` image work too.
+
+**Still needs a real instance** (design brief phase 2 exit):
+- concurrency and fault tests: the emulator runs one read-write transaction at a time;
+- load and hotspot checks for D3;
+- full-text ranking compared with RediSearch BM25;
+- approximate-vector recall at scale;
+- confirming the Enterprise-edition requirement and prices.
+
+**Not done:**
+- data migration and dual run (brief phase 3);
+- the ADR-0018 generic projector for ontology packs;
+- the 30 PDLC competency questions as graph conformance cases.

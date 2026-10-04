@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from context_graph.adapters.search import EventStoreKeywordIndex, GraphVectorIndex
+from context_graph.adapters.search import GraphVectorIndex
 from tests.conformance.graph_fixtures import entity_node, unit_vector
 from tests.fixtures.events import make_event
 
@@ -36,14 +36,15 @@ class TestKeywordIndex:
             await log_harness.set_document_fields(
                 str(event.event_id), {"summary": "build failed on ci"}
             )
-        index = EventStoreKeywordIndex(log_harness.log)
+        index = log_harness.keyword_index
+        assert index is not None
 
         hits = await index.search("build", session_id=session, limit=10)
         _assert_well_formed(hits)
         assert {hit.id for hit in hits} == {str(e.event_id) for e in events}
         assert len(await index.search("build", session_id=session, limit=2)) == 2
         assert await index.search("nothing-matches-this", session_id=session) == []
-        assert index.scores_are_native is False
+        assert isinstance(index.scores_are_native, bool)
 
 
 class TestVectorIndex:
