@@ -371,3 +371,9 @@ The two worker behaviours the dual run exposed:
 
 The dual-run test no longer flushes explicitly.
 
+- **Pending drain spinning on a failing item** (cherry-picked from a separate session): on start-up, the consumer recovered its pending items by re-reading from the beginning until nothing came back. An item that kept failing came back on every read, so the drain spun, never dead-lettered it in that run, and never reached new items.
+  - **New port argument:** `Subscription.read_pending` takes an optional `after` cursor. Each sweep reads every pending item once, and failures are retried in the next sweep.
+  - **Retry limit:** delivery counts include failures seen in this run, so an item past `max_retries` is dead-lettered without a restart.
+  - **Bound:** the drain ends after a clean sweep, at most `max_retries + 1` sweeps.
+  - **Backends:** the original change covered Redis only. Memory and Spanner now implement the cursor too, and a conformance case pins it for every backend.
+

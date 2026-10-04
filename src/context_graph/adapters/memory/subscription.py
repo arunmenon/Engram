@@ -80,8 +80,10 @@ class MemorySubscription:
                     break
         return counts
 
-    async def read_pending(self, count: int) -> list[Delivery]:
-        entries = self._stream.read_pending(self._group_name, self._consumer_name, count)
+    async def read_pending(self, count: int, *, after: str | None = None) -> list[Delivery]:
+        entries = self._stream.read_pending(
+            self._group_name, self._consumer_name, count, after=after
+        )
         return [_delivery(e) for e in entries]
 
     async def read_new(self, count: int, block_ms: int) -> list[Delivery]:

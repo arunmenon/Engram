@@ -144,14 +144,20 @@ class MemoryStream:
             except TimeoutError:
                 return
 
-    def read_pending(self, group_name: str, consumer: str, count: int) -> list[StreamEntry]:
+    def read_pending(
+        self, group_name: str, consumer: str, count: int, *, after: str | None = None
+    ) -> list[StreamEntry]:
+        """This consumer's pending entries in log order, after ``after`` when given."""
         group = self._groups[group_name]
         by_position = {e.position: e for e in self._entries}
         delivered: list[StreamEntry] = []
         now = self._clock()
+        floor = position_sort_key(after) if after else None
         for position in sorted(group.pending, key=position_sort_key):
             pending = group.pending[position]
             if pending.consumer != consumer or position not in by_position:
+                continue
+            if floor is not None and position_sort_key(position) <= floor:
                 continue
             pending.delivery_count += 1
             pending.last_delivered_at = now

@@ -86,6 +86,28 @@ def format_position(commit_ts: datetime, batch_index: int, event_id: str) -> str
     return f"{utc:%Y-%m-%dT%H:%M:%S}.{nanos:09d}Z/{batch_index:06d}/{event_id}"
 
 
+def after_position(position: str) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    """SQL condition, params and types for rows strictly after ``position``.
+
+    For tables keyed by (commit_ts, batch_index, event_id) in log order.
+    """
+    from google.cloud.spanner_v1 import param_types
+
+    timestamp, batch_index, event_id = position.split("/", 2)
+    clause = (
+        "(commit_ts > CAST(@after_ts AS TIMESTAMP) OR (commit_ts = CAST(@after_ts AS TIMESTAMP) "
+        "AND (batch_index > @after_batch OR (batch_index = @after_batch "
+        "AND event_id > @after_event_id))))"
+    )
+    params = {"after_ts": timestamp, "after_batch": int(batch_index), "after_event_id": event_id}
+    types = {
+        "after_ts": param_types.STRING,
+        "after_batch": param_types.INT64,
+        "after_event_id": param_types.STRING,
+    }
+    return clause, params, types
+
+
 def event_id_of(position: str) -> str:
     """The event id a position names."""
     return position.rsplit("/", 1)[-1]
@@ -346,19 +368,10 @@ class SpannerEventLog:
         params: dict[str, Any] = {"limit": limit}
         types: dict[str, Any] = {"limit": param_types.INT64}
         if position:
-            timestamp, batch_index, event_id = position.split("/", 2)
-            where.append(
-                "(commit_ts > CAST(@ts AS TIMESTAMP) OR (commit_ts = CAST(@ts AS TIMESTAMP) "
-                "AND (batch_index > @batch OR (batch_index = @batch AND event_id > @event_id))))"
-            )
-            params.update({"ts": timestamp, "batch": int(batch_index), "event_id": event_id})
-            types.update(
-                {
-                    "ts": param_types.STRING,
-                    "batch": param_types.INT64,
-                    "event_id": param_types.STRING,
-                }
-            )
+            clause, after_params, after_types = after_position(position)
+            where.append(clause)
+            params.update(after_params)
+            types.update(after_types)
         rows = await self._query(
             f"SELECT document, {POSITION_COLUMNS} FROM Events WHERE {' AND '.join(where)} "
             f"ORDER BY {POSITION_COLUMNS} LIMIT @limit",

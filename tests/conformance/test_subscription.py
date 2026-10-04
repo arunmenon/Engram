@@ -140,6 +140,24 @@ class TestAtLeastOnce:
         await subscription.read_pending(10)
         assert (await subscription.delivery_counts(limit=100))[position] == 3
 
+    async def test_pending_pages_with_a_cursor(
+        self, subscription_harness: SubscriptionHarness
+    ) -> None:
+        """``after`` skips past items already read, so a failing one cannot block the rest."""
+        await _publish(subscription_harness, 4)
+        subscription = subscription_harness.open("g", "c1")
+        await subscription.ensure_group()
+        delivered = await subscription.read_new(10, 0)
+        await subscription.ack(delivered[2].position)
+
+        first = await subscription.read_pending(1)
+        rest = await subscription.read_pending(10, after=first[-1].position)
+
+        assert _ids(first) == ["e0"]
+        assert _ids(rest) == ["e1", "e3"]
+        assert await subscription.read_pending(10, after=rest[-1].position) == []
+        assert _ids(await subscription.read_pending(10)) == ["e0", "e1", "e3"]
+
 
 class TestRecovery:
     async def test_idle_items_can_be_claimed(

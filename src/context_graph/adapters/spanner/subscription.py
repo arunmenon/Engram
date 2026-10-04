@@ -32,6 +32,7 @@ from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import (
     POSITION_COLUMNS,
+    after_position,
     event_id_of,
     format_position,
     json_param,
@@ -185,17 +186,23 @@ class SpannerSubscription:
                 return deliveries
             await asyncio.sleep(min(self._poll_interval_s, max(deadline - time.monotonic(), 0)))
 
-    async def read_pending(self, count: int) -> list[Delivery]:
+    async def read_pending(self, count: int, *, after: str | None = None) -> list[Delivery]:
         from google.cloud.spanner_v1 import param_types
 
         params, types = self._params(limit=(count, param_types.INT64))
+        after_clause = ""
+        if after:
+            clause, after_params, after_types = after_position(after)
+            after_clause = f"AND {clause} "
+            params.update(after_params)
+            types.update(after_types)
 
         def work(transaction: Any) -> list[Delivery]:
             rows = list(
                 transaction.execute_sql(
                     "SELECT event_id, commit_ts, batch_index, delivery_count "
                     "FROM ConsumerDeliveries@{FORCE_INDEX=ConsumerDeliveriesByConsumer} "
-                    "WHERE group_name = @group AND consumer = @consumer "
+                    f"WHERE group_name = @group AND consumer = @consumer {after_clause}"
                     f"ORDER BY {POSITION_COLUMNS} LIMIT @limit",
                     params=params,
                     param_types=types,
