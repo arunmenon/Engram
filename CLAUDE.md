@@ -57,6 +57,7 @@ src/context_graph/
         ontology.py           # Ontology pack format + OntologyRegistry: compose, validate, version hash (ADR-0018)
         pack_expressions.py   # Projection-rule value language ($.x, $event.x, regex, map, sha256, ...)
         pack_projection.py    # PackProjector: event + pack rules -> node/edge/state writes (no I/O)
+        pack_intents.py       # RegistryIntents: intent classification, weights, seed strategy from packs
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
         event_log.py          # EventLog protocol: worker reads, retention, ordered read_after; MigrationTarget (ADR-0019)
@@ -73,6 +74,7 @@ src/context_graph/
     retrieval/                # Backend-neutral retrieval engine (ADR-0019) — ports only
         engine.py             # get_subgraph / get_context / get_lineage
         atlas.py              # Atlas node + adjacency helpers
+        artifacts.py          # ArtifactRetriever: pack-type questions (seeds, traversal, admission, completeness)
     adapters/
         registry.py           # Opens stores by CG_STORAGE_* (ADR-0019); the only way in from api/ and worker/
         search.py             # KeywordIndex/VectorIndex over EventStore/GraphStore search methods
@@ -107,7 +109,7 @@ src/context_graph/
             client.py         # Instructor/litellm
     api/                      # FastAPI layer
         app.py                # Factory: create_app()
-        routes/               # events, context, query, lineage, health, entities, admin, users, webhooks
+        routes/               # events, context, query, artifacts, lineage, health, entities, admin, users, webhooks
         middleware.py         # Error handling, metrics
         dependencies.py       # Dependency injection
     ontology/                 # Pack files and loader (ADR-0018); CG_ONTOLOGY_PACKS selects packs (core always)

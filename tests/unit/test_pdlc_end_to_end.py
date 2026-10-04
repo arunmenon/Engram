@@ -178,16 +178,44 @@ async def _run(monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stor
             assert spoofed.status_code == 422, spoofed.text
             assert "reserved" in spoofed.text
 
-    projection = ProjectionConsumer(
-        subscription=stores.subscription(settings.consumer.group_projection, "projection-1"),
-        event_log=stores.event_log,
-        graph_store=stores.graph,
-        settings=settings,
-        pack_projector=configured_projector(settings.ontology),
-        pack_lookup_limit=settings.ontology.lookup_limit,
+            projection = ProjectionConsumer(
+                subscription=stores.subscription(
+                    settings.consumer.group_projection, "projection-1"
+                ),
+                event_log=stores.event_log,
+                graph_store=stores.graph,
+                settings=settings,
+                pack_projector=configured_projector(settings.ontology),
+                pack_lookup_limit=settings.ontology.lookup_limit,
+            )
+            await _drain(projection, stores, settings.consumer.group_projection)
+            await _check_graph(stores.graph)
+            await _check_queries(client)
+
+
+async def _check_queries(client: httpx.AsyncClient) -> None:
+    """Artifact questions through the API (ADR-0018 phase 2)."""
+    trace = await client.post(
+        "/v1/query/artifacts", json={"query": "Where is PAY-341 deployed? Trace it."}
     )
-    await _drain(projection, stores, settings.consumer.group_projection)
-    await _check_graph(stores.graph)
+    assert trace.status_code == 200, trace.text
+    body = trace.json()
+    assert body["meta"]["inferred_intents"] == {"trace": 1.0}
+    assert body["meta"]["seed_nodes"][0] == "WorkItem:jira|PAY-341"
+    assert "Change:acme/payments|7" in body["nodes"]
+    change = body["nodes"]["Change:acme/payments|7"]
+    assert change["provenance"]["agent_id"] == "webhook:github"
+
+    unreviewed = await client.post(
+        "/v1/query/artifacts",
+        json={"query": "Which pull requests were merged without an approving review?"},
+    )
+    assert unreviewed.status_code == 200, unreviewed.text
+    assert unreviewed.json()["nodes"] == {}  # PR 7 was approved
+    assert unreviewed.json()["meta"]["retrieval_channels"]["completeness.REVIEWS.confirmed"] == 1
+
+    bad = await client.post("/v1/query/artifacts", json={"query": "x", "intent": "nope"})
+    assert bad.status_code == 422
 
 
 async def _check_graph(graph: GraphBackend) -> None:

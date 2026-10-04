@@ -543,6 +543,13 @@ class OntologySettings(BaseSettings):
     # match_any_prefix)
     lookup_limit: int = 1000
 
+    # Artifact retrieval (POST /v1/query/artifacts): seeds taken from the
+    # query, edges read per traversal step, and the weakest word-matched
+    # seed kept, relative to the best word match
+    retrieval_seed_limit: int = 10
+    retrieval_neighbor_limit: int = 200
+    retrieval_seed_min_ratio: float = 0.5
+
     @field_validator("packs", "pack_dirs", "trusted_sources", mode="before")
     @classmethod
     def _split(cls, value: object) -> object:

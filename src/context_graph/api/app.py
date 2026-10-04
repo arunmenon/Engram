@@ -20,6 +20,7 @@ from context_graph.adapters.registry import open_stores
 from context_graph.api.dependencies import require_admin_key, require_api_key
 from context_graph.api.middleware import register_middleware
 from context_graph.api.routes.admin import router as admin_router
+from context_graph.api.routes.artifacts import router as artifacts_router
 from context_graph.api.routes.context import router as context_router
 from context_graph.api.routes.entities import router as entities_router
 from context_graph.api.routes.events import router as events_router
@@ -30,8 +31,10 @@ from context_graph.api.routes.query import router as query_router
 from context_graph.api.routes.simulate import router as simulate_router
 from context_graph.api.routes.users import router as users_router
 from context_graph.api.routes.webhooks import router as webhooks_router
+from context_graph.domain.pack_intents import RegistryIntents
 from context_graph.ontology.runtime import configured_registry
 from context_graph.retrieval import RetrievalEngine
+from context_graph.retrieval.artifacts import ArtifactRetriever
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
@@ -108,6 +111,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         query_timeout_s=settings.query.default_timeout_ms / 1000.0,
         neighbor_limit=settings.query.default_neighbor_limit,
         provenance_source=settings.storage.event_log,
+        intents=RegistryIntents.for_events(ontology),
+    )
+    artifacts = ArtifactRetriever(
+        stores.graph,
+        ontology,
+        default_max_depth=settings.query.default_max_depth,
+        seed_limit=settings.ontology.retrieval_seed_limit,
+        neighbor_limit=settings.ontology.retrieval_neighbor_limit,
+        provenance_source=settings.storage.event_log,
+        seed_min_ratio=settings.ontology.retrieval_seed_min_ratio,
     )
 
     app.state.settings = settings
@@ -116,6 +129,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.graph_store = stores.graph
     app.state.retrieval = retrieval
     app.state.ontology = ontology
+    app.state.artifacts = artifacts
 
     logger.info(
         "app_started",
@@ -149,6 +163,7 @@ def create_app() -> FastAPI:
     app.include_router(events_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(context_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(query_router, prefix="/v1", dependencies=api_key_deps)
+    app.include_router(artifacts_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(lineage_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(entities_router, prefix="/v1", dependencies=api_key_deps)
     app.include_router(feedback_router, prefix="/v1", dependencies=api_key_deps)

@@ -160,3 +160,36 @@ This round also adds `PackGraph.search_nodes`, which phase 2 needs, with conform
 - `change.merged` sets title, body and files;
 - the reopen guard.
 
+### Phase 2: retrieval from packs (2026-10-04)
+
+| Item | Where | Notes |
+|---|---|---|
+| Registry intents | `domain/pack_intents.py` (`RegistryIntents`) | **Algorithm:** the same as `domain/intent.py` (keyword matches, normalised confidences, the fallback intent, per-edge weights, seed strategy), but from the active packs. **Equivalence:** with today's packs it equals the fixed tables (`tests/unit/test_pack_intents.py`). **Event retrieval:** `RetrievalEngine` takes `intents=` and the API passes the registry's event intents. PDLC adds weights to `why`/`who_is` and changes nothing else for event queries. |
+| Artifact retrieval | `retrieval/artifacts.py` (`ArtifactRetriever`); `POST /v1/query/artifacts` | **Intents:** those weighting pack edges, classified from the pack keywords (PDLC 1.2.0) or given. **Seeds:** given node ids; key-like tokens (`PAY-341`, `refund/retry.py`, `v1.4.0`, `#7`), with a node's own key ranked first; then stemmed words, cut relative to the best match. **Traversal:** best-first and bounded, along the intent's weighted edges in its direction. **Admission:** the pack rules. A node is superseded when its status says so or another node `SUPERSEDES` it, and is kept only for intents the rule lists. Untrusted nodes need a trusted neighbour in the answer. Proposed links keep their confidence. **Completeness:** the `missing_links` plugin is a set difference reporting `no_link`, `proposed_only` and `confirmed`, scoped by seeds and by lifecycle states named in the question. **Provenance:** from each node's newest `DERIVED_FROM` event. **Output:** the Atlas pattern. |
+| Graph operation | `PackGraph.search_nodes` | Case-insensitive term match in text and list fields, on memory, Neo4j and Spanner, with conformance cases. Spanner and memory scan the label, which is acceptable at PDLC scale; a full-text or vector index path is future work. |
+| Settings | `CG_ONTOLOGY_RETRIEVAL_SEED_LIMIT`, `..._NEIGHBOR_LIMIT`, `..._SEED_MIN_RATIO` | Depth and node bounds come from `CG_QUERY_*`. |
+
+Evaluation (`tests/unit/test_pdlc_retrieval_eval.py`), the design note's phase 2 exit check:
+- **Graph:** a payments project built mostly by projecting PDLC events. Catalogue, requirement, test-link, design and contradiction records are upserted directly, standing in for the catalogue importer and extraction.
+- **Questions:** in the MOOSEDev classes of supersession, completeness and negation.
+- **Baseline:** top-k text retrieval over the same seed types. It is lexical because no embedding model runs in tests, so it stands in for vector retrieval.
+- **Results:** mean F1 with retrieval vs baseline. Supersession 1.00 vs 0.53, completeness 1.00 vs 0.33, negation 1.00 vs 0.67.
+- **Further checks:** trace, why, preflight, impact, trust and bounds behaviour. Artifact queries also run through the API in `test_pdlc_end_to_end.py` on memory, Spanner (emulator) and Neo4j.
+- **Caveat:** the numbers come from a small hand-built project, not real data.
+
+Competency questions:
+- **Exercised by these tests:**
+  - CQ05/CQ10 (completeness);
+  - CQ06/CQ15 (supersession);
+  - CQ08 (negation);
+  - CQ11/CQ12 (completeness);
+  - CQ13 (why);
+  - CQ14 (preflight);
+  - CQ19 (trace);
+  - CQ29 (untrusted).
+- **Not yet answerable:**
+  - `aggregate` (CQ18, CQ21, CQ22), which needs counts;
+  - `temporal` filters ("last quarter", "last week"), which need time-scoped queries;
+  - `similarity` (CQ03, CQ26), which needs embeddings of pack types;
+  - `snapshot` (CQ04, CQ28), which needs the pinned-position read.
+

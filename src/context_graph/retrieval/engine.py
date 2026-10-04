@@ -49,6 +49,7 @@ from context_graph.settings import INTENT_WEIGHTS
 
 if TYPE_CHECKING:
     from context_graph.domain.models import LineageQuery, SubgraphQuery
+    from context_graph.domain.pack_intents import RegistryIntents
     from context_graph.ports.embedding import EmbeddingService
     from context_graph.ports.graph_reads import GraphReads
     from context_graph.ports.intent import IntentClassifier
@@ -94,6 +95,7 @@ class RetrievalEngine:
         neighbor_limit: int = 50,
         hyde_hot_path_timeout: float = 2.0,
         provenance_source: str = "redis",
+        intents: RegistryIntents | None = None,
     ) -> None:
         self._graph = graph
         self._keyword_index = keyword_index
@@ -107,6 +109,13 @@ class RetrievalEngine:
         self._neighbor_limit = neighbor_limit
         self._hyde_hot_path_timeout = hyde_hot_path_timeout
         self._provenance_source = provenance_source
+        # The active packs' intents (ADR-0018); without them, today's fixed tables
+        self._intents = intents
+
+    def _classify(self, query: str) -> dict[str, float]:
+        if self._intents is not None:
+            return self._intents.classify(query)
+        return classify_intent(query)
 
     # ------------------------------------------------------------------
     # Subgraph
@@ -145,19 +154,21 @@ class RetrievalEngine:
                 )
             except TimeoutError:
                 logger.warning("intent_classification_timeout", query_length=len(query.query))
-                inferred_intents = classify_intent(query.query)
+                inferred_intents = self._classify(query.query)
         else:
-            inferred_intents = classify_intent(query.query)
+            inferred_intents = self._classify(query.query)
 
         # If explicit intent override, use that
         if query.intent is not None:
             inferred_intents = {str(query.intent): 1.0}
 
         # Get edge weights based on intents
-        edge_weights = get_edge_weights(inferred_intents, INTENT_WEIGHTS)
-
-        # Select seed strategy based on dominant intent
-        seed_strategy = select_seed_strategy(inferred_intents)
+        if self._intents is not None:
+            edge_weights = self._intents.edge_weights(inferred_intents)
+            seed_strategy = self._intents.seed_strategy(inferred_intents)
+        else:
+            edge_weights = get_edge_weights(inferred_intents, INTENT_WEIGHTS)
+            seed_strategy = select_seed_strategy(inferred_intents)
         seed_limit = min(MAX_SEEDS, query.max_nodes)
 
         # Multi-channel hybrid retrieval (L4): run 3 channels in parallel
