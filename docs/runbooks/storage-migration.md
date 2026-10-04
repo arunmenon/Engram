@@ -49,11 +49,7 @@ Read the report:
 
 Fields each backend assigns for itself are ignored: positions, `occurred_at_epoch_ms` and access counters. Decay scores may differ by up to 0.01, because they depend on query time.
 
-**Known sources of graph divergence** (existing projection-worker behaviour):
-- A projection-worker restart on either side drops the FOLLOWS edge between the last event before the restart and the next one in that session.
-- Its micro-batch flushes only when a later event arrives, so an idle tail can look missing.
-
-Rule these out before treating a divergence as a backend difference.
+A projection-worker restart on either side no longer changes the graph, and an idle tail is flushed once the batch timeout passes. Divergence while both sides are caught up is a real difference.
 
 Exit check (design brief phase 3):
 - zero divergence over the soak;

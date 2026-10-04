@@ -60,11 +60,7 @@ def _session(session_id: str, count: int, start: datetime) -> list[Event]:
 
 
 class _Projector:
-    """One projection worker per side, kept running like a deployed one.
-
-    The worker keeps each session's last event in memory to draw FOLLOWS
-    edges, so restarting it between phases would change the graph.
-    """
+    """One projection worker per side, kept running like a deployed one."""
 
     def __init__(self, stores: Stores, settings: Settings) -> None:
         group = settings.consumer.group_projection
@@ -78,17 +74,14 @@ class _Projector:
         self._task = asyncio.create_task(self._consumer.run())
 
     async def drained(self) -> None:
-        """Wait until the group has nothing undelivered or unacknowledged.
-
-        The worker flushes its micro-batch only when a later delivery
-        arrives (or on stop), so an idle tail is flushed here explicitly.
-        """
+        """Wait until the group has nothing undelivered or unacknowledged."""
         for _ in range(500):
             await asyncio.sleep(0.05)
-            if await self._probe.lag() == 0:
-                await self._consumer._flush_buffer()
-                if not await self._consumer._subscription.delivery_counts(100):
-                    return
+            if (
+                await self._probe.lag() == 0
+                and not await self._consumer._subscription.delivery_counts(100)
+            ):
+                return
         msg = "projection did not drain"
         raise AssertionError(msg)
 

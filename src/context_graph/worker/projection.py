@@ -104,7 +104,7 @@ class ProjectionConsumer(BaseConsumer):
                 continue
 
             # Look up previous event in this session for FOLLOWS edge
-            prev_event = self._session_last_event.get(event.session_id)
+            prev_event = await self._previous_event(event)
 
             # Run pure domain projection
             result = project_event(event, prev_event)
@@ -147,6 +147,39 @@ class ProjectionConsumer(BaseConsumer):
         entry_ids = [eid for eid, _ in batch]
         if entry_ids:
             await self._ack(*entry_ids)
+
+    async def _previous_event(self, event: Event) -> Event | None:
+        """The event this one FOLLOWS, or None.
+
+        The in-memory cache answers while the worker runs. After a restart,
+        an eviction, or when another replica projected the session's
+        earlier events, the ledger answers instead: the event just before
+        this one in the session's log order. That draws the same edge an
+        uninterrupted run would, including none after a session end.
+        """
+        cached = self._session_last_event.get(event.session_id)
+        if cached is not None:
+            return cached
+        event_id = str(event.event_id)
+        session_ids = await self._event_log.read_session_ids(event.session_id)
+        if event_id not in session_ids:
+            return None
+        index = session_ids.index(event_id)
+        if index == 0:
+            return None
+        (document,) = await self._event_log.get_documents([session_ids[index - 1]])
+        if document is None:
+            return None
+        previous = Event.model_validate(document, strict=False)
+        if previous.event_type == "system.session_end":
+            return None
+        log.debug(
+            "previous_event_from_ledger",
+            event_id=event_id,
+            previous_event_id=str(previous.event_id),
+            session_id=event.session_id,
+        )
+        return previous
 
     async def on_stop(self) -> None:
         """Flush remaining buffered events before shutdown."""

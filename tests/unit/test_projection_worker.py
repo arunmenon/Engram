@@ -267,3 +267,110 @@ class TestIdleFlush:
             await consumer.on_idle()
 
         assert delivery.position in await subscription.delivery_counts(100)
+
+
+class TestFollowsAcrossRestart:
+    """FOLLOWS edges do not depend on which worker process projected the previous event."""
+
+    @staticmethod
+    async def _project(
+        event_log: MemoryEventLog, graph_store: MemoryGraphStore, settings: Settings
+    ) -> None:
+        """Run a fresh worker (an empty session cache) until the group is drained."""
+        subscription = MemorySubscription(
+            event_log.stream, settings.consumer.group_projection, "projection-1"
+        )
+        consumer = ProjectionConsumer(
+            subscription=subscription,
+            event_log=event_log,
+            graph_store=graph_store,
+            settings=settings,
+        )
+        task = asyncio.create_task(consumer.run())
+        try:
+            for _ in range(200):
+                await asyncio.sleep(0.02)
+                if await subscription.lag() == 0 and not await subscription.delivery_counts(100):
+                    break
+        finally:
+            consumer.stop()
+            await asyncio.wait_for(task, timeout=5)
+
+    @staticmethod
+    def _follows(graph_store: MemoryGraphStore) -> dict[tuple[str, str], dict[str, object]]:
+        return {
+            (source[1], target[1]): props
+            for (source, edge_type, target), props in graph_store.edges.items()
+            if edge_type == "FOLLOWS"
+        }
+
+    @staticmethod
+    def _settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
+        monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+        return Settings()
+
+    @pytest.mark.asyncio
+    async def test_restart_mid_session_matches_one_uninterrupted_run(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        settings = self._settings(monkeypatch)
+        events = [_event("sess-restart", minutes_ago=10 - i) for i in range(5)]
+
+        restarted_log, restarted_graph = MemoryEventLog(), MemoryGraphStore()
+        for event in events[:3]:
+            await restarted_log.append(event)
+        await self._project(restarted_log, restarted_graph, settings)
+        for event in events[3:]:
+            await restarted_log.append(event)
+        await self._project(restarted_log, restarted_graph, settings)  # new process
+
+        single_log, single_graph = MemoryEventLog(), MemoryGraphStore()
+        for event in events:
+            await single_log.append(event)
+        await self._project(single_log, single_graph, settings)
+
+        follows = self._follows(restarted_graph)
+        assert follows == self._follows(single_graph)
+        across = (str(events[3].event_id), str(events[2].event_id))
+        assert across in follows
+        assert follows[across]["delta_ms"] == 60_000
+        assert len(follows) == 4
+
+    @pytest.mark.asyncio
+    async def test_no_follows_after_session_end_on_either_path(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        settings = self._settings(monkeypatch)
+        first = _event("sess-ended", minutes_ago=3)
+        end = _event("sess-ended", minutes_ago=2).model_copy(
+            update={"event_type": "system.session_end"}
+        )
+        late = _event("sess-ended", minutes_ago=1)
+
+        restarted_log, restarted_graph = MemoryEventLog(), MemoryGraphStore()
+        await restarted_log.append(first)
+        await restarted_log.append(end)
+        await self._project(restarted_log, restarted_graph, settings)
+        await restarted_log.append(late)
+        await self._project(restarted_log, restarted_graph, settings)
+
+        single_log, single_graph = MemoryEventLog(), MemoryGraphStore()
+        for event in (first, end, late):
+            await single_log.append(event)
+        await self._project(single_log, single_graph, settings)
+
+        assert self._follows(restarted_graph) == self._follows(single_graph)
+        assert set(self._follows(restarted_graph)) == {(str(end.event_id), str(first.event_id))}
+
+    @pytest.mark.asyncio
+    async def test_first_event_of_a_session_has_no_previous(self) -> None:
+        event_log = MemoryEventLog()
+        event = _event("sess-new", minutes_ago=1)
+        await event_log.append(event)
+        consumer = ProjectionConsumer(
+            subscription=MemorySubscription(event_log.stream, "graph-projection", "p"),
+            event_log=event_log,
+            graph_store=MemoryGraphStore(),
+            settings=Settings(),
+        )
+        assert await consumer._previous_event(event) is None

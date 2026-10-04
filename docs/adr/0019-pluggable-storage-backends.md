@@ -321,11 +321,9 @@ The target's graph is not copied. The projection worker, run against the target,
 
   Ledger, graph and retrieval comparisons all report zero divergence.
 
-**Found by the dual run** (existing worker behaviour, left to separate tasks):
+**Found by the dual run** (existing worker behaviour, both since fixed; see "Projection worker fixes" below):
 - the projection worker keeps each session's last event in memory, so a restart loses the FOLLOWS edge across it, and a rebuilt graph then differs from the live one;
 - it flushes its micro-batch only when a later delivery arrives, so an idle tail stays unprojected.
-
-The dual-run test keeps one worker per side and flushes the idle tail explicitly.
 
 **Also changed:** Spanner retention cutoffs (`trim`, `housekeep`) are now computed from the database clock. They compare commit timestamps, and a skewed application host (or a long-running emulator) otherwise trims or keeps the wrong rows.
 
@@ -358,4 +356,18 @@ The keyword (BM25) seed channel found nothing (see the step 3 findings) for two 
 **Not done:**
 - events ingested before this change have no `search_text`; there is no backfill, because no deployment holds history;
 - ranking quality is unmeasured; the retrieval evals should cover the channel.
+
+## Projection worker fixes (2026-10-04)
+
+The two worker behaviours the dual run exposed:
+
+- **Idle tail:** the projection worker flushed its micro-batch only when a later delivery arrived. When traffic stopped, up to 49 events stayed unprojected and unacknowledged. `BaseConsumer.run` now calls an `on_idle` hook when a read returns nothing. `ProjectionConsumer.on_idle` flushes a partial batch once the batch timeout has passed. Acks still follow a successful graph write, so a failed idle flush leaves the items pending. This came from a separate session and was cherry-picked.
+- **FOLLOWS across restarts:** the worker found each session's previous event only in an in-process cache. After a restart, an eviction, or a second replica, the next event got no FOLLOWS edge. On a cache miss the worker now asks the ledger, which is the source of truth: it reads the session's event ids in log order (`EventLog.read_session_ids`) and fetches the document of the event just before this one. It returns none after a `system.session_end` or when that document has expired, exactly as an uninterrupted run would. A brand-new session costs one read of its own one-entry session index.
+
+**Tests:**
+- a restart mid-session gives the same FOLLOWS edges, including `delta_ms`, as one uninterrupted run;
+- session end behaves the same on both paths;
+- the restart test fails without the fix.
+
+The dual-run test no longer flushes explicitly.
 
