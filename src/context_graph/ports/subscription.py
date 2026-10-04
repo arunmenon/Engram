@@ -73,8 +73,13 @@ class Subscription(Protocol):
         """Return ``{position: times_delivered}`` for this consumer's pending items."""
         ...
 
-    async def read_pending(self, count: int) -> list[Delivery]:
-        """Re-read items already delivered to this consumer but not acknowledged."""
+    async def read_pending(self, count: int, *, after: str | None = None) -> list[Delivery]:
+        """Re-read items already delivered to this consumer but not acknowledged.
+
+        Returns pending items in log order, starting after position ``after``
+        (from the first pending item when ``None``). Callers advance ``after``
+        to the last position read so a failing item cannot block the rest.
+        """
         ...
 
     async def read_new(self, count: int, block_ms: int) -> list[Delivery]:

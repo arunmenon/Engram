@@ -215,9 +215,13 @@ class RedisStreamSubscription:
                 )
         return deliveries
 
-    async def read_pending(self, count: int) -> list[Delivery]:
-        """XREADGROUP from ID ``0``: this consumer's PEL, without blocking."""
-        return await self._read("0", count, 0)
+    async def read_pending(self, count: int, *, after: str | None = None) -> list[Delivery]:
+        """XREADGROUP from ID ``0`` (or ``after``): this consumer's PEL, without blocking.
+
+        With an explicit ID, XREADGROUP returns only pending entries whose
+        ID is greater than it, so passing the last ID read pages through the PEL.
+        """
+        return await self._read(after or "0", count, 0)
 
     async def read_new(self, count: int, block_ms: int) -> list[Delivery]:
         """XREADGROUP from ID ``>``: messages never delivered to the group."""

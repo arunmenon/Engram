@@ -102,6 +102,77 @@ class BaseConsumer:
         if lag is not None:
             CONSUMER_LAG.labels(group=self._group_name).set(lag)
 
+    # -- Pending drain -----------------------------------------------------
+
+    async def _drain_pending(self) -> None:
+        """Process this consumer's pending items, retrying failures, then return.
+
+        Each sweep reads the pending items once, in order, moving the cursor
+        past every item it reads, so a failing item never blocks the items
+        behind it. Items that failed are retried in the next sweep. Delivery
+        counts are refreshed every sweep and floored by the failures counted
+        in this run, so an item delivered more than ``max_retries`` times is
+        dead-lettered in this run even if the backend's count does not move.
+        The drain ends after a sweep with no failures, which takes at most
+        ``max_retries + 1`` sweeps.
+        """
+        first_seen_counts: dict[str, int] = {}
+        failures_this_run: dict[str, int] = {}
+        # Processed in this run; with deferred_ack they stay pending until the
+        # subclass flushes, and must not be processed again
+        processed_this_run: set[str] = set()
+
+        while not self._stopped:
+            # H5: Delivery counts for pending items (for dead-letter check)
+            delivery_counts = await self._get_delivery_counts()
+            cursor: str | None = None
+            failed_in_sweep = False
+
+            while not self._stopped:
+                pending = await self._subscription.read_pending(self._batch_size, after=cursor)
+                if not pending:
+                    break
+                cursor = pending[-1].position
+
+                for delivery in pending:
+                    entry_id = delivery.position
+                    if entry_id in processed_this_run:
+                        continue
+
+                    # H5: Check delivery count — dead-letter if exceeded
+                    reported_count = delivery_counts.get(entry_id, 1)
+                    first_seen_count = first_seen_counts.setdefault(entry_id, reported_count)
+                    msg_delivery_count = max(
+                        reported_count,
+                        first_seen_count + failures_this_run.get(entry_id, 0),
+                    )
+                    if msg_delivery_count > self._max_retries:
+                        await self._dead_letter_message(
+                            entry_id, delivery.fields, msg_delivery_count
+                        )
+                        CONSUMER_MESSAGES_DEAD_LETTERED.labels(consumer=self._group_name).inc()
+                        continue
+
+                    try:
+                        await self.process_message(entry_id, delivery.fields)
+                        if not self.deferred_ack:
+                            await self._ack(entry_id)
+                        processed_this_run.add(entry_id)
+                        CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
+                    except Exception:
+                        failures_this_run[entry_id] = failures_this_run.get(entry_id, 0) + 1
+                        failed_in_sweep = True
+                        CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
+                        log.exception(
+                            "pending_message_processing_failed",
+                            entry_id=entry_id,
+                            group=self._group_name,
+                            delivery_count=msg_delivery_count,
+                        )
+
+            if not failed_in_sweep:
+                break
+
     # -- Main loop ---------------------------------------------------------
 
     async def run(self) -> None:
@@ -122,37 +193,8 @@ class BaseConsumer:
         # H4: Claim orphaned items from crashed consumers before the pending drain
         await self._claim_orphaned_messages()
 
-        # H5: Get delivery counts for pending items (for dead-letter check)
-        delivery_counts = await self._get_delivery_counts()
-
         # Drain pending items (PEL recovery) before reading new ones
-        while not self._stopped:
-            pending = await self._subscription.read_pending(self._batch_size)
-            if not pending:
-                break
-            for delivery in pending:
-                entry_id = delivery.position
-
-                # H5: Check delivery count — dead-letter if exceeded
-                msg_delivery_count = delivery_counts.get(entry_id, 1)
-                if msg_delivery_count > self._max_retries:
-                    await self._dead_letter_message(entry_id, delivery.fields, msg_delivery_count)
-                    CONSUMER_MESSAGES_DEAD_LETTERED.labels(consumer=self._group_name).inc()
-                    continue
-
-                try:
-                    await self.process_message(entry_id, delivery.fields)
-                    if not self.deferred_ack:
-                        await self._ack(entry_id)
-                    CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
-                except Exception:
-                    CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
-                    log.exception(
-                        "pending_message_processing_failed",
-                        entry_id=entry_id,
-                        group=self._group_name,
-                        delivery_count=msg_delivery_count,
-                    )
+        await self._drain_pending()
 
         log.info("pending_drain_completed", group=self._group_name)
 

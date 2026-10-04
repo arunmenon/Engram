@@ -403,6 +403,244 @@ class TestRunFlowIntegration:
 
 
 # =========================================================================
+# Pending drain: failing items must not loop, and are dead-lettered in-run
+# =========================================================================
+
+
+def _entry_key(entry_id: str) -> tuple[int, int]:
+    millis, _, seq = entry_id.partition("-")
+    return int(millis), int(seq or 0)
+
+
+class FakePel:
+    """Wires an AsyncMock Redis client to behave like one consumer's PEL.
+
+    XREADGROUP with ``>`` delivers new entries (then stops the consumer once
+    none are left); with any other ID it returns this consumer's pending
+    entries whose ID is greater than it, as Redis does. XPENDING reports
+    delivery counts, XACK removes entries, XADD records dead letters.
+    """
+
+    def __init__(
+        self,
+        pending: list[tuple[str, dict[str, str], int]],
+        new: list[tuple[str, dict[str, str]]] | None = None,
+        *,
+        count_rereads: bool = True,
+        max_reads: int = 100,
+    ) -> None:
+        self.pel: dict[str, tuple[dict[str, str], int]] = {
+            entry_id: (fields, count) for entry_id, fields, count in pending
+        }
+        self.new = list(new or [])
+        self.count_rereads = count_rereads
+        self.max_reads = max_reads
+        self.read_ids: list[str] = []
+        self.dead_letters: list[dict[str, str]] = []
+        self.consumer: BaseConsumer | None = None
+        self.redis = AsyncMock()
+        self.redis.xautoclaim.return_value = (b"0-0", [], [])
+        self.redis.xreadgroup.side_effect = self._xreadgroup
+        self.redis.xpending_range.side_effect = self._xpending_range
+        self.redis.xack.side_effect = self._xack
+        self.redis.xadd.side_effect = self._xadd
+
+    async def _xreadgroup(self, *, streams, count, **_kwargs):
+        (stream_id,) = streams.values()
+        self.read_ids.append(stream_id)
+        if len(self.read_ids) > self.max_reads:
+            raise AssertionError(f"consumer looped: {len(self.read_ids)} reads")
+        if stream_id == ">":
+            batch, self.new = self.new[:count], self.new[count:]
+            for entry_id, fields in batch:
+                self.pel[entry_id] = (fields, 1)
+            if not batch:
+                assert self.consumer is not None
+                self.consumer.stop()
+                return []
+        else:
+            after = _entry_key(stream_id)
+            ids = sorted((i for i in self.pel if _entry_key(i) > after), key=_entry_key)
+            batch = []
+            for entry_id in ids[:count]:
+                fields, delivered = self.pel[entry_id]
+                if self.count_rereads:
+                    self.pel[entry_id] = (fields, delivered + 1)
+                batch.append((entry_id, fields))
+        return [
+            (
+                b"stream:test",
+                [
+                    (entry_id.encode(), {k.encode(): v.encode() for k, v in fields.items()})
+                    for entry_id, fields in batch
+                ],
+            )
+        ]
+
+    async def _xpending_range(self, **_kwargs):
+        return [
+            {"message_id": entry_id.encode(), "times_delivered": delivered}
+            for entry_id, (_fields, delivered) in self.pel.items()
+        ]
+
+    async def _xack(self, _stream, _group, *entry_ids):
+        for entry_id in entry_ids:
+            self.pel.pop(entry_id, None)
+        return len(entry_ids)
+
+    async def _xadd(self, stream, data):
+        if stream.endswith(":dlq"):
+            self.dead_letters.append(data)
+        return b"9999-0"
+
+
+class FailingConsumer(RedisBackedConsumer):
+    """Fails every message whose event_id is in ``failing``; records attempts."""
+
+    def __init__(self, *args, failing=(), **kwargs):
+        super().__init__(*args, **kwargs)
+        self.failing = set(failing)
+        self.attempts: list[str] = []
+        self.processed: list[str] = []
+
+    async def process_message(self, entry_id, data):
+        self.attempts.append(data["event_id"])
+        if data["event_id"] in self.failing:
+            raise RuntimeError("permanent failure")
+        self.processed.append(data["event_id"])
+
+
+class TestPendingDrainProgress:
+    """A permanently failing pending item must not spin the drain loop."""
+
+    def _consumer(self, fake: FakePel, **kwargs) -> FailingConsumer:
+        consumer = FailingConsumer(fake.redis, "grp", "c1", "stream:test", **kwargs)
+        fake.consumer = consumer
+        return consumer
+
+    @pytest.mark.asyncio()
+    async def test_failing_pending_item_does_not_loop(self):
+        fake = FakePel(
+            pending=[
+                ("100-0", {"event_id": "bad"}, 1),
+                ("200-0", {"event_id": "ok"}, 1),
+            ],
+            new=[("300-0", {"event_id": "new"})],
+        )
+        consumer = self._consumer(fake, max_retries=2, failing={"bad"})
+
+        await consumer.run()
+
+        # Delivered once before the run, retried twice, dead-lettered on the third
+        assert consumer.attempts.count("bad") == 2
+        assert consumer.processed == ["ok", "new"]
+        assert len(fake.dead_letters) == 1
+        assert fake.dead_letters[0]["original_entry_id"] == "100-0"
+        assert fake.dead_letters[0]["delivery_count"] == "3"
+        assert fake.pel == {}
+
+    @pytest.mark.asyncio()
+    async def test_failing_item_dead_lettered_in_run_when_backend_count_static(self):
+        """Failures counted locally dead-letter the item even if XPENDING never moves."""
+        fake = FakePel(
+            pending=[("100-0", {"event_id": "bad"}, 1)],
+            count_rereads=False,
+        )
+        consumer = self._consumer(fake, max_retries=3, failing={"bad"})
+
+        await consumer.run()
+
+        assert consumer.attempts == ["bad", "bad", "bad"]
+        assert len(fake.dead_letters) == 1
+        assert fake.dead_letters[0]["delivery_count"] == "4"
+        assert fake.pel == {}
+
+    @pytest.mark.asyncio()
+    async def test_failing_item_does_not_block_items_behind_it(self):
+        """With batch_size=1 the cursor moves past the failing item each sweep."""
+        fake = FakePel(
+            pending=[
+                ("100-0", {"event_id": "bad"}, 1),
+                ("200-0", {"event_id": "ok1"}, 1),
+                ("300-0", {"event_id": "ok2"}, 1),
+            ],
+        )
+        consumer = self._consumer(fake, batch_size=1, max_retries=5, failing={"bad"})
+
+        await consumer.run()
+
+        # The first sweep reaches the items behind the failure before any retry
+        assert consumer.attempts[:3] == ["bad", "ok1", "ok2"]
+        assert consumer.processed == ["ok1", "ok2"]
+        assert fake.read_ids[:4] == ["0", "100-0", "200-0", "300-0"]
+        assert len(fake.dead_letters) == 1
+
+    @pytest.mark.asyncio()
+    async def test_item_that_recovers_on_retry_is_acked_not_dead_lettered(self):
+        fake = FakePel(pending=[("100-0", {"event_id": "flaky"}, 1)])
+        consumer = self._consumer(fake, max_retries=5)
+
+        original = consumer.process_message
+        calls = 0
+
+        async def _fail_once(entry_id, data):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise RuntimeError("transient")
+            await original(entry_id, data)
+
+        consumer.process_message = _fail_once
+
+        await consumer.run()
+
+        assert calls == 2
+        assert consumer.processed == ["flaky"]
+        assert fake.dead_letters == []
+        assert fake.pel == {}
+
+    @pytest.mark.asyncio()
+    async def test_deferred_ack_items_not_reprocessed_across_sweeps(self):
+        """Items processed but not yet acked (deferred_ack) are not processed again."""
+
+        class DeferredConsumer(FailingConsumer):
+            @property
+            def deferred_ack(self):
+                return True
+
+        fake = FakePel(
+            pending=[
+                ("100-0", {"event_id": "buffered"}, 1),
+                ("200-0", {"event_id": "bad"}, 1),
+            ],
+        )
+        consumer = DeferredConsumer(
+            fake.redis, "grp", "c1", "stream:test", max_retries=2, failing={"bad"}
+        )
+        fake.consumer = consumer
+
+        await consumer.run()
+
+        assert consumer.processed == ["buffered"]
+        assert consumer.attempts.count("bad") == 2
+        assert len(fake.dead_letters) == 1
+        # Still pending: the subclass owns the ack for deferred items
+        assert list(fake.pel) == ["100-0"]
+
+    @pytest.mark.asyncio()
+    async def test_read_pending_after_passes_cursor_to_xreadgroup(self):
+        redis = AsyncMock()
+        redis.xreadgroup.return_value = []
+        subscription = RedisStreamSubscription(redis, "grp", "c1", "stream:test")
+
+        await subscription.read_pending(5, after="123-4")
+        await subscription.read_pending(5)
+
+        streams = [call.kwargs["streams"] for call in redis.xreadgroup.call_args_list]
+        assert streams == [{"stream:test": "123-4"}, {"stream:test": "0"}]
+
+
+# =========================================================================
 # Settings tests
 # =========================================================================
 
