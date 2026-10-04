@@ -1,0 +1,150 @@
+# Ontology pack: user (ADR-0018; the cg-user module of ADR-0012).
+# Cross-session user profile, preferences, skills, workflows and behavioural
+# patterns. Must stay equal to domain/models.py, settings.INTENT_WEIGHTS,
+# domain/intent.py and docker/neo4j/constraints.cypher.
+
+pack:
+  name: user
+  version: 1.0.0
+  requires: [core>=1.0]
+  owner: engram
+  description: Persistent user profile, preferences, skills and behaviour.
+
+types:
+  nodes:
+    UserProfile:
+      key: [user_id]
+      id_property: user_id
+      properties:
+        profile_id: string
+        user_id: string
+        display_name: string
+        timezone: string
+        language: string
+        communication_style: string
+        technical_level: string
+        created_at: datetime
+        updated_at: datetime
+    Preference:
+      key: [preference_id]
+      id_property: preference_id
+      properties:
+        preference_id: string
+        category: {enum: [tool, workflow, communication, domain, environment, style]}
+        key: string
+        polarity: {enum: [positive, negative, neutral]}
+        strength: float
+        confidence: float
+        source: {enum: [explicit, implicit_intentional, implicit_unintentional, inferred]}
+        context: string
+        scope: {enum: [global, agent, session]}
+        scope_id: string
+        observation_count: int
+        first_observed_at: datetime
+        last_confirmed_at: datetime
+        access_count: int
+        stability: float
+        superseded_by: string
+        consent_ref: string
+    Skill:
+      key: [skill_id]
+      id_property: skill_id
+      properties:
+        skill_id: string
+        name: string
+        category: string
+        description: string
+        created_at: datetime
+    Workflow:
+      key: [workflow_id]
+      id_property: workflow_id
+      properties:
+        workflow_id: string
+        name: string
+        abstraction_level: {enum: [case, strategy, skill]}
+        success_rate: float
+        execution_count: int
+        avg_duration_ms: int
+        source_session_ids: list<string>
+        embedding: list<float>
+        created_at: datetime
+        updated_at: datetime
+    BehavioralPattern:
+      key: [pattern_id]
+      id_property: pattern_id
+      properties:
+        pattern_id: string
+        pattern_type: {enum: [delegation, escalation, routine, avoidance, exploration, specialization]}
+        description: string
+        confidence: float
+        observation_count: int
+        involved_agents: list<string>
+        first_detected_at: datetime
+        last_confirmed_at: datetime
+        access_count: int
+        stability: float
+
+  edges:
+    HAS_PROFILE:      {from: ["core:Entity"], to: [UserProfile]}
+    HAS_PREFERENCE:   {from: ["core:Entity"], to: [Preference]}
+    HAS_SKILL:        {from: ["core:Entity"], to: [Skill]}
+    EXHIBITS_PATTERN: {from: ["core:Entity"], to: [BehavioralPattern]}
+    INTERESTED_IN:    {from: ["core:Entity"], to: ["core:Entity"]}
+    ABOUT:            {from: [Preference], to: ["core:Entity"]}
+    ABSTRACTED_FROM:  {from: [Workflow], to: [Workflow]}
+    PARENT_SKILL:     {from: [Skill], to: [Skill]}
+
+  extends_core_edges:
+    DERIVED_FROM: {from: [Preference, BehavioralPattern, Skill, Workflow], to: ["core:Event"]}
+
+events:
+  user.preference.stated:  {}
+  user.preference.revoked: {}
+  user.skill.declared:     {}
+  user.profile.updated:    {}
+
+retrieval:
+  seed_types: [UserProfile, Preference, Skill]
+  intents:
+    personalize:
+      description: "Adapt to the user's preferences, skills and habits"
+      keywords: [prefer, favorite, style, personalize, customize]
+      seed_strategy: user_profile
+      weights:
+        CAUSED_BY: 1.0
+        FOLLOWS: 0.5
+        SIMILAR_TO: 1.5
+        REFERENCES: 2.0
+        SUMMARIZES: 1.0
+        HAS_PROFILE: 4.0
+        HAS_PREFERENCE: 5.0
+        HAS_SKILL: 4.0
+        EXHIBITS_PATTERN: 3.0
+        INTERESTED_IN: 4.0
+        ABOUT: 3.0
+        DERIVED_FROM: 3.0
+        ABSTRACTED_FROM: 1.0
+        PARENT_SKILL: 2.0
+        SAME_AS: 2.0
+        RELATED_TO: 2.0
+  core_intent_weights:
+    who_is:
+      HAS_PROFILE: 5.0
+      HAS_PREFERENCE: 5.0
+      HAS_SKILL: 5.0
+      EXHIBITS_PATTERN: 4.0
+      INTERESTED_IN: 4.0
+      ABOUT: 3.0
+      DERIVED_FROM: 2.0
+      ABSTRACTED_FROM: 1.0
+      PARENT_SKILL: 2.0
+    how_does:
+      HAS_PROFILE: 1.0
+      HAS_PREFERENCE: 2.0
+      HAS_SKILL: 3.0
+      EXHIBITS_PATTERN: 5.0
+      INTERESTED_IN: 2.0
+      ABOUT: 1.0
+      DERIVED_FROM: 1.0
+      ABSTRACTED_FROM: 4.0
+      PARENT_SKILL: 1.0

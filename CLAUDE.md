@@ -54,6 +54,7 @@ src/context_graph/
         extraction.py         # Extraction target models
         entity_resolution.py  # Three-tier entity resolution
         keyword_search.py     # search_text built from payload at ingest; any-term query terms (keyword channel)
+        ontology.py           # Ontology pack format + OntologyRegistry: compose, validate, version hash (ADR-0018)
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
         event_log.py          # EventLog protocol: worker reads, retention, ordered read_after; MigrationTarget (ADR-0019)
@@ -97,6 +98,7 @@ src/context_graph/
             retrieval.py      # Compatibility: RetrievalPipeline = engine wired to a Neo4j driver
             maintenance.py    # Batch pruning, centrality
             user_queries.py   # User subgraph queries
+            ontology_schema.py # Constraints and indexes generated from the ontology registry
         llm/                  # LLM client adapter
             client.py         # Instructor/litellm
     api/                      # FastAPI layer
@@ -104,6 +106,9 @@ src/context_graph/
         routes/               # events, context, query, lineage, health, entities, admin, users
         middleware.py         # Error handling, metrics
         dependencies.py       # Dependency injection
+    ontology/                 # Pack files and loader (ADR-0018); CG_ONTOLOGY_PACKS selects packs (core always)
+        loader.py             # Strict YAML parsing, pack lookup, load_registry()
+        packs/                # core, memory, user (today's schema) and pdlc .pack.yaml
     migration/                # Ledger copy, mirror (dual run) and comparison between backends (ADR-0019 §7)
         mirror.py             # LogMirror: ordered read → import with legacy_position; target is its checkpoint
         compare.py            # Ledger / graph / retrieval divergence reports

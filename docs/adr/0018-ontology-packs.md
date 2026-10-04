@@ -1,6 +1,6 @@
 # ADR-0018: Ontology Packs — Domain Ontologies as Versioned, Pluggable Runtime Modules
 
-Status: **Proposed** (draft for review)
+Status: **Approved** by the project owner, 2026-10-04 (recorded at their request; implementation notes below)
 Date: 2026-10-04
 Amends: ADR-0011 (module structure becomes runtime, not documentation-only), ADR-0009 (intent weights and seed types become pack data), ADR-0012 (the cg-user module becomes the `user` pack), ADR-0013 (extraction prompt and output schema are generated per pack)
 Design note: `docs/research/2026-10/ontology/pdlc-ontology-and-ontology-packs.md`
@@ -48,3 +48,29 @@ Negative:
 - **Fully schemaless graph with no registry.** Rejected: loses validation, endpoint rules, lifecycle and retrieval semantics, which are the reasons Engram has an ontology.
 - **LinkML as the pack format.** Deferred: strong for types and code generation but has no native home for projection, retrieval or lifecycle. The `types` section is kept LinkML-convertible.
 - **RDF/OWL runtime.** Rejected for the same reasons as ADR-0011 alternative 2.
+
+## Implementation notes
+
+### Phase 0: packs load, nothing changes (2026-10-04)
+
+| Item | Where | Notes |
+|---|---|---|
+| Pack format | `domain/ontology.py` | **Shape:** Pydantic models for every pack section; unknown keys are errors. **Names:** node types are PascalCase, edge types UPPER_SNAKE_CASE and properties snake_case, because these names reach backend query text. **Type references:** bare names mean the pack's own types, and `pack:Type` means another pack's. |
+| Registry | `domain/ontology.py` (`OntologyRegistry`) | **Composition:** the active packs, always including `core`. **Checks:** required packs and versions; unique names across packs; edge endpoints; interfaces; and that key, text, embed and index fields are declared properties. **Projection rules:** declared events, keys matching the type's key, known properties, legal states, and edges allowed between the referenced types. **Retrieval:** weights name known edges and intents. **Lifecycle:** decay rules and terminal states name known types and states. **Reporting:** every problem is reported at once. **Version:** a hash of the composed packs that does not depend on load order. |
+| Loader | `ontology/loader.py` | **Parsing:** a strict YAML parser in which only `true`/`false` are booleans and dates stay strings; duplicate and non-string keys are errors. **Resolution:** `core` and every required pack are loaded automatically. **Settings:** `CG_ONTOLOGY_PACKS` (default `memory,user`) and `CG_ONTOLOGY_PACK_DIRS`. |
+| Today's schema as packs | `ontology/packs/core.pack.yaml`, `memory.pack.yaml`, `user.pack.yaml` | **Split:** `core` holds Event, Entity, Summary, the core edges and seven intents; `memory` holds Belief, Goal and Episode; `user` holds the ADR-0012 types and the `personalize` intent. **Identity:** existing types keep their unique property (`id_property`). `SUPERSEDES`, `CONTRADICTS` and `DERIVED_FROM` are declared in `core`, and other packs add endpoints (`extends_core_edges`). |
+| Neo4j schema | `adapters/neo4j/ontology_schema.py` | Generates constraints and indexes from the registry. Types without an `id_property` get a uniqueness constraint on `node_id`. |
+| PDLC pack | `ontology/packs/pdlc.pack.yaml` (the docs copy is kept identical) | **Fix:** loading found that `Constraint` and `Lesson` are keyed by `content_hash` without declaring it. Released as **1.0.1**, which adds only that property. **Types:** the pack has 17 node types; the design note's 16 predates `Release`. |
+
+Exit checks (`tests/unit/test_ontology_packs.py`):
+- the registry's node, edge, event and intent types equal the enums;
+- each node type's properties equal its model's fields;
+- the intent weights, keywords and seed strategies equal `settings.INTENT_WEIGHTS` and `domain/intent.py`;
+- the OTel aliases equal `OTEL_TO_EVENT_TYPE`;
+- the generated Neo4j statements equal `constraints.cypher`;
+- the PDLC pack loads.
+
+Validation and parsing cases are in `tests/unit/test_ontology_registry.py`.
+
+Behaviour is unchanged: nothing reads the registry yet. Phase 1 wires it into projection.
+

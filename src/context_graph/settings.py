@@ -515,6 +515,20 @@ class SpannerSettings(BaseSettings):
     embedding_dimensions: int = 384
 
 
+class OntologySettings(BaseSettings):
+    """Active ontology packs (ADR-0018).
+
+    ``core`` is always active; packs named here are loaded with the packs
+    they require. Packs are looked up in ``pack_dirs`` first, then in the
+    built-in ``context_graph/ontology/packs``.
+    """
+
+    model_config = {"env_prefix": "CG_ONTOLOGY_"}
+
+    packs: list[str] = Field(default=["memory", "user"])
+    pack_dirs: list[str] = Field(default_factory=list)
+
+
 class MigrationSettings(BaseSettings):
     """Ledger copy, mirroring and comparison between backends (ADR-0019 §7).
 
@@ -597,6 +611,7 @@ class Settings(BaseSettings):
     spanner: SpannerSettings = Field(default_factory=SpannerSettings)
     migration: MigrationSettings = Field(default_factory=MigrationSettings)
     keyword: KeywordSearchSettings = Field(default_factory=KeywordSearchSettings)
+    ontology: OntologySettings = Field(default_factory=OntologySettings)
 
     @model_validator(mode="after")
     def _resolve_consumer_aliases(self) -> Settings:

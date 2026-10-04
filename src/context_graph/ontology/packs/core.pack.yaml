@@ -1,0 +1,133 @@
+# Ontology pack: core (ADR-0018). Always active.
+# Today's agent-event schema (ADR-0009, ADR-0011): events, entities, summaries,
+# the temporal/causal/semantic/entity edges, and the core retrieval intents.
+# Must stay equal to the enums in domain/models.py, the intent tables in
+# settings.py and domain/intent.py, and docker/neo4j/constraints.cypher
+# (tests/unit/test_ontology_packs.py checks this).
+
+pack:
+  name: core
+  version: 1.0.0
+  requires: []
+  owner: engram
+  description: Agent and tool events, entities, summaries and their links.
+
+types:
+  nodes:
+    Event:
+      key: [event_id]
+      id_property: event_id
+      properties:
+        event_id: string
+        event_type: string
+        occurred_at: datetime
+        session_id: string
+        agent_id: string
+        trace_id: string
+        tool_name: string
+        global_position: string
+        keywords: list<string>
+        summary: string
+        embedding: list<float>
+        importance_score: int
+        access_count: int
+        last_accessed_at: datetime
+      indexes: [session_id]
+      text_fields: [summary, keywords]
+    Entity:
+      key: [entity_id]
+      id_property: entity_id
+      properties:
+        entity_id: string
+        name: string
+        entity_type: {enum: [agent, user, service, tool, resource, concept]}
+        first_seen: datetime
+        last_seen: datetime
+        mention_count: int
+        embedding: list<float>
+      vector_property: embedding
+    Summary:
+      key: [summary_id]
+      id_property: summary_id
+      properties:
+        summary_id: string
+        scope: string
+        scope_id: string
+        content: string
+        created_at: datetime
+        event_count: int
+        time_range: list<datetime>
+      text_fields: [content]
+
+  edges:
+    FOLLOWS:     {from: [Event], to: [Event], properties: {session_id: string, delta_ms: int}}
+    CAUSED_BY:   {from: [Event], to: [Event], properties: {mechanism: string}}
+    SIMILAR_TO:  {from: [Event], to: [Event], properties: {score: float}}
+    REFERENCES:  {from: [Event], to: [Entity], properties: {role: string}}
+    SUMMARIZES:  {from: [Summary], to: [Event, Summary]}
+    SAME_AS:     {from: [Entity], to: [Entity], properties: {confidence: float, method: string}}
+    RELATED_TO:  {from: [Entity], to: [Entity], properties: {confidence: float, method: string}}
+    # Declared here with the endpoints the core types use; other packs add theirs
+    DERIVED_FROM: {from: [], to: [Event], note: "provenance: a derived node links to the events it came from"}
+    SUPERSEDES:   {from: [], to: [], note: "a newer version replaces an older one"}
+    CONTRADICTS:  {from: [], to: [], note: "two claims cannot both hold"}
+
+events:
+  agent.invoke:          {aliases: {otel: invoke_agent}}
+  agent.create:          {aliases: {otel: create_agent}}
+  tool.execute:          {aliases: {otel: execute_tool}}
+  llm.chat:              {aliases: {otel: chat}}
+  llm.completion:        {aliases: {otel: text_completion}}
+  llm.embed:             {aliases: {otel: embeddings}}
+  llm.generate:          {aliases: {otel: generate_content}}
+  observation.input:     {}
+  observation.output:    {}
+  system.session_start:  {}
+  system.session_end:    {}
+
+retrieval:
+  seed_types: [Event, Entity]
+  fallback_intent: general
+  intents:
+    why:
+      description: "Causes and reasons behind an event"
+      keywords: [why, because, caused, reason, root cause, due to]
+      seed_strategy: causal_roots
+      weights: {CAUSED_BY: 5.0, FOLLOWS: 1.0, SIMILAR_TO: 1.5, REFERENCES: 2.0, SUMMARIZES: 1.0}
+    when:
+      description: "Order and timing of events"
+      keywords: [when, timeline, before, after, sequence, order, time]
+      seed_strategy: temporal_anchors
+      weights: {CAUSED_BY: 1.0, FOLLOWS: 5.0, SIMILAR_TO: 0.5, REFERENCES: 1.0, SUMMARIZES: 0.5}
+    what:
+      description: "What something is or what happened"
+      keywords: [what, describe, explain, definition, meaning]
+      seed_strategy: entity_hubs
+      weights: {CAUSED_BY: 2.0, FOLLOWS: 1.0, SIMILAR_TO: 2.0, REFERENCES: 5.0, SUMMARIZES: 2.0}
+    related:
+      description: "Similar or associated events"
+      keywords: [similar, related, like, compare, associated]
+      seed_strategy: similar_cluster
+      weights: {CAUSED_BY: 1.5, FOLLOWS: 0.5, SIMILAR_TO: 5.0, REFERENCES: 2.0, SUMMARIZES: 1.5}
+    general:
+      description: "No specific intent"
+      weights: {CAUSED_BY: 2.0, FOLLOWS: 2.0, SIMILAR_TO: 2.0, REFERENCES: 2.0, SUMMARIZES: 2.0}
+    who_is:
+      description: "Who a person, agent or team is"
+      keywords: [who, person, user, team, member, author]
+      seed_strategy: entity_hubs
+      weights: {CAUSED_BY: 1.0, FOLLOWS: 0.5, SIMILAR_TO: 1.0, REFERENCES: 3.0, SUMMARIZES: 1.0, SAME_AS: 4.0, RELATED_TO: 3.0}
+    how_does:
+      description: "How a process or workflow runs"
+      keywords: [how, process, method, approach, workflow, steps]
+      seed_strategy: workflow_pattern
+      weights: {CAUSED_BY: 2.0, FOLLOWS: 3.0, SIMILAR_TO: 1.0, REFERENCES: 2.0, SUMMARIZES: 1.0, SAME_AS: 1.0, RELATED_TO: 2.0}
+
+mappings:
+  prov:
+    Event: prov:Activity
+    Entity: prov:Entity
+    Summary: prov:Entity
+    CAUSED_BY: prov:wasInformedBy
+    DERIVED_FROM: prov:wasDerivedFrom
+    SUPERSEDES: prov:wasRevisionOf
