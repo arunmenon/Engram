@@ -26,7 +26,6 @@ from typing import TYPE_CHECKING, Any
 
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.graph_ops import (
-    LABEL_KEYS,
     LINEAGE_MAX_HOPS,
     EdgeKey,
     EdgeRow,
@@ -34,6 +33,7 @@ from context_graph.adapters.graph_ops import (
     GraphOperations,
     NodeKey,
     apply_set,
+    key_property,
 )
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
@@ -235,7 +235,7 @@ class SpannerGraphStore(GraphOperations):
                 )
             }
             for (label, node_id), updates in items:
-                props = current.setdefault((label, node_id), {LABEL_KEYS[label]: node_id})
+                props = current.setdefault((label, node_id), {key_property(label): node_id})
                 apply_set(props, updates)
             transaction.insert_or_update(
                 "GraphNodes",

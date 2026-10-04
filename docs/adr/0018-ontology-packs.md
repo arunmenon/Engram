@@ -104,3 +104,28 @@ An independent reviewer reported 21 findings on commit `0507231` and reproduced 
 
 Regression cases are in `tests/unit/test_ontology_registry.py::TestReviewFindings`.
 
+### Phase 1: packs drive projection, PDLC from GitHub and Jira (2026-10-04)
+
+| Item | Where | Notes |
+|---|---|---|
+| Generic graph operations (decision 7) | `ports/pack_graph.py` (`PackGraph`, part of `GraphBackend`) | **Operations:** `upsert_nodes`, `upsert_edges`, `change_states`, `get_nodes`, `find_nodes` and `neighbors`, plus `ensure_pack_schema`. **Addressing:** a node is `NodeRef(label, key, key_property)`. Today's types keep their own id property; pack types use `node_id`. **Semantics:** written to the stricter of Neo4j and Spanner Graph, as decision 11 requires. |
+| Implementations | `adapters/graph_ops.py` (memory, Spanner); `adapters/neo4j/pack_graph.py` | **Neo4j:** UNWIND-batched Cypher with labels interpolated only after a fixed-shape check, and values passed as parameters. `ensure_pack_schema` runs the generated constraints. **Conformance:** `tests/conformance/test_pack_graph.py` passes on memory, Neo4j and the Spanner emulator. |
+| Expression language | `domain/pack_expressions.py` | **Syntax:** `$.path`, `$.list[*].field`, `$event.field`, `+`, `regex`, `regex_all`, `match`, `sha256`, `map`, `each`. **Checking:** parsed and validated when a pack loads. |
+| Projector | `domain/pack_projection.py` (plans, no I/O); `worker/pack_projection.py` (applies) | **Node identity:** `node_id = <Type>:<v1>\|<v2>`, with values canonicalised by property type and `%`/`\|` escaped. **What each written node gets:** `node_type`, `ontology_version`, `updated_at`, the lifecycle's initial state, `source_trust` and `DERIVED_FROM` to the event. **References:** endpoints named by key are created as stubs if missing. **Fan-out:** lists fan out, zipped by position. **Matching:** lookups resolve `to_latest` and `match_any_prefix`. **Link fields:** declared-link defaults fill required link fields. |
+| Wiring | `worker/projection.py`, `worker/__main__.py`, `ontology/runtime.py`, `api/app.py` | **Worker:** after the structural projection of a batch, events whose type has pack rules are planned and applied in log order. They are acknowledged only after the pack writes succeed. **Start-up:** the worker and the API load the configured registry, so an invalid pack fails start-up, and call `ensure_pack_schema`. The API logs the ontology version. |
+| Ingest check | `api/routes/events.py`; `OntologyRegistry.accepts_event_type` | **Rule:** a namespace owned by a pack other than `core`, `memory` or `user` (today: `pdlc`) accepts only declared event types (422 otherwise). **Unchanged:** today's agent event namespaces stay open. |
+| Source adapters | `sources/github.py`, `sources/jira.py` | **Translation:** pure functions from webhook payload to `pdlc.*` events, which keep their CDEvents type in `payload.cdevents_type`. **GitHub:** pull requests, reviews, check runs, releases, deployment statuses and issues. **Jira:** issue created and updated. |
+| Webhook routes | `api/routes/webhooks.py`: `POST /v1/webhooks/github`, `POST /v1/webhooks/jira` | **Authentication:** HMAC-SHA256 signature with `CG_WEBHOOK_<SOURCE>_SECRET`, not the API key. **Responses:** 401 for a bad signature, 503 when the source has no secret, 413 above `CG_WEBHOOK_MAX_BODY_BYTES`. **Idempotence:** event ids derive from the delivery id, so a redelivery is deduplicated. **Trust:** events are ingested as `agent_id = webhook:<source>`, and `CG_ONTOLOGY_TRUSTED_SOURCES` marks their nodes trusted. |
+| PDLC pack 1.1.0 | `ontology/packs/pdlc.pack.yaml` | Additive rules for events the adapters emit: `ticket.created`, `ticket.closed`, `change.updated`, `change.abandoned` and `incident.resolved`. The default `CG_ONTOLOGY_PACKS` is `pdlc`, so PDLC is active unless configured otherwise. |
+
+Tests:
+- `test_pack_expressions.py`;
+- `test_pack_projection.py`, which runs every PDLC rule on the in-memory graph;
+- `test_webhooks.py`, which uses sample payloads in `tests/fixtures/webhooks`, hand-written to GitHub's and Jira's documented shapes, not recorded;
+- `test_pdlc_end_to_end.py`. Signed GitHub and Jira deliveries go through the real API into the ledger, the real projection worker builds the PDLC graph, and assertions read it through `PackGraph` only. It runs on memory, the Spanner emulator, and Neo4j with an in-memory ledger.
+
+Not done in phase 1:
+- **Real repository history:** replaying a public repository's history (the design note's exit check) needs that history fetched, and it was not. The end-to-end test uses sample deliveries.
+- **File lists:** pull-request webhooks carry no file list, so `TOUCHES` needs files from another source. The rule and the prefix lookup are tested.
+- **Component catalogue:** no adapter yet imports Backstage-style component catalogues (path prefixes, owners).
+

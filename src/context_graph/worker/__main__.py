@@ -70,14 +70,20 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
     group_name: str = getattr(settings.consumer, group_field)
 
     if consumer_type == "projection":
+        from context_graph.ontology.runtime import configured_projector
         from context_graph.worker.projection import ProjectionConsumer
 
+        projector = configured_projector(settings.ontology)
         stores = await open_stores(settings)
+        await stores.graph.ensure_pack_schema(projector.registry, settings.embedding.dimensions)
+        log.info("ontology_loaded", **projector.registry.summary())
         return ProjectionConsumer(
             subscription=stores.subscription(group_name, consumer_name),
             event_log=stores.event_log,
             graph_store=stores.graph,
             settings=settings,
+            pack_projector=projector,
+            pack_lookup_limit=settings.ontology.lookup_limit,
         ), stores
 
     if consumer_type == "enrichment":

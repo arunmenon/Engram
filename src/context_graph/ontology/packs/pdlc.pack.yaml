@@ -2,7 +2,9 @@
 # Status: v1.0 frozen for sign-off (2026-10-04). Changes after sign-off go through a new pack version.
 # History: v0.1 draft; v0.2 standards check; v0.3 competency questions; v0.4 real-project mapping; v1.0 freeze;
 #          v1.0.1 declares content_hash on Constraint and Lesson (their key; the loader found it undeclared);
-#          v1.0.2 makes every type Sourced (as the Sourced note says) and lets Incident be OWNED_BY (it is Owned).
+#          v1.0.2 makes every type Sourced (as the Sourced note says) and lets Incident be OWNED_BY (it is Owned);
+#          v1.1.0 adds projection rules for ticket.created/closed, change.updated/abandoned and incident.resolved
+#          (the GitHub and Jira webhook adapters emit them; additive only).
 # Loaded by context_graph.ontology (ADR-0018); this file is the source of truth, and
 # docs/research/2026-10/ontology/pdlc.pack.yaml is kept identical to it.
 # Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
@@ -10,7 +12,8 @@
 
 pack:
   name: pdlc
-  version: 1.0.2   # 1.0.2: every type Sourced; OWNED_BY from Incident (patch: the pack's own notes promised both).
+  version: 1.1.0   # 1.1.0: rules for events the webhook adapters emit (minor: additive rules only).
+                   # 1.0.2: every type Sourced; OWNED_BY from Incident (patch: the pack's own notes promised both).
                    # 1.0.1: content_hash declared on Constraint and Lesson (patch: the key field was undeclared).
                    # 1.0.0: frozen for sign-off; no type or edge changes from 0.4.
                    # 0.4: 0.4: changes from mapping OpenDAL, Kafka and GitLab samples (mapping-step2.md).
@@ -271,6 +274,28 @@ projection:
     transition: {type: WorkItem, to: "map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})"}
     edges:
       - {type: DECOMPOSES_INTO, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.parent_key}}, to: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, when: $.parent_key}
+  # 1.1.0: the rest of the ticket, change and incident lifecycle the webhook adapters emit
+  - event: pdlc.ticket.created
+    upsert:
+      - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, work_type: $.work_type}}
+    transition: {type: WorkItem, to: "map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})"}
+    edges:
+      - {type: DECOMPOSES_INTO, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.parent_key}}, to: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, when: $.parent_key}
+  - event: pdlc.ticket.closed
+    upsert:
+      - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, resolution: $.resolution}}
+    transition: {type: WorkItem, to: "map($.status, {'Done': done, 'Won''t Do': cancelled})"}
+  - event: pdlc.change.updated
+    upsert:
+      - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title, body: $.body, head_sha: $.head_sha}}
+  - event: pdlc.change.abandoned
+    upsert:
+      - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title}}
+    transition: {type: Change, to: abandoned, only_from: [open, reviewed]}
+  - event: pdlc.incident.resolved
+    upsert:
+      - {type: Incident, key: {incident_id: $.incident_id}, set: {summary: $.summary}}
+    transition: {type: Incident, to: resolved}
   - event: pdlc.spec.approved
     upsert:
       - {type: Spec, key: {doc_id: $.doc_id, version: $.version}, set: {title: $.title, acceptance_criteria: $.acceptance_criteria, scope: $.scope, source_uri: $.source_uri, content_hash: $.content_hash}}

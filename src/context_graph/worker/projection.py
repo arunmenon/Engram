@@ -11,21 +11,26 @@ from __future__ import annotations
 
 import time
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from context_graph.domain.models import Event
 from context_graph.domain.projection import project_event
+from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
+from context_graph.worker.pack_projection import apply_plan
 
 if TYPE_CHECKING:
+    from context_graph.domain.pack_projection import PackProjector
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
+
+DEFAULT_LOOKUP_LIMIT: int = OntologySettings.model_fields["lookup_limit"].default
 
 
 class ProjectionConsumer(BaseConsumer):
@@ -36,6 +41,8 @@ class ProjectionConsumer(BaseConsumer):
     2. Run pure domain projection to produce an EventNode and edges.
     3. MERGE the node and edges into Neo4j via the GraphStore.
     4. Track the last event per session for FOLLOWS edge computation.
+    5. Apply the active ontology packs' projection rules for the event's
+       type (ADR-0018), when a ``pack_projector`` is given.
     """
 
     _MAX_SESSION_CACHE = 10_000
@@ -52,6 +59,8 @@ class ProjectionConsumer(BaseConsumer):
         event_log: EventLog,
         graph_store: GraphStore,
         settings: Settings,
+        pack_projector: PackProjector | None = None,
+        pack_lookup_limit: int = DEFAULT_LOOKUP_LIMIT,
     ) -> None:
         super().__init__(
             subscription,
@@ -60,6 +69,10 @@ class ProjectionConsumer(BaseConsumer):
         )
         self._event_log = event_log
         self._graph_store = graph_store
+        self._pack_projector = pack_projector
+        self._pack_lookup_limit = pack_lookup_limit
+        # Documents fetched for the batch being flushed, by event id
+        self._documents: dict[str, dict[str, Any]] = {}
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
         self._last_flush_time: float = time.monotonic()
@@ -97,11 +110,15 @@ class ProjectionConsumer(BaseConsumer):
 
         all_nodes = []
         all_edges = []
+        pack_events: list[tuple[Event, dict[str, Any]]] = []
 
         for entry_id, data in batch:
             event = await self._fetch_event(entry_id, data)
             if event is None:
                 continue
+            document = self._documents.pop(str(event.event_id), None)
+            if self._pack_projector is not None and self._pack_projector.handles(event.event_type):
+                pack_events.append((event, document or {}))
 
             # Look up previous event in this session for FOLLOWS edge
             prev_event = await self._previous_event(event)
@@ -142,6 +159,12 @@ class ProjectionConsumer(BaseConsumer):
                     await self._graph_store.merge_event_node(node)
         if all_edges:
             await self._graph_store.create_edges_batch(all_edges)
+
+        # Ontology pack rules (ADR-0018), in log order, after the Event nodes exist
+        if self._pack_projector is not None:
+            for event, document in pack_events:
+                plan = self._pack_projector.plan(event, document)
+                await apply_plan(self._graph_store, plan, self._pack_lookup_limit)  # type: ignore[arg-type]
 
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]
@@ -188,7 +211,21 @@ class ProjectionConsumer(BaseConsumer):
             await self._flush_buffer()
 
     async def _fetch_event(self, entry_id: str, data: dict[str, str]) -> Event | None:
-        """Fetch and deserialize a single event from the event log."""
+        """Fetch and deserialize a single event from the event log.
+
+        Keeps the stored document (with the payload) for the pack rules.
+        """
+        fetched = await self._fetch(entry_id, data)
+        if fetched is None:
+            return None
+        event, document = fetched
+        self._documents[str(event.event_id)] = document
+        return event
+
+    async def _fetch(
+        self, entry_id: str, data: dict[str, str]
+    ) -> tuple[Event, dict[str, Any]] | None:
+        """Fetch an event and its stored document (payload included)."""
         event_id = data.get("event_id")
         if event_id is None:
             log.warning("stream_entry_missing_event_id", entry_id=entry_id)
@@ -209,4 +246,4 @@ class ProjectionConsumer(BaseConsumer):
         if event.global_position is None:
             event = event.model_copy(update={"global_position": entry_id})
 
-        return event
+        return event, doc

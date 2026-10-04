@@ -55,6 +55,8 @@ src/context_graph/
         entity_resolution.py  # Three-tier entity resolution
         keyword_search.py     # search_text built from payload at ingest; any-term query terms (keyword channel)
         ontology.py           # Ontology pack format + OntologyRegistry: compose, validate, version hash (ADR-0018)
+        pack_expressions.py   # Projection-rule value language ($.x, $event.x, regex, map, sha256, ...)
+        pack_projection.py    # PackProjector: event + pack rules -> node/edge/state writes (no I/O)
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
         event_log.py          # EventLog protocol: worker reads, retention, ordered read_after; MigrationTarget (ADR-0019)
@@ -62,6 +64,7 @@ src/context_graph/
         graph_reads.py        # GraphReads protocol: bounded reads for retrieval (ADR-0019)
         graph_backend.py      # GraphBackend: GraphStore + GraphMaintenance + UserStore + reads
         search.py             # KeywordIndex / VectorIndex, SearchHit with 0-1 scores (ADR-0019)
+        pack_graph.py         # PackGraph: generic upsert_nodes/upsert_edges/change_states/find/neighbors (ADR-0018)
         retrieval.py          # Retrieval protocol used by context/lineage/query routes
         errors.py             # Neutral storage errors; adapters translate driver errors
         graph_store.py        # GraphStore protocol
@@ -99,23 +102,27 @@ src/context_graph/
             maintenance.py    # Batch pruning, centrality
             user_queries.py   # User subgraph queries
             ontology_schema.py # Constraints and indexes generated from the ontology registry
+            pack_graph.py     # PackGraph in Cypher (labels checked, values parameterised)
         llm/                  # LLM client adapter
             client.py         # Instructor/litellm
     api/                      # FastAPI layer
         app.py                # Factory: create_app()
-        routes/               # events, context, query, lineage, health, entities, admin, users
+        routes/               # events, context, query, lineage, health, entities, admin, users, webhooks
         middleware.py         # Error handling, metrics
         dependencies.py       # Dependency injection
     ontology/                 # Pack files and loader (ADR-0018); CG_ONTOLOGY_PACKS selects packs (core always)
         loader.py             # Strict YAML parsing, pack lookup, load_registry()
+        runtime.py            # configured_registry / configured_projector from CG_ONTOLOGY_*
         packs/                # core, memory, user (today's schema) and pdlc .pack.yaml
     migration/                # Ledger copy, mirror (dual run) and comparison between backends (ADR-0019 §7)
         mirror.py             # LogMirror: ordered read → import with legacy_position; target is its checkpoint
         compare.py            # Ledger / graph / retrieval divergence reports
         __main__.py           # python -m context_graph.migration copy|mirror|compare --to <backend>
+    sources/                  # Source adapters: GitHub / Jira webhooks -> pdlc.* events (pure)
     worker/                   # Consumer workers (separate processes)
         consumer.py           # Base consumer class (backend-neutral, over Subscription)
-        projection.py         # Consumer 1: structural graph projection
+        projection.py         # Consumer 1: structural graph projection + ontology pack rules
+        pack_projection.py    # apply_plan: pack projection plans through PackGraph
         extraction.py         # Consumer 2: LLM session extraction
         enrichment.py         # Consumer 3: embeddings, SIMILAR_TO, REFERENCES
         consolidation.py      # Consumer 4: summaries, forgetting, patterns

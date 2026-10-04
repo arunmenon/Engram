@@ -14,12 +14,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from context_graph.adapters.graph_ops import (
-    LABEL_KEYS,
     EdgeKey,
     EdgeRow,
     GraphOperations,
     NodeKey,
     apply_set,
+    key_property,
 )
 
 if TYPE_CHECKING:
@@ -58,7 +58,7 @@ class MemoryGraphStore(GraphOperations):
 
     async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
         for (label, node_id), updates in items:
-            props = self.nodes.setdefault((label, node_id), {LABEL_KEYS[label]: node_id})
+            props = self.nodes.setdefault((label, node_id), {key_property(label): node_id})
             apply_set(props, updates)
 
     async def _delete_nodes(self, keys: list[NodeKey]) -> int:

@@ -1,0 +1,257 @@
+"""Neo4j implementation of the PackGraph operations (ADR-0018 decision 7).
+
+Labels, relationship types and property keys are interpolated into Cypher
+(Neo4j cannot parameterise them). They come from the ontology registry,
+whose names have a fixed shape, and are checked again here, so nothing
+else can reach the query text. Values are always parameters.
+
+Source: ADR-0018
+"""
+
+from __future__ import annotations
+
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any
+
+import orjson
+
+from context_graph.adapters.graph_ops import LABEL_KEYS
+from context_graph.adapters.neo4j.ontology_schema import schema_statements
+from context_graph.domain.ontology import EDGE_TYPE_NAME, NODE_TYPE_NAME, PROPERTY_NAME
+from context_graph.ports.errors import InvalidRequestError
+
+if TYPE_CHECKING:
+    from neo4j import AsyncDriver
+
+    from context_graph.domain.ontology import OntologyRegistry
+    from context_graph.ports.pack_graph import (
+        Direction,
+        EdgeWrite,
+        NodeRef,
+        NodeWrite,
+        StateChange,
+    )
+
+# Edges read per neighbors() call before sorting and cutting to the limit
+NEIGHBOR_SCAN_CAP = 10_000
+
+
+def _label(name: str) -> str:
+    if not NODE_TYPE_NAME.match(name):
+        msg = f"invalid node label {name!r}"
+        raise InvalidRequestError(msg)
+    return name
+
+
+def _edge_type(name: str) -> str:
+    if not EDGE_TYPE_NAME.match(name):
+        msg = f"invalid edge type {name!r}"
+        raise InvalidRequestError(msg)
+    return name
+
+
+def _property(name: str) -> str:
+    if not PROPERTY_NAME.match(name):
+        msg = f"invalid property name {name!r}"
+        raise InvalidRequestError(msg)
+    return name
+
+
+def _value(value: Any) -> Any:
+    """Neo4j stores primitives and lists of them; nested maps become JSON text."""
+    if isinstance(value, dict):
+        return orjson.dumps(value).decode()
+    if isinstance(value, list) and any(isinstance(item, dict | list) for item in value):
+        return orjson.dumps(value).decode()
+    return value
+
+
+def _props(values: dict[str, Any]) -> dict[str, Any]:
+    return {_property(k): _value(v) for k, v in values.items() if v is not None}
+
+
+def _key_of(label: str, props: dict[str, Any]) -> Any:
+    return props.get(LABEL_KEYS.get(label, "node_id"))
+
+
+class Neo4jPackGraph:
+    """PackGraph over a Neo4j driver; mixed into ``Neo4jGraphStore``."""
+
+    _driver: AsyncDriver
+    _database: str
+
+    async def _pack_write(self, statements: list[tuple[str, dict[str, Any]]]) -> list[int]:
+        """Run statements in one write transaction; each returns one count."""
+
+        async def work(tx: Any) -> list[int]:
+            counts: list[int] = []
+            for query, params in statements:
+                record = await (await tx.run(query, params)).single()
+                counts.append(int(record[0]) if record else 0)
+            return counts
+
+        async with self._driver.session(database=self._database) as session:
+            result: list[int] = await session.execute_write(work)
+            return result
+
+    async def _pack_read(self, query: str, params: dict[str, Any]) -> list[dict[str, Any]]:
+        async with self._driver.session(database=self._database) as session:
+            result = await session.run(query, params)
+            return [record.data() async for record in result]
+
+    async def ensure_pack_schema(
+        self, registry: OntologyRegistry, embedding_dimensions: int
+    ) -> None:
+        statements = schema_statements(registry, embedding_dimensions)
+        async with self._driver.session(database=self._database) as session:
+            for statement in statements:
+                await session.run(statement)
+
+    async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
+        groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+        for write in writes:
+            label, key_property = _label(write.ref.label), _property(write.ref.key_property)
+            groups[(label, key_property)].append(
+                {
+                    "key": write.ref.key,
+                    "props": _props(write.properties),
+                    "defaults": _props(write.defaults),
+                }
+            )
+        statements = [
+            (
+                f"UNWIND $rows AS row MERGE (n:{label} {{{key_property}: row.key}}) "
+                "ON CREATE SET n += row.defaults SET n += row.props RETURN count(n)",
+                {"rows": rows},
+            )
+            for (label, key_property), rows in groups.items()
+        ]
+        if statements:
+            await self._pack_write(statements)
+
+    async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
+        groups: dict[tuple[str, str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
+        for write in writes:
+            group = (
+                _label(write.source.label),
+                _property(write.source.key_property),
+                _edge_type(write.edge_type),
+                _label(write.target.label),
+                _property(write.target.key_property),
+            )
+            groups[group].append(
+                {
+                    "source": write.source.key,
+                    "target": write.target.key,
+                    "props": _props(write.properties),
+                }
+            )
+        statements = [
+            (
+                f"UNWIND $rows AS row MATCH (a:{source} {{{source_key}: row.source}}) "
+                f"MATCH (b:{target} {{{target_key}: row.target}}) "
+                f"MERGE (a)-[r:{edge_type}]->(b) SET r += row.props RETURN count(r)",
+                {"rows": rows},
+            )
+            for (source, source_key, edge_type, target, target_key), rows in groups.items()
+        ]
+        return sum(await self._pack_write(statements)) if statements else 0
+
+    async def change_states(self, changes: list[StateChange]) -> int:
+        # One statement per change, in order, so later changes see earlier ones
+        statements = [
+            (
+                f"MATCH (n:{_label(c.ref.label)} {{{_property(c.ref.key_property)}: $key}}) "
+                "WHERE coalesce(n.status, '') <> $to "
+                "AND (size($only_from) = 0 OR n.status IN $only_from) "
+                "SET n.status = $to, n.status_changed_at = $changed_at RETURN count(n)",
+                {
+                    "key": c.ref.key,
+                    "to": c.to_state,
+                    "only_from": list(c.only_from),
+                    "changed_at": c.changed_at,
+                },
+            )
+            for c in changes
+        ]
+        return sum(await self._pack_write(statements)) if statements else 0
+
+    async def get_nodes(self, refs: list[NodeRef]) -> dict[NodeRef, dict[str, Any]]:
+        groups: dict[tuple[str, str], list[NodeRef]] = defaultdict(list)
+        for ref in refs:
+            groups[(_label(ref.label), _property(ref.key_property))].append(ref)
+        found: dict[NodeRef, dict[str, Any]] = {}
+        for (label, key_property), group in groups.items():
+            by_key = {ref.key: ref for ref in group}
+            rows = await self._pack_read(
+                f"UNWIND $keys AS key MATCH (n:{label} {{{key_property}: key}}) "
+                "RETURN key, properties(n) AS props",
+                {"keys": list(by_key)},
+            )
+            for row in rows:
+                found[by_key[row["key"]]] = row["props"]
+        return found
+
+    async def find_nodes(
+        self, label: str, equals: dict[str, Any], limit: int
+    ) -> list[dict[str, Any]]:
+        conditions = " AND ".join(f"n.{_property(k)} = $equals.{k}" for k in equals) or "true"
+        rows = await self._pack_read(
+            f"MATCH (n:{_label(label)}) WHERE {conditions} RETURN properties(n) AS props "
+            "LIMIT $limit",
+            {"equals": {k: _value(v) for k, v in equals.items()}, "limit": limit},
+        )
+        return [row["props"] for row in rows]
+
+    async def neighbors(
+        self,
+        refs: list[NodeRef],
+        edge_types: list[str] | None,
+        direction: Direction,
+        limit: int,
+    ) -> list[dict[str, Any]]:
+        types = [_edge_type(t) for t in edge_types] if edge_types is not None else None
+        patterns = {"out": ["(n)-[r]->(m)"], "in": ["(n)<-[r]-(m)"]}
+        wanted = patterns.get(direction, patterns["out"] + patterns["in"])
+        groups: dict[tuple[str, str], list[str]] = defaultdict(list)
+        for ref in refs:
+            groups[(_label(ref.label), _property(ref.key_property))].append(ref.key)
+        rows: dict[tuple[Any, ...], dict[str, Any]] = {}
+        for (label, key_property), keys in groups.items():
+            for pattern in wanted:
+                outgoing = pattern.endswith("->(m)")
+                found = await self._pack_read(
+                    f"UNWIND $keys AS key MATCH (n:{label} {{{key_property}: key}}) "
+                    f"MATCH {pattern} WHERE $types IS NULL OR type(r) IN $types "
+                    "RETURN type(r) AS edge_type, properties(r) AS properties, "
+                    "labels(n)[0] AS n_label, properties(n) AS n_props, "
+                    "labels(m)[0] AS m_label, properties(m) AS m_props LIMIT $cap",
+                    {"keys": keys, "types": types, "cap": NEIGHBOR_SCAN_CAP},
+                )
+                for row in found:
+                    near = (row["n_label"], _key_of(row["n_label"], row["n_props"]))
+                    far = (row["m_label"], _key_of(row["m_label"], row["m_props"]))
+                    source, target = (near, far) if outgoing else (far, near)
+                    edge_key = (source, row["edge_type"], target)
+                    rows.setdefault(
+                        edge_key,
+                        {
+                            "edge_type": row["edge_type"],
+                            "properties": row["properties"],
+                            "source_label": source[0],
+                            "source_key": source[1],
+                            "target_label": target[0],
+                            "target_key": target[1],
+                            "node_label": row["m_label"],
+                            "node": row["m_props"],
+                        },
+                    )
+        ordered = sorted(
+            rows.values(),
+            key=lambda r: (
+                r["edge_type"],
+                (r["source_label"], str(r["source_key"])),
+                (r["target_label"], str(r["target_key"])),
+            ),
+        )
+        return ordered[:limit]

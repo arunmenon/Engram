@@ -533,12 +533,39 @@ class OntologySettings(BaseSettings):
     packs: Annotated[list[str], NoDecode] = Field(default=["pdlc"])
     pack_dirs: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
-    @field_validator("packs", "pack_dirs", mode="before")
+    # Event agent_ids whose events mark pack nodes source_trust=trusted
+    # (the webhook routes ingest as webhook:<tool>); everything else is untrusted
+    trusted_sources: Annotated[list[str], NoDecode] = Field(
+        default=["webhook:github", "webhook:jira"]
+    )
+
+    # Nodes read when a rule finds an edge target by matching (to_latest,
+    # match_any_prefix)
+    lookup_limit: int = 1000
+
+    @field_validator("packs", "pack_dirs", "trusted_sources", mode="before")
     @classmethod
     def _split(cls, value: object) -> object:
         if isinstance(value, str):
             return [item.strip() for item in value.split(",") if item.strip()]
         return value
+
+
+class WebhookSettings(BaseSettings):
+    """Tool webhooks that feed ontology packs (ADR-0018 phase 1).
+
+    ``POST /v1/webhooks/<source>`` verifies each delivery's HMAC-SHA256
+    signature with the source's secret; a source without a secret is
+    disabled (503). Secrets come from the environment only.
+    """
+
+    model_config = {"env_prefix": "CG_WEBHOOK_"}
+
+    github_secret: SecretStr | None = None
+    jira_secret: SecretStr | None = None
+
+    # Largest delivery body accepted, in bytes
+    max_body_bytes: int = 1_000_000
 
 
 class MigrationSettings(BaseSettings):
@@ -624,6 +651,7 @@ class Settings(BaseSettings):
     migration: MigrationSettings = Field(default_factory=MigrationSettings)
     keyword: KeywordSearchSettings = Field(default_factory=KeywordSearchSettings)
     ontology: OntologySettings = Field(default_factory=OntologySettings)
+    webhooks: WebhookSettings = Field(default_factory=WebhookSettings)
 
     @model_validator(mode="after")
     def _resolve_consumer_aliases(self) -> Settings:

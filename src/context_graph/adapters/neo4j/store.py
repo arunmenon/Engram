@@ -19,6 +19,7 @@ from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.neo4j import queries
 from context_graph.adapters.neo4j.errors import translate_neo4j_error
 from context_graph.adapters.neo4j.graph_reads import Neo4jGraphReads
+from context_graph.adapters.neo4j.pack_graph import Neo4jPackGraph
 from context_graph.adapters.neo4j.retrieval import RetrievalDeps, RetrievalPipeline
 from context_graph.domain.models import (
     AtlasResponse,
@@ -80,7 +81,7 @@ _BATCH_EDGE_QUERIES: dict[str, str] = {
 
 
 @translate_errors(translate_neo4j_error)
-class Neo4jGraphStore:
+class Neo4jGraphStore(Neo4jPackGraph):
     """Neo4j implementation of the GraphStore protocol.
 
     Phase 2 implements: merge_event_node, merge_entity_node, merge_summary_node,

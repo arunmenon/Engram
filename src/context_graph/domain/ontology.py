@@ -51,14 +51,6 @@ WILDCARD = "*"
 
 SCALAR_TYPES = frozenset({"string", "text", "int", "float", "bool", "datetime", "json"})
 
-# Fields an edge in a pack's link policy (or an edge's ``requires``) carries.
-# A projection rule that does not set them gets the declared-link defaults.
-LINK_FIELDS: dict[str, Any] = {
-    "confidence": "float",
-    "method": "string",
-    "link_status": {"enum": ["proposed", "confirmed", "rejected"]},
-}
-DECLARED_LINK = {"confidence": 1.0, "method": "declared", "link_status": "confirmed"}
 
 # Event envelope fields an expression may read as ``$event.<field>``
 ENVELOPE_FIELDS = frozenset(
@@ -99,6 +91,9 @@ PROPERTY_NAME = re.compile(r"^[a-z_][a-z0-9_]*$")
 EVENT_TYPE_NAME = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$")
 LOWER_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 
+# Packs restating today's schema; their event namespaces stay open at ingest
+OPEN_PACKS = frozenset({"core", "memory", "user"})
+
 # Index names a node type may not use (they would clash with its key constraint)
 RESERVED_INDEX_FIELDS = frozenset({"pk", "node_id"})
 
@@ -137,6 +132,15 @@ class EnumSpec(_Strict):
 
 
 PropertySpec = str | EnumSpec
+
+# Fields an edge in a pack's link policy (or an edge's ``requires``) carries.
+# A projection rule that does not set them gets the declared-link defaults.
+LINK_FIELDS: dict[str, PropertySpec] = {
+    "confidence": "float",
+    "method": "string",
+    "link_status": EnumSpec(enum=["proposed", "confirmed", "rejected"]),
+}
+DECLARED_LINK = {"confidence": 1.0, "method": "declared", "link_status": "confirmed"}
 
 
 def _check_property_spec(spec: PropertySpec) -> str | None:
@@ -578,6 +582,25 @@ class OntologyRegistry:
         return (source_type in edge.from_types or source.pack in edge.from_packs) and (
             target_type in edge.to_types or target.pack in edge.to_packs
         )
+
+    def closed_namespaces(self) -> set[str]:
+        """Event namespaces owned by packs other than today's schema.
+
+        Today's agent events are open (any ``tool.*`` type is accepted);
+        a namespace a later pack owns (``pdlc``) accepts only declared types.
+        """
+        open_namespaces = {
+            name.split(".")[0] for name, e in self.event_types.items() if e.pack in OPEN_PACKS
+        }
+        return {
+            name.split(".")[0] for name, e in self.event_types.items() if e.pack not in OPEN_PACKS
+        } - open_namespaces
+
+    def accepts_event_type(self, event_type: str) -> bool:
+        """Whether ingest may accept an event type (declared, or in an open namespace)."""
+        if event_type in self.event_types:
+            return True
+        return event_type.split(".")[0] not in self.closed_namespaces()
 
     def rules_for(self, event_type: str) -> list[tuple[str, ProjectionRule]]:
         """Projection rules triggered by an event type, with their pack names."""

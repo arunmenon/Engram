@@ -52,6 +52,14 @@ if TYPE_CHECKING:
         SubgraphQuery,
         SummaryNode,
     )
+    from context_graph.domain.ontology import OntologyRegistry
+    from context_graph.ports.pack_graph import (
+        Direction,
+        EdgeWrite,
+        NodeRef,
+        NodeWrite,
+        StateChange,
+    )
     from context_graph.retrieval.engine import RetrievalEngine
     from context_graph.settings import DecaySettings, PPRSettings
 
@@ -71,6 +79,12 @@ LABEL_KEYS: dict[str, str] = {
     "Goal": "goal_id",
     "Episode": "episode_id",
 }
+
+
+def key_property(label: str) -> str:
+    """The property identifying nodes of ``label``: today's id field, else ``node_id``."""
+    return LABEL_KEYS.get(label, "node_id")
+
 
 # Edge type -> (source label, target label), as the MERGE_* templates match
 EDGE_ENDPOINTS: dict[str, tuple[str, str]] = {
@@ -544,6 +558,116 @@ class GraphOperations:
             }
             for score, props in scored[:top_k]
             if score >= threshold
+        ]
+
+    # ------------------------------------------------------------------
+    # PackGraph: generic operations for ontology packs (ADR-0018)
+    # ------------------------------------------------------------------
+
+    async def ensure_pack_schema(
+        self, registry: OntologyRegistry, embedding_dimensions: int
+    ) -> None:
+        """Nothing to create: nodes and edges are stored by label and key."""
+
+    @staticmethod
+    def _ref_key(ref: NodeRef) -> NodeKey:
+        return (ref.label, ref.key)
+
+    async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
+        if not writes:
+            return
+        keys = [self._ref_key(w.ref) for w in writes]
+        existing = await self._get_nodes(keys)
+        items: list[tuple[NodeKey, dict[str, Any]]] = []
+        created: set[NodeKey] = set()
+        for write, key in zip(writes, keys, strict=True):
+            updates = {k: v for k, v in write.properties.items() if v is not None}
+            if key not in existing and key not in created:
+                updates = {**write.defaults, **updates}
+                created.add(key)
+            updates[write.ref.key_property] = write.ref.key
+            items.append((key, updates))
+        await self._upsert_nodes(items)
+
+    async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
+        if not writes:
+            return 0
+        items = [
+            (
+                (self._ref_key(w.source), w.edge_type, self._ref_key(w.target)),
+                {k: v for k, v in w.properties.items() if v is not None},
+            )
+            for w in writes
+        ]
+        return await self._upsert_edges(items)
+
+    async def change_states(self, changes: list[StateChange]) -> int:
+        if not changes:
+            return 0
+        changed = 0
+        for change in changes:
+            key = self._ref_key(change.ref)
+            props = (await self._get_nodes([key])).get(key)
+            if props is None or props.get("status") == change.to_state:
+                continue
+            if change.only_from and props.get("status") not in change.only_from:
+                continue
+            await self._upsert_nodes(
+                [(key, {"status": change.to_state, "status_changed_at": change.changed_at})]
+            )
+            changed += 1
+        return changed
+
+    async def get_nodes(self, refs: list[NodeRef]) -> dict[NodeRef, dict[str, Any]]:
+        found = await self._get_nodes([self._ref_key(r) for r in refs])
+        return {ref: dict(found[key]) for ref in refs if (key := self._ref_key(ref)) in found}
+
+    async def find_nodes(
+        self, label: str, equals: dict[str, Any], limit: int
+    ) -> list[dict[str, Any]]:
+        rows = await self._find_nodes(label, dict(equals))
+        return [dict(row) for row in rows[:limit]]
+
+    async def neighbors(
+        self,
+        refs: list[NodeRef],
+        edge_types: list[str] | None,
+        direction: Direction,
+        limit: int,
+    ) -> list[dict[str, Any]]:
+        keys = [self._ref_key(r) for r in refs]
+        if not keys:
+            return []
+        rows: list[EdgeRow] = []
+        if direction in ("out", "both"):
+            rows += await self._edges(sources=keys)
+        if direction in ("in", "both"):
+            rows += await self._edges(targets=keys)
+        wanted = set(keys)
+        seen: set[EdgeKey] = set()
+        picked: list[tuple[EdgeKey, dict[str, Any], NodeKey]] = []
+        for edge_key, props in rows:
+            source, edge_type, target = edge_key
+            if edge_key in seen or (edge_types is not None and edge_type not in edge_types):
+                continue
+            seen.add(edge_key)
+            other = target if source in wanted and direction != "in" else source
+            picked.append((edge_key, props, other))
+        picked.sort(key=lambda item: (item[0][1], item[0][0], item[0][2]))
+        picked = picked[:limit]
+        others = await self._get_nodes(list({other for _e, _p, other in picked}))
+        return [
+            {
+                "edge_type": edge_key[1],
+                "properties": dict(props),
+                "source_label": edge_key[0][0],
+                "source_key": edge_key[0][1],
+                "target_label": edge_key[2][0],
+                "target_key": edge_key[2][1],
+                "node_label": other[0],
+                "node": dict(others.get(other, {})),
+            }
+            for edge_key, props, other in picked
         ]
 
     # ------------------------------------------------------------------

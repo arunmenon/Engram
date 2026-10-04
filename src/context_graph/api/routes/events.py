@@ -78,6 +78,23 @@ def _parse_event(data: dict[str, Any]) -> Event:
     return Event.model_validate(data, strict=False)
 
 
+def _undeclared(request: Request, event: Event) -> str | None:
+    """Why an event type is refused by the active ontology packs, or None (ADR-0018)."""
+    registry = getattr(request.app.state, "ontology", None)
+    if registry is None or registry.accepts_event_type(event.event_type):
+        return None
+    return (
+        f"event type {event.event_type!r} is not declared by the active ontology packs "
+        f"({', '.join(p.name for p in registry.packs)})"
+    )
+
+
+def _check_declared(request: Request, event: Event) -> None:
+    reason = _undeclared(request, event)
+    if reason is not None:
+        raise ValidationError(field="event_type", message=reason)
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -110,6 +127,7 @@ async def ingest_event(
             field=validation_result.errors[0].field,
             message=validation_result.errors[0].message,
         )
+    _check_declared(request, event)
 
     global_position = await event_store.append(event, payload=event_payload)
     EVENTS_INGESTED_TOTAL.inc()
@@ -192,20 +210,23 @@ async def ingest_event_batch(
             )
             continue
 
-        # Domain validation
+        # Domain validation, then the active ontology packs' event types
         validation_result = validate_event(event)
-        if validation_result.is_valid:
+        undeclared = _undeclared(request, event) if validation_result.is_valid else None
+        if validation_result.is_valid and undeclared is None:
             valid_events.append(event)
             valid_payloads.append(event_payload)
         else:
+            problems = [
+                {"field": err.field, "message": err.message} for err in validation_result.errors
+            ]
+            if undeclared is not None:
+                problems.append({"field": "event_type", "message": undeclared})
             errors.append(
                 {
                     "index": idx,
                     "event_id": str(event.event_id),
-                    "errors": [
-                        {"field": err.field, "message": err.message}
-                        for err in validation_result.errors
-                    ],
+                    "errors": problems,
                 }
             )
 

@@ -29,6 +29,8 @@ from context_graph.api.routes.lineage import router as lineage_router
 from context_graph.api.routes.query import router as query_router
 from context_graph.api.routes.simulate import router as simulate_router
 from context_graph.api.routes.users import router as users_router
+from context_graph.api.routes.webhooks import router as webhooks_router
+from context_graph.ontology.runtime import configured_registry
 from context_graph.retrieval import RetrievalEngine
 from context_graph.settings import Settings
 
@@ -85,8 +87,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     except ImportError:
         logger.info("llm_client_unavailable")
 
+    # -- Startup: the ontology (ADR-0018); an invalid pack fails start-up ---
+    ontology = configured_registry(settings.ontology)
+
     # -- Startup: open the configured stores (ADR-0019) -------------------
     stores = await open_stores(settings, prepare_ingest=True)
+    await stores.graph.ensure_pack_schema(ontology, settings.embedding.dimensions)
 
     # Retrieval engine: composes the storage ports and owns its own
     # dependencies (ADR-0019 C3)
@@ -109,11 +115,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.event_store = stores.event_log
     app.state.graph_store = stores.graph
     app.state.retrieval = retrieval
+    app.state.ontology = ontology
 
     logger.info(
         "app_started",
         redis_host=settings.redis.host,
         neo4j_uri=settings.neo4j.uri,
+        ontology_version=ontology.version,
+        ontology_packs=[f"{p.name}@{p.version}" for p in ontology.packs],
     )
 
     yield
@@ -151,6 +160,9 @@ def create_app() -> FastAPI:
 
     # Simulation endpoint: standard API key auth
     app.include_router(simulate_router, prefix="/v1", dependencies=api_key_deps)
+
+    # Tool webhooks: authenticated by their HMAC signature (ADR-0018)
+    app.include_router(webhooks_router, prefix="/v1")
 
     # Health endpoint: no auth (used by load balancers / orchestrators)
     app.include_router(health_router, prefix="/v1")
