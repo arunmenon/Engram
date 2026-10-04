@@ -198,3 +198,72 @@ class TestRoute:
             app, "/v1/webhooks/github", body, {"X-Hub-Signature-256": _sign(body)}
         )
         assert response.status_code == 400
+
+
+class TestReviewFindings:
+    """Regression cases from the phase 1 review (ADR-0018 implementation notes)."""
+
+    async def test_odd_signature_headers_are_401_not_500(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        app, _log = _app(monkeypatch)
+        body = b"{}"
+        transport = httpx.ASGITransport(app=app)
+        headers: list[bytes] = [
+            "sha256=\xff\xfe".encode("latin-1"),
+            ("sha256=" + "g" * 64).encode(),
+            ("sha256=" + "a" * 63).encode(),
+        ]
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            for header in headers:
+                response = await client.post(
+                    "/v1/webhooks/github",
+                    content=body,
+                    headers=[(b"X-Hub-Signature-256", header)],
+                )
+                assert response.status_code == 401
+
+    async def test_declared_length_over_the_limit_is_refused(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        app, _log = _app(monkeypatch)
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/v1/webhooks/github", content=b"{}", headers={"Content-Length": "999999"}
+            )
+        assert response.status_code == 413
+
+    async def test_a_replayed_body_under_a_new_delivery_id_is_deduplicated(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        app, log = _app(monkeypatch)
+        body = (FIXTURES / "github_pull_request_merged.json").read_bytes()
+        for delivery in ("one", "two"):
+            headers = {
+                "X-GitHub-Event": "pull_request",
+                "X-GitHub-Delivery": delivery,
+                "X-Hub-Signature-256": _sign(body),
+            }
+            assert (await _post(app, "/v1/webhooks/github", body, headers)).status_code == 202
+        assert await log.stream_length() == 1
+
+    def test_release_notes_and_ids(self) -> None:
+        release = _fixture("github_release_published")
+        release["release"]["body"] = (
+            "* Fix retry by @ann in https://github.com/acme/payments/pull/12\n"
+            "Non-breaking changes only"
+        )
+        (event,) = github.translate("release", release)
+        assert [e["pr_number"] for e in event.payload["entries"]] == [12]
+        assert event.payload["has_breaking"] is False
+        release["release"]["body"] = "## Breaking changes\n- drop v1 API #3"
+        (event,) = github.translate("release", release)
+        assert event.payload["has_breaking"] is True
+        review = _fixture("github_pull_request_review_submitted")
+        del review["review"]["id"]
+        assert github.translate("pull_request_review", review) == []
+        (deployed,) = github.translate(
+            "deployment_status", _fixture("github_deployment_status_success")
+        )
+        assert deployed.payload["service"] == "acme/payments"

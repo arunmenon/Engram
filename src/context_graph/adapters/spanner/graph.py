@@ -34,11 +34,13 @@ from context_graph.adapters.graph_ops import (
     NodeKey,
     apply_set,
     key_property,
+    state_change_applies,
 )
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
 
 if TYPE_CHECKING:
+    from context_graph.ports.pack_graph import StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
 NODE_COLUMNS = ["label", "node_id", "props", "embedding"]
@@ -247,6 +249,86 @@ class SpannerGraphStore(GraphOperations):
             )
 
         await self._transact(work)
+
+    async def _merge_nodes(
+        self, items: list[tuple[NodeKey, dict[str, Any], dict[str, Any]]]
+    ) -> None:
+        """MERGE with create-only defaults, read and written in one transaction."""
+        from google.cloud.spanner_v1 import KeySet
+
+        if not items:
+            return
+
+        def work(transaction: Any) -> None:
+            keys = sorted({key for key, _u, _d in items})
+            current = {
+                (label, node_id): json_value(props)
+                for label, node_id, props in transaction.read(
+                    "GraphNodes",
+                    ["label", "node_id", "props"],
+                    KeySet(keys=[list(key) for key in keys]),
+                )
+            }
+            for (label, node_id), updates, defaults in items:
+                props = current.get((label, node_id))
+                if props is None:
+                    props = current[(label, node_id)] = {key_property(label): node_id, **defaults}
+                apply_set(props, updates)
+            transaction.insert_or_update(
+                "GraphNodes",
+                NODE_COLUMNS,
+                [
+                    [label, node_id, json_param(props), self._embedding_column(label, props)]
+                    for (label, node_id), props in current.items()
+                ],
+            )
+
+        await self._transact(work)
+
+    async def _apply_state_changes(self, changes: list[StateChange]) -> int:
+        """Apply transitions in order, read and written in one transaction."""
+        from google.cloud.spanner_v1 import KeySet
+
+        def work(transaction: Any) -> int:
+            keys = sorted({(c.ref.label, c.ref.key) for c in changes})
+            current = {
+                (label, node_id): json_value(props)
+                for label, node_id, props in transaction.read(
+                    "GraphNodes",
+                    ["label", "node_id", "props"],
+                    KeySet(keys=[list(key) for key in keys]),
+                )
+            }
+            changed: set[NodeKey] = set()
+            count = 0
+            for change in changes:
+                key = (change.ref.label, change.ref.key)
+                props = current.get(key)
+                if not state_change_applies(props, change):
+                    continue
+                assert props is not None
+                props["status"] = change.to_state
+                props["status_changed_at"] = change.changed_at
+                changed.add(key)
+                count += 1
+            if changed:
+                transaction.update(
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    [
+                        [
+                            label,
+                            node_id,
+                            json_param(current[(label, node_id)]),
+                            self._embedding_column(label, current[(label, node_id)]),
+                        ]
+                        for label, node_id in sorted(changed)
+                    ],
+                )
+            return count
+
+        result: int = await self._transact(work)
+        return result
 
     def _incident_edges_sync(self, transaction: Any, keys: list[NodeKey]) -> list[list[Any]]:
         prefixes = [list(key) for key in keys]

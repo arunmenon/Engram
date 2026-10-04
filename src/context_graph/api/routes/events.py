@@ -26,6 +26,7 @@ from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model
 from context_graph.domain.validation import ValidationError, validate_event
 from context_graph.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
 from context_graph.ports.event_store import EventStore  # noqa: TCH001 — runtime: Depends()
+from context_graph.sources.events import WEBHOOK_AGENT_PREFIX
 
 logger = structlog.get_logger(__name__)
 
@@ -79,7 +80,13 @@ def _parse_event(data: dict[str, Any]) -> Event:
 
 
 def _undeclared(request: Request, event: Event) -> str | None:
-    """Why an event type is refused by the active ontology packs, or None (ADR-0018)."""
+    """Why an event is refused by the active ontology packs, or None (ADR-0018).
+
+    Agent ids under ``webhook:`` belong to the signed webhook routes, whose
+    events the projector marks trusted; the generic ingest refuses them.
+    """
+    if event.agent_id.startswith(WEBHOOK_AGENT_PREFIX):
+        return f"agent_id prefix {WEBHOOK_AGENT_PREFIX!r} is reserved for the webhook routes"
     registry = getattr(request.app.state, "ontology", None)
     if registry is None or registry.accepts_event_type(event.event_type):
         return None
@@ -92,7 +99,8 @@ def _undeclared(request: Request, event: Event) -> str | None:
 def _check_declared(request: Request, event: Event) -> None:
     reason = _undeclared(request, event)
     if reason is not None:
-        raise ValidationError(field="event_type", message=reason)
+        field = "agent_id" if reason.startswith("agent_id") else "event_type"
+        raise ValidationError(field=field, message=reason)
 
 
 # ---------------------------------------------------------------------------
@@ -221,7 +229,8 @@ async def ingest_event_batch(
                 {"field": err.field, "message": err.message} for err in validation_result.errors
             ]
             if undeclared is not None:
-                problems.append({"field": "event_type", "message": undeclared})
+                field = "agent_id" if undeclared.startswith("agent_id") else "event_type"
+                problems.append({"field": field, "message": undeclared})
             errors.append(
                 {
                     "index": idx,

@@ -34,6 +34,7 @@ from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
+import orjson
 import structlog
 
 from context_graph.ports.errors import InvalidRequestError
@@ -146,6 +147,31 @@ LINEAGE_MAX_HOPS = 10
 NodeKey = tuple[str, str]  # (label, id)
 EdgeKey = tuple[NodeKey, str, NodeKey]  # (source, type, target)
 EdgeRow = tuple[EdgeKey, dict[str, Any]]
+
+
+def stored_values(values: dict[str, Any]) -> dict[str, Any]:
+    """Property values as every backend stores them (PackGraph contract).
+
+    None is not written; nested maps, and lists holding maps or lists,
+    become JSON text, as Neo4j properties cannot hold them.
+    """
+    stored: dict[str, Any] = {}
+    for name, value in values.items():
+        if value is None:
+            continue
+        if isinstance(value, dict) or (
+            isinstance(value, list) and any(isinstance(item, dict | list) for item in value)
+        ):
+            value = orjson.dumps(value).decode()
+        stored[name] = value
+    return stored
+
+
+def state_change_applies(props: dict[str, Any] | None, change: StateChange) -> bool:
+    """Whether a transition moves this node (it exists, is elsewhere, is allowed from here)."""
+    if props is None or props.get("status") == change.to_state:
+        return False
+    return not change.only_from or props.get("status") in change.only_from
 
 
 def iso_now() -> str:
@@ -573,50 +599,68 @@ class GraphOperations:
     def _ref_key(ref: NodeRef) -> NodeKey:
         return (ref.label, ref.key)
 
-    async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
-        if not writes:
-            return
-        keys = [self._ref_key(w.ref) for w in writes]
-        existing = await self._get_nodes(keys)
-        items: list[tuple[NodeKey, dict[str, Any]]] = []
+    async def _merge_nodes(
+        self, items: list[tuple[NodeKey, dict[str, Any], dict[str, Any]]]
+    ) -> None:
+        """MERGE nodes, applying ``defaults`` only to the ones created.
+
+        Reads, then writes; a backend with concurrent writers (Spanner)
+        overrides this to do both in one transaction.
+        """
+        existing = await self._get_nodes([key for key, _u, _d in items])
         created: set[NodeKey] = set()
-        for write, key in zip(writes, keys, strict=True):
-            updates = {k: v for k, v in write.properties.items() if v is not None}
+        merged: list[tuple[NodeKey, dict[str, Any]]] = []
+        for key, updates, defaults in items:
             if key not in existing and key not in created:
-                updates = {**write.defaults, **updates}
+                updates = {**defaults, **updates}
                 created.add(key)
-            updates[write.ref.key_property] = write.ref.key
-            items.append((key, updates))
-        await self._upsert_nodes(items)
+            merged.append((key, updates))
+        await self._upsert_nodes(merged)
 
-    async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
-        if not writes:
-            return 0
-        items = [
-            (
-                (self._ref_key(w.source), w.edge_type, self._ref_key(w.target)),
-                {k: v for k, v in w.properties.items() if v is not None},
-            )
-            for w in writes
-        ]
-        return await self._upsert_edges(items)
-
-    async def change_states(self, changes: list[StateChange]) -> int:
-        if not changes:
-            return 0
+    async def _apply_state_changes(self, changes: list[StateChange]) -> int:
+        """Apply transitions in order; Spanner overrides this to do it in one transaction."""
         changed = 0
         for change in changes:
             key = self._ref_key(change.ref)
             props = (await self._get_nodes([key])).get(key)
-            if props is None or props.get("status") == change.to_state:
-                continue
-            if change.only_from and props.get("status") not in change.only_from:
+            if not state_change_applies(props, change):
                 continue
             await self._upsert_nodes(
                 [(key, {"status": change.to_state, "status_changed_at": change.changed_at})]
             )
             changed += 1
         return changed
+
+    async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
+        if not writes:
+            return
+        items = []
+        for write in writes:
+            updates = stored_values(write.properties)
+            updates[write.ref.key_property] = write.ref.key
+            items.append((self._ref_key(write.ref), updates, stored_values(write.defaults)))
+        await self._merge_nodes(items)
+
+    async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
+        """Writes whose endpoints both exist; each write counts, repeated or not."""
+        if not writes:
+            return 0
+        ends = {self._ref_key(w.source) for w in writes} | {self._ref_key(w.target) for w in writes}
+        existing = await self._get_nodes(list(ends))
+        items = [
+            (
+                (self._ref_key(w.source), w.edge_type, self._ref_key(w.target)),
+                stored_values(w.properties),
+            )
+            for w in writes
+            if self._ref_key(w.source) in existing and self._ref_key(w.target) in existing
+        ]
+        if items:
+            await self._upsert_edges(items)
+        return len(items)
+
+    async def change_states(self, changes: list[StateChange]) -> int:
+        return await self._apply_state_changes(changes) if changes else 0
 
     async def get_nodes(self, refs: list[NodeRef]) -> dict[NodeRef, dict[str, Any]]:
         found = await self._get_nodes([self._ref_key(r) for r in refs])
@@ -625,8 +669,30 @@ class GraphOperations:
     async def find_nodes(
         self, label: str, equals: dict[str, Any], limit: int
     ) -> list[dict[str, Any]]:
-        rows = await self._find_nodes(label, dict(equals))
+        rows = await self._find_nodes(label, stored_values(equals))
+        key = key_property(label)
+        rows = sorted(rows, key=lambda row: str(row.get(key, "")))
         return [dict(row) for row in rows[:limit]]
+
+    async def search_nodes(
+        self, label: str, fields: list[str], terms: list[str], limit: int
+    ) -> list[tuple[dict[str, Any], int]]:
+        if not terms or not fields:
+            return []
+        scored = []
+        for props in await self._find_nodes(label, {}):
+            texts: list[str] = []
+            for field_name in fields:
+                value = props.get(field_name)
+                if isinstance(value, str):
+                    texts.append(value.lower())
+                elif isinstance(value, list):
+                    texts.extend(item.lower() for item in value if isinstance(item, str))
+            hits = sum(1 for term in terms if any(term in text for text in texts))
+            if hits:
+                scored.append((dict(props), hits))
+        scored.sort(key=lambda row: (-row[1], str(row[0].get(key_property(label)))))
+        return scored[:limit]
 
     async def neighbors(
         self,

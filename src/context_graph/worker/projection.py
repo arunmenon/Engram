@@ -17,6 +17,7 @@ import structlog
 
 from context_graph.domain.models import Event
 from context_graph.domain.projection import project_event
+from context_graph.metrics import CONSUMER_MESSAGE_ERRORS
 from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.pack_projection import apply_plan
@@ -110,7 +111,7 @@ class ProjectionConsumer(BaseConsumer):
 
         all_nodes = []
         all_edges = []
-        pack_events: list[tuple[Event, dict[str, Any]]] = []
+        pack_events: list[tuple[str, dict[str, str], Event, dict[str, Any]]] = []
 
         for entry_id, data in batch:
             event = await self._fetch_event(entry_id, data)
@@ -118,7 +119,7 @@ class ProjectionConsumer(BaseConsumer):
                 continue
             document = self._documents.pop(str(event.event_id), None)
             if self._pack_projector is not None and self._pack_projector.handles(event.event_type):
-                pack_events.append((event, document or {}))
+                pack_events.append((entry_id, data, event, document or {}))
 
             # Look up previous event in this session for FOLLOWS edge
             prev_event = await self._previous_event(event)
@@ -160,11 +161,22 @@ class ProjectionConsumer(BaseConsumer):
         if all_edges:
             await self._graph_store.create_edges_batch(all_edges)
 
-        # Ontology pack rules (ADR-0018), in log order, after the Event nodes exist
+        # Ontology pack rules (ADR-0018), in log order, after the Event nodes exist.
+        # One event's failure is dead-lettered on its own; the batch goes on.
         if self._pack_projector is not None:
-            for event, document in pack_events:
-                plan = self._pack_projector.plan(event, document)
-                await apply_plan(self._graph_store, plan, self._pack_lookup_limit)  # type: ignore[arg-type]
+            for entry_id, data, event, document in pack_events:
+                try:
+                    plan = self._pack_projector.plan(event, document)
+                    await apply_plan(self._graph_store, plan, self._pack_lookup_limit)  # type: ignore[arg-type]
+                except Exception:
+                    CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
+                    log.exception(
+                        "pack_projection_failed",
+                        event_id=str(event.event_id),
+                        event_type=event.event_type,
+                        entry_id=entry_id,
+                    )
+                    await self._dead_letter_message(entry_id, data, 1)
 
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]

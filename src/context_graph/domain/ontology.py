@@ -549,6 +549,7 @@ class OntologyRegistry:
         self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
         self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
         self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
         problems: list[str] = []
         self._compose(problems)
         # Validate even after composition problems, so every problem is reported at once
@@ -583,18 +584,25 @@ class OntologyRegistry:
             target_type in edge.to_types or target.pack in edge.to_packs
         )
 
-    def closed_namespaces(self) -> set[str]:
+    def closed_namespaces(self) -> frozenset[str]:
         """Event namespaces owned by packs other than today's schema.
 
         Today's agent events are open (any ``tool.*`` type is accepted);
         a namespace a later pack owns (``pdlc``) accepts only declared types.
         """
-        open_namespaces = {
-            name.split(".")[0] for name, e in self.event_types.items() if e.pack in OPEN_PACKS
-        }
-        return {
-            name.split(".")[0] for name, e in self.event_types.items() if e.pack not in OPEN_PACKS
-        } - open_namespaces
+        if self._closed_namespaces is None:
+            open_namespaces = {
+                name.split(".")[0] for name, e in self.event_types.items() if e.pack in OPEN_PACKS
+            }
+            self._closed_namespaces = (
+                frozenset(
+                    name.split(".")[0]
+                    for name, e in self.event_types.items()
+                    if e.pack not in OPEN_PACKS
+                )
+                - open_namespaces
+            )
+        return self._closed_namespaces
 
     def accepts_event_type(self, event_type: str) -> bool:
         """Whether ingest may accept an event type (declared, or in an open namespace)."""

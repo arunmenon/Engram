@@ -38,7 +38,7 @@ FUNCTIONS = {
     "each": 1,
 }
 
-# Patterns are compiled once per rule; keep a bound on catastrophic inputs
+# Text a pattern is matched against, at most (bounds regex work per value)
 MAX_TEXT_LENGTH = 100_000
 
 
@@ -279,7 +279,7 @@ def _text(value: Any) -> str | None:
     if value is None:
         return None
     if isinstance(value, list):
-        return " ".join(str(v) for v in value if v is not None)
+        return " ".join(str(v) for v in value if v is not None)[:MAX_TEXT_LENGTH]
     return str(value)[:MAX_TEXT_LENGTH]
 
 

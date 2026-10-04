@@ -19,6 +19,8 @@ Translated deliveries (``X-GitHub-Event``), others are ignored:
 Issue states are expressed in the tracker vocabulary the pack maps
 (``To Do``, ``Done``, ``Won't Do``). Changed files are not part of pull
 request webhooks, so ``files`` is empty; TOUCHES links need them.
+Release notes are read for ``#n`` and ``/pull/n`` references; a bare
+``#n`` may also name an issue, which then appears as a stub Change.
 
 Pure functions; no I/O.
 """
@@ -27,7 +29,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from context_graph.sources.events import PR_REFERENCE, SourceEvent
+from context_graph.sources.events import BREAKING, PR_REFERENCE, SourceEvent
 
 CHECK_OUTCOMES = {
     "success": "success",
@@ -121,7 +123,7 @@ def _pull_request(repo: str, action: Any, payload: dict[str, Any]) -> list[Sourc
 def _review(repo: str, action: Any, payload: dict[str, Any]) -> list[SourceEvent]:
     review = payload.get("review") or {}
     verdict = REVIEW_VERDICTS.get(str(review.get("state", "")).lower())
-    if action != "submitted" or verdict is None:
+    if action != "submitted" or verdict is None or review.get("id") is None:
         return []
     pr = payload.get("pull_request") or {}
     return [
@@ -142,7 +144,7 @@ def _review(repo: str, action: Any, payload: dict[str, Any]) -> list[SourceEvent
 
 def _check_run(repo: str, action: Any, payload: dict[str, Any]) -> list[SourceEvent]:
     run = payload.get("check_run") or {}
-    if action != "completed":
+    if action != "completed" or run.get("id") is None or not run.get("name"):
         return []
     outcome = CHECK_OUTCOMES.get(str(run.get("conclusion", "")), "error")
     pulls = run.get("pull_requests") or []
@@ -172,14 +174,14 @@ def _release(repo: str, action: Any, payload: dict[str, Any]) -> list[SourceEven
     if action != "published":
         return []
     notes = release.get("body") or ""
-    numbers = sorted({int(n) for n in PR_REFERENCE.findall(notes)})
+    numbers = sorted({int(a or b) for a, b in PR_REFERENCE.findall(notes)})
     return [
         SourceEvent(
             "pdlc.release.published",
             {
                 "repo": repo,
                 "version": release.get("tag_name"),
-                "has_breaking": "breaking" in notes.lower(),
+                "has_breaking": BREAKING.search(notes) is not None,
                 "entries": [{"pr_number": n, "section": "other"} for n in numbers],
             },
             repo,
@@ -194,12 +196,12 @@ def _deployment_status(repo: str, action: Any, payload: dict[str, Any]) -> list[
     deployment = payload.get("deployment") or {}
     if status.get("state") != "success":
         return []
-    repository = payload.get("repository") or {}
     return [
         SourceEvent(
             "pdlc.service.deployed",
             {
-                "service": repository.get("name"),
+                # The full name: bare repository names collide across organisations
+                "service": repo,
                 "environment": deployment.get("environment") or status.get("environment"),
                 "artifact_id": deployment.get("sha"),
                 "repo": repo,

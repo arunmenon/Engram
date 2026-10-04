@@ -374,3 +374,48 @@ class TestFollowsAcrossRestart:
             settings=Settings(),
         )
         assert await consumer._previous_event(event) is None
+
+
+class TestPackFailureIsolation:
+    """A pack-rule failure dead-letters its own event, not the batch (phase 1 review)."""
+
+    @pytest.mark.asyncio
+    async def test_one_failing_event_is_dead_lettered_alone(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from context_graph.domain.pack_projection import ProjectionPlan
+
+        class Projector:
+            def handles(self, event_type: str) -> bool:
+                return True
+
+            def plan(self, event: Event, document: dict[str, object]) -> ProjectionPlan:
+                if event.session_id == "sess-bad":
+                    msg = "pack rule failed"
+                    raise RuntimeError(msg)
+                return ProjectionPlan()
+
+        monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+        settings = Settings()
+        event_log = MemoryEventLog()
+        subscription = MemorySubscription(
+            event_log.stream, settings.consumer.group_projection, "projection-1"
+        )
+        consumer = ProjectionConsumer(
+            subscription=subscription,
+            event_log=event_log,
+            graph_store=MemoryGraphStore(),
+            settings=settings,
+            pack_projector=Projector(),  # type: ignore[arg-type]
+        )
+        good, bad = _event("sess-good", minutes_ago=2), _event("sess-bad", minutes_ago=1)
+        await event_log.append(good)
+        await event_log.append(bad)
+        await subscription.ensure_group()
+        for delivery in await subscription.read_new(10, 0):
+            await consumer.process_message(delivery.position, delivery.fields)
+        await consumer._flush_buffer()
+
+        assert await subscription.delivery_counts(100) == {}  # all acknowledged
+        dead = event_log.stream.dead_letters
+        assert [d["event_id"] for d in dead] == [str(bad.event_id)]

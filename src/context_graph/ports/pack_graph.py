@@ -108,6 +108,17 @@ class PackGraph(Protocol):
         """Properties of up to ``limit`` nodes of ``label`` whose properties equal ``equals``."""
         ...
 
+    async def search_nodes(
+        self, label: str, fields: list[str], terms: list[str], limit: int
+    ) -> list[tuple[dict[str, Any], int]]:
+        """Nodes of ``label`` where a field contains a term, with the number of terms matched.
+
+        Matching is case-insensitive substring on text fields and on each
+        element of list fields; ``terms`` are lowercase. Ordered by terms
+        matched (most first), then node key; at most ``limit`` rows.
+        """
+        ...
+
     async def neighbors(
         self,
         refs: list[NodeRef],

@@ -161,6 +161,23 @@ async def _run(monkeypatch: pytest.MonkeyPatch, settings: Settings, stores: Stor
             )
             assert rejected.status_code == 422, rejected.text
 
+            # Webhook agent ids cannot be claimed through the generic ingest
+            spoofed = await client.post(
+                "/v1/events",
+                json={
+                    "event_id": str(uuid4()),
+                    "event_type": "pdlc.change.created",
+                    "occurred_at": "2026-10-01T09:00:00Z",
+                    "session_id": "s",
+                    "agent_id": "webhook:github",
+                    "trace_id": "t",
+                    "payload_ref": "p",
+                    "payload": {"repo": "acme/payments", "number": 1, "title": "evil"},
+                },
+            )
+            assert spoofed.status_code == 422, spoofed.text
+            assert "reserved" in spoofed.text
+
     projection = ProjectionConsumer(
         subscription=stores.subscription(settings.consumer.group_projection, "projection-1"),
         event_log=stores.event_log,

@@ -127,3 +127,56 @@ def _event_node(event: object) -> object:
     from context_graph.domain.projection import event_to_node
 
     return event_to_node(event)  # type: ignore[arg-type]
+
+
+class TestSearch:
+    async def test_terms_in_text_and_list_fields(self, graph: GraphBackend) -> None:
+        await graph.upsert_nodes(
+            [
+                _change(title="Fix refund retry", files=["refund/retry.py", "README.md"]),
+                NodeWrite(
+                    NodeRef("Change", "Change:acme/app|8"),
+                    {"title": "Refund logs", "files": ["logs.py"], "number": 8},
+                ),
+                NodeWrite(NodeRef("Change", "Change:acme/app|9"), {"title": "Other", "number": 9}),
+            ]
+        )
+        found = await graph.search_nodes("Change", ["title", "files"], ["refund", "retry.py"], 10)
+        assert [(props["node_id"], hits) for props, hits in found] == [
+            (CHANGE.key, 2),
+            ("Change:acme/app|8", 1),
+        ]
+        assert len(await graph.search_nodes("Change", ["title"], ["refund"], 1)) == 1
+        assert await graph.search_nodes("Change", ["title"], ["absent"], 10) == []
+        assert await graph.search_nodes("Change", [], ["refund"], 10) == []
+
+
+class TestReviewFindings:
+    """Backend differences found in the phase 1 review (ADR-0018 notes)."""
+
+    async def test_neighbors_reports_the_target_when_both_ends_are_asked(
+        self, graph: GraphBackend
+    ) -> None:
+        await graph.upsert_nodes([_change(), NodeWrite(ITEM, {})])
+        await graph.upsert_edges([EdgeWrite("IMPLEMENTS", CHANGE, ITEM)])
+        for refs in ([ITEM, CHANGE], [CHANGE, ITEM]):
+            (row,) = await graph.neighbors(refs, None, "both", 10)
+            assert row["node_label"] == "WorkItem"
+
+    async def test_nested_values_are_json_text_everywhere(self, graph: GraphBackend) -> None:
+        await graph.upsert_nodes([_change(meta={"a": 1}, files=["x"])])
+        node = (await graph.get_nodes([CHANGE]))[CHANGE]
+        assert node["meta"] == '{"a":1}'
+        assert node["files"] == ["x"]
+
+    async def test_repeated_edge_writes_each_count(self, graph: GraphBackend) -> None:
+        await graph.upsert_nodes([_change(), NodeWrite(ITEM, {})])
+        edge = EdgeWrite("IMPLEMENTS", CHANGE, ITEM)
+        assert await graph.upsert_edges([edge, edge]) == 2
+        assert len(await graph.neighbors([CHANGE], None, "out", 10)) == 1
+
+    async def test_find_nodes_is_ordered_by_key(self, graph: GraphBackend) -> None:
+        refs = [NodeRef("Deployment", f"Deployment:{name}") for name in ("c", "a", "b")]
+        await graph.upsert_nodes([NodeWrite(ref, {"environment": "prod"}) for ref in refs])
+        found = await graph.find_nodes("Deployment", {"environment": "prod"}, 2)
+        assert [n["node_id"] for n in found] == ["Deployment:a", "Deployment:b"]

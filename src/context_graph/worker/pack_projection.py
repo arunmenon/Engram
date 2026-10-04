@@ -27,23 +27,33 @@ log = structlog.get_logger(__name__)
 LATEST_ORDER = ("started_at", "occurred_at", "updated_at")
 
 
+def _under(path: str, prefix: str) -> bool:
+    """Whether ``path`` is ``prefix`` or inside it (``src`` matches ``src/x``, not ``src2/x``)."""
+    if not prefix:
+        return False
+    if prefix.endswith("/"):
+        return path.startswith(prefix)
+    return path == prefix or path.startswith(prefix + "/")
+
+
 def _matches_prefix(node: dict[str, Any], lookup: EdgeLookup) -> bool:
     if lookup.prefix_field is None:
         return True
     declared = node.get(lookup.prefix_field) or []
     if isinstance(declared, str):
         declared = [declared]
-    return any(path.startswith(prefix) for prefix in declared if prefix for path in lookup.prefixes)
+    return any(_under(path, prefix) for prefix in declared for path in lookup.prefixes)
 
 
-def _latest(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _latest(nodes: list[dict[str, Any]], key_property: str) -> list[dict[str, Any]]:
+    """The most recent node, by the first ordering field any match has; ties by key."""
     if not nodes:
         return []
     for order_field in LATEST_ORDER:
         dated = [n for n in nodes if n.get(order_field)]
         if dated:
-            return [max(dated, key=lambda n: str(n[order_field]))]
-    return [nodes[-1]]
+            return [max(dated, key=lambda n: (str(n[order_field]), str(n.get(key_property))))]
+    return [max(nodes, key=lambda n: str(n.get(key_property)))]
 
 
 async def resolve_lookups(
@@ -52,9 +62,16 @@ async def resolve_lookups(
     edges: list[EdgeWrite] = []
     for lookup in lookups:
         found = await graph.find_nodes(lookup.label, lookup.equals, limit)
+        if len(found) >= limit:
+            log.warning(
+                "pack_lookup_limit_reached",
+                label=lookup.label,
+                edge_type=lookup.edge_type,
+                limit=limit,
+            )
         matched = [node for node in found if _matches_prefix(node, lookup)]
         if lookup.latest:
-            matched = _latest(matched)
+            matched = _latest(matched, lookup.key_property)
         for node in matched:
             key = node.get(lookup.key_property)
             if key is None:

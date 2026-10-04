@@ -20,8 +20,12 @@ Conventions:
   so a link can arrive before the artifact it points at;
 - values missing from the event are not written; a key with a missing
   value produces no node;
-- a list-valued expression fans out: one node or edge per element, zipped
-  with other lists of the same length and broadcasting scalars;
+- a list-valued key expression fans out: one node per element, zipped
+  with other key lists and broadcasting scalars; a property list of the
+  same length is zipped with it (by original position, so a skipped
+  element does not shift the others); an edge between two fanned ends of
+  the same length pairs them, otherwise it joins every source to every
+  target;
 - required link fields a rule does not set get the declared-link defaults.
 
 Pure Python; no framework or storage imports.
@@ -30,6 +34,7 @@ Pure Python; no framework or storage imports.
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -51,6 +56,9 @@ if TYPE_CHECKING:
     )
 
 PROVENANCE_EDGE = "DERIVED_FROM"
+
+# Integers are stored as 64-bit (Neo4j and Spanner INT64)
+INT64_MIN, INT64_MAX = -(2**63), 2**63 - 1
 
 
 @dataclass(frozen=True)
@@ -121,10 +129,7 @@ def coerce(value: Any, spec: PropertySpec | None) -> Any:
         return None
     try:
         if spec == "int":
-            if isinstance(value, bool):
-                return None
-            number = float(value)
-            return int(number) if math.isfinite(number) and number == int(number) else None
+            return _integer(value)
         if spec == "float":
             if isinstance(value, bool):
                 return None
@@ -164,15 +169,55 @@ def _truthy(value: Any) -> bool:
     return value not in (None, "", False, 0)
 
 
-def _fan_out(values: dict[str, Any]) -> list[dict[str, Any]]:
-    """Expand list values into rows, zipping lists and broadcasting scalars."""
+def _integer(value: Any) -> int | None:
+    """An exact 64-bit integer, or None (no float rounding, no overflow downstream)."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        number = value
+    elif isinstance(value, float):
+        if not math.isfinite(value) or value != int(value):
+            return None
+        number = int(value)
+    else:
+        text = str(value).strip()
+        if not re.fullmatch(r"[-+]?\d{1,20}", text):
+            return None
+        number = int(text)
+    return number if INT64_MIN <= number <= INT64_MAX else None
+
+
+def _fan_out(values: dict[str, Any]) -> tuple[list[dict[str, Any]], bool]:
+    """Expand list values into rows, zipping lists and broadcasting scalars.
+
+    Returns the rows and whether any value was a list (a fanned key).
+    """
     lengths = {len(v) for v in values.values() if isinstance(v, list)}
     if not lengths:
-        return [values]
+        return [values], False
     count = min(lengths)
-    return [
+    rows = [
         {k: (v[i] if isinstance(v, list) else v) for k, v in values.items()} for i in range(count)
     ]
+    return rows, True
+
+
+@dataclass(frozen=True)
+class _Keyed:
+    """A node named by a rule: its ref, key values and place in a fanned key."""
+
+    type_name: str
+    ref: GraphRef
+    key_props: dict[str, Any]
+    index: int = 0
+    count: int = 1
+    fanned: bool = False
+
+    def pick(self, value: Any) -> Any:
+        """This node's element of a list value zipped with its fanned key."""
+        if self.fanned and isinstance(value, list) and len(value) == self.count:
+            return value[self.index]
+        return value
 
 
 # ---------------------------------------------------------------------------
@@ -229,11 +274,12 @@ class PackProjector:
 
     def _keyed_refs(
         self, node_type: NodeType, key: dict[str, RuleValue], scope: Scope
-    ) -> list[tuple[GraphRef, dict[str, Any]]]:
+    ) -> list[_Keyed]:
         """The nodes a key names (several when a key value is a list)."""
         values = {name: self._eval(expr, scope) for name, expr in key.items()}
+        rows, fanned = _fan_out(values)
         refs = []
-        for row in _fan_out(values):
+        for index, row in enumerate(rows):
             coerced = {
                 name: coerce(row[name], node_type.properties.get(name)) for name in node_type.key
             }
@@ -245,19 +291,16 @@ class PackProjector:
                 )
             else:
                 ref = GraphRef(node_type.name, make_node_id(node_type.name, list(coerced.values())))
-            refs.append((ref, coerced))
+            refs.append(_Keyed(node_type.name, ref, coerced, index, len(rows), fanned))
         return refs
 
     def _properties(
-        self, node_type: NodeType, values: dict[str, RuleValue], scope: Scope, fan: int, index: int
+        self, node_type: NodeType, values: dict[str, RuleValue], scope: Scope, keyed: _Keyed
     ) -> dict[str, Any]:
-        result: dict[str, Any] = {}
-        for name, expr in values.items():
-            value = self._eval(expr, scope)
-            if isinstance(value, list) and fan > 1 and len(value) == fan:
-                value = value[index]
-            result[name] = coerce(value, node_type.properties.get(name))
-        return result
+        return {
+            name: coerce(keyed.pick(self._eval(expr, scope)), node_type.properties.get(name))
+            for name, expr in values.items()
+        }
 
     def _system(self, node_type: NodeType, context: _Context) -> dict[str, Any]:
         props: dict[str, Any] = {
@@ -289,14 +332,13 @@ class PackProjector:
         scope = context.scope
         for upsert in rule.upsert:
             node_type = self._node_type(upsert.type)
-            refs = self._keyed_refs(node_type, upsert.key, scope)
-            for index, (ref, key_props) in enumerate(refs):
-                props = self._properties(node_type, upsert.set, scope, len(refs), index)
+            for keyed in self._keyed_refs(node_type, upsert.key, scope):
+                props = self._properties(node_type, upsert.set, scope, keyed)
                 plan.nodes.append(
                     NodeWrite(
-                        ref,
+                        keyed.ref,
                         {
-                            **key_props,
+                            **keyed.key_props,
                             **props,
                             **self._system(node_type, context),
                             "updated_at": context.occurred_at,
@@ -305,7 +347,7 @@ class PackProjector:
                     )
                 )
                 if self._registry.allows(PROVENANCE_EDGE, node_type.name, "Event"):
-                    plan.edges.append(EdgeWrite(PROVENANCE_EDGE, ref, context.event_ref))
+                    plan.edges.append(EdgeWrite(PROVENANCE_EDGE, keyed.ref, context.event_ref))
         if rule.transition is not None:
             self._plan_transition(rule, context, plan)
         for edge_rule in rule.edges:
@@ -322,31 +364,34 @@ class PackProjector:
         state = self._eval(transition.to, context.scope)
         if lifecycle is None or key is None or state not in lifecycle.states:
             return
-        for ref, _key_props in self._keyed_refs(node_type, key, context.scope):
+        for keyed in self._keyed_refs(node_type, key, context.scope):
             plan.states.append(
-                StateChange(ref, str(state), context.occurred_at, tuple(transition.only_from))
+                StateChange(keyed.ref, str(state), context.occurred_at, tuple(transition.only_from))
             )
 
-    def _endpoint_refs(
-        self, ref: NodeRef, context: _Context, plan: ProjectionPlan
-    ) -> list[tuple[str, GraphRef]]:
-        """(type name, graph ref) for an endpoint given by key or node_id; stubs keyed ones."""
+    def _endpoint_refs(self, ref: NodeRef, context: _Context, plan: ProjectionPlan) -> list[_Keyed]:
+        """The nodes an edge endpoint names, by key or node_id; keyed ones get stubs."""
         if ref.node_id is not None:
             value = self._eval(ref.node_id, context.scope)
+            values = value if isinstance(value, list) else [value]
             found = []
-            for node_id in value if isinstance(value, list) else [value]:
+            for index, node_id in enumerate(values):
                 parsed = self._parse_node_id(node_id)
                 if parsed is not None:
-                    found.append(parsed)
+                    type_name, graph_ref = parsed
+                    found.append(
+                        _Keyed(
+                            type_name, graph_ref, {}, index, len(values), isinstance(value, list)
+                        )
+                    )
             return found
         assert ref.type is not None and ref.key is not None
         node_type = self._node_type(ref.type)
-        refs = []
-        for graph_ref, key_props in self._keyed_refs(node_type, ref.key, context.scope):
-            stub = self._stub(node_type, graph_ref, key_props, context)
+        refs = self._keyed_refs(node_type, ref.key, context.scope)
+        for keyed in refs:
+            stub = self._stub(node_type, keyed.ref, keyed.key_props, context)
             if stub is not None:
                 plan.nodes.append(stub)
-            refs.append((node_type.name, graph_ref))
         return refs
 
     def _parse_node_id(self, node_id: Any) -> tuple[str, GraphRef] | None:
@@ -361,14 +406,14 @@ class PackProjector:
         return type_name, GraphRef(type_name, node_id)
 
     def _edge_properties(
-        self, edge_rule: EdgeRuleDef, scope: Scope, fan: int, index: int
+        self, edge_rule: EdgeRuleDef, scope: Scope, keyed: _Keyed | None
     ) -> dict[str, Any]:
         edge = self._registry.edge_type(edge_rule.type)
         props: dict[str, Any] = dict(edge.link_defaults)
         for name, expr in edge_rule.set.items():
             value = self._eval(expr, scope)
-            if isinstance(value, list) and fan > 1 and len(value) == fan:
-                value = value[index]
+            if keyed is not None:
+                value = keyed.pick(value)
             value = coerce(value, edge.properties.get(name))
             if value is not None:
                 props[name] = value
@@ -384,17 +429,30 @@ class PackProjector:
             self._plan_lookup(edge_rule, sources, context, plan)
             return
         targets = self._endpoint_refs(target, context, plan)
-        for source_type, source in sources:
-            for index, (target_type, target_ref) in enumerate(targets):
-                if not self._registry.allows(edge_rule.type, source_type, target_type):
-                    continue
-                props = self._edge_properties(edge_rule, scope, len(targets), index)
-                plan.edges.append(EdgeWrite(edge_rule.type, source, target_ref, props))
+        # Both ends fanned from lists of the same length: pair them; otherwise every pair
+        zipped = (
+            bool(sources)
+            and bool(targets)
+            and sources[0].fanned
+            and targets[0].fanned
+            and sources[0].count == targets[0].count
+        )
+        pairs = (
+            [(s, t) for s in sources for t in targets if s.index == t.index]
+            if zipped
+            else [(s, t) for s in sources for t in targets]
+        )
+        for source, target_ref in pairs:
+            if not self._registry.allows(edge_rule.type, source.type_name, target_ref.type_name):
+                continue
+            keyed = target_ref if target_ref.fanned else source
+            props = self._edge_properties(edge_rule, scope, keyed)
+            plan.edges.append(EdgeWrite(edge_rule.type, source.ref, target_ref.ref, props))
 
     def _plan_lookup(
         self,
         edge_rule: EdgeRuleDef,
-        sources: list[tuple[str, GraphRef]],
+        sources: list[_Keyed],
         context: _Context,
         plan: ProjectionPlan,
     ) -> None:
@@ -413,14 +471,14 @@ class PackProjector:
             if value is None:
                 return  # a match on a missing value finds nothing
             equals[name] = value
-        props = self._edge_properties(edge_rule, context.scope, 1, 0)
-        for source_type, source in sources:
-            if not self._registry.allows(edge_rule.type, source_type, node_type.name):
+        props = self._edge_properties(edge_rule, context.scope, None)
+        for source in sources:
+            if not self._registry.allows(edge_rule.type, source.type_name, node_type.name):
                 continue
             plan.lookups.append(
                 EdgeLookup(
                     edge_type=edge_rule.type,
-                    source=source,
+                    source=source.ref,
                     label=node_type.name,
                     key_property=node_type.key_property,
                     equals=equals,

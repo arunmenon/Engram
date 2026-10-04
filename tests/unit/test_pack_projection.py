@@ -340,3 +340,88 @@ class TestValues:
     def test_events_without_rules_plan_nothing(self) -> None:
         projector = PackProjector(REGISTRY, frozenset())
         assert not projector.handles("tool.execute")
+
+
+class TestReviewFindings:
+    """Regression cases from the phase 1 review (ADR-0018 implementation notes)."""
+
+    async def test_oversized_integers_write_nothing(self) -> None:
+        h = Harness()
+        await h.ingest(
+            "pdlc.change.created", {"repo": "acme/app", "number": "1" + "0" * 25, "title": "x"}
+        )
+        await h.ingest("pdlc.change.created", {"repo": "acme/app", "number": 2**63, "title": "x"})
+        assert not [k for k in h.graph.nodes if k[0] == "Change"]
+        assert coerce("9007199254740993", "int") == 9007199254740993  # exact, past 2**53
+
+    async def test_fan_out_keeps_positions(self) -> None:
+        h = Harness()
+        await h.ingest(
+            "pdlc.release.published",
+            {
+                "repo": "acme/app",
+                "version": "v1",
+                "entries": [{"pr_number": 7, "section": "fixed"}],
+            },
+        )
+        await h.ingest(
+            "pdlc.release.published",
+            {
+                "repo": "acme/app",
+                "version": "v2",
+                "entries": [
+                    {"section": "breaking"},
+                    {"pr_number": 8, "section": "added"},
+                    {"pr_number": 9, "section": "fixed"},
+                ],
+            },
+        )
+        includes = h.edges("INCLUDES")
+        assert includes[("Release:acme/app|v1", CHANGE)] == {"section": "fixed"}
+        assert includes[("Release:acme/app|v2", "Change:acme/app|8")] == {"section": "added"}
+        assert includes[("Release:acme/app|v2", "Change:acme/app|9")] == {"section": "fixed"}
+
+    async def test_a_late_opened_does_not_undo_a_merge(self) -> None:
+        h = Harness()
+        change = {"repo": "acme/app", "number": 7, "title": "t", "body": "", "files": []}
+        await h.ingest("pdlc.change.merged", {**change, "merge_sha": "x"})
+        await h.ingest("pdlc.change.created", change)
+        assert h.node(CHANGE)["status"] == "merged"
+        await h.ingest("pdlc.change.abandoned", {"repo": "acme/app", "number": 9})
+        await h.ingest("pdlc.change.created", {**change, "number": 9})
+        assert h.node("Change:acme/app|9")["status"] == "open"  # reopened
+
+    async def test_latest_deployment_regardless_of_write_order(self) -> None:
+        h = Harness()
+        deploy = {"service": "payments", "environment": "prod", "artifact_id": "a"}
+        for _ in range(3):
+            await h.ingest("pdlc.service.deployed", {**deploy, "change_numbers": []})
+        await h.ingest(
+            "pdlc.incident.detected",
+            {**deploy, "incident_id": "I", "severity": "low", "description": "d"},
+        )
+        latest = make_node_id(
+            "Deployment", ["prod", "a", (START + timedelta(minutes=3)).isoformat()]
+        )
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:I", latest)}
+
+    async def test_prefixes_match_on_path_boundaries(self) -> None:
+        h = Harness()
+        await h.graph.upsert_nodes(
+            [
+                NodeWrite(
+                    NodeRef("Component", "Component:src"),
+                    {"catalog_name": "src", "repo": "acme/app", "path_prefixes": ["src"]},
+                )
+            ]
+        )
+        await h.ingest(
+            "pdlc.change.merged",
+            {"repo": "acme/app", "number": 7, "body": "", "files": ["src2/a.py"]},
+        )
+        assert h.edges("TOUCHES") == {}
+        await h.ingest(
+            "pdlc.change.merged",
+            {"repo": "acme/app", "number": 8, "body": "", "files": ["src/a.py"]},
+        )
+        assert set(h.edges("TOUCHES")) == {("Change:acme/app|8", "Component:src")}

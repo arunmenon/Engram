@@ -196,12 +196,30 @@ class Neo4jPackGraph:
         self, label: str, equals: dict[str, Any], limit: int
     ) -> list[dict[str, Any]]:
         conditions = " AND ".join(f"n.{_property(k)} = $equals.{k}" for k in equals) or "true"
+        key = _property(LABEL_KEYS.get(label, "node_id"))
         rows = await self._pack_read(
             f"MATCH (n:{_label(label)}) WHERE {conditions} RETURN properties(n) AS props "
-            "LIMIT $limit",
+            f"ORDER BY toString(n.{key}) LIMIT $limit",
             {"equals": {k: _value(v) for k, v in equals.items()}, "limit": limit},
         )
         return [row["props"] for row in rows]
+
+    async def search_nodes(
+        self, label: str, fields: list[str], terms: list[str], limit: int
+    ) -> list[tuple[dict[str, Any], int]]:
+        if not terms or not fields:
+            return []
+        key = LABEL_KEYS.get(label, "node_id")
+        rows = await self._pack_read(
+            f"MATCH (n:{_label(label)}) "
+            "WITH n, [t IN $terms WHERE any(f IN $fields WHERE "
+            "(n[f] IS :: STRING AND toLower(n[f]) CONTAINS t) OR "
+            "(n[f] IS :: LIST<STRING> AND any(x IN n[f] WHERE toLower(x) CONTAINS t)))] AS hits "
+            f"WHERE size(hits) > 0 RETURN properties(n) AS props, size(hits) AS hits "
+            f"ORDER BY hits DESC, n.{_property(key)} LIMIT $limit",
+            {"terms": terms, "fields": [_property(f) for f in fields], "limit": limit},
+        )
+        return [(row["props"], int(row["hits"])) for row in rows]
 
     async def neighbors(
         self,
@@ -216,6 +234,7 @@ class Neo4jPackGraph:
         groups: dict[tuple[str, str], list[str]] = defaultdict(list)
         for ref in refs:
             groups[(_label(ref.label), _property(ref.key_property))].append(ref.key)
+        wanted_nodes = {(ref.label, ref.key) for ref in refs}
         rows: dict[tuple[Any, ...], dict[str, Any]] = {}
         for (label, key_property), keys in groups.items():
             for pattern in wanted:
@@ -232,6 +251,13 @@ class Neo4jPackGraph:
                     near = (row["n_label"], _key_of(row["n_label"], row["n_props"]))
                     far = (row["m_label"], _key_of(row["m_label"], row["m_props"]))
                     source, target = (near, far) if outgoing else (far, near)
+                    props = {near: row["n_props"], far: row["m_props"]}
+                    # The other end, as graph_ops reports it when both ends were asked for
+                    other = (
+                        target
+                        if (source[0], str(source[1])) in wanted_nodes and direction != "in"
+                        else source
+                    )
                     edge_key = (source, row["edge_type"], target)
                     rows.setdefault(
                         edge_key,
@@ -242,8 +268,8 @@ class Neo4jPackGraph:
                             "source_key": source[1],
                             "target_label": target[0],
                             "target_key": target[1],
-                            "node_label": row["m_label"],
-                            "node": row["m_props"],
+                            "node_label": other[0],
+                            "node": props[other],
                         },
                     )
         ordered = sorted(

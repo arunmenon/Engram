@@ -4,7 +4,10 @@
 #          v1.0.1 declares content_hash on Constraint and Lesson (their key; the loader found it undeclared);
 #          v1.0.2 makes every type Sourced (as the Sourced note says) and lets Incident be OWNED_BY (it is Owned);
 #          v1.1.0 adds projection rules for ticket.created/closed, change.updated/abandoned and incident.resolved
-#          (the GitHub and Jira webhook adapters emit them; additive only).
+#          (the GitHub and Jira webhook adapters emit them; additive only);
+#          v1.2.0 adds keywords to the five intents, so retrieval can classify queries, and has change.merged
+#          also set title, body and files (a change first seen at merge was unsearchable), and change.created
+#          only reopens an abandoned change (a late "opened" no longer undoes a merge).
 # Loaded by context_graph.ontology (ADR-0018); this file is the source of truth, and
 # docs/research/2026-10/ontology/pdlc.pack.yaml is kept identical to it.
 # Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
@@ -12,7 +15,8 @@
 
 pack:
   name: pdlc
-  version: 1.1.0   # 1.1.0: rules for events the webhook adapters emit (minor: additive rules only).
+  version: 1.2.0   # 1.2.0: intent keywords; change.merged sets title/body/files (minor: additive).
+                   # 1.1.0: rules for events the webhook adapters emit (minor: additive rules only).
                    # 1.0.2: every type Sourced; OWNED_BY from Incident (patch: the pack's own notes promised both).
                    # 1.0.1: content_hash declared on Constraint and Lesson (patch: the key field was undeclared).
                    # 1.0.0: frozen for sign-off; no type or edge changes from 0.4.
@@ -212,10 +216,10 @@ projection:
   - event: pdlc.change.created
     upsert:
       - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title, body: $.body, head_sha: $.head_sha, files: $.files}}
-    transition: {type: Change, to: open}
+    transition: {type: Change, to: open, only_from: [abandoned]}   # a reopen; a late or replayed "opened" never undoes a merge
   - event: pdlc.change.merged
     upsert:
-      - {type: Change, key: {repo: $.repo, number: $.number}, set: {merge_sha: $.merge_sha}}
+      - {type: Change, key: {repo: $.repo, number: $.number}, set: {merge_sha: $.merge_sha, title: $.title, body: $.body, files: $.files}}
     transition: {type: Change, to: merged}
     edges:
       - type: IMPLEMENTS
@@ -335,26 +339,31 @@ retrieval:
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
       examples: ["where is PAY-341 deployed", "trace the refund retry requirement", "what implements REQ-12"]
+      keywords: [trace, deployed, implements, implemented, delivered, deliver, shipped, ship, release]
       weights: {REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
       max_depth: 5
     completeness:
       description: "Find artifacts missing an expected link (requirement without test, change without review)"
       examples: ["which requirements have no tests", "unreviewed merges last week"]
+      keywords: [missing, without, no tests, no test, untested, unreviewed, unlinked, not linked, have no, has no]
       weights: {VERIFIES: 5, IMPLEMENTS: 5, REVIEWS: 4, REFINES: 3}
       plugin: missing_links      # set difference is not a traversal; served by a query plugin
     status:
       description: "Current, non-superseded state of a decision, spec or design"
       examples: ["is the idempotency decision still current", "latest version of the refunds HLD"]
+      keywords: [still, current, latest, valid, superseded, replaced, reversed, amended, contradict, contradicts, approved version]
       weights: {SUPERSEDES: 5, AMENDS: 4, CONTRADICTS: 4, DECIDED_BY: 2, APPLIES_TO: 3, CITES: 4}
       prefer_types: [Spec]   # step 2: OpenDAL specs, not the latest RFC, state the current contract
     impact:
       description: "What is affected if this changes"
       examples: ["what depends on the ledger service", "what breaks if we change the refunds API"]
+      keywords: [depends, depend, dependent, affected, impact, breaks, break, blast radius]
       weights: {DEPENDS_ON: 5, CONSTRAINS: 4, AFFECTS: 3, OWNED_BY: 2}
       direction: inbound
     preflight:
       description: "Before acting on an artifact, surface lessons, open incidents, failing tests and constraints"
       examples: ["anything I should know before editing refund/retry.py"]
+      keywords: [before i, should know, before editing, before i edit, lessons, risks, warnings, gotchas]
       weights: {LEARNED_FROM: 5, AFFECTS: 4, CONSTRAINS: 5, RAN_AGAINST: 3, ATTRIBUTED_TO: 3, TOUCHES: 5, APPLIES_TO: 4, REVERTS: 4}
   admission:                      # what may reach the agent's context (BRIEF E-20261004-02, B11)
     superseded_or_reversed: {default: exclude, include_for_intents: [status, why], label_as: superseded}

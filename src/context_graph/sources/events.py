@@ -6,8 +6,16 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-# "#123" references in free text (release notes, commit messages)
-PR_REFERENCE = re.compile(r"(?<![\w/])#(\d+)\b")
+# Agent ids the webhook routes ingest under; the generic ingest refuses them,
+# so source trust cannot be claimed by an API client
+WEBHOOK_AGENT_PREFIX = "webhook:"
+
+# Pull request references in release notes: "#123", or GitHub's own
+# ".../pull/123" links (auto-generated notes use these)
+PR_REFERENCE = re.compile(r"(?<![\w/])#(\d+)\b|/pull/(\d+)\b")
+
+# A breaking-change marker, not "non-breaking"
+BREAKING = re.compile(r"(?<![\w-])breaking(?:\s+changes?)?\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)

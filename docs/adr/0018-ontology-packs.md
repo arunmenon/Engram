@@ -129,3 +129,34 @@ Not done in phase 1:
 - **File lists:** pull-request webhooks carry no file list, so `TOUCHES` needs files from another source. The rule and the prefix lookup are tested.
 - **Component catalogue:** no adapter yet imports Backstage-style component catalogues (path prefixes, owners).
 
+#### Phase 1 review round
+
+An independent reviewer reported 12 findings on commit `1d17aa0`. It reproduced most of them, against the live Neo4j and Spanner emulator where relevant, and found no Cypher injection path. What was done with each:
+
+| # | Finding | Severity | Outcome |
+|---|---|---|---|
+| 1 | Any API-key client could post events as `agent_id: webhook:github` and get `source_trust: trusted`, or overwrite webhook-created nodes | blocking | Fixed: `POST /v1/events` (single and batch) refuses agent ids under `webhook:`. Only the signed webhook routes use them |
+| 2 | An integer above int64 (rounded through `float`) made Neo4j raise in `upsert_nodes` and blocked the whole batch; precision was lost above 2^53 | blocking | Fixed: integers are parsed exactly and bounded to int64, and anything else writes nothing. Pack-rule failures are now isolated per event (finding 11) |
+| 3 | A non-ASCII signature header caused a 500 | should-fix | Fixed: the signature must be 64 hex digits and is compared as bytes |
+| 4 | The body size was checked after reading the whole body | should-fix | Fixed: `Content-Length` is checked first, and the stream is cut off at the limit |
+| 5 | Fan-out picked list elements by position among surviving rows, so a release with one PR, or with one PR number missing, lost its sections | should-fix | Fixed: each fanned node or edge carries its original position, and list values are zipped by it |
+| 6 | `to_latest` and `match_any_prefix` lookups depended on backend order and the lookup limit | should-fix | Fixed: `find_nodes` returns nodes ordered by key on every backend, and the latest is chosen among all fetched matches, ties broken by key. Reaching `lookup_limit` is logged as a warning. Prefixes match only on path boundaries |
+| 7 | A late or replayed `opened` delivery moved a merged change back to `open`; a captured body replayed under a new delivery id was ingested again | should-fix | Fixed: `pdlc.change.created` reopens only an abandoned change (PDLC 1.2.0), and event ids derive from the signed body, so replays deduplicate |
+| 8 | PackGraph backends differed: which end `neighbors(both)` reports, dict values, the count for repeated edges, and `find_nodes` order | should-fix | Fixed: one rule for the reported end, nested values stored as JSON text everywhere, each edge write whose endpoints exist counts, and key order. Each is now a conformance case |
+| 9 | Create-only defaults and status changes were read-then-write on Spanner, a race with two replicas | should-fix, unverified | Fixed: the shared layer has overridable `_merge_nodes` and `_apply_state_changes`, and Spanner runs each in one read-write transaction. The in-memory backend is single-process |
+| 10 | GitHub release notes link PRs by URL, which was missed; "Non-breaking" counted as breaking | should-fix | Fixed: `#n` and `/pull/n` are both read; breaking is matched as a word. Missing review and run ids skip the event; deployments name the service by the repository's full name (nit) |
+| 11 | One failing pack rule left the whole flush batch unacknowledged | should-fix | Fixed: each event's pack plan runs on its own. A failure is logged, counted and dead-lettered for that event only, and the batch is acknowledged |
+| 12 | Nits | nit | Fixed: list text joined for regexes is bounded; the docstring states how edges pair fanned ends; `closed_namespaces` is cached. Not changed: `NEIGHBOR_SCAN_CAP`, `MAX_TEXT_LENGTH` and `LATEST_ORDER` stay module constants with comments, because adapters and the domain do not read settings. The rule of thumb that a bare `#n` may name an issue is documented in the adapter |
+
+Regression cases:
+- `tests/conformance/test_pack_graph.py::TestReviewFindings`;
+- `tests/unit/test_pack_projection.py::TestReviewFindings`;
+- `tests/unit/test_webhooks.py::TestReviewFindings`;
+- `tests/unit/test_projection_worker.py::TestPackFailureIsolation`;
+- the spoofing case in `tests/unit/test_pdlc_end_to_end.py`.
+
+This round also adds `PackGraph.search_nodes`, which phase 2 needs, with conformance cases on all backends. It also releases PDLC 1.2.0:
+- intent keywords;
+- `change.merged` sets title, body and files;
+- the reopen guard.
+
