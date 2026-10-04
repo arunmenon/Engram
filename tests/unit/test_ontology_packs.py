@@ -42,12 +42,17 @@ NODE_MODELS = {
 
 @pytest.fixture(scope="module")
 def registry() -> OntologyRegistry:
-    """The default active packs: core, memory and user."""
-    return load_registry(Settings().ontology.packs)
+    """The base packs alone: today's schema."""
+    return load_registry([])
+
+
+def test_configured_packs() -> None:
+    configured = load_registry(Settings().ontology.packs)
+    assert [pack.name for pack in configured.packs] == ["core", "memory", "user", "pdlc"]
 
 
 class TestTodaysSchema:
-    def test_default_packs(self, registry: OntologyRegistry) -> None:
+    def test_base_packs(self, registry: OntologyRegistry) -> None:
         assert [pack.name for pack in registry.packs] == ["core", "memory", "user"]
 
     def test_node_types_equal_the_enum(self, registry: OntologyRegistry) -> None:
@@ -139,7 +144,8 @@ def test_generated_neo4j_schema_equals_constraints_file(registry: OntologyRegist
 class TestPdlcPack:
     def test_loads_with_its_requirements(self) -> None:
         registry = load_registry(["pdlc"])
-        assert [pack.name for pack in registry.packs] == ["core", "pdlc"]
+        assert [pack.name for pack in registry.packs] == ["core", "memory", "user", "pdlc"]
+        assert registry.pack("pdlc").version == "1.0.2"
         # 16 in the design note; Release was added by the real-project mapping (v0.4)
         assert len([t for t in registry.node_types.values() if t.pack == "pdlc"]) == 17
         assert set(registry.rules_for("pdlc.change.merged")[0][1].model_dump()) >= {"event"}
@@ -148,8 +154,7 @@ class TestPdlcPack:
         registry = load_registry(["pdlc"])
         statements = schema_statements(registry, embedding_dimensions=384)
         assert (
-            "CREATE CONSTRAINT change_node_id IF NOT EXISTS FOR (n:Change) "
-            "REQUIRE n.node_id IS UNIQUE"
+            "CREATE CONSTRAINT change_pk IF NOT EXISTS FOR (n:Change) REQUIRE n.node_id IS UNIQUE"
         ) in statements
 
     def test_docs_copy_is_identical(self) -> None:

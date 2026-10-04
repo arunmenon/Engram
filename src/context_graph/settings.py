@@ -13,8 +13,10 @@ Sources:
 
 from __future__ import annotations
 
-from pydantic import Field, SecretStr, model_validator
-from pydantic_settings import BaseSettings
+from typing import Annotated
+
+from pydantic import Field, SecretStr, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode
 
 from context_graph.domain.models import EdgeType, IntentType
 
@@ -518,15 +520,25 @@ class SpannerSettings(BaseSettings):
 class OntologySettings(BaseSettings):
     """Active ontology packs (ADR-0018).
 
-    ``core`` is always active; packs named here are loaded with the packs
-    they require. Packs are looked up in ``pack_dirs`` first, then in the
-    built-in ``context_graph/ontology/packs``.
+    ``core``, ``memory`` and ``user`` (today's schema, which the code
+    writes) are always active. ``packs`` names the packs added to them,
+    comma-separated (``CG_ONTOLOGY_PACKS=pdlc``); their required packs are
+    loaded too. Packs are looked up in ``pack_dirs`` first
+    (``CG_ONTOLOGY_PACK_DIRS``, comma-separated), then in the built-in
+    ``context_graph/ontology/packs``.
     """
 
     model_config = {"env_prefix": "CG_ONTOLOGY_"}
 
-    packs: list[str] = Field(default=["memory", "user"])
-    pack_dirs: list[str] = Field(default_factory=list)
+    packs: Annotated[list[str], NoDecode] = Field(default=["pdlc"])
+    pack_dirs: Annotated[list[str], NoDecode] = Field(default_factory=list)
+
+    @field_validator("packs", "pack_dirs", mode="before")
+    @classmethod
+    def _split(cls, value: object) -> object:
+        if isinstance(value, str):
+            return [item.strip() for item in value.split(",") if item.strip()]
+        return value
 
 
 class MigrationSettings(BaseSettings):

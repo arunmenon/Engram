@@ -1,7 +1,8 @@
 # Ontology pack: PDLC (product development lifecycle)
 # Status: v1.0 frozen for sign-off (2026-10-04). Changes after sign-off go through a new pack version.
 # History: v0.1 draft; v0.2 standards check; v0.3 competency questions; v0.4 real-project mapping; v1.0 freeze;
-#          v1.0.1 declares content_hash on Constraint and Lesson (their key; the loader found it undeclared).
+#          v1.0.1 declares content_hash on Constraint and Lesson (their key; the loader found it undeclared);
+#          v1.0.2 makes every type Sourced (as the Sourced note says) and lets Incident be OWNED_BY (it is Owned).
 # Loaded by context_graph.ontology (ADR-0018); this file is the source of truth, and
 # docs/research/2026-10/ontology/pdlc.pack.yaml is kept identical to it.
 # Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
@@ -9,7 +10,8 @@
 
 pack:
   name: pdlc
-  version: 1.0.1   # 1.0.1: content_hash declared on Constraint and Lesson (patch: the key field was undeclared).
+  version: 1.0.2   # 1.0.2: every type Sourced; OWNED_BY from Incident (patch: the pack's own notes promised both).
+                   # 1.0.1: content_hash declared on Constraint and Lesson (patch: the key field was undeclared).
                    # 1.0.0: frozen for sign-off; no type or edge changes from 0.4.
                    # 0.4: 0.4: changes from mapping OpenDAL, Kafka and GitLab samples (mapping-step2.md).
                    # 0.3: 0.3: four edges and five fields added from the competency-question check (competency-questions.yaml).
@@ -31,78 +33,80 @@ types:
   nodes:
     Request:
       key: [source_system, external_id]
-      interfaces: [Lifecycled, Owned]
+      interfaces: [Lifecycled, Owned, Sourced]
       properties: {title: string, description: text, source_system: string, external_id: string, priority: string}
       lifecycle: {initial: new, states: [new, triaged, accepted, rejected, done]}
       text_fields: [title, description]
       embed_fields: [title, description]        # CQ03 similar past requests
     Spec:
       key: [doc_id, version]
-      interfaces: [Lifecycled, Anchored, Versioned]
+      interfaces: [Lifecycled, Anchored, Versioned, Sourced]
       properties: {doc_id: string, title: string, acceptance_criteria: text, scope: text}
       lifecycle: {initial: draft, states: [draft, approved, superseded]}
       text_fields: [title, acceptance_criteria, scope]
       embed_fields: [title, acceptance_criteria]
     Requirement:
       key: [spec_id, local_id]
-      interfaces: [Lifecycled, Anchored]
+      interfaces: [Lifecycled, Anchored, Sourced]
       properties: {spec_id: string, local_id: string, statement: text, priority: string}
       lifecycle: {initial: proposed, states: [proposed, accepted, implemented, verified, retired]}
       text_fields: [statement]
       embed_fields: [statement]
     Decision:
       key: [content_hash]
-      interfaces: [Lifecycled, Anchored, Claim]
+      interfaces: [Lifecycled, Anchored, Claim, Sourced]
       properties: {statement: text, rationale: text, alternatives: text, decided_at: datetime, valid_from: datetime, valid_to: datetime}
       lifecycle: {initial: proposed, states: [proposed, accepted, superseded, reversed]}
       text_fields: [statement, rationale]
       embed_fields: [statement]
     Constraint:
       key: [content_hash]
-      interfaces: [Lifecycled, Claim]
+      interfaces: [Lifecycled, Claim, Sourced]
       properties: {statement: text, scope: string, severity: string, content_hash: string}
       lifecycle: {initial: active, states: [active, relaxed, retired]}
       text_fields: [statement]
       embed_fields: [statement]
     DesignElement:
       key: [doc_id, section_path]
-      interfaces: [Lifecycled, Anchored, Versioned]
+      interfaces: [Lifecycled, Anchored, Versioned, Sourced]
       properties: {doc_id: string, section_path: string, kind: {enum: [hld, lld]}, title: string, body: text}
       lifecycle: {initial: draft, states: [draft, reviewed, approved, superseded]}
       text_fields: [title, body]
       embed_fields: [title, body]
     WorkItem:
       key: [tracker, external_key]
-      interfaces: [Lifecycled, Owned]
+      interfaces: [Lifecycled, Owned, Sourced]
       properties: {tracker: string, external_key: string, title: string, work_type: {enum: [epic, story, task, bug, production_change]}, criticality: string, priority: string, labels: "list<string>", milestone: string, assignees: "list<string>", resolution: string}
       lifecycle: {initial: open, states: [open, in_progress, done, cancelled]}
       text_fields: [title]
     Change:
       key: [repo, number]
-      interfaces: [Lifecycled, Anchored]
+      interfaces: [Lifecycled, Anchored, Sourced]
       properties: {repo: string, number: int, title: string, body: text, head_sha: string, merge_sha: string, files: "list<string>", ticket_exempt: bool, change_type: string, scope: string}   # ticket_exempt: Kafka 'MINOR:' convention (39% of commits); change_type/scope: conventional-commit prefix (96% of OpenDAL commits)
       lifecycle: {initial: open, states: [open, reviewed, merged, abandoned]}
       text_fields: [title, body]
       embed_fields: [title, body]               # CQ26 have we tried this fix before
     Review:
       key: [repo, number, review_id]
+      interfaces: [Sourced]
       properties: {repo: string, number: int, review_id: string, verdict: {enum: [commented, approved, changes_requested]}}
     TestCase:
       key: [repo, test_id]
-      interfaces: [Lifecycled]
+      interfaces: [Lifecycled, Sourced]
       properties: {repo: string, test_id: string, path: string, name: string}
       lifecycle: {initial: active, states: [active, quarantined, retired]}
     TestRun:
       key: [run_id]
+      interfaces: [Sourced]
       properties: {run_id: string, outcome: {enum: [success, failure, cancel, error, skipped]}, severity: {enum: [low, medium, high, critical]}, test_type: string, commit_sha: string, finished_at: datetime}
     Deployment:
       key: [environment, artifact_id, started_at]
-      interfaces: [Lifecycled]
+      interfaces: [Lifecycled, Sourced]
       properties: {environment: string, artifact_id: string, started_at: datetime}
       lifecycle: {initial: started, states: [started, succeeded, failed, rolled_back]}
     Component:
       key: [catalog_name]
-      interfaces: [Owned, Lifecycled]
+      interfaces: [Owned, Lifecycled, Sourced]
       properties: {catalog_name: string, kind: {enum: [service, library_module, binding, website, other]}, system: string, tier: string, repo: string, path_prefixes: "list<string>"}   # step 2: OpenDAL and Kafka have modules, not running services   # CQ14, CQ21 map files to a service
       lifecycle: {initial: production, states: [experimental, production, deprecated]}
     Release:
@@ -112,17 +116,18 @@ types:
       note: "step 2: a library ships by release, not deployment; OpenDAL's changelog lists 3,129 PR links across 154 releases"
     Incident:
       key: [incident_id]
-      interfaces: [Lifecycled, Owned]
+      interfaces: [Lifecycled, Owned, Sourced]
       properties: {incident_id: string, severity: string, title: string, summary: text, environment: string, artifact_id: string, ticket_uri: string}
       lifecycle: {initial: detected, states: [detected, mitigated, resolved, postmortem_done]}
       text_fields: [title, summary]
       embed_fields: [title, summary]
     Team:
       key: [catalog_name]
+      interfaces: [Sourced]
       properties: {catalog_name: string, display_name: string}
     Lesson:
       key: [content_hash]
-      interfaces: [Claim, Lifecycled]
+      interfaces: [Claim, Lifecycled, Sourced]
       properties: {statement: text, polarity: {enum: [apply, avoid]}, support_count: int, content_hash: string}
       lifecycle: {initial: tentative, states: [tentative, validated, deprecated]}
       text_fields: [statement]
@@ -146,7 +151,7 @@ types:
     REVERTS:         {from: [Change], to: [Change], note: "declared: 'Revert \"…\"' / 'This reverts #n' in the PR title or body"}       # CQ23, CQ26
     CONSTRAINS:      {from: [Constraint], to: [Requirement, DesignElement, Component, WorkItem], properties: {scope: string}}
     DEPENDS_ON:      {from: [WorkItem, Component], to: [WorkItem, Component], properties: {kind: {enum: [blocks, needs]}}}
-    OWNED_BY:        {from: [Component, WorkItem, Request], to: [Team, "core:Entity"]}
+    OWNED_BY:        {from: [Component, WorkItem, Request, Incident], to: [Team, "core:Entity"]}
     AFFECTS:         {from: [Incident], to: [Component], requires: [confidence, method, link_status]}   # GitLab names the service only in the incident title
     OCCURRED_ON:     {from: [Incident], to: [Deployment], note: "declared: CDEvents incident subject carries environment and artifactId"}
     ATTRIBUTED_TO:   {from: [Incident], to: [Change, WorkItem], requires: [confidence, method, link_status]}   # WorkItem: planned production changes (GitLab change issues)

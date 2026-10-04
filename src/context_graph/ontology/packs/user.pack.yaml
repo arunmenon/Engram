@@ -2,6 +2,9 @@
 # Cross-session user profile, preferences, skills, workflows and behavioural
 # patterns. Must stay equal to domain/models.py, settings.INTENT_WEIGHTS,
 # domain/intent.py and docker/neo4j/constraints.cypher.
+# Known inconsistency carried over: constraints.cypher keys UserProfile by
+# user_id while the code MERGEs it by profile_id; the pack follows the frozen
+# constraint file. No pack rule writes UserProfile.
 
 pack:
   name: user
@@ -87,9 +90,9 @@ types:
   edges:
     HAS_PROFILE:      {from: ["core:Entity"], to: [UserProfile]}
     HAS_PREFERENCE:   {from: ["core:Entity"], to: [Preference]}
-    HAS_SKILL:        {from: ["core:Entity"], to: [Skill]}
+    HAS_SKILL:        {from: ["core:Entity"], to: [Skill], properties: {proficiency: float, confidence: float, source: string, updated_at: datetime, last_assessed_at: datetime, assessment_count: int}}
     EXHIBITS_PATTERN: {from: ["core:Entity"], to: [BehavioralPattern]}
-    INTERESTED_IN:    {from: ["core:Entity"], to: ["core:Entity"]}
+    INTERESTED_IN:    {from: ["core:Entity"], to: ["core:Entity"], properties: {weight: float, source: string, updated_at: datetime}}
     ABOUT:            {from: [Preference], to: ["core:Entity"]}
     ABSTRACTED_FROM:  {from: [Workflow], to: [Workflow]}
     PARENT_SKILL:     {from: [Skill], to: [Skill]}

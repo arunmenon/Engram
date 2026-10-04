@@ -3,7 +3,8 @@
 # the temporal/causal/semantic/entity edges, and the core retrieval intents.
 # Must stay equal to the enums in domain/models.py, the intent tables in
 # settings.py and domain/intent.py, and docker/neo4j/constraints.cypher
-# (tests/unit/test_ontology_packs.py checks this).
+# (tests/unit/test_ontology_packs.py checks this). Edge properties list what
+# today's code writes on those edges; that code does not go through the packs.
 
 pack:
   name: core
@@ -62,13 +63,17 @@ types:
   edges:
     FOLLOWS:     {from: [Event], to: [Event], properties: {session_id: string, delta_ms: int}}
     CAUSED_BY:   {from: [Event], to: [Event], properties: {mechanism: string}}
-    SIMILAR_TO:  {from: [Event], to: [Event], properties: {score: float}}
+    SIMILAR_TO:  {from: [Event], to: [Event], properties: {similarity_score: float}}
     REFERENCES:  {from: [Event], to: [Entity], properties: {role: string}}
     SUMMARIZES:  {from: [Summary], to: [Event, Summary]}
-    SAME_AS:     {from: [Entity], to: [Entity], properties: {confidence: float, method: string}}
-    RELATED_TO:  {from: [Entity], to: [Entity], properties: {confidence: float, method: string}}
+    SAME_AS:     {from: [Entity], to: [Entity], properties: {confidence: float, justification: text, resolved_at: datetime}}
+    RELATED_TO:  {from: [Entity], to: [Entity], properties: {confidence: float, justification: text, resolved_at: datetime}}
     # Declared here with the endpoints the core types use; other packs add theirs
-    DERIVED_FROM: {from: [], to: [Event], note: "provenance: a derived node links to the events it came from"}
+    DERIVED_FROM:
+      from: []
+      to: [Event]
+      properties: {method: string, session_id: string, extracted_at: datetime, model_id: string, prompt_version: string, evidence_quote: text, source_turn_index: int}
+      note: "provenance: a derived node links to the events it came from"
     SUPERSEDES:   {from: [], to: [], note: "a newer version replaces an older one"}
     CONTRADICTS:  {from: [], to: [], note: "two claims cannot both hold"}
 

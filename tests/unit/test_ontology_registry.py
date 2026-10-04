@@ -66,7 +66,8 @@ def _problems(*packs: Pack) -> list[str]:
 
 def test_valid_pack_composes() -> None:
     registry = OntologyRegistry([CORE, _demo()])
-    assert registry.edge_type("RESOLVES").allows("Fix", "Ticket")
+    assert registry.allows("RESOLVES", "Fix", "Ticket")
+    assert not registry.allows("RESOLVES", "Ticket", "Fix")
     assert registry.edge_type("RESOLVES").properties["confidence"] == "float"
     assert registry.intent_weights()["why"]["RESOLVES"] == 2.0
     assert [pack for pack, _rule in registry.rules_for("demo.ticket.closed")] == ["demo"]
@@ -182,7 +183,7 @@ class TestProjectionRules:
                 }
             ),
         )
-        assert any("draws RESOLVES from Ticket to Fix, not allowed" in p for p in problems)
+        assert any("draws RESOLVES from Ticket to Fix" in p for p in problems)
 
     def test_expression_target_state_is_not_checked_at_load(self) -> None:
         pack = _demo(
@@ -265,7 +266,7 @@ class TestLoading:
     def test_requirements_and_core_are_loaded(self, tmp_path: Path) -> None:
         (tmp_path / "demo.pack.yaml").write_text(DEMO)
         registry = load_registry(["demo"], [tmp_path])
-        assert [pack.name for pack in registry.packs] == ["core", "demo"]
+        assert [pack.name for pack in registry.packs] == ["core", "memory", "user", "demo"]
 
     def test_file_must_declare_its_own_name(self, tmp_path: Path) -> None:
         (tmp_path / "other.pack.yaml").write_text(DEMO)
@@ -275,3 +276,159 @@ class TestLoading:
     def test_unknown_pack(self) -> None:
         with pytest.raises(OntologyError, match="pack 'nope' not found"):
             load_registry(["nope"])
+
+
+class TestReviewFindings:
+    """Regression cases from the phase 0 review (ADR-0018 implementation notes)."""
+
+    def test_admission_rules_are_typed(self) -> None:
+        with pytest.raises(OntologyError, match="include_for_intents"):
+            parse_pack(
+                "pack: {name: demo, version: 1.0.0}\n"
+                "retrieval: {admission: {a: {include_for_intents: why}}}\n"
+            )
+
+    def test_transition_must_name_its_node(self) -> None:
+        pack = _demo(
+            **{
+                "transition: {type: Ticket, to: closed, only_from: [open]}": (
+                    "transition: {type: Ticket, to: closed}"
+                )
+            }
+        )
+        # Ticket is upserted by the rule, so its key is known
+        OntologyRegistry([CORE, pack])
+        orphan = DEMO.replace(
+            "      - {type: Ticket, key: {tracker: $.tracker, number: $.number}, "
+            "set: {title: $.title}}\n",
+            "      - {type: Fix, key: {sha: $.sha}}\n",
+        ).replace(
+            "        to: {type: Ticket, key: {tracker: $.tracker, number: $.number}}",
+            "        to_latest: {type: Ticket, match: {tracker: $.tracker}}",
+        )
+        problems = _problems(CORE, parse_pack(orphan))
+        assert any("does not say which Ticket to transition" in p for p in problems)
+
+    def test_transition_key_from_an_edge_endpoint(self) -> None:
+        from context_graph.domain.ontology import transition_key
+
+        registry = load_registry(["pdlc"])
+        ((_pack, reviewed),) = registry.rules_for("pdlc.change.reviewed")
+        assert transition_key(reviewed, "Change") == {"repo": "$.repo", "number": "$.number"}
+
+    def test_required_link_fields_get_declared_defaults(self) -> None:
+        registry = load_registry(["pdlc"])
+        assert registry.edge_type("AFFECTS").link_defaults == {
+            "confidence": 1.0,
+            "method": "declared",
+            "link_status": "confirmed",
+        }
+        problems = _problems(CORE, _demo(**{"requires: [confidence]": "requires: [reviewer]"}))
+        assert any("requires undeclared field 'reviewer'" in p for p in problems)
+
+    def test_interface_edges_must_accept_the_type(self) -> None:
+        text = DEMO.replace(
+            "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}",
+            "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}\n"
+            "interfaces: {Owned: {edges: [RESOLVES]}}",
+        ).replace("      properties: {sha: string}", "      properties: {sha: string}")
+        text = text.replace("    Ticket:\n", "    Ticket:\n      interfaces: [Owned]\n")
+        problems = _problems(CORE, parse_pack(text))
+        assert any("RESOLVES does not start from Ticket" in p for p in problems)
+
+    def test_interface_property_conflict(self) -> None:
+        text = DEMO.replace(
+            "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}",
+            "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}\n"
+            "interfaces: {Titled: {properties: {title: text}}}",
+        ).replace("    Ticket:\n", "    Ticket:\n      interfaces: [Titled]\n")
+        problems = _problems(CORE, parse_pack(text))
+        assert "demo: Ticket.title conflicts with interface Titled" in problems
+
+    def test_expressions_and_map_states_are_checked(self) -> None:
+        problems = _problems(
+            CORE,
+            _demo(
+                **{
+                    "set: {title: $.title}": 'set: {title: "nosuchfn($event.bogus"}',
+                    "to: closed, only_from": "to: \"map($.s, {'a': bogus_state})\", only_from",
+                }
+            ),
+        )
+        assert any("unknown function 'nosuchfn'" in p for p in problems)
+        assert any("unknown Ticket state 'bogus_state'" in p for p in problems)
+        envelope = _problems(CORE, _demo(**{"set: {title: $.title}": "set: {title: $event.bogus}"}))
+        assert any("unknown envelope field 'bogus'" in p for p in envelope)
+
+    @pytest.mark.parametrize(
+        "section",
+        [
+            "retrieval: {intents: {x: {max_depth: -3}}}",
+            "retrieval: {intents: {x: {weights: {FOLLOWS: -1.0}}}}",
+            "lifecycle: {decay: {default: {class: slow, retain_days: 0}}}",
+            "extraction: {propose: {Event: {description: d, max_confidence: 7}}}",
+        ],
+    )
+    def test_numeric_ranges(self, section: str) -> None:
+        with pytest.raises(OntologyError):
+            parse_pack(f"pack: {{name: demo, version: 1.0.0}}\n{section}\n")
+
+    def test_wildcards_cover_only_the_writing_pack(self) -> None:
+        registry = load_registry(["pdlc"])
+        assert registry.allows("DERIVED_FROM", "Change", "Event")
+        assert not registry.allows("DERIVED_FROM", "Event", "Event")
+        assert registry.allows("REFERENCES", "Event", "Change")
+        assert not registry.allows("REFERENCES", "Event", "Summary")
+
+    def test_event_intent_and_state_names(self) -> None:
+        problems = _problems(
+            CORE,
+            _demo(
+                **{
+                    "demo.ticket.closed: {}": "demo.ticket.closed: {}\n  noDot: {}",
+                    "ticket_status:": "Ticket-Status:",
+                }
+            ),
+        )
+        assert any("event type 'noDot'" in p for p in problems)
+        assert any("intent name 'Ticket-Status'" in p for p in problems)
+        with pytest.raises(OntologyError, match="repeated state"):
+            _demo(**{"states: [open, closed]": "states: [open, open]"})
+
+    def test_bare_event_references_are_the_packs_own(self) -> None:
+        problems = _problems(
+            CORE, _demo(**{"- event: demo.ticket.closed": "- event: observation.input"})
+        )
+        assert "demo: projection rule for undeclared event 'observation.input'" in problems
+        OntologyRegistry(
+            [CORE, _demo(**{"- event: demo.ticket.closed": "- event: core:observation.input"})]
+        )
+
+    def test_propose_overlap_and_unknown_mappings(self) -> None:
+        text = (
+            DEMO
+            + "extraction: {propose: {Fix: {description: d}}, never_propose: [Fix]}\n"
+            + "mappings: {prov: {Nope: prov:Entity}}\n"
+        )
+        problems = _problems(CORE, parse_pack(text))
+        assert "demo: Fix is both proposed and never proposed" in problems
+        assert "demo: mappings.prov names unknown 'Nope'" in problems
+
+    def test_names_that_differ_by_case_and_reserved_indexes(self) -> None:
+        text = DEMO.replace(
+            "    Fix:\n      key: [sha]\n      properties: {sha: string}",
+            "    Fix:\n      key: [sha]\n      properties: {sha: string, pk: string}\n"
+            "      indexes: [pk]\n    FIX:\n      key: [sha]\n      properties: {sha: string}",
+        )
+        problems = _problems(CORE, parse_pack(text))
+        assert "node types 'Fix' and 'FIX' differ only by case" in problems
+        assert "demo: Fix cannot index its key field 'pk'" in problems
+
+    def test_comma_separated_settings(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from context_graph.settings import OntologySettings
+
+        monkeypatch.setenv("CG_ONTOLOGY_PACKS", "pdlc, demo")
+        monkeypatch.setenv("CG_ONTOLOGY_PACK_DIRS", "/a,/b")
+        settings = OntologySettings()
+        assert settings.packs == ["pdlc", "demo"]
+        assert settings.pack_dirs == ["/a", "/b"]

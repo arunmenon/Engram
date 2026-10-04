@@ -10,9 +10,14 @@ Today's schema is written as the ``core``, ``memory`` and ``user`` packs
 (``context_graph/ontology/packs``); the enums in ``domain/models.py``
 remain and must equal what those packs declare.
 
-Type references inside a pack are bare (``Change``) for the pack's own
-types and qualified (``core:Entity``) for another pack's; ``*`` means any
-type. Event references follow the same rule (``core:observation.input``).
+References:
+- edge endpoints, projection rules, extensions and extraction sources:
+  bare names (``Change``, ``pdlc.change.merged``) mean the pack's own
+  types and events; another pack's are qualified (``core:Entity``,
+  ``core:observation.input``). ``*`` means every type of the pack that
+  wrote it;
+- retrieval, lifecycle, extraction and mapping lists name types by their
+  global name (type names are unique across packs, ignoring case).
 
 Pure Python: no framework, storage or file-format imports. Loading packs
 from files lives in ``context_graph.ontology``.
@@ -24,24 +29,63 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from context_graph.domain.pack_expressions import (
+    Call,
+    Concat,
+    ExpressionError,
+    MapLiteral,
+    Node,
+    Path,
+    compile_value,
+    is_expression,
+)
+
 WILDCARD = "*"
 
 SCALAR_TYPES = frozenset({"string", "text", "int", "float", "bool", "datetime", "json"})
 
-# Fields every edge listed in a pack's link policy (or an edge's ``requires``) may carry
+# Fields an edge in a pack's link policy (or an edge's ``requires``) carries.
+# A projection rule that does not set them gets the declared-link defaults.
 LINK_FIELDS: dict[str, Any] = {
     "confidence": "float",
     "method": "string",
     "link_status": {"enum": ["proposed", "confirmed", "rejected"]},
 }
+DECLARED_LINK = {"confidence": 1.0, "method": "declared", "link_status": "confirmed"}
 
-_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
+# Event envelope fields an expression may read as ``$event.<field>``
+ENVELOPE_FIELDS = frozenset(
+    {
+        "event_id",
+        "event_type",
+        "occurred_at",
+        "session_id",
+        "agent_id",
+        "trace_id",
+        "payload_ref",
+        "global_position",
+        "tool_name",
+        "parent_event_id",
+        "ended_at",
+        "status",
+        "schema_version",
+        "importance_hint",
+    }
+)
+
+# Properties the projector writes on every pack node, besides declared ones
+SYSTEM_PROPERTIES = frozenset(
+    {"node_id", "node_type", "ontology_version", "updated_at", "status_changed_at"}
+)
+
+_PACK_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 _SEMVER = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 _REQUIREMENT = re.compile(r"^([a-z][a-z0-9_]*)\s*(?:(>=|<=|==|>|<)\s*(\d+(?:\.\d+){0,2}))?$")
 _LIST_TYPE = re.compile(r"^list<(\w+)>$")
@@ -51,6 +95,12 @@ _LIST_TYPE = re.compile(r"^list<(\w+)>$")
 NODE_TYPE_NAME = re.compile(r"^[A-Z][A-Za-z0-9]*$")
 EDGE_TYPE_NAME = re.compile(r"^[A-Z][A-Z0-9_]*$")
 PROPERTY_NAME = re.compile(r"^[a-z_][a-z0-9_]*$")
+# Same shape as the event envelope's event_type (domain/models.py)
+EVENT_TYPE_NAME = re.compile(r"^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$")
+LOWER_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
+
+# Index names a node type may not use (they would clash with its key constraint)
+RESERVED_INDEX_FIELDS = frozenset({"pk", "node_id"})
 
 
 class OntologyError(ValueError):
@@ -72,7 +122,14 @@ def _version_tuple(text: str) -> tuple[int, ...]:
 
 
 class _Strict(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
+    # strict: a YAML string is never coerced to a number or a boolean
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True, strict=True)
+
+
+class _Open(BaseModel):
+    """Sections whose extra keys are kept as free-form notes."""
+
+    model_config = ConfigDict(extra="allow", frozen=True, strict=True)
 
 
 class EnumSpec(_Strict):
@@ -84,10 +141,20 @@ PropertySpec = str | EnumSpec
 
 def _check_property_spec(spec: PropertySpec) -> str | None:
     if isinstance(spec, EnumSpec):
-        return None if spec.enum else "empty enum"
+        if not spec.enum:
+            return "empty enum"
+        return None if len(set(spec.enum)) == len(spec.enum) else "repeated enum value"
     match = _LIST_TYPE.match(spec)
     base = match.group(1) if match else spec
     return None if base in SCALAR_TYPES else f"unknown property type {spec!r}"
+
+
+def _finite_weights(weights: dict[str, float]) -> dict[str, float]:
+    for edge, weight in weights.items():
+        if not math.isfinite(weight) or weight < 0:
+            msg = f"weight for {edge} must be a finite number >= 0, not {weight}"
+            raise ValueError(msg)
+    return weights
 
 
 class PackHeader(_Strict):
@@ -100,7 +167,7 @@ class PackHeader(_Strict):
     @field_validator("name")
     @classmethod
     def _name(cls, value: str) -> str:
-        if not _NAME.match(value):
+        if not _PACK_NAME.match(value):
             msg = f"pack name {value!r} must be lowercase letters, digits and underscores"
             raise ValueError(msg)
         return value
@@ -134,10 +201,17 @@ class LifecycleDef(_Strict):
     states: list[str]
 
     @model_validator(mode="after")
-    def _initial_is_a_state(self) -> LifecycleDef:
+    def _states(self) -> LifecycleDef:
         if self.initial not in self.states:
             msg = f"initial state {self.initial!r} is not one of {self.states}"
             raise ValueError(msg)
+        if len(set(self.states)) != len(self.states):
+            msg = f"repeated state in {self.states}"
+            raise ValueError(msg)
+        for state in self.states:
+            if not LOWER_NAME.match(state):
+                msg = f"state {state!r} must be lowercase letters, digits and underscores"
+                raise ValueError(msg)
         return self
 
 
@@ -172,10 +246,17 @@ class EdgeExtensionDef(_Strict):
     note: str | None = None
 
 
-class LinkPolicyDef(BaseModel):
-    model_config = ConfigDict(extra="allow", frozen=True)
-
+class LinkPolicyDef(_Open):
     applies_to: list[str] = Field(default_factory=list)
+
+    def declared_link_status(self) -> str:
+        """The status a declared (tool-stated) link starts with."""
+        status = getattr(self, "link_status", None)
+        if isinstance(status, dict):
+            value = status.get("declared_links_start_as")
+            if isinstance(value, str):
+                return value
+        return "confirmed"
 
 
 class TypesSection(_Strict):
@@ -223,9 +304,18 @@ class UpsertDef(_Strict):
 
 
 class TransitionDef(_Strict):
+    """Move a node to a lifecycle state.
+
+    The node is the one the rule upserts with this type, or, when the rule
+    does not upsert it, the first edge endpoint of this type with a key
+    (``pdlc.change.reviewed`` moves the Change its Review points at);
+    ``key`` names it explicitly.
+    """
+
     type: str
     to: str
     only_from: list[str] = Field(default_factory=list)
+    key: dict[str, RuleValue] | None = None
 
 
 class EdgeRuleDef(_Strict):
@@ -259,14 +349,29 @@ class ProjectionRule(_Strict):
     edges: list[EdgeRuleDef] = Field(default_factory=list)
 
 
+def transition_key(rule: ProjectionRule, type_name: str) -> dict[str, RuleValue] | None:
+    """The key of the node a rule's transition moves, or None if the rule names none."""
+    transition = rule.transition
+    if transition is None:
+        return None
+    if transition.key is not None:
+        return transition.key
+    for upsert in rule.upsert:
+        if upsert.type.rpartition(":")[2] == type_name:
+            return upsert.key
+    for edge in rule.edges:
+        for ref in (edge.from_, edge.target):
+            if ref.type and ref.type.rpartition(":")[2] == type_name and ref.key is not None:
+                return ref.key
+    return None
+
+
 # -- extraction, retrieval, lifecycle ---------------------------------------------
 
 
-class ProposeDef(BaseModel):
-    model_config = ConfigDict(extra="allow", frozen=True)
-
+class ProposeDef(_Open):
     description: str
-    max_confidence: float | None = None
+    max_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     method: str | None = None
     link_status: str | None = None
     scoring_question: str | None = None
@@ -285,26 +390,40 @@ class IntentDef(_Strict):
     keywords: list[str] = Field(default_factory=list)
     weights: dict[str, float] = Field(default_factory=dict)
     seed_strategy: str | None = None
-    max_depth: int | None = None
+    max_depth: int | None = Field(default=None, ge=1)
     plugin: str | None = None
     prefer_types: list[str] = Field(default_factory=list)
     direction: Literal["outbound", "inbound", "both"] = "both"
+
+    _weights = field_validator("weights")(_finite_weights)
+
+
+class AdmissionRuleDef(_Open):
+    default: str | None = None
+    include_for_intents: list[str] = Field(default_factory=list)
 
 
 class RetrievalSection(_Strict):
     seed_types: list[str] = Field(default_factory=list)
     intents: dict[str, IntentDef] = Field(default_factory=dict)
-    admission: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    admission: dict[str, AdmissionRuleDef] = Field(default_factory=dict)
     # Weights this pack adds to intents another pack declares
     core_intent_weights: dict[str, dict[str, float]] = Field(default_factory=dict)
     # Intent used when no keyword matches
     fallback_intent: str | None = None
 
+    @field_validator("core_intent_weights")
+    @classmethod
+    def _weights(cls, value: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+        for weights in value.values():
+            _finite_weights(weights)
+        return value
+
 
 class DecayDef(_Strict):
     class_: Literal["pinned", "slow", "medium", "fast"] = Field(alias="class")
     compressible: bool = True
-    retain_days: int | None = None
+    retain_days: int | None = Field(default=None, ge=1)
 
 
 class LifecycleSection(_Strict):
@@ -365,6 +484,11 @@ class NodeType:
     def lifecycle(self) -> LifecycleDef | None:
         return self.definition.lifecycle
 
+    @property
+    def key_property(self) -> str:
+        """The property that identifies a node of this type."""
+        return self.definition.id_property or "node_id"
+
 
 @dataclass
 class EdgeType:
@@ -373,15 +497,13 @@ class EdgeType:
     definition: EdgeTypeDef
     from_types: set[str] = field(default_factory=set)
     to_types: set[str] = field(default_factory=set)
-    from_any: bool = False
-    to_any: bool = False
+    # Packs whose every type is an allowed endpoint (``*`` in that pack)
+    from_packs: set[str] = field(default_factory=set)
+    to_packs: set[str] = field(default_factory=set)
     # Own properties plus link fields when the edge requires them
     properties: dict[str, PropertySpec] = field(default_factory=dict)
-
-    def allows(self, source_type: str, target_type: str) -> bool:
-        return (self.from_any or source_type in self.from_types) and (
-            self.to_any or target_type in self.to_types
-        )
+    # Values a projection rule gets for required link fields it does not set
+    link_defaults: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -446,6 +568,17 @@ class OntologyRegistry:
     def edge_type(self, name: str) -> EdgeType:
         return self.edge_types[name]
 
+    def allows(self, edge_type: str, source_type: str, target_type: str) -> bool:
+        """Whether an edge type may connect these node types."""
+        edge = self.edge_types.get(edge_type)
+        source = self.node_types.get(source_type)
+        target = self.node_types.get(target_type)
+        if edge is None or source is None or target is None:
+            return False
+        return (source_type in edge.from_types or source.pack in edge.from_packs) and (
+            target_type in edge.to_types or target.pack in edge.to_packs
+        )
+
     def rules_for(self, event_type: str) -> list[tuple[str, ProjectionRule]]:
         """Projection rules triggered by an event type, with their pack names."""
         return self.projection_rules.get(event_type, [])
@@ -490,9 +623,10 @@ class OntologyRegistry:
         return name
 
     def _resolve_event(self, pack: str, ref: str) -> str | None:
-        owner, _, name = ref.rpartition(":") if ":" in ref else ("", "", ref)
+        """An event reference (own pack's when bare) as its name, or None if undeclared."""
+        owner, _, name = ref.rpartition(":")
         declared = self.event_types.get(name)
-        if declared is None or (owner and declared.pack != owner):
+        if declared is None or declared.pack != (owner or pack):
             return None
         return name
 
@@ -516,39 +650,9 @@ class OntologyRegistry:
 
         # Declarations, checking names are globally unique
         for pack in packs:
-            for name, interface in pack.interfaces.items():
-                if name in self.interfaces:
-                    problems.append(
-                        f"interface {name!r} declared by {self.interfaces[name][0]} and {pack.name}"
-                    )
-                self.interfaces[name] = (pack.name, interface)
-            for name, event in pack.events.items():
-                if name in self.event_types:
-                    problems.append(
-                        f"event {name!r} declared by {self.event_types[name].pack} and {pack.name}"
-                    )
-                self.event_types[name] = EventTypeDecl(name, pack.name, event)
-            for name, intent in pack.retrieval.intents.items():
-                if name in self.intents:
-                    problems.append(
-                        f"intent {name!r} declared by {self.intents[name].pack} and {pack.name}"
-                    )
-                self.intents[name] = Intent(name, pack.name, intent, dict(intent.weights))
-            for name, edge in pack.types.edges.items():
-                if name in self.edge_types:
-                    problems.append(
-                        f"edge type {name!r} declared by {self.edge_types[name].pack} and "
-                        f"{pack.name}"
-                    )
-                properties = dict(edge.properties)
-                for required_field in edge.requires:
-                    properties.setdefault(required_field, LINK_FIELDS.get(required_field, "string"))
-                self.edge_types[name] = EdgeType(name, pack.name, edge, properties=properties)
-            if pack.retrieval.fallback_intent:
-                if self.fallback_intent:
-                    problems.append(f"{pack.name}: a fallback intent is already set")
-                self.fallback_intent = pack.retrieval.fallback_intent
+            self._declare(pack, problems)
 
+        lowered: dict[str, str] = {}
         for pack in packs:
             for name, node in pack.types.nodes.items():
                 if name in self.node_types:
@@ -556,17 +660,14 @@ class OntologyRegistry:
                         f"node type {name!r} declared by {self.node_types[name].pack} and "
                         f"{pack.name}"
                     )
-                properties = dict(node.properties)
-                for interface_name in node.interfaces:
-                    declared_interface = self.interfaces.get(interface_name)
-                    if declared_interface is None:
-                        problems.append(
-                            f"{pack.name}: {name} uses unknown interface {interface_name!r}"
-                        )
-                        continue
-                    for prop, spec in declared_interface[1].properties.items():
-                        properties.setdefault(prop, spec)
-                self.node_types[name] = NodeType(name, pack.name, node, properties)
+                elif name.lower() in lowered:
+                    problems.append(
+                        f"node types {lowered[name.lower()]!r} and {name!r} differ only by case"
+                    )
+                lowered.setdefault(name.lower(), name)
+                self.node_types[name] = NodeType(
+                    name, pack.name, node, self._node_properties(pack.name, name, node, problems)
+                )
 
         # Endpoints: declarations, then extensions
         for pack in packs:
@@ -607,6 +708,67 @@ class OntologyRegistry:
                     continue
                 self.projection_rules.setdefault(event_name, []).append((pack.name, rule))
 
+    def _declare(self, pack: Pack, problems: list[str]) -> None:
+        for name, interface in pack.interfaces.items():
+            if name in self.interfaces:
+                problems.append(
+                    f"interface {name!r} declared by {self.interfaces[name][0]} and {pack.name}"
+                )
+            self.interfaces[name] = (pack.name, interface)
+        for name, event in pack.events.items():
+            if name in self.event_types:
+                problems.append(
+                    f"event {name!r} declared by {self.event_types[name].pack} and {pack.name}"
+                )
+            self.event_types[name] = EventTypeDecl(name, pack.name, event)
+        for name, intent in pack.retrieval.intents.items():
+            if name in self.intents:
+                problems.append(
+                    f"intent {name!r} declared by {self.intents[name].pack} and {pack.name}"
+                )
+            self.intents[name] = Intent(name, pack.name, intent, dict(intent.weights))
+        policy = pack.types.link_policy
+        policy_edges = set(policy.applies_to) if policy else set()
+        for name, edge in pack.types.edges.items():
+            if name in self.edge_types:
+                problems.append(
+                    f"edge type {name!r} declared by {self.edge_types[name].pack} and {pack.name}"
+                )
+            properties = dict(edge.properties)
+            link_fields = set(edge.requires) & set(LINK_FIELDS)
+            if name in policy_edges:
+                link_fields |= set(LINK_FIELDS)
+            for link_field in sorted(link_fields):
+                properties.setdefault(link_field, LINK_FIELDS[link_field])
+            defaults = {k: DECLARED_LINK[k] for k in link_fields}
+            if "link_status" in defaults and policy is not None:
+                defaults["link_status"] = policy.declared_link_status()
+            self.edge_types[name] = EdgeType(
+                name, pack.name, edge, properties=properties, link_defaults=defaults
+            )
+        if pack.retrieval.fallback_intent:
+            if self.fallback_intent:
+                problems.append(f"{pack.name}: a fallback intent is already set")
+            self.fallback_intent = pack.retrieval.fallback_intent
+
+    def _node_properties(
+        self, pack: str, name: str, node: NodeTypeDef, problems: list[str]
+    ) -> dict[str, PropertySpec]:
+        properties = dict(node.properties)
+        for interface_name in node.interfaces:
+            declared = self.interfaces.get(interface_name)
+            if declared is None:
+                problems.append(f"{pack}: {name} uses unknown interface {interface_name!r}")
+                continue
+            for prop, spec in declared[1].properties.items():
+                if prop in properties and properties[prop] != spec:
+                    problems.append(
+                        f"{pack}: {name}.{prop} conflicts with interface {interface_name}"
+                    )
+                    continue
+                properties[prop] = spec
+        return properties
+
     def _add_endpoints(
         self,
         pack: str,
@@ -616,58 +778,55 @@ class OntologyRegistry:
         problems: list[str],
     ) -> None:
         where = f"edge {edge.name}"
-        if sources == WILDCARD:
-            edge.from_any = True
-        else:
-            for ref in sources:
+        for refs, types, packs in (
+            (sources, edge.from_types, edge.from_packs),
+            (targets, edge.to_types, edge.to_packs),
+        ):
+            if refs == WILDCARD:
+                packs.add(pack)
+                continue
+            for ref in refs:
                 resolved = self._resolve_type(pack, ref, problems, where)
                 if resolved:
-                    edge.from_types.add(resolved)
-        if targets == WILDCARD:
-            edge.to_any = True
-        else:
-            for ref in targets:
-                resolved = self._resolve_type(pack, ref, problems, where)
-                if resolved:
-                    edge.to_types.add(resolved)
+                    types.add(resolved)
 
     # -- validation ------------------------------------------------------------------
 
     def _validate(self, problems: list[str]) -> None:
         for pack in self.packs:
+            self._validate_names(pack, problems)
             self._validate_types(pack, problems)
             self._validate_projection(pack, problems)
             self._validate_extraction(pack, problems)
             self._validate_retrieval(pack, problems)
             self._validate_lifecycle(pack, problems)
-            for type_name in pack.mappings.get("synonyms", {}):
-                if type_name not in self.node_types and type_name not in self.edge_types:
-                    problems.append(f"{pack.name}: synonyms for unknown type {type_name!r}")
+            self._validate_mappings(pack, problems)
         if self.fallback_intent and self.fallback_intent not in self.intents:
             problems.append(f"fallback intent {self.fallback_intent!r} is not declared")
 
     def _validate_names(self, pack: Pack, problems: list[str]) -> None:
+        def check(pattern: re.Pattern[str], name: str, what: str, shape: str) -> None:
+            if not pattern.match(name):
+                problems.append(f"{pack.name}: {what} {name!r} must be {shape}")
+
         for name, node in pack.types.nodes.items():
-            if not NODE_TYPE_NAME.match(name):
-                problems.append(
-                    f"{pack.name}: node type name {name!r} must be PascalCase letters and digits"
-                )
+            check(NODE_TYPE_NAME, name, "node type name", "PascalCase letters and digits")
             for prop in node.properties:
-                if not PROPERTY_NAME.match(prop):
-                    problems.append(f"{pack.name}: property name {name}.{prop} must be snake_case")
+                check(PROPERTY_NAME, prop, f"property name {name}.", "snake_case")
         for name, edge in pack.types.edges.items():
-            if not EDGE_TYPE_NAME.match(name):
-                problems.append(f"{pack.name}: edge type name {name!r} must be UPPER_SNAKE_CASE")
+            check(EDGE_TYPE_NAME, name, "edge type name", "UPPER_SNAKE_CASE")
             for prop in edge.properties:
-                if not PROPERTY_NAME.match(prop):
-                    problems.append(f"{pack.name}: property name {name}.{prop} must be snake_case")
+                check(PROPERTY_NAME, prop, f"property name {name}.", "snake_case")
         for name, interface in pack.interfaces.items():
+            check(NODE_TYPE_NAME, name, "interface name", "PascalCase letters and digits")
             for prop in interface.properties:
-                if not PROPERTY_NAME.match(prop):
-                    problems.append(f"{pack.name}: property name {name}.{prop} must be snake_case")
+                check(PROPERTY_NAME, prop, f"property name {name}.", "snake_case")
+        for name in pack.events:
+            check(EVENT_TYPE_NAME, name, "event type", "dot-namespaced lowercase")
+        for name in pack.retrieval.intents:
+            check(LOWER_NAME, name, "intent name", "lowercase letters, digits and underscores")
 
     def _validate_types(self, pack: Pack, problems: list[str]) -> None:
-        self._validate_names(pack, problems)
         for name, interface in pack.interfaces.items():
             for prop, spec in interface.properties.items():
                 if (error := _check_property_spec(spec)) is not None:
@@ -678,26 +837,7 @@ class OntologyRegistry:
                         f"{pack.name}: interface {name} names unknown edge {edge_name!r}"
                     )
         for name, node in pack.types.nodes.items():
-            properties = self.node_types[name].properties
-            for prop, spec in node.properties.items():
-                if (error := _check_property_spec(spec)) is not None:
-                    problems.append(f"{pack.name}: {name}.{prop}: {error}")
-            if not node.key:
-                problems.append(f"{pack.name}: {name} has no key")
-            checks = {
-                "key": node.key,
-                "text_fields": node.text_fields,
-                "embed_fields": node.embed_fields,
-                "indexes": node.indexes,
-                "id_property": [node.id_property] if node.id_property else [],
-                "vector_property": [node.vector_property] if node.vector_property else [],
-            }
-            for section, fields in checks.items():
-                for field_name in fields:
-                    if field_name not in properties:
-                        problems.append(
-                            f"{pack.name}: {name}.{section} names unknown property {field_name!r}"
-                        )
+            self._validate_node(pack.name, name, node, problems)
         for name, edge in pack.types.edges.items():
             for prop, spec in edge.properties.items():
                 if (error := _check_property_spec(spec)) is not None:
@@ -712,16 +852,70 @@ class OntologyRegistry:
                 if edge_name not in self.edge_types:
                     problems.append(f"{pack.name}: link policy names unknown edge {edge_name!r}")
 
+    def _validate_node(self, pack: str, name: str, node: NodeTypeDef, problems: list[str]) -> None:
+        properties = self.node_types[name].properties
+        for prop, spec in node.properties.items():
+            if (error := _check_property_spec(spec)) is not None:
+                problems.append(f"{pack}: {name}.{prop}: {error}")
+        if not node.key:
+            problems.append(f"{pack}: {name} has no key")
+        checks = {
+            "key": node.key,
+            "text_fields": node.text_fields,
+            "embed_fields": node.embed_fields,
+            "indexes": node.indexes,
+            "id_property": [node.id_property] if node.id_property else [],
+            "vector_property": [node.vector_property] if node.vector_property else [],
+        }
+        for section, fields in checks.items():
+            for field_name in fields:
+                if field_name not in properties:
+                    problems.append(
+                        f"{pack}: {name}.{section} names unknown property {field_name!r}"
+                    )
+        for field_name in node.indexes:
+            if field_name in RESERVED_INDEX_FIELDS or field_name == node.id_property:
+                problems.append(f"{pack}: {name} cannot index its key field {field_name!r}")
+        # Every edge an interface promises must accept this type as its source
+        for interface_name in node.interfaces:
+            declared = self.interfaces.get(interface_name)
+            for edge_name in declared[1].edges if declared else []:
+                edge = self.edge_types.get(edge_name)
+                if edge and name not in edge.from_types and pack not in edge.from_packs:
+                    problems.append(
+                        f"{pack}: {name} uses interface {interface_name}, but {edge_name} "
+                        f"does not start from {name}"
+                    )
+
     def _check_fields(
         self, pack: str, where: str, type_name: str, fields: dict[str, Any], problems: list[str]
     ) -> None:
         properties = self.node_types[type_name].properties
         for field_name in fields:
-            if field_name not in properties and field_name not in ("node_id", "node_type"):
+            if field_name not in properties and field_name not in SYSTEM_PROPERTIES:
                 problems.append(f"{pack}: {where} sets unknown property {type_name}.{field_name}")
 
+    def _check_values(
+        self, pack: str, where: str, values: dict[str, Any] | None, problems: list[str]
+    ) -> None:
+        for value in (values or {}).values():
+            self._check_expression(pack, where, value, problems)
+
+    def _check_expression(self, pack: str, where: str, value: Any, problems: list[str]) -> None:
+        try:
+            tree = compile_value(value)
+        except ExpressionError as exc:
+            problems.append(f"{pack}: {where}: {exc}")
+            return
+        for path in _paths(tree):
+            if path.root == "event" and path.steps[0] not in ENVELOPE_FIELDS:
+                problems.append(f"{pack}: {where} reads unknown envelope field {path.steps[0]!r}")
+
     def _check_ref(self, pack: str, where: str, ref: NodeRef, problems: list[str]) -> str | None:
+        for values in (ref.key, ref.match, ref.match_any_prefix):
+            self._check_values(pack, where, values, problems)
         if ref.node_id is not None:
+            self._check_expression(pack, where, ref.node_id, problems)
             return None
         assert ref.type is not None
         resolved = self._resolve_type(pack, ref.type, problems, where)
@@ -746,41 +940,58 @@ class OntologyRegistry:
                 resolved = self._check_ref(
                     pack.name, where, NodeRef(type=upsert.type, key=upsert.key), problems
                 )
+                self._check_values(pack.name, where, upsert.set, problems)
                 if resolved:
                     self._check_fields(pack.name, where, resolved, upsert.set, problems)
             if rule.transition is not None:
-                resolved = self._resolve_type(pack.name, rule.transition.type, problems, where)
-                lifecycle = self.node_types[resolved].lifecycle if resolved else None
-                if resolved and lifecycle is None:
-                    problems.append(
-                        f"{pack.name}: {where} transitions {resolved}, which has no lifecycle"
-                    )
-                elif lifecycle is not None:
-                    literal_states = [rule.transition.to] if _is_literal(rule.transition.to) else []
-                    for state in literal_states + rule.transition.only_from:
-                        if state not in lifecycle.states:
-                            problems.append(
-                                f"{pack.name}: {where} uses unknown {resolved} state {state!r}"
-                            )
+                self._validate_transition(pack.name, where, rule, problems)
             for edge_rule in rule.edges:
-                edge = self.edge_types.get(edge_rule.type)
-                if edge is None:
-                    problems.append(
-                        f"{pack.name}: {where} creates unknown edge type {edge_rule.type!r}"
-                    )
-                    continue
-                source = self._check_ref(pack.name, where, edge_rule.from_, problems)
-                target = self._check_ref(pack.name, where, edge_rule.target, problems)
-                if source and target and not edge.allows(source, target):
-                    problems.append(
-                        f"{pack.name}: {where} draws {edge.name} from {source} to {target}, not "
-                        f"allowed"
-                    )
-                for prop in edge_rule.set:
-                    if prop not in edge.properties:
-                        problems.append(
-                            f"{pack.name}: {where} sets unknown property {edge.name}.{prop}"
-                        )
+                self._validate_edge_rule(pack.name, where, edge_rule, problems)
+
+    def _validate_transition(
+        self, pack: str, where: str, rule: ProjectionRule, problems: list[str]
+    ) -> None:
+        transition = rule.transition
+        assert transition is not None
+        self._check_expression(pack, where, transition.to, problems)
+        self._check_values(pack, where, transition.key, problems)
+        resolved = self._resolve_type(pack, transition.type, problems, where)
+        if resolved is None:
+            return
+        node = self.node_types[resolved]
+        lifecycle = node.lifecycle
+        if lifecycle is None:
+            problems.append(f"{pack}: {where} transitions {resolved}, which has no lifecycle")
+            return
+        key = transition_key(rule, resolved)
+        if key is None:
+            problems.append(f"{pack}: {where} does not say which {resolved} to transition")
+        elif sorted(key) != sorted(node.key):
+            problems.append(f"{pack}: {where} transition keys {resolved} by {sorted(key)}")
+        for state in [*_target_states(transition.to), *transition.only_from]:
+            if state not in lifecycle.states:
+                problems.append(f"{pack}: {where} uses unknown {resolved} state {state!r}")
+
+    def _validate_edge_rule(
+        self, pack: str, where: str, edge_rule: EdgeRuleDef, problems: list[str]
+    ) -> None:
+        self._check_values(pack, where, edge_rule.set, problems)
+        if edge_rule.when is not None:
+            self._check_expression(pack, where, edge_rule.when, problems)
+        edge = self.edge_types.get(edge_rule.type)
+        source = self._check_ref(pack, where, edge_rule.from_, problems)
+        target = self._check_ref(pack, where, edge_rule.target, problems)
+        if edge is None:
+            problems.append(f"{pack}: {where} creates unknown edge type {edge_rule.type!r}")
+            return
+        if source and target and not self.allows(edge.name, source, target):
+            problems.append(f"{pack}: {where} draws {edge.name} from {source} to {target}")
+        for prop in edge_rule.set:
+            if prop not in edge.properties:
+                problems.append(f"{pack}: {where} sets unknown property {edge.name}.{prop}")
+        for required_field in edge.definition.requires:
+            if required_field not in edge_rule.set and required_field not in edge.link_defaults:
+                problems.append(f"{pack}: {where} must set {edge.name}.{required_field}")
 
     def _validate_extraction(self, pack: Pack, problems: list[str]) -> None:
         extraction = pack.extraction
@@ -792,6 +1003,8 @@ class OntologyRegistry:
         for name in [*extraction.propose, *extraction.never_propose, *extraction.derived_proposals]:
             if name not in self.node_types and name not in self.edge_types:
                 problems.append(f"{pack.name}: extraction names unknown type {name!r}")
+        for name in sorted(set(extraction.propose) & set(extraction.never_propose)):
+            problems.append(f"{pack.name}: {name} is both proposed and never proposed")
 
     def _validate_retrieval(self, pack: Pack, problems: list[str]) -> None:
         retrieval = pack.retrieval
@@ -811,7 +1024,7 @@ class OntologyRegistry:
                         f"{pack.name}: intent {name} prefers unknown type {type_name!r}"
                     )
         for name, rule in retrieval.admission.items():
-            for intent_name in rule.get("include_for_intents", []):
+            for intent_name in rule.include_for_intents:
                 if intent_name not in self.intents:
                     problems.append(
                         f"{pack.name}: admission {name} names unknown intent {intent_name!r}"
@@ -831,6 +1044,12 @@ class OntologyRegistry:
             if state not in known_states:
                 problems.append(f"{pack.name}: terminal state {state!r} is in no lifecycle")
 
+    def _validate_mappings(self, pack: Pack, problems: list[str]) -> None:
+        for vocabulary, terms in pack.mappings.items():
+            for term in terms:
+                if term not in self.node_types and term not in self.edge_types:
+                    problems.append(f"{pack.name}: mappings.{vocabulary} names unknown {term!r}")
+
     def _version_hash(self) -> str:
         digest = hashlib.sha256()
         for name in sorted(self._packs):
@@ -838,9 +1057,27 @@ class OntologyRegistry:
         return f"sha256:{digest.hexdigest()[:16]}"
 
 
-def _is_literal(value: str) -> bool:
-    """A rule value that is a plain word, not an expression."""
-    return re.fullmatch(r"[A-Za-z_][\w-]*", value) is not None
+def _paths(tree: Node) -> list[Path]:
+    if isinstance(tree, Path):
+        return [tree]
+    if isinstance(tree, Call):
+        return [p for arg in tree.args for p in _paths(arg)]
+    if isinstance(tree, Concat):
+        return [p for part in tree.parts for p in _paths(part)]
+    return []
+
+
+def _target_states(value: str) -> list[str]:
+    """The states a transition can move to: the literal, or a map's values."""
+    if not is_expression(value):
+        return [value]
+    try:
+        tree = compile_value(value)
+    except ExpressionError:
+        return []
+    if isinstance(tree, Call) and tree.name == "map" and isinstance(tree.args[1], MapLiteral):
+        return [state for _key, state in tree.args[1].entries]
+    return []
 
 
 def _compare(actual: str, operator: str, wanted: str) -> bool:

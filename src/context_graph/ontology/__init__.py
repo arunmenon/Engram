@@ -6,6 +6,7 @@ package reads pack files (``packs/*.pack.yaml`` ships today's schema as
 """
 
 from context_graph.ontology.loader import (
+    BASE_PACKS,
     BUILTIN_PACK_DIR,
     find_pack,
     load_pack_file,
@@ -13,4 +14,11 @@ from context_graph.ontology.loader import (
     parse_pack,
 )
 
-__all__ = ["BUILTIN_PACK_DIR", "find_pack", "load_pack_file", "load_registry", "parse_pack"]
+__all__ = [
+    "BASE_PACKS",
+    "BUILTIN_PACK_DIR",
+    "find_pack",
+    "load_pack_file",
+    "load_registry",
+    "parse_pack",
+]

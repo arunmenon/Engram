@@ -4,13 +4,15 @@ For the ``core``, ``memory`` and ``user`` packs this reproduces
 ``docker/neo4j/constraints.cypher`` (checked by the pack tests); types
 added by other packs get the same treatment:
 
-- a uniqueness constraint on the type's ``id_property``, or on
-  ``node_id`` for types identified by their key;
+- a uniqueness constraint ``<type>_pk`` on the type's ``id_property``,
+  or on ``node_id`` for types identified by their key;
 - a range index per declared index field;
 - a cosine vector index on the declared vector property.
 
 Labels and property names come from the registry, which only accepts
-names of a fixed shape, so nothing user-supplied reaches the statements.
+names of a fixed shape, rejects type names that differ only by case and
+index fields that would reuse the ``_pk`` name, so names cannot collide
+and nothing user-supplied reaches the statements.
 
 Source: ADR-0018, ADR-0011 §7
 """
@@ -36,7 +38,7 @@ def schema_statements(registry: OntologyRegistry, embedding_dimensions: int) -> 
             )
         else:
             statements.append(
-                f"CREATE CONSTRAINT {lower}_node_id IF NOT EXISTS FOR (n:{name}) "
+                f"CREATE CONSTRAINT {lower}_pk IF NOT EXISTS FOR (n:{name}) "
                 "REQUIRE n.node_id IS UNIQUE"
             )
     for name, node_type in registry.node_types.items():
