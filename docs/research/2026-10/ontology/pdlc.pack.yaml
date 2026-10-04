@@ -8,6 +8,8 @@
 #          v1.2.0 adds keywords to the five intents, so retrieval can classify queries, and has change.merged
 #          also set title, body and files (a change first seen at merge was unsearchable), and change.created
 #          only reopens an abandoned change (a late "opened" no longer undoes a merge).
+#          v1.3.0 adds completeness keywords for paraphrases ("lack", "nobody", "uncovered") and makes
+#          Release and TestCase seed types (so "changes in release v1.4.0" and "test_retry" seed a query).
 # Loaded by context_graph.ontology (ADR-0018); this file is the source of truth, and
 # docs/research/2026-10/ontology/pdlc.pack.yaml is kept identical to it.
 # Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
@@ -15,7 +17,8 @@
 
 pack:
   name: pdlc
-  version: 1.2.0   # 1.2.0: intent keywords; change.merged sets title/body/files (minor: additive).
+  version: 1.3.0   # 1.3.0: completeness paraphrase keywords; Release and TestCase are seed types (minor: additive).
+                   # 1.2.0: intent keywords; change.merged sets title/body/files (minor: additive).
                    # 1.1.0: rules for events the webhook adapters emit (minor: additive rules only).
                    # 1.0.2: every type Sourced; OWNED_BY from Incident (patch: the pack's own notes promised both).
                    # 1.0.1: content_hash declared on Constraint and Lesson (patch: the key field was undeclared).
@@ -334,7 +337,7 @@ extraction:
     VERIFIES: {rule: "a test file changed in the same commit as the change", confidence: 0.3, method: co_change, link_status: proposed}   # Kafka 74%, OpenDAL 14% of commits change tests too   # these come only from tool events
 
 retrieval:
-  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson]
+  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, TestCase]
   intents:
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
@@ -345,7 +348,7 @@ retrieval:
     completeness:
       description: "Find artifacts missing an expected link (requirement without test, change without review)"
       examples: ["which requirements have no tests", "unreviewed merges last week"]
-      keywords: [missing, without, no tests, no test, untested, unreviewed, unlinked, not linked, have no, has no]
+      keywords: [missing, without, no tests, no test, untested, unreviewed, unlinked, not linked, have no, has no, lack, lacks, lacking, nobody, uncovered, no review, no reviews]
       weights: {VERIFIES: 5, IMPLEMENTS: 5, REVIEWS: 4, REFINES: 3}
       plugin: missing_links      # set difference is not a traversal; served by a query plugin
     status:

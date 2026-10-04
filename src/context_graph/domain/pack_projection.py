@@ -16,6 +16,9 @@ Conventions:
   is created, ``source_trust`` when its type declares it (``trusted`` only
   for events from a configured source), and a ``DERIVED_FROM`` edge to
   the event;
+- every edge a rule writes (not ``DERIVED_FROM``) carries ``source_trust``
+  from the event's source, so retrieval can tell a link a trusted tool
+  declared from one an untrusted source wrote;
 - an edge endpoint named by type and key is created as a stub if missing,
   so a link can arrive before the artifact it points at;
 - values missing from the event are not written; a key with a missing
@@ -161,6 +164,19 @@ def make_node_id(type_name: str, key_values: list[Any]) -> str:
         else:
             parts.append(_escape(str(value)))
     return f"{type_name}:" + "|".join(parts)
+
+
+def parse_node_id(registry: OntologyRegistry, node_id: Any) -> tuple[str, GraphRef] | None:
+    """The type and reference of a ``<Type>:<key>`` id, or None if the type is unknown."""
+    if not isinstance(node_id, str) or ":" not in node_id:
+        return None
+    type_name, _, rest = node_id.partition(":")
+    node_type = registry.node_types.get(type_name)
+    if node_type is None or not rest:
+        return None
+    if node_type.definition.id_property:
+        return type_name, GraphRef(type_name, rest, node_type.key_property)
+    return type_name, GraphRef(type_name, node_id)
 
 
 def _truthy(value: Any) -> bool:
@@ -376,7 +392,7 @@ class PackProjector:
             values = value if isinstance(value, list) else [value]
             found = []
             for index, node_id in enumerate(values):
-                parsed = self._parse_node_id(node_id)
+                parsed = parse_node_id(self._registry, node_id)
                 if parsed is not None:
                     type_name, graph_ref = parsed
                     found.append(
@@ -393,17 +409,6 @@ class PackProjector:
             if stub is not None:
                 plan.nodes.append(stub)
         return refs
-
-    def _parse_node_id(self, node_id: Any) -> tuple[str, GraphRef] | None:
-        if not isinstance(node_id, str) or ":" not in node_id:
-            return None
-        type_name, _, rest = node_id.partition(":")
-        node_type = self._registry.node_types.get(type_name)
-        if node_type is None or not rest:
-            return None
-        if node_type.definition.id_property:
-            return type_name, GraphRef(type_name, rest, node_type.key_property)
-        return type_name, GraphRef(type_name, node_id)
 
     def _edge_properties(
         self, edge_rule: EdgeRuleDef, scope: Scope, keyed: _Keyed | None
@@ -446,7 +451,10 @@ class PackProjector:
             if not self._registry.allows(edge_rule.type, source.type_name, target_ref.type_name):
                 continue
             keyed = target_ref if target_ref.fanned else source
-            props = self._edge_properties(edge_rule, scope, keyed)
+            props = {
+                **self._edge_properties(edge_rule, scope, keyed),
+                "source_trust": context.trust,
+            }
             plan.edges.append(EdgeWrite(edge_rule.type, source.ref, target_ref.ref, props))
 
     def _plan_lookup(
@@ -471,7 +479,10 @@ class PackProjector:
             if value is None:
                 return  # a match on a missing value finds nothing
             equals[name] = value
-        props = self._edge_properties(edge_rule, context.scope, None)
+        props = {
+            **self._edge_properties(edge_rule, context.scope, None),
+            "source_trust": context.trust,
+        }
         for source in sources:
             if not self._registry.allows(edge_rule.type, source.type_name, node_type.name):
                 continue

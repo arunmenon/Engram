@@ -10,11 +10,12 @@ differences for completeness questions. Responses use the Atlas pattern.
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Request
 from fastapi.responses import ORJSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from context_graph.retrieval.artifacts import ArtifactQuery
 
@@ -24,18 +25,21 @@ if TYPE_CHECKING:
 
 router = APIRouter(tags=["query"])
 
-# Upper bounds on a request (the response is bounded by max_nodes)
-MAX_QUERY_LENGTH = 2000
-MAX_SEED_IDS = 50
-
 
 class ArtifactQueryRequest(BaseModel):
-    query: str = Field(min_length=1, max_length=MAX_QUERY_LENGTH)
-    seed_node_ids: list[str] = Field(default_factory=list, max_length=MAX_SEED_IDS)
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1)
+    seed_node_ids: list[str] = Field(default_factory=list)
     intent: str | None = None
     max_depth: int | None = Field(default=None, ge=1)
     max_nodes: int | None = Field(default=None, ge=1)
+    # Untrusted items without trusted corroboration, marked ``untrusted``
     include_untrusted: bool = False
+
+
+def _invalid(detail: str) -> ORJSONResponse:
+    return ORJSONResponse(status_code=422, content={"detail": detail})
 
 
 @router.post("/query/artifacts")
@@ -43,27 +47,37 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
     retriever: ArtifactRetriever = request.app.state.artifacts
     settings: Settings = request.app.state.settings
     limits = settings.query
+    ontology = settings.ontology
+    query = body.query.strip()
+    if not query:
+        return _invalid("query is empty")
+    if len(query) > ontology.retrieval_max_query_length:
+        return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+    if len(body.seed_node_ids) > ontology.retrieval_max_seed_ids:
+        return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
     if body.intent is not None and body.intent not in retriever.intents:
-        return ORJSONResponse(
-            status_code=422,
-            content={"detail": f"intent must be one of {sorted(retriever.intents)}"},
-        )
+        return _invalid(f"intent must be one of {sorted(retriever.intents)}")
     if body.max_depth is not None and body.max_depth > limits.max_max_depth:
-        return ORJSONResponse(
-            status_code=422, content={"detail": f"max_depth is at most {limits.max_max_depth}"}
-        )
+        return _invalid(f"max_depth is at most {limits.max_max_depth}")
     if body.max_nodes is not None and body.max_nodes > limits.max_max_nodes:
+        return _invalid(f"max_nodes is at most {limits.max_max_nodes}")
+    try:
+        response = await asyncio.wait_for(
+            retriever.retrieve(
+                ArtifactQuery(
+                    query=query,
+                    seed_node_ids=tuple(body.seed_node_ids),
+                    intent=body.intent,
+                    max_depth=body.max_depth,
+                    max_nodes=body.max_nodes or limits.default_max_nodes,
+                    include_untrusted=body.include_untrusted,
+                )
+            ),
+            timeout=limits.default_timeout_ms / 1000.0,
+        )
+    except TimeoutError:
         return ORJSONResponse(
-            status_code=422, content={"detail": f"max_nodes is at most {limits.max_max_nodes}"}
+            status_code=504,
+            content={"detail": f"query exceeded {limits.default_timeout_ms} ms"},
         )
-    response = await retriever.retrieve(
-        ArtifactQuery(
-            query=body.query,
-            seed_node_ids=tuple(body.seed_node_ids),
-            intent=body.intent,
-            max_depth=body.max_depth,
-            max_nodes=body.max_nodes or limits.default_max_nodes,
-            include_untrusted=body.include_untrusted,
-        )
-    )
     return ORJSONResponse(content=response.model_dump(mode="json"))

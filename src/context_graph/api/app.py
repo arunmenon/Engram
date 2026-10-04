@@ -121,6 +121,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         neighbor_limit=settings.ontology.retrieval_neighbor_limit,
         provenance_source=settings.storage.event_log,
         seed_min_ratio=settings.ontology.retrieval_seed_min_ratio,
+        max_terms=settings.ontology.retrieval_max_terms,
+        max_graph_calls=settings.ontology.retrieval_max_graph_calls,
+        scan_limit=settings.ontology.retrieval_scan_limit,
     )
 
     app.state.settings = settings

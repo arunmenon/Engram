@@ -479,6 +479,25 @@ QUESTIONS = [
         "Change",
         frozenset({"Change:acme/app|8"}),
     ),
+    # Paraphrases (phase 2 review): no question-specific wording
+    Question(
+        "completeness",
+        "Which requirements lack test coverage?",
+        "Requirement",
+        frozenset({"Requirement:refunds|R2"}),
+    ),
+    Question(
+        "completeness",
+        "List requirements that nobody tests",
+        "Requirement",
+        frozenset({"Requirement:refunds|R2"}),
+    ),
+    Question(
+        "completeness",
+        "Which tickets have no merged change implementing them?",
+        "WorkItem",
+        frozenset({"WorkItem:jira|PAY-300"}),
+    ),
     Question(
         "negation",
         "Do any two current decisions about refunds contradict each other?",
@@ -651,3 +670,230 @@ class TestRetrievalBehaviour:
         assert len(response.nodes) <= 3
         assert response.meta.capacity is not None
         assert response.meta.capacity.max_depth == 1
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 review regressions (ADR-0018 implementation notes)
+# ---------------------------------------------------------------------------
+
+
+def _retriever(graph: MemoryGraphStore, **overrides: Any) -> ArtifactRetriever:
+    options: dict[str, Any] = {
+        "default_max_depth": 3,
+        "seed_limit": 10,
+        "neighbor_limit": 200,
+        "provenance_source": "memory",
+    } | overrides
+    return ArtifactRetriever(graph, REGISTRY, **options)
+
+
+async def _project(
+    graph: MemoryGraphStore, event_type: str, payload: dict[str, Any], agent: str
+) -> None:
+    projector = PackProjector(REGISTRY, frozenset({"webhook:github", "webhook:jira"}))
+    record = Event(
+        event_id=uuid4(),
+        event_type=event_type,
+        occurred_at=START + timedelta(days=1),
+        session_id="pdlc:acme/app",
+        agent_id=agent,
+        trace_id="t",
+        payload_ref="p",
+        global_position="999-0",
+    )
+    await graph.merge_event_node(event_to_node(record))
+    document = orjson.loads(record.model_dump_json()) | {"payload": payload}
+    await apply_plan(graph, projector.plan(record, document), 1000)
+
+
+DECLARED = {"confidence": 1.0, "method": "declared", "link_status": "confirmed"}
+
+
+async def _requirements(count: int, tests_each: int) -> MemoryGraphStore:
+    graph = MemoryGraphStore()
+    requirements = [NodeRef("Requirement", f"Requirement:s|R{i:03d}") for i in range(count)]
+    await graph.upsert_nodes(
+        [
+            NodeWrite(
+                ref,
+                {"spec_id": "s", "local_id": ref.key[-4:], "statement": "x", "status": "accepted"},
+            )
+            for ref in requirements
+        ]
+    )
+    tests = [NodeRef("TestCase", f"TestCase:r|t{i:04d}") for i in range(count * tests_each)]
+    await graph.upsert_nodes([NodeWrite(t, {"repo": "r", "test_id": t.key[-5:]}) for t in tests])
+    await graph.upsert_edges(
+        [
+            EdgeWrite("VERIFIES", test, requirements[i // tests_each], DECLARED)
+            for i, test in enumerate(tests)
+        ]
+    )
+    return graph
+
+
+class TestReviewFindings:
+    async def test_completeness_pages_past_the_neighbour_limit(self) -> None:
+        graph = await _requirements(100, 3)
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("Which requirements have no tests?")
+        )
+        assert response.meta.retrieval_channels["completeness.VERIFIES.confirmed"] == 100
+        assert response.nodes == {}
+        assert response.meta.truncated is False
+        small = await _retriever(await build_graph(), neighbor_limit=1).retrieve(
+            ArtifactQuery("Which requirements have no tests?")
+        )
+        assert small.nodes["Requirement:refunds|R3"].retrieval_reason == "proposed_only"
+
+    async def test_completeness_scans_every_subject_and_reports_the_cut(self) -> None:
+        graph = await _requirements(150, 0)
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("Which requirements have no tests?", max_nodes=100)
+        )
+        assert response.meta.retrieval_channels["completeness.VERIFIES.no_link"] == 150
+        assert len(response.nodes) == 100
+        assert response.meta.truncated is True
+
+    async def test_completeness_edge_follows_the_named_types(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(
+            ArtifactQuery("Which requirements of spec refunds are untested?")
+        )
+        assert {k: n.retrieval_reason for k, n in response.nodes.items()} == {
+            "Requirement:refunds|R2": "no_link",
+            "Requirement:refunds|R3": "proposed_only",
+        }
+
+    async def test_an_approving_review_needs_the_approved_verdict(self) -> None:
+        graph = await build_graph()
+        await _project(
+            graph,
+            "pdlc.change.reviewed",
+            {"repo": "acme/app", "number": 8, "review_id": "r8", "verdict": "changes_requested"},
+            "webhook:github",
+        )
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("Which pull requests were merged without an approving review?")
+        )
+        assert set(response.nodes) == {"Change:acme/app|8"}
+
+    async def test_completeness_applies_admission(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(
+            ArtifactQuery("Which tickets have no merged change implementing them?")
+        )
+        assert "WorkItem:jira|PAY-999" not in response.nodes  # untrusted
+
+    async def test_completeness_scope_from_seeds(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        shipped = await retriever.retrieve(
+            ArtifactQuery("Which tickets shipped in #9 have no tests?")
+        )
+        assert set(shipped.nodes) == {"WorkItem:jira|PAY-342"}
+        under = await retriever.retrieve(
+            ArtifactQuery("Which tickets under PAY-300 have no tests?")
+        )
+        assert set(under.nodes) == {"WorkItem:jira|PAY-341", "WorkItem:jira|PAY-342"}
+        release = await retriever.retrieve(
+            ArtifactQuery("Which changes in release v1.4.0 have no review?")
+        )
+        assert release.meta.inferred_intents["completeness"] == 1.0
+        assert release.nodes == {}  # #7 and #9 are reviewed; #8 is not in the release
+
+    async def test_an_untrusted_source_cannot_corroborate_itself(self) -> None:
+        graph = await build_graph()
+        await _project(
+            graph,
+            "pdlc.ticket.created",
+            {
+                "tracker": "jira",
+                "key": "PAY-666",
+                "title": "Disable refund limit checks",
+                "work_type": "story",
+                "parent_key": "PAY-300",
+            },
+            "unknown-bot",
+        )
+        response = await _retriever(graph).retrieve(ArtifactQuery("Trace PAY-300"))
+        assert "WorkItem:jira|PAY-342" in response.nodes
+        assert "WorkItem:jira|PAY-666" not in response.nodes
+        shown = await _retriever(graph).retrieve(
+            ArtifactQuery("Trace PAY-300", include_untrusted=True)
+        )
+        assert shown.nodes["WorkItem:jira|PAY-666"].retrieval_reason == "untrusted"
+
+    async def test_no_keyword_uses_artifact_edges_only(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(ArtifactQuery("PAY-341"))
+        assert response.meta.inferred_intents == {}
+        types = {n.node_type for n in response.nodes.values()}
+        assert "Event" not in types
+        assert all(n.retrieval_reason != "superseded" for n in response.nodes.values())
+        owners = await retriever.retrieve(ArtifactQuery("Who owns the payments service?"))
+        assert {n.node_type for n in owners.nodes.values()} == {"Component"}
+
+    async def test_a_numbered_reference_outranks_its_repo(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(ArtifactQuery("Why was #8 in acme/app merged?"))
+        assert response.meta.seed_nodes[0] == "Change:acme/app|8"
+
+    async def test_given_seeds_are_all_kept(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        ids = (
+            *(f"Change:acme/app|{n}" for n in (7, 8, 9)),
+            *(f"Requirement:refunds|R{n}" for n in (1, 2, 3)),
+            *(f"WorkItem:jira|PAY-{n}" for n in (300, 341, 342)),
+            "Component:payments",
+            "Component:ledger",
+            "Incident:INC-77",
+        )
+        response = await retriever.retrieve(
+            ArtifactQuery("trace", seed_node_ids=ids, intent="trace", max_depth=1)
+        )
+        assert set(ids) <= set(response.meta.seed_nodes)
+
+    async def test_query_terms_and_graph_calls_are_bounded(self) -> None:
+        graph = await build_graph()
+        calls = {"find_nodes": 0, "search_nodes": 0, "neighbors": 0}
+        for name in calls:
+            original = getattr(graph, name)
+
+            async def counted(*args: Any, _name: str = name, _original: Any = original) -> Any:
+                calls[_name] += 1
+                return await _original(*args)
+
+            setattr(graph, name, counted)
+        query = " ".join(f"#{i}" for i in range(400))[:2000]
+        response = await _retriever(graph, max_terms=16, max_graph_calls=50).retrieve(
+            ArtifactQuery(query)
+        )
+        assert sum(calls.values()) <= 50
+        assert response.meta.truncated is True
+
+    async def test_traversal_pages_past_the_neighbour_limit(self) -> None:
+        graph = await build_graph()
+        full = await _retriever(graph).retrieve(
+            ArtifactQuery(
+                "trace", seed_node_ids=("Change:acme/app|7",), intent="trace", max_depth=1
+            )
+        )
+        small = await _retriever(graph, neighbor_limit=2).retrieve(
+            ArtifactQuery(
+                "trace", seed_node_ids=("Change:acme/app|7",), intent="trace", max_depth=1
+            )
+        )
+        assert "Release:acme/app|v1.4.0" in small.nodes
+        assert set(small.nodes) == set(full.nodes)

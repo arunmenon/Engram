@@ -549,6 +549,14 @@ class OntologySettings(BaseSettings):
     retrieval_seed_limit: int = 10
     retrieval_neighbor_limit: int = 200
     retrieval_seed_min_ratio: float = 0.5
+    # Per artifact query: key tokens, words and #numbers used from the
+    # question (each), graph calls made, subject nodes a completeness
+    # question scans, and the request's question length and given seeds
+    retrieval_max_terms: int = 16
+    retrieval_max_graph_calls: int = 400
+    retrieval_scan_limit: int = 5000
+    retrieval_max_query_length: int = 2000
+    retrieval_max_seed_ids: int = 50
 
     @field_validator("packs", "pack_dirs", "trusted_sources", mode="before")
     @classmethod

@@ -193,3 +193,37 @@ Competency questions:
   - `similarity` (CQ03, CQ26), which needs embeddings of pack types;
   - `snapshot` (CQ04, CQ28), which needs the pinned-position read.
 
+
+#### Phase 2 review round
+
+An independent reviewer reported 18 findings on commit `1c9c0cf`, each with a reproduction script. Most were about completeness questions and about limits that cut answers silently. Event retrieval (`RetrievalEngine`) showed no regression. What was done with each:
+
+| # | Finding | Severity | Outcome |
+|---|---|---|---|
+| 1 | Completeness read every candidate's links in one call capped at the neighbour limit, so later candidates were reported `no_link` (100 requirements tested 3 times each: 33 false `no_link`) | blocking | Fixed: neighbour reads are paged. A call that fills the limit is split by node, then by edge type, and only one node and one edge type that still fill it are cut, which sets `truncated`. Used by completeness, traversal, supersession and provenance |
+| 2 | With no seeds, completeness looked at only the first `max_nodes` subjects, before the state filter, and did not say so | blocking | Fixed: subjects are read per named lifecycle state (`find_nodes(status=...)`) up to `CG_ONTOLOGY_RETRIEVAL_SCAN_LIMIT` (5000). All are counted; at most `max_nodes` are returned, and `truncated` is set when either limit cuts |
+| 3 | When an edge allows both directions (REFINES), the inbound one was picked; "untested" did not name TestCase | blocking | Fixed: an edge allowed both ways is read in both directions. Type words match with plural and verb endings and an `un` prefix ("untested", "unreviewed"). The strongest edge to the earliest-named related type wins |
+| 4 | "Without an approving review" counted any review | should-fix | Fixed: when the question names an enum value of the related type ("approving" → `verdict: approved`), only links to nodes with that value count |
+| 5 | Completeness skipped admission, so untrusted and superseded subjects were reported | should-fix | Fixed: superseded subjects and untrusted ones (unless asked for) are left out. A link to an untrusted node counts as `proposed_only` at best |
+| 6 | Completeness scope was too wide from other seeds (any intent edge, depth 3, both ways) and too narrow from seeds of the subject type (the seed only) | should-fix | Fixed: from other seeds, the subjects one artifact edge away ("tickets shipped in #9"). From seeds of the subject type, their descendants along subject-to-subject edges ("under PAY-300"), or else the seeds themselves |
+| 7 | An untrusted source could corroborate its own item: its event wrote the edge from the trusted epic; proposed links counted too | should-fix | Fixed: every edge a projection rule writes carries `source_trust` from the event's source. Only a confirmed link that a trusted source wrote, to a trusted node, corroborates. Edges written before this change carry no trust and count as trusted until the graph is rebuilt |
+| 8 | Intent ties and keyword-less queries were resolved by registry order. A query matching no keyword turned on every intent (`why` dominant), with provenance and session edges | should-fix | Fixed: a tie prefers an intent with a plugin. With no keyword match there is no dominant intent: every artifact intent's edges are used in both directions, and superseded items stay out. Artifact traversal follows only edges that join two pack types, never `DERIVED_FROM`, `REFERENCES` or `FOLLOWS`. PDLC 1.3.0 adds paraphrase keywords (lack, nobody, uncovered, no review) |
+| 9 | A repo token ranked every change in the repo above the `#8` it named | should-fix | Fixed: the key bonus applies only when the token is the node's most specific (last) key value. A `#n` match scores 2, plus 0.5 when the question also names its other key values |
+| 10 | Caller-given seeds went through the seed-limit cut and ranking | should-fix | Fixed: given seeds are always kept, first. The seed limit applies to seeds found from the question |
+| 11 | Event nodes had no provenance; `who_is` reached ownership through shared provenance events | should-fix | Fixed: an Event node is its own provenance, and provenance edges are no longer traversed (finding 8) |
+| 12 | No timeout | should-fix | Fixed: the route applies `CG_QUERY_DEFAULT_TIMEOUT_MS` and returns 504 |
+| 13 | Unbounded graph calls (400 `#n` references → 400 `find_nodes`) and term lists | should-fix | Fixed: at most `CG_ONTOLOGY_RETRIEVAL_MAX_TERMS` (16) key tokens, words and numbers each, and `CG_ONTOLOGY_RETRIEVAL_MAX_GRAPH_CALLS` (400) graph calls per request. Hitting either sets `truncated`. A `#n` is looked up only on a type's last key field |
+| 14 | `neighbor_limit` cut traversal silently and by edge-type name; "best-first" was breadth-first by level | should-fix | Fixed: paging (finding 1), with edge types asked in weight order. Within a level, nodes are admitted in path-score order, so `max_nodes` keeps the best paths. The docstring says "level by level". The hardcoded ×10 for provenance is gone |
+| 15 | Six hand-written questions phrased to match the pack keywords | should-fix | Partly fixed: the set adds three paraphrases ("lack test coverage", "nobody tests", "tickets with no merged change implementing them"), and fixtures for the cases that would have caught findings 1–7. The eval is still small and hand-built; real-project questions remain future work |
+| 16 | Question-specific stop words | nit | Fixed: removed |
+| 17 | Route constants hardcoded, extra fields accepted, whitespace queries accepted, untrusted items returned as `direct` | nit | Fixed: `CG_ONTOLOGY_RETRIEVAL_MAX_QUERY_LENGTH` and `..._MAX_SEED_IDS`; unknown fields are 422; the query is stripped, and empty is 422; untrusted items returned on request are marked `untrusted` |
+| 18 | Event `RetrievalEngine`: no regression found | — | No change |
+
+Eval after the fixes, mean F1 with retrieval vs the baseline:
+- supersession: 1.00 vs 0.53;
+- completeness: 1.00 vs 0.17 (six questions, including the three paraphrases);
+- negation: 1.00 vs 0.67.
+
+Regression cases:
+- `tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings`;
+- `tests/unit/test_artifact_route.py`.

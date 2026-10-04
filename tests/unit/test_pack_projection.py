@@ -60,9 +60,14 @@ class Harness:
         label = node_id.split(":")[0]
         return self.graph.nodes[(label, node_id)]
 
-    def edges(self, edge_type: str) -> dict[tuple[str, str], dict[str, Any]]:
+    def edges(
+        self, edge_type: str, *, with_trust: bool = False
+    ) -> dict[tuple[str, str], dict[str, Any]]:
+        """Edge properties; ``source_trust`` (on every rule edge) only when asked."""
         return {
-            (source[1], target[1]): props
+            (source[1], target[1]): {
+                k: v for k, v in props.items() if with_trust or k != "source_trust"
+            }
             for (source, kind, target), props in self.graph.edges.items()
             if kind == edge_type
         }
