@@ -14,7 +14,7 @@ questions:
     asker: spec author or agent at the Spec step
     source: [JET C6 call site (a) task-conditioned briefing]
     answer_shape: [similarity, traverse]
-    needs_types: [Request, Decision, Constraint, Service]
+    needs_types: [Request, Decision, Constraint, Component]
     needs_edges: [APPLIES_TO, CONSTRAINS]
     needs_properties: [Decision.status, Decision.valid_to, Constraint.status]
   - id: CQ02
@@ -22,7 +22,7 @@ questions:
     asker: triage
     source: [JET C6 call site (b) triage routing]
     answer_shape: [traverse]
-    needs_types: [Request, Service, Team, Decision, "core:Entity"]
+    needs_types: [Request, Component, Team, Decision, "core:Entity"]
     needs_edges: [OWNED_BY, APPLIES_TO, DECIDED_BY]
   - id: CQ03
     question: "Has a request like this been made before, and what happened to it?"
@@ -58,19 +58,20 @@ questions:
     needs_edges: ["core:SUPERSEDES"]
     needs_properties: [DesignElement.status]
   - id: CQ07
-    question: "Which decisions were reversed last quarter, and why?"
+    question: "Which decisions were reversed or amended last quarter, and why?"
     asker: architect
     source: [MOOSE supersession, BRIEF E-20261004-02 outdated decisions]
     answer_shape: [temporal, traverse]
     needs_types: [Decision]
-    needs_edges: ["core:SUPERSEDES"]
+    needs_edges: ["core:SUPERSEDES", AMENDS]
     needs_properties: [Decision.status, Decision.valid_to, Decision.rationale]
+    notes: "step 2: OpenDAL RFCs amend earlier ones in part far more often than they replace them"
   - id: CQ08
     question: "Do any two active decisions about the payments service contradict each other?"
     asker: architect
     source: [MOOSE negation]
     answer_shape: [traverse]
-    needs_types: [Decision, Service]
+    needs_types: [Decision, Component]
     needs_edges: ["core:CONTRADICTS", APPLIES_TO]
   # --- Work ---
   - id: CQ09
@@ -119,9 +120,9 @@ questions:
     asker: coding agent
     source: [PMEM pre-action warning]
     answer_shape: [property_filter, traverse]
-    needs_types: [Change, Service, Incident, Lesson, Constraint, TestRun]
+    needs_types: [Change, Component, Incident, Lesson, Constraint, TestRun]
     needs_edges: [TOUCHES, ATTRIBUTED_TO, AFFECTS, LEARNED_FROM, CONSTRAINS, RAN_AGAINST]
-    needs_properties: [Service.path_prefixes, Change.files, TestRun.outcome]
+    needs_properties: [Component.path_prefixes, Change.files, TestRun.outcome]
   - id: CQ15
     question: "Is the decision about refund retries still valid, given the code it was made against has changed?"
     asker: reviewer
@@ -156,26 +157,26 @@ questions:
     needs_properties: [TestRun.outcome]
   # --- Deploy and operate ---
   - id: CQ19
-    question: "Where is PAY-341 deployed right now?"
+    question: "Where is PAY-341 deployed right now, or for a library, which release first shipped it?"
     asker: product manager
     source: [JET Deploy, pack 'trace' intent]
     answer_shape: [traverse]
-    needs_types: [WorkItem, Change, Deployment, Service]
-    needs_edges: [IMPLEMENTS, DEPLOYS, DEPLOYED_TO]
+    needs_types: [WorkItem, Change, Deployment, Component, Release]
+    needs_edges: [IMPLEMENTS, DEPLOYS, DEPLOYED_TO, INCLUDES]
     needs_properties: [Deployment.environment, Deployment.status]
   - id: CQ20
     question: "Which deployment was running when incident I-77 started, and what did it change over the one before?"
     asker: on-call engineer
     source: [JET Detection and Diagnosis]
     answer_shape: [traverse, temporal]
-    needs_types: [Incident, Deployment, Change, Service]
+    needs_types: [Incident, Deployment, Change, Component]
     needs_edges: [OCCURRED_ON, DEPLOYS, DEPLOYED_TO]
   - id: CQ21
     question: "What share of changes to each service caused a confirmed incident this quarter?"
     asker: engineering director
     source: [DORA change failure rate, JET escape rate]
     answer_shape: [aggregate]
-    needs_types: [Change, Incident, Service]
+    needs_types: [Change, Incident, Component]
     needs_edges: [ATTRIBUTED_TO, TOUCHES]
     needs_properties: [ATTRIBUTED_TO.link_status]
   - id: CQ22
@@ -209,7 +210,7 @@ questions:
     asker: engineer, agent
     source: [PMEM lessons, RSI outcome feedback]
     answer_shape: [traverse]
-    needs_types: [Lesson, Incident, Change, Service]
+    needs_types: [Lesson, Incident, Change, Component]
     needs_edges: [LEARNED_FROM, AFFECTS]
     needs_properties: [Lesson.status, Lesson.polarity]
   - id: CQ26
