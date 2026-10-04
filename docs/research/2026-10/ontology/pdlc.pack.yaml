@@ -1,0 +1,304 @@
+# Draft ontology pack: PDLC (product development lifecycle)
+# Status: proposal. Format defined in pdlc-ontology-and-ontology-packs.md §4 and ADR-0018 (draft).
+# Not loaded by any code yet. Written to show the format can express the PDLC MVP end to end.
+# Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
+# The pack loader must parse with a YAML 1.2 or safe loader and reject non-string keys.
+
+pack:
+  name: pdlc
+  version: 0.1.0
+  requires: [core>=1.0]          # Event, Entity, DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS
+  owner: TBD                     # decision 4 in the design doc
+  description: Requests, specs, requirements, decisions, work, changes, verification, deployment and operations.
+
+# Interfaces: shapes shared by many types. Generic code (retrieval, retention, C6 normalisation) keys off these.
+interfaces:
+  Lifecycled:  {properties: {status: string, status_changed_at: datetime}}
+  Owned:       {edges: [OWNED_BY]}
+  Anchored:    {properties: {source_uri: string, content_hash: string, anchor_path: string}}
+  Versioned:   {properties: {version: string}}
+  Claim:       {properties: {confidence: float, method: string}, note: "a belief, not a fact; never auto-promoted to declared"}
+
+types:
+  nodes:
+    Request:
+      key: [source_system, external_id]
+      interfaces: [Lifecycled, Owned]
+      properties: {title: string, description: text, source_system: string, external_id: string, priority: string}
+      lifecycle: {initial: new, states: [new, triaged, accepted, rejected, done]}
+      text_fields: [title, description]
+    Spec:
+      key: [doc_id, version]
+      interfaces: [Lifecycled, Anchored, Versioned]
+      properties: {doc_id: string, title: string, acceptance_criteria: text, scope: text}
+      lifecycle: {initial: draft, states: [draft, approved, superseded]}
+      text_fields: [title, acceptance_criteria, scope]
+      embed_fields: [title, acceptance_criteria]
+    Requirement:
+      key: [spec_id, local_id]
+      interfaces: [Lifecycled, Anchored]
+      properties: {spec_id: string, local_id: string, statement: text, priority: string}
+      lifecycle: {initial: proposed, states: [proposed, accepted, implemented, verified, retired]}
+      text_fields: [statement]
+      embed_fields: [statement]
+    Decision:
+      key: [content_hash]
+      interfaces: [Lifecycled, Anchored, Claim]
+      properties: {statement: text, rationale: text, alternatives: text, decided_at: datetime}
+      lifecycle: {initial: proposed, states: [proposed, accepted, superseded, reversed]}
+      text_fields: [statement, rationale]
+      embed_fields: [statement]
+    Constraint:
+      key: [content_hash]
+      interfaces: [Lifecycled, Claim]
+      properties: {statement: text, scope: string, severity: string}
+      lifecycle: {initial: active, states: [active, relaxed, retired]}
+      text_fields: [statement]
+      embed_fields: [statement]
+    DesignElement:
+      key: [doc_id, section_path]
+      interfaces: [Lifecycled, Anchored, Versioned]
+      properties: {doc_id: string, section_path: string, kind: {enum: [hld, lld]}, title: string, body: text}
+      lifecycle: {initial: draft, states: [draft, reviewed, approved, superseded]}
+      text_fields: [title, body]
+      embed_fields: [title, body]
+    WorkItem:
+      key: [tracker, external_key]
+      interfaces: [Lifecycled, Owned]
+      properties: {tracker: string, external_key: string, title: string, work_type: {enum: [epic, story, task, bug]}}
+      lifecycle: {initial: open, states: [open, in_progress, done, cancelled]}
+      text_fields: [title]
+    Change:
+      key: [repo, number]
+      interfaces: [Lifecycled, Anchored]
+      properties: {repo: string, number: int, title: string, body: text, head_sha: string, merge_sha: string, files: "list<string>"}
+      lifecycle: {initial: open, states: [open, reviewed, merged, abandoned]}
+      text_fields: [title, body]
+    Review:
+      key: [repo, number, review_id]
+      properties: {repo: string, number: int, review_id: string, verdict: {enum: [commented, approved, changes_requested]}}
+    TestCase:
+      key: [repo, test_id]
+      interfaces: [Lifecycled]
+      properties: {repo: string, test_id: string, path: string, name: string}
+      lifecycle: {initial: active, states: [active, quarantined, retired]}
+    TestRun:
+      key: [run_id]
+      properties: {run_id: string, outcome: {enum: [passed, failed, error, skipped]}, commit_sha: string, finished_at: datetime}
+    Deployment:
+      key: [environment, artifact_id, started_at]
+      interfaces: [Lifecycled]
+      properties: {environment: string, artifact_id: string, started_at: datetime}
+      lifecycle: {initial: started, states: [started, succeeded, failed, rolled_back]}
+    Service:
+      key: [catalog_name]
+      interfaces: [Owned, Lifecycled]
+      properties: {catalog_name: string, system: string, tier: string}
+      lifecycle: {initial: production, states: [experimental, production, deprecated]}
+    Incident:
+      key: [incident_id]
+      interfaces: [Lifecycled, Owned]
+      properties: {incident_id: string, severity: string, title: string, summary: text}
+      lifecycle: {initial: detected, states: [detected, mitigated, resolved, postmortem_done]}
+      text_fields: [title, summary]
+      embed_fields: [title, summary]
+    Team:
+      key: [catalog_name]
+      properties: {catalog_name: string, display_name: string}
+    Lesson:
+      key: [content_hash]
+      interfaces: [Claim, Lifecycled]
+      properties: {statement: text, polarity: {enum: [apply, avoid]}, support_count: int}
+      lifecycle: {initial: tentative, states: [tentative, validated, deprecated]}
+      text_fields: [statement]
+      embed_fields: [statement]
+
+  edges:
+    REFINES:         {from: [Spec, Requirement, DesignElement], to: [Request, Spec, Requirement]}
+    DECOMPOSES_INTO: {from: [Spec, WorkItem], to: [WorkItem], properties: {order: int}}
+    IMPLEMENTS:      {from: [Change], to: [WorkItem, Requirement, DesignElement], requires: [confidence, method]}
+    VERIFIES:        {from: [TestCase], to: [Requirement, Change], requires: [confidence, method]}
+    EXECUTES:        {from: [TestRun], to: [TestCase]}
+    RAN_AGAINST:     {from: [TestRun], to: [Change], properties: {commit_sha: string}}
+    REVIEWS:         {from: [Review], to: [Change]}
+    DEPLOYS:         {from: [Deployment], to: [Change]}
+    DEPLOYED_TO:     {from: [Deployment], to: [Service], properties: {environment: string}}
+    DECIDED_BY:      {from: [Decision], to: ["core:Entity"]}
+    CONSTRAINS:      {from: [Constraint], to: [Requirement, DesignElement, Service, WorkItem], properties: {scope: string}}
+    DEPENDS_ON:      {from: [WorkItem, Service], to: [WorkItem, Service], properties: {kind: {enum: [blocks, needs]}}}
+    OWNED_BY:        {from: [Service, WorkItem, Request], to: [Team, "core:Entity"]}
+    AFFECTS:         {from: [Incident], to: [Service]}
+    ATTRIBUTED_TO:   {from: [Incident], to: [Change, Deployment], requires: [confidence, method]}
+    REMEDIATES:      {from: [Change], to: [Incident]}
+    RAISES:          {from: [Incident], to: [Request]}
+    LEARNED_FROM:    {from: [Lesson], to: [Incident, Change]}
+  # Core edges this pack extends to its own types (endpoint additions only):
+  extends_core_edges:
+    SUPERSEDES:   {from: [Decision, Spec, DesignElement], to: [Decision, Spec, DesignElement]}
+    CONTRADICTS:  {from: [Decision, Constraint], to: [Decision, Constraint]}
+    DERIVED_FROM: {from: "*", to: ["core:Event"], note: "provenance: every PDLC node links to the event(s) that observed it"}
+    REFERENCES:   {from: ["core:Event"], to: "*", note: "agent sessions link to the PDLC artifacts they touched (role object|result)"}
+    SAME_AS:      {from: [WorkItem, Service], to: [WorkItem, Service], note: "cross-tool identity, e.g. GitHub issue == Jira ticket"}
+
+events:
+  # Tool events follow CDEvents; the original type is kept in payload.cdevents_type.
+  pdlc.change.created:        {aliases: {cdevents: dev.cdevents.change.created}}
+  pdlc.change.reviewed:       {aliases: {cdevents: dev.cdevents.change.reviewed}}
+  pdlc.change.merged:         {aliases: {cdevents: dev.cdevents.change.merged}}
+  pdlc.change.abandoned:      {aliases: {cdevents: dev.cdevents.change.abandoned}}
+  pdlc.testcaserun.finished:  {aliases: {cdevents: dev.cdevents.testcaserun.finished}}
+  pdlc.service.deployed:      {aliases: {cdevents: dev.cdevents.service.deployed}}
+  pdlc.service.rolledback:    {aliases: {cdevents: dev.cdevents.service.rolledback}}
+  pdlc.incident.detected:     {aliases: {cdevents: dev.cdevents.incident.detected}}
+  pdlc.incident.resolved:     {aliases: {cdevents: dev.cdevents.incident.resolved}}
+  pdlc.ticket.created:        {aliases: {cdevents: dev.cdevents.ticket.created}}
+  pdlc.ticket.updated:        {aliases: {cdevents: dev.cdevents.ticket.updated}}
+  pdlc.ticket.closed:         {aliases: {cdevents: dev.cdevents.ticket.closed}}
+  # Intake events: CDEvents stops at the code boundary, so these are Engram's own.
+  pdlc.request.created:       {}
+  pdlc.spec.approved:         {}
+  pdlc.requirement.changed:   {}
+  pdlc.design.section_changed: {}
+  pdlc.decision.recorded:     {}
+
+# Deterministic projection: event -> node upserts -> edge upserts -> lifecycle transitions.
+# $.x reads the event payload; $event.x reads the envelope. Unknown references fail validation at pack load.
+projection:
+  - event: pdlc.change.created
+    upsert:
+      - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title, body: $.body, head_sha: $.head_sha, files: $.files}}
+    transition: {type: Change, to: open}
+  - event: pdlc.change.merged
+    upsert:
+      - {type: Change, key: {repo: $.repo, number: $.number}, set: {merge_sha: $.merge_sha}}
+    transition: {type: Change, to: merged}
+    edges:
+      - type: IMPLEMENTS
+        from: {type: Change, key: {repo: $.repo, number: $.number}}
+        to_each: {type: WorkItem, key: {tracker: jira, external_key: "regex($.body, '(?i)(?:fixes|closes|resolves)\\s+([A-Z][A-Z0-9]+-\\d+)')"}}
+        set: {confidence: 1.0, method: declared}
+  - event: pdlc.change.reviewed
+    upsert:
+      - {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}, set: {verdict: $.verdict}}
+    edges:
+      - {type: REVIEWS, from: {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}}, to: {type: Change, key: {repo: $.repo, number: $.number}}}
+    transition: {type: Change, to: reviewed, only_from: [open]}
+  - event: pdlc.testcaserun.finished
+    upsert:
+      - {type: TestCase, key: {repo: $.repo, test_id: $.test_id}, set: {path: $.path, name: $.name}}
+      - {type: TestRun, key: {run_id: $.run_id}, set: {outcome: $.outcome, commit_sha: $.commit_sha, finished_at: $event.occurred_at}}
+    edges:
+      - {type: EXECUTES, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}}
+      - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number}
+  - event: pdlc.service.deployed
+    upsert:
+      - {type: Service, key: {catalog_name: $.service}}
+      - {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}
+    transition: {type: Deployment, to: succeeded}
+    edges:
+      - {type: DEPLOYED_TO, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Service, key: {catalog_name: $.service}}, set: {environment: $.environment}}
+      - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
+  - event: pdlc.incident.detected
+    upsert:
+      - {type: Incident, key: {incident_id: $.incident_id}, set: {severity: $.severity, title: $.title}}
+      - {type: Service, key: {catalog_name: $.service}}
+    transition: {type: Incident, to: detected}
+    edges:
+      - {type: AFFECTS, from: {type: Incident, key: {incident_id: $.incident_id}}, to: {type: Service, key: {catalog_name: $.service}}}
+  - event: pdlc.ticket.updated
+    upsert:
+      - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, work_type: $.work_type}}
+    transition: {type: WorkItem, to: "map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})"}
+    edges:
+      - {type: DECOMPOSES_INTO, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.parent_key}}, to: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, when: $.parent_key}
+  - event: pdlc.decision.recorded
+    upsert:
+      - {type: Decision, key: {content_hash: "sha256($.statement)"}, set: {statement: $.statement, rationale: $.rationale, source_uri: $.source_uri, content_hash: "sha256($.statement)"}}
+    transition: {type: Decision, to: accepted}
+    edges:
+      - {type: SUPERSEDES, from: {type: Decision, key: {content_hash: "sha256($.statement)"}}, to: {type: Decision, key: {content_hash: $.supersedes_hash}}, when: $.supersedes_hash}
+  # Every rule implicitly adds DERIVED_FROM from each upserted node to the triggering Event (provenance).
+
+# LLM extraction: only for prose. The generated prompt lists these types with descriptions and examples,
+# and the generated output schema accepts only them.
+extraction:
+  sources: [pdlc.design.section_changed, pdlc.spec.approved, "core:observation.input"]
+  propose:
+    Decision:   {description: "A choice that was made, with its rationale, e.g. 'We will use idempotency keys on refund retries because…'", max_confidence: 0.8}
+    Constraint: {description: "A rule that limits future work, e.g. 'Refunds must never exceed the captured amount'", max_confidence: 0.8}
+    Lesson:     {description: "Something learned from an outcome, phrased as apply or avoid", max_confidence: 0.6}
+    IMPLEMENTS: {description: "An undeclared link from a change to the requirement it serves", method: inferred, max_confidence: 0.7}
+  never_propose: [Change, TestRun, Deployment, Incident, WorkItem]   # these come only from tool events
+
+retrieval:
+  seed_types: [Requirement, Decision, Constraint, Change, Service, Incident, WorkItem, Spec, DesignElement, Lesson]
+  intents:
+    trace:
+      description: "Follow a requirement or request through design, code, tests and deployment"
+      examples: ["where is PAY-341 deployed", "trace the refund retry requirement", "what implements REQ-12"]
+      weights: {REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3}
+      max_depth: 5
+    completeness:
+      description: "Find artifacts missing an expected link (requirement without test, change without review)"
+      examples: ["which requirements have no tests", "unreviewed merges last week"]
+      weights: {VERIFIES: 5, IMPLEMENTS: 5, REVIEWS: 4, REFINES: 3}
+      plugin: missing_links      # set difference is not a traversal; served by a query plugin
+    status:
+      description: "Current, non-superseded state of a decision, spec or design"
+      examples: ["is the idempotency decision still current", "latest version of the refunds HLD"]
+      weights: {SUPERSEDES: 5, CONTRADICTS: 4, DECIDED_BY: 2}
+    impact:
+      description: "What is affected if this changes"
+      examples: ["what depends on the ledger service", "what breaks if we change the refunds API"]
+      weights: {DEPENDS_ON: 5, CONSTRAINS: 4, AFFECTS: 3, OWNED_BY: 2}
+      direction: inbound
+    preflight:
+      description: "Before acting on an artifact, surface lessons, open incidents, failing tests and constraints"
+      examples: ["anything I should know before editing refund/retry.py"]
+      weights: {LEARNED_FROM: 5, AFFECTS: 4, CONSTRAINS: 5, RAN_AGAINST: 3, ATTRIBUTED_TO: 3}
+  core_intent_weights:            # additions to core intents when this pack is active
+    why: {IMPLEMENTS: 4, REFINES: 4, DECIDED_BY: 3, ATTRIBUTED_TO: 3, RAISES: 3}
+    who_is: {OWNED_BY: 5, DECIDED_BY: 4}
+
+lifecycle:
+  decay:
+    Constraint: {class: pinned, compressible: false}       # never summarised away (Governance Decay, AuthMem-Bench)
+    Decision:   {class: slow}
+    Requirement: {class: slow}
+    TestRun:    {class: fast, retain_days: 30}
+    Review:     {class: medium}
+    default:    {class: medium}
+  terminal_states_reduce_importance: [retired, cancelled, abandoned, deprecated, superseded]
+
+mappings:
+  prov:
+    Change: prov:Entity
+    TestRun: prov:Activity
+    Deployment: prov:Activity
+    Decision: prov:Entity
+    DECIDED_BY: prov:wasAttributedTo
+    SUPERSEDES: prov:wasRevisionOf
+  oslc:
+    Requirement: oslc_rm:Requirement
+    Spec: oslc_rm:RequirementCollection
+    WorkItem: oslc_cm:ChangeRequest
+    TestCase: oslc_qm:TestCase
+    TestRun: oslc_qm:TestExecutionRecord
+    IMPLEMENTS: oslc_cm:implementsRequirement
+    VERIFIES: oslc_qm:validatesRequirement
+  backstage:
+    Service: Component
+    Team: Group
+    OWNED_BY: ownedBy
+    DEPENDS_ON: dependsOn
+  essence:
+    Request: Opportunity
+    Requirement: Requirements
+    Service: SoftwareSystem
+    Team: Team
+    WorkItem: Work
+  synonyms:                       # SKOS-style altLabels for entity resolution and the extraction prompt
+    Change: [pull request, PR, merge request, MR, changeset]
+    WorkItem: [ticket, issue, story, task, bug]
+    Incident: [outage, sev, page]
+    Decision: [ADR, architecture decision]
