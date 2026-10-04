@@ -5,9 +5,16 @@ here and never import an adapter by name. Backends are chosen by
 ``StorageSettings`` (``CG_STORAGE_*``); each port maps backend names to an
 opener. Unknown names fail at start-up with the supported list.
 
-Today's backends are registered: Redis for the event log, subscriptions
-and keyword index; Neo4j for the graph and vector index; filesystem or
-GCS for the archive.
+Registered backends:
+
+- ``redis``: event log, subscriptions and keyword index (RediSearch);
+- ``neo4j``: graph and vector index;
+- ``memory``: every port, in process (reference backend, ADR-0019 §6),
+  not durable and not shared between processes;
+- ``fs`` / ``gcs``: archive.
+
+The keyword index is served by the event log backend and the vector
+index by the graph backend, so each must name the same backend.
 
 Source: ADR-0019
 """
@@ -32,16 +39,25 @@ if TYPE_CHECKING:
 
 log = structlog.get_logger(__name__)
 
-EVENT_LOG_BACKENDS = ("redis",)
-SUBSCRIPTION_BACKENDS = ("redis",)
-GRAPH_BACKENDS = ("neo4j",)
-KEYWORD_INDEX_BACKENDS = ("redis",)
-VECTOR_INDEX_BACKENDS = ("neo4j",)
+EVENT_LOG_BACKENDS = ("redis", "memory")
+SUBSCRIPTION_BACKENDS = ("redis", "memory")
+GRAPH_BACKENDS = ("neo4j", "memory")
+KEYWORD_INDEX_BACKENDS = ("redis", "memory")
+VECTOR_INDEX_BACKENDS = ("neo4j", "memory")
 ARCHIVE_BACKENDS = ("fs", "gcs")
 
 
 class UnknownBackendError(ValueError):
     """A ``CG_STORAGE_*`` value names a backend that is not registered."""
+
+
+def _require_same(port: str, backend: str, served_by: str, serving_backend: str) -> None:
+    if backend != serving_backend:
+        msg = (
+            f"{port} backend {backend!r} (CG_STORAGE_{port.upper()}) must match the "
+            f"{served_by} backend {serving_backend!r} that serves it"
+        )
+        raise UnknownBackendError(msg)
 
 
 def _require(port: str, backend: str, supported: tuple[str, ...]) -> None:
@@ -106,58 +122,33 @@ async def open_stores(
             f"backend {storage.event_log!r}"
         )
         raise UnknownBackendError(msg)
+    _require_same("keyword_index", storage.keyword_index, "event_log", storage.event_log)
+    _require_same("vector_index", storage.vector_index, "graph", storage.graph)
 
     closers: list[Callable[[], Awaitable[None]]] = []
 
-    # -- Event log + subscriptions (Redis) ---------------------------------
-    from redis.asyncio import Redis
-
-    from context_graph.adapters.redis.store import RedisEventStore
-    from context_graph.adapters.redis.subscription import RedisStreamSubscription
-
-    redis_settings = settings.redis
-    if prepare_ingest:
-        redis_event_log = await RedisEventStore.create(redis_settings)
-        await redis_event_log.ensure_indexes()
-        closers.append(redis_event_log.close)
-        redis_client = redis_event_log.client
+    if storage.event_log == "memory":
+        event_log, open_subscription = _open_memory_log(settings)
     else:
-        redis_client = Redis(
-            host=redis_settings.host,
-            port=redis_settings.port,
-            db=redis_settings.db,
-            password=(
-                redis_settings.password.get_secret_value() if redis_settings.password else None
-            ),
-            decode_responses=False,
+        event_log, open_subscription = await _open_redis_log(settings, prepare_ingest, closers)
+
+    if storage.graph == "memory":
+        from context_graph.adapters.memory.graph import MemoryGraphStore
+
+        graph: GraphBackend = MemoryGraphStore(
+            decay_settings=settings.decay, ppr_settings=settings.ppr
         )
-        redis_event_log = RedisEventStore(client=redis_client, settings=redis_settings)
-        closers.append(redis_client.aclose)
+    else:
+        from context_graph.adapters.neo4j.store import Neo4jGraphStore
 
-    event_log: EventLog = redis_event_log
-    consumer_settings = settings.consumer
-
-    def open_subscription(group_name: str, consumer_name: str) -> Subscription:
-        return RedisStreamSubscription(
-            redis_client,
-            group_name,
-            consumer_name,
-            consumer_settings.source,
-            claim_idle_ms=consumer_settings.claim_idle_ms,
-            claim_batch_size=consumer_settings.claim_batch_size,
-            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
-        )
-
-    # -- Graph (Neo4j) -----------------------------------------------------
-    from context_graph.adapters.neo4j.store import Neo4jGraphStore
-
-    graph = Neo4jGraphStore(settings.neo4j, query_settings=settings.query)
-    await graph.ensure_constraints()
-    closers.append(graph.close)
+        neo4j_graph = Neo4jGraphStore(settings.neo4j, query_settings=settings.query)
+        await neo4j_graph.ensure_constraints()
+        closers.append(neo4j_graph.close)
+        graph = neo4j_graph
 
     # -- Search indexes ----------------------------------------------------
-    # RediSearch BM25 is served by the Redis event log; the Neo4j vector
-    # index by the Neo4j graph store.
+    # Keyword search is served by the event log (RediSearch BM25 or the
+    # memory log's term match); vector search by the graph store.
     from context_graph.adapters.search import EventStoreKeywordIndex, GraphVectorIndex
 
     keyword_index = EventStoreKeywordIndex(event_log)
@@ -184,6 +175,74 @@ async def open_stores(
         _subscription_opener=open_subscription,
         _closers=closers,
     )
+
+
+async def _open_redis_log(
+    settings: Settings,
+    prepare_ingest: bool,
+    closers: list[Callable[[], Awaitable[None]]],
+) -> tuple[EventLog, Callable[[str, str], Subscription]]:
+    """Redis event log plus subscriptions sharing its connection."""
+    from redis.asyncio import Redis
+
+    from context_graph.adapters.redis.store import RedisEventStore
+    from context_graph.adapters.redis.subscription import RedisStreamSubscription
+
+    redis_settings = settings.redis
+    if prepare_ingest:
+        redis_event_log = await RedisEventStore.create(redis_settings)
+        await redis_event_log.ensure_indexes()
+        closers.append(redis_event_log.close)
+        redis_client = redis_event_log.client
+    else:
+        redis_client = Redis(
+            host=redis_settings.host,
+            port=redis_settings.port,
+            db=redis_settings.db,
+            password=(
+                redis_settings.password.get_secret_value() if redis_settings.password else None
+            ),
+            decode_responses=False,
+        )
+        redis_event_log = RedisEventStore(client=redis_client, settings=redis_settings)
+        closers.append(redis_client.aclose)
+
+    consumer_settings = settings.consumer
+
+    def open_subscription(group_name: str, consumer_name: str) -> Subscription:
+        return RedisStreamSubscription(
+            redis_client,
+            group_name,
+            consumer_name,
+            consumer_settings.source,
+            claim_idle_ms=consumer_settings.claim_idle_ms,
+            claim_batch_size=consumer_settings.claim_batch_size,
+            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
+        )
+
+    return redis_event_log, open_subscription
+
+
+def _open_memory_log(
+    settings: Settings,
+) -> tuple[EventLog, Callable[[str, str], Subscription]]:
+    """In-memory event log plus subscriptions over its stream."""
+    from context_graph.adapters.memory.log import MemoryEventLog
+    from context_graph.adapters.memory.stream import MemoryStream
+    from context_graph.adapters.memory.subscription import MemorySubscription
+
+    consumer_settings = settings.consumer
+    memory_log = MemoryEventLog(MemoryStream(consumer_settings.source))
+
+    def open_subscription(group_name: str, consumer_name: str) -> Subscription:
+        return MemorySubscription(
+            memory_log.stream,
+            group_name,
+            consumer_name,
+            claim_idle_ms=consumer_settings.claim_idle_ms,
+        )
+
+    return memory_log, open_subscription
 
 
 def _open_archive(

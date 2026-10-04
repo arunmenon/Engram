@@ -213,3 +213,30 @@ Step 2 (ports narrowed) is implemented. API responses are unchanged: existing re
 - `VectorIndex` covers queries only; embedding writes still go through `GraphStore.store_event_embedding`.
 - The extraction worker still calls `search_similar_entities` directly (entity resolution, not retrieval).
 - Not run against a live Neo4j: no Docker daemon in this environment. Equivalence rests on the pinned Cypher and the unchanged tests.
+
+## Step 3 implementation (2026-10-04)
+
+Step 3 (proof) is implemented: conformance suites for all five ports, and an in-memory backend that passes them alongside Redis and Neo4j.
+
+| Item | Where | Notes |
+|---|---|---|
+| In-memory backend | `adapters/memory/` (`log.py`, `stream.py`, `subscription.py`, `graph.py`) | Every port, selected with `CG_STORAGE_*=memory`. Semantics mirror the Redis and Neo4j adapters operation by operation: MERGE, None-removes-property, missing endpoints, ordering, consumer groups, dedup, retention. Single process, not durable. |
+| Conformance suites | `tests/conformance/` | EventLog (18 cases), Subscription (15), GraphStore + GraphMaintenance (24), UserStore (8), GraphReads (17, including the engine on each backend's reads), KeywordIndex / VectorIndex (3). Each runs per backend: memory always; Redis and Neo4j marked `integration`. |
+| CI | `.github/workflows/ci.yml` (pending) | Intended: the unit job runs the memory suites, and the integration job runs the Redis Stack and Neo4j suites with `CG_CONFORMANCE_REQUIRE_SERVICES=1`, so a missing service fails rather than skips. Not yet in the workflow: the session's GitHub App may not edit workflow files, so the two steps must be added by a person (see the step-3 hand-off). |
+| End-to-end proof | `tests/unit/test_memory_backend_end_to_end.py` | With every backend set to `memory`, events are ingested through the API and drained by the real projection and enrichment workers. Context, lineage, subgraph and health then answer through the real routes and engine. |
+
+**Results in this environment:**
+- **Memory:** every suite passes.
+- **Neo4j 5.26** (in-process server from Maven Central's `neo4j-harness`): all 51 graph conformance cases pass, and all 69 existing Neo4j integration tests pass. This is the first live check of the step-2 Cypher.
+- **Redis 7.0 (plain):** the Subscription suite passes.
+- **Not run here:** the Redis event-log suite needs RedisJSON and RediSearch, which are not installable in this environment. CI's `redis-stack` service runs it.
+
+**Defects the suites found, fixed here:**
+- `RedisStreamSubscription.read_new(count, 0)` blocked forever, because `XREADGROUP BLOCK 0` means "wait indefinitely" in Redis while the port says "do not wait". `BLOCK` is now omitted when `block_ms <= 0`. Workers always pass a positive timeout, so production was not affected.
+- `RedisStreamSubscription.lag()` always returned None: `XINFO GROUPS` returns the group name as bytes. Now decoded; the consumer-lag metric works.
+- Step 2 removed `Neo4jGraphStore._bump_access_counts`, which an integration test still calls; restored as a delegate to the graph reads.
+
+**Known gaps:**
+- **Keyword (BM25) channel:** RediSearch indexes `$.summary` and `$.keywords` on event documents, but ingested events never carry those fields (the `Event` model has neither), so the keyword seed channel finds nothing in practice. The memory backend mirrors this; the suite exercises the index by writing those fields directly. Making the channel useful needs a decision on what text events should carry.
+- **PDLC question set:** "graph answers on the PDLC question set" (§5) waits for the ADR-0018 generic projector; the ontology packs are not implemented yet.
+- **Generic operations:** the ADR-0018 generic graph operations (`upsert_nodes`, `neighbors`, …) and generic fallbacks for named operations are not added. Each backend implements the named operations directly; the memory backend shows what a fallback would compute.

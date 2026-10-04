@@ -202,7 +202,7 @@ class RedisStreamSubscription:
 
     # -- Reads and acknowledgement -----------------------------------------
 
-    async def _read(self, stream_id: str, count: int, block_ms: int) -> list[Delivery]:
+    async def _read(self, stream_id: str, count: int, block_ms: int | None) -> list[Delivery]:
         response: Any = await self._redis.xreadgroup(
             groupname=self._group_name,
             consumername=self._consumer_name,
@@ -223,8 +223,12 @@ class RedisStreamSubscription:
         return await self._read("0", count, 0)
 
     async def read_new(self, count: int, block_ms: int) -> list[Delivery]:
-        """XREADGROUP from ID ``>``: messages never delivered to the group."""
-        return await self._read(">", count, block_ms)
+        """XREADGROUP from ID ``>``: messages never delivered to the group.
+
+        ``BLOCK 0`` means "wait forever" in Redis, but the port defines
+        ``block_ms <= 0`` as "do not wait", so BLOCK is omitted then.
+        """
+        return await self._read(">", count, block_ms if block_ms > 0 else None)
 
     async def ack(self, *positions: str) -> None:
         await self._redis.xack(self._stream_key, self._group_name, *positions)
@@ -236,7 +240,8 @@ class RedisStreamSubscription:
         try:
             info: list[dict[str, Any]] = await self._redis.xinfo_groups(self._stream_key)
             for group in info:
-                if group.get("name") == self._group_name:
+                # The name is bytes on a client without decode_responses
+                if _decode(group.get("name", b"")) == self._group_name:
                     return max(0, int(group.get("lag", 0)))
         except Exception:  # noqa: BLE001
             return None  # Non-critical metric, don't crash on failure

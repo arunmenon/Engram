@@ -62,16 +62,21 @@ src/context_graph/
         search.py             # KeywordIndex / VectorIndex, SearchHit with 0-1 scores (ADR-0019)
         retrieval.py          # Retrieval protocol used by context/lineage/query routes
         errors.py             # Neutral storage errors; adapters translate driver errors
-    retrieval/                # Backend-neutral retrieval engine (ADR-0019) — ports only
-        engine.py             # get_subgraph / get_context / get_lineage
-        atlas.py              # Atlas node + adjacency helpers
         graph_store.py        # GraphStore protocol
         embedding.py          # EmbeddingService protocol
         extraction.py         # ExtractionService protocol
+    retrieval/                # Backend-neutral retrieval engine (ADR-0019) — ports only
+        engine.py             # get_subgraph / get_context / get_lineage
+        atlas.py              # Atlas node + adjacency helpers
     adapters/
         registry.py           # Opens stores by CG_STORAGE_* (ADR-0019); the only way in from api/ and worker/
         search.py             # KeywordIndex/VectorIndex over EventStore/GraphStore search methods
         errors.py             # translate_errors class decorator
+        memory/               # In-memory reference backend for every port (CG_STORAGE_*=memory)
+            log.py            # EventLog
+            stream.py         # Stream + consumer groups shared by log and subscriptions
+            subscription.py   # Subscription
+            graph.py          # GraphBackend (GraphStore, GraphMaintenance, UserStore, GraphReads)
         redis/                # Redis Stack EventStore implementation
             store.py          # XADD, JSON.SET, FT.SEARCH
             subscription.py   # Consumer groups: XREADGROUP, XACK, XAUTOCLAIM, DLQ
@@ -185,6 +190,7 @@ Optional: `tool_name`, `parent_event_id` (UUID), `ended_at`, `status`, `schema_v
 - Event types: dot-namespaced (`agent.invoke`, `tool.execute`)
 - Edge types: UPPER_SNAKE_CASE (`CAUSED_BY`, `SIMILAR_TO`)
 - Redis keys: colon-namespaced (`evt:{event_id}`, `events:{session_id}`)
+- Storage backends: a new or changed adapter must pass `tests/conformance/` (ADR-0019 §5); the memory backend is the reference and runs in the unit job, Redis and Neo4j run in the integration job
 
 ## API Response Pattern
 

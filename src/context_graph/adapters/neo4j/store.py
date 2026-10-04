@@ -420,6 +420,11 @@ class Neo4jGraphStore:
     # constructor dependencies.
     # ------------------------------------------------------------------
 
+    async def _bump_access_counts(self, event_ids: list[str]) -> None:
+        """Increment access_count for a batch of event nodes (kept for existing callers)."""
+        if event_ids:
+            await self._reads.record_access(event_ids, datetime.now(UTC).isoformat())
+
     async def get_context(
         self,
         session_id: str,

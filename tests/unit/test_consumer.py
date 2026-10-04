@@ -456,6 +456,17 @@ class TestConsumerLagMetric:
         redis.xinfo_groups.assert_called_once_with("stream:test")
 
     @pytest.mark.asyncio()
+    async def test_update_lag_metric_matches_bytes_group_name(self):
+        """Workers' Redis client returns bytes; the group must still match."""
+        from context_graph.metrics import CONSUMER_LAG
+
+        redis = AsyncMock()
+        redis.xinfo_groups.return_value = [{"name": b"bytes-group", "lag": 42}]
+        consumer = StubConsumer(redis, "bytes-group", "c1", "stream:test")
+        await consumer._update_lag_metric()
+        assert CONSUMER_LAG.labels(group="bytes-group")._value.get() == 42
+
+    @pytest.mark.asyncio()
     async def test_update_lag_metric_ignores_other_groups(self):
         """Only the matching group name should be used."""
         redis = AsyncMock()
