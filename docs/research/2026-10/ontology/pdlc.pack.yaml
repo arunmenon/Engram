@@ -6,7 +6,7 @@
 
 pack:
   name: pdlc
-  version: 0.1.0
+  version: 0.2.0   # 0.2: names verified against CDEvents and OSLC vocabularies; trace-link, supersession and trust rules from the R10/R4/R8 briefs
   requires: [core>=1.0]          # Event, Entity, DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS
   owner: TBD                     # decision 4 in the design doc
   description: Requests, specs, requirements, decisions, work, changes, verification, deployment and operations.
@@ -18,6 +18,7 @@ interfaces:
   Anchored:    {properties: {source_uri: string, content_hash: string, anchor_path: string}}
   Versioned:   {properties: {version: string}}
   Claim:       {properties: {confidence: float, method: string}, note: "a belief, not a fact; never auto-promoted to declared"}
+  Sourced:     {properties: {source_trust: {enum: [trusted, untrusted]}}, note: "set from the emitting source's allowlist entry, never from content; every PDLC node is Sourced (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)"}
 
 types:
   nodes:
@@ -44,7 +45,7 @@ types:
     Decision:
       key: [content_hash]
       interfaces: [Lifecycled, Anchored, Claim]
-      properties: {statement: text, rationale: text, alternatives: text, decided_at: datetime}
+      properties: {statement: text, rationale: text, alternatives: text, decided_at: datetime, valid_from: datetime, valid_to: datetime}
       lifecycle: {initial: proposed, states: [proposed, accepted, superseded, reversed]}
       text_fields: [statement, rationale]
       embed_fields: [statement]
@@ -65,7 +66,7 @@ types:
     WorkItem:
       key: [tracker, external_key]
       interfaces: [Lifecycled, Owned]
-      properties: {tracker: string, external_key: string, title: string, work_type: {enum: [epic, story, task, bug]}}
+      properties: {tracker: string, external_key: string, title: string, work_type: {enum: [epic, story, task, bug]}, priority: string, labels: "list<string>", milestone: string, assignees: "list<string>", resolution: string}
       lifecycle: {initial: open, states: [open, in_progress, done, cancelled]}
       text_fields: [title]
     Change:
@@ -84,7 +85,7 @@ types:
       lifecycle: {initial: active, states: [active, quarantined, retired]}
     TestRun:
       key: [run_id]
-      properties: {run_id: string, outcome: {enum: [passed, failed, error, skipped]}, commit_sha: string, finished_at: datetime}
+      properties: {run_id: string, outcome: {enum: [success, failure, cancel, error, skipped]}, severity: {enum: [low, medium, high, critical]}, test_type: string, commit_sha: string, finished_at: datetime}
     Deployment:
       key: [environment, artifact_id, started_at]
       interfaces: [Lifecycled]
@@ -98,7 +99,7 @@ types:
     Incident:
       key: [incident_id]
       interfaces: [Lifecycled, Owned]
-      properties: {incident_id: string, severity: string, title: string, summary: text}
+      properties: {incident_id: string, severity: string, title: string, summary: text, environment: string, artifact_id: string, ticket_uri: string}
       lifecycle: {initial: detected, states: [detected, mitigated, resolved, postmortem_done]}
       text_fields: [title, summary]
       embed_fields: [title, summary]
@@ -114,10 +115,10 @@ types:
       embed_fields: [statement]
 
   edges:
-    REFINES:         {from: [Spec, Requirement, DesignElement], to: [Request, Spec, Requirement]}
+    REFINES:         {from: [Spec, Requirement, DesignElement], to: [Request, Spec, Requirement], requires: [confidence, method, link_status]}
     DECOMPOSES_INTO: {from: [Spec, WorkItem], to: [WorkItem], properties: {order: int}}
-    IMPLEMENTS:      {from: [Change], to: [WorkItem, Requirement, DesignElement], requires: [confidence, method]}
-    VERIFIES:        {from: [TestCase], to: [Requirement, Change], requires: [confidence, method]}
+    IMPLEMENTS:      {from: [Change, WorkItem], to: [WorkItem, Requirement, DesignElement], requires: [confidence, method, link_status]}
+    VERIFIES:        {from: [TestCase], to: [Requirement, Change, WorkItem], requires: [confidence, method, link_status]}
     EXECUTES:        {from: [TestRun], to: [TestCase]}
     RAN_AGAINST:     {from: [TestRun], to: [Change], properties: {commit_sha: string}}
     REVIEWS:         {from: [Review], to: [Change]}
@@ -128,10 +129,20 @@ types:
     DEPENDS_ON:      {from: [WorkItem, Service], to: [WorkItem, Service], properties: {kind: {enum: [blocks, needs]}}}
     OWNED_BY:        {from: [Service, WorkItem, Request], to: [Team, "core:Entity"]}
     AFFECTS:         {from: [Incident], to: [Service]}
-    ATTRIBUTED_TO:   {from: [Incident], to: [Change, Deployment], requires: [confidence, method]}
+    OCCURRED_ON:     {from: [Incident], to: [Deployment], note: "declared: CDEvents incident subject carries environment and artifactId"}
+    ATTRIBUTED_TO:   {from: [Incident], to: [Change], requires: [confidence, method, link_status]}
     REMEDIATES:      {from: [Change], to: [Incident]}
     RAISES:          {from: [Incident], to: [Request]}
     LEARNED_FROM:    {from: [Lesson], to: [Incident, Change]}
+  # Trace-link policy (BRIEF E-20261002-01-r2): a confidence cut-off at write time left about 1 trail in 3 intact in the
+  # source study, and the confidence was never calibrated. So links are never dropped at write time.
+  link_policy:
+    applies_to: [REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO]
+    link_status: {enum: [proposed, confirmed, rejected], declared_links_start_as: confirmed, inferred_links_start_as: proposed}
+    write_time_threshold: none                     # store every proposed link with its score
+    read_time_threshold: per_edge_type_fitted      # fitted on our own labelled data, per type (B14)
+    scoring_question: yes_no                       # score inferred links with a yes/no question, not a 5-band scale (ordinal-scale finding)
+    completeness_reports: [no_link, proposed_only, confirmed]   # "no test" and "only an unconfirmed test link" are different answers
   # Core edges this pack extends to its own types (endpoint additions only):
   extends_core_edges:
     SUPERSEDES:   {from: [Decision, Spec, DesignElement], to: [Decision, Spec, DesignElement]}
@@ -146,11 +157,15 @@ events:
   pdlc.change.reviewed:       {aliases: {cdevents: dev.cdevents.change.reviewed}}
   pdlc.change.merged:         {aliases: {cdevents: dev.cdevents.change.merged}}
   pdlc.change.abandoned:      {aliases: {cdevents: dev.cdevents.change.abandoned}}
+  pdlc.change.updated:        {aliases: {cdevents: dev.cdevents.change.updated}}
   pdlc.testcaserun.finished:  {aliases: {cdevents: dev.cdevents.testcaserun.finished}}
+  pdlc.testcaserun.skipped:   {aliases: {cdevents: dev.cdevents.testcaserun.skipped}}
   pdlc.service.deployed:      {aliases: {cdevents: dev.cdevents.service.deployed}}
   pdlc.service.rolledback:    {aliases: {cdevents: dev.cdevents.service.rolledback}}
+  pdlc.service.upgraded:      {aliases: {cdevents: dev.cdevents.service.upgraded}}
   pdlc.incident.detected:     {aliases: {cdevents: dev.cdevents.incident.detected}}
   pdlc.incident.resolved:     {aliases: {cdevents: dev.cdevents.incident.resolved}}
+  pdlc.incident.reported:     {aliases: {cdevents: dev.cdevents.incident.reported}}
   pdlc.ticket.created:        {aliases: {cdevents: dev.cdevents.ticket.created}}
   pdlc.ticket.updated:        {aliases: {cdevents: dev.cdevents.ticket.updated}}
   pdlc.ticket.closed:         {aliases: {cdevents: dev.cdevents.ticket.closed}}
@@ -176,7 +191,7 @@ projection:
       - type: IMPLEMENTS
         from: {type: Change, key: {repo: $.repo, number: $.number}}
         to_each: {type: WorkItem, key: {tracker: jira, external_key: "regex($.body, '(?i)(?:fixes|closes|resolves)\\s+([A-Z][A-Z0-9]+-\\d+)')"}}
-        set: {confidence: 1.0, method: declared}
+        set: {confidence: 1.0, method: declared, link_status: confirmed}
   - event: pdlc.change.reviewed
     upsert:
       - {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}, set: {verdict: $.verdict}}
@@ -200,11 +215,12 @@ projection:
       - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
   - event: pdlc.incident.detected
     upsert:
-      - {type: Incident, key: {incident_id: $.incident_id}, set: {severity: $.severity, title: $.title}}
+      - {type: Incident, key: {incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}
       - {type: Service, key: {catalog_name: $.service}}
     transition: {type: Incident, to: detected}
     edges:
       - {type: AFFECTS, from: {type: Incident, key: {incident_id: $.incident_id}}, to: {type: Service, key: {catalog_name: $.service}}}
+      - {type: OCCURRED_ON, from: {type: Incident, key: {incident_id: $.incident_id}}, to_latest: {type: Deployment, match: {environment: $.environment, artifact_id: $.artifact_id}}, when: $.artifact_id}
   - event: pdlc.ticket.updated
     upsert:
       - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, work_type: $.work_type}}
@@ -217,7 +233,8 @@ projection:
     transition: {type: Decision, to: accepted}
     edges:
       - {type: SUPERSEDES, from: {type: Decision, key: {content_hash: "sha256($.statement)"}}, to: {type: Decision, key: {content_hash: $.supersedes_hash}}, when: $.supersedes_hash}
-  # Every rule implicitly adds DERIVED_FROM from each upserted node to the triggering Event (provenance).
+  # Every rule implicitly adds DERIVED_FROM from each upserted node to the triggering Event (provenance),
+  # and sets source_trust from the emitting source's allowlist entry.
 
 # LLM extraction: only for prose. The generated prompt lists these types with descriptions and examples,
 # and the generated output schema accepts only them.
@@ -227,7 +244,8 @@ extraction:
     Decision:   {description: "A choice that was made, with its rationale, e.g. 'We will use idempotency keys on refund retries because…'", max_confidence: 0.8}
     Constraint: {description: "A rule that limits future work, e.g. 'Refunds must never exceed the captured amount'", max_confidence: 0.8}
     Lesson:     {description: "Something learned from an outcome, phrased as apply or avoid", max_confidence: 0.6}
-    IMPLEMENTS: {description: "An undeclared link from a change to the requirement it serves", method: inferred, max_confidence: 0.7}
+    IMPLEMENTS: {description: "An undeclared link from a change to the requirement it serves", method: inferred, max_confidence: 0.7, link_status: proposed, scoring_question: "Does this change implement this requirement? yes/no"}
+    VERIFIES:   {description: "An undeclared link from a test to the requirement it checks", method: inferred, link_status: proposed, scoring_question: "Does this test check this requirement? yes/no"}
   never_propose: [Change, TestRun, Deployment, Incident, WorkItem]   # these come only from tool events
 
 retrieval:
@@ -256,6 +274,10 @@ retrieval:
       description: "Before acting on an artifact, surface lessons, open incidents, failing tests and constraints"
       examples: ["anything I should know before editing refund/retry.py"]
       weights: {LEARNED_FROM: 5, AFFECTS: 4, CONSTRAINS: 5, RAN_AGAINST: 3, ATTRIBUTED_TO: 3}
+  admission:                      # what may reach the agent's context (BRIEF E-20261004-02, B11)
+    superseded_or_reversed: {default: exclude, include_for_intents: [status, why], label_as: superseded}
+    untrusted_uncorroborated: {default: exclude_from_action_context, available_via: lookup_untrusted}
+    proposed_links: {default: show_with_confidence, never_counted_as: confirmed}
   core_intent_weights:            # additions to core intents when this pack is active
     why: {IMPLEMENTS: 4, REFINES: 4, DECIDED_BY: 3, ATTRIBUTED_TO: 3, RAISES: 3}
     who_is: {OWNED_BY: 5, DECIDED_BY: 4}
@@ -283,9 +305,11 @@ mappings:
     Spec: oslc_rm:RequirementCollection
     WorkItem: oslc_cm:ChangeRequest
     TestCase: oslc_qm:TestCase
-    TestRun: oslc_qm:TestExecutionRecord
-    IMPLEMENTS: oslc_cm:implementsRequirement
-    VERIFIES: oslc_qm:validatesRequirement
+    TestRun: oslc_qm:TestResult
+    IMPLEMENTS: "oslc_cm:implementsRequirement (WorkItem->Requirement); inverse of oslc_cm:tracksChangeSet (Change->WorkItem)"
+    VERIFIES: "oslc_qm:validatesRequirement (->Requirement); oslc_qm:testsChangeRequest (->WorkItem)"
+    EXECUTES: oslc_qm:reportsOnTestCase
+    DECOMPOSES_INTO: "inverse of oslc_cm:parent"
   backstage:
     Service: Component
     Team: Group

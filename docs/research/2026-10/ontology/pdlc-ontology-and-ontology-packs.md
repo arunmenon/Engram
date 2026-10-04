@@ -291,7 +291,26 @@ Contract-freeze note: `models.py`, `settings.py`, `store.py` and the Phase 0 inf
 3. Which tools emit first: GitHub and Jira are assumed. Confirm, or name the internal equivalents.
 4. Where the PDLC pack's owner sits. The pack is reviewed like code; someone has to own its weights and its eval set.
 
+## 7. Revision 0.2 of the PDLC pack (2026-10-04)
+
+Checked against the source vocabularies (CDEvents spec files and the OSLC CM and QM vocabularies on GitHub), and against the R10, R4 and R8 briefs on the research bus.
+
+**Verified, with corrections.**
+- Every CDEvents type used in the pack exists. Added `change.updated`, `testcaserun.skipped`, `service.upgraded`, `incident.reported`.
+- Test outcomes are CDEvents' `success | failure | cancel | error` (plus a separate skipped event), not `passed | failed`.
+- Ticket events carry type, priority, labels, milestone, assignees and resolution; WorkItem now has those fields.
+- Incident events carry `environment` and `artifactId`. That makes "this incident happened on this deployment" a declared fact (new edge `OCCURRED_ON`). "This change caused it" stays a belief (`ATTRIBUTED_TO`, now Change only).
+- OSLC puts `implementsRequirement` on the ticket and links the ticket to code with `tracksChangeSet`. `IMPLEMENTS` now allows WorkItem → Requirement as well as Change → WorkItem/Requirement. `VERIFIES` may also point at a WorkItem (OSLC `testsChangeRequest`). A test run maps to OSLC `TestResult`, not `TestExecutionRecord`.
+
+**Taken from the briefs.**
+- *Never drop unsure trace links* (R10, BRIEF E-20261002-01-r2). Inferred links are stored as `proposed` with their score. Declared links start `confirmed`. The cut-off is applied at read time, per edge type, fitted on our own labels. Completeness answers distinguish "no link", "only an unconfirmed link" and "confirmed". Inferred links are scored with a yes/no question, not a five-band scale.
+- *Outdated decisions are the everyday failure* (R4, BRIEF E-20261004-02). Decisions get `valid_from` and `valid_to`. Superseded or reversed decisions are excluded from the agent's context by default and shown only for `status` and `why` questions, labelled as superseded.
+- *Planted false facts pass content filters* (R8, BRIEF E-20261003-01-r2). Every PDLC node records `source_trust` from the emitting source's allowlist, never from its content. Untrusted, uncorroborated items stay out of the action context and are reachable only through an explicit lookup.
+- The briefs also rely on a seeded PDLC fixture built from public Apache data (`PDLC-SEED-ASF`) and a planned PDLC memory benchmark. Those are the natural test bed for the pack, since we have no internal data to check it against.
+
+**Still unverified.** Backstage relation names, OMG Essence state names, and the 2026 papers (used through earlier digests). None of them changes a type or edge in the pack.
+
 ## Sources
 
-External: [CDEvents spec](https://github.com/cdevents/spec), [CD Foundation, CDEvents in action](https://cd.foundation/blog/2023/12/05/cdevents-in-action/), [OSLC specifications](https://www.open-services.net/specifications), [OSLC Change Management 3.0](https://docs.oasis-open.org/oslc-domains/cm/v3.0/cs01/part1-change-mgt/cm-v3.0-cs01-part1-change-mgt.html), [OSLC Quality Management](https://open-services.net/spec/qm/latest-draft), [Backstage system model](https://backstage.io/docs/features/software-catalog/system-model), [OMG Essence overview (Linköping course notes)](https://www.ida.liu.se/~TDDE46/theory/essence.pdf), [Palantir ontology core concepts](https://www.palantir.com/docs/foundry/ontology/core-concepts), [LinkML property-graph how-to](https://linkml.io/linkml/howtos/model-property-graphs.html), [LinkML Pydantic generator](https://linkml.io/linkml/generators/pydantic.html).
+External: [CDEvents spec](https://github.com/cdevents/spec) (source-code, testing, deployment and operations spec files read directly), [OSLC CM vocabulary](https://github.com/oslc-op/oslc-specs/blob/master/specs/cm/change-mgt-vocab.ttl), [OSLC QM vocabulary](https://github.com/oslc-op/oslc-specs/blob/master/specs/qm/quality-management-vocab.ttl), [CD Foundation, CDEvents in action](https://cd.foundation/blog/2023/12/05/cdevents-in-action/), [OSLC specifications](https://www.open-services.net/specifications), [OSLC Change Management 3.0](https://docs.oasis-open.org/oslc-domains/cm/v3.0/cs01/part1-change-mgt/cm-v3.0-cs01-part1-change-mgt.html), [OSLC Quality Management](https://open-services.net/spec/qm/latest-draft), [Backstage system model](https://backstage.io/docs/features/software-catalog/system-model), [OMG Essence overview (Linköping course notes)](https://www.ida.liu.se/~TDDE46/theory/essence.pdf), [Palantir ontology core concepts](https://www.palantir.com/docs/foundry/ontology/core-concepts), [LinkML property-graph how-to](https://linkml.io/linkml/howtos/model-property-graphs.html), [LinkML Pydantic generator](https://linkml.io/linkml/generators/pydantic.html).
 Internal: ADR-0009, ADR-0011, ADR-0012; `docs/research/2026-09/pdlc-memory-layer.md` (first PDLC sketch, superseded in part by §3 here); `docs/research/2026-09/pdlc-grounding/jetstream-reference-transcription.md` (spine, C6, ontology dimensions); `docs/research/ontology-*.md` (February ontology research).
