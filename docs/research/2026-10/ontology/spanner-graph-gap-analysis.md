@@ -115,6 +115,29 @@ Why this layout:
 4. Cost at our expected scale (events per day, retained graph size, query rate). Not estimated here.
 5. Is there appetite to also move the ledger (Redis Streams) onto Spanner change streams later? Out of scope; noted because it would revisit ADR-0003 and ADR-0010.
 
+## 7. Cost of a quick experiment (added 2026-10-04)
+
+Prices from search extracts of Google's pricing and editions pages; confirm in the console's pricing calculator before creating anything.
+
+| Option | What you get | Cost |
+|---|---|---|
+| Spanner emulator (local Docker) | validates DDL, GQL syntax and the adapter code; no real latency numbers; graph support in the emulator still to confirm | $0 |
+| **Free trial instance** | 90 days, Enterprise features including Spanner Graph, vector and full-text search; not charged unless both the billing account and the instance are explicitly upgraded; after 90 days it stops serving, then is deleted after a 30-day grace period | **$0** |
+| Paid, smallest regional Enterprise instance (100 processing units) | real instance, same features | about $0.123 per hour (Enterprise $1.23 per node-hour; 100 PU = 0.1 node); storage $0.39 per GB-month |
+
+Paid instance, by how long it stays up:
+
+| Duration | Compute | Storage (about 1 GB of test graph) | Total |
+|---|---|---|---|
+| 4 hours | about $0.50 | under $0.01 | about $0.50 |
+| 1 working day (8 h) | about $1 | under $0.02 | about $1 |
+| forgotten for a week | about $21 | about $0.10 | about $21 |
+| forgotten for a month | about $90 | about $0.40 | about $90 |
+
+The only real cost risk is leaving an instance running. Mitigations: use the free trial instance if the project is eligible; otherwise set a project budget alert at $10 before creating anything, label the instance `purpose=spike`, and delete it the same day.
+
+Suggested experiment (half a day, inside the free trial): create the schemaless `Nodes`/`Edges` tables and property graph from §3; replay about 50,000 events from the ledger format through a throwaway loader; time five operations against the same data on Neo4j: batch upsert of 1,000 nodes, neighbour expansion from 50 seeds, 3-hop lineage, `SAME_AS*0..3` cluster read, vector top-20. Output: a latency table and a list of query rewrites that did not behave the same.
+
 ## 6. Confidence and sources
 
 Google's documentation domain was blocked for direct fetch from this session, so the Spanner facts above come from search-result extracts of the official pages, not full reads. Items marked "verify" must be checked against the docs before design sign-off. The Python client facts come from inspecting the `google-cloud-spanner` 3.71.0 wheel. Engram facts come from this branch's code.
