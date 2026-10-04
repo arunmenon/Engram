@@ -36,6 +36,7 @@ import structlog
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.domain.models import Event
+from context_graph.ports.event_log import ImportedEvent, LogEntry
 
 if TYPE_CHECKING:
     from context_graph.domain.models import EventQuery
@@ -61,6 +62,7 @@ EVENT_COLUMNS = [
     "dedup_active",
     "summary",
     "keywords",
+    "legacy_position",
 ]
 
 # Columns that rebuild a position
@@ -209,6 +211,7 @@ class SpannerEventLog:
             True,
             _text(doc.get("summary")),
             _text(doc.get("keywords")),
+            doc.get("legacy_position"),
         ]
 
     def _append_entries_sync(
@@ -288,6 +291,75 @@ class SpannerEventLog:
             )
         positions: list[str] = await self._run(self._append_entries_sync, entries)
         return positions
+
+    # -- migration (ADR-0019 §7, design brief phase 3) ------------------------
+
+    async def append_imported(self, events: list[ImportedEvent]) -> list[str]:
+        """Import copied events in one transaction; ``batch_index`` keeps their order."""
+        if not events:
+            return []
+        entries = []
+        for imported in events:
+            document = dict(imported.document)
+            document.pop("global_position", None)
+            document["legacy_position"] = imported.legacy_position
+            occurred_at = datetime.fromisoformat(str(document["occurred_at"]))
+            entries.append(
+                (
+                    str(document["event_id"]),
+                    str(document["session_id"]),
+                    document,
+                    _epoch_ms(occurred_at),
+                )
+            )
+        positions: list[str] = await self._run(self._append_entries_sync, entries)
+        return positions
+
+    async def last_legacy_position(self) -> str | None:
+        rows = await self._query(
+            "SELECT legacy_position FROM Events WHERE legacy_position IS NOT NULL "
+            "ORDER BY commit_ts DESC, batch_index DESC, event_id DESC LIMIT 1"
+        )
+        return str(rows[0][0]) if rows else None
+
+    async def has_native_events(self) -> bool:
+        rows = await self._query("SELECT 1 FROM Events WHERE legacy_position IS NULL LIMIT 1")
+        return bool(rows)
+
+    async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
+        from google.cloud.spanner_v1 import param_types
+
+        where = ["in_log"]
+        params: dict[str, Any] = {"limit": limit}
+        types: dict[str, Any] = {"limit": param_types.INT64}
+        if position:
+            timestamp, batch_index, event_id = position.split("/", 2)
+            where.append(
+                "(commit_ts > CAST(@ts AS TIMESTAMP) OR (commit_ts = CAST(@ts AS TIMESTAMP) "
+                "AND (batch_index > @batch OR (batch_index = @batch AND event_id > @event_id))))"
+            )
+            params.update({"ts": timestamp, "batch": int(batch_index), "event_id": event_id})
+            types.update(
+                {
+                    "ts": param_types.STRING,
+                    "batch": param_types.INT64,
+                    "event_id": param_types.STRING,
+                }
+            )
+        rows = await self._query(
+            f"SELECT document, {POSITION_COLUMNS} FROM Events WHERE {' AND '.join(where)} "
+            f"ORDER BY {POSITION_COLUMNS} LIMIT @limit",
+            params,
+            types,
+        )
+        return [
+            LogEntry(
+                position=format_position(ts, batch, eid),
+                event_id=eid,
+                document=self._public(doc, ts, batch, eid),
+            )
+            for doc, ts, batch, eid in rows
+        ]
 
     async def append_entry(self, event_id: str, session_id: str) -> str:
         """Append a bare log entry with no document (test support for subscriptions)."""
@@ -478,12 +550,14 @@ class SpannerEventLog:
     async def trim(self, max_age_days: int, consumer_groups: list[str]) -> int:
         from google.cloud.spanner_v1 import param_types
 
-        cutoff = datetime.now(UTC) - timedelta(days=max_age_days)
+        # Commit timestamps come from the database clock, so the cutoff does
+        # too: a skewed application host must not trim fresh entries.
         # An entry is still needed by a group while it is pending for it or
         # lies after the group's cursor in its shard (not yet delivered).
         sql = (
             "UPDATE Events e SET in_log = FALSE "
-            "WHERE e.in_log AND e.commit_ts < @cutoff "
+            "WHERE e.in_log "
+            "AND e.commit_ts < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY) "
             "AND NOT EXISTS (SELECT 1 FROM ConsumerDeliveries d "
             "  WHERE d.group_name IN UNNEST(@groups) AND d.event_id = e.event_id) "
             "AND NOT EXISTS (SELECT 1 FROM ConsumerCursors c "
@@ -496,9 +570,9 @@ class SpannerEventLog:
             [
                 (
                     sql,
-                    {"cutoff": cutoff, "groups": list(consumer_groups)},
+                    {"days": max_age_days, "groups": list(consumer_groups)},
                     {
-                        "cutoff": param_types.TIMESTAMP,
+                        "days": param_types.INT64,
                         "groups": param_types.Array(param_types.STRING),
                     },
                 )
@@ -559,12 +633,11 @@ class SpannerEventLog:
         from google.cloud.spanner_v1 import param_types
 
         dedup_cutoff_ms = _epoch_ms(datetime.now(UTC) - timedelta(days=retention_ceiling_days))
-        session_cutoff = datetime.now(UTC) - timedelta(hours=session_index_max_age_hours)
         stale_sessions = await self._query(
-            "SELECT session_id FROM Events WHERE in_session_index "
-            "GROUP BY session_id HAVING MAX(commit_ts) < @cutoff",
-            {"cutoff": session_cutoff},
-            {"cutoff": param_types.TIMESTAMP},
+            "SELECT session_id FROM Events WHERE in_session_index GROUP BY session_id "
+            "HAVING MAX(commit_ts) < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @hours HOUR)",
+            {"hours": session_index_max_age_hours},
+            {"hours": param_types.INT64},
         )
         session_ids = [row[0] for row in stale_sessions]
         dedup_removed, _ = await self._execute_updates(

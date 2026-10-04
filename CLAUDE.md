@@ -55,7 +55,7 @@ src/context_graph/
         entity_resolution.py  # Three-tier entity resolution
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
-        event_log.py          # EventLog protocol: worker reads + retention (ADR-0019)
+        event_log.py          # EventLog protocol: worker reads, retention, ordered read_after; MigrationTarget (ADR-0019)
         subscription.py       # Subscription protocol: consumer groups (ADR-0019)
         graph_reads.py        # GraphReads protocol: bounded reads for retrieval (ADR-0019)
         graph_backend.py      # GraphBackend: GraphStore + GraphMaintenance + UserStore + reads
@@ -103,6 +103,10 @@ src/context_graph/
         routes/               # events, context, query, lineage, health, entities, admin, users
         middleware.py         # Error handling, metrics
         dependencies.py       # Dependency injection
+    migration/                # Ledger copy, mirror (dual run) and comparison between backends (ADR-0019 §7)
+        mirror.py             # LogMirror: ordered read → import with legacy_position; target is its checkpoint
+        compare.py            # Ledger / graph / retrieval divergence reports
+        __main__.py           # python -m context_graph.migration copy|mirror|compare --to <backend>
     worker/                   # Consumer workers (separate processes)
         consumer.py           # Base consumer class (backend-neutral, over Subscription)
         projection.py         # Consumer 1: structural graph projection

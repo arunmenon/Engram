@@ -157,3 +157,73 @@ class TestRetention:
             prefix="events:session:",
             max_age_hours=168,
         )
+
+
+class TestMigration:
+    @pytest.mark.asyncio()
+    async def test_read_after_uses_exclusive_cursor(self):
+        redis = AsyncMock()
+        redis.xrange.return_value = [(b"5-0", {b"event_id": b"e5"})]
+        redis.execute_command.return_value = orjson.dumps([{"event_id": "e5"}])
+        entries = await _store(redis).read_after("4-0", 10)
+
+        redis.xrange.assert_called_once_with("events:__global__", min="(4-0", max="+", count=10)
+        assert [(e.position, e.event_id) for e in entries] == [("5-0", "e5")]
+        assert entries[0].document == {"event_id": "e5"}
+
+    @pytest.mark.asyncio()
+    async def test_read_after_from_start(self):
+        redis = AsyncMock()
+        redis.xrange.return_value = []
+        await _store(redis).read_after(None, 3)
+        redis.xrange.assert_called_once_with("events:__global__", min="-", max="+", count=3)
+
+    @pytest.mark.asyncio()
+    async def test_append_imported_runs_ingest_script_with_legacy_position(self):
+        from context_graph.ports.event_log import ImportedEvent
+
+        redis = AsyncMock()
+        pipe = MagicMock()
+        pipe.execute = AsyncMock(return_value=[b"9-0"])
+        redis.pipeline = MagicMock(return_value=pipe)
+        store = _store(redis)
+        store._script_sha = "sha"
+        document = {
+            "event_id": "e1",
+            "session_id": "s1",
+            "occurred_at": "2026-01-01T00:00:00Z",
+            "global_position": "old",
+        }
+
+        positions = await store.append_imported(
+            [ImportedEvent(document=document, legacy_position="1-0")]
+        )
+
+        assert positions == ["9-0"]
+        args = pipe.evalsha.call_args.args
+        assert args[2:6] == ("events:__global__", "evt:e1", "dedup:events", "events:session:s1")
+        stored = orjson.loads(args[7])
+        assert stored["legacy_position"] == "1-0"
+        assert "global_position" not in stored
+        assert stored["occurred_at_epoch_ms"] == 1767225600000
+
+    @pytest.mark.asyncio()
+    async def test_last_legacy_position_scans_newest_first(self):
+        redis = AsyncMock()
+        redis.xrevrange.return_value = [
+            (b"3-0", {b"event_id": b"e3"}),
+            (b"2-0", {b"event_id": b"e2"}),
+        ]
+        redis.execute_command.side_effect = [
+            orjson.dumps([{"event_id": "e3"}]),
+            orjson.dumps([{"event_id": "e2", "legacy_position": "src-2"}]),
+        ]
+        assert await _store(redis).last_legacy_position() == "src-2"
+        redis.xrevrange.assert_called_once()
+
+    @pytest.mark.asyncio()
+    async def test_has_native_events(self):
+        redis = AsyncMock()
+        redis.xrange.return_value = [(b"1-0", {b"event_id": b"e1"})]
+        redis.execute_command.return_value = orjson.dumps([{"event_id": "e1"}])
+        assert await _store(redis).has_native_events() is True

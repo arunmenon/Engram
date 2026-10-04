@@ -106,7 +106,7 @@ An in-memory implementation of all five ports serves three purposes: fast unit t
 ### 7. Moving between backends
 
 - **Graph, keyword and vector indexes** are derived. Switching is a rebuild by replaying the `EventLog` (and the archive) into the new backend, then switching configuration.
-- **EventLog** is the source of truth. Switching uses a generic copy tool built only on the `EventLog` port: read in order, append to the new backend with the old position kept as `legacy_position`, complete the copy before dual-writing new events, then cut over (spanner-design-brief.md phase 3).
+- **EventLog** is the source of truth. Switching uses a generic copy tool built only on the `EventLog` port: read in order, append to the new backend with the old position kept as `legacy_position`, complete the copy before new events reach the new backend, then cut over (spanner-design-brief.md phase 3). New events reach it by mirroring the old log in order, not by the API writing to both (see "Phase 3 implementation" below).
 
 ### 8. Enforced boundaries
 
@@ -280,6 +280,57 @@ CG_SPANNER_EMULATOR_HOST=127.0.0.1:9010 pytest tests/conformance -m integration 
 - confirming the Enterprise-edition requirement and prices.
 
 **Not done:**
-- data migration and dual run (brief phase 3);
+- data migration and dual run (brief phase 3): done below;
 - the ADR-0018 generic projector for ontology packs;
 - the 30 PDLC competency questions as graph conformance cases.
+
+## Phase 3 implementation: migration and dual run (2026-10-04)
+
+Built to the Spanner design brief's phase 3 and §7 above. It runs on the emulator and creates no GCP resources.
+
+**Mirror instead of dual-write.** The brief asked for dual-writing new events once the copy completes. The tool instead **mirrors** the source log: it reads the source in order and imports into the target. The copy and the dual run are the same loop:
+- *copy*: run it until caught up;
+- *dual run*: keep it running.
+
+The API keeps writing only to the source. Why:
+- writes from the API to both stores could race the copy's tail and land out of order (review finding 6); reading the source in order cannot reorder anything;
+- a target outage only delays the mirror, and ingest latency is unchanged;
+- the target needs no write path of its own until cutover.
+
+The cost: cutover (phase 4) needs a short ingest pause, so the mirror can drain before writes move to the target.
+
+| Item | Where | Notes |
+|---|---|---|
+| Ordered read | `EventLog.read_after(position, limit)` → `LogEntry` | All three ledgers. Redis: `XRANGE` from an exclusive start. Spanner: `(commit_ts, batch_index, event_id)` order. Expired documents come back as `None` and are skipped. |
+| Import | `MigrationTarget`: `append_imported`, `last_legacy_position`, `has_native_events` | Implemented by all three ledgers. One batch keeps source order (Spanner: one transaction with `batch_index`). The source position becomes `legacy_position`; the target assigns its own `global_position`. Imports are idempotent through the normal dedup. |
+| Copy and mirror | `migration/mirror.py` (`LogMirror`) | **Checkpoint:** the target itself; a restart resumes after the target's newest `legacy_position`. **Refusal:** it will not start when the target holds native events, since copying then would place migrated events after new ones. |
+| Comparison | `migration/compare.py` | **Ledger:** every source event is present, identical apart from position fields, with the right `legacy_position` and in source order. **Graph:** node and edge counts per type, per-session event counts, sampled sessions' event properties and edges, entities. **Retrieval:** the retrieval engine's context and lineage answers over each graph (nodes, edges, decay scores within 0.01). |
+| CLI | `python -m context_graph.migration copy\|mirror\|compare --to <backend> [--graph]` | **Source:** the configured `CG_STORAGE_*`. **Target:** the same settings with every port on `--to`. **Exit codes:** 2 when refused; 1 when compare finds divergence. **Settings:** `CG_MIGRATION_*` (batch size, poll interval, sampled sessions). |
+
+The target's graph is not copied. The projection worker, run against the target, builds it from the imported ledger (§7: derived stores are rebuilt).
+
+**Results:**
+- **Conformance:** `tests/conformance/test_log_migration.py` covers ordered reads, import order, `legacy_position`, idempotence and native-event detection. It passes on memory and Spanner (90 Spanner cases in all); the Redis cases skip here without Redis Stack, and mocked Redis unit tests cover the commands.
+- **Unit:** `tests/unit/test_migration.py` covers copy, resume, refusal, expired documents, the live mirror, divergence detection, graph and retrieval comparison, and the absence of backend imports.
+- **Dual run:** `tests/integration/test_dual_run.py` runs the primary as a memory ledger plus live Neo4j, and the secondary as Spanner on the emulator:
+  - history is projected on the primary;
+  - the copy runs;
+  - the secondary's projection worker starts;
+  - the mirror runs while new events, including a late event in a migrated session, arrive on the primary;
+  - each side's real projection worker builds its graph.
+
+  Ledger, graph and retrieval comparisons all report zero divergence.
+
+**Found by the dual run** (existing worker behaviour, left to separate tasks):
+- the projection worker keeps each session's last event in memory, so a restart loses the FOLLOWS edge across it, and a rebuilt graph then differs from the live one;
+- it flushes its micro-batch only when a later delivery arrives, so an idle tail stays unprojected.
+
+The dual-run test keeps one worker per side and flushes the idle tail explicitly.
+
+**Also changed:** Spanner retention cutoffs (`trim`, `housekeep`) are now computed from the database clock. They compare commit timestamps, and a skewed application host (or a long-running emulator) otherwise trims or keeps the wrong rows.
+
+**Not done:**
+- Soak on real traffic, and the retrieval evals for the BM25 ranking change (brief phase 3 exit). The comparison isolates the graph, and keyword ranking is not compared.
+- The GCS archive copy.
+- Cutover and the rollback rehearsal (phase 4). The runbook is `docs/runbooks/storage-migration.md`.
+

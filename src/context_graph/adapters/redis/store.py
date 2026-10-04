@@ -13,7 +13,7 @@ Sources: ADR-0004, ADR-0010
 from __future__ import annotations
 
 import importlib.resources
-from datetime import UTC
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import orjson
@@ -24,6 +24,7 @@ from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.redis.errors import translate_redis_error
 from context_graph.adapters.redis.indexes import ensure_event_index
 from context_graph.domain.models import Event
+from context_graph.ports.event_log import ImportedEvent, LogEntry
 
 if TYPE_CHECKING:
     from context_graph.domain.models import EventQuery
@@ -495,6 +496,102 @@ class RedisEventStore:
                 events.append(Event.model_validate(doc, strict=False))
 
         return events
+
+    # -- Migration (ADR-0019 §7) -------------------------------------------
+
+    async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
+        """XRANGE the global stream after ``position`` (exclusive), then fetch documents."""
+        start = f"({position}" if position else "-"
+        entries: Any = await self._client.xrange(
+            self._settings.global_stream, min=start, max="+", count=limit
+        )
+        ids_and_positions = []
+        for entry_id_raw, entry_data in entries:
+            raw_event_id = entry_data.get(b"event_id", entry_data.get("event_id"))
+            event_id = (
+                raw_event_id.decode() if isinstance(raw_event_id, bytes) else str(raw_event_id)
+            )
+            entry_id = (
+                entry_id_raw.decode() if isinstance(entry_id_raw, bytes) else str(entry_id_raw)
+            )
+            ids_and_positions.append((entry_id, event_id))
+        documents = await self.get_documents([event_id for _p, event_id in ids_and_positions])
+        return [
+            LogEntry(position=entry_id, event_id=event_id, document=document)
+            for (entry_id, event_id), document in zip(ids_and_positions, documents, strict=True)
+        ]
+
+    async def append_imported(self, events: list[ImportedEvent]) -> list[str]:
+        """Import copied events through the ingest script, in order, one pipeline."""
+        if not events:
+            return []
+        if self._script_sha is None:
+            await self._register_script()
+        pipe = self._client.pipeline(transaction=False)
+        for imported in events:
+            document = dict(imported.document)
+            document.pop("global_position", None)
+            document["legacy_position"] = imported.legacy_position
+            occurred_at = datetime.fromisoformat(str(document["occurred_at"]))
+            if occurred_at.tzinfo is None:
+                occurred_at = occurred_at.replace(tzinfo=UTC)
+            occurred_at_epoch_ms = int(occurred_at.timestamp() * 1000)
+            document["occurred_at_epoch_ms"] = occurred_at_epoch_ms
+            event_id_str = str(document["event_id"])
+            pipe.evalsha(
+                self._script_sha,  # type: ignore[arg-type]
+                4,
+                self._settings.global_stream,
+                f"{self._settings.event_key_prefix}{event_id_str}",
+                self._settings.dedup_set,
+                f"{_SESSION_STREAM_PREFIX}{document['session_id']}",
+                event_id_str,
+                orjson.dumps(document),
+                str(occurred_at_epoch_ms),
+                str(self._settings.global_stream_maxlen),
+            )
+        results = await pipe.execute()
+        return [r.decode() if isinstance(r, bytes) else str(r) for r in results]
+
+    async def _scan_stream_legacy(self, newest_first: bool) -> Any:
+        """Yield (event_id, legacy_position or None) along the global stream."""
+        batch = 100
+        cursor = "+" if newest_first else "-"
+        while True:
+            if newest_first:
+                entries: Any = await self._client.xrevrange(
+                    self._settings.global_stream, max=cursor, min="-", count=batch
+                )
+            else:
+                entries = await self._client.xrange(
+                    self._settings.global_stream, min=cursor, max="+", count=batch
+                )
+            if not entries:
+                return
+            event_ids = []
+            for _entry_id, entry_data in entries:
+                raw = entry_data.get(b"event_id", entry_data.get("event_id"))
+                event_ids.append(raw.decode() if isinstance(raw, bytes) else str(raw))
+            documents = await self.get_documents(event_ids)
+            for event_id, document in zip(event_ids, documents, strict=True):
+                yield event_id, (document or {}).get("legacy_position")
+            last_id_raw = entries[-1][0]
+            last_id = last_id_raw.decode() if isinstance(last_id_raw, bytes) else str(last_id_raw)
+            cursor = f"({last_id}"
+            if len(entries) < batch:
+                return
+
+    async def last_legacy_position(self) -> str | None:
+        async for _event_id, legacy in self._scan_stream_legacy(newest_first=True):
+            if legacy:
+                return str(legacy)
+        return None
+
+    async def has_native_events(self) -> bool:
+        async for _event_id, legacy in self._scan_stream_legacy(newest_first=False):
+            if not legacy:
+                return True
+        return False
 
     # -- EventLog reads for workers (ADR-0019) -----------------------------
 

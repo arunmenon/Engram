@@ -32,6 +32,7 @@ import structlog
 
 from context_graph.adapters.memory.stream import MemoryStream, position_sort_key
 from context_graph.domain.models import Event
+from context_graph.ports.event_log import ImportedEvent, LogEntry
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -110,18 +111,22 @@ class MemoryEventLog:
         if existing is not None:
             return existing.position
 
-        occurred_at_ms = _epoch_ms(event.occurred_at)
-        position = await self._stream.append({"event_id": event_id})
-
         document: dict[str, Any] = orjson.loads(event.model_dump_json())
-        document["occurred_at_epoch_ms"] = occurred_at_ms
         if payload is not None:
             document["payload"] = payload
-        document["global_position"] = position
-        self._documents[event_id] = document
+        return await self._store(event_id, event.session_id, _epoch_ms(event.occurred_at), document)
+
+    async def _store(
+        self, event_id: str, session_id: str, occurred_at_ms: int, document: dict[str, Any]
+    ) -> str:
+        position = await self._stream.append({"event_id": event_id})
+        stored = dict(document)
+        stored["occurred_at_epoch_ms"] = occurred_at_ms
+        stored["global_position"] = position
+        self._documents[event_id] = stored
 
         appended_at_ms = position_sort_key(position)[0]
-        self._sessions.setdefault(event.session_id, []).append((position, event_id, appended_at_ms))
+        self._sessions.setdefault(session_id, []).append((position, event_id, appended_at_ms))
         self._dedup[event_id] = _DedupRecord(position, occurred_at_ms)
         return position
 
@@ -136,7 +141,59 @@ class MemoryEventLog:
             positions.append(await self.append(event, payload))
         return positions
 
+    # -- migration (ADR-0019 §7) ---------------------------------------------
+
+    async def append_imported(self, events: list[ImportedEvent]) -> list[str]:
+        positions: list[str] = []
+        for imported in events:
+            document = dict(imported.document)
+            document.pop("global_position", None)
+            document["legacy_position"] = imported.legacy_position
+            event_id = str(document["event_id"])
+            existing = self._dedup.get(event_id)
+            if existing is not None:
+                positions.append(existing.position)
+                continue
+            occurred_at_ms = _epoch_ms(datetime.fromisoformat(str(document["occurred_at"])))
+            positions.append(
+                await self._store(event_id, str(document["session_id"]), occurred_at_ms, document)
+            )
+        return positions
+
+    async def last_legacy_position(self) -> str | None:
+        for entry in reversed(self._stream.entries()):
+            document = self._documents.get(entry.fields.get("event_id", ""))
+            if document is not None and document.get("legacy_position"):
+                return str(document["legacy_position"])
+        return None
+
+    async def has_native_events(self) -> bool:
+        for entry in self._stream.entries():
+            document = self._documents.get(entry.fields.get("event_id", ""))
+            if document is None or not document.get("legacy_position"):
+                return True
+        return False
+
     # -- reads --------------------------------------------------------------
+
+    async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
+        after = position_sort_key(position) if position else (-1, -1)
+        entries: list[LogEntry] = []
+        for entry in self._stream.entries():
+            if position_sort_key(entry.position) <= after:
+                continue
+            event_id = entry.fields.get("event_id", "")
+            document = self._documents.get(event_id)
+            entries.append(
+                LogEntry(
+                    position=entry.position,
+                    event_id=event_id,
+                    document=self._public(document) if document is not None else None,
+                )
+            )
+            if len(entries) >= limit:
+                break
+        return entries
 
     @staticmethod
     def _public(document: dict[str, Any]) -> dict[str, Any]:

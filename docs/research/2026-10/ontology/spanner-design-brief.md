@@ -148,3 +148,18 @@ Checked on Cloud Spanner emulator 1.5.58 with `google-cloud-spanner` 3.71 (§9 i
 | Database creation | about 0.03 s on the emulator, so tests use a fresh database each |
 
 Still unverified (needs a real instance): the Enterprise-edition requirement and prices, concurrent producers and consumer crashes (the emulator serialises read-write transactions), hotspot behaviour, ranking parity with BM25, approximate-vector recall.
+
+## 13. Phase 3 on the emulator (2026-10-04)
+
+Built as described in ADR-0019's "Phase 3 implementation", with one change to the plan in §6:
+- New events reach Spanner by **mirroring** the Redis log in order, not by the API writing to both stores.
+- The copy and the dual run are one loop (read in order, import with `legacy_position`), so every migrated event still precedes every new one, and review finding 6 cannot arise.
+- Cutover needs a short ingest pause while the mirror drains (phase 4).
+
+Results:
+- **Dual run:** the local dual run (a memory ledger and Neo4j as primary, the Spanner emulator as secondary, with each side's real projection worker) shows zero divergence on ledger, graph and retrieval comparisons.
+- **Worker behaviour surfaced:** the comparison exposed two existing projection-worker behaviours that would show up as divergence in a real soak: FOLLOWS edges lost across a worker restart, and an idle micro-batch tail. They are tracked separately.
+- **Not covered here:** the soak on real traffic, and the retrieval evals for the BM25 ranking change.
+
+Runbook: `docs/runbooks/storage-migration.md`.
+

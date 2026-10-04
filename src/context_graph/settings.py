@@ -515,6 +515,24 @@ class SpannerSettings(BaseSettings):
     embedding_dimensions: int = 384
 
 
+class MigrationSettings(BaseSettings):
+    """Ledger copy, mirroring and comparison between backends (ADR-0019 §7).
+
+    Used by ``python -m context_graph.migration``.
+    """
+
+    model_config = {"env_prefix": "CG_MIGRATION_"}
+
+    # Events read from the source and imported per batch
+    batch_size: int = 500
+
+    # Mirror: pause between catch-up passes once the target is current
+    poll_interval_ms: int = 1000
+
+    # Compare: sessions sampled for graph and retrieval answers (0 = all)
+    sample_sessions: int = 50
+
+
 class StorageSettings(BaseSettings):
     """Storage backend selection per port (ADR-0019).
 
@@ -562,6 +580,7 @@ class Settings(BaseSettings):
     simulation: SimulationSettings = Field(default_factory=SimulationSettings)
     storage: StorageSettings = Field(default_factory=StorageSettings)
     spanner: SpannerSettings = Field(default_factory=SpannerSettings)
+    migration: MigrationSettings = Field(default_factory=MigrationSettings)
 
     @model_validator(mode="after")
     def _resolve_consumer_aliases(self) -> Settings:
