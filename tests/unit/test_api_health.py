@@ -123,3 +123,15 @@ class TestHealthCheckBothDown:
         body = client.get("/v1/health").json()
         assert body["redis"] is False
         assert body["neo4j"] is False
+
+
+class TestHealthNeutralKeys:
+    """ADR-0019: backend-neutral keys alongside the deprecated redis/neo4j ones."""
+
+    def test_event_log_and_graph_keys_name_backends(self) -> None:
+        client = _make_health_client(redis_healthy=True, neo4j_healthy=False)
+        body = client.get("/v1/health").json()
+        assert body["event_log"] == {"backend": "redis", "ok": True}
+        assert body["graph"] == {"backend": "neo4j", "ok": False}
+        assert body["redis"] is True
+        assert body["neo4j"] is False

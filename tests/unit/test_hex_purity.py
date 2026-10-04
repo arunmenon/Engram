@@ -135,3 +135,71 @@ class TestRetentionPortExists:
         assert hasattr(RetentionManager, "delete_expired_events")
         assert hasattr(RetentionManager, "cleanup_dedup_set")
         assert hasattr(RetentionManager, "cleanup_session_streams")
+
+
+# =========================================================================
+# ADR-0019 §8: storage backend import ban outside adapters/
+# =========================================================================
+
+PACKAGE_DIR = Path(__file__).resolve().parents[2] / "src" / "context_graph"
+
+# Backend client libraries. Only adapters/ may import these.
+BANNED_BACKEND_LIBRARIES = ("redis", "neo4j", "google.cloud")
+
+# Storage adapters. Outside adapters/, stores are opened through
+# context_graph.adapters.registry and used through ports/.
+BANNED_STORAGE_ADAPTERS = (
+    "context_graph.adapters.redis",
+    "context_graph.adapters.neo4j",
+    "context_graph.adapters.fs",
+    "context_graph.adapters.gcs",
+)
+
+NON_ADAPTER_FILES = sorted(
+    p
+    for p in PACKAGE_DIR.rglob("*.py")
+    if "adapters" not in p.relative_to(PACKAGE_DIR).parts and "__pycache__" not in p.parts
+)
+
+
+def _is_banned(module: str, banned: tuple[str, ...]) -> bool:
+    return any(module == name or module.startswith(f"{name}.") for name in banned)
+
+
+@pytest.mark.parametrize(
+    "module_file",
+    NON_ADAPTER_FILES,
+    ids=[str(p.relative_to(PACKAGE_DIR)) for p in NON_ADAPTER_FILES],
+)
+class TestStorageBackendImportBan:
+    """No module outside adapters/ imports a storage backend (ADR-0019 §8)."""
+
+    def test_no_backend_library_import(self, module_file: Path) -> None:
+        imports = _get_imports(module_file)
+        violations = [i for i in imports if _is_banned(i, BANNED_BACKEND_LIBRARIES)]
+        assert violations == [], f"{module_file.name} imports backend libraries: {violations}"
+
+    def test_no_storage_adapter_import(self, module_file: Path) -> None:
+        imports = _get_imports(module_file)
+        violations = [i for i in imports if _is_banned(i, BANNED_STORAGE_ADAPTERS)]
+        assert violations == [], (
+            f"{module_file.name} imports storage adapters by name "
+            f"(use context_graph.adapters.registry): {violations}"
+        )
+
+
+class TestStoragePortsExist:
+    """ADR-0019 step 1 ports are importable and declare their operations."""
+
+    def test_subscription_port(self) -> None:
+        from context_graph.ports.subscription import Subscription
+
+        for name in ("ensure_group", "claim_orphaned", "read_pending", "read_new", "ack"):
+            assert hasattr(Subscription, name)
+        assert hasattr(Subscription, "dead_letter")
+
+    def test_event_log_port(self) -> None:
+        from context_graph.ports.event_log import EventLog
+
+        for name in ("get_documents", "read_session_ids", "trim", "expire", "housekeep"):
+            assert hasattr(EventLog, name)

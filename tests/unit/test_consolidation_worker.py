@@ -14,10 +14,11 @@ from context_graph.worker.consolidation import ConsolidationConsumer
 @pytest.fixture()
 def mock_settings():
     settings = MagicMock()
-    settings.redis.group_projection = "graph-projection"
-    settings.redis.group_extraction = "session-extraction"
-    settings.redis.group_enrichment = "enrichment"
-    settings.redis.group_consolidation = "consolidation"
+    settings.consumer.group_projection = "graph-projection"
+    settings.consumer.group_extraction = "session-extraction"
+    settings.consumer.group_enrichment = "enrichment"
+    settings.consumer.group_consolidation = "consolidation"
+    settings.consumer.block_timeout_ms = 100
     settings.redis.global_stream = "events:__global__"
     settings.redis.block_timeout_ms = 100
     settings.redis.hot_window_days = 7
@@ -38,8 +39,12 @@ def mock_settings():
 
 
 @pytest.fixture()
-def mock_redis():
-    return AsyncMock()
+def mock_subscription():
+    subscription = MagicMock()
+    subscription.group_name = "consolidation"
+    subscription.consumer_name = "consolidation-1"
+    subscription.source_name = "events:__global__"
+    return subscription
 
 
 @pytest.fixture()
@@ -48,41 +53,43 @@ def mock_graph_maintenance():
 
 
 @pytest.fixture()
-def mock_retention_manager():
-    return AsyncMock()
+def mock_event_log():
+    event_log = AsyncMock()
+    event_log.trim.return_value = 0
+    event_log.expire.return_value = (0, 0)
+    event_log.housekeep.return_value = {}
+    return event_log
 
 
 @pytest.fixture()
-def consumer(mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings):
+def consumer(mock_subscription, mock_event_log, mock_graph_maintenance, mock_settings):
     return ConsolidationConsumer(
-        redis_client=mock_redis,
+        subscription=mock_subscription,
+        event_log=mock_event_log,
         graph_maintenance=mock_graph_maintenance,
-        retention_manager=mock_retention_manager,
         settings=mock_settings,
     )
 
 
 @pytest.fixture()
-def consumer_with_llm(mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings):
+def consumer_with_llm(mock_subscription, mock_event_log, mock_graph_maintenance, mock_settings):
     llm_client = AsyncMock()
     return ConsolidationConsumer(
-        redis_client=mock_redis,
+        subscription=mock_subscription,
+        event_log=mock_event_log,
         graph_maintenance=mock_graph_maintenance,
-        retention_manager=mock_retention_manager,
         settings=mock_settings,
         llm_client=llm_client,
     )
 
 
 @pytest.fixture()
-def consumer_with_archive(
-    mock_redis, mock_graph_maintenance, mock_retention_manager, mock_settings
-):
+def consumer_with_archive(mock_subscription, mock_event_log, mock_graph_maintenance, mock_settings):
     archive_store = AsyncMock()
     return ConsolidationConsumer(
-        redis_client=mock_redis,
+        subscription=mock_subscription,
+        event_log=mock_event_log,
         graph_maintenance=mock_graph_maintenance,
-        retention_manager=mock_retention_manager,
         settings=mock_settings,
         archive_store=archive_store,
     )
@@ -179,42 +186,39 @@ class TestConsolidationTimerLoop:
         assert call_count >= 2
 
 
-# ── TestTrimRedisWiring ─────────────────────────────────────────────────
+# ── TestTrimEventLogWiring ──────────────────────────────────────────────
+#
+# The consolidation worker drives hot-tier retention through the EventLog
+# port (ADR-0019). The Redis commands behind each call are covered in
+# test_redis_event_log.py.
 
 
-class TestTrimRedisWiring:
-    """Tests for _trim_redis method's calls to trimmer functions."""
+class TestTrimEventLogWiring:
+    """Tests for _trim_event_log's calls to the EventLog retention methods."""
 
     @pytest.mark.asyncio()
-    async def test_trim_calls_dedup_cleanup(self, consumer, mock_retention_manager, mock_settings):
-        """_trim_redis should call cleanup_dedup_set."""
-        mock_retention_manager.trim_stream.return_value = 0
-        mock_retention_manager.delete_expired_events.return_value = 0
-        mock_retention_manager.cleanup_dedup_set.return_value = 5
-        mock_retention_manager.cleanup_session_streams.return_value = 0
+    async def test_trim_calls_housekeep(self, consumer, mock_event_log, mock_settings):
+        """_trim_event_log should clean dedup records and session indexes."""
+        mock_event_log.housekeep.return_value = {
+            "dedup_entries_removed": 5,
+            "session_streams_deleted": 3,
+        }
 
-        await consumer._trim_redis()
+        await consumer._trim_event_log()
 
-        mock_retention_manager.cleanup_dedup_set.assert_called_once_with(
-            dedup_key=mock_settings.redis.dedup_set,
+        mock_event_log.housekeep.assert_called_once_with(
             retention_ceiling_days=mock_settings.redis.retention_ceiling_days,
+            session_index_max_age_hours=mock_settings.redis.session_stream_retention_hours,
         )
 
     @pytest.mark.asyncio()
-    async def test_trim_passes_consumer_groups_to_trim_stream(
-        self, consumer, mock_retention_manager, mock_settings
-    ):
-        """_trim_redis should pass consumer group names to trim_stream for PEL-safe trimming."""
-        mock_retention_manager.trim_stream.return_value = 0
-        mock_retention_manager.delete_expired_events.return_value = 0
-        mock_retention_manager.cleanup_dedup_set.return_value = 0
-        mock_retention_manager.cleanup_session_streams.return_value = 0
+    async def test_trim_passes_consumer_groups(self, consumer, mock_event_log, mock_settings):
+        """_trim_event_log should pass consumer group names for PEL-safe trimming."""
+        await consumer._trim_event_log()
 
-        await consumer._trim_redis()
-
-        mock_retention_manager.trim_stream.assert_called_once()
-        call_kwargs = mock_retention_manager.trim_stream.call_args.kwargs
-        assert "consumer_groups" in call_kwargs
+        mock_event_log.trim.assert_called_once()
+        call_kwargs = mock_event_log.trim.call_args.kwargs
+        assert call_kwargs["max_age_days"] == mock_settings.redis.hot_window_days
         groups = call_kwargs["consumer_groups"]
         assert "graph-projection" in groups
         assert "session-extraction" in groups
@@ -222,55 +226,29 @@ class TestTrimRedisWiring:
         assert "consolidation" in groups
 
     @pytest.mark.asyncio()
-    async def test_trim_calls_session_cleanup(
-        self, consumer, mock_retention_manager, mock_settings
+    async def test_trim_passes_archive_store_when_available(
+        self, consumer_with_archive, mock_event_log, mock_settings
     ):
-        """_trim_redis should call cleanup_session_streams."""
-        mock_retention_manager.trim_stream.return_value = 0
-        mock_retention_manager.delete_expired_events.return_value = 0
-        mock_retention_manager.cleanup_dedup_set.return_value = 0
-        mock_retention_manager.cleanup_session_streams.return_value = 3
+        """When archive_store is set, expire should receive it (archive-before-delete)."""
+        mock_event_log.expire.return_value = (10, 10)
 
-        await consumer._trim_redis()
+        await consumer_with_archive._trim_event_log()
 
-        mock_retention_manager.cleanup_session_streams.assert_called_once_with(
-            prefix="events:session:",
-            max_age_hours=mock_settings.redis.session_stream_retention_hours,
-        )
-
-    @pytest.mark.asyncio()
-    async def test_trim_uses_archive_store_when_available(
-        self, consumer_with_archive, mock_retention_manager, mock_settings
-    ):
-        """When archive_store is set, _trim_redis should call archive_and_delete_expired_events."""
-        mock_retention_manager.trim_stream.return_value = 0
-        mock_retention_manager.archive_and_delete_expired_events.return_value = (10, 10)
-        mock_retention_manager.cleanup_dedup_set.return_value = 0
-        mock_retention_manager.cleanup_session_streams.return_value = 0
-
-        await consumer_with_archive._trim_redis()
-
-        mock_retention_manager.archive_and_delete_expired_events.assert_called_once_with(
-            key_prefix=mock_settings.redis.event_key_prefix,
+        mock_event_log.expire.assert_called_once_with(
             max_age_days=mock_settings.redis.retention_ceiling_days,
             archive_store=consumer_with_archive._archive_store,
         )
 
     @pytest.mark.asyncio()
-    async def test_trim_uses_plain_delete_when_no_archive(
-        self, consumer, mock_retention_manager, mock_settings
-    ):
-        """When no archive_store, _trim_redis should call delete_expired_events."""
-        mock_retention_manager.trim_stream.return_value = 0
-        mock_retention_manager.delete_expired_events.return_value = 7
-        mock_retention_manager.cleanup_dedup_set.return_value = 0
-        mock_retention_manager.cleanup_session_streams.return_value = 0
+    async def test_trim_plain_expire_when_no_archive(self, consumer, mock_event_log, mock_settings):
+        """When no archive_store, expire should be called without one."""
+        mock_event_log.expire.return_value = (0, 7)
 
-        await consumer._trim_redis()
+        await consumer._trim_event_log()
 
-        mock_retention_manager.delete_expired_events.assert_called_once_with(
-            key_prefix=mock_settings.redis.event_key_prefix,
+        mock_event_log.expire.assert_called_once_with(
             max_age_days=mock_settings.redis.retention_ceiling_days,
+            archive_store=None,
         )
 
 

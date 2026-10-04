@@ -10,14 +10,54 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from context_graph.adapters.redis.subscription import RedisStreamSubscription
 from context_graph.worker.consumer import BaseConsumer
 
 # ---------------------------------------------------------------------------
-# Concrete subclass for testing (BaseConsumer.process_message is abstract)
+# Concrete subclasses for testing (BaseConsumer.process_message is abstract)
+#
+# BaseConsumer reads through the Subscription port (ADR-0019). These tests
+# build it over RedisStreamSubscription with a mocked Redis client and keep
+# the original Redis-call assertions, proving the refactor did not change
+# the commands sent to Redis.
 # ---------------------------------------------------------------------------
 
 
-class StubConsumer(BaseConsumer):
+class RedisBackedConsumer(BaseConsumer):
+    """BaseConsumer over a RedisStreamSubscription, built from the old arguments."""
+
+    def __init__(
+        self,
+        redis_client,
+        group_name,
+        consumer_name,
+        stream_key,
+        batch_size=10,
+        block_timeout_ms=5000,
+        *,
+        max_retries=5,
+        claim_idle_ms=300_000,
+        claim_batch_size=100,
+        dlq_stream_suffix=":dlq",
+    ):
+        subscription = RedisStreamSubscription(
+            redis_client,
+            group_name,
+            consumer_name,
+            stream_key,
+            claim_idle_ms=claim_idle_ms,
+            claim_batch_size=claim_batch_size,
+            dlq_stream_suffix=dlq_stream_suffix,
+        )
+        super().__init__(
+            subscription,
+            batch_size=batch_size,
+            block_timeout_ms=block_timeout_ms,
+            max_retries=max_retries,
+        )
+
+
+class StubConsumer(RedisBackedConsumer):
     """Concrete consumer that records processed messages."""
 
     def __init__(self, *args, **kwargs):
@@ -154,7 +194,7 @@ class TestDeadLetterQueue:
     @pytest.mark.asyncio()
     async def test_dlq_stream_key_derived_correctly(self):
         consumer = StubConsumer(AsyncMock(), "grp", "c1", "events:__global__")
-        assert consumer._dlq_stream_key == "events:__global__:dlq"
+        assert consumer._subscription.dlq_stream_key == "events:__global__:dlq"
 
     @pytest.mark.asyncio()
     async def test_custom_dlq_suffix(self):
@@ -165,7 +205,7 @@ class TestDeadLetterQueue:
             "events:__global__",
             dlq_stream_suffix=".dead",
         )
-        assert consumer._dlq_stream_key == "events:__global__.dead"
+        assert consumer._subscription.dlq_stream_key == "events:__global__.dead"
 
 
 # =========================================================================
@@ -247,7 +287,7 @@ class TestRunFlowIntegration:
             {"message_id": b"100-0", "times_delivered": 6},
         ]
 
-        class FailConsumer(BaseConsumer):
+        class FailConsumer(RedisBackedConsumer):
             async def process_message(self, entry_id, data):
                 raise AssertionError("Should not be called for dead-lettered msg")
 

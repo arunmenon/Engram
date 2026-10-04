@@ -9,6 +9,7 @@ import pytest
 
 from context_graph.domain.models import Event
 from context_graph.worker.projection import ProjectionConsumer
+from tests.unit.redis_ports import redis_ports
 
 
 def _make_settings() -> MagicMock:
@@ -34,7 +35,7 @@ def _make_consumer(
     graph_store = graph_store or AsyncMock()
     settings = _make_settings()
     return ProjectionConsumer(
-        redis_client=redis_client,
+        **redis_ports(redis_client, settings, "graph-projection", "projection-1"),
         graph_store=graph_store,
         settings=settings,
     )

@@ -202,6 +202,7 @@ async def reconsolidate(
 async def stats(
     graph_maint: MaintenanceDep,
     event_admin: EventStoreAdminDep,
+    settings: SettingsDep,
 ) -> ORJSONResponse:
     """Return graph node/edge counts and Redis stream length."""
     graph_stats = await graph_maint.get_graph_stats()
@@ -218,6 +219,8 @@ async def stats(
             "edges": graph_stats["edges"],
             "total_nodes": graph_stats["total_nodes"],
             "total_edges": graph_stats["total_edges"],
+            "event_log": {"backend": settings.storage.event_log, "length": stream_length},
+            # Deprecated (ADR-0019): use event_log
             "redis": {"stream_length": stream_length},
         },
     )
@@ -392,6 +395,7 @@ async def health_detailed(
     graph_maint: MaintenanceDep,
     event_health: EventHealthDep,
     event_admin: EventStoreAdminDep,
+    settings: SettingsDep,
 ) -> ORJSONResponse:
     """Extended health check with Neo4j stats and Redis stream length."""
     redis_ok = False
@@ -421,6 +425,18 @@ async def health_detailed(
     return ORJSONResponse(
         content={
             "status": status,
+            "event_log": {
+                "backend": settings.storage.event_log,
+                "connected": redis_ok,
+                "length": stream_length,
+            },
+            "graph": {
+                "backend": settings.storage.graph,
+                "connected": neo4j_ok,
+                "nodes": graph_stats.get("nodes", {}),
+                "edges": graph_stats.get("edges", {}),
+            },
+            # Deprecated (ADR-0019): use event_log / graph
             "redis": {"connected": redis_ok, "stream_length": stream_length},
             "neo4j": {
                 "connected": neo4j_ok,

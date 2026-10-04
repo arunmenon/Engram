@@ -8,11 +8,12 @@ Sources:
   - ADR-0009: Intent weight matrix, traversal bounds
   - ADR-0010: Redis connection, consumer group names
   - ADR-0012: Preference stability defaults, confidence thresholds
+  - ADR-0019: Storage backend selection, backend-neutral consumer settings
 """
 
 from __future__ import annotations
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings
 
 from context_graph.domain.models import EdgeType, IntentType
@@ -449,6 +450,44 @@ class ConsumerSettings(BaseSettings):
     # H5: DLQ stream suffix — appended to the source stream key
     dlq_stream_suffix: str = ":dlq"
 
+    # ADR-0019: backend-neutral names for what consumers read. A value not
+    # set here falls back to its old CG_REDIS_* setting (see Settings), so
+    # existing deployments keep working.
+    source: str = "events:__global__"  # was CG_REDIS_GLOBAL_STREAM
+    group_projection: str = "graph-projection"  # was CG_REDIS_GROUP_PROJECTION
+    group_extraction: str = "session-extraction"  # was CG_REDIS_GROUP_EXTRACTION
+    group_enrichment: str = "enrichment"  # was CG_REDIS_GROUP_ENRICHMENT
+    group_consolidation: str = "consolidation"  # was CG_REDIS_GROUP_CONSOLIDATION
+    block_timeout_ms: int = 5000  # was CG_REDIS_BLOCK_TIMEOUT_MS
+
+
+# ConsumerSettings field -> the RedisSettings field it replaces (ADR-0019)
+_CONSUMER_REDIS_ALIASES = {
+    "source": "global_stream",
+    "group_projection": "group_projection",
+    "group_extraction": "group_extraction",
+    "group_enrichment": "group_enrichment",
+    "group_consolidation": "group_consolidation",
+    "block_timeout_ms": "block_timeout_ms",
+}
+
+
+class StorageSettings(BaseSettings):
+    """Storage backend selection per port (ADR-0019).
+
+    Each value names a backend registered in ``adapters/registry.py``.
+    """
+
+    model_config = {"env_prefix": "CG_STORAGE_"}
+
+    event_log: str = "redis"
+    subscription: str = "redis"
+    graph: str = "neo4j"
+    keyword_index: str = "redis"
+    vector_index: str = "neo4j"
+    # Empty means "use CG_ARCHIVE_BACKEND" (the old setting is still honoured)
+    archive: str = ""
+
 
 class Settings(BaseSettings):
     """Root application settings."""
@@ -478,3 +517,16 @@ class Settings(BaseSettings):
     ppr: PPRSettings = Field(default_factory=PPRSettings)
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
     simulation: SimulationSettings = Field(default_factory=SimulationSettings)
+    storage: StorageSettings = Field(default_factory=StorageSettings)
+
+    @model_validator(mode="after")
+    def _resolve_consumer_aliases(self) -> Settings:
+        """Fill consumer settings not set directly from their old CG_REDIS_* names (ADR-0019)."""
+        consumer = self.consumer
+        explicitly_set = consumer.model_fields_set
+        for consumer_field, redis_field in _CONSUMER_REDIS_ALIASES.items():
+            if consumer_field not in explicitly_set:
+                setattr(consumer, consumer_field, getattr(self.redis, redis_field))
+        if not self.storage.archive:
+            self.storage.archive = self.archive.backend
+        return self

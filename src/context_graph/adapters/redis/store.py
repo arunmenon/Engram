@@ -35,6 +35,9 @@ log = structlog.get_logger()
 
 _LUA_SCRIPT_CACHE: str | None = None
 
+# Per-session stream key prefix written by the ingest Lua script.
+_SESSION_STREAM_PREFIX = "events:session:"
+
 
 def _load_lua_script() -> str:
     """Load the ingest.lua script from package resources."""
@@ -129,6 +132,11 @@ class RedisEventStore:
         store = cls(client=client, settings=settings)
         await store._register_script()
         return store
+
+    @property
+    def client(self) -> Redis:
+        """The Redis connection, shared with subscriptions by the registry (ADR-0019)."""
+        return self._client
 
     async def _register_script(self) -> None:
         """Load and register the Lua ingestion script with Redis."""
@@ -484,3 +492,106 @@ class RedisEventStore:
                 events.append(Event.model_validate(doc, strict=False))
 
         return events
+
+    # -- EventLog reads for workers (ADR-0019) -----------------------------
+
+    async def get_documents(self, event_ids: list[str]) -> list[dict[str, Any] | None]:
+        """Return the stored JSON document for each id, in the order given.
+
+        Issues one ``JSON.GET`` per id, as the workers did before reading
+        through the port. The adapter-only ``occurred_at_epoch_ms`` field
+        is removed; ``payload`` is kept when stored.
+        """
+        documents: list[dict[str, Any] | None] = []
+        for event_id in event_ids:
+            json_key = f"{self._settings.event_key_prefix}{event_id}"
+            raw_json = await self._client.execute_command("JSON.GET", json_key, "$")  # type: ignore[no-untyped-call]
+            if raw_json is None:
+                documents.append(None)
+                continue
+            raw_str = raw_json.decode() if isinstance(raw_json, bytes) else raw_json
+            parsed = orjson.loads(raw_str)
+            doc: dict[str, Any] = (
+                parsed[0] if isinstance(parsed, list) and len(parsed) > 0 else parsed
+            )
+            doc.pop("occurred_at_epoch_ms", None)
+            documents.append(doc)
+        return documents
+
+    async def read_session_ids(self, session_id: str) -> list[str]:
+        """Return a session's event ids in order from its per-session stream."""
+        session_stream_key = f"{_SESSION_STREAM_PREFIX}{session_id}"
+        entries: Any = await self._client.xrange(session_stream_key, min="-", max="+")
+        event_ids: list[str] = []
+        for _entry_id, entry_data in entries:
+            raw_event_id = entry_data.get(b"event_id", entry_data.get("event_id"))
+            if not raw_event_id:
+                continue
+            event_ids.append(
+                raw_event_id.decode() if isinstance(raw_event_id, bytes) else str(raw_event_id)
+            )
+        return event_ids
+
+    # -- EventLog hot-tier retention (ADR-0014, ADR-0019) ------------------
+
+    async def trim(self, max_age_days: int, consumer_groups: list[str]) -> int:
+        """Trim the global stream's hot window, keeping entries pending for any group."""
+        from context_graph.adapters.redis.trimmer import trim_stream
+
+        return await trim_stream(
+            redis_client=self._client,
+            stream_key=self._settings.global_stream,
+            max_age_days=max_age_days,
+            consumer_groups=consumer_groups,
+        )
+
+    async def expire(
+        self,
+        max_age_days: int,
+        archive_store: Any = None,
+    ) -> tuple[int, int]:
+        """Delete expired JSON documents, archiving them first when an archive is given."""
+        from context_graph.adapters.redis.trimmer import (
+            archive_and_delete_expired_events,
+            delete_expired_events,
+        )
+
+        if archive_store is not None:
+            return await archive_and_delete_expired_events(
+                redis_client=self._client,
+                key_prefix=self._settings.event_key_prefix,
+                max_age_days=max_age_days,
+                archive_store=archive_store,
+            )
+        deleted = await delete_expired_events(
+            redis_client=self._client,
+            key_prefix=self._settings.event_key_prefix,
+            max_age_days=max_age_days,
+        )
+        return 0, deleted
+
+    async def housekeep(
+        self,
+        retention_ceiling_days: int,
+        session_index_max_age_hours: int,
+    ) -> dict[str, int]:
+        """Clean the dedup sorted set and stale per-session streams."""
+        from context_graph.adapters.redis.trimmer import (
+            cleanup_dedup_set,
+            cleanup_session_streams,
+        )
+
+        dedup_removed = await cleanup_dedup_set(
+            redis_client=self._client,
+            dedup_key=self._settings.dedup_set,
+            retention_ceiling_days=retention_ceiling_days,
+        )
+        session_streams_deleted = await cleanup_session_streams(
+            redis_client=self._client,
+            prefix=_SESSION_STREAM_PREFIX,
+            max_age_hours=session_index_max_age_hours,
+        )
+        return {
+            "dedup_entries_removed": dedup_removed,
+            "session_streams_deleted": session_streams_deleted,
+        }

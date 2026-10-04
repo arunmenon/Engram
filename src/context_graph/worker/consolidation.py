@@ -5,7 +5,7 @@ Scheduled consumer that runs re-consolidation and forgetting:
 2. For qualifying sessions: group into episodes, create summaries
 3. Write summary nodes + SUMMARIZES edges to Neo4j
 4. Run retention tier enforcement (prune warm edges, cold nodes, archive)
-5. Trim Redis hot-tier stream, archive + delete expired docs, clean dedup/sessions
+5. Trim the event log's hot tier, archive + delete expired events, housekeep
 
 Self-triggers via asyncio timer every `reconsolidation_interval_hours`
 (default 6h) in addition to accepting manual consolidation_trigger messages.
@@ -30,11 +30,10 @@ from context_graph.domain.consolidation import (
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from redis.asyncio import Redis
-
     from context_graph.adapters.llm.client import LLMExtractionClient
+    from context_graph.ports.event_log import EventLog
     from context_graph.ports.maintenance import GraphMaintenance
-    from context_graph.ports.retention import RetentionManager
+    from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -52,29 +51,21 @@ class ConsolidationConsumer(BaseConsumer):
 
     def __init__(
         self,
-        redis_client: Redis,
+        subscription: Subscription,
+        event_log: EventLog,
         graph_maintenance: GraphMaintenance,
-        retention_manager: RetentionManager,
         settings: Settings,
         archive_store: Any = None,
         llm_client: LLMExtractionClient | None = None,
     ) -> None:
-        consumer_settings = settings.consumer
         super().__init__(
-            redis_client=redis_client,
-            group_name=settings.redis.group_consolidation,
-            consumer_name="consolidation-1",
-            stream_key=settings.redis.global_stream,
-            block_timeout_ms=settings.redis.block_timeout_ms,
-            max_retries=consumer_settings.max_retries,
-            claim_idle_ms=consumer_settings.claim_idle_ms,
-            claim_batch_size=consumer_settings.claim_batch_size,
-            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
+            subscription,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
         )
+        self._event_log = event_log
         self._graph_maintenance = graph_maintenance
-        self._retention_manager = retention_manager
         self._settings = settings
-        self._event_key_prefix = settings.redis.event_key_prefix
         self._archive_store = archive_store
         self._llm_client = llm_client
         self._consolidation_lock = asyncio.Lock()
@@ -82,7 +73,7 @@ class ConsolidationConsumer(BaseConsumer):
     # -- lifecycle ----------------------------------------------------------
 
     async def run(self) -> None:
-        """Start the timer loop alongside the base XREADGROUP consumer loop."""
+        """Start the timer loop alongside the base consumer loop."""
         timer_task = asyncio.create_task(self._timer_loop())
         try:
             await super().run()
@@ -217,8 +208,8 @@ class ConsolidationConsumer(BaseConsumer):
         # Step 3: Run forgetting (retention tier enforcement)
         await self._run_forgetting()
 
-        # Step 4: Trim Redis hot tier + lifecycle cleanup
-        await self._trim_redis()
+        # Step 4: Trim the event log's hot tier + lifecycle cleanup
+        await self._trim_event_log()
 
     async def _consolidate_session(self, session_id: str, event_count: int) -> None:
         """Run consolidation for a single session."""
@@ -360,49 +351,37 @@ class ConsolidationConsumer(BaseConsumer):
             orphan_counts=orphan_counts,
         )
 
-    async def _trim_redis(self) -> None:
-        """Trim Redis hot-tier stream, archive + delete expired docs, clean up.
+    async def _trim_event_log(self) -> None:
+        """Trim the event log's hot tier, archive + delete expired events, clean up.
 
-        ADR-0014 hardening: archive-before-delete, dedup cleanup, session stream cleanup.
+        ADR-0014 hardening: archive-before-delete, dedup cleanup, session index
+        cleanup. The storage layout behind each step belongs to the EventLog
+        adapter (ADR-0019).
         """
-        redis_settings = self._settings.redis
+        retention_settings = self._settings.redis
+        consumer_settings = self._settings.consumer
 
-        # 1. Trim global stream (hot window) — PEL-safe
-        trimmed = await self._retention_manager.trim_stream(
-            stream_key=redis_settings.global_stream,
-            max_age_days=redis_settings.hot_window_days,
+        # 1. Trim the hot window, keeping entries still pending for any group
+        trimmed = await self._event_log.trim(
+            max_age_days=retention_settings.hot_window_days,
             consumer_groups=[
-                redis_settings.group_projection,
-                redis_settings.group_extraction,
-                redis_settings.group_enrichment,
-                redis_settings.group_consolidation,
+                consumer_settings.group_projection,
+                consumer_settings.group_extraction,
+                consumer_settings.group_enrichment,
+                consumer_settings.group_consolidation,
             ],
         )
 
-        # 2. Archive and delete expired JSON docs, or plain delete if no archive store
-        if self._archive_store is not None:
-            archived, deleted = await self._retention_manager.archive_and_delete_expired_events(
-                key_prefix=redis_settings.event_key_prefix,
-                max_age_days=redis_settings.retention_ceiling_days,
-                archive_store=self._archive_store,
-            )
-        else:
-            archived = 0
-            deleted = await self._retention_manager.delete_expired_events(
-                key_prefix=redis_settings.event_key_prefix,
-                max_age_days=redis_settings.retention_ceiling_days,
-            )
-
-        # 3. Clean up dedup sorted set (ADR-0014)
-        dedup_removed = await self._retention_manager.cleanup_dedup_set(
-            dedup_key=redis_settings.dedup_set,
-            retention_ceiling_days=redis_settings.retention_ceiling_days,
+        # 2. Archive and delete expired events, or plain delete if no archive store
+        archived, deleted = await self._event_log.expire(
+            max_age_days=retention_settings.retention_ceiling_days,
+            archive_store=self._archive_store,
         )
 
-        # 4. Clean up stale session streams (ADR-0014)
-        session_streams_deleted = await self._retention_manager.cleanup_session_streams(
-            prefix="events:session:",
-            max_age_hours=redis_settings.session_stream_retention_hours,
+        # 3. Clean up dedup records and stale session indexes (ADR-0014)
+        housekeeping = await self._event_log.housekeep(
+            retention_ceiling_days=retention_settings.retention_ceiling_days,
+            session_index_max_age_hours=retention_settings.session_stream_retention_hours,
         )
 
         log.info(
@@ -410,6 +389,6 @@ class ConsolidationConsumer(BaseConsumer):
             stream_entries_trimmed=trimmed,
             events_archived=archived,
             expired_docs_deleted=deleted,
-            dedup_entries_removed=dedup_removed,
-            session_streams_deleted=session_streams_deleted,
+            dedup_entries_removed=housekeeping.get("dedup_entries_removed", 0),
+            session_streams_deleted=housekeeping.get("session_streams_deleted", 0),
         )

@@ -16,8 +16,7 @@ from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
 from prometheus_client import make_asgi_app as make_metrics_app
 
-from context_graph.adapters.neo4j.store import Neo4jGraphStore
-from context_graph.adapters.redis.store import RedisEventStore
+from context_graph.adapters.registry import open_stores
 from context_graph.api.dependencies import require_admin_key, require_api_key
 from context_graph.api.middleware import register_middleware
 from context_graph.api.routes.admin import router as admin_router
@@ -40,12 +39,8 @@ logger = structlog.get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Manage Redis + Neo4j connections across the app lifecycle."""
+    """Manage storage connections across the app lifecycle."""
     settings = Settings()
-
-    # -- Startup: create stores and attach to app state --------------------
-    event_store = await RedisEventStore.create(settings.redis)
-    await event_store.ensure_indexes()
 
     # Optional: embedding service for query-time relevance scoring
     embedding_service = None
@@ -89,21 +84,27 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     except ImportError:
         logger.info("llm_client_unavailable")
 
-    graph_store = Neo4jGraphStore(
-        settings.neo4j,
-        embedding_service=embedding_service,
-        query_settings=settings.query,
-        decay_settings=settings.decay,
-        intent_classifier=intent_classifier,
-        llm_client=llm_client,
-        event_store=event_store,
-        ppr_settings=settings.ppr,
+    # -- Startup: open the configured stores (ADR-0019) -------------------
+    # Retrieval dependencies still ride on the graph store until ADR-0019
+    # step 2 moves the retrieval engine out of the graph adapter.
+    stores = await open_stores(
+        settings,
+        prepare_ingest=True,
+        graph_options=lambda event_log: {
+            "embedding_service": embedding_service,
+            "query_settings": settings.query,
+            "decay_settings": settings.decay,
+            "intent_classifier": intent_classifier,
+            "llm_client": llm_client,
+            "event_store": event_log,
+            "ppr_settings": settings.ppr,
+        },
     )
-    await graph_store.ensure_constraints()
 
     app.state.settings = settings
-    app.state.event_store = event_store
-    app.state.graph_store = graph_store
+    app.state.stores = stores
+    app.state.event_store = stores.event_log
+    app.state.graph_store = stores.graph
 
     logger.info(
         "app_started",
@@ -114,8 +115,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield
 
     # -- Shutdown: release connections -------------------------------------
-    await event_store.close()
-    await graph_store.close()
+    await stores.close()
     logger.info("app_stopped")
 
 

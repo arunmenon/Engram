@@ -1,6 +1,6 @@
 """Consumer 2: Session Knowledge Extraction worker (ADR-0013).
 
-Listens for ``system.session_end`` events on the Redis global stream.
+Listens for ``system.session_end`` events delivered by its subscription.
 When a session ends, collects all session events, runs LLM-based
 knowledge extraction, and writes results (entities, preferences,
 skills, interests) to Neo4j.
@@ -13,7 +13,6 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-import orjson
 import structlog
 
 from context_graph.domain.contradiction import (
@@ -32,11 +31,11 @@ from context_graph.domain.models import Event
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from redis.asyncio import Redis
-
     from context_graph.adapters.llm.client import LLMExtractionClient
     from context_graph.ports.embedding import EmbeddingService
+    from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
+    from context_graph.ports.subscription import Subscription
     from context_graph.ports.user_store import UserStore
     from context_graph.settings import Settings
 
@@ -53,28 +52,22 @@ class ExtractionConsumer(BaseConsumer):
 
     def __init__(
         self,
-        redis_client: Redis,
+        subscription: Subscription,
+        event_log: EventLog,
         llm_client: LLMExtractionClient,
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
         graph_store: GraphStore | None = None,
         user_store: UserStore | None = None,
     ) -> None:
-        consumer_settings = settings.consumer
         super().__init__(
-            redis_client=redis_client,
-            group_name=settings.redis.group_extraction,
-            consumer_name="extraction-1",
-            stream_key=settings.redis.global_stream,
-            block_timeout_ms=settings.redis.block_timeout_ms,
-            max_retries=consumer_settings.max_retries,
-            claim_idle_ms=consumer_settings.claim_idle_ms,
-            claim_batch_size=consumer_settings.claim_batch_size,
-            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
+            subscription,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
         )
+        self._event_log = event_log
         self._llm_client = llm_client
         self._settings = settings
-        self._event_key_prefix = settings.redis.event_key_prefix
         self._session_turn_counts: dict[str, int] = {}
         self._mid_session_interval: int = getattr(settings, "mid_session_extraction_interval", 50)
         self._embedding_service = embedding_service
@@ -82,20 +75,14 @@ class ExtractionConsumer(BaseConsumer):
         self._user_store = user_store
 
     async def _fetch_event_doc(self, event_id: str) -> dict[str, Any] | None:
-        """Fetch the full event JSON document from Redis."""
-        json_key = f"{self._event_key_prefix}{event_id}"
-        raw_json = await self._redis.execute_command("JSON.GET", json_key, "$")  # type: ignore[no-untyped-call]
-        if raw_json is None:
-            return None
-        raw_str = raw_json.decode() if isinstance(raw_json, bytes) else raw_json
-        parsed = orjson.loads(raw_str)
-        doc: dict[str, Any] = parsed[0] if isinstance(parsed, list) and len(parsed) > 0 else parsed
-        return doc
+        """Fetch the full event document from the event log."""
+        documents = await self._event_log.get_documents([event_id])
+        return documents[0]
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         """Process a stream entry: check for session_end and trigger extraction.
 
-        The stream only carries ``event_id`` — we must fetch the full JSON
+        Deliveries only carry ``event_id`` — we must fetch the full
         document to read ``event_type`` and ``session_id``.
         """
         event_id = data.get("event_id")
@@ -182,55 +169,31 @@ class ExtractionConsumer(BaseConsumer):
     async def _collect_session_events(
         self, session_id: str
     ) -> tuple[list[Event], list[dict[str, Any]]]:
-        """Collect all events for a session from Redis JSON store.
+        """Collect all events for a session from the event log.
 
-        Returns (events, raw_docs) where raw_docs contain the full JSON
+        Returns (events, raw_docs) where raw_docs contain the full
         documents including payload content for LLM extraction.
         """
         events: list[Event] = []
         raw_docs: list[dict[str, Any]] = []
 
-        # Read from the per-session stream (bounded to this session only)
-        session_stream_key = f"events:session:{session_id}"
+        # Read the session's own event ids (bounded to this session only)
         try:
-            session_entries = await self._redis.xrange(
-                session_stream_key,
-                min="-",
-                max="+",
-            )
+            session_event_ids = await self._event_log.read_session_ids(session_id)
         except Exception:
             log.warning(
                 "session_stream_read_failed",
                 session_id=session_id,
-                stream_key=session_stream_key,
             )
             return events, raw_docs
 
-        for _entry_id, entry_data in session_entries:
-            decoded = {
-                (k.decode() if isinstance(k, bytes) else k): (
-                    v.decode() if isinstance(v, bytes) else v
-                )
-                for k, v in entry_data.items()
-            }
-
-            event_id = decoded.get("event_id")
-            if not event_id:
+        documents = await self._event_log.get_documents(session_event_ids)
+        for event_id, doc in zip(session_event_ids, documents, strict=True):
+            if doc is None:
                 continue
 
-            json_key = f"{self._event_key_prefix}{event_id}"
-            raw_json = await self._redis.execute_command("JSON.GET", json_key, "$")  # type: ignore[no-untyped-call]
-            if raw_json is None:
-                continue
-
-            raw_str = raw_json.decode() if isinstance(raw_json, bytes) else raw_json
-            parsed = orjson.loads(raw_str)
-            doc = parsed[0] if isinstance(parsed, list) and len(parsed) > 0 else parsed
-
-            # Keep full doc for payload extraction before stripping
+            # Keep full doc for payload extraction
             raw_docs.append(dict(doc))
-
-            doc.pop("occurred_at_epoch_ms", None)
 
             try:
                 event = Event.model_validate(doc, strict=False)

@@ -33,6 +33,7 @@ A traceability-first context graph service for AI agents. Captures immutable eve
 2. **Immutable events** — never mutate the event ledger; append-only with idempotent ingestion via Lua dedup script
 3. **Derived projection** — Neo4j is disposable and rebuildable from Redis events
 4. **Framework-agnostic domain** — `domain/` package must have zero imports from FastAPI or any web framework
+4a. **Backend-neutral core** (ADR-0019) — only `adapters/` imports `redis`, `neo4j` or other storage libraries; everything else opens stores via `adapters/registry.py` and uses `ports/` (enforced by `tests/unit/test_hex_purity.py`)
 5. **Bounded queries** — all graph queries enforce depth, node count, and timeout limits
 6. **System-owned retrieval** — the context graph infers intent, selects seeds, and surfaces proactive context
 
@@ -54,12 +55,16 @@ src/context_graph/
         entity_resolution.py  # Three-tier entity resolution
     ports/                    # typing.Protocol interfaces (FROZEN Phase 1)
         event_store.py        # EventStore protocol
+        event_log.py          # EventLog protocol: worker reads + retention (ADR-0019)
+        subscription.py       # Subscription protocol: consumer groups (ADR-0019)
         graph_store.py        # GraphStore protocol
         embedding.py          # EmbeddingService protocol
         extraction.py         # ExtractionService protocol
     adapters/
+        registry.py           # Opens stores by CG_STORAGE_* (ADR-0019); the only way in from api/ and worker/
         redis/                # Redis Stack EventStore implementation
             store.py          # XADD, JSON.SET, FT.SEARCH
+            subscription.py   # Consumer groups: XREADGROUP, XACK, XAUTOCLAIM, DLQ
             lua/              # Lua scripts (ingest.lua, dedup)
             indexes.py        # RediSearch index definitions
         neo4j/                # Neo4j GraphStore implementation
@@ -75,7 +80,7 @@ src/context_graph/
         middleware.py         # Error handling, metrics
         dependencies.py       # Dependency injection
     worker/                   # Consumer workers (separate processes)
-        consumer.py           # Base consumer class (XREADGROUP lifecycle)
+        consumer.py           # Base consumer class (backend-neutral, over Subscription)
         projection.py         # Consumer 1: structural graph projection
         extraction.py         # Consumer 2: LLM session extraction
         enrichment.py         # Consumer 3: embeddings, SIMILAR_TO, REFERENCES

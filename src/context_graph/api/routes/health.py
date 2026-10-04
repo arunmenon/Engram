@@ -1,6 +1,10 @@
 """Health check endpoint.
 
-GET /v1/health -- reports status of Redis and Neo4j dependencies.
+GET /v1/health -- reports status of the event log and graph stores.
+
+Responses carry backend-neutral keys (``event_log``, ``graph``) naming the
+configured backend (ADR-0019). The old ``redis``/``neo4j`` booleans stay
+for one deprecation period.
 """
 
 from __future__ import annotations
@@ -14,8 +18,10 @@ from fastapi.responses import ORJSONResponse
 from context_graph.api.dependencies import (  # noqa: TCH001 — runtime: Depends()
     get_event_health,
     get_graph_health,
+    get_settings,
 )
 from context_graph.ports.health import HealthCheckable  # noqa: TCH001 — runtime: Depends()
+from context_graph.settings import Settings  # noqa: TCH001 — runtime: Depends()
 
 logger = structlog.get_logger(__name__)
 
@@ -26,10 +32,11 @@ router = APIRouter(tags=["health"])
 async def health_check(
     event_health: Annotated[HealthCheckable, Depends(get_event_health)],
     graph_health: Annotated[HealthCheckable, Depends(get_graph_health)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> ORJSONResponse:
     """Service health check.
 
-    Pings Redis and Neo4j to determine overall service health.
+    Pings the event log and graph stores to determine overall service health.
     Returns "healthy" (200) when both are reachable, "degraded" (503) when
     only one is reachable, and "unhealthy" (503) when neither responds.
     """
@@ -55,6 +62,9 @@ async def health_check(
 
     content = {
         "status": status,
+        "event_log": {"backend": settings.storage.event_log, "ok": redis_ok},
+        "graph": {"backend": settings.storage.graph, "ok": neo4j_ok},
+        # Deprecated (ADR-0019): use event_log / graph
         "redis": redis_ok,
         "neo4j": neo4j_ok,
         "version": "0.1.0",

@@ -160,3 +160,32 @@ One independent review (Fable 5.1, short pass). All 12 findings were checked aga
 | 12 | 2–3 weeks not credible; step 1 couldn't be "no behaviour change" | minor | re-estimated per step (5–7 weeks); query removal moved to step 2 |
 
 Reviewer's verdict: fit to approve after fixing 1–3 and acknowledging 4–9 in the order of work. All twelve are now addressed.
+
+## Step 1 implementation (2026-10-04)
+
+Step 1 (boundaries) is implemented with no intended behaviour change. The status line above is left for the owner to change.
+
+| Item | Where | Notes |
+|---|---|---|
+| `Subscription` port | `ports/subscription.py`; Redis: `adapters/redis/subscription.py` | XGROUP, XAUTOCLAIM, XPENDING, XREADGROUP, XACK, the DLQ stream and XINFO lag moved unchanged out of `worker/consumer.py`. `BaseConsumer` now takes a `Subscription` and imports no backend. |
+| `EventLog` port (C1) | `ports/event_log.py` (extends the frozen `EventStore`); Redis: new methods on `RedisEventStore` | `get_documents(ids)` returns stored documents (event fields plus `payload`), because extraction needs payloads; this is the `get_many` of §1. `read_session_ids(session_id)` is the step-1 form of `read_session`. Same `JSON.GET`/`XRANGE` commands as before. |
+| Retention (C7) | `EventLog.trim`, `expire`, `housekeep` | Consolidation passes ages and group names only. Keys, streams and the dedup set stay in the Redis adapter. `RetentionManager` and `RedisRetentionManager` remain (frozen) but nothing uses them. |
+| Settings (C8) | `StorageSettings` (`CG_STORAGE_*`); `ConsumerSettings.source`, `group_*`, `block_timeout_ms` | A consumer value not set directly falls back to its old `CG_REDIS_*` name. `CG_STORAGE_ARCHIVE` falls back to `CG_ARCHIVE_BACKEND`. |
+| Registry and `Stores` | `adapters/registry.py` | `open_stores()` validates backend names before connecting. Workers share one Redis client between the event log and subscriptions. `api/app.py` and `worker/__main__.py` no longer import storage adapters. Retrieval dependencies still reach the graph store through `graph_options` until step 2 (C3). |
+| Health (C5) | `/v1/health`, `/v1/admin/health/detailed`, `/v1/admin/stats` | `event_log` and `graph` keys name the backend. The old `redis`/`neo4j` keys stay, marked deprecated. |
+| Import ban (§8) | `tests/unit/test_hex_purity.py` | No module outside `adapters/` may import `redis`, `neo4j` or `google.cloud`, or a storage adapter by name. Enforced as a unit test, so it runs in CI. |
+
+**Evidence of no behaviour change:**
+- Consumer, projection, enrichment and extraction tests now build the workers over the Redis adapters with the same mocked Redis client. Their Redis-call assertions are unchanged.
+- The retention commands are pinned in `tests/unit/test_redis_event_log.py`.
+- A live run against `redis-server` matched: messages processed and acknowledged, the failing message dead-lettered, nothing left pending.
+
+**Two existing bugs found, not fixed here:**
+- The pending drain re-reads a message that keeps failing in a tight loop until the worker stops.
+- The lag gauge never updates, because `XINFO GROUPS` returns the group name as bytes.
+
+Both predate this change; they are queued separately.
+
+**Remaining for step 2:**
+- Consolidation still reads hot-tier ages from `settings.redis`.
+- `Stores.graph` is typed as the Neo4j adapter, because callers use it as `GraphMaintenance` and `UserStore` too.

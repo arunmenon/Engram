@@ -13,6 +13,7 @@ import orjson
 
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.extraction import ExtractionConsumer
+from tests.unit.redis_ports import redis_ports
 
 # ---------------------------------------------------------------------------
 # Stubs / Helpers
@@ -40,7 +41,7 @@ def _make_consumer(
     graph_store = graph_store or AsyncMock()
     settings = _make_settings()
     return ExtractionConsumer(
-        redis_client=redis_client,
+        **redis_ports(redis_client, settings, "session-extraction", "extraction-1"),
         llm_client=llm_client,
         settings=settings,
         graph_store=graph_store,
@@ -85,7 +86,7 @@ class TestExtractionConsumerStructure:
 
     def test_constructor_sets_stream_key(self) -> None:
         consumer = _make_consumer()
-        assert consumer._stream_key == "events:__global__"
+        assert consumer._source_name == "events:__global__"
 
 
 class TestProcessMessage:
@@ -359,7 +360,7 @@ class TestEntityEmbeddingOnNeo4j:
         settings.embedding.related_to_threshold = 0.75
 
         consumer = ExtractionConsumer(
-            redis_client=AsyncMock(),
+            **redis_ports(AsyncMock(), settings, "session-extraction", "extraction-1"),
             llm_client=AsyncMock(),
             settings=settings,
             embedding_service=embedding_service,

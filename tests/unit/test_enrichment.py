@@ -91,8 +91,10 @@ def _make_enrichment_consumer(
     settings.redis.global_stream = "events:__global__"
     settings.redis.block_timeout_ms = 100
     settings.redis.event_key_prefix = "evt:"
+    from tests.unit.redis_ports import redis_ports
+
     return EnrichmentConsumer(
-        redis_client=redis_client,
+        **redis_ports(redis_client, settings, "enrichment", "enrichment-1"),
         graph_store=graph_store,
         settings=settings,
         embedding_service=embedding_service,

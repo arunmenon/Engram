@@ -125,7 +125,11 @@ class TestMetricOperations:
 
 @pytest.fixture()
 def _mock_stores():
-    """Patch store creation so create_app() doesn't need live Redis/Neo4j."""
+    """Patch store creation so create_app() doesn't need live Redis/Neo4j.
+
+    The app opens stores through adapters/registry.py, which imports the
+    adapter classes from their modules at call time (ADR-0019).
+    """
     mock_event_store = AsyncMock()
     mock_event_store.ensure_indexes = AsyncMock()
     mock_event_store.close = AsyncMock()
@@ -138,12 +142,12 @@ def _mock_stores():
 
     with (
         patch(
-            "context_graph.api.app.RedisEventStore.create",
+            "context_graph.adapters.redis.store.RedisEventStore.create",
             new_callable=AsyncMock,
             return_value=mock_event_store,
         ),
         patch(
-            "context_graph.api.app.Neo4jGraphStore",
+            "context_graph.adapters.neo4j.store.Neo4jGraphStore",
             return_value=mock_graph_store,
         ),
     ):

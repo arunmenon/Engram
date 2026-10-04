@@ -1,7 +1,7 @@
 """Consumer 1: Graph Projection worker.
 
-Reads events from the Redis global stream and projects them into the
-Neo4j graph using the pure domain projection logic. Each event becomes
+Reads events delivered by its subscription and projects them into the
+graph using the pure domain projection logic. Each event becomes
 an EventNode, and FOLLOWS / CAUSED_BY edges are created as appropriate.
 
 Source: ADR-0005, ADR-0013 (Consumer 1)
@@ -13,7 +13,6 @@ import time
 from collections import OrderedDict
 from typing import TYPE_CHECKING
 
-import orjson
 import structlog
 
 from context_graph.domain.models import Event
@@ -21,19 +20,19 @@ from context_graph.domain.projection import project_event
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from redis.asyncio import Redis
-
+    from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
+    from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
 
 
 class ProjectionConsumer(BaseConsumer):
-    """Consumer 1: Projects events from Redis Stream into the Neo4j graph.
+    """Consumer 1: Projects delivered events into the graph.
 
-    For each event received from the stream:
-    1. Fetch the full event JSON from Redis (stream only carries event_id).
+    For each event received from the subscription:
+    1. Fetch the full event from the event log (deliveries carry only event_id).
     2. Run pure domain projection to produce an EventNode and edges.
     3. MERGE the node and edges into Neo4j via the GraphStore.
     4. Track the last event per session for FOLLOWS edge computation.
@@ -49,24 +48,18 @@ class ProjectionConsumer(BaseConsumer):
 
     def __init__(
         self,
-        redis_client: Redis,
+        subscription: Subscription,
+        event_log: EventLog,
         graph_store: GraphStore,
         settings: Settings,
     ) -> None:
-        consumer_settings = settings.consumer
         super().__init__(
-            redis_client=redis_client,
-            group_name=settings.redis.group_projection,
-            consumer_name="projection-1",
-            stream_key=settings.redis.global_stream,
-            block_timeout_ms=settings.redis.block_timeout_ms,
-            max_retries=consumer_settings.max_retries,
-            claim_idle_ms=consumer_settings.claim_idle_ms,
-            claim_batch_size=consumer_settings.claim_batch_size,
-            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
+            subscription,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
         )
+        self._event_log = event_log
         self._graph_store = graph_store
-        self._event_key_prefix = settings.redis.event_key_prefix
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
         self._last_flush_time: float = time.monotonic()
@@ -143,7 +136,7 @@ class ProjectionConsumer(BaseConsumer):
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]
         if entry_ids:
-            await self._redis.xack(self._stream_key, self._group_name, *entry_ids)
+            await self._ack(*entry_ids)
 
     async def on_stop(self) -> None:
         """Flush remaining buffered events before shutdown."""
@@ -152,27 +145,22 @@ class ProjectionConsumer(BaseConsumer):
             await self._flush_buffer()
 
     async def _fetch_event(self, entry_id: str, data: dict[str, str]) -> Event | None:
-        """Fetch and deserialize a single event from Redis JSON."""
+        """Fetch and deserialize a single event from the event log."""
         event_id = data.get("event_id")
         if event_id is None:
             log.warning("stream_entry_missing_event_id", entry_id=entry_id)
             return None
 
-        json_key = f"{self._event_key_prefix}{event_id}"
-        raw_json = await self._redis.execute_command("JSON.GET", json_key, "$")  # type: ignore[no-untyped-call]
-        if raw_json is None:
+        documents = await self._event_log.get_documents([event_id])
+        doc = documents[0]
+        if doc is None:
             log.warning(
                 "event_json_not_found",
                 event_id=event_id,
                 entry_id=entry_id,
-                json_key=json_key,
             )
             return None
 
-        raw_str = raw_json.decode() if isinstance(raw_json, bytes) else raw_json
-        parsed = orjson.loads(raw_str)
-        doc = parsed[0] if isinstance(parsed, list) and len(parsed) > 0 else parsed
-        doc.pop("occurred_at_epoch_ms", None)
         event = Event.model_validate(doc, strict=False)
 
         if event.global_position is None:

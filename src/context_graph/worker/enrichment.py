@@ -1,7 +1,7 @@
 """Consumer 3: Enrichment worker.
 
-Reads events from the Redis global stream and enriches them with keywords
-and importance scoring in the Neo4j graph. Future phases will add embedding
+Reads events delivered by its subscription and enriches them with keywords
+and importance scoring in the graph. Future phases will add embedding
 computation, SIMILAR_TO edge creation, and entity extraction for REFERENCES edges.
 
 Source: ADR-0008 (Stage 2), ADR-0013 (Consumer 3)
@@ -11,16 +11,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import orjson
 import structlog
 
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
-    from redis.asyncio import Redis
-
     from context_graph.ports.embedding import EmbeddingService
+    from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
+    from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
@@ -31,8 +30,8 @@ DEFAULT_IMPORTANCE = 5
 class EnrichmentConsumer(BaseConsumer):
     """Consumer 3: Enriches events with keywords and importance scoring.
 
-    For each event received from the stream:
-    1. Deserialize the event data from the stream entry.
+    For each event received from the subscription:
+    1. Fetch the event document from the event log.
     2. Extract keywords from the event_type (split by '.') and tool_name.
     3. Determine importance_score from importance_hint or use default.
     4. Update the Neo4j node with keywords and importance_score.
@@ -40,48 +39,38 @@ class EnrichmentConsumer(BaseConsumer):
 
     def __init__(
         self,
-        redis_client: Redis,
+        subscription: Subscription,
+        event_log: EventLog,
         graph_store: GraphStore,
         settings: Settings,
         embedding_service: EmbeddingService | None = None,
     ) -> None:
-        consumer_settings = settings.consumer
         super().__init__(
-            redis_client=redis_client,
-            group_name=settings.redis.group_enrichment,
-            consumer_name="enrichment-1",
-            stream_key=settings.redis.global_stream,
-            block_timeout_ms=settings.redis.block_timeout_ms,
-            max_retries=consumer_settings.max_retries,
-            claim_idle_ms=consumer_settings.claim_idle_ms,
-            claim_batch_size=consumer_settings.claim_batch_size,
-            dlq_stream_suffix=consumer_settings.dlq_stream_suffix,
+            subscription,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
         )
+        self._event_log = event_log
         self._graph_store = graph_store
-        self._event_key_prefix = settings.redis.event_key_prefix
         self._embedding_service = embedding_service
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
-        """Process a single stream entry: extract keywords and update Neo4j."""
+        """Process a single delivery: extract keywords and update the graph."""
         event_id = data.get("event_id")
         if event_id is None:
             log.warning("enrichment_missing_event_id", entry_id=entry_id)
             return
 
-        # Fetch the full event document from Redis JSON
-        json_key = f"{self._event_key_prefix}{event_id}"
-        raw_json = await self._redis.execute_command("JSON.GET", json_key, "$")  # type: ignore[no-untyped-call]
-        if raw_json is None:
+        # Fetch the full event document from the event log
+        documents = await self._event_log.get_documents([event_id])
+        doc = documents[0]
+        if doc is None:
             log.warning(
                 "enrichment_event_json_not_found",
                 event_id=event_id,
                 entry_id=entry_id,
             )
             return
-
-        raw_str = raw_json.decode() if isinstance(raw_json, bytes) else raw_json
-        parsed = orjson.loads(raw_str)
-        doc = parsed[0] if isinstance(parsed, list) and len(parsed) > 0 else parsed
 
         # Extract keywords from event_type
         event_type = doc.get("event_type", "")
