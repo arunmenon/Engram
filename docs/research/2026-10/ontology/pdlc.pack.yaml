@@ -1,12 +1,15 @@
-# Draft ontology pack: PDLC (product development lifecycle)
-# Status: proposal. Format defined in pdlc-ontology-and-ontology-packs.md §4 and ADR-0018 (draft).
+# Ontology pack: PDLC (product development lifecycle)
+# Status: v1.0 frozen for sign-off (2026-10-04). Changes after sign-off go through a new pack version.
+# History: v0.1 draft; v0.2 standards check; v0.3 competency questions; v0.4 real-project mapping; v1.0 freeze.
+# Earlier status line: Format defined in pdlc-ontology-and-ontology-packs.md §4 and ADR-0018 (draft).
 # Not loaded by any code yet. Written to show the format can express the PDLC MVP end to end.
 # Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
 # The pack loader must parse with a YAML 1.2 or safe loader and reject non-string keys.
 
 pack:
   name: pdlc
-  version: 0.4.0   # 0.4: changes from mapping OpenDAL, Kafka and GitLab samples (mapping-step2.md).
+  version: 1.0.0   # frozen for sign-off; no type or edge changes from 0.4.
+                   # 0.4: 0.4: changes from mapping OpenDAL, Kafka and GitLab samples (mapping-step2.md).
                    # 0.3: 0.3: four edges and five fields added from the competency-question check (competency-questions.yaml).
                    # 0.2: names verified against CDEvents and OSLC vocabularies; trace-link, supersession and trust rules from the R10/R4/R8 briefs
   requires: [core>=1.0]          # Event, Entity, DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS

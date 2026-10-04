@@ -28,6 +28,7 @@ ADR-0011 already defined modules (cg-core, cg-events, cg-entities, cg-memory, â€
 8. **Ontology changes are applied by projection, never by mutating the ledger.** Additive changes load hot. Mapping changes replay affected event types. Breaking changes build a fresh projection under the new version (blue/green) and switch after the pack's evaluation set passes.
 9. **The ontology version is recorded** on every projection and in every C6 snapshot manifest.
 10. **Every pack that adds retrieval intents ships an evaluation question set**, and its weights are not trusted in production until that set passes.
+11. **Backend neutrality.** All new domain code (projector, PDLC queries, connectors) uses only the generic GraphStore operations, never backend query text. The generic operations are designed to the stricter of Neo4j and Spanner Graph semantics: one label per node, edge identity includes edge type, upserts are explicit (no reliance on Cypher `MERGE` behaviour), both edge directions are queryable, and history comes from the ledger. A backend conformance suite (same events in, same answers out) runs against Neo4j now, and against the Spanner emulator as soon as the generic operations are stable.
 
 ## Consequences
 
