@@ -6,7 +6,8 @@
 
 pack:
   name: pdlc
-  version: 0.2.0   # 0.2: names verified against CDEvents and OSLC vocabularies; trace-link, supersession and trust rules from the R10/R4/R8 briefs
+  version: 0.3.0   # 0.3: four edges and five fields added from the competency-question check (competency-questions.yaml).
+                   # 0.2: names verified against CDEvents and OSLC vocabularies; trace-link, supersession and trust rules from the R10/R4/R8 briefs
   requires: [core>=1.0]          # Event, Entity, DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS
   owner: TBD                     # decision 4 in the design doc
   description: Requests, specs, requirements, decisions, work, changes, verification, deployment and operations.
@@ -28,6 +29,7 @@ types:
       properties: {title: string, description: text, source_system: string, external_id: string, priority: string}
       lifecycle: {initial: new, states: [new, triaged, accepted, rejected, done]}
       text_fields: [title, description]
+      embed_fields: [title, description]        # CQ03 similar past requests
     Spec:
       key: [doc_id, version]
       interfaces: [Lifecycled, Anchored, Versioned]
@@ -75,6 +77,7 @@ types:
       properties: {repo: string, number: int, title: string, body: text, head_sha: string, merge_sha: string, files: "list<string>"}
       lifecycle: {initial: open, states: [open, reviewed, merged, abandoned]}
       text_fields: [title, body]
+      embed_fields: [title, body]               # CQ26 have we tried this fix before
     Review:
       key: [repo, number, review_id]
       properties: {repo: string, number: int, review_id: string, verdict: {enum: [commented, approved, changes_requested]}}
@@ -94,7 +97,7 @@ types:
     Service:
       key: [catalog_name]
       interfaces: [Owned, Lifecycled]
-      properties: {catalog_name: string, system: string, tier: string}
+      properties: {catalog_name: string, system: string, tier: string, repo: string, path_prefixes: "list<string>"}   # CQ14, CQ21 map files to a service
       lifecycle: {initial: production, states: [experimental, production, deprecated]}
     Incident:
       key: [incident_id]
@@ -124,7 +127,11 @@ types:
     REVIEWS:         {from: [Review], to: [Change]}
     DEPLOYS:         {from: [Deployment], to: [Change]}
     DEPLOYED_TO:     {from: [Deployment], to: [Service], properties: {environment: string}}
-    DECIDED_BY:      {from: [Decision], to: ["core:Entity"]}
+    DECIDED_BY:      {from: [Decision, Constraint], to: ["core:Entity"]}                       # CQ30 who relaxed a constraint
+    APPLIES_TO:      {from: [Decision], to: [Service, Requirement, DesignElement, Change], requires: [confidence, method, link_status]}   # CQ01, CQ02, CQ08, CQ13, CQ15: the scope of a decision
+    CITES:           {from: [Spec, Change], to: [Decision, Constraint, DesignElement, Lesson, Requirement], properties: {pinned_position: string}}   # CQ04, CQ28: knowledge by reference, pinned to a ledger position
+    TOUCHES:         {from: [Change], to: [Service], note: "derived: a changed file falls under one of the service's path_prefixes"}   # CQ14, CQ21
+    REVERTS:         {from: [Change], to: [Change], note: "declared: 'Revert \"…\"' / 'This reverts #n' in the PR title or body"}       # CQ23, CQ26
     CONSTRAINS:      {from: [Constraint], to: [Requirement, DesignElement, Service, WorkItem], properties: {scope: string}}
     DEPENDS_ON:      {from: [WorkItem, Service], to: [WorkItem, Service], properties: {kind: {enum: [blocks, needs]}}}
     OWNED_BY:        {from: [Service, WorkItem, Request], to: [Team, "core:Entity"]}
@@ -137,7 +144,7 @@ types:
   # Trace-link policy (BRIEF E-20261002-01-r2): a confidence cut-off at write time left about 1 trail in 3 intact in the
   # source study, and the confidence was never calibrated. So links are never dropped at write time.
   link_policy:
-    applies_to: [REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO]
+    applies_to: [REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO, APPLIES_TO]
     link_status: {enum: [proposed, confirmed, rejected], declared_links_start_as: confirmed, inferred_links_start_as: proposed}
     write_time_threshold: none                     # store every proposed link with its score
     read_time_threshold: per_edge_type_fitted      # fitted on our own labelled data, per type (B14)
@@ -192,6 +199,12 @@ projection:
         from: {type: Change, key: {repo: $.repo, number: $.number}}
         to_each: {type: WorkItem, key: {tracker: jira, external_key: "regex($.body, '(?i)(?:fixes|closes|resolves)\\s+([A-Z][A-Z0-9]+-\\d+)')"}}
         set: {confidence: 1.0, method: declared, link_status: confirmed}
+      - type: REVERTS
+        from: {type: Change, key: {repo: $.repo, number: $.number}}
+        to_each: {type: Change, key: {repo: $.repo, number: "regex($.title + ' ' + $.body, '(?i)(?:revert(?:s)?\\s+#|this reverts #)(\\d+)')"}}
+      - type: TOUCHES
+        from: {type: Change, key: {repo: $.repo, number: $.number}}
+        to_each: {type: Service, match_any_prefix: {repo: $.repo, path_prefixes: $.files}}
   - event: pdlc.change.reviewed
     upsert:
       - {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}, set: {verdict: $.verdict}}
@@ -227,12 +240,20 @@ projection:
     transition: {type: WorkItem, to: "map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})"}
     edges:
       - {type: DECOMPOSES_INTO, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.parent_key}}, to: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, when: $.parent_key}
+  - event: pdlc.spec.approved
+    upsert:
+      - {type: Spec, key: {doc_id: $.doc_id, version: $.version}, set: {title: $.title, acceptance_criteria: $.acceptance_criteria, scope: $.scope, source_uri: $.source_uri, content_hash: $.content_hash}}
+    transition: {type: Spec, to: approved}
+    edges:
+      - {type: REFINES, from: {type: Spec, key: {doc_id: $.doc_id, version: $.version}}, to_each: {type: Request, key: {source_system: $.request_system, external_id: "$.request_ids[*]"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+      - {type: CITES, from: {type: Spec, key: {doc_id: $.doc_id, version: $.version}}, to_each: {node_id: "$.cited_node_ids[*]"}, set: {pinned_position: $event.global_position}}
   - event: pdlc.decision.recorded
     upsert:
       - {type: Decision, key: {content_hash: "sha256($.statement)"}, set: {statement: $.statement, rationale: $.rationale, source_uri: $.source_uri, content_hash: "sha256($.statement)"}}
     transition: {type: Decision, to: accepted}
     edges:
       - {type: SUPERSEDES, from: {type: Decision, key: {content_hash: "sha256($.statement)"}}, to: {type: Decision, key: {content_hash: $.supersedes_hash}}, when: $.supersedes_hash}
+      - {type: APPLIES_TO, from: {type: Decision, key: {content_hash: "sha256($.statement)"}}, to_each: {node_id: "$.applies_to_node_ids[*]"}, set: {confidence: 1.0, method: declared, link_status: confirmed}, when: $.applies_to_node_ids}
   # Every rule implicitly adds DERIVED_FROM from each upserted node to the triggering Event (provenance),
   # and sets source_trust from the emitting source's allowlist entry.
 
@@ -245,6 +266,7 @@ extraction:
     Constraint: {description: "A rule that limits future work, e.g. 'Refunds must never exceed the captured amount'", max_confidence: 0.8}
     Lesson:     {description: "Something learned from an outcome, phrased as apply or avoid", max_confidence: 0.6}
     IMPLEMENTS: {description: "An undeclared link from a change to the requirement it serves", method: inferred, max_confidence: 0.7, link_status: proposed, scoring_question: "Does this change implement this requirement? yes/no"}
+    APPLIES_TO: {description: "Which service, requirement, design section or change a decision is about", method: inferred, link_status: proposed, scoring_question: "Is this decision about this item? yes/no"}
     VERIFIES:   {description: "An undeclared link from a test to the requirement it checks", method: inferred, link_status: proposed, scoring_question: "Does this test check this requirement? yes/no"}
   never_propose: [Change, TestRun, Deployment, Incident, WorkItem]   # these come only from tool events
 
@@ -264,7 +286,7 @@ retrieval:
     status:
       description: "Current, non-superseded state of a decision, spec or design"
       examples: ["is the idempotency decision still current", "latest version of the refunds HLD"]
-      weights: {SUPERSEDES: 5, CONTRADICTS: 4, DECIDED_BY: 2}
+      weights: {SUPERSEDES: 5, CONTRADICTS: 4, DECIDED_BY: 2, APPLIES_TO: 3}
     impact:
       description: "What is affected if this changes"
       examples: ["what depends on the ledger service", "what breaks if we change the refunds API"]
@@ -273,13 +295,13 @@ retrieval:
     preflight:
       description: "Before acting on an artifact, surface lessons, open incidents, failing tests and constraints"
       examples: ["anything I should know before editing refund/retry.py"]
-      weights: {LEARNED_FROM: 5, AFFECTS: 4, CONSTRAINS: 5, RAN_AGAINST: 3, ATTRIBUTED_TO: 3}
+      weights: {LEARNED_FROM: 5, AFFECTS: 4, CONSTRAINS: 5, RAN_AGAINST: 3, ATTRIBUTED_TO: 3, TOUCHES: 5, APPLIES_TO: 4, REVERTS: 4}
   admission:                      # what may reach the agent's context (BRIEF E-20261004-02, B11)
     superseded_or_reversed: {default: exclude, include_for_intents: [status, why], label_as: superseded}
     untrusted_uncorroborated: {default: exclude_from_action_context, available_via: lookup_untrusted}
     proposed_links: {default: show_with_confidence, never_counted_as: confirmed}
   core_intent_weights:            # additions to core intents when this pack is active
-    why: {IMPLEMENTS: 4, REFINES: 4, DECIDED_BY: 3, ATTRIBUTED_TO: 3, RAISES: 3}
+    why: {IMPLEMENTS: 4, REFINES: 4, DECIDED_BY: 3, ATTRIBUTED_TO: 3, RAISES: 3, APPLIES_TO: 4, CITES: 3}
     who_is: {OWNED_BY: 5, DECIDED_BY: 4}
 
 lifecycle:

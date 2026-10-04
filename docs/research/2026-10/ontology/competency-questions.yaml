@@ -1,0 +1,254 @@
+# Competency questions for the PDLC pack.
+# Purpose: every type and edge in the pack must be needed by at least one question; every question must be answerable.
+# No internal users were available, so questions come from: the Jetstream spine and its four C6 call sites (JET),
+# MOOSEDev question classes (MOOSE: supersession, set-completeness, negation), TraceDev missing-link checks (TRACE),
+# ProjectMem pre-action warnings (PMEM), EA-Graph anchoring (ANCHOR), DORA delivery metrics (DORA),
+# and the examples in the R10/R4/R8 briefs on the research bus (BRIEF).
+# answer_shape: traverse | set_difference | aggregate | temporal | snapshot | similarity | property_filter
+# needs_*: "core:" prefix = provided by the core pack.
+
+questions:
+  # --- Intake and spec (C6 call sites) ---
+  - id: CQ01
+    question: "What prior decisions and constraints apply to this new request about refund retries?"
+    asker: spec author or agent at the Spec step
+    source: [JET C6 call site (a) task-conditioned briefing]
+    answer_shape: [similarity, traverse]
+    needs_types: [Request, Decision, Constraint, Service]
+    needs_edges: [APPLIES_TO, CONSTRAINS]
+    needs_properties: [Decision.status, Decision.valid_to, Constraint.status]
+  - id: CQ02
+    question: "Who owns the service this request touches, and who made the last decision about it?"
+    asker: triage
+    source: [JET C6 call site (b) triage routing]
+    answer_shape: [traverse]
+    needs_types: [Request, Service, Team, Decision, "core:Entity"]
+    needs_edges: [OWNED_BY, APPLIES_TO, DECIDED_BY]
+  - id: CQ03
+    question: "Has a request like this been made before, and what happened to it?"
+    asker: triage
+    source: [JET Intake triage]
+    answer_shape: [similarity]
+    needs_types: [Request]
+    needs_edges: []
+    needs_properties: [Request.status, Request.embed_fields]
+  - id: CQ04
+    question: "Resolve the knowledge this spec references, exactly as it was when the spec was approved."
+    asker: build step and adversarial reviewer
+    source: [JET C6 call sites (c) spec references knowledge and (d) pinned review snapshot]
+    answer_shape: [traverse, snapshot]
+    needs_types: [Spec, Decision, Constraint, DesignElement]
+    needs_edges: [CITES]
+    needs_properties: [CITES.pinned_position]
+  # --- Design ---
+  - id: CQ05
+    question: "Which requirements in spec S have no design element?"
+    asker: tech lead
+    source: [TRACE missing links, MOOSE set-completeness]
+    answer_shape: [set_difference]
+    needs_types: [Spec, Requirement, DesignElement]
+    needs_edges: [REFINES]
+    needs_properties: [REFINES.link_status]
+  - id: CQ06
+    question: "Is this section of the refunds HLD still the approved version, and what replaced the old one?"
+    asker: engineer
+    source: [MOOSE supersession]
+    answer_shape: [traverse]
+    needs_types: [DesignElement]
+    needs_edges: ["core:SUPERSEDES"]
+    needs_properties: [DesignElement.status]
+  - id: CQ07
+    question: "Which decisions were reversed last quarter, and why?"
+    asker: architect
+    source: [MOOSE supersession, BRIEF E-20261004-02 outdated decisions]
+    answer_shape: [temporal, traverse]
+    needs_types: [Decision]
+    needs_edges: ["core:SUPERSEDES"]
+    needs_properties: [Decision.status, Decision.valid_to, Decision.rationale]
+  - id: CQ08
+    question: "Do any two active decisions about the payments service contradict each other?"
+    asker: architect
+    source: [MOOSE negation]
+    answer_shape: [traverse]
+    needs_types: [Decision, Service]
+    needs_edges: ["core:CONTRADICTS", APPLIES_TO]
+  # --- Work ---
+  - id: CQ09
+    question: "Which tickets under epic E are still open, and what is blocking them?"
+    asker: engineering manager
+    source: [JET Decompose and Sequence]
+    answer_shape: [traverse]
+    needs_types: [WorkItem]
+    needs_edges: [DECOMPOSES_INTO, DEPENDS_ON]
+    needs_properties: [WorkItem.status, DEPENDS_ON.kind]
+  - id: CQ10
+    question: "Which requirements for the next release still have no tests?"
+    asker: engineering manager
+    source: [BRIEF E-20261002-01-r2, MOOSE set-completeness]
+    answer_shape: [set_difference]
+    needs_types: [Requirement, WorkItem, TestCase]
+    needs_edges: [IMPLEMENTS, VERIFIES]
+    needs_properties: [WorkItem.milestone, VERIFIES.link_status]
+  - id: CQ11
+    question: "Which merged changes are not linked to any ticket?"
+    asker: engineering manager
+    source: [TRACE missing links]
+    answer_shape: [set_difference]
+    needs_types: [Change, WorkItem]
+    needs_edges: [IMPLEMENTS]
+    needs_properties: [Change.status]
+  # --- Change and review ---
+  - id: CQ12
+    question: "Which pull requests were merged last week without an approving review?"
+    asker: compliance, PR risk routing
+    source: [JET Pull Requests risk routing and disposition]
+    answer_shape: [set_difference, temporal]
+    needs_types: [Change, Review]
+    needs_edges: [REVIEWS]
+    needs_properties: [Review.verdict, Change.status]
+  - id: CQ13
+    question: "Why does refund/retry.py exist? Trace it back to the request."
+    asker: engineer, agent
+    source: [JET spine, existing 'why' intent]
+    answer_shape: [property_filter, traverse]
+    needs_types: [Change, WorkItem, Requirement, Spec, Request, Decision]
+    needs_edges: [IMPLEMENTS, REFINES, DECOMPOSES_INTO, APPLIES_TO]
+    needs_properties: [Change.files]
+  - id: CQ14
+    question: "Before I edit refund/retry.py, what should I know?"
+    asker: coding agent
+    source: [PMEM pre-action warning]
+    answer_shape: [property_filter, traverse]
+    needs_types: [Change, Service, Incident, Lesson, Constraint, TestRun]
+    needs_edges: [TOUCHES, ATTRIBUTED_TO, AFFECTS, LEARNED_FROM, CONSTRAINS, RAN_AGAINST]
+    needs_properties: [Service.path_prefixes, Change.files, TestRun.outcome]
+  - id: CQ15
+    question: "Is the decision about refund retries still valid, given the code it was made against has changed?"
+    asker: reviewer
+    source: [ANCHOR claim becomes unprovable when its anchor changes]
+    answer_shape: [traverse]
+    needs_types: [Decision, Change]
+    needs_edges: [APPLIES_TO]
+    needs_properties: [Decision.anchor_path, Decision.content_hash, Change.files]
+  - id: CQ16
+    question: "What changes went out in this deployment, and which tickets and requirements do they deliver?"
+    asker: release manager
+    source: [JET Deploy]
+    answer_shape: [traverse]
+    needs_types: [Deployment, Change, WorkItem, Requirement]
+    needs_edges: [DEPLOYS, IMPLEMENTS]
+  # --- Verify ---
+  - id: CQ17
+    question: "Which tests are failing on the latest commit of PR 812, and have they failed before (flaky)?"
+    asker: engineer
+    source: [JET Tier 1 / Tier 2 CI]
+    answer_shape: [traverse, temporal]
+    needs_types: [Change, TestRun, TestCase]
+    needs_edges: [RAN_AGAINST, EXECUTES]
+    needs_properties: [TestRun.outcome, TestRun.commit_sha, TestCase.status]
+  - id: CQ18
+    question: "Which requirements are verified only by tests that failed on their last run?"
+    asker: QA lead
+    source: [MOOSE negation, TRACE]
+    answer_shape: [traverse, aggregate]
+    needs_types: [Requirement, TestCase, TestRun]
+    needs_edges: [VERIFIES, EXECUTES]
+    needs_properties: [TestRun.outcome]
+  # --- Deploy and operate ---
+  - id: CQ19
+    question: "Where is PAY-341 deployed right now?"
+    asker: product manager
+    source: [JET Deploy, pack 'trace' intent]
+    answer_shape: [traverse]
+    needs_types: [WorkItem, Change, Deployment, Service]
+    needs_edges: [IMPLEMENTS, DEPLOYS, DEPLOYED_TO]
+    needs_properties: [Deployment.environment, Deployment.status]
+  - id: CQ20
+    question: "Which deployment was running when incident I-77 started, and what did it change over the one before?"
+    asker: on-call engineer
+    source: [JET Detection and Diagnosis]
+    answer_shape: [traverse, temporal]
+    needs_types: [Incident, Deployment, Change, Service]
+    needs_edges: [OCCURRED_ON, DEPLOYS, DEPLOYED_TO]
+  - id: CQ21
+    question: "What share of changes to each service caused a confirmed incident this quarter?"
+    asker: engineering director
+    source: [DORA change failure rate, JET escape rate]
+    answer_shape: [aggregate]
+    needs_types: [Change, Incident, Service]
+    needs_edges: [ATTRIBUTED_TO, TOUCHES]
+    needs_properties: [ATTRIBUTED_TO.link_status]
+  - id: CQ22
+    question: "What was the lead time from ticket created to running in production for tickets closed this month?"
+    asker: engineering director
+    source: [DORA lead time for changes]
+    answer_shape: [aggregate, temporal]
+    needs_types: [WorkItem, Change, Deployment]
+    needs_edges: [IMPLEMENTS, DEPLOYS, "core:DERIVED_FROM"]
+    needs_properties: [Deployment.environment]
+    notes: "transition times come from the ledger events behind each node (DERIVED_FROM), not from a single status_changed_at"
+  - id: CQ23
+    question: "Was the rollback of the refunds service followed by a fix, and which change fixed incident I-77?"
+    asker: incident commander
+    source: [JET Mitigation]
+    answer_shape: [traverse, temporal]
+    needs_types: [Deployment, Change, Incident]
+    needs_edges: [REMEDIATES, REVERTS]
+    needs_properties: [Deployment.status]
+  # --- Feedback and learning ---
+  - id: CQ24
+    question: "Which incidents led to new requests, and were those requests delivered?"
+    asker: product manager
+    source: [JET Operating to Intake feedback loop (RCA, escapes)]
+    answer_shape: [traverse]
+    needs_types: [Incident, Request, Spec, WorkItem]
+    needs_edges: [RAISES, REFINES, DECOMPOSES_INTO]
+    needs_properties: [Request.status]
+  - id: CQ25
+    question: "What have we learned about the refunds service, and is each lesson still valid?"
+    asker: engineer, agent
+    source: [PMEM lessons, RSI outcome feedback]
+    answer_shape: [traverse]
+    needs_types: [Lesson, Incident, Change, Service]
+    needs_edges: [LEARNED_FROM, AFFECTS]
+    needs_properties: [Lesson.status, Lesson.polarity]
+  - id: CQ26
+    question: "Have we tried this fix before, and did it get reverted or cause an incident?"
+    asker: coding agent
+    source: [PMEM warn before repeating a failed fix]
+    answer_shape: [similarity, traverse]
+    needs_types: [Change, Incident, Lesson]
+    needs_edges: [REVERTS, ATTRIBUTED_TO, LEARNED_FROM]
+    needs_properties: [Change.embed_fields]
+  # --- Agents and provenance (bridge to the agent ontology) ---
+  - id: CQ27
+    question: "Which agent sessions worked on PAY-341, and what did they decide?"
+    asker: engineering manager
+    source: [existing agent ontology, JET Inner Loop]
+    answer_shape: [traverse]
+    needs_types: [WorkItem, Decision, "core:Event"]
+    needs_edges: ["core:REFERENCES", "core:DERIVED_FROM"]
+  - id: CQ28
+    question: "What did the agent that wrote PR 812 know at the time: which spec, decision and design versions?"
+    asker: reviewer, auditor
+    source: [JET pinned snapshot, ADR-0001 provenance]
+    answer_shape: [snapshot, traverse]
+    needs_types: [Change, Spec, Decision, DesignElement, "core:Event"]
+    needs_edges: ["core:REFERENCES", CITES]
+  # --- Trust and governance ---
+  - id: CQ29
+    question: "Which items in this answer come from untrusted sources and are not backed by a trusted one?"
+    asker: the retrieval gate itself, auditor
+    source: [BRIEF E-20261003-01-r2]
+    answer_shape: [property_filter]
+    needs_types: [Decision, Constraint, Lesson, WorkItem]
+    needs_edges: []
+    needs_properties: [source_trust]
+  - id: CQ30
+    question: "Who approved relaxing constraint C, and when?"
+    asker: compliance
+    source: [JET governance, MOOSE supersession]
+    answer_shape: [traverse, temporal]
+    needs_types: [Constraint, "core:Entity", "core:Event"]
+    needs_edges: [DECIDED_BY, "core:DERIVED_FROM"]
+    needs_properties: [Constraint.status]
