@@ -26,6 +26,7 @@ from context_graph.adapters.redis.indexes import ensure_event_index
 from context_graph.domain.keyword_search import event_search_text, query_terms
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
+from context_graph.ports.event_store import AppendOutcome
 from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
@@ -114,6 +115,14 @@ def _deserialize_event(raw_json: bytes | str) -> Event:
 # ---------------------------------------------------------------------------
 # RedisEventStore
 # ---------------------------------------------------------------------------
+
+
+def _parse_ingest_result(result: Any) -> AppendOutcome:
+    """The ingest script's reply: a new entry ID, or "=" and the stored one for a duplicate."""
+    text = result.decode() if isinstance(result, bytes) else str(result)
+    if text.startswith("="):
+        return AppendOutcome("duplicate", text[1:] or None)
+    return AppendOutcome("created", text)
 
 
 @translate_errors(translate_redis_error)
@@ -233,7 +242,7 @@ class RedisEventStore:
         if self._settings.replica_wait:
             await self._client.execute_command("WAIT", 1, 100)  # type: ignore[no-untyped-call]
 
-        global_position = result.decode() if isinstance(result, bytes) else str(result)
+        global_position = _parse_ingest_result(result).position or ""
         log.debug(
             "event_appended",
             event_id=event_id_str,
@@ -286,13 +295,56 @@ class RedisEventStore:
 
         results = await pipe.execute()
 
-        positions: list[str] = []
-        for result in results:
-            global_position = result.decode() if isinstance(result, bytes) else str(result)
-            positions.append(global_position)
-
+        positions = [_parse_ingest_result(result).position or "" for result in results]
         log.debug("batch_appended", count=len(events))
         return positions
+
+    async def append_batch_outcomes(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[AppendOutcome]:
+        """Append in one pipeline; each event's outcome, a failed command included.
+
+        The pipeline is not a transaction: every event is written atomically
+        by the Lua script on its own, so one failing command does not undo or
+        stop the others, and is reported ``failed`` for that event alone.
+        """
+        if not events:
+            return []
+        if self._script_sha is None:
+            await self._register_script()
+        pipe = self._client.pipeline(transaction=False)
+        for idx, event in enumerate(events):
+            event_id_str = str(event.event_id)
+            occurred_at_epoch_ms = _event_to_epoch_ms(event)
+            event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+            pipe.evalsha(
+                self._script_sha,  # type: ignore[arg-type]
+                4,
+                self._settings.global_stream,
+                f"{self._settings.event_key_prefix}{event_id_str}",
+                self._settings.dedup_set,
+                f"events:session:{event.session_id}",
+                event_id_str,
+                _event_to_json_bytes(
+                    event,
+                    occurred_at_epoch_ms,
+                    payload=event_payload,
+                    search_text_max_chars=self._keyword.text_max_chars,
+                ),
+                str(occurred_at_epoch_ms),
+                str(self._settings.global_stream_maxlen),
+            )
+        results = await pipe.execute(raise_on_error=False)
+        outcomes = [
+            AppendOutcome("failed", error=str(result))
+            if isinstance(result, Exception)
+            else _parse_ingest_result(result)
+            for result in results
+        ]
+        log.debug("batch_appended", count=len(events))
+        return outcomes
 
     async def cleanup_dedup_set(self, retention_ms: int | None = None) -> int:
         """Remove old entries from the dedup sorted set.

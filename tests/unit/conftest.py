@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from context_graph.ports.event_store import AppendOutcome
+
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
 
@@ -49,6 +51,19 @@ class InMemoryEventStore:
             position = await self.append(event, payload=event_payload)
             positions.append(position)
         return positions
+
+    async def append_batch_outcomes(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[AppendOutcome]:
+        outcomes: list[AppendOutcome] = []
+        for idx, event in enumerate(events):
+            seen = str(event.event_id) in self._events
+            event_payload = payloads[idx] if payloads and idx < len(payloads) else None
+            position = await self.append(event, payload=event_payload)
+            outcomes.append(AppendOutcome("duplicate" if seen else "created", position))
+        return outcomes
 
     async def get_by_id(self, event_id: str) -> Event | None:
         return self._events.get(event_id)

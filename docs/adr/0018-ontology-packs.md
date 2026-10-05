@@ -405,3 +405,21 @@ Item 3 of the review plan: findings 2.2, 2.6, 2.7, 2.8, 1.4, 1.5 and 1.6. `tests
   - `OntologyState` is a reserved type name, and an event namespace belongs to the one pack that declares events in it.
   - `OntologyRegistry.inert_settings()` lists the declared settings nothing reads yet, and the loader logs each one as a warning: `embed_fields`, `derived_proposals`, `decay`, `terminal_states_reduce_importance`, other link policy settings, and `mappings`.
 - **A finding while writing the example.** Provenance is written for upserted nodes, so a rule with a bare transition records the new state but not which event set it. The example pack and the runbook upsert the node in every rule that changes it, as the PDLC rules do. Writing provenance for bare transitions is left open.
+
+#### Bulk ingestion (2026-10-05)
+
+The last item of the review plan: findings 3.3, 3.6, 3.7, 3.8, 3.9 and N4. The usage and the ordering contract are in `docs/runbooks/bulk-import.md`.
+- **Outcomes per event (3.9).** `EventStore.append_batch_outcomes` reports `created`, `duplicate` or `failed` for each event, with a conformance test on every backend.
+  - Redis: the ingest script marks a duplicate with `=` before its stored position, so the `"DEDUP"` sentinel no longer reaches clients. A position that is unknown is `null`. The pipeline runs with `raise_on_error=False`, so one failed command is one `failed` event.
+  - Spanner: reports from its transaction.
+  - `/v1/events` and `/v1/events/batch` return each event's status. A batch with nothing stored answers 422 (all refused) or 503 (the store failed), not 201, and store failures are listed per event (`field: "store"`).
+- **Bounded bodies (3.8, N4).** `api/ingest.py` reads every ingest body bounded by `CG_INGEST_*` byte limits, applied both to the bytes sent and to the bytes after gzip is undone, so a small gzip bomb is refused. It also enforces a read timeout (408). A non-object body on `/v1/events` is 422, not 500.
+- **Bulk import (3.6, 3.3).** `POST /v1/events/import`, behind the admin key, takes gzip NDJSON (up to 500,000 events) and validates every line. It appends in chunks of `CG_INGEST_IMPORT_BATCH_SIZE`, and streams one NDJSON outcome per event and a summary.
+  - With a configured admin key, `webhook:` agent ids are accepted, so tool history imports as trusted. Trust comes from the credential; without an admin key those ids are refused.
+  - Valid events are appended in occurrence order (ties in input order), or in input order with `?order=input`. The live ledger is never reordered, and `global_position` stays arrival order.
+  - A store failure marks the rest `failed` and stops; a client resumes by sending the same file again.
+- **Rate limits by events (3.7).** `/v1/events` and `/v1/events/batch` draw on a per-client `CG_INGEST_EVENTS_PER_MINUTE` quota (60,000) charged per event, on top of the per-request limit. An exhausted quota answers 429 with `Retry-After`. Both limiters remain per process.
+
+Left open from the review:
+- **Projection throughput (3.1, 3.4, 3.5, 3.10):** coalescing pack plans per flush, the previous-event lookup by position, fetching each flush's documents in one call, and configurable batch sizes.
+- **A source-adapter registry for webhooks (2.3).**

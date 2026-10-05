@@ -166,3 +166,51 @@ class TestLuaArgvHandling:
             "Lua ingest script should not call string.gsub in executable code — "
             "use JSON.SET path approach instead (ADR-0014)"
         )
+
+
+class TestAppendOutcomes:
+    """The script marks a duplicate with '='; outcomes and positions read it (review 3.9)."""
+
+    @pytest.mark.asyncio()
+    async def test_outcomes_per_event_and_no_sentinel(
+        self, mock_redis_client, default_redis_settings, sample_event
+    ):
+        mock_pipe = MagicMock()
+        mock_pipe.evalsha = MagicMock()
+        mock_pipe.execute = AsyncMock(
+            return_value=[b"1707644400000-0", b"=1707644300000-0", b"=", RuntimeError("OOM")]
+        )
+        mock_redis_client.pipeline = MagicMock(return_value=mock_pipe)
+        store = RedisEventStore(client=mock_redis_client, settings=default_redis_settings)
+        store._script_sha = "abc123sha"
+
+        outcomes = await store.append_batch_outcomes([sample_event] * 4)
+
+        mock_pipe.execute.assert_called_once_with(raise_on_error=False)
+        assert [(o.status, o.position) for o in outcomes] == [
+            ("created", "1707644400000-0"),
+            ("duplicate", "1707644300000-0"),
+            ("duplicate", None),  # the document expired: never a "DEDUP" position
+            ("failed", None),
+        ]
+        assert outcomes[3].error == "OOM"
+
+    @pytest.mark.asyncio()
+    async def test_append_returns_the_stored_position_of_a_duplicate(
+        self, mock_redis_client, default_redis_settings, sample_event
+    ):
+        mock_redis_client.evalsha = AsyncMock(return_value=b"=1707644300000-0")
+        store = RedisEventStore(client=mock_redis_client, settings=default_redis_settings)
+        store._script_sha = "abc123sha"
+        assert await store.append(sample_event) == "1707644300000-0"
+
+    def test_script_marks_duplicates(self):
+        import importlib.resources
+
+        lua_source = (
+            importlib.resources.files("context_graph.adapters.redis.lua")
+            .joinpath("ingest.lua")
+            .read_text(encoding="utf-8")
+        )
+        assert 'return "=" .. position' in lua_source
+        assert '"DEDUP"' not in lua_source

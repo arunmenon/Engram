@@ -73,6 +73,21 @@ class TestAppend:
         assert positions[0] == positions[2]
         assert positions[0] != positions[1]
 
+    async def test_batch_outcomes_tell_new_from_duplicate(self, log_harness: LogHarness) -> None:
+        """Bulk ingest reports each event (review 3.9); a duplicate never reads as written."""
+        log = log_harness.log
+        seen = make_event(session_id=_session())
+        position = await log.append(seen)
+        new = make_event(session_id=seen.session_id)
+        outcomes = await log.append_batch_outcomes([new, seen, new])
+        assert [o.status for o in outcomes] == ["created", "duplicate", "duplicate"]
+        assert outcomes[1].position == position
+        assert outcomes[2].position == outcomes[0].position
+        assert outcomes[0].position not in (None, "", position)
+        assert all(o.error is None for o in outcomes)
+        assert await log.stream_length() == 2  # type: ignore[attr-defined]
+        assert await log.append_batch_outcomes([]) == []
+
 
 class TestReads:
     async def test_read_your_writes(self, log_harness: LogHarness) -> None:

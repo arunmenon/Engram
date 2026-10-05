@@ -37,6 +37,7 @@ from context_graph.adapters.memory.stream import MemoryStream, position_sort_key
 from context_graph.domain.keyword_search import event_search_text, query_terms, tokenize
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
+from context_graph.ports.event_store import AppendOutcome
 from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
@@ -145,6 +146,21 @@ class MemoryEventLog:
             payload = payloads[idx] if payloads and idx < len(payloads) else None
             positions.append(await self.append(event, payload))
         return positions
+
+    async def append_batch_outcomes(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[AppendOutcome]:
+        outcomes: list[AppendOutcome] = []
+        for idx, event in enumerate(events):
+            existing = self._dedup.get(str(event.event_id))
+            if existing is not None:
+                outcomes.append(AppendOutcome("duplicate", existing.position))
+                continue
+            payload = payloads[idx] if payloads and idx < len(payloads) else None
+            outcomes.append(AppendOutcome("created", await self.append(event, payload)))
+        return outcomes
 
     # -- migration (ADR-0019 §7) ---------------------------------------------
 

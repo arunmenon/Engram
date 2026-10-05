@@ -38,6 +38,7 @@ from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.domain.keyword_search import event_search_text, query_terms
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
+from context_graph.ports.event_store import AppendOutcome
 from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
@@ -251,11 +252,17 @@ class SpannerEventLog:
         self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
     ) -> list[str]:
         """Append (event_id, session_id, document, occurred_at_ms) in one transaction."""
+        return [outcome.position or "" for outcome in self._append_outcomes_sync(entries)]
+
+    def _append_outcomes_sync(
+        self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
+    ) -> list[AppendOutcome]:
+        """Append in one transaction; each entry's outcome (created or duplicate)."""
         from google.cloud.spanner_v1 import KeySet
 
         holder: dict[str, Any] = {}
 
-        def work(transaction: Any) -> list[tuple[str, int] | str]:
+        def work(transaction: Any) -> list[tuple[str, int, bool] | str]:
             holder["transaction"] = transaction
             ids = sorted({event_id for event_id, _s, _d, _o in entries})
             existing: dict[str, str] = {}
@@ -267,21 +274,22 @@ class SpannerEventLog:
                 event_id, commit_ts, batch_index, dedup_active = row
                 if dedup_active:
                     existing[event_id] = format_position(commit_ts, batch_index, event_id)
-            results: list[tuple[str, int] | str] = []
+            # An existing position (duplicate), or (event_id, batch_index, created)
+            results: list[tuple[str, int, bool] | str] = []
             written: dict[str, int] = {}
             rows = []
             for event_id, session_id, document, occurred_at_ms in entries:
                 if event_id in existing:
                     results.append(existing[event_id])
                 elif event_id in written:
-                    results.append((event_id, written[event_id]))
+                    results.append((event_id, written[event_id], False))
                 else:
                     batch_index = len(written)
                     written[event_id] = batch_index
                     rows.append(
                         self._row(event_id, session_id, batch_index, document, occurred_at_ms)
                     )
-                    results.append((event_id, batch_index))
+                    results.append((event_id, batch_index, True))
             if rows:
                 transaction.insert_or_update("Events", EVENT_COLUMNS, rows)
             return results
@@ -289,7 +297,12 @@ class SpannerEventLog:
         results = self._database.run_in_transaction(work)
         commit_ts = holder["transaction"].committed
         return [
-            item if isinstance(item, str) else format_position(commit_ts, item[1], item[0])
+            AppendOutcome("duplicate", item)
+            if isinstance(item, str)
+            else AppendOutcome(
+                "created" if item[2] else "duplicate",
+                format_position(commit_ts, item[1], item[0]),
+            )
             for item in results
         ]
 
@@ -326,6 +339,26 @@ class SpannerEventLog:
             )
         positions: list[str] = await self._run(self._append_entries_sync, entries)
         return positions
+
+    async def append_batch_outcomes(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[AppendOutcome]:
+        """One transaction: the batch is written whole, or the error is raised."""
+        if not events:
+            return []
+        entries = [
+            (
+                str(event.event_id),
+                event.session_id,
+                self._document(event, payloads[idx] if payloads and idx < len(payloads) else None),
+                _epoch_ms(event.occurred_at),
+            )
+            for idx, event in enumerate(events)
+        ]
+        outcomes: list[AppendOutcome] = await self._run(self._append_outcomes_sync, entries)
+        return outcomes
 
     # -- migration (ADR-0019 §7, design brief phase 3) ------------------------
 

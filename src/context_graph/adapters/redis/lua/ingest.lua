@@ -11,8 +11,10 @@
 -- ARGV[4] = max_stream_len (number, 0 = uncapped; approximate MAXLEN for XADD)
 --
 -- Returns: stream entry ID (string)
---   - If the event already exists (dedup hit), returns the previously stored entry ID.
 --   - If the event is new, atomically writes to all keys and returns the new entry ID.
+--   - If the event already exists (dedup hit), returns "=" followed by the stored
+--     entry ID, or "=" alone when the stored document no longer holds one. ("=" never
+--     appears in a stream entry ID, so callers can tell a duplicate from a write.)
 
 local stream_key = KEYS[1]
 local json_key   = KEYS[2]
@@ -33,11 +35,11 @@ if existing_score then
         -- Extract the value between quotes
         local position = string.match(stored_json, '"([^"]+)"')
         if position then
-            return position
+            return "=" .. position
         end
     end
-    -- Fallback: return a sentinel indicating dedup hit but position unknown
-    return "DEDUP"
+    -- Dedup hit, position unknown (the document expired)
+    return "="
 end
 
 -- Step 2a: XADD to the global stream — Redis auto-assigns the entry ID

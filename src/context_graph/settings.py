@@ -382,6 +382,26 @@ class RateLimitSettings(BaseSettings):
     max_clients: int = 10000  # LRU size for client tracking
 
 
+class IngestSettings(BaseSettings):
+    """Event ingestion limits (``/v1/events``, ``/v1/events/batch``, ``/v1/events/import``).
+
+    Body sizes count the bytes after ``Content-Encoding: gzip`` is undone
+    (and the bytes sent, before it). The event quota is per client and
+    charged per event, on top of the per-request rate limit.
+    """
+
+    model_config = {"env_prefix": "CG_INGEST_"}
+
+    max_body_bytes: int = 10_000_000  # /v1/events and /v1/events/batch
+    batch_max_events: int = 1000
+    import_max_body_bytes: int = 200_000_000  # /v1/events/import (NDJSON)
+    import_max_events: int = 500_000
+    import_batch_size: int = 500  # events per store append during an import
+    body_read_timeout_s: float = 60.0
+    # Events a client may ingest per minute through /v1/events and /batch (0: no quota)
+    events_per_minute: int = 60_000
+
+
 class AuthSettings(BaseSettings):
     """API authentication settings.
 
@@ -696,6 +716,7 @@ class Settings(BaseSettings):
     hyde: HyDESettings = Field(default_factory=HyDESettings)
     ppr: PPRSettings = Field(default_factory=PPRSettings)
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
+    ingest: IngestSettings = Field(default_factory=IngestSettings)
     simulation: SimulationSettings = Field(default_factory=SimulationSettings)
     storage: StorageSettings = Field(default_factory=StorageSettings)
     spanner: SpannerSettings = Field(default_factory=SpannerSettings)

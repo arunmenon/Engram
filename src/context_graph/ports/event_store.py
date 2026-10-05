@@ -8,10 +8,28 @@ Source: ADR-0004, ADR-0010
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from context_graph.domain.models import Event, EventQuery
+
+AppendStatus = Literal["created", "duplicate", "failed"]
+
+
+@dataclass(frozen=True)
+class AppendOutcome:
+    """What happened to one event of an append.
+
+    ``created``: written now, at ``position``. ``duplicate``: its event_id
+    was already in the ledger; ``position`` is where, or None when the
+    ledger no longer holds the position (an expired document). ``failed``:
+    not written; ``error`` says why, and the same event can be sent again.
+    """
+
+    status: AppendStatus
+    position: str | None = None
+    error: str | None = None
 
 
 class EventStore(Protocol):
@@ -37,6 +55,22 @@ class EventStore(Protocol):
         """Append multiple events. Returns list of global_positions.
 
         Each event is individually idempotent.
+        """
+        ...
+
+    async def append_batch_outcomes(
+        self,
+        events: list[Event],
+        payloads: list[dict[str, Any] | None] | None = None,
+    ) -> list[AppendOutcome]:
+        """Append multiple events; one outcome per event, in order.
+
+        Like ``append_batch``, each event is individually idempotent, but a
+        duplicate is reported as such, and an event the backend could not
+        write is reported ``failed`` without failing the others when the
+        backend writes events independently (Redis). A backend that writes
+        the batch in one transaction (Spanner) fails or writes it whole.
+        An event_id repeated within the batch is created once.
         """
         ...
 

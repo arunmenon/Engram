@@ -19,10 +19,12 @@ from prometheus_client import make_asgi_app as make_metrics_app
 from context_graph.adapters.registry import open_stores
 from context_graph.api.dependencies import require_admin_key, require_api_key
 from context_graph.api.middleware import register_middleware
+from context_graph.api.rate_limit import EventQuota
 from context_graph.api.routes.admin import router as admin_router
 from context_graph.api.routes.artifacts import router as artifacts_router
 from context_graph.api.routes.context import router as context_router
 from context_graph.api.routes.entities import router as entities_router
+from context_graph.api.routes.events import import_router as events_import_router
 from context_graph.api.routes.events import router as events_router
 from context_graph.api.routes.feedback import router as feedback_router
 from context_graph.api.routes.health import router as health_router
@@ -136,6 +138,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.retrieval = retrieval
     app.state.ontology = ontology
     app.state.artifacts = artifacts
+    if settings.rate_limit.enabled and settings.ingest.events_per_minute > 0:
+        app.state.event_quota = EventQuota(
+            settings.ingest.events_per_minute, max_clients=settings.rate_limit.max_clients
+        )
     app.state.eval_pending = EvalPending(stores.graph, ontology, settings.ontology.eval_state_ttl_s)
 
     logger.info(
@@ -179,6 +185,7 @@ def create_app() -> FastAPI:
     # Admin + GDPR endpoints: require admin key
     admin_key_deps = [Depends(require_admin_key)]
     app.include_router(admin_router, prefix="/v1", dependencies=admin_key_deps)
+    app.include_router(events_import_router, prefix="/v1", dependencies=admin_key_deps)
     app.include_router(users_router, prefix="/v1", dependencies=admin_key_deps)
 
     # Simulation endpoint: standard API key auth

@@ -34,20 +34,20 @@ class TokenBucket:
         self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)
         self.last_refill = now
 
-    def consume(self) -> bool:
-        """Try to consume one token. Returns True if successful."""
+    def consume(self, amount: float = 1.0) -> bool:
+        """Try to consume ``amount`` tokens. Returns True if successful."""
         self._refill()
-        if self.tokens >= 1.0:
-            self.tokens -= 1.0
+        if self.tokens >= amount:
+            self.tokens -= amount
             return True
         return False
 
-    def time_until_available(self) -> float:
-        """Seconds until at least one token is available."""
+    def time_until_available(self, amount: float = 1.0) -> float:
+        """Seconds until at least ``amount`` tokens are available."""
         self._refill()
-        if self.tokens >= 1.0:
+        if self.tokens >= amount:
             return 0.0
-        return (1.0 - self.tokens) / self.refill_rate
+        return (amount - self.tokens) / self.refill_rate
 
 
 class RateLimiterStore:
@@ -71,6 +71,33 @@ class RateLimiterStore:
         while len(self._buckets) > self._max_clients:
             self._buckets.popitem(last=False)
         return bucket
+
+
+class EventQuota:
+    """Events per minute per client, charged by the number of events ingested.
+
+    The request rate limit counts a 1,000-event batch as one request; this
+    counts it as 1,000 events. In-process, like the request limiter: each
+    API replica keeps its own buckets.
+    """
+
+    def __init__(self, events_per_minute: int, max_clients: int = 10000) -> None:
+        self._capacity = float(events_per_minute)
+        self._refill_rate = events_per_minute / 60.0
+        self._store = RateLimiterStore(max_clients=max_clients)
+
+    def charge(self, client_id: str, count: int) -> float | None:
+        """Take ``count`` events from the client's quota; None, or seconds to wait.
+
+        A request larger than a whole minute's quota waits for a full bucket
+        and then goes through, so oversized batches are slowed, never refused
+        forever.
+        """
+        bucket = self._store.get_or_create(client_id, self._capacity, self._refill_rate)
+        amount = min(float(count), self._capacity)
+        if bucket.consume(amount):
+            return None
+        return bucket.time_until_available(amount)
 
 
 # ---------------------------------------------------------------------------
