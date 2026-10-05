@@ -308,3 +308,12 @@ Writing the set found a trap: in YAML, ` #` starts a comment, so `query: What do
 - **Limit:** only changes already merged when the deployment is projected are linked. A merge event that arrives after its deployment is not linked until a replay.
 - **Classification:** adding an edge to an existing rule was classified `breaking`, because a rule's parts were compared as one identity. That would have made every worker refuse to start on 1.4.0. Each part (upsert, transition, edge) is now compared on its own. A lost part is breaking; an added part is `mapping`. 1.3.0 → 1.4.0 is therefore `mapping`, so a live graph replays its pack events on upgrade, which links past deployments.
 - **Tests:** `test_pack_projection.py::test_a_deployed_commit_links_its_merged_change` (before and after the merge, another repo with the same sha, an unknown sha) and `test_pack_versioning.py::test_adding_an_edge_to_a_rule_is_mapping_and_removing_one_is_breaking`.
+
+#### Traversal drift rules (2026-10-05)
+
+The two remaining misses in the fixture eval set were traversal drift, not missing links. Artifact traversal (`retrieval/artifacts.py::_drifts`) no longer takes these two steps:
+- **Siblings:** leaving a reached node through the edge type it was entered by, in the same role. "What changes implemented PAY-341?" went PR #7 → release v1.4.0 → PR #8 through `INCLUDES` twice; sharing a release says nothing about the ticket.
+- **Family of a reached node:** a step to a node of the same type, unless from a seed or continuing a chain of such steps. "What does PR #7 implement?" went PR #7 → PAY-341 → its epic PAY-300.
+- **What is kept:** transitive chains (Requirement `REFINES` Spec `REFINES` Request: different roles), and families of seeds ("Trace PAY-300" still reaches its stories).
+
+The fixture set now scores 1.00 (`min_f1` 0.95), and the Phase 2 evaluation is unchanged. Tests: `tests/unit/test_pdlc_retrieval_eval.py::TestTraversalDrift`, and the pinned scores in `test_pdlc_end_to_end.py` on memory, Spanner and Neo4j.

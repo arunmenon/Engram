@@ -897,3 +897,26 @@ class TestReviewFindings:
         )
         assert "Release:acme/app|v1.4.0" in small.nodes
         assert set(small.nodes) == set(full.nodes)
+
+
+class TestTraversalDrift:
+    """Trace answers stay on the question: no siblings, no family of reached nodes."""
+
+    async def test_no_siblings_through_a_shared_release(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(ArtifactQuery("What changes implemented PAY-341?"))
+        changes = {k for k, n in response.nodes.items() if n.node_type == "Change"}
+        assert changes == {"Change:acme/app|7"}  # not #9, which only shares release v1.4.0
+
+    async def test_no_epic_of_a_reached_story(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(ArtifactQuery("What does PR #7 implement?"))
+        tickets = {k for k, n in response.nodes.items() if n.node_type == "WorkItem"}
+        assert tickets == {"WorkItem:jira|PAY-341"}
+        # From a seed, the family is in scope: tracing the epic reaches its stories
+        epic = await retriever.retrieve(ArtifactQuery("Trace PAY-300"))
+        assert {"WorkItem:jira|PAY-341", "WorkItem:jira|PAY-342"} <= set(epic.nodes)

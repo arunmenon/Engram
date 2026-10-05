@@ -20,8 +20,13 @@ packs add (PDLC: changes, tickets, requirements, decisions, incidents):
    or session edges), in the intent's direction, to ``max_depth`` and
    ``max_nodes``. A node's relevance is the best product of normalised
    edge weights along a path from a seed; within a level, nodes are
-   admitted in relevance order. A query matching no intent keyword uses
-   every artifact intent's edges in both directions; a tie prefers an
+   admitted in relevance order. Two steps drift from the question and are
+   not taken: back out of a reached node through the edge type it was
+   entered by, in the same role (its siblings: other changes in the same
+   release), and from a reached node to a node of its own type (its
+   family: a story's epic), unless from a seed or continuing such a chain.
+   A query matching no intent keyword uses every artifact intent's edges in
+   both directions; a tie prefers an
    intent with a plugin (a question about absence names it).
 4. **Admission** (the packs' ``retrieval.admission`` rules):
    - superseded or reversed items are left out, except for the intents a
@@ -127,6 +132,11 @@ class _Found:
     reason: str = "direct"
     # How a seed was found: given, key (a key-like token), number, word
     origin: str = "traversal"
+    # The edge type this node was first reached by, and its role in it
+    # (source or target); None for seeds
+    via: tuple[str, str] | None = None
+    # Reached by an edge between two nodes of the same type (WorkItem -> WorkItem)
+    peer_step: bool = False
 
 
 @dataclass
@@ -494,6 +504,8 @@ class ArtifactRetriever:
                 other = self._ref(far.label, row["node"])
                 if parent is None or other is None:
                     continue
+                if self._drifts(parent, row["edge_type"], near == source, far.label):
+                    continue
                 score = parent.score * weights.get(row["edge_type"], 0.0) / top
                 reached.append((score, self._node_key(other), parent, other, row, row["node"]))
             next_frontier: list[_Found] = []
@@ -506,7 +518,15 @@ class ArtifactRetriever:
                     if len(result.nodes) >= max_nodes:
                         result.truncated = True
                         continue
-                    existing = result.nodes[key] = _Found(other, props, score, level)
+                    came_from_source = self._row_ends(row)[0] != other
+                    existing = result.nodes[key] = _Found(
+                        other,
+                        props,
+                        score,
+                        level,
+                        via=(row["edge_type"], "target" if came_from_source else "source"),
+                        peer_step=other.label == _parent.ref.label,
+                    )
                     next_frontier.append(existing)
                 elif score > existing.score:
                     existing.score = score
@@ -514,6 +534,23 @@ class ArtifactRetriever:
                 edge_key = (self._node_key(source), self._node_key(target), row["edge_type"])
                 result.edges[edge_key] = row["properties"]
             frontier = next_frontier
+
+    @staticmethod
+    def _drifts(parent: _Found, edge_type: str, parent_is_source: bool, far_label: str) -> bool:
+        """Whether a step from ``parent`` leaves the question for its neighbourhood.
+
+        - Siblings: leaving a reached node through the edge type it was
+          entered by, in the same role, reaches its co-members (PR #7 ->
+          release -> PR #8; sharing a release says nothing about #7's ticket).
+        - Peers: a step to a node of the same type (a story's epic, a
+          decision's predecessor) is taken only from a seed, or to continue
+          a chain of such steps; from a node merely reached on the way, it
+          widens the answer to that node's family (PR #7 -> PAY-341 -> epic).
+        """
+        role = "source" if parent_is_source else "target"
+        if parent.via == (edge_type, role):
+            return True
+        return parent.depth > 0 and far_label == parent.ref.label and not parent.peer_step
 
     def _key_prop(self, label: str) -> str:
         node_type = self._registry.node_types.get(label)
