@@ -1,6 +1,8 @@
-# Review guide: how mature is the offering, and is it ready to share with the team? (2026-10-05)
+# Review guide: how mature is the offering on Spanner, and is it ready to share with the team? (2026-10-05)
 
 This guide is for an independent reviewer (a person or a coding agent). It lists what has been built on the branch and why, what is known to be open, and the facts we checked about the branch's state. It ends with the question the review must answer: **is this ready to share with the team, and if not, what is the shortest path there?**
+
+**Spanner is the target backend.** Redis and Neo4j are today's deployment, and the in-memory backend is the reference for tests. The plan is to run Engram on Cloud Spanner, with one database holding both the ledger and the graph. So weigh every finding by what it means on Spanner. Section "Spanner: the target backend" lists what exists there and what has never been tested. Review task F is the largest part of the review.
 
 Read it top to bottom before opening any code.
 
@@ -13,6 +15,7 @@ Read it top to bottom before opening any code.
 | **A. Engineers** | Review it, merge it, build on it | It can become a reviewable PR, or a series of PRs. CI passes. The code and docs let someone extend it without the author. |
 | **B. Researchers** | Use the ontology packs, the eval sets and retrieval for experiments | They can run it locally, load a pack, ingest data, ask questions and measure answers, from the docs alone. |
 | **C. Decision makers** | Understand what exists and what it can do | The claims in the docs match the code, and the limits are stated honestly. |
+| **D. Platform (Spanner)** | Decide whether to provision a real Spanner instance and run it | It is known what would break or cost on real Spanner, and the first real-instance test plan is small and specific. |
 
 For each audience, give a verdict:
 
@@ -24,6 +27,7 @@ For each audience, give a verdict:
 
 - **Read-only.** Do not change, commit or push repository files. Scratch work goes in a temp directory.
 - **Evidence or nothing.** Cite `path:line`, a command and its output, or a commit for every claim. A claim you could not check is `UNVERIFIED`, with the reason.
+- **No cloud resources.** Do not create a Spanner instance, database or any other GCP resource, and do not use any GCP project. Everything Spanner-related runs on the emulator or is answered from the code and Google's public documentation (cite the page).
 - **Judge, don't redesign.** The question is maturity and shareability, not whether you would have built it differently. Note design concerns only when they block one of the audiences.
 
 ## Setup
@@ -38,7 +42,17 @@ pytest tests/unit tests/conformance -q -m "not integration"   # about 1,780 test
 Optional backends:
 
 - **Neo4j:** run as `integration`.
-- **Spanner:** the emulator, with `CG_SPANNER_EMULATOR_HOST`.
+- **Spanner (needed for task F):** the Cloud Spanner emulator, then the Spanner tests as `integration`:
+
+  ```bash
+  pip install -e ".[dev,spanner]"
+  gcloud emulators spanner start   # or the gcr.io/cloud-spanner-emulator/emulator image, or gateway_main
+  export CG_SPANNER_EMULATOR_HOST=127.0.0.1:9010
+  pytest tests/conformance tests/unit -m integration -k spanner -q
+  pytest tests/integration/test_dual_run.py -q          # Redis-to-Spanner migration path, memory + Neo4j as source
+  ```
+
+  The PDLC end-to-end test (`tests/unit/test_pdlc_end_to_end.py`) also has a `spanner` case. Each test creates a fresh database on the emulator (about 0.03 s).
 - **Redis Stack:** needed for the Redis ledger. Plain Redis is not enough: the ingest script needs the JSON module.
 
 ## State of the branch (checked by us; please re-verify)
@@ -49,8 +63,45 @@ Optional backends:
 | CI | `.github/workflows/ci.yml` runs only on pushes to `main` and on PRs to `main`, so **CI has never run on this branch**. CI on `main` has failed since at least 2026-02-13: `lint` and `integration-tests` fail, and `unit-tests` passes. |
 | Lint and types, whole repo | `ruff check src/ tests/` reports 11 errors, all in `tests/e2e/` and `tests/infra/`, which this branch did not touch. `ruff format --check` flags `src/context_graph/api/routes/simulate.py`, also not touched. `mypy src/` reports 8 errors, in `api/routes/simulate.py`, `adapters/redis/store.py` (unused `type: ignore`) and `adapters/redis/trimmer.py`. The same counts exist without this branch's changes. Files changed by this branch are clean. |
 | Tests | 1,977 passed and 28 skipped on memory, Neo4j and the Spanner emulator. One test is deselected in every run: `test_metrics.py::TestMetricsLabelCardinality::test_dynamic_route_uses_template_label` fails on a clean checkout too, independently confirmed. Redis Stack was not available, so the Redis ledger conformance tests skip, and the Redis-specific changes rely on unit tests over a mocked client. |
+| Spanner coverage | Verified only on the emulator (1.5.58, `google-cloud-spanner` 3.71). **No real Spanner instance has ever run this code.** CI has no Spanner job (no emulator in `.github/workflows/`), so the Spanner tests run only when someone starts an emulator by hand. The OpenDAL eval (F1 0.91) and the throughput numbers (calls per event) were measured on the **memory** backend, not on Spanner. |
 | Onboarding docs | No `README.md`. Entry points: `CLAUDE.md` (project guide), `docs/adr/` (ADR-0001 to ADR-0019), and `docs/runbooks/` (`storage-migration.md`, `pack-authoring.md`, `bulk-import.md`). |
 | Earlier reviews | `docs/review/2026-10-05-ontology-ingestion-review-guide.md`: the first review round, verified independently. All five plan items it led to are now done (below). |
+
+## Spanner: the target backend
+
+### What exists
+
+About 1,900 lines in `adapters/spanner/` (`schema.py` 178, `log.py` 783, `subscription.py` 344, `graph.py` 537, `search.py` 46, `errors.py` 31), built to `docs/research/2026-10/ontology/spanner-design-brief.md` (decisions D1 to D6, gaps G1 to G14). The ADR-0019 sections "Step 4 implementation" and "Phase 3 implementation" record what was done.
+
+| Part | What | Why | Where |
+|---|---|---|---|
+| One database | Ledger, consumer-group state and graph in one Spanner database. Ledger and graph never share a transaction in the write path. | One managed store instead of Redis plus Neo4j. The graph stays a disposable, rebuildable projection (principle 3). | `schema.py` |
+| Ledger | `Events`, keyed by `event_id`. A position is `<commit timestamp>/<batch index>/<event id>`, fixed width, so positions sort as strings (D1). The time index leads with `shard = crc32(session_id) mod N` (`CG_SPANNER_SHARDS`, 16) (D3). The event document is a `JSON` column. | Random-UUID keys and a sharded time index avoid a monotonic write hotspot. Sharding by session keeps one session's events in one shard, in order. | `schema.py`, `log.py:76-112` |
+| Ingest and dedup | Each append is one read-write transaction: read the ids, then `insert_or_update` the new ones. Duplicates return the stored position, and repeats within a batch are `duplicate`. The batch is written whole or not at all. | Exactly-once by primary key, replacing the Redis Lua script. | `log.py:251-307` |
+| Consumer groups | Polling (`CG_SPANNER_POLL_INTERVAL_MS`, 50) over `ConsumerCursors` (one row per group and shard), `ConsumerDeliveries` (pending entries), `ConsumerDeadLetters`. Every read runs **inside a read-write transaction**, relying on range locks so that a cursor never skips an event committed later with an earlier timestamp. | Replace XREADGROUP, XPENDING, XAUTOCLAIM and the DLQ stream. The design brief's D2 (a strong read plus the returned timestamp) was changed to this; see brief §12. | `subscription.py:1-22, 135-180` |
+| Graph | Schemaless `GraphNodes(label, node_id, props JSON)` and `GraphEdges` with JSON props, and `CREATE PROPERTY GRAPH EngramGraph` with `DYNAMIC LABEL` and `DYNAMIC PROPERTIES` (D4). Indexes: nodes by `(label, session_id)`; edges by target and by type. Every `GraphBackend` method comes from the generic `adapters/graph_ops.py` over eight primitives. | A new ontology pack needs no DDL. | `schema.py`, `graph.py`, `adapters/graph_ops.py` |
+| Native fast paths | Lineage as a GQL `TRAIL` quantified path (`CAUSED_BY{1,n}`). Entity similarity through a cosine vector index (`APPROX_COSINE_DISTANCE`, 10 leaves searched). | The two queries a generic primitive cannot do well. | `graph.py:66-90, 498-530` |
+| Keyword search | A full-text search index over `summary`, `keywords` and `search_text`; `SEARCH` and `SCORE`; any-term queries. | Replaces RediSearch BM25. | `log.py:575-616`, `search.py` |
+| Retention | `trim` and `expire` as DML, cutoffs from the database clock, keeping anything pending or not yet delivered for a group. | Keep the hot-window-plus-archive model (G7). A skewed app host must not trim fresh rows. | `log.py:632-760` |
+| Migration | `python -m context_graph.migration copy`, `mirror`, `compare --to spanner`. Mirror reads Redis in order and imports with `legacy_position`. Cutover needs a short ingest pause. | Move a live Redis deployment without losing order. | `migration/`, `docs/runbooks/storage-migration.md` |
+| Tests | 85 conformance cases pass on the emulator (EventLog 18, Subscription 15, GraphStore 24, UserStore 8, GraphReads 17, search 3). The end-to-end run and the PDLC end-to-end test pass with every port on Spanner. The dual run shows zero divergence. | The memory backend defines correct; Spanner must match it. | `tests/conformance/`, `tests/integration/test_dual_run.py` |
+
+### What we know is unproven or weak on Spanner
+
+| # | Item | Detail | Where |
+|---|---|---|---|
+| S1 | Concurrency and faults | The emulator runs one read-write transaction at a time. Concurrent producers, concurrent consumers, aborts and retries, and consumer crashes mid-transaction have never been exercised. | brief §12; ADR-0019 "Still needs a real instance" |
+| S2 | Consumer reads take locks on the ledger | `read_new` scans the undelivered range across all shards inside a read-write transaction. On real Spanner this may contend with ingest (producers inserting into the locked ranges) and between consumers of different groups. The no-skip argument rests on range locks; it has not been checked against Spanner's documented locking. | `subscription.py:1-22, 135-180` |
+| S3 | Full-label scans in the graph | `_find_nodes` reads every node of a label and filters in Python, unless the filter is `session_id`. `find_latest`, `find_nodes_matching` (pack lookups), `find_nodes`, and entity listing go through it. Batching (44aef1b) made this one read per flush, but each read is still the whole label: cost grows with graph size. There are no indexes on JSON properties. | `graph.py:200-221`, `graph_ops.py:683-715` |
+| S4 | Edge scans | `_edges` with no source, target or type reads the whole `GraphEdges` table. | `graph.py:371-412` |
+| S5 | Transaction limits | Imports append 500 events per transaction (`CG_INGEST_IMPORT_BATCH_SIZE`). Projection writes a flush (50, up to 500 suggested for backfills) of nodes and edges per transaction. Neither is checked against Spanner's commit limits (mutations per commit, commit size) with large payloads. | `settings.py:398-401`, `docs/runbooks/bulk-import.md` |
+| S6 | Sync client in threads | The sync client runs in `asyncio.to_thread`. Thread pool size against Spanner session pool size, and behaviour under load, are unknown. | `log.py:182`, `graph.py:166` |
+| S7 | Schema changes | The DDL creates new databases only. There is no `ALTER` path (for example `search_text` was added straight to the DDL), and no migration tool for Spanner schema. | `schema.py`; ADR-0019 "Keyword channel fix" |
+| S8 | Measured on memory only | OpenDAL F1 and the throughput numbers come from the memory backend. Full-text ranking against BM25, approximate-vector recall, and latency per call on Spanner are unmeasured. | `tests/unit/test_pdlc_opendal_eval.py:22-23` |
+| S9 | Edition and cost | Spanner Graph, full-text and vector search may need Enterprise edition. The prices in brief §7 (about $90 a month for 100 processing units) come from search extracts and are unverified. Storage grows with `document` JSON, the graph and index copies (`STORING (props)` on three indexes). | brief §7, §9 |
+| S10 | Operations | No IAM or service-account setup, no instance provisioning (deliberately), no metrics for Spanner latency, aborts or CPU, no backup or PITR settings (G14). Credentials come from Application Default Credentials only. | `settings.py:525-551` |
+| S11 | Blue/green rebuild | `ontology rebuild` needs a second, empty graph target. On Spanner the graph lives in the same database as the ledger, so a rebuild target means a second database, which has not been tried. | `ontology/rebuild.py:206-240` |
+| S12 | CI | No CI job starts the emulator, so the Spanner adapter can regress silently. | `.github/workflows/` |
 
 ## What has been built, and why
 
@@ -106,6 +157,7 @@ Findings were verified independently (16 confirmed, 8 partly confirmed, 4 new). 
 10. **Inert pack settings.** Declared but inert: `embed_fields`, `derived_proposals`, `lifecycle.decay`, `mappings`.
 11. **Not real data yet.** Both eval sets stand in for our own data: the fixtures are synthetic, and OpenDAL is a public proxy.
 12. **Pending behaviour changes.** PDLC intents need `evaluate --record` after upgrading; batch ingest status codes changed (422 or 503 instead of 201 when nothing is stored).
+13. **Spanner.** S1 to S12 in "Spanner: the target backend": above all, never run on a real instance.
 
 ## What to review
 
@@ -122,9 +174,26 @@ Score each dimension from 1 (prototype) to 5 (production), with evidence and the
 3. **Operability.** Can it be deployed, configured, observed (metrics, logs) and recovered? Read `settings.py`, the runbooks and the worker start-up.
 4. **API stability.** Are breaking changes to clients documented and versioned?
 5. **Security.** Auth on admin and import routes, trust granting, webhook signatures, and input bounds.
-6. **Performance.** Are the measured numbers credible, and what is unmeasured (Neo4j and Spanner latencies, large graphs)?
+6. **Performance.** Are the measured numbers credible, and what is unmeasured? They were taken on the memory backend; say what they predict, or don't, for Spanner.
 7. **Documentation and onboarding.** Can a new engineer start, and a researcher run an experiment, from the docs alone?
 8. **Research readiness.** Are the eval sets and the metric (F1) adequate to trust retrieval weights? What is missing to evaluate on our own data?
+
+### F. Spanner readiness (the largest task)
+
+Run the Spanner tests on the emulator first (Setup), then answer each question with evidence. The question is not "does it pass on the emulator" (it does) but "what happens on a real instance".
+
+1. **Schema review.** Read `adapters/spanner/schema.py` against Google's schema design guidance. Check keys and hotspots (D3), interleaving (none is used: should `GraphEdges` be interleaved in `GraphNodes`?), the three `STORING (props)` indexes, `STRING(MAX)` keys, and the generated `session_id` column. What would you change before the first real instance, given that there is no `ALTER` path yet (S7)?
+2. **Consumer correctness (S1, S2).** Is the no-skip argument in `subscription.py:1-22` sound under Spanner's documented concurrency (commit timestamps, lock modes, aborts)? What contention should we expect between ingest and `read_new` at, say, 100 and 1,000 events per second? Is there a cheaper design that keeps the guarantee? Name the tests the first real-instance run must include.
+3. **Query shapes (S3, S4).** List every graph read that scans a whole label or table, and the calls that reach it during projection (pack lookups) and retrieval (artifact word seeds, `CG_ONTOLOGY_RETRIEVAL_WORD_SCAN_LIMIT`). For each, give the fix: a generated column with an index, a JSON search index, or a native GQL query. Rank them by what breaks first as the graph grows.
+4. **Limits (S5).** Estimate mutations and bytes per commit for a 500-event import chunk and a 500-event projection flush, from the column counts and indexes. Which settings must be capped on Spanner?
+5. **Migration path.** Read `docs/runbooks/storage-migration.md` and `migration/`. Run the dual-run test. Is the Redis-to-Spanner path complete enough for a real cutover? Check position compatibility (`legacy_position`), the ingest pause, and rollback.
+6. **Cost.** From brief §7 and Google's public pricing page (cite it), give a rough monthly figure for a minimal real deployment (one region, smallest compute, our expected data size). Say which edition is required for the property graph, full-text and vector features, and whether that changes the figure.
+7. **Readiness verdict.** Pick one:
+   - ready for a real-instance trial as is;
+   - ready after named changes;
+   - not ready.
+
+   Then write the first real-instance test plan: its tests, its duration, and its rough cost. Keep it small enough for a trial instance.
 
 ### C. Cold-start test
 
@@ -136,15 +205,15 @@ Take the role of a new team member with only the repository. Using only the docs
 4. ingest its events;
 5. ask an artifact question.
 
-Note every point where you had to read code or guess. This is the most direct evidence for audiences A and B.
+Then repeat steps 2 to 5 with every storage port on the Spanner emulator (`CG_STORAGE_*=spanner`, `CG_SPANNER_EMULATOR_HOST`, `CG_SPANNER_CREATE_IF_MISSING=true`). Note every point where you had to read code or guess. This is the most direct evidence for audiences A and B.
 
 ### D. Shareability verdict
 
-For each audience (A, B, C), give a verdict, the blockers, and the smallest set of changes that would make it ready. Say whether the branch should go in as one PR or as several, and if several, propose the split.
+For each audience (A, B, C, D), give a verdict, the blockers, and the smallest set of changes that would make it ready. Say whether the branch should go in as one PR or as several, and if several, propose the split.
 
 ### E. Next steps
 
-Rank the open items above, plus anything you find, by what they unblock, with a rough size (S, M or L) for each.
+Rank the open items above (1 to 12 and S1 to S12), plus anything you find, by what they unblock, with a rough size (S, M or L) for each.
 
 ## What to return
 
@@ -157,12 +226,21 @@ One Markdown report:
 | A. Engineers | ... | ... | ... |
 | B. Researchers | ... | ... | ... |
 | C. Decision makers | ... | ... | ... |
+| D. Platform (Spanner) | ... | ... | ... |
 
 ## State facts
 | Fact | Confirmed / differs | Evidence |
 
 ## Maturity scorecard
 | Dimension | Score (1-5) | Evidence | Biggest gap |
+
+## Spanner readiness
+| Question (F1-F7) | Finding | Evidence | Fix before a real instance? |
+
+Readiness verdict: ...
+
+First real-instance test plan:
+| Test | What it proves | Duration | Rough cost |
 
 ## Cold-start log
 1. Step, what happened, where the docs fell short.
@@ -176,4 +254,4 @@ One Markdown report:
 ## Anything else that would embarrass us if shared as is
 ```
 
-Keep it under 2,000 words. Every verdict and score carries evidence.
+Keep it under 3,000 words, at least a third of it on Spanner. Every verdict and score carries evidence.
