@@ -265,6 +265,7 @@ async def rebuild(
             max_terms=ontology.retrieval_max_terms,
             max_graph_calls=ontology.retrieval_max_graph_calls,
             scan_limit=ontology.retrieval_scan_limit,
+            word_scan_limit=ontology.retrieval_word_scan_limit,
         )
         report.gate = await run_gate(
             registry, retriever, eval_dirs, max_nodes=settings.query.default_max_nodes

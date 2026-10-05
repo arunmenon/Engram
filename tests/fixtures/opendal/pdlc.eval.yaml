@@ -18,22 +18,36 @@
 #                     (grep of PR titles; the question uses the title's words)
 #   release-for-*     that PR's release
 #
-# Measured at PDLC 1.4.0 with the traversal drift rules: mean F1 0.63.
-#   1.00  release-of-* (6), release-for-s3-express
-#   0.92  release-contents-v0.59.1: also returns #8228, "chore: prepare
-#         release v0.59.1", matched by the version in its title
-#   0.22  reverted-*: no REVERTS edge is drawn; the pack's rule reads only
-#         "revert #N", while GitHub's revert body quotes the reverted PR's
-#         title, "(#N)" inside it (the pack's own note says the title counts)
-#   0.18-0.50  change-for-*: the right PR is always found, with 2-7 others
-#         sharing common words ("added", "support", "s3", "service")
-#   0.50  release-for-gcs-grpc: those extra changes bring their releases
+# Measured at PDLC 1.4.0 with the traversal drift rules: mean F1 0.63. The
+# three gaps it showed, and their fixes:
+#   reverted-* 0.22: no REVERTS edge, as the rule read only "revert #N" while
+#     git's revert quotes the reverted PR's title, "(#N)" inside it. PDLC
+#     1.5.0 also reads 'Revert "<title> (#N)"' and "Reverts owner/repo#N".
+#     The answer is read as what the walk reached (proactive), not the
+#     change the question names.
+#   release-contents-v0.59.1 0.92: #8228, "chore: prepare release v0.59.1",
+#     was a seed through the version in its title. A key token that is a
+#     node's own key now names that node only.
+#   change-for-* 0.18-0.50: words such as "added", "support" and "service"
+#     seeded 2-9 extra changes. Words are now used only when no #N or key
+#     token found a node, weighted by rarity, at half weight when found only
+#     in a body; "s3" and "429" are words now.
+#
+# Measured at PDLC 1.5.0: mean F1 0.91.
+#   1.00  all but the three below
+#   0.33  change-for-gcs-grpc: #7927, its revert #7943 ("services/gcs" holds
+#         both "gcs" and "service"), and #8185/#8186 ("enable gcs-grpc
+#         service", "update generated gcs-grpc service docs") match too
+#   0.67  change-for-gcs-compose: also #8153, "add GCS gRPC service"
+#   0.50  release-for-gcs-grpc: those changes bring their releases
+#   The remaining limit is lexical: substring words cannot tell "added the
+#   service" from "enabled the service"; embeddings or the title's verb would.
 # min_f1 sits just under the measured level, so the gate catches regressions;
 # raise it as the gaps are fixed.
 #
 # Queries are quoted: in YAML " #" starts a comment.
 pack: pdlc
-min_f1: 0.6
+min_f1: 0.9
 questions:
   # Release membership: which release shipped a PR
   - id: release-of-8216
@@ -72,11 +86,11 @@ questions:
   - id: reverted-7983
     query: "Which change reverted #7983?"
     expected: ["Change:apache/opendal|8034"]
-    answer: {node_type: Change}
+    answer: {node_type: Change, reasons: [proactive]}   # what the walk reached, not the change asked about
   - id: reverted-7927
     query: "Was #7927 reverted?"
     expected: ["Change:apache/opendal|7943"]
-    answer: {node_type: Change}
+    answer: {node_type: Change, reasons: [proactive]}   # what the walk reached, not the change asked about
 
   # Finding a change by what it did
   - id: change-for-s3-express

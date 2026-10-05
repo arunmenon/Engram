@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 1.4.0   # 1.4.0: DEPLOYS from a deployment to the change whose merge_sha it deployed (minor: mapping).
+  version: 1.5.0   # 1.5.0: REVERTS also read from GitHub's revert forms (minor: mapping, an added rule part).
+                   # 1.4.0: DEPLOYS from a deployment to the change whose merge_sha it deployed (minor: mapping).
                    # 1.3.0: completeness paraphrase keywords; Release and TestCase are seed types (minor: additive).
                    # 1.2.0: intent keywords; change.merged sets title/body/files (minor: additive).
                    # 1.1.0: rules for events the webhook adapters emit (minor: additive rules only).
@@ -235,6 +236,9 @@ projection:
       - type: REVERTS
         from: {type: Change, key: {repo: $.repo, number: $.number}}
         to_each: {type: Change, key: {repo: $.repo, number: "regex($.title + ' ' + $.body, '(?i)(?:revert(?:s)?\\s+#|this reverts #)(\\d+)')"}}
+      - type: REVERTS                       # GitHub's forms: the revert button's "Reverts owner/repo#N", and git's
+        from: {type: Change, key: {repo: $.repo, number: $.number}}   # 'Revert "<title> (#N)"' for a squash-merged PR
+        to_each: {type: Change, key: {repo: $.repo, number: "regex_all($.title + ' ' + $.body, '(?i)(?:\\brevert\\s+\"[^\"\\n]*\\(#|\\breverts\\s+[\\w.-]+/[\\w.-]+#)(\\d+)')"}}
       - type: TOUCHES
         from: {type: Change, key: {repo: $.repo, number: $.number}}
         to_each: {type: Component, match_any_prefix: {repo: $.repo, path_prefixes: $.files}}

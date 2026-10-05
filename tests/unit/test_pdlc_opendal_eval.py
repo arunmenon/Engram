@@ -79,7 +79,7 @@ async def test_opendal_history_is_ingested_and_projected(report: RebuildReport) 
     assert report.dead_lettered == []
 
 
-# Measured at PDLC 1.4.0; the misses are the gaps the set's header documents.
+# Measured at PDLC 1.5.0; the misses are the gaps the set's header documents.
 # A change in any score fails here: update the pins and the header together.
 SCORES = {
     "release-of-8216": 1.0,
@@ -88,15 +88,15 @@ SCORES = {
     "release-of-8035": 1.0,
     "release-of-7386": 1.0,
     "release-of-7869": 1.0,
-    "release-contents-v0.59.1": 0.92,
-    "reverted-7983": 0.22,
-    "reverted-7927": 0.22,
-    "change-for-s3-express": 0.5,
-    "change-for-s3-restoration": 0.18,
-    "change-for-gcs-grpc": 0.18,
-    "change-for-aws-profiles": 0.5,
-    "change-for-http-429": 0.33,
-    "change-for-gcs-compose": 0.18,
+    "release-contents-v0.59.1": 1.0,
+    "reverted-7983": 1.0,
+    "reverted-7927": 1.0,
+    "change-for-s3-express": 1.0,
+    "change-for-s3-restoration": 1.0,
+    "change-for-gcs-grpc": 0.33,
+    "change-for-aws-profiles": 1.0,
+    "change-for-http-429": 1.0,
+    "change-for-gcs-compose": 0.67,
     "release-for-gcs-grpc": 0.5,
     "release-for-s3-express": 1.0,
 }
@@ -106,4 +106,4 @@ async def test_opendal_eval_set(report: RebuildReport) -> None:
     (gate,) = report.gate
     assert gate.passed, gate.as_dict()
     assert {r.id: round(r.f1, 2) for r in gate.results} == SCORES, gate.as_dict()
-    assert round(gate.mean_f1, 2) == 0.63
+    assert round(gate.mean_f1, 2) == 0.91

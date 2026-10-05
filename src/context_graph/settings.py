@@ -556,6 +556,9 @@ class OntologySettings(BaseSettings):
     retrieval_max_terms: int = 16
     retrieval_max_graph_calls: int = 400
     retrieval_scan_limit: int = 5000
+    # Candidates per seed type a word search reads to weigh each word by
+    # how rare it is among them
+    retrieval_word_scan_limit: int = 500
     retrieval_max_query_length: int = 2000
     retrieval_max_seed_ids: int = 50
 

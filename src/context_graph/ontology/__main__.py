@@ -133,6 +133,7 @@ def _retriever(settings: Settings, graph: Any, registry: Any) -> ArtifactRetriev
         max_terms=ontology.retrieval_max_terms,
         max_graph_calls=ontology.retrieval_max_graph_calls,
         scan_limit=ontology.retrieval_scan_limit,
+        word_scan_limit=ontology.retrieval_word_scan_limit,
     )
 
 

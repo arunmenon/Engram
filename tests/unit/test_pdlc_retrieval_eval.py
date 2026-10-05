@@ -920,3 +920,45 @@ class TestTraversalDrift:
         # From a seed, the family is in scope: tracing the epic reaches its stories
         epic = await retriever.retrieve(ArtifactQuery("Trace PAY-300"))
         assert {"WorkItem:jira|PAY-341", "WorkItem:jira|PAY-342"} <= set(epic.nodes)
+
+
+class TestSeedPrecision:
+    """Seeds from the OpenDAL evaluation's gaps (PDLC 1.5.0, ADR-0018)."""
+
+    async def _changes(self, titles: dict[int, str]) -> MemoryGraphStore:
+        graph = MemoryGraphStore()
+        for number, title in titles.items():
+            await _project(
+                graph,
+                "pdlc.change.merged",
+                {"repo": "acme/lib", "number": number, "title": title, "merge_sha": f"s{number}"},
+                "webhook:github",
+            )
+        return graph
+
+    async def test_a_version_names_its_release_not_a_change_that_mentions_it(self) -> None:
+        graph = await self._changes({1: "fix: retry reads", 2: "chore: prepare release v2.1.0"})
+        await _project(
+            graph,
+            "pdlc.release.published",
+            {"repo": "acme/lib", "version": "v2.1.0", "entries": [{"pr_number": 1}]},
+            "webhook:github",
+        )
+        response = await _retriever(graph).retrieve(ArtifactQuery("What shipped in v2.1.0?"))
+        assert response.meta.seed_nodes == ["Release:acme/lib|v2.1.0"]
+        assert response.nodes["Change:acme/lib|1"].retrieval_reason == "proactive"
+        assert "Change:acme/lib|2" not in response.nodes
+
+    async def test_a_number_reference_is_not_widened_by_words(self) -> None:
+        graph = await self._changes({1: "feat: add retries", 2: "Revert retries", 3: "add docs"})
+        response = await _retriever(graph).retrieve(ArtifactQuery("Which change reverted #1?"))
+        assert response.meta.seed_nodes == ["Change:acme/lib|1"]
+
+    async def test_a_rare_word_outweighs_common_ones(self) -> None:
+        titles = {n: f"feat: add support for service {n}" for n in range(1, 9)}
+        titles[9] = "feat: add object restoration"
+        graph = await self._changes(titles)
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("Which change added support for object restoration?")
+        )
+        assert response.meta.seed_nodes == ["Change:acme/lib|9"]

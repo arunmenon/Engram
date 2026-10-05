@@ -279,6 +279,32 @@ class TestReleasesTestsDeployments:
         # Only the deployment projected after the merge, and only to the change in its repo
         assert set(h.edges("DEPLOYS")) == {(later, CHANGE)}
 
+    async def test_github_revert_forms_link_the_reverted_change(self) -> None:
+        """PDLC 1.5.0: git's quoted-title revert and the revert button's "Reverts owner/repo#N"."""
+        h = Harness()
+        merged = [
+            # git revert of a squash-merged PR (OpenDAL #7943); the title is cut by GitHub
+            (
+                21,
+                'Revert "fix(gcs): stop double-encoding paths',
+                'Revert "fix(gcs): stop double-encoding paths (#7)"\n\nThis reverts commit 19e0.',
+            ),
+            (22, 'Revert "Add retries"', "Reverts acme/app#8"),
+            (23, "Undo the cache", "This reverts #9"),
+            # a squash that reverted one of its own commits: no PR named, no edge
+            (24, "fix: CI", '* Fix lint\n\n* Revert "Fix lint"\n\nThis reverts commit 7f70.'),
+        ]
+        for number, title, body in merged:
+            await h.ingest(
+                "pdlc.change.merged",
+                {"repo": "acme/app", "number": number, "title": title, "body": body},
+            )
+        assert set(h.edges("REVERTS")) == {
+            ("Change:acme/app|21", "Change:acme/app|7"),
+            ("Change:acme/app|22", "Change:acme/app|8"),
+            ("Change:acme/app|23", "Change:acme/app|9"),
+        }
+
     async def test_incident_on_the_latest_matching_deployment(self) -> None:
         h = Harness()
         deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}

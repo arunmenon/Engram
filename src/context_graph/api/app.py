@@ -125,6 +125,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         max_terms=settings.ontology.retrieval_max_terms,
         max_graph_calls=settings.ontology.retrieval_max_graph_calls,
         scan_limit=settings.ontology.retrieval_scan_limit,
+        word_scan_limit=settings.ontology.retrieval_word_scan_limit,
     )
 
     app.state.settings = settings

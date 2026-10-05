@@ -332,3 +332,14 @@ At PDLC 1.4.0 the set scores a mean F1 of 0.63. `min_f1` is 0.6, and the test pi
 - **Version tokens over-match (0.92).** "What shipped in release v0.59.1?" also returns #8228, "chore: prepare release v0.59.1".
 
 Release membership questions all score 1.00.
+
+#### The three OpenDAL gaps fixed: PDLC 1.5.0 and precise seeds (2026-10-05)
+
+The OpenDAL set now scores a mean F1 of 0.91 (from 0.63). `min_f1` is 0.9.
+- **Reverts (0.22 → 1.00).** PDLC 1.5.0 adds a second `REVERTS` part to the `pdlc.change.merged` rule. It reads GitHub's two forms with `regex_all`: git's `Revert "<title> (#N)"` for a squash-merged PR, and the revert button's "Reverts owner/repo#N". A revert quoted inside a squash body with no PR number (a PR that reverted one of its own commits) draws no edge. The old part is kept as it was, so the change classifies as mapping (replay `pdlc.change.merged`), not breaking.
+- **Seeds and answers.** Nodes the traversal reaches are now marked `proactive`, as `RetrievalEngine` marks them; seeds stay `direct`. The two reverted-questions read `{node_type: Change, reasons: [proactive]}`: the answer is the reverting change, not the change the question names.
+- **Precise references first.** Words are used only when no key token or `#N` found a node. Before, `#N` and words were both used, so "Which change reverted #7983?" also seeded every PR that mentions "revert".
+- **Word rarity (0.18–0.50 → 0.33–1.00).** Each word is weighted by inverse document frequency over the candidates of all seed types. The candidates are read up to `CG_ONTOLOGY_RETRIEVAL_WORD_SCAN_LIMIT` (500) per type. In a type with a title among its text fields, a word found only in a `text` field (a change's body) counts half. Two-character words with a digit ("s3") and bare numbers that are not `#N` ("429") are now words. The rarity is computed across types, not per type: per-type weights made a type with more candidates score lower, and dropped the contradicting decisions from the synthetic negation question. The half weight applies only to titled types: a decision's statement is all it has, and discounting it lost the supersession question. Both were caught by `test_retrieval_beats_top_k_text_on_moose_categories`.
+- **Version tokens (0.92 → 1.00).** A key token that is a node's own most specific key names that node. Nodes that only mention it (#8228, "chore: prepare release v0.59.1") are not seeds for it.
+
+Still below 1.00: "Which change added the GCS gRPC service?" (0.33), "…GCS compose support?" (0.67) and the two-hop release question built on the first (0.50). The extras share "gcs" and "service" through conventional-commit scopes ("fix(services/gcs): …"), or name the same feature with another verb ("enable gcs-grpc service"). Substring words cannot separate these; embeddings or the title's verb could. The fixture set still scores 1.00, and the synthetic categories still score 1.00.

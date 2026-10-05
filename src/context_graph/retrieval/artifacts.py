@@ -8,13 +8,20 @@ packs add (PDLC: changes, tickets, requirements, decisions, incidents):
    that weight pack edges (``trace``, ``completeness``, ``status``,
    ``impact``, ``preflight``, and ``why``/``who_is``); or given.
 2. **Seeds**: node ids given by the caller, plus nodes of the packs'
-   seed types matched by the query. Key-like tokens are tried first
-   (``PAY-341``, ``refund/retry.py``, ``#812``, ``v1.4.0``), then words:
-   text fields, key fields and list fields are searched, and ``#n`` finds
-   types keyed by a number.
+   seed types matched by the query. Precise references come first: key-like
+   tokens (``PAY-341``, ``refund/retry.py``, ``v1.4.0``) search text, key
+   and list fields, and ``#812`` finds types keyed by a number. Words are
+   used only when no precise reference found a node. Each word is weighted
+   by its rarity among the candidates (inverse document frequency), and a
+   word found only in a prose field counts half, so "added" or "support"
+   in a long body does not make a seed.
    Caller-given seeds are always kept; found seeds are cut to the seed
    limit. A key token ranks a node first only when it is the node's most
-   specific key value (``PAY-341``, not the repo a change is in).
+   specific key value (``PAY-341``, not the repo a change is in); a token
+   that names a node that way does not also seed nodes that only mention it
+   (release ``v0.59.1``, not "chore: prepare release v0.59.1").
+   Seeds are marked ``direct``; nodes the traversal reaches, ``proactive``
+   (as ``RetrievalEngine`` marks them).
 3. **Traversal**: level by level, bounded, following only the artifact
    edges the intent weights (edges between pack types; never provenance
    or session edges), in the intent's direction, to ``max_depth`` and
@@ -62,6 +69,7 @@ newest event that observed it (an Event node is its own provenance). Uses
 
 from __future__ import annotations
 
+import math
 import re
 import time
 from dataclasses import dataclass, field
@@ -101,7 +109,7 @@ _KEY_TOKEN = re.compile(
     r"|[\w\-]+\.\w{1,5}\b"  # file names: retry.py
 )
 _NUMBER_REF = re.compile(r"(?:#|\b(?:pr|pull request|change|mr)\s+#?)(\d+)\b", re.IGNORECASE)
-_WORD = re.compile(r"[a-z0-9_]{3,}")
+_WORD = re.compile(r"[a-z0-9_]{3,}|\b[a-z][0-9]\b")  # words; "s3"
 _STOP = frozenset(
     {
         "the", "and", "for", "with", "what", "which", "who", "why", "how", "when", "where",
@@ -159,6 +167,8 @@ _SUFFIXES = (
     ("s", ""),
 )
 _MIN_STEM = 3
+# A word found only in a prose field, relative to one in a name or key field
+_PROSE_STRENGTH = 0.5
 
 
 def _stem(word: str) -> str:
@@ -188,6 +198,7 @@ class ArtifactRetriever:
         max_terms: int = 16,
         max_graph_calls: int = 400,
         scan_limit: int = 5000,
+        word_scan_limit: int = 500,
     ) -> None:
         self._graph = graph
         self._registry = registry
@@ -200,6 +211,7 @@ class ArtifactRetriever:
         self._max_terms = max_terms
         self._max_calls = max_graph_calls
         self._scan_limit = scan_limit
+        self._word_scan_limit = word_scan_limit
         self._seed_types = [
             name
             for pack in registry.packs
@@ -396,7 +408,8 @@ class ArtifactRetriever:
         text = query.query
         key_terms = list(dict.fromkeys(t.lower() for t in _KEY_TOKEN.findall(text)))
         numbers = list(dict.fromkeys(int(n) for n in _NUMBER_REF.findall(text)))
-        words = [w for w in _WORD.findall(text.lower()) if w not in _STOP and not w.isdigit()]
+        referenced = {str(n) for n in numbers}
+        words = [w for w in _WORD.findall(text.lower()) if w not in _STOP and w not in referenced]
         mentioned = set(self.mentioned_types(text))
         words = [
             w
@@ -410,26 +423,8 @@ class ArtifactRetriever:
         if len(numbers) > self._max_terms:
             result.truncated = True
             numbers = numbers[: self._max_terms]
-        for terms, origin in ((key_terms, "key"), (words, "word")):
-            if not terms:
-                continue
-            for label in self._seed_types:
-                node_type = self._registry.node_types[label]
-                if not self._spend(result):
-                    break
-                rows = await self._graph.search_nodes(
-                    label, self._search_fields(node_type), terms, self._seed_limit
-                )
-                for props, hits in rows:
-                    match_ref = self._ref(label, props)
-                    if match_ref and match_ref not in found and match_ref not in given_refs:
-                        score = hits / len(terms)
-                        own_key = str(props.get(node_type.key[-1], "")).lower()
-                        if origin == "key" and own_key in terms:
-                            score += 1.0  # the token is this node's own (most specific) key
-                        found[match_ref] = _Found(match_ref, props, score, 0, origin=origin)
-            if key_terms and found:
-                break  # precise references found; words would only add noise
+        if key_terms:
+            await self._key_seeds(key_terms, found, given_refs, result)
         for number in numbers:
             for label in self._seed_types:
                 node_type = self._registry.node_types[label]
@@ -447,6 +442,9 @@ class ArtifactRetriever:
                     score = 2.0 + (0.5 if others and all(o in key_terms for o in others) else 0.0)
                     if number_ref not in found or found[number_ref].score < score:
                         found[number_ref] = _Found(number_ref, props, score, 0, origin="number")
+        if words and not found:
+            # Precise references found nothing: match words, the rarer the stronger
+            await self._word_seeds(words, found, given_refs, result)
         # Word matches far weaker than the best one are noise
         best_word = max((f.score for f in found.values() if f.origin == "word"), default=0.0)
         kept = [
@@ -459,6 +457,116 @@ class ArtifactRetriever:
         )
         # Caller-given seeds are always kept, first
         return [*given, *ranked[: self._seed_limit]]
+
+    def _texts(
+        self, node_type: NodeType, props: dict[str, Any], fields: list[str] | None = None
+    ) -> list[str]:
+        texts: list[str] = []
+        for field_name in self._search_fields(node_type) if fields is None else fields:
+            value = props.get(field_name)
+            if isinstance(value, str):
+                texts.append(value.lower())
+            elif isinstance(value, list):
+                texts.extend(item.lower() for item in value if isinstance(item, str))
+        return texts
+
+    async def _key_seeds(
+        self,
+        terms: list[str],
+        found: dict[NodeRef, _Found],
+        given_refs: set[NodeRef],
+        result: _Result,
+    ) -> None:
+        """Nodes matched by key-like tokens.
+
+        A token that is some node's own most specific key (``v0.59.1`` for a
+        release) names that node: other nodes that only mention it ("chore:
+        prepare release v0.59.1") are not seeds for it.
+        """
+        # Per matched node: the terms its text holds, and whether one is its own key
+        matched: dict[NodeRef, tuple[set[str], bool]] = {}
+        named: set[str] = set()
+        for label in self._seed_types:
+            node_type = self._registry.node_types[label]
+            if not self._spend(result):
+                break
+            rows = await self._graph.search_nodes(
+                label, self._search_fields(node_type), terms, self._seed_limit
+            )
+            for props, hits in rows:
+                match_ref = self._ref(label, props)
+                if match_ref is None or match_ref in found or match_ref in given_refs:
+                    continue
+                score = hits / len(terms)
+                own_key = str(props.get(node_type.key[-1], "")).lower()
+                is_named = own_key in terms
+                if is_named:
+                    score += 1.0  # the token is this node's own (most specific) key
+                    named.add(own_key)
+                texts = self._texts(node_type, props)
+                matched[match_ref] = ({t for t in terms if any(t in x for x in texts)}, is_named)
+                found[match_ref] = _Found(match_ref, props, score, 0, origin="key")
+        for match_ref, (terms_hit, is_named) in matched.items():
+            if not is_named and terms_hit and terms_hit <= named:
+                del found[match_ref]
+
+    async def _word_seeds(
+        self,
+        words: list[str],
+        found: dict[NodeRef, _Found],
+        given_refs: set[NodeRef],
+        result: _Result,
+    ) -> None:
+        """Nodes matched by words, each word weighted by its rarity.
+
+        A word that most candidates of a type contain ("added", "support")
+        says little; one few contain ("restoration") says much. Weights are
+        inverse document frequencies over the candidates the searches return
+        (up to the word scan limit per seed type), so a node's score is the
+        share of the question's information it matches. In a type with a title among its
+        text fields, a word found only in a prose field (``text``: a change's
+        body) counts half as much as one in its title, key or list fields: a
+        long body mentions much that the change is not about.
+        """
+        # Every candidate of every seed type, with how strongly it holds each word
+        strengths: list[tuple[NodeRef, dict[str, Any], dict[str, float]]] = []
+        for label in self._seed_types:
+            node_type = self._registry.node_types[label]
+            if not self._spend(result):
+                break
+            fields = self._search_fields(node_type)
+            prose = [f for f in fields if node_type.properties.get(f) == "text"]
+            named = [f for f in fields if f not in prose]
+            # Only a type with a name among its text fields (a change's title) has
+            # prose to discount; a decision's statement is all it has
+            titled = any(
+                node_type.properties.get(f) != "text" for f in node_type.definition.text_fields
+            )
+            prose_strength = _PROSE_STRENGTH if titled else 1.0
+            rows = await self._graph.search_nodes(label, fields, words, self._word_scan_limit)
+            if len(rows) >= self._word_scan_limit:
+                result.truncated = True
+            for props, _hits in rows:
+                match_ref = self._ref(label, props)
+                if match_ref is None or match_ref in found or match_ref in given_refs:
+                    continue
+                names = self._texts(node_type, props, named)
+                bodies = self._texts(node_type, props, prose)
+                strength: dict[str, float] = {}
+                for word in words:
+                    if any(word in x for x in names):
+                        strength[word] = 1.0
+                    elif any(word in x for x in bodies):
+                        strength[word] = prose_strength
+                if strength:
+                    strengths.append((match_ref, props, strength))
+        # Rarity over all candidates, so scores compare across types
+        frequency = {w: sum(1 for _r, _p, hit in strengths if w in hit) for w in words}
+        weight = {w: math.log(1 + (len(strengths) + 1) / (frequency[w] + 1)) for w in words}
+        total = sum(weight.values())
+        for match_ref, props, hit in strengths:
+            score = sum(weight[w] * hit[w] for w in hit) / total
+            found[match_ref] = _Found(match_ref, props, score, 0, origin="word")
 
     # -- traversal ------------------------------------------------------------------------
 
@@ -524,6 +632,7 @@ class ArtifactRetriever:
                         props,
                         score,
                         level,
+                        reason="proactive",
                         via=(row["edge_type"], "target" if came_from_source else "source"),
                         peer_step=other.label == _parent.ref.label,
                     )
