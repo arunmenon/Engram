@@ -46,6 +46,7 @@ if TYPE_CHECKING:
     from context_graph.ports.graph_backend import GraphBackend
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "webhooks"
+EVAL_SETS = Path(__file__).resolve().parents[1] / "fixtures" / "ontology"
 SECRET = "e2e-secret"  # noqa: S105 - test value, not a credential
 STORAGE_PORTS = ("EVENT_LOG", "SUBSCRIPTION", "GRAPH", "KEYWORD_INDEX", "VECTOR_INDEX")
 
@@ -92,9 +93,7 @@ async def _drain(consumer: ProjectionConsumer, stores: Stores, group: str) -> No
         pytest.param("neo4j", marks=pytest.mark.integration),
     ],
 )
-async def test_webhooks_build_a_pdlc_graph(
-    monkeypatch: pytest.MonkeyPatch, backend: str, tmp_path: Path
-) -> None:
+async def test_webhooks_build_a_pdlc_graph(monkeypatch: pytest.MonkeyPatch, backend: str) -> None:
     for port in STORAGE_PORTS:
         monkeypatch.setenv(f"CG_STORAGE_{port}", backend)
     if backend == "neo4j":
@@ -129,7 +128,7 @@ async def test_webhooks_build_a_pdlc_graph(
 
     monkeypatch.setattr(stores, "close", keep_open)
     try:
-        await _run(monkeypatch, settings, stores, tmp_path, backend)
+        await _run(monkeypatch, settings, stores, backend)
     finally:
         if backend == "spanner":
             with contextlib.suppress(Exception):
@@ -143,7 +142,6 @@ async def _run(
     monkeypatch: pytest.MonkeyPatch,
     settings: Settings,
     stores: Stores,
-    tmp_path: Path,
     backend: str,
 ) -> None:
     async def shared_stores(*_args: object, **_kwargs: object) -> Stores:
@@ -209,7 +207,7 @@ async def _run(
             await _drain(projection, stores, settings.consumer.group_projection)
             await _check_graph(stores.graph)
             await _check_queries(client)
-            await _check_versioning(client, settings, stores, tmp_path, backend)
+            await _check_versioning(client, settings, stores, backend)
             await _check_extraction(client, settings, stores)
 
 
@@ -274,7 +272,6 @@ async def _check_versioning(
     client: httpx.AsyncClient,
     settings: Settings,
     stores: Stores,
-    tmp_path: Path,
     backend: str,
 ) -> None:
     """The graph records its ontology; a gated rebuild from the same ledger (ADR-0018 phase 3)."""
@@ -297,18 +294,6 @@ async def _check_versioning(
     assert body["extraction"][0]["pack"] == "pdlc"
     assert body["extraction"][0]["propose_nodes"] == ["Constraint", "Decision", "Lesson"]
 
-    (tmp_path / "pdlc.eval.yaml").write_text(
-        "pack: pdlc\n"
-        "questions:\n"
-        "  - id: trace\n"
-        "    query: Where is PAY-341 deployed? Trace it.\n"
-        "    expected: ['Change:acme/payments|7', 'Change:acme/payments|8']\n"
-        "    answer: {node_type: Change}\n"
-        "  - id: untested\n"
-        "    query: Which tickets have no tests?\n"
-        "    expected: ['WorkItem:jira|PAY-300', 'WorkItem:jira|PAY-341']\n"
-        "    answer: {reasons: [no_link]}\n"
-    )
     # Blue/green into a fresh graph of the same kind: a new Spanner database; a
     # memory graph otherwise (Neo4j Community serves one database)
     target_stores: Stores | None = None
@@ -321,14 +306,24 @@ async def _check_versioning(
         target_stores = await open_stores(green)
         target = target_stores.graph
     try:
-        report = await rebuild(stores.event_log, target, projector, settings, eval_dirs=[tmp_path])
-        assert report.passed, report.as_dict()
+        report = await rebuild(stores.event_log, target, projector, settings, eval_dirs=[EVAL_SETS])
+        assert report.passed, [r.as_dict() for r in report.gate]
         assert report.events >= len(DELIVERIES)
-        assert [r.mean_f1 for r in report.gate] == [1.0], report.gate[0].as_dict()
+        # tests/fixtures/ontology/pdlc.eval.yaml: every question but the three known
+        # gaps it documents is answered exactly; a change in any score fails here
+        (gate,) = report.gate
+        scores = {r.id: round(r.f1, 2) for r in gate.results}
+        assert scores == dict.fromkeys(scores, 1.0) | {
+            "deployed-where": 0.0,
+            "implemented-by": 0.67,
+            "pr-implements": 0.67,
+        }, gate.as_dict()
         comparison = await compare_graphs(stores.graph, target, sample_sessions=0)
         assert comparison.ok, comparison.as_dict()
         with pytest.raises(RebuildRefusedError):  # the live graph is never a target
-            await rebuild(stores.event_log, stores.graph, projector, settings, eval_dirs=[tmp_path])
+            await rebuild(
+                stores.event_log, stores.graph, projector, settings, eval_dirs=[EVAL_SETS]
+            )
     finally:
         if target_stores is not None:
             with contextlib.suppress(Exception):

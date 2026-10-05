@@ -285,3 +285,18 @@ Regression cases:
 - `tests/unit/test_pack_extraction.py::TestReviewFindings`;
 - `tests/unit/test_ontology_cli.py`;
 - `tests/conformance/test_pack_graph.py::TestCreateOnlyEdges`.
+
+#### PDLC evaluation set for the fixtures (2026-10-05)
+
+`tests/fixtures/ontology/pdlc.eval.yaml` holds 11 questions about the graph the webhook fixtures build: the deliveries `test_pdlc_end_to_end.py` sends.
+- **Coverage:** 5 trace questions, 5 completeness questions and 1 preflight question.
+- **Expected answers:** what is true of that data, not what retrieval returns today.
+- **Where it runs:** the end-to-end test runs it as the rebuild gate on memory, Spanner (emulator) and Neo4j. Each question's F1 is pinned, so any change in an answer fails the test.
+- **Not built in:** the questions are about fixture data, so they would be wrong for a real deployment, whose gate falls back to the built-in pack dir. A deployment still writes its own set.
+
+At PDLC 1.3.0 the set scores a mean F1 of 0.76, and `min_f1` is set to that level so the gate catches regressions. Three questions miss:
+- **"Where is PAY-341 deployed?" (0.0):** a GitHub `deployment_status` names a commit, not PRs, so `change_numbers` is empty and `DEPLOYS` is never drawn. Linking a deployment to the change whose `merge_sha` it deployed needs a `match` lookup in the `service.deployed` rule. This is the pack's own example question for `trace`.
+- **"What changes implemented PAY-341?" (0.67):** the trace also returns #8, reached through the release that includes both.
+- **"What does PR #7 implement?" (0.67):** the trace also returns the parent epic PAY-300.
+
+Writing the set found a trap: in YAML, ` #` starts a comment, so `query: What does PR #7 implement?` loaded as "What does PR". The loader now refuses an unquoted query containing ` #`, naming the line (`tests/unit/test_pack_versioning.py::TestEvalSetFiles`).

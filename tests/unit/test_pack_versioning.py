@@ -563,3 +563,30 @@ class TestReviewFindings:
         assert report.dead_lettered == [second.position]
         assert not report.passed
         assert (await target.get_nodes([TICKET]))[TICKET]["status"] == "closed"
+
+
+class TestEvalSetFiles:
+    def test_the_fixture_set_loads(self) -> None:
+        from pathlib import Path
+
+        from context_graph.ontology.evaluation import load_eval_set
+
+        path = Path(__file__).resolve().parents[1] / "fixtures" / "ontology" / "pdlc.eval.yaml"
+        eval_set = load_eval_set(path)
+        assert eval_set.pack == "pdlc"
+        assert len(eval_set.questions) == 11
+        assert {q.id for q in eval_set.questions} >= {"deployed-where", "before-editing-pr"}
+        assert all("#" in q.query for q in eval_set.questions if "pr" in q.id.split("-"))
+
+    def test_an_unquoted_hash_is_refused(self, tmp_path: Path) -> None:
+        from context_graph.domain.ontology import OntologyError
+        from context_graph.ontology.evaluation import load_eval_set
+
+        body = "pack: demo\nquestions:\n  - id: q\n    query: {query}\n    expected: []\n"
+        unquoted = tmp_path / "unquoted.eval.yaml"
+        unquoted.write_text(body.format(query="What does PR #7 do?"))
+        with pytest.raises(OntologyError, match="unquoted.eval.yaml:4: quote this query"):
+            load_eval_set(unquoted)
+        quoted = tmp_path / "quoted.eval.yaml"
+        quoted.write_text(body.format(query='"What does PR #7 do?"'))
+        assert load_eval_set(quoted).questions[0].query == "What does PR #7 do?"

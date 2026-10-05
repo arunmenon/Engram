@@ -21,6 +21,9 @@ The answer is the response's node ids, narrowed by ``answer`` when given,
 and is scored by F1 against ``expected``. The set passes when the mean F1
 reaches ``min_f1``.
 
+Quote questions that contain ``#``: YAML reads `` #`` and what follows as a
+comment, so the loader refuses an unquoted one.
+
 A blue/green rebuild (``python -m context_graph.ontology rebuild``) runs
 the sets of every active pack with intents on the new graph before it is
 switched to; a pack with intents and no set fails the gate.
@@ -28,6 +31,7 @@ switched to; a pack with intents and no set fails the gate.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -116,8 +120,21 @@ def f1_score(found: set[str], expected: set[str]) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
+# An unquoted question with " #" in it: YAML reads the rest as a comment
+# ("What does PR #7 do?" loads as "What does PR"), so the set must quote it
+_UNQUOTED_HASH = re.compile(r"^\s*(?:-\s+)?query:\s*[^\s\"'].*\s#", re.MULTILINE)
+
+
 def load_eval_set(path: Path) -> EvalSet:
-    data = load_yaml(path.read_text(encoding="utf-8"), str(path))
+    text = path.read_text(encoding="utf-8")
+    cut = [
+        f"{path}:{text.count(chr(10), 0, m.start()) + 1}: quote this query; "
+        "YAML reads ' #' and what follows as a comment"
+        for m in _UNQUOTED_HASH.finditer(text)
+    ]
+    if cut:
+        raise OntologyError(cut)
+    data = load_yaml(text, str(path))
     try:
         return EvalSet.model_validate(data)
     except ValidationError as exc:

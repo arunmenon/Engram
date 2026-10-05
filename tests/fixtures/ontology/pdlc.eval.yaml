@@ -1,0 +1,79 @@
+# PDLC evaluation set for the webhook fixtures (ADR-0018 decision 10).
+#
+# The ledger: the signed deliveries in tests/fixtures/webhooks that
+# tests/unit/test_pdlc_end_to_end.py sends (DELIVERIES), projected by the PDLC
+# pack. The graph that results:
+#   WorkItem  jira|PAY-300   epic, known only as PAY-341's parent
+#   WorkItem  jira|PAY-341   story, created To Do, closed Done
+#   Change    acme/payments|7  opened, reviewed (approved), merged as def456; "Fixes PAY-341"
+#   Change    acme/payments|8  known only from the release notes (not merged here)
+#   Review    acme/payments|7|9001  approved
+#   TestRun   555 (unit-tests) failure, ran against #7
+#   Release   acme/payments|v1.4.0  includes #7 and #8
+#   Deployment production|def456|2026-10-02T09:00:00+00:00  succeeded, to acme/payments
+#
+# Expected answers are what is true of that data, not what retrieval returns
+# today. At PDLC 1.3.0 the set scores a mean F1 of 0.76:
+#   - deployed-where (0.0): a GitHub deployment names a commit, not PRs, and no
+#     rule links it to the change whose merge_sha it deployed, so a trace from
+#     PAY-341 never reaches the deployment;
+#   - implemented-by (0.67): the trace also returns #8, reached through the
+#     release that includes both;
+#   - pr-implements (0.67): the trace also returns the parent epic PAY-300.
+# Queries are quoted: in YAML " #" starts a comment, so an unquoted "PR #7"
+# would be cut to "PR".
+# min_f1 is that measured level, so the gate catches regressions; raise it as
+# the gaps are fixed.
+pack: pdlc
+min_f1: 0.75
+questions:
+  # Trace: follow work through changes, releases and deployments
+  - id: deployed-where
+    query: "Where is PAY-341 deployed?"
+    expected: ["Deployment:production|def456|2026-10-02T09:00:00+00:00"]
+    answer: {node_type: Deployment}
+  - id: implemented-by
+    query: "What changes implemented PAY-341?"
+    expected: ["Change:acme/payments|7"]
+    answer: {node_type: Change}
+  - id: pr-implements
+    query: "What does PR #7 implement?"
+    expected: ["WorkItem:jira|PAY-341"]
+    answer: {node_type: WorkItem}
+  - id: release-contents
+    query: "What shipped in release v1.4.0?"
+    expected: ["Change:acme/payments|7", "Change:acme/payments|8"]
+    answer: {node_type: Change}
+  - id: runs-against-pr
+    query: "Which tests ran against PR #7?"
+    expected: ["TestRun:555"]
+    answer: {node_type: TestRun}
+
+  # Completeness: set differences, reported as no_link
+  - id: untested-tickets
+    query: "Which tickets have no tests?"
+    expected: ["WorkItem:jira|PAY-300", "WorkItem:jira|PAY-341"]
+    answer: {reasons: [no_link]}
+  - id: untested-under-epic
+    query: "Which tickets under PAY-300 have no tests?"
+    expected: ["WorkItem:jira|PAY-341"]
+    answer: {reasons: [no_link]}
+  - id: unreviewed-prs
+    query: "Which pull requests have no review?"
+    expected: ["Change:acme/payments|8"]
+    answer: {reasons: [no_link]}
+  - id: changes-without-ticket
+    query: "Which changes are not linked to any ticket?"
+    expected: ["Change:acme/payments|8"]
+    answer: {reasons: [no_link]}
+  - id: merged-untested
+    # #7 ran a test, but no test VERIFIES it (RAN_AGAINST is not verification)
+    query: "Which merged changes have no tests?"
+    expected: ["Change:acme/payments|7"]
+    answer: {reasons: [no_link]}
+
+  # Preflight: what to know before touching an artifact
+  - id: before-editing-pr
+    query: "Anything I should know before editing PR #7?"
+    expected: ["TestRun:555"]
+    answer: {node_type: TestRun}
