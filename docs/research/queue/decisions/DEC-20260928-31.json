@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-31",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-06:recommended:DEC-20260928-17",
+ "card_id": "PC-SURVEY-20260928-06",
+ "prev_decision_id": "DEC-20260928-17",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-08-r2 answers REV-20260928-10: requirement and PR text is frozen at PR time with repository families kept in one split, the fine-tuned arm becomes a binary link decision with a class-wise audit of its silver labels, the LLM reference gets an absolute quality floor, auto-write gets its own precision and coverage targets at deployment prevalence, the best-of-four selection is corrected, the run is declared a pilot with its power shown, and the unsupported cost-bound and kappa-ceiling statements are removed. It can move B14 (working) on our own linking data and is the CTO's priority 3 slice.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-08-r2",
+   "file_id": "1rCfVwDFoppIIjV1W-QCvdScxgRaGnIAc",
+   "sha256": "540ecc00c8080cbd85779ba5a8073f9eed059f569089e26b8ccbaca56edc5486"
+  }
+ ],
+ "merged_into": null
+}

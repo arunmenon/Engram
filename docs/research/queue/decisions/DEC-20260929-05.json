@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260929-05",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260929T034502Z-4649",
+ "created_at": "2026-09-29T04:02:05Z",
+ "idempotency_key": "decision:PC-20260929-02:recommended:none",
+ "card_id": "PC-20260929-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "E-20260929-01 can move B11 (working, pruning loses gold evidence) at the reranking stage (priority 1). It isolates the one thing GPT Researcher's note credits for its gain: an absolute threshold on Jev's usefulness score, compared with ranking by the same scores on identical calls, with needed-evidence recall checked against the retriever order. That recall is the metric the source never measured. It is narrowed from the card: listwise Jev is E-20260926-06-r2's question and the sufficiency expansion is H8's, so both are dropped to keep one attributable change. It costs 5 runs and under 15 USD.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260929-01",
+   "file_id": "135wtVFcKG8zlGWwUt7CcLOpXhE9CMUZ2",
+   "sha256": "bcba8c707fc79b676523d926428377f191914a2ef051e311104c2f5215361200"
+  }
+ ],
+ "merged_into": null
+}

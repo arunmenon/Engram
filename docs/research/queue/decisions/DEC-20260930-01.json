@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260930-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260930T034502Z-7f81",
+ "created_at": "2026-09-30T04:03:39Z",
+ "idempotency_key": "decision:PC-20260929-02:recommended:DEC-20260929-05",
+ "card_id": "PC-20260929-02",
+ "prev_decision_id": "DEC-20260929-05",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised as E-20260929-01-r2 for REV-20260929-10 (and REV-20260929-06 by analogy): precision is now a per-question estimand with an empty hand-over scored 0 and no question dropped, the unlock is restricted to the tested threshold 1.5 without selecting Jev over a local scorer, the no-gain reranker outcome is relabelled an operational default beside a separate bounded outcome, and a freeze stage, five resumable shards and a power simulation are added. It can move B11 (working) on build-time reads at the priority 1 reranking stage, and it is ready now because DOCQ-ASF-180 reuses fixtures already specified.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260929-01-r2",
+   "file_id": "1NauZGjE_g0eGICFb7f8FkDxZUH-48Yvc",
+   "sha256": "7be078abbfb09cffd74e752593176d24084082fac8797b70ea9ef6361f5b077e"
+  }
+ ],
+ "merged_into": null
+}

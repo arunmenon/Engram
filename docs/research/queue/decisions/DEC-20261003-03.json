@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261003-03",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261003T034502Z-6d9a",
+ "created_at": "2026-10-03T03:46:50Z",
+ "idempotency_key": "decision:PC-SURVEY-20261002-02:recommended:none",
+ "card_id": "PC-SURVEY-20261002-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "E-20261003-02 gives firm belief B25 a local instance (affected memories cannot vouch for each other) and tests R8 recovery, which no register experiment covers, adding a real-detector arm the oracle-only paper lacks. Now, because whether P4/P5 must record memory reads and produced artifacts is cheap to decide while those fields are still additive, before Consumer 4 ships.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261003-02",
+   "file_id": "1znsUyFnzUgeCA1WqwdTUFCCuWsRefy85",
+   "sha256": "0b294e97d6a6aa275fc96c61f09203a0963b722279d69dcc9e9a940b115a4c52"
+  }
+ ],
+ "merged_into": null
+}

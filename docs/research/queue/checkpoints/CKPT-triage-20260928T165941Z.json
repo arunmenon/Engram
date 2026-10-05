@@ -1,0 +1,796 @@
+{
+ "schema_version": 1,
+ "artifact_id": "CKPT-triage-20260928T165941Z",
+ "artifact_type": "checkpoint",
+ "producer": "triage",
+ "run_id": "triage-20260928T165647Z-5d4a",
+ "created_at": "2026-09-28T16:56:47Z",
+ "input_refs": [],
+ "supersedes": "CKPT-triage-20260928T074855Z",
+ "idempotency_key": "checkpoint:triage-20260928T165647Z-5d4a",
+ "consumed_upto": {
+  "memory_feed_batch": "signals-20260928-154313",
+  "decision_feed_batch": "signals-20260928-123310"
+ },
+ "pending": [
+  {
+   "cluster_id": "x:2100606119504712138",
+   "post_ids": [
+    "2100655158992719907"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "email routing numbers (85.5% zero errors) only in an X thread; x.com fetch returns 402",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102979401025806732",
+   "post_ids": [
+    "2102979401025806732"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev code reranker on 100 GitHub issues: table in image",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103565692494925906",
+   "post_ids": [
+    "2103565692494925906",
+    "2103591942198087949"
+   ],
+   "reason": "image only",
+   "blocked_reason": "you.com Jev rerank 84% Vertical RTK: numbers in image, no write-up link",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103188520156229672",
+   "post_ids": [
+    "2103188520156229672"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Momentic Locator Bench 51.8%: image only",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103039616211157449",
+   "post_ids": [
+    "2103039616211157449"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jina multi-vector vs dense retrievers on memory search: chart only",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103333079477784896",
+   "post_ids": [
+    "2103333079477784896"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "CL-Bench (Asawa et al.) not found by arXiv title search",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2100937437325205568",
+   "post_ids": [
+    "2101196885260460388"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "WebMCP benchmark claim only in quoted X post",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2096616468851097811",
+   "post_ids": [
+    "2096647325049626918"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: openai.com 403 and x.com 402 for OpenAI research-acceleration data (openai.com 403 again on 2026-09-27 and 2026-09-28)",
+   "attempts": 3,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103610898690855161",
+   "post_ids": [
+    "2103612889655353346",
+    "2103612667865002248",
+    "2103615960175522108",
+    "2103713051002257705",
+    "2103615668683714730",
+    "2103663848511459603",
+    "2103684019107795155",
+    "2103776463388631493",
+    "2103781842155614264",
+    "2103648309881758112",
+    "2103709570338316525"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "OpenRouter jev-router launch: model page is API docs only; how-it-works and results in images",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103368968014848400",
+   "post_ids": [
+    "2103368968014848400",
+    "2103779974281089321"
+   ],
+   "reason": "image only",
+   "blocked_reason": "JEV-as-a-Judge paper (alphaxiv) not identified; figures in image",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102520050305597713",
+   "post_ids": [
+    "2102520050305597713"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev rerank +11 LongMemEval: no write-up",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102910289083826675",
+   "post_ids": [
+    "2102910289083826675"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "60-case tool-call risk benchmark only in X thread",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103098242921591201",
+   "post_ids": [
+    "2103098242921591201"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "README with negative rerank results not linked in item",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103610751231668596",
+   "post_ids": [
+    "2103610751231668596"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "96.0% confident errors repeated by LLM verifier: source read by deliprao not linked",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2098013767627837827",
+   "post_ids": [
+    "2102850232249635116"
+   ],
+   "reason": "image only",
+   "blocked_reason": "13-page agent memory breakdown shared as video/images",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2103187018423361536",
+   "post_ids": [
+    "2103195865280328031"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "DocsBot Jev reranker benchmark in X article (not fetchable)",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102869389762867200",
+   "post_ids": [
+    "2102885375639507087"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "MCP outcome judge write-up in X article",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102342653782175744",
+   "post_ids": [
+    "2102830489237065968"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev OPSEC ranker in X article",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102108924677927169",
+   "post_ids": [
+    "2102121915733405896",
+    "2102127055034847447",
+    "2102218770630758684",
+    "2102130510877372732"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Browserbase Jev write-up is a quoted X post/article",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2100300097695232164",
+   "post_ids": [
+    "2100477620144205849"
+   ],
+   "reason": "image only",
+   "blocked_reason": "fx auto-mode classifier benchmark in image",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103153482161086753",
+   "post_ids": [
+    "2103169226047463831"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "claimed ICML paper (hallucinations 22% to 4%) not identified",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2103626484518924288",
+   "post_ids": [
+    "2103627396389974103"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev vs GPT-5.6 Terra 67.8/67.9 in X article",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102072714488139776",
+   "post_ids": [
+    "2102074672020066685"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "renewals agent 4.5x cheaper in X article",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103345111388373359",
+   "post_ids": [
+    "2103345111388373359"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "production router for verification workflows: no link",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "url:mnzailabs.com/en/news/github-agentic-autofix-learns-from-security-fixes",
+   "post_ids": [
+    "2103655355238826395"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "secondary news only; GitHub primary for Agentic Autofix memory not located",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103193093247750466",
+   "post_ids": [
+    "2103208544585892280"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "LlamaIndex calibrated-confidence blog URL not in item (links to X post and video)",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103754592056144155",
+   "post_ids": [
+    "2103754592056144155"
+   ],
+   "reason": "image only",
+   "blocked_reason": "SkillHEX summary in image, paper not linked",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "url:prospex.ch/blog/adaptive-reranking-with-jev-and-a-logistic-regression",
+   "post_ids": [
+    "2102412336569180506"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: HTTP 403 (WebFetch and curl again 403 on 2026-09-27; WebFetch 403 on 2026-09-28)",
+   "attempts": 3,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103095032635171224",
+   "post_ids": [
+    "2103095032635171224"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "JevOS routing 15/16 labelled steps: no write-up",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102842288619814925",
+   "post_ids": [
+    "2103168377388978635"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev on 586 marketing items: results in image",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102806912278339584",
+   "post_ids": [
+    "2102810316497371268"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "local 4B command picker 77% in X article",
+   "attempts": 1,
+   "retry_after": "2026-10-03",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103774771788108008",
+   "post_ids": [
+    "2103895901140042044",
+    "2103924415570514310",
+    "2103865678570954891",
+    "2103869739193815333",
+    "2103915638133792999",
+    "2103907158098337838",
+    "2103923207573271015",
+    "2103823294076174681",
+    "2103869226792427708",
+    "2103827407304073720",
+    "2103930174089937179",
+    "2103908181886050572",
+    "2103927687534477801",
+    "2103820225045205141",
+    "2103824574802452627",
+    "2103913499932197132",
+    "2103826446548357584",
+    "2103819181724475399",
+    "2103928734403150166",
+    "2103930381439209581",
+    "2103872411577765911",
+    "2103824605831995602",
+    "2103862454073659547",
+    "2103818894188105849",
+    "2103818560162148378",
+    "2103866697346318654",
+    "2103802957926207861",
+    "2103882056686281061",
+    "2103869984812286268",
+    "2103872864696807810"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "theo Jev Router vs GPT-6 Astra on DeepSWE: numbers in image/video on x.com, no write-up",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x:2103850658118140131",
+   "post_ids": [
+    "2103850658118140131"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev vs Drex prompt-injection benchmark (1,000 samples): numbers only in the X post",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x:2103843888532230575",
+   "post_ids": [
+    "2103921273852108955"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev + Opus 5.5 68x fewer thinking tokens (6 tasks x 2 runs): only a quoted X post",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x:2102833606666117393",
+   "post_ids": [
+    "2102833606666117393"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "mika 12,480 GitHub issues screened by Jev, 249 to Opus: X post only",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x:2104062773827113109",
+   "post_ids": [
+    "2104062773827113109"
+   ],
+   "reason": "image only",
+   "blocked_reason": "JEV-as-a-Judge (Carnegie Mellon, within 3 points of an LLM judge at 0.36% cost): only an image in the HuggingPapers post; HF papers search found no matching paper; likely same paper as parked x:2103368968014848400",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x:2104073613829910629",
+   "post_ids": [
+    "2104073613829910629"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev Tetris benchmark (50-piece games, 5 to 10 seeds, paired by seed): numbers only in an X thread; linked page is a demo app",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x-article:2104056839075934208",
+   "post_ids": [
+    "2104071417612607877"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "decision model on a real workload, one question worse than a coin flip: X article, not fetchable",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x-article:2104090917900886016",
+   "post_ids": [
+    "2104094858239680823"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "solo-built model 8x faster than a lab model, benchmarks claimed: X article, not fetchable",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "x:2104042772533752000",
+   "post_ids": [
+    "2104042772533752000",
+    "2104036912868794724",
+    "2104041749681504717",
+    "2104096160428568909",
+    "2104096052941066453",
+    "2104037799607587244",
+    "2104042319658021197",
+    "2104096938140545105",
+    "2104047041437384727",
+    "2104052601050255669",
+    "2104097214582686156"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "replies to a @dzhng post claiming a 40% coding-agent cost cut on SWE-bench Verified; the original post and any write-up are not staged",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "arxiv:2609.15396",
+   "post_ids": [
+    "2104172198537855432"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: SkillLift (40-70% cheaper skill evolution) arXiv HTML 404 for 2609.15396 and v1, PDF not readable by the fetch tool; abstract only, tables unverified",
+   "attempts": 1,
+   "retry_after": "2026-09-29",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104157986813792504",
+   "post_ids": [
+    "2104157986813792504"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "NeoHorse-1 routing-as-self-improvement (4B 58.94 to 64.87 macro-average over 11 benchmarks): no link in post; WebSearch not permitted in this run",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104133730038427863",
+   "post_ids": [
+    "2104133730038427863"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "OpenDecider 400M typed-decision model 79.6% vs Laya 76.6% vs Jev 75.4%: no link in post",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104130265580965999",
+   "post_ids": [
+    "2104130265580965999"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "jev-gateway benchmark (Claude Code with routing: +61% input tokens, +83% time on a feature task, -48% tokens on a bugfix): link promised in thread but not staged",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2100857375909679496",
+   "post_ids": [
+    "2104171847634096258",
+    "2104172064966058485"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "memory mesh supersession claim (current top-1 100% mesh vs 16.7% flat; LoCoMo top-k 0.037 vs 0.176 dense): replies with no repo, n or write-up; bears on B3",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2100984487802708306",
+   "post_ids": [
+    "2104118002723504325"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "paper mapping the early Jev ecosystem (Routing 250 projects avg 364 stars vs Simulation 252 avg 8): paper not linked; quoted X article not fetchable",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104121286565798051",
+   "post_ids": [
+    "2104121293406642379",
+    "2104121299681337635",
+    "2104121315472851029"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev juror pipeline robustness test (injection detection 0.08 to 0.98, vote unchanged; single-prompt 0.43 vs 0.41): source of the experiment not identified in the thread",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104138463675056433",
+   "post_ids": [
+    "2104138463675056433"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev calibration on three tabular datasets (few-shot cut calibration error 26 to 10 points; traditional ML better): numbers in image only",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104187215651930289",
+   "post_ids": [
+    "2104187215651930289",
+    "2104187221050024378",
+    "2104187269527855343",
+    "2104187310560681993"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev penetration-testing agent in NASim (guided setup 9/9 runs; fact attached to action aids decisions): 14-post thread, only 4 staged, figures in images, no repo",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104435470620848342",
+   "post_ids": [
+    "2104436011920990403",
+    "2104436428818018619",
+    "2104436546145300564",
+    "2104436934642651536"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "preregistered Jev calibration test (297 questions, confidence 96% to 81% where human agreement ~47%; NLI model worse): paper and code are in an unstaged reply ('Links' below 2104435470620848342); t.co resolves only to the video; WebSearch unavailable",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104321654067265716",
+   "post_ids": [
+    "2104321654067265716"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev passage scoring on Onyx EnterpriseRAG-Bench (512k docs, 500 q; +20 points on a Luna-judged exploratory dev sample, n not stated): X post only, no write-up or repo",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104432996615143425",
+   "post_ids": [
+    "2104437317301940672"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "self fine-tuned Jev-like model ($3, Unsloth) vs TypeSafe Jev on 747 questions: breakdown, model and code only in an X article (not fetchable)",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104373857054527508",
+   "post_ids": [
+    "2104373857054527508"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev as a judge of which knowledge-graph nodes to link (priority 1 and 3, linking stage): claim 'extremely effective' with evidence only in an attached image",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104191310076780718",
+   "post_ids": [
+    "2104356000237228139"
+   ],
+   "reason": "image only",
+   "blocked_reason": "TypeSafe open-sourced adapter that makes GPT, Claude and Gemini answer Jev-shaped questions: repo link only inside a quoted post image; repository not identified",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2101515447816663222",
+   "post_ids": [
+    "2104330427011928065"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Agent Memory Challenge 2026 Cycle 2 (coding memory track, 150 tasks clean vs noisy history, stale-context purge): announcement link resolves to an image; challenge site not identified",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104337790229999616",
+   "post_ids": [
+    "2104338858121060580"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev for RAG in finance (50/50 right, 100x fewer tokens, 4 companies, 4 LLMs): X article only (not fetchable)",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104222548468875264",
+   "post_ids": [
+    "2104229273980829905"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Vestra: where Jev helps and where it is confidently wrong in production: X article only (not fetchable)",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104374799288164452",
+   "post_ids": [
+    "2104374799288164452"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev 'does this diff affect this test?' recall 43% (file name only) vs 92% (imports and names in state) on 60 OSS commits: reply post only, no repo (possibly related to jgrep, N-20260927-18)",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104332814418317312",
+   "post_ids": [
+    "2104371575428641074"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "SGLang decision-serving work (faster scoring vs better judgment): X article only; underlying SGLang PR or paper not linked",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104252978274488798",
+   "post_ids": [
+    "2104252978274488798"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Fastino GLiNER2.5-Decide, 340M open-weight decision model on CPU under 200 ms (priority 2): no link in post; model card not located without search",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "url:michalkups.com/post/11/jev-1",
+   "post_ids": [
+    "2104502066601177458"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "Jev vs Gemma 4 vs GPT-6 Luna IT ticket triage (priority 1): article has no numbers; results live in JavaScript-rendered /lab and /demos pages that fetch as empty templates; repo MRKups/jev-usecase-1 at 9b1a5cc holds no result files",
+   "attempts": 1,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "arxiv:2609.27286",
+   "post_ids": [
+    "2104583094078525629"
+   ],
+   "reason": "deferred by budget",
+   "blocked_reason": "PaMER (pre-action memory control signals, WorkBuddyBench): primary read not reached this run",
+   "attempts": 1,
+   "retry_after": "2026-09-28",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "arxiv:2609.27287",
+   "post_ids": [
+    "2104583094078525629"
+   ],
+   "reason": "deferred by budget",
+   "blocked_reason": "SR-Fraud (verifier-gated knowledge admission from matured errors): primary read not reached this run",
+   "attempts": 1,
+   "retry_after": "2026-09-28",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "arxiv:2609.27279",
+   "post_ids": [
+    "2104588113343357345"
+   ],
+   "reason": "deferred by budget",
+   "blocked_reason": "EnSIMem (entity-structured indexing), named only in a machine-generated roundup; existence and numbers unverified; primary read not reached this run",
+   "attempts": 1,
+   "retry_after": "2026-09-28",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "arxiv:2604.16535",
+   "post_ids": [
+    "2104596681861833156"
+   ],
+   "reason": "deferred by budget",
+   "blocked_reason": "SCATR calibrated test-time ranking (priority 1 framing, R4/R9): primary read not reached this run",
+   "attempts": 1,
+   "retry_after": "2026-09-28",
+   "first_seen": "2026-09-28"
+  }
+ ],
+ "consumed_source_ids": ["2104460264083239082", "2104462636436058286", "2104463275136278637", "2104463535573225886", "2104463770814918964", "2104464100059427306", "2104464385511170118", "2104465091278344591", "2104465362230137188", "2104465966079852579", "2104466041632108605", "2104466750356041736", "2104466838688329766", "2104467149909557301", "2104467644741234852", "2104468751848767506", "2104468768034308570", "2104469306994196920", "2104469658275336326", "2104469953382690904", "2104470216029917669", "2104471818702893301", "2104472140380618787", "2104472248325181538", "2104472460380754063", "2104472795497513347", "2104473332590526781", "2104473584907461095", "2104473606520737844", "2104473740012650983", "2104473895310954936", "2104474525559927242", "2104474943270383982", "2104475239023255630", "2104476986597142535", "2104477456119857555", "2104478023584284917", "2104478256552390658", "2104478371757555954", "2104478660648387061", "2104479532241527002", "2104479536876511321", "2104479584087630086", "2104479748651155645", "2104479913499558269", "2104480093095838175", "2104480485703331845", "2104480577969610913", "2104481128958632409", "2104481408450204061", "2104482700874670471", "2104482720898580624", "2104482979875611032", "2104483192736477419", "2104484390726148588", "2104484393146360198", "2104484846529917406", "2104485414643835317", "2104485905859817485", "2104486566982799485", "2104487625935691799", "2104487664095273223", "2104488412522713347", "2104488783647486261", "2104488796209508678", "2104488890174443794", "2104489138879893901", "2104489657379762326", "2104489744390590621", "2104490131927535767", "2104490497591156801", "2104491156759564538", "2104491203370827812", "2104491658893275635", "2104492238566797445", "2104492353419440606", "2104493182243438773", "2104493267576328702", "2104494007338332562", "2104494292920082578", "2104494860170297422", "2104495472643629110", "2104495785446633823", "2104496206353142113", "2104496327984132391", "2104496349601485063", "2104496579533275270", "2104496810525954397", "2104497015388512751", "2104497168463659024", "2104497337192382809", "2104497340715507820", "2104497342271365236", "2104498085397213247", "2104498516231959032", "2104499053924958476", "2104499362017489355", "2104500449495982125", "2104500458673020974", "2104500468575576161", "2104501117996667148", "2104501202381852787", "2104501379515707779", "2104501554153722188", "2104501615688569214", "2104501678947160342", "2104501684793983161", "2104501794470838308", "2104502066601177458", "2104502143298551809", "2104502157181358421", "2104502491308228852", "2104502641715712474", "2104503145929871360", "2104503886304473409", "2104503937168810213", "2104503946962174356", "2104504439759630429", "2104504466103767527", "2104504837388075076", "2104504955365183880", "2104504985149231156", "2104505040975130929", "2104505091369881602", "2104505276166778961", "2104505422199861741", "2104505454877720680", "2104505621047386619", "2104505685916459415", "2104506001613607292", "2104506151274754393", "2104506481982734809", "2104506627487576380", "2104506764406202560", "2104506955465425381", "2104507051560890839", "2104509440317940004", "2104510403476857147", "2104510469860196558", "2104510586864484699", "2104510691554320797", "2104511155423105396", "2104511380556534155", "2104511442107899944", "2104511639596970164", "2104511925191327776", "2104512165524951441", "2104513058844663972", "2104513177736339963", "2104513324654199255", "2104513697137979468", "2104513709246697485", "2104513932736295313", "2104513982732312815", "2104514094241886483", "2104514198734852572", "2104514312102412363", "2104514351147155889", "2104514583180583286", "2104514950588756344", "2104515387224453369", "2104515619236495734", "2104516135395749933", "2104516218581557690", "2104516419178385446", "2104516747613384901", "2104516776554050040", "2104517462733767001", "2104518382775091699", "2104518614426808593", "2104518732206711023", "2104518826738044982", "2104519636054335928", "2104519848382414924", "2104520364437221711", "2104520925999927656", "2104523598278869077", "2104523840441258189", "2104525309110272068", "2104526075346788389", "2104526418096906299", "2104526709999489142", "2104526874030535057", "2104527468052856951", "2104527875466527014", "2104528070145175930", "2104528726138528033", "2104529066632118483", "2104529088044007771", "2104529202200629335", "2104529471294615639", "2104529664341676312", "2104529927915643175", "2104530056798244888", "2104530142127403415", "2104530379130753361", "2104530451457327218", "2104530517399916648", "2104530603534381178", "2104530712506351640", "2104530773605052462", "2104531314204655953", "2104531479846113451", "2104531600738558036", "2104531661941567937", "2104531825351680219", "2104532079254061082", "2104532410469855719", "2104532633052987612", "2104532962503164309", "2104533066404225353", "2104533264560259441", "2104533435545227357", "2104533848940048723", "2104534099277070447", "2104534199730663795", "2104534839676239926", "2104534905111900436", "2104535054483661296", "2104535636069810214", "2104535914781483112", "2104535954853953662", "2104536184605315351", "2104536196080865764", "2104536848421044565", "2104536850484560184", "2104537015840879013", "2104537033024717054", "2104537374034464972", "2104537487804678214", "2104537596697415830", "2104538182570426784", "2104538608124277026", "2104538612729790762", "2104539116222263501", "2104539234547712108", "2104539283688468849", "2104539319847567622", "2104539473237151981", "2104539544183869760", "2104539824279756985", "2104539858676957383", "2104540068216295806", "2104540072854823250", "2104540225691079051", "2104540385846428149", "2104540521578324006", "2104540589941227981", "2104540710812692914", "2104540799589593585", "2104540960126284278", "2104541171821556006", "2104541252868022382", "2104541607294824610", "2104541632011887058", "2104541638366548266", "2104541684717764613", "2104541742238417162", "2104541775398617505", "2104542312001089954", "2104542497351594012", "2104542537117564990", "2104542693766348888", "2104542856958652472", "2104542865758290418", "2104542869310800028", "2104542893700440304", "2104542951930241177", "2104543247205040600", "2104543599853785448", "2104543768682573905", "2104543808369111523", "2104543813410959714", "2104543948672761887", "2104543981615141123", "2104544070127190093", "2104544108786192687", "2104544361400975820", "2104544557505606101", "2104544616464744461", "2104544708567703920", "2104544754964811899", "2104544852335788369", "2104545340573757460", "2104545608673714190", "2104545721223360555", "2104545729918451816", "2104546145544376477", "2104546157003165704", "2104546462759559416", "2104546608117403721", "2104546836187099398", "2104546863588290826", "2104546902566146428", "2104546903488647179", "2104547015615246832", "2104547018094108679", "2104547073261756802", "2104547076524945916", "2104547175338291345", "2104547214857273384", "2104547249326051689", "2104547477240127968", "2104547600191848815", "2104547684619055240", "2104547736288899102", "2104548425329184886", "2104548599619346527", "2104548599942262801", "2104548861209633168", "2104548959859675256", "2104549145570680838", "2104549186603450801", "2104549187094192351", "2104549491969847522", "2104550224823714021", "2104550666220003569", "2104550703742296505", "2104551115522261272", "2104551270979703292", "2104551282392322098", "2104551386771780055", "2104551644247556500", "2104551699243253831", "2104551759137874419", "2104551780290122068", "2104552085987709354", "2104552391378866345", "2104554285128118412", "2104554976991383659", "2104555306353098978", "2104555939541958854", "2104556027978883333", "2104557122339942596", "2104557214694257098", "2104557309464613085", "2104557462284103957", "2104557770129150066", "2104557954121015457", "2104559376233091349", "2104559715539722660", "2104559748611965280", "2104560533374702016", "2104562423864959452", "2104563017187008624", "2104564340011753820", "2104564920125886569", "2104565205749645570", "2104565687398392157", "2104565874053005749", "2104565876758610420", "2104566479878520977", "2104568121143005230", "2104568245365653796", "2104568424823464424", "2104571324752445493", "2104571837787103412", "2104572273755590839", "2104573930690224476", "2104574020356300903", "2104574215928037854", "2104574779940647207", "2104575059969122715", "2104575197642965478", "2104576595499331670", "2104576846436127155", "2104576935984603443", "2104577359181402366", "2104577670969242035", "2104577754477822430", "2104577946241392974", "2104578551567835162", "2104579286334099724", "2104579427044569293", "2104579623275450585", "2104579802393141737", "2104581368412069997", "2104581370211176738", "2104581470496915527", "2104581905563750595", "2104582665332457929", "2104582818298736661", "2104582870387904766", "2104582876100444463", "2104583040056094745", "2104583047605551301", "2104583094078525629", "2104583132527702231", "2104583135484678618", "2104583214362689919", "2104583947690590674", "2104584508813062467", "2104584628279685381", "2104584782885560700", "2104585499356598426", "2104586497328648487", "2104586558225682684", "2104586801411158332", "2104587705317543972", "2104587834023956528", "2104587897156567246", "2104588002936963117", "2104588113343357345", "2104588415995977921", "2104588771115274654", "2104588925775860092", "2104589379008381415", "2104589494943113295", "2104589499917631587", "2104589500655477125", "2104589744646529339", "2104589777248911737", "2104589926797025422", "2104590268133699995", "2104591043727446463", "2104591269142175992", "2104591376948318423", "2104591515532009643", "2104591694175830211", "2104591968864985351", "2104592017900568904", "2104592080878100630", "2104592275686744502", "2104592361213108265", "2104592661080637480", "2104592978710847677", "2104593222656024912", "2104593338129150237", "2104593426058817935", "2104593544711180629", "2104593751347691742", "2104593992956420148", "2104594026355884483", "2104594150054392026", "2104594401179959460", "2104594486106165742", "2104594503331987810", "2104594536307573181", "2104594541068124525", "2104594609410314368", "2104594618579038484", "2104594620285903213", "2104594733494612388", "2104594832866025598", "2104594859944562711", "2104595006707093717", "2104595120741843343", "2104595136051077586", "2104595208503460120", "2104595216032530889", "2104595234336411976", "2104595351072325960", "2104595408857321981", "2104595506848784716", "2104595527300178148", "2104595559407390895", "2104595565694931320", "2104595644199682219", "2104595671579771051", "2104595693843480780", "2104595738978336810", "2104595917693436360", "2104596411564134548", "2104596452458823972", "2104596461203980595", "2104596506237927503", "2104596681861833156", "2104596774090621122", "2104597009202372624", "2104597064294252570", "2104597183765082239", "2104597304984670293", "2104597351994437912", "2104597434416713979", "2104597460471701760", "2104597619251240997", "2104597629078470746", "2104597713786691914"]
+}

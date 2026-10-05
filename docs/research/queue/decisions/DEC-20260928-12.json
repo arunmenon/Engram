@@ -1,0 +1,32 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-12",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T072636Z-be64",
+ "created_at": "2026-09-28T07:30:45Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-01:rejected:none:renumbered-from-DEC-20260928-02",
+ "card_id": "PC-SURVEY-20260928-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "The evidence does not support the card's paper-ablated placement claim: in N-SURVEY-20260928-01 placement is confounded with mechanism (write-time sanitize, provenance and anomaly checks vs a read-time contradiction-quarantine reranker, which the note says does not transfer to an injection classifier), and N-SURVEY-20260928-03's defense is a prompt rule, so no source isolates placement of the same classifier; arm A's kill (pre-existing poisoned lines still served) holds by construction and needs no run. The residual question, same classifier and threshold at write time vs serve time on the same benign lines, is cheapest answered as an added arm on E-20260926-08-r2, whose 150 benign lines already bound false blocks near 2 percent; re-raise it at that spec's next revision.",
+ "input_refs": [
+  {
+   "artifact_id": "N-SURVEY-20260928-01",
+   "file_id": "1lX9eozA45LUz6IQk-sbl5gdXnbEbl-j2",
+   "sha256": "b968b944356f6c88c36c88abe06c3358ee93b1775dd986fcf90f0de0db8a7b22"
+  },
+  {
+   "artifact_id": "N-SURVEY-20260928-03",
+   "file_id": "1OPR21kEv3A81ZL5oedUc-66G5a03gprc",
+   "sha256": "eca240a44aad193e27897f32bbcc995eb8e6fa037ba866e7056410e93b0435ee"
+  },
+  {
+   "artifact_id": "N-SURVEY-20260928-02",
+   "file_id": "1ZRlRTIJdIsMdt0cOYtMo-tzqE1K4TIaX",
+   "sha256": "da9f98d426145167ea401291627e4c24d9700510cefb7206cff9f931c465fe97"
+  }
+ ],
+ "merged_into": null
+}

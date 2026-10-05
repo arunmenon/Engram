@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-40",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T180051Z-479c",
+ "created_at": "2026-09-28T18:14:41Z",
+ "idempotency_key": "decision:PC-20260928-08:rejected:none",
+ "card_id": "PC-20260928-08",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "Cannot run this quarter within POLICY-v1: an executable-test coding-agent comparison uses about 2M solver input tokens per task in the source (glm-5, N-20260928-20), so 100 tasks x 4 seeds x 4 arms needs roughly 3 billion tokens against a 2M-token, 25 USD per-run cap and 150 USD a week, and any sample small enough to fit cannot resolve the 3-point margin (the source's intervals at 444 runs per arm were about +/- 5 points); the note also marks the positive arm as target-aware and selection-biased, and procedural memory is parked in the operating plan. Re-raise if the policy budget grows or if a cheap non-agent proxy (record-level fix-pattern retention) is proposed; the B16 question stays open.",
+ "input_refs": [
+  {
+   "artifact_id": "N-20260928-20",
+   "file_id": "1C6Va17FOITflrgPiEmpjm9tDR496jptX",
+   "sha256": "23f605bad37def4434cf60b098423154af711e2b6543bc6183a374fac211986b"
+  }
+ ],
+ "merged_into": null
+}

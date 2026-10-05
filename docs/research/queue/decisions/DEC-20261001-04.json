@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261001-04",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261001T034503Z-64de",
+ "created_at": "2026-10-01T04:06:08Z",
+ "idempotency_key": "decision:PC-20260930-03:recommended:none",
+ "card_id": "PC-20260930-03",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "This separates the question shape from the model at the write gate, with the criteria text frozen across arms, because the builder report attributes about 85% of the saving to workflow changes and withholds Jev's own accuracy. It can move B11 (working: wrong rejects cost more than wrong accepts) and B14 (working: calibration claimed, not shown), and it takes a reserved priority 1 slot now because it is cost S and decides whether the write gate takes on a new dependency.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261001-01",
+   "file_id": "19HQH8w4iOZ_Nx7y4-BwTHBcyRNu0MmdR",
+   "sha256": "d23e2de58cc8bb970646ec02665f92de9f41deccf88cdefb5db4940cb1d8d278"
+  }
+ ],
+ "merged_into": null
+}

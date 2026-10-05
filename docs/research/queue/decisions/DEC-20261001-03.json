@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261001-03",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261001T034503Z-64de",
+ "created_at": "2026-10-01T04:06:08Z",
+ "idempotency_key": "decision:PC-20260930-02:rejected:none",
+ "card_id": "PC-20260930-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "The note's own ablation is the prior against the card's +5-point margin: the untrained loop scored 48.80 against one-shot RAG's 56.20 on LongMemEval. The published gain comes from a trained search policy (supervised fine-tuning plus GRPO on 8 x H100) that we cannot train this quarter, and the P0 fixtures carry no per-query gold-evidence labels for the proposed dataset. The sufficiency-stop question (B9) is already planned as H8 on H2's harness. Re-raise if H8 passes or a trained policy becomes runnable.",
+ "input_refs": [],
+ "merged_into": null
+}

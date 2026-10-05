@@ -1,6 +1,8 @@
-# Research bus — v4 (CTO gate, telemetry, desk, briefs)
+# Research bus — v5 (CTO gate, telemetry, desk, briefs, taxonomy, priorities, maps)
 
 **Transport:** this Google Drive folder, `research-bus` (root id `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim`). **Archive:** the Engram repository, `docs/research/queue/`, mirrored from here every Monday by the delta job. Agents write here; humans and cloud sessions read either. Context for agents in the repository: `docs/research/2026-09/scraping-agent-brief.md`, `t0-intelligence-handbook.md`; beliefs: `beliefs.md`.
+
+**What v5 adds (2026-09-28, decided by the CTO):** `pillars.md` at the root (research pillars v2: R1 to R10 and the memory-stage lens; supersedes the eight-pillar table in the repository brief), `priorities.md` at the root (the CTO's research priorities, in order; every agent reads both), and a `maps/` folder: `STAGE-MAP-*.json`, written nightly by the mapper (Jev places every new post, note and test on a memory stage), read by the desk's System One map. Both root files are written only by a person.
 
 **What v4 adds (2026-09-26, decided by the CTO):** a `briefs/` folder: for every recommended experiment the hypotheses agent also writes a plain-language brief for the CTO (the question, why now, the evidence in words, the reviewer's concerns, what approval commits to, a suggested action). The desk shows the brief first and the spec behind it. Everything else is v3 unchanged.
 
@@ -24,6 +26,7 @@
 | `delta/` | `1m0zNCGTapSFEd9alpujJXXyX-BFuAqed` | delta (projector) | weekly delta; **immutable index snapshots** `index-<watermark>.json` |
 | `telemetry/` | `12a92Fp9sWmteVP475mktGRp2KOCSxle4` | every job, own records | `TEL-<run_id>.json`: role, feed, started, finished, status, counts, errors. One per run, never edited |
 | `briefs/` | `1Mov-T2i5qkwf70EFO1H_Ls8UvjcE58rk` | hypotheses | `BRIEF-<card id>-<spec id>.md`: plain-language brief for the CTO on one recommended spec; one per spec version, never edited |
+| `maps/` | `18uclgs1WbFLLp9oNjqAw16yMgUY0STHe` | mapper | `STAGE-MAP-<run_id>.json`: memory-stage counts and examples for the desk; one per night, never edited |
 | `desk/` | `1FdGJ9RJ_fbGyy9ddeNBx52yxlbw4SQA9` | desk projector | `desk-latest.json` (pointer, rewritten) and immutable `desk-<watermark>.json` rollups the CTO desk page reads |
 | root | `1d3sOz2YROJTNtzLhyDFDUS-fH1KBmqim` | — | `README.md`, templates, `policy.md` (standing policy; **unset** until the CTO writes it); `index-latest.json` is a non-authoritative pointer written only by the projector |
 

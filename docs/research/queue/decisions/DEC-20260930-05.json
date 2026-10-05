@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260930-05",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260930T034502Z-7f81",
+ "created_at": "2026-09-30T04:03:39Z",
+ "idempotency_key": "decision:PC-20260929-07:recommended:none",
+ "card_id": "PC-20260929-07",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "It can move B3 (lead) by isolating the serving rule for superseded memories (hide against retain with validity dates) that MemProbe's whole-system comparison could not separate, and it fixes the PDLC memory benchmark's scoring rule to report current-value, previous-value and change-detection separately (priority 4). Now, because MemProbe's MIT suite and adapter interface make it this run's cheap exploration slot, with a result that changes the read surface either way.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260930-01",
+   "file_id": "1fsf0o8Oxhzre450aeJdM-lce-OVCiee8",
+   "sha256": "65cd74638369d575d6972a17266ca2dd62115297a850185420fe3dfc825f7743"
+  }
+ ],
+ "merged_into": null
+}

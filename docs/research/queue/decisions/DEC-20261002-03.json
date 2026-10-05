@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261002-03",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261002T034503Z-02ea",
+ "created_at": "2026-10-02T03:58:00Z",
+ "idempotency_key": "decision:PC-20261001-02:recommended:DEC-20261001-07",
+ "card_id": "PC-20261001-02",
+ "prev_decision_id": "DEC-20261001-07",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised per REV-20261001-06: now a pilot that cannot change defaults, decided on strata from a deployable observable routing predicate with routing errors priced; the rule route needs a non-inferiority bound and a 0.90 absolute floor; two fold-specific rule tables by different authors with recorded provenance; unverified source figures removed (REV-20261001-07 and -08 target other specs and were not applied). It still tests, for priority 1, whether code should resolve dates and versions before Jev is asked at the staleness stage, moving B14 (working) and bounding B3, and pairs with E-20261002-02 on question shape.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261001-03-r2",
+   "file_id": "1agp_nGHXYf3mQiFfFMfd_PthWWeFE_Jb",
+   "sha256": "5e0f8bea2b281756afcfcc3ade1e12f0a4fcea93d19119f45834c22e678d2da0"
+  }
+ ],
+ "merged_into": null
+}

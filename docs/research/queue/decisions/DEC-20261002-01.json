@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261002-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261002T034503Z-02ea",
+ "created_at": "2026-10-02T03:58:00Z",
+ "idempotency_key": "decision:PC-20260930-03:recommended:DEC-20261001-04",
+ "card_id": "PC-20260930-03",
+ "prev_decision_id": "DEC-20261001-04",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised per REV-20261001-04: any restructure or model adoption now has to clear a quality and wrong-reject floor against the deployed gate (A0), otherwise the gate is retained; wrong-reject is labelled a screen with safety provisional and shadow only until a one-sided bound is shown; repeat-call cost is separated from serving cost; the freeze bundle contents are listed as a hard precondition. It still decides, for priority 1, whether the write gate pays for Jev or only for a better question shape, and moves B11 and B14 (both working) with local measurements.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261001-01-r2",
+   "file_id": "1myRhwGRs59xTr2Vc1sEC8CARZ1Rr2nz0",
+   "sha256": "053461885556dac2c19d30e989292a2cc18680b5aa58a03342b6547f0b51f5d3"
+  }
+ ],
+ "merged_into": null
+}

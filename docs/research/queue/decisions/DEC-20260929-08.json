@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260929-08",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260929T034502Z-4649",
+ "created_at": "2026-09-29T04:02:05Z",
+ "idempotency_key": "decision:PC-20260929-05:rejected:none",
+ "card_id": "PC-20260929-05",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "Deferred by portfolio. The receipt decision this card targets does not need a new test: storing the served probabilities with each decision is cheap and is already implied by B1 and E-20260927-02-r2 (the djev note itself supports B1). The djev arm compares a different model (Bespoke-Nimble-9B, 87.0 vs 93.2 on Nimble's set, different measurers), so determinism and accuracy are confounded, and it needs an H100. The part that matters for our gates, the hosted-Jev flip rate at each threshold, is measured as a by-product in E-20260929-02. Re-raise it if a design proposes re-executing gate decisions instead of storing them.",
+ "input_refs": [],
+ "merged_into": null
+}

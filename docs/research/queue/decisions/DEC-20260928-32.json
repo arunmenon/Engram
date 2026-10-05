@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-32",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-07:recommended:none",
+ "card_id": "PC-SURVEY-20260928-07",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20260928-13 tests whether graph-predicate preconditions on five PDLC Action types catch seeded violations better than retrieval alone, and whether Jev or an open-weight 4B checker adds recall on prose preconditions; it cannot re-grade B25 (firm) but decides whether the product can enforce it at action time, and it adds a guard the card lacked (predicates frozen before cases are built, violations tagged expressible or prose-only) so the rule arm cannot be circular. It takes the priority 3 reserved slot now because it decides whether the ADR-0011 amendment gains Action types at all.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-13",
+   "file_id": "1abnY0x6T-M_ZpQmDz8lWTuhWm2x4z06B",
+   "sha256": "f762ad52d31f31e5af61c857d354b4b9a47f5fb4c852c074d8018b6abef9639f"
+  }
+ ],
+ "merged_into": null
+}

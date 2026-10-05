@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261001-07",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261001T034503Z-64de",
+ "created_at": "2026-10-01T04:06:08Z",
+ "idempotency_key": "decision:PC-20261001-02:recommended:none",
+ "card_id": "PC-20261001-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "This tests whether projecting dates, versions and counts in code before a Jev call raises accuracy on our staleness and supersession decisions, with a rule-only arm to check whether projection makes the model unnecessary (the confound the source author names). It can move B14 (working: the note logs a narrow contradiction row on calibration) and bound B3 (lead) through the supersession decision that writes the edge, and it takes the second reserved priority 1 slot now because it costs under 1 USD in model calls and sets an input rule for every System One call at these stages.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261001-03",
+   "file_id": "1f5Ok9sItgb9oReZg2tWQ8bbyTt9vsZOZ",
+   "sha256": "d9ec1d815fbe5322d240831198dbd238b98ff81157165f1493ea92ba8bb769b1"
+  }
+ ],
+ "merged_into": null
+}

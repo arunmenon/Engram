@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261002-04",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261002T034503Z-02ea",
+ "created_at": "2026-10-02T03:58:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20260930-04:recommended:DEC-20261001-14",
+ "card_id": "PC-SURVEY-20260930-04",
+ "prev_decision_id": "DEC-20261001-14",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised per REV-20261001-07: the source claim now states the four-model collapse and names the GPT-5.4-mini and Gemini exceptions; the main outcome is a human-span pilot that only adds an optional P5 span field, and a mandatory adapter clause additionally needs automatic spans to pass, a one-sided recall bound, and a prevalence-adjusted precision gap at the history's measured traffic mix (REV-20261001-06 and -08 target other specs and were not applied). It still fixes, before H10a's audit is judged, the unit at which P5 records dependencies, and can add a clause to the scoped-interface contract behind B22 (firm local).",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261001-04-r2",
+   "file_id": "10p5FHGiB1ZHyX0ydxEwe_4lCd20VEa2h",
+   "sha256": "3b10cc171076a25aad0920e028198350dcec79f7ef1e87d17209657dcad3b900"
+  }
+ ],
+ "merged_into": null
+}

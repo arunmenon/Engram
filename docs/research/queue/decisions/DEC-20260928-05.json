@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-05",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T034505Z-3548",
+ "created_at": "2026-09-28T04:12:53Z",
+ "idempotency_key": "decision:PC-SURVEY-20260927-01:recommended:DEC-20260927-14",
+ "card_id": "PC-SURVEY-20260927-01",
+ "prev_decision_id": "DEC-20260927-14",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "The revision addresses every REV-20260927-11 correction: re-derivation now needs 60 independent Specs (bound 4.87%), unanswerable tool calls end as trajectory_divergence instead of receiving empty results, source attributions and budget are corrected, and a policy gate is added. It still moves B1 (working) before P0 freezes the receipt schema, and it folds in the serving-stack record from merged card PC-SURVEY-20260927-05.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260927-02-r2",
+   "file_id": "1TiEdAY2jAsnP4eXzGYycn3bgdZMfWZ9C",
+   "sha256": "434e31bc6840cf3a47310928e0dbd97e58b53e0d7d52d422f1b73dbb3048ac0a"
+  }
+ ],
+ "merged_into": null
+}

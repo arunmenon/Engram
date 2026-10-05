@@ -1,0 +1,33 @@
+{
+ "schema_version": 1,
+ "artifact_id": "TEL-desk-projector-20261001T100156Z-a643",
+ "artifact_type": "telemetry",
+ "producer": "desk-projector",
+ "run_id": "desk-projector-20261001T100156Z-a643",
+ "created_at": "2026-10-01T12:56:44Z",
+ "input_refs": [],
+ "supersedes": null,
+ "idempotency_key": "telemetry:desk-projector-20261001T100156Z-a643",
+ "feed": "",
+ "started_at": "2026-10-01T10:01:56Z",
+ "finished_at": "2026-10-01T12:56:44Z",
+ "status": "partial",
+ "counts": {
+  "queue": 42,
+  "approved": 2,
+  "deferred": 0,
+  "agent_decided": 28,
+  "proposed_undecided": 2,
+  "conflicts": 1,
+  "parse_errors": 0,
+  "duplicates": 5,
+  "watch_open": 13,
+  "stalled_agents": 0,
+  "sync_failures": 1,
+  "elapsed_s": 240.0
+ },
+ "errors": [
+  "(listing):  system for \"gdrive:research-bus\": couldn't find root directory ID: Get \"https://www.googleapis.com/drive/v3/files/root?alt=json&fields=id&prettyPrint=false&supportsAllDrives=true\": couldn't fetch token: Post \"https://oauth2.googleapis.com/token\": dial tcp: lookup oauth2.googleapis.com: no such host"
+ ],
+ "notes": "desk-20261001T100156Z.json file_id 12-H3IiYrFIZO30MOqsV7IkHCcPdeZuvT"
+}

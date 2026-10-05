@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-27",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-02:recommended:DEC-20260928-13",
+ "card_id": "PC-SURVEY-20260928-02",
+ "prev_decision_id": "DEC-20260928-13",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-10-r2 answers REV-20260928-12: it corrects the source reading (status-only restoration also gave 0.0% forbidden actions but left 73.4% deactivation), adds a same-content prose control, a field extractor isolated from gold labels, a task-completion guardrail and a separate pilot set, and raises the item count from 30 to 55 per endpoint so both endpoints have about 0.83 joint power. It decides the typed-constraint schema for PDLC briefings under B25 (firm) and B22 (local) while the briefing format is still open.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-10-r2",
+   "file_id": "1rtnepDfXAL6Uz14pjI402L4v7osJFlLY",
+   "sha256": "b2bd13e3ea69c4153ff931f7bf4f6ae42ea492f2410c5e291367653cf918ae88"
+  }
+ ],
+ "merged_into": null
+}

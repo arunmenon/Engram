@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-33",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-08:recommended:none",
+ "card_id": "PC-SURVEY-20260928-08",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20260928-14 compares rules, a small self-hosted cross-encoder, Jev and a frontier LLM on whether two cross-tool engineering records are the same item, with a held-out source pairing as the shift set; no register belief covers this, so it decides G13's implementation and proposes a new belief row rather than moving a grade. It is recommended now because the evidence (a 124M matcher 4.4 F1 behind GPT-4 at a fraction of the cost) points to the stage where a model we host is most likely good enough, serving priorities 3 and 2 together.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-14",
+   "file_id": "1RwVpB45zijezGNStmFOGGsvjn63arbpt",
+   "sha256": "b0e0e5d6341ce70449e9ad7125a91048b4e5bffde5112891579649640a9f9dc0"
+  }
+ ],
+ "merged_into": null
+}

@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-30",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-05:recommended:DEC-20260928-16",
+ "card_id": "PC-SURVEY-20260928-05",
+ "prev_decision_id": "DEC-20260928-16",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-07-r2 answers REV-20260928-09: it adds a delivery check that neighbour content actually reaches the model after API rendering, separates withholding neighbours from provenance-typed fields (with and without labels), gates adoption on gold-labelled error and high-confidence-wrong rates for all 200 items with one 5 pp margin, and confirms the review's 0.52 power so a non-pass below 0.80 achieved power is inconclusive. It can move B14 (working) and B24 (lead) before free-text neighbours reach automatic link and staleness writes.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-07-r2",
+   "file_id": "1FLC1Q3loKcLpiZyuG2_dqtCsrgf1Og-W",
+   "sha256": "ec5507618cea940d24263412d0ef7072b355ba146c954f6c0491d5ca3af64c35"
+  }
+ ],
+ "merged_into": null
+}

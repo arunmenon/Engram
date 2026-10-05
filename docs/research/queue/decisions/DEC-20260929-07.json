@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260929-07",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260929T034502Z-4649",
+ "created_at": "2026-09-29T04:02:05Z",
+ "idempotency_key": "decision:PC-20260929-04:recommended:none",
+ "card_id": "PC-20260929-04",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "E-20260929-03 is the CTO's priority 2 comparison on our own decisions. It tests whether Winnow-12B, the one open model resolved above hosted Jev on JevBench v1.5, is non-inferior to Jev at linking within 3 points when run zero-shot on one GPU. It produces per-model calibration tables that bear on B14 (working). It is distinct from E-20260928-12-r2 (fine-tuned open model) and E-20260928-08-r2 (implements links on SpecMine). Now is the time because JevBench v1.5 (2026-09-28) is the first third-party board where open 12B models tie or pass Jev. It needs no new labels (it reuses E-20260929-02's and E-20260928-18-r2's) and costs about 6 runs and 25 USD.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260929-03",
+   "file_id": "1-BhWmHy5C6gxhWrkEt3ROtVTxSmcSzzF",
+   "sha256": "fe544e8382babb3066bbd2ff4fdfecb6c9e53cf0f979219f48221aa833ea466f"
+  }
+ ],
+ "merged_into": null
+}

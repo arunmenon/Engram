@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261004-02",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261004T034505Z-4283",
+ "created_at": "2026-10-04T04:00:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261001-01:recommended:DEC-20261002-05",
+ "card_id": "PC-SURVEY-20261001-01",
+ "prev_decision_id": "DEC-20261002-05",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision r2 answers REV-20261003-02: it adds a same-model yes/no probability arm (B2) so representation is separated from model choice, replaces the point-estimate negative with an equivalence test, requires adequate precision per link type with defined failure, empty-set and no-threshold handling, and moves to 15 repositories with a repository-aware two-stage bootstrap and recomputed power. It can still move B14 (working, calibration claimed not shown) and B8 (working) with local ECE and orphan rates on PDLC trace links, which the priority 3 linking design needs now.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261002-01-r2",
+   "file_id": "1Lv1pm9jQA7cN0LuU5D9HWadQtLNUeidk",
+   "sha256": "767ff0782e83c5d972addae04357eecaa32a04eb8732bb3077131f9b1232523d"
+  }
+ ],
+ "merged_into": null
+}

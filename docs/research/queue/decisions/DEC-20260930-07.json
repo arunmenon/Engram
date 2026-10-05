@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260930-07",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260930T034502Z-7f81",
+ "created_at": "2026-09-30T04:03:39Z",
+ "idempotency_key": "decision:PC-20260929-09:rejected:none",
+ "card_id": "PC-20260929-09",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "No usable baseline data and not runnable this quarter: the evidence is a builder report on an unpublished 7-task set (4 tabulated; runs, agent model and judging not stated; Jev cost excluded), and the proposed test (12 tasks x 5 runs x 2 arms of full Claude Code sessions on our own PDLC work) needs tens of millions of tokens, far beyond POLICY-v1.1's 12 runs a week, on a dataset the policy does not permit (no dogfood tenant is named). The narrowed question, whether Jev relevance scoring puts more gold evidence into a fixed budget than lexical ranking, is what E-20260928-19-r2 and E-20260929-01-r2 test; re-raise at agent level only if those pass.",
+ "input_refs": [],
+ "merged_into": null
+}
