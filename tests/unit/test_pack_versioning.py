@@ -508,6 +508,26 @@ class TestReviewFindings:
         )
         assert plan.kind == kind, plan.reasons
 
+    def test_adding_an_edge_to_a_rule_is_mapping_and_removing_one_is_breaking(self) -> None:
+        """A rule's parts keep their identities one by one (PDLC 1.4.0 adds a DEPLOYS edge)."""
+        with_edge = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}}\n": (
+                    "set: {title: $.title}}\n"
+                    "    edges:\n"
+                    "      - {type: RESOLVES, from: {type: Fix, key: {sha: $.sha}}, "
+                    "to: {type: Ticket, key: {tracker: $.tracker, number: $.number}}}\n"
+                ),
+            }
+        )
+        added = classify_change(BASE, with_edge)
+        assert added.kind == "mapping", added.reasons
+        assert added.replay_event_types == {"demo.ticket.opened"}
+        assert added.version_problems == []
+        removed = classify_change(with_edge, _registry(**{"version: 1.0.0": "version: 2.0.0"}))
+        assert removed.kind == "breaking"
+
     def test_an_enum_widening_is_additive(self) -> None:
         narrow = _registry(**{"title: string}": "title: string, prio: {enum: [low, high]}}"})
         wide = _registry(

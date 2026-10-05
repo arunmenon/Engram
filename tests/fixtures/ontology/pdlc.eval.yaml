@@ -10,22 +10,22 @@
 #   Review    acme/payments|7|9001  approved
 #   TestRun   555 (unit-tests) failure, ran against #7
 #   Release   acme/payments|v1.4.0  includes #7 and #8
-#   Deployment production|def456|2026-10-02T09:00:00+00:00  succeeded, to acme/payments
+#   Deployment production|def456|2026-10-02T09:00:00+00:00  succeeded, to acme/payments,
+#              DEPLOYS #7 (whose merge_sha it deployed; PDLC 1.4.0)
 #
 # Expected answers are what is true of that data, not what retrieval returns
-# today. At PDLC 1.3.0 the set scores a mean F1 of 0.76:
-#   - deployed-where (0.0): a GitHub deployment names a commit, not PRs, and no
-#     rule links it to the change whose merge_sha it deployed, so a trace from
-#     PAY-341 never reaches the deployment;
+# today. At PDLC 1.4.0 the set scores a mean F1 of 0.94 (0.85 at 1.3.0, when
+# deployments were not linked to the change whose merge_sha they deployed and
+# deployed-where scored 0). Two traces still return a neighbour too many:
 #   - implemented-by (0.67): the trace also returns #8, reached through the
 #     release that includes both;
 #   - pr-implements (0.67): the trace also returns the parent epic PAY-300.
 # Queries are quoted: in YAML " #" starts a comment, so an unquoted "PR #7"
 # would be cut to "PR".
-# min_f1 is that measured level, so the gate catches regressions; raise it as
-# the gaps are fixed.
+# min_f1 sits just under the measured level, so the gate catches regressions;
+# raise it as the gaps are fixed.
 pack: pdlc
-min_f1: 0.75
+min_f1: 0.9
 questions:
   # Trace: follow work through changes, releases and deployments
   - id: deployed-where

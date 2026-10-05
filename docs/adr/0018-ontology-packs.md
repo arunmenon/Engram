@@ -294,9 +294,17 @@ Regression cases:
 - **Where it runs:** the end-to-end test runs it as the rebuild gate on memory, Spanner (emulator) and Neo4j. Each question's F1 is pinned, so any change in an answer fails the test.
 - **Not built in:** the questions are about fixture data, so they would be wrong for a real deployment, whose gate falls back to the built-in pack dir. A deployment still writes its own set.
 
-At PDLC 1.3.0 the set scores a mean F1 of 0.76, and `min_f1` is set to that level so the gate catches regressions. Three questions miss:
+At PDLC 1.3.0 the set scores a mean F1 of 0.85. An earlier version of this note said 0.76, which was an arithmetic error; the test then pinned each question's score but not the mean, and it now pins both. Three questions miss:
 - **"Where is PAY-341 deployed?" (0.0):** a GitHub `deployment_status` names a commit, not PRs, so `change_numbers` is empty and `DEPLOYS` is never drawn. Linking a deployment to the change whose `merge_sha` it deployed needs a `match` lookup in the `service.deployed` rule. This is the pack's own example question for `trace`.
 - **"What changes implemented PAY-341?" (0.67):** the trace also returns #8, reached through the release that includes both.
 - **"What does PR #7 implement?" (0.67):** the trace also returns the parent epic PAY-300.
 
 Writing the set found a trap: in YAML, ` #` starts a comment, so `query: What does PR #7 implement?` loaded as "What does PR". The loader now refuses an unquoted query containing ` #`, naming the line (`tests/unit/test_pack_versioning.py::TestEvalSetFiles`).
+
+#### PDLC 1.4.0: deployments link the change they deployed (2026-10-05)
+
+`pdlc.service.deployed` gains a `DEPLOYS` edge to each change in the same repo whose `merge_sha` equals the deployed commit. It is a `match` lookup, guarded by `when: $.artifact_id`.
+- **Why:** a GitHub `deployment_status` names a commit, not PRs, so the existing `change_numbers` edge never formed. This fixes the eval set's `deployed-where` question (0.0 → 1.0), and the set's mean goes from 0.85 to 0.94. `min_f1` is now 0.9, and the end-to-end test pins the mean as well as each question.
+- **Limit:** only changes already merged when the deployment is projected are linked. A merge event that arrives after its deployment is not linked until a replay.
+- **Classification:** adding an edge to an existing rule was classified `breaking`, because a rule's parts were compared as one identity. That would have made every worker refuse to start on 1.4.0. Each part (upsert, transition, edge) is now compared on its own. A lost part is breaking; an added part is `mapping`. 1.3.0 → 1.4.0 is therefore `mapping`, so a live graph replays its pack events on upgrade, which links past deployments.
+- **Tests:** `test_pack_projection.py::test_a_deployed_commit_links_its_merged_change` (before and after the merge, another repo with the same sha, an unknown sha) and `test_pack_versioning.py::test_adding_an_edge_to_a_rule_is_mapping_and_removing_one_is_breaking`.

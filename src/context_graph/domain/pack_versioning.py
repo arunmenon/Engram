@@ -17,10 +17,11 @@ how a graph built under ``old`` is brought to ``new``:
   by building a fresh projection from the ledger under the new version
   (blue/green), gated on the packs' evaluation sets, then switching.
 
-A rule keeps its identity when it upserts, transitions and links the same
-types by the same key expressions; a changed or removed identity is
-breaking (a replay would leave the old nodes behind as duplicates), while
-changed values, conditions or target states are a mapping change. A widened
+Each part of a rule (an upsert, its transition, an edge) keeps its identity
+when it writes the same type by the same key or match expressions. A part
+whose identity changed or that was removed is breaking (a replay would
+leave the old nodes behind as duplicates); added parts, and changed
+values, conditions or target states, are a mapping change. A widened
 enum is additive; a narrowed one is breaking. Endpoints are compared as the
 types they allow, so widening to a pack wildcard is additive.
 
@@ -238,10 +239,15 @@ def _rules(registry: OntologyRegistry) -> dict[str, list[str]]:
     }
 
 
-def _identity(rule: Any) -> str:
-    """What a rule writes, by type and key expression; not the values it sets."""
+def _parts(rule: Any) -> list[str]:
+    """What a rule writes, one entry per upsert, transition and edge.
+
+    Each part is identified by its type and key (or match) expressions, not by
+    the values it sets. Parts are compared one by one, so adding an edge to a
+    rule keeps the identities of the parts it had.
+    """
     data = rule.model_dump(by_alias=True)
-    ends = ("from", "to", "to_each")
+    ends = ("from", "to", "to_each", "to_latest")
     keep = ("type", "key", "node_id", "match", "match_any_prefix", *ends)
 
     def strip(value: Any) -> Any:
@@ -250,23 +256,21 @@ def _identity(rule: Any) -> str:
             return value
         return {k: (strip(v) if k in ends else v) for k, v in value.items() if k in keep and v}
 
-    upserts = [strip(u) for u in data.get("upsert") or []]
+    parts = [_canonical({"upsert": strip(u)}) for u in data.get("upsert") or []]
     transition = data.get("transition")
-    edges = [strip(e) for e in data.get("edges") or []]
-    return _canonical(
-        {
-            "upsert": upserts,
-            "transition": None
-            if transition is None
-            else {"type": transition.get("type"), "key": transition.get("key")},
-            "edges": edges,
-        }
-    )
+    if transition is not None:
+        parts.append(
+            _canonical(
+                {"transition": {"type": transition.get("type"), "key": transition.get("key")}}
+            )
+        )
+    parts += [_canonical({"edge": strip(e)}) for e in data.get("edges") or []]
+    return parts
 
 
 def _identities(registry: OntologyRegistry) -> dict[str, list[str]]:
     return {
-        event: sorted(_identity(rule) for _pack, rule in rules)
+        event: sorted(part for _pack, rule in rules for part in _parts(rule))
         for event, rules in registry.projection_rules.items()
     }
 
@@ -287,7 +291,7 @@ def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
         if missing:
             # A replay would write nodes under new keys and leave the old ones behind
             plan.note(
-                "breaking", f"projection of {event}: a rule's keys changed or it was removed", pack
+                "breaking", f"projection of {event}: a part's keys changed or it was removed", pack
             )
             continue
         if set(old_rules) - set(new_rules):

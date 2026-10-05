@@ -248,6 +248,37 @@ class TestReleasesTestsDeployments:
         assert set(h.edges("RAN_AGAINST")) == {("TestRun:1", CHANGE)}
         assert h.node("TestRun:2")["outcome"] == "failure"
 
+    async def test_a_deployed_commit_links_its_merged_change(self) -> None:
+        """PDLC 1.4.0: a GitHub deployment names a commit; the change merged as it is linked."""
+        h = Harness()
+        deploy = {
+            "service": "acme/app",
+            "environment": "prod",
+            "repo": "acme/app",
+            "change_numbers": [],
+        }
+        await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "sha7"})  # before merge
+        await h.ingest(
+            "pdlc.change.merged",
+            {"repo": "acme/app", "number": 7, "title": "Fix", "merge_sha": "sha7"},
+        )
+        await h.ingest(
+            "pdlc.change.merged",
+            {
+                "repo": "acme/other",
+                "number": 9,
+                "title": "Same sha, other repo",
+                "merge_sha": "sha7",
+            },
+        )
+        await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "sha7"})
+        await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "unknown"})
+        later = make_node_id(
+            "Deployment", ["prod", "sha7", (START + timedelta(minutes=4)).isoformat()]
+        )
+        # Only the deployment projected after the merge, and only to the change in its repo
+        assert set(h.edges("DEPLOYS")) == {(later, CHANGE)}
+
     async def test_incident_on_the_latest_matching_deployment(self) -> None:
         h = Harness()
         deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}

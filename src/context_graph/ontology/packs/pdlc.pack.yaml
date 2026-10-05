@@ -10,6 +10,8 @@
 #          only reopens an abandoned change (a late "opened" no longer undoes a merge).
 #          v1.3.0 adds completeness keywords for paraphrases ("lack", "nobody", "uncovered") and makes
 #          Release and TestCase seed types (so "changes in release v1.4.0" and "test_retry" seed a query).
+#          v1.4.0 links a deployment to the merged change whose merge_sha it deployed (GitHub deployments
+#          name a commit, not PRs, so change_numbers is empty and no DEPLOYS edge was drawn).
 # Loaded by context_graph.ontology (ADR-0018); this file is the source of truth, and
 # docs/research/2026-10/ontology/pdlc.pack.yaml is kept identical to it.
 # Format note: YAML 1.1 parsers read bare on/off/yes/no as booleans, so rule keys use `event:` not `on:`.
@@ -17,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 1.3.0   # 1.3.0: completeness paraphrase keywords; Release and TestCase are seed types (minor: additive).
+  version: 1.4.0   # 1.4.0: DEPLOYS from a deployment to the change whose merge_sha it deployed (minor: mapping).
+                   # 1.3.0: completeness paraphrase keywords; Release and TestCase are seed types (minor: additive).
                    # 1.2.0: intent keywords; change.merged sets title/body/files (minor: additive).
                    # 1.1.0: rules for events the webhook adapters emit (minor: additive rules only).
                    # 1.0.2: every type Sourced; OWNED_BY from Incident (patch: the pack's own notes promised both).
@@ -267,6 +270,8 @@ projection:
     edges:
       - {type: DEPLOYED_TO, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
       - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
+      # A deployed commit is the merge commit of a change: link it (only changes merged before the deployment is projected)
+      - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
   - event: pdlc.incident.detected
     upsert:
       - {type: Incident, key: {incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}

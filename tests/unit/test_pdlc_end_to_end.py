@@ -309,15 +309,15 @@ async def _check_versioning(
         report = await rebuild(stores.event_log, target, projector, settings, eval_dirs=[EVAL_SETS])
         assert report.passed, [r.as_dict() for r in report.gate]
         assert report.events >= len(DELIVERIES)
-        # tests/fixtures/ontology/pdlc.eval.yaml: every question but the three known
+        # tests/fixtures/ontology/pdlc.eval.yaml: every question but the two known
         # gaps it documents is answered exactly; a change in any score fails here
         (gate,) = report.gate
         scores = {r.id: round(r.f1, 2) for r in gate.results}
         assert scores == dict.fromkeys(scores, 1.0) | {
-            "deployed-where": 0.0,
             "implemented-by": 0.67,
             "pr-implements": 0.67,
         }, gate.as_dict()
+        assert round(gate.mean_f1, 2) == 0.94  # the level the set's header records
         comparison = await compare_graphs(stores.graph, target, sample_sessions=0)
         assert comparison.ok, comparison.as_dict()
         with pytest.raises(RebuildRefusedError):  # the live graph is never a target
