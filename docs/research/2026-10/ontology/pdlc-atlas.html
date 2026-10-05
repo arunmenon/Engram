@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Interactive walkthrough of ontology packs, the PDLC ontology and the ingest/retrieval engine.
+     Open this file in a browser; it needs no build. Published copy (private until shared): https://claude.ai/artifact/R6KG4NuQpAcwCZXL33Doqo -->
+<title>PDLC Ontology Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a drafting-table atlas. Header with four journeys; each journey is a stage (diagram) beside a narration column with step controls. */
+:root {
+  --bg: #f2f4f1;
+  --surface: #fbfcfa;
+  --ink: #18212b;
+  --muted: #5a6574;
+  --line: #d3d9d1;
+  --accent: #2b55d6;
+  --accent-soft: #e2e8fb;
+  --good: #2f7d4a;
+  --bad: #b43a33;
+  --st-intake: #7a4fd1;
+  --st-plan: #a86c12;
+  --st-build: #2f6fd0;
+  --st-verify: #10806b;
+  --st-ship: #3c8a36;
+  --st-operate: #c4413a;
+  --st-know: #a83c84;
+  --st-org: #687384;
+  --st-core: #86683b;
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151b; --surface: #171e27; --ink: #e5e9ef; --muted: #96a2b3; --line: #2a3441;
+    --accent: #87a3ff; --accent-soft: #1f2a45; --good: #6cc48a; --bad: #f0827a;
+    --st-intake: #ad8cf2; --st-plan: #e0a64a; --st-build: #77a8f5; --st-verify: #4fc4a8;
+    --st-ship: #7ccb72; --st-operate: #f07a72; --st-know: #e07bbe; --st-org: #a3adbb; --st-core: #c9a76e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151b; --surface: #171e27; --ink: #e5e9ef; --muted: #96a2b3; --line: #2a3441;
+  --accent: #87a3ff; --accent-soft: #1f2a45; --good: #6cc48a; --bad: #f0827a;
+  --st-intake: #ad8cf2; --st-plan: #e0a64a; --st-build: #77a8f5; --st-verify: #4fc4a8;
+  --st-ship: #7ccb72; --st-operate: #f07a72; --st-know: #e07bbe; --st-org: #a3adbb; --st-core: #c9a76e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 20px; padding-block: 18px 40px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; padding-block: 6px 14px; border-bottom: 1px solid var(--line); }
+.brand h1 { font: 400 clamp(28px, 4vw, 40px)/1.05 var(--font-display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.brand p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.brand .ver { font: 500 12px var(--font-mono); color: var(--muted); letter-spacing: 0.02em; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn.primary:hover { filter: brightness(1.08); }
+nav.journeys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+nav.journeys button { display: flex; align-items: baseline; gap: 8px; border: 1px solid transparent; background: none; border-radius: 8px; padding: 8px 14px; color: var(--muted); }
+nav.journeys button .n { font: 500 12px var(--font-mono); }
+nav.journeys button .t { font-weight: 600; }
+nav.journeys button[aria-selected="true"] { background: var(--surface); border-color: var(--line); color: var(--ink); }
+nav.journeys button[aria-selected="true"] .n { color: var(--accent); }
+nav.journeys button:hover { color: var(--ink); }
+.journey { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 20px; margin-top: 16px; }
+@media (max-width: 920px) { .journey { grid-template-columns: minmax(0, 1fr); } }
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; }
+.panel { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font: 500 11px var(--font-mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); }
+.panel h2 { font: 400 28px/1.15 var(--font-display); margin: 2px 0 0; text-wrap: balance; }
+.narration { color: var(--ink); max-width: 62ch; }
+.narration p { margin: 0 0 10px; }
+.narration ul { margin: 0 0 10px; padding-left: 18px; }
+.narration li { margin-bottom: 4px; }
+.narration code, .detail code, td code { font: 13px var(--font-mono); background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.dots button { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font: 500 11px var(--font-mono); color: var(--muted); padding: 0; }
+.dots button[aria-current="step"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 11px; font-size: 13px; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.card h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+pre.code { margin: 0; font: 12.5px/1.55 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+pre.code .k { color: var(--accent); }
+pre.code .s { color: var(--st-verify); }
+pre.code .c { color: var(--muted); }
+pre.code .hl { background: var(--accent-soft); border-radius: 3px; }
+.detail { font-size: 14px; }
+.detail dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 6px 0 0; }
+.detail dt { color: var(--muted); font-size: 12.5px; }
+.detail dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.states { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.state { border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; font: 12px var(--font-mono); }
+.state.initial { border-color: var(--accent); color: var(--accent); }
+.state.sup { text-decoration: line-through; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.status-line { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+table.weights { border-collapse: collapse; font-size: 13px; width: 100%; }
+table.weights td { padding: 3px 6px; border-bottom: 1px solid var(--line); }
+table.weights td.w { font: 500 12px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; width: 3em; }
+.bar { height: 6px; border-radius: 3px; background: var(--accent); opacity: 0.75; }
+footer.note { margin-top: 26px; color: var(--muted); font-size: 13px; max-width: 80ch; }
+
+/* SVG */
+svg text { font-family: var(--font-body); fill: var(--ink); }
+svg .mono { font-family: var(--font-mono); }
+.n-body { fill: var(--surface); stroke-width: 1.6; }
+.node { cursor: pointer; transition: opacity 0.35s ease; }
+.node:hover .n-body { stroke-width: 2.6; }
+.node.dim { opacity: 0.2; }
+.node.sel .n-body { stroke-width: 3; }
+.edge { fill: none; stroke: var(--muted); stroke-width: 1.3; transition: opacity 0.35s ease, stroke 0.35s ease; }
+.edge.dim { opacity: 0.07; }
+.edge.on { stroke: var(--accent); stroke-width: 2; }
+.edge.prov { stroke: var(--st-core); stroke-dasharray: 3 4; }
+.edge.flow { stroke-dasharray: 6 5; animation: flow 1.1s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -22; } }
+.elabel { font: 500 10.5px var(--font-mono); fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.collabel { font: 500 11px var(--font-mono); fill: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.packet { transition: transform 0.9s cubic-bezier(.45,.05,.3,1); }
+.station rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.4; transition: stroke 0.3s, fill 0.3s; }
+.station.active rect { stroke: var(--accent); stroke-width: 2.4; fill: var(--accent-soft); }
+.station.done rect { stroke: var(--accent); }
+.rnode rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; transition: all 0.35s; }
+.rnode.seed rect { stroke: var(--accent); stroke-width: 3; }
+.rnode.visit rect { fill: var(--accent-soft); stroke: var(--accent); }
+.rnode.answer rect { fill: var(--accent); stroke: var(--accent); }
+.rnode.answer text { fill: var(--surface); }
+.rnode.cand rect { stroke-dasharray: 4 3; stroke: var(--muted); }
+.rnode.fade { opacity: 0.35; }
+.redge { fill: none; stroke: var(--line); stroke-width: 1.6; transition: all 0.35s; }
+.redge.walk { stroke: var(--accent); stroke-width: 2.6; }
+.redge.walk.flow { stroke-dasharray: 7 5; animation: flow 1s linear infinite; }
+.slab rect { transition: all 0.35s; }
+.slab.dim { opacity: 0.3; }
+@media (prefers-reduced-motion: reduce) {
+  .edge.flow, .redge.walk.flow { animation: none; stroke-dasharray: none; }
+  .packet, .node, .edge, .rnode rect, .redge { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="ver">Engram · ontology packs (ADR-0018) · core 1.1.0 + pdlc 1.7.0</div>
+      <h1>PDLC Ontology Atlas</h1>
+      <p>How a domain becomes data: the pack format, the product development lifecycle seen through each retrieval lens, and how the engine ingests events and answers questions.</p>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="tourBtn" type="button">Play tour</button>
+      <span class="status-line" id="tourStatus" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <nav class="journeys" role="tablist" aria-label="Journeys" id="journeyTabs"></nav>
+
+  <section class="journey" id="journey">
+    <div class="stage" id="stage"></div>
+    <aside class="panel">
+      <div>
+        <div class="eyebrow" id="eyebrow"></div>
+        <h2 id="stepTitle"></h2>
+      </div>
+      <div id="extra"></div>
+      <div class="narration" id="narration"></div>
+      <div class="controls">
+        <button class="btn" id="prevBtn" type="button">Back</button>
+        <button class="btn" id="nextBtn" type="button">Next</button>
+        <div class="dots" id="dots" aria-label="Steps"></div>
+      </div>
+      <div id="detail"></div>
+    </aside>
+  </section>
+
+  <footer class="note">
+    Types, edges, events, intents, weights and rules are read from <code>ontology/packs/pdlc.pack.yaml</code> (1.7.0) and <code>core.pack.yaml</code> (1.1.0). The ingestion and retrieval walkthroughs use the webhook fixture world (<code>tests/fixtures/ontology/pdlc.eval.yaml</code>): its questions score F1 1.00, and the OpenDAL history 0.91. Some edge types allow several endpoint pairs; the map draws the main pairs and the detail panel lists all of them.
+  </footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, parent) => {
+  const node = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  if (parent) parent.appendChild(node);
+  return node;
+};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ------------------------------------------------------------------ data: the PDLC pack */
+const STAGES = {
+  intake: { label: "Intake", color: "--st-intake" },
+  plan: { label: "Plan", color: "--st-plan" },
+  build: { label: "Build", color: "--st-build" },
+  verify: { label: "Verify", color: "--st-verify" },
+  ship: { label: "Ship", color: "--st-ship" },
+  operate: { label: "Operate", color: "--st-operate" },
+  know: { label: "Knowledge", color: "--st-know" },
+  org: { label: "Organisation", color: "--st-org" },
+  core: { label: "Core pack", color: "--st-core" },
+};
+const T = {
+  Request: { stage: "intake", x: 95, y: 92, key: "source_system, external_id", ifaces: "Lifecycled, Owned, Sourced", props: "title, description, priority", states: ["new", "triaged", "accepted", "rejected", "done"], seed: false },
+  Spec: { stage: "intake", x: 95, y: 205, key: "doc_id, version", ifaces: "Lifecycled, Anchored, Versioned, Sourced", props: "title, acceptance_criteria, scope", states: ["draft", "approved", "superseded"], sup: ["superseded"], seed: true },
+  Requirement: { stage: "intake", x: 95, y: 320, key: "spec_id, local_id", ifaces: "Lifecycled, Anchored, Sourced", props: "statement, priority", states: ["proposed", "accepted", "implemented", "verified", "retired"], seed: true },
+  DesignElement: { stage: "intake", x: 95, y: 438, key: "doc_id, section_path", ifaces: "Lifecycled, Anchored, Versioned, Sourced", props: "kind (hld | lld), title, body", states: ["draft", "reviewed", "approved", "superseded"], sup: ["superseded"], seed: true },
+  WorkItem: { stage: "plan", x: 268, y: 320, key: "tracker, external_key", ifaces: "Lifecycled, Owned, Sourced", props: "title, work_type (epic | story | task | bug | production_change), labels, assignees, resolution", states: ["open", "in_progress", "done", "cancelled"], seed: true },
+  Review: { stage: "build", x: 440, y: 180, key: "repo, number, review_id", ifaces: "Sourced", props: "verdict (commented | approved | changes_requested)" },
+  Change: { stage: "build", x: 440, y: 320, key: "repo, number", ifaces: "Lifecycled, Anchored, Sourced", props: "title, body, head_sha, merge_sha, files, change_type, scope, ticket_exempt", states: ["open", "reviewed", "merged", "abandoned"], seed: true },
+  TestCase: { stage: "verify", x: 608, y: 438, key: "repo, test_id", ifaces: "Lifecycled, Sourced", props: "path, name", states: ["active", "quarantined", "retired"], seed: true },
+  TestRun: { stage: "verify", x: 608, y: 548, key: "run_id", ifaces: "Sourced", props: "outcome, severity, test_type, commit_sha, finished_at" },
+  Release: { stage: "ship", x: 775, y: 180, key: "repo, version", ifaces: "Sourced", props: "released_at, breaking", seed: true },
+  Deployment: { stage: "ship", x: 775, y: 320, key: "environment, artifact_id, started_at", ifaces: "Lifecycled, Sourced", props: "repo", states: ["started", "succeeded", "failed", "rolled_back"] },
+  Component: { stage: "ship", x: 775, y: 438, key: "catalog_name", ifaces: "Owned, Lifecycled, Sourced", props: "kind, system, tier, repo, path_prefixes", states: ["experimental", "production", "deprecated"], seed: true },
+  Incident: { stage: "operate", x: 925, y: 320, key: "incident_id", ifaces: "Lifecycled, Owned, Sourced", props: "severity, title, summary, environment, artifact_id", states: ["detected", "mitigated", "resolved", "postmortem_done"], seed: true },
+  Lesson: { stage: "know", x: 925, y: 180, key: "content_hash", ifaces: "Claim, Lifecycled, Sourced", props: "statement, polarity (apply | avoid), support_count", states: ["tentative", "validated", "deprecated"], seed: true },
+  Decision: { stage: "know", x: 262, y: 560, key: "content_hash", ifaces: "Lifecycled, Anchored, Claim, Sourced", props: "statement, rationale, alternatives, decided_at, valid_from, valid_to", states: ["proposed", "accepted", "superseded", "reversed"], sup: ["superseded", "reversed"], seed: true },
+  Constraint: { stage: "know", x: 440, y: 560, key: "content_hash", ifaces: "Lifecycled, Claim, Sourced", props: "statement, scope, severity", states: ["active", "relaxed", "retired"], seed: true },
+  Team: { stage: "org", x: 925, y: 548, key: "catalog_name", ifaces: "Sourced", props: "display_name" },
+  Event: { stage: "core", x: 608, y: 70, key: "event_id", ifaces: "(core)", props: "the ledger record every node is derived from", core: true },
+  Entity: { stage: "core", x: 95, y: 560, key: "entity_id", ifaces: "(core)", props: "people and other named things", core: true },
+};
+const EDGE_INFO = {
+  REFINES: { from: "Spec, Requirement, DesignElement", to: "Request, Spec, Requirement", link: true },
+  DECOMPOSES_INTO: { from: "Spec, WorkItem", to: "WorkItem" },
+  IMPLEMENTS: { from: "Change, WorkItem", to: "WorkItem, Requirement, DesignElement", link: true },
+  VERIFIES: { from: "TestCase", to: "Requirement, Spec, Change, WorkItem", link: true },
+  EXECUTES: { from: "TestRun", to: "TestCase" },
+  RAN_AGAINST: { from: "TestRun", to: "Change" },
+  REVIEWS: { from: "Review", to: "Change" },
+  DEPLOYS: { from: "Deployment", to: "Change, Release" },
+  INCLUDES: { from: "Release", to: "Change" },
+  DEPLOYED_TO: { from: "Deployment", to: "Component" },
+  DECIDED_BY: { from: "Decision, Constraint", to: "core Entity" },
+  APPLIES_TO: { from: "Decision", to: "Component, Requirement, DesignElement, Change", link: true },
+  CITES: { from: "Spec, Change", to: "Decision, Constraint, DesignElement, Lesson, Requirement" },
+  TOUCHES: { from: "Change", to: "Component" },
+  REVERTS: { from: "Change", to: "Change" },
+  CONSTRAINS: { from: "Constraint", to: "Requirement, DesignElement, Component, WorkItem" },
+  DEPENDS_ON: { from: "WorkItem, Component", to: "WorkItem, Component" },
+  OWNED_BY: { from: "Component, WorkItem, Request, Incident", to: "Team, core Entity" },
+  AFFECTS: { from: "Incident", to: "Component", link: true },
+  OCCURRED_ON: { from: "Incident", to: "Deployment" },
+  ATTRIBUTED_TO: { from: "Incident", to: "Change, WorkItem", link: true },
+  AMENDS: { from: "Decision", to: "Decision", link: true },
+  REMEDIATES: { from: "Change", to: "Incident", link: true },
+  RAISES: { from: "Incident", to: "Request" },
+  LEARNED_FROM: { from: "Lesson", to: "Incident, Change" },
+  SUPERSEDES: { from: "Decision, Spec, DesignElement", to: "same types", core: true },
+  CONTRADICTS: { from: "Decision, Constraint", to: "Decision, Constraint", core: true },
+  SAME_AS: { from: "WorkItem, Component", to: "WorkItem, Component", core: true },
+  REFERENCES: { from: "core Event", to: "any type", core: true },
+  DERIVED_FROM: { from: "every pack node", to: "core Event", core: true },
+};
+// Drawn pairs: [type, from, to]
+const E = [
+  ["REFINES", "Spec", "Request"], ["REFINES", "Requirement", "Spec"], ["REFINES", "DesignElement", "Requirement"],
+  ["DECOMPOSES_INTO", "Spec", "WorkItem"], ["DECOMPOSES_INTO", "WorkItem", "WorkItem"],
+  ["IMPLEMENTS", "Change", "WorkItem"], ["IMPLEMENTS", "WorkItem", "Requirement"],
+  ["VERIFIES", "TestCase", "Requirement"], ["VERIFIES", "TestCase", "Change"],
+  ["EXECUTES", "TestRun", "TestCase"], ["RAN_AGAINST", "TestRun", "Change"], ["REVIEWS", "Review", "Change"],
+  ["DEPLOYS", "Deployment", "Change"], ["DEPLOYS", "Deployment", "Release"], ["INCLUDES", "Release", "Change"],
+  ["DEPLOYED_TO", "Deployment", "Component"],
+  ["DECIDED_BY", "Decision", "Entity"], ["DECIDED_BY", "Constraint", "Entity"],
+  ["APPLIES_TO", "Decision", "Requirement"], ["APPLIES_TO", "Decision", "Change"],
+  ["CITES", "Spec", "Decision"], ["CITES", "Change", "Lesson"],
+  ["TOUCHES", "Change", "Component"], ["REVERTS", "Change", "Change"],
+  ["CONSTRAINS", "Constraint", "Requirement"], ["CONSTRAINS", "Constraint", "Component"], ["CONSTRAINS", "Constraint", "WorkItem"],
+  ["DEPENDS_ON", "Component", "Component"],
+  ["OWNED_BY", "Component", "Team"], ["OWNED_BY", "Incident", "Team"], ["OWNED_BY", "WorkItem", "Team"],
+  ["AFFECTS", "Incident", "Component"], ["OCCURRED_ON", "Incident", "Deployment"], ["ATTRIBUTED_TO", "Incident", "Change"],
+  ["AMENDS", "Decision", "Decision"], ["REMEDIATES", "Change", "Incident"], ["RAISES", "Incident", "Request"],
+  ["LEARNED_FROM", "Lesson", "Incident"], ["LEARNED_FROM", "Lesson", "Change"],
+  ["SUPERSEDES", "Decision", "Decision"], ["SUPERSEDES", "Spec", "Spec"],
+  ["CONTRADICTS", "Decision", "Constraint"], ["SAME_AS", "WorkItem", "WorkItem"],
+];
+const PROV = Object.keys(T).filter((t) => !T[t].core).map((t) => ["DERIVED_FROM", t, "Event"]);
+const REFS = [["REFERENCES", "Event", "Change"], ["REFERENCES", "Event", "WorkItem"]];
+
+const LENSES = [
+  { id: "all", label: "Whole map", title: "Seventeen types along the lifecycle",
+    text: `<p>The PDLC pack adds 17 node types and 25 edge types to the core pack. They follow work from intake to operations: a request is refined into specs and requirements, planned as work items, built as changes, verified by tests, shipped as releases and deployments, and watched in production as incidents.</p><p>Decisions, constraints and lessons sit underneath as the team's knowledge. Teams own things. <strong>Click any type</strong> to see its key, interfaces, properties, lifecycle and edges.</p>` },
+  { id: "trace", label: "Trace", intent: "trace", title: "Trace: follow work to production",
+    text: `<p>"Where is PAY-341 deployed?" "What implements REQ-12?" The trace intent follows a requirement or ticket through design, code, tests and deployment, up to 5 hops.</p><p>Each edge carries a weight. Higher weights are followed first when the traversal has to choose.</p>`,
+    weights: { REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, INCLUDES: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3 },
+    keywords: "trace, deployed, implements, delivered, shipped, release" },
+  { id: "completeness", label: "Completeness", intent: "completeness", title: "Completeness: what is missing",
+    text: `<p>"Which requirements have no tests?" "Unreviewed merges last week?" A missing link is not a path, so this intent is not a traversal. The <code>missing_links</code> plugin takes every candidate of the asked type and subtracts those that have the expected link.</p><p>Links with link status (declared or inferred) only count once confirmed: a proposed link is never counted as confirmed.</p>`,
+    weights: { VERIFIES: 5, IMPLEMENTS: 5, REVIEWS: 4, REFINES: 3 },
+    keywords: "missing, without, no tests, untested, unreviewed, lack, nobody, uncovered" },
+  { id: "status", label: "Status", intent: "status", title: "Status: what is current",
+    text: `<p>"Is the idempotency decision still current?" The status intent follows supersession, amendment and contradiction, and prefers specs over the latest RFC.</p><p>It is one of two intents (with <em>why</em>) for which superseded and reversed items are admitted, labelled as superseded. Every other intent leaves them out.</p>`,
+    weights: { SUPERSEDES: 5, AMENDS: 4, CONTRADICTS: 4, CITES: 4, APPLIES_TO: 3, DECIDED_BY: 2 },
+    keywords: "still, current, latest, valid, superseded, replaced, reversed, amended" },
+  { id: "impact", label: "Impact", intent: "impact", title: "Impact: what depends on this",
+    text: `<p>"What breaks if we change the refunds API?" The impact intent walks edges <strong>inbound</strong>, towards whatever depends on, is constrained by or is affected through the asked item, and who owns it.</p>`,
+    weights: { DEPENDS_ON: 5, CONSTRAINS: 4, AFFECTS: 3, OWNED_BY: 2 },
+    keywords: "depends, affected, impact, breaks, blast radius" },
+  { id: "preflight", label: "Preflight", intent: "preflight", title: "Preflight: before you touch it",
+    text: `<p>"Anything I should know before editing refund/retry.py?" Preflight surfaces lessons, constraints, failing test runs, incidents attributed to past changes, and reverts, around the artifact you are about to change.</p>`,
+    weights: { LEARNED_FROM: 5, CONSTRAINS: 5, TOUCHES: 5, AFFECTS: 4, APPLIES_TO: 4, REVERTS: 4, RAN_AGAINST: 3, ATTRIBUTED_TO: 3 },
+    keywords: "before i, should know, before editing, lessons, risks, warnings, gotchas" },
+  { id: "provenance", label: "Provenance", title: "Provenance and trust",
+    text: `<p>Every node a pack rule writes gets a <code>DERIVED_FROM</code> edge to the ledger event that produced it. Core adds it automatically, so no pack can forget it. Every answer can therefore cite its source events.</p><p>Every PDLC type is <em>Sourced</em>: <code>source_trust</code> comes from the emitting source's allowlist entry, never from the content. Untrusted items stay out of an agent's action context unless a trusted item backs them up.</p><p>Agent sessions link to the artifacts they touched through core's <code>REFERENCES</code>.</p>` },
+  { id: "lifecycle", label: "Lifecycles", title: "Lifecycles: states, not flags",
+    text: `<p>Thirteen types are <em>Lifecycled</em>: their <code>status</code> moves through declared states, and rules may only move them from allowed states. A late or replayed "opened" never undoes a merge, for example, because <code>change.created</code> only reopens from <code>abandoned</code>.</p><p>States a lifecycle names as superseded (struck through) are left out of answers, except for the status and why intents. <strong>Click a type</strong> to see its states.</p>` },
+];
+
+/* ------------------------------------------------------------------ helpers */
+function color(stage) { return `var(${STAGES[stage].color})`; }
+function nodeWidth(name) { return Math.max(64, name.length * 7.4 + 30); }
+function boundary(cx, cy, hw, hh, dx, dy) {
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const t = Math.min(ux ? hw / Math.abs(ux) : Infinity, uy ? hh / Math.abs(uy) : Infinity);
+  return [cx + ux * (t + 3), cy + uy * (t + 3)];
+}
+function arrowDefs(svg, id, cssVar) {
+  const defs = el("defs", {}, svg);
+  const m = el("marker", { id, viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", style: `fill: var(${cssVar})` }, m);
+  return defs;
+}
+
+/* ------------------------------------------------------------------ journey 2: the map */
+let mapState = { lens: "all", selected: null };
+function drawMap(stage) {
+  const svg = el("svg", { viewBox: "0 0 1000 610", role: "img", "aria-label": "PDLC ontology map: types by lifecycle stage and the edges between them" });
+  const defs = arrowDefs(svg, "arr", "--muted");
+  const m2 = el("marker", { id: "arrOn", viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", style: "fill: var(--accent)" }, m2);
+  const m3 = el("marker", { id: "arrProv", viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", style: "fill: var(--st-core)" }, m3);
+  [["Intake", 95], ["Plan", 268], ["Build", 440], ["Verify", 608], ["Ship", 775], ["Operate", 925]].forEach(([label, x]) => {
+    const t = el("text", { x, y: 22, "text-anchor": "middle", class: "collabel" }, svg);
+    t.textContent = label;
+  });
+  const edgeLayer = el("g", {}, svg);
+  const labelLayer = el("g", {}, svg);
+  const nodeLayer = el("g", {}, svg);
+
+  const lens = LENSES.find((l) => l.id === mapState.lens);
+  const lensEdges = lens.weights ? new Set(Object.keys(lens.weights)) : null;
+  let edges = E.slice();
+  if (lens.id === "provenance") edges = edges.concat(PROV, REFS);
+  const loopCount = {};
+  const highlightNodes = new Set();
+  edges.forEach(([type, s, d], idx) => {
+    const a = T[s], b = T[d];
+    const on = lensEdges ? lensEdges.has(type) : (lens.id === "provenance" ? (type === "DERIVED_FROM" || type === "REFERENCES") : false);
+    if (on) { highlightNodes.add(s); highlightNodes.add(d); }
+    let path, mid;
+    if (s === d) {
+      const k = (loopCount[s] = (loopCount[s] || 0) + 1);
+      const hw = nodeWidth(s) / 2, r = 16 + k * 10;
+      const sx = a.x + hw - 10, sy = a.y - 15;
+      path = `M${sx},${sy} C${sx + r},${sy - r * 1.6} ${sx + r * 2},${sy + 6} ${a.x + hw + 2},${a.y + 4}`;
+      mid = [sx + r * 1.25, sy - r * 0.75];
+    } else {
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+      const bend = (idx % 2 ? 1 : -1) * Math.min(60, len * 0.14);
+      const cx = (a.x + b.x) / 2 - (dy / len) * bend, cy = (a.y + b.y) / 2 + (dx / len) * bend;
+      const [x1, y1] = boundary(a.x, a.y, nodeWidth(s) / 2, 16, cx - a.x, cy - a.y);
+      const [x2, y2] = boundary(b.x, b.y, nodeWidth(d) / 2, 16, cx - b.x, cy - b.y);
+      path = `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`;
+      mid = [0.25 * x1 + 0.5 * cx + 0.25 * x2, 0.25 * y1 + 0.5 * cy + 0.25 * y2];
+    }
+    const isProv = type === "DERIVED_FROM" || type === "REFERENCES";
+    const cls = ["edge"];
+    if (isProv) cls.push("prov");
+    if (lens.id !== "all") cls.push(on ? "on" : "dim");
+    if (on && !isProv && !reduceMotion) cls.push("flow");
+    const p = el("path", { d: path, class: cls.join(" "), "marker-end": on && !isProv ? "url(#arrOn)" : (isProv ? "url(#arrProv)" : "url(#arr)") }, edgeLayer);
+    const title = el("title", {}, p); title.textContent = `${type}: ${s} → ${d}`;
+    if (on && type !== "DERIVED_FROM") {
+      const t = el("text", { x: mid[0], y: mid[1], "text-anchor": "middle", class: "elabel" }, labelLayer);
+      t.textContent = lens.weights ? `${type} ${lens.weights[type]}` : type;
+    }
+  });
+  if (lens.id === "lifecycle") Object.keys(T).forEach((t) => { if (T[t].states) highlightNodes.add(t); });
+  if (lens.id === "all") Object.keys(T).forEach((t) => highlightNodes.add(t));
+  Object.entries(T).forEach(([name, t]) => {
+    const w = nodeWidth(name);
+    const cls = ["node"];
+    if (!highlightNodes.has(name)) cls.push("dim");
+    if (mapState.selected === name) cls.push("sel");
+    const g = el("g", { class: cls.join(" "), transform: `translate(${t.x},${t.y})`, tabindex: "0", role: "button", "aria-label": `${name}, ${STAGES[t.stage].label}` }, nodeLayer);
+    el("rect", { x: -w / 2, y: -15, width: w, height: 30, rx: t.core ? 4 : 15, class: "n-body", style: `stroke: ${color(t.stage)}${t.core ? "; stroke-dasharray: 4 3" : ""}` }, g);
+    el("circle", { cx: -w / 2 + 14, cy: 0, r: 4.5, style: `fill: ${color(t.stage)}` }, g);
+    const label = el("text", { x: -w / 2 + 25, y: 4.5, "font-size": "13", "font-weight": "600" }, g);
+    label.textContent = name;
+    if (lens.id === "lifecycle" && t.states) {
+      const s = el("text", { x: 0, y: 29, "text-anchor": "middle", "font-size": "10", class: "mono", style: "fill: var(--muted)" }, g);
+      s.textContent = `${t.states.length} states`;
+    }
+    const pick = () => { mapState.selected = name; renderStep(); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(); } });
+  });
+  stage.appendChild(svg);
+  const legend = document.createElement("div");
+  legend.className = "legend";
+  legend.innerHTML = Object.values(STAGES).map((s) => `<span><i style="background: var(${s.color})"></i>${s.label}</span>`).join("");
+  stage.appendChild(legend);
+}
+function typeDetail(name) {
+  const t = T[name];
+  if (!t) return "";
+  const out = Object.entries(EDGE_INFO).filter(([, e]) => e.from.split(", ").includes(name) || (name === "Event" && e.from.includes("Event"))).map(([k]) => k);
+  const inc = Object.entries(EDGE_INFO).filter(([, e]) => e.to.split(", ").includes(name) || (name === "Event" && e.to.includes("Event")) || (name === "Entity" && e.to.includes("Entity"))).map(([k]) => k);
+  const states = t.states ? `<div class="states">${t.states.map((s, i) => `<span class="state${i === 0 ? " initial" : ""}${t.sup && t.sup.includes(s) ? " sup" : ""}">${s}</span>${i < t.states.length - 1 ? "<span aria-hidden=\"true\">›</span>" : ""}`).join("")}</div>` : "none";
+  const keyParts = t.key.split(", ");
+  const example = t.core ? "" : `<dt>Node id</dt><dd><code>${name}:${keyParts.map((k) => `&lt;${k}&gt;`).join("|")}</code></dd>`;
+  return `<div class="card detail"><h3><span style="color:${color(t.stage)}">●</span> ${esc(name)} <span class="eyebrow">${STAGES[t.stage].label}</span></h3>
+    <dl><dt>Key</dt><dd>${esc(t.key)}</dd>${example}
+    <dt>Interfaces</dt><dd>${esc(t.ifaces)}</dd>
+    <dt>Properties</dt><dd>${esc(t.props)}</dd>
+    <dt>Lifecycle</dt><dd>${states}</dd>
+    <dt>Out</dt><dd>${out.join(", ") || "none"}</dd>
+    <dt>In</dt><dd>${inc.join(", ") || "none"}</dd>
+    ${t.core ? "" : `<dt>Seed type</dt><dd>${t.seed ? "yes: a question can name it" : "no"}</dd>`}</dl></div>`;
+}
+function weightsTable(lens) {
+  if (!lens.weights) return "";
+  const max = Math.max(...Object.values(lens.weights));
+  return `<div class="card"><h3>Intent <code>${lens.intent}</code></h3>
+    <table class="weights">${Object.entries(lens.weights).map(([e, w]) => `<tr><td>${e}</td><td style="width:40%"><div class="bar" style="width:${(w / max) * 100}%"></div></td><td class="w">${w}</td></tr>`).join("")}</table>
+    <p class="status-line" style="margin:8px 0 0">Keywords: ${esc(lens.keywords)}</p></div>`;
+}
+
+/* ------------------------------------------------------------------ journey 1: packs */
+const PACKS = [
+  { id: "core", name: "core", ver: "1.1.0", y: 404, color: "--st-core", desc: "Event, Entity · DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS · interfaces Lifecycled, Anchored, Versioned, Claim, Sourced" },
+  { id: "memory", name: "memory", ver: "1.0.0", y: 330, color: "--st-org", desc: "Summary, Episode, Belief, Goal … today's agent memory schema" },
+  { id: "user", name: "user", ver: "1.0.0", y: 256, color: "--st-org", desc: "UserProfile, Preference, Skill, Workflow, BehavioralPattern" },
+  { id: "pdlc", name: "pdlc", ver: "1.7.0", y: 160, color: "--st-build", desc: "17 types · 25 edges · 23 events · 5 intents · projection rules · admission · extraction" },
+  { id: "crm", name: "crm (example)", ver: "", y: 74, color: "--st-know", desc: "Account, Contact, Deal: a second domain, loaded from a pack directory, no code" },
+];
+function drawPacks(stage, step) {
+  const svg = el("svg", { viewBox: "0 0 1000 470", role: "img", "aria-label": "Packs stacked on the core pack and composed into one registry" });
+  arrowDefs(svg, "arrP", "--accent");
+  const show = {
+    0: ["pdlc"], 1: ["core", "memory", "user"], 2: ["core", "memory", "user", "pdlc"], 3: ["core", "memory", "user", "pdlc"],
+    4: ["pdlc"], 5: ["pdlc"], 6: ["core", "memory", "user", "pdlc", "crm"],
+  }[step];
+  PACKS.forEach((p) => {
+    const g = el("g", { class: "slab" + (show.includes(p.id) ? "" : " dim") }, svg);
+    const dashed = p.id === "crm";
+    el("rect", { x: 30, y: p.y - 30, width: 560, height: 60, rx: 10, style: `fill: var(--surface); stroke: var(${p.color}); stroke-width: ${show.includes(p.id) ? 2.2 : 1.2}${dashed ? "; stroke-dasharray: 6 4" : ""}` }, g);
+    const n = el("text", { x: 50, y: p.y - 4, "font-size": "18", "font-weight": "600" }, g);
+    n.textContent = p.name;
+    const v = el("text", { x: 50 + p.name.length * 10 + 14, y: p.y - 4, "font-size": "12", class: "mono", style: "fill: var(--muted)" }, g);
+    v.textContent = p.ver;
+    const d = el("text", { x: 50, y: p.y + 17, "font-size": "11.5", style: "fill: var(--muted)" }, g);
+    d.textContent = p.desc.length > 86 ? p.desc.slice(0, 84) + "…" : p.desc;
+  });
+  // the right-hand side changes per step
+  const R = el("g", {}, svg);
+  const box = (x, y, w, h, title, lines, accent) => {
+    const g = el("g", {}, R);
+    el("rect", { x, y, width: w, height: h, rx: 10, style: `fill: var(--surface); stroke: var(${accent || "--line"}); stroke-width: 1.6` }, g);
+    const t = el("text", { x: x + 14, y: y + 24, "font-size": "14", "font-weight": "600" }, g); t.textContent = title;
+    lines.forEach((line, i) => { const l = el("text", { x: x + 14, y: y + 46 + i * 19, "font-size": "12", class: "mono" }, g); l.textContent = line; });
+    return g;
+  };
+  const arrow = (x1, y1, x2, y2) => el("path", { d: `M${x1},${y1} L${x2},${y2}`, style: "stroke: var(--accent); stroke-width: 2; fill: none", "marker-end": "url(#arrP)" }, R);
+  if (step === 0) {
+    box(640, 40, 330, 300, "pdlc.pack.yaml", ["pack:        name, version, requires", "types:       nodes, edges, link_policy", "events:      pdlc.change.merged …", "projection:  event → upserts, edges,", "             transitions", "retrieval:   seed types, intents,", "             weights, admission", "extraction:  what an LLM may propose", "lifecycle:   decay classes", "mappings:    PROV, OSLC, Backstage"], "--st-build");
+    arrow(610, 160, 636, 160);
+  } else if (step === 1) {
+    box(640, 230, 330, 200, "Always loaded", ["core, memory, user = today's schema", "loaded from the built-in directory:", "a pack directory cannot replace them", "", "core interfaces: Lifecycled,", "Anchored, Versioned, Claim, Sourced"], "--st-core");
+  } else if (step === 2) {
+    box(640, 70, 330, 250, "pdlc requires core>=1.1", ["extends_core_edges:", "  SUPERSEDES  Decision, Spec, Design", "  CONTRADICTS Decision, Constraint", "  REFERENCES  Event → any type", "  SAME_AS     WorkItem, Component", "core_intent_weights:", "  why    IMPLEMENTS 4, REFINES 4 …", "  who_is OWNED_BY 5, DECIDED_BY 4"], "--st-build");
+    arrow(610, 160, 636, 170);
+  } else if (step === 3) {
+    box(640, 40, 330, 390, "compose → one registry", ["1 parse strictly (YAML 1.2 keys)", "2 canonical order: base packs,", "  then requires, then name", "3 check: one owner per event", "  namespace (pdlc.*), reserved", "  names, plugins, admission rules", "4 merge: core edges extended,", "  intent weights added,", "  DERIVED_FROM added to every type", "5 hash → ontology version", "6 log settings declared but inert", "", "→ projector, retriever, extraction", "  all read the same registry"], "--accent");
+    arrow(610, 240, 636, 240);
+  } else if (step === 4) {
+    box(640, 40, 330, 250, "classify_change(old, new)", ["none      nothing to do", "additive  hot: new types, intents", "mapping   replay the affected", "          event types", "breaking  blue/green rebuild", "          into a fresh graph,", "          gated on eval sets", "", "minor version for all but breaking"], "--st-plan");
+    box(640, 310, 330, 120, "reconcile at worker start", ["the graph records its ontology", "(OntologyState); the worker", "compares and acts before projecting"], "--line");
+  } else if (step === 5) {
+    box(640, 40, 330, 210, "eval gate (decision 10)", ["a new pack's intents are pending", "until its eval set passes:", "", "POST /v1/query/artifacts", "  intent named  → 409", "  inferred      → meta.eval_pending"], "--st-verify");
+    box(640, 270, 330, 160, "evaluate --record", ["python -m context_graph.ontology \\", "  evaluate --record", "pdlc fixtures   F1 1.00 (min 0.95)", "OpenDAL history F1 0.91 (min 0.90)"], "--st-verify");
+  } else if (step === 6) {
+    box(640, 40, 330, 250, "crm: a second domain", ["CG_ONTOLOGY_PACKS=crm", "CG_ONTOLOGY_PACK_DIRS=…/packs/crm", "", "Account, Contact, Deal", "Deal lifecycle: open → won | lost", "             → replaced", "key_patterns: Deal 'D-\\d+'", "intents: pipeline, coverage"], "--st-know");
+    box(640, 310, 330, 120, "end to end, no code", ["ingest → projection → gate →", "\"What is in the Acme pipeline?\"", "on memory, Neo4j and Spanner"], "--line");
+  }
+  stage.appendChild(svg);
+}
+const PACK_STEPS = [
+  { title: "A pack is a file, not code", text: `<p>An ontology pack is one YAML file that describes a domain completely: its node and edge types, the events that feed it, how each event becomes graph writes, how questions about it are answered, and what an LLM may propose for it.</p><p>Adding a domain means adding a pack. The engine reads the pack; it has no PDLC code.</p>` },
+  { title: "Base packs: today's schema, as packs", text: `<p>Three base packs are always loaded: <code>core</code>, <code>memory</code> and <code>user</code>. Together they describe the schema Engram already had: events, entities, summaries, beliefs, user profiles.</p><p><code>core</code> 1.1.0 also defines the shared interfaces every domain pack can use: <em>Lifecycled</em> (status and transitions), <em>Anchored</em> (source location), <em>Versioned</em>, <em>Claim</em> (confidence, never auto-promoted) and <em>Sourced</em> (trust from the source, not the content).</p><p>Base packs load only from the built-in directory, so a pack directory cannot silently replace them.</p>` },
+  { title: "A domain pack builds on core", text: `<p><code>pdlc</code> 1.7.0 declares <code>requires: [core&gt;=1.1]</code>. It reuses core's types and edges rather than redefining them: it extends four core edges to its own types and adds weights to two core intents, so "why" questions also follow <code>IMPLEMENTS</code> and <code>REFINES</code>.</p>` },
+  { title: "Composition: one registry", text: `<p>The loader composes all active packs into one registry and checks it before anything runs. Load order is fixed, so the same packs always give the same result. Each event namespace has exactly one owning pack. Unknown plugins, admission rules or references fail at load time, not at query time.</p><p>The composed registry gets a version hash. The projector, the retriever and extraction all read that one registry.</p>` },
+  { title: "Changing a pack safely", text: `<p>A new pack version is compared with the one the graph was built with. Additive changes apply at once. A changed projection rule replays the affected event types from the ledger. A breaking change (a type, edge, key, state or rule removed) is built blue/green into a fresh graph from the ledger, and switched only if the evaluation sets pass.</p><p>The ledger never changes, so the graph can always be rebuilt.</p>` },
+  { title: "The evaluation gate", text: `<p>Retrieval weights are not trusted until they are measured. A pack with intents ships an evaluation set: questions with known answers. Until it passes, the pack's intents are held back. Naming one returns 409; an inferred one is listed in <code>meta.eval_pending</code>.</p><p>PDLC has two sets: the webhook fixtures (F1 1.00) and Apache OpenDAL's real history, 292 events (F1 0.91).</p>` },
+  { title: "A second pack needs no code", text: `<p>The example <code>crm</code> pack (accounts, contacts, deals) is loaded from a pack directory alongside the base packs. It goes through ingest, projection, the gate, artifact questions and a gated rebuild, end to end, on memory, Neo4j and Spanner, without a line of CRM code.</p><p>Its key pattern <code>D-\\d+</code> lets "deal D-7" find <code>Deal:D-7</code> directly.</p>` },
+];
+
+/* ------------------------------------------------------------------ journey 3: ingest */
+const STATIONS = [
+  { id: "gh", label: "GitHub", sub: "webhook", x: 70 },
+  { id: "adapter", label: "Source adapter", sub: "sources/github", x: 210 },
+  { id: "api", label: "Ingest", sub: "checks + trust", x: 350 },
+  { id: "ledger", label: "Ledger", sub: "append-only", x: 490 },
+  { id: "worker", label: "Projection", sub: "worker", x: 630 },
+  { id: "plan", label: "Pack rules", sub: "plan (pure)", x: 770 },
+  { id: "graph", label: "Graph", sub: "staged writes", x: 910 },
+];
+const INGEST_STEPS = [
+  { at: 0, title: "A pull request is merged", text: `<p>GitHub sends a signed webhook: pull request <strong>#7</strong> in <code>acme/payments</code> was closed and merged as commit <code>def456</code>. Its body says <em>Fixes PAY-341</em>.</p><p>This walkthrough follows the webhook fixture that the PDLC evaluation set is built from.</p>`,
+    card: ["Delivery · X-GitHub-Event: pull_request", `<span class="k">"action"</span>: <span class="s">"closed"</span>,
+<span class="k">"pull_request"</span>: {
+  <span class="k">"number"</span>: 7, <span class="k">"merged"</span>: true,
+  <span class="k">"merge_commit_sha"</span>: <span class="s">"def456"</span>,
+  <span class="k">"body"</span>: <span class="s hl">"Fixes PAY-341"</span>, …
+},
+<span class="k">"repository"</span>: { <span class="k">"full_name"</span>: <span class="s">"acme/payments"</span> }
+<span class="c">X-Hub-Signature-256: sha256=…</span>`] },
+  { at: 1, title: "The adapter speaks PDLC", text: `<p><code>POST /v1/webhooks/github</code> checks the HMAC signature, then the GitHub adapter translates the delivery into one PDLC event. PDLC tool events follow CDEvents: this one is <code>pdlc.change.merged</code>, alias <code>dev.cdevents.change.merged</code>.</p><p>The adapter is pure: same delivery in, same event out.</p>`,
+    card: ["Event envelope", `<span class="k">event_type</span>  <span class="s">pdlc.change.merged</span>
+<span class="k">agent_id</span>    <span class="s">webhook:github</span>
+<span class="k">session_id</span>, <span class="k">trace_id</span>, <span class="k">occurred_at</span> …
+<span class="k">payload</span>:
+  repo <span class="s">acme/payments</span>  number <span class="s">7</span>
+  merge_sha <span class="s">def456</span>  title, body, files`] },
+  { at: 2, title: "Checked before it is kept", text: `<p>Every event is validated. Its type must be declared by an active pack: <code>pdlc</code> owns the <code>pdlc.*</code> namespace, so an undeclared type is refused.</p><p>Trust comes from who sent it. <code>webhook:</code> agent ids are reserved for the signed webhook routes, and the PDLC projector trusts <code>webhook:github</code>. An agent cannot claim to be GitHub.</p>`,
+    card: ["Checks", `<span class="k">schema</span>      envelope fields, sizes, gzip bounds
+<span class="k">declared</span>    pdlc.change.merged ∈ pdlc events  <span class="s">✓</span>
+<span class="k">trust</span>       webhook:github on the allowlist  <span class="s">✓</span>
+<span class="k">quota</span>       events per minute per client`] },
+  { at: 3, title: "Appended to the ledger", text: `<p>The ledger is the source of truth: append-only and idempotent by <code>event_id</code>. A redelivered webhook comes back as <em>duplicate</em> with the stored position. The event gets its <code>global_position</code>, and a <code>search_text</code> is built from the payload for the keyword channel.</p><p>The ledger sits behind ports: Redis Stack, Cloud Spanner or the in-memory reference.</p>`,
+    card: ["Append outcome", `<span class="k">status</span>           <span class="s">created</span>   <span class="c">(or duplicate, or failed)</span>
+<span class="k">global_position</span>  <span class="s">opaque, ordered</span>
+<span class="k">search_text</span>      <span class="s">"Fixes PAY-341 …"</span>`] },
+  { at: 4, title: "The projection worker picks it up", text: `<p>The <code>graph-projection</code> consumer group reads the ledger in order, in micro-batches (50 events by default), with one document read per batch. Each event becomes an <code>Event</code> node, with a <code>FOLLOWS</code> edge from the previous event in its session, found from the ledger even after a restart.</p><p>Then the pack rules for its type run.</p>`,
+    card: ["Core projection", `<span class="k">Event</span>  node per event, provenance fields
+<span class="k">FOLLOWS</span> previous event in the session
+<span class="c">acknowledged only after the graph write succeeds</span>`] },
+  { at: 5, title: "The pack rule becomes a plan", text: `<p>The projector finds the <code>pdlc.change.merged</code> rule and evaluates its expressions against the payload. This step is pure, with no I/O, so it is easy to test and to replay.</p><ul><li><strong>upsert</strong> <code>Change:acme/payments|7</code> with title, body, files, merge_sha</li><li><strong>transition</strong> to <code>merged</code></li><li><strong>IMPLEMENTS</strong> to <code>WorkItem:jira|PAY-341</code>, read by regex from "Fixes PAY-341": declared, confidence 1.0, confirmed</li><li><strong>REVERTS</strong>: no "revert" in the text, so no edge</li><li><strong>TOUCHES</strong> components whose path prefixes cover the changed files</li><li><strong>DEPLOYS</strong> from any deployment of <code>def456</code> already seen</li></ul>`,
+    card: ["Rule (pdlc.pack.yaml)", `<span class="k">event</span>: pdlc.change.merged
+<span class="k">upsert</span>: Change {repo: $.repo, number: $.number}
+<span class="k">transition</span>: Change → merged
+<span class="k">edges</span>:
+  IMPLEMENTS → WorkItem jira
+    <span class="hl">regex($.body, '(?i)(?:fixes|closes|resolves)
+      \\s+([A-Z][A-Z0-9]+-\\d+)')</span>
+  REVERTS → Change  <span class="c">regex over title + body</span>
+  TOUCHES → Component  <span class="c">match_any_prefix</span>
+  DEPLOYS ← Deployment  <span class="c">match merge_sha</span>`] },
+  { at: 6, title: "Written in stages, with provenance", text: `<p>A whole batch of plans is written in four staged calls: nodes, state changes in order, lookups (batched), then edges. On OpenDAL that took graph calls per event from 5.01 to 0.14.</p><p>Core adds <code>DERIVED_FROM</code> from every written node to its event, and sets <code>source_trust: trusted</code>. If the store is down, the write is retried in place; a bad value dead-letters only its own event.</p>`,
+    card: ["The graph after #7 merges", `<span class="k">Change:acme/payments|7</span>   status <span class="s">merged</span>
+  ─IMPLEMENTS→ <span class="k">WorkItem:jira|PAY-341</span>
+  ─DERIVED_FROM→ Event (this delivery)
+<span class="c">from other deliveries in the fixture:</span>
+  Review 9001 ─REVIEWS→ #7      <span class="c">approved</span>
+  TestRun:555 ─RAN_AGAINST→ #7  <span class="c">failure</span>
+  Release v1.4.0 ─INCLUDES→ #7, #8
+  Deployment production|def456 ─DEPLOYS→ #7`] },
+];
+let packetX = STATIONS[0].x;
+function drawIngest(stage, step) {
+  const s = INGEST_STEPS[step];
+  const svg = el("svg", { viewBox: "0 0 980 230", role: "img", "aria-label": "Ingestion pipeline from GitHub webhook to graph" });
+  el("path", { d: `M${STATIONS[0].x},110 L${STATIONS[STATIONS.length - 1].x},110`, style: "stroke: var(--line); stroke-width: 3; fill: none" }, svg);
+  el("path", { d: `M${STATIONS[0].x},110 L${STATIONS[s.at].x},110`, style: "stroke: var(--accent); stroke-width: 3; fill: none" }, svg);
+  STATIONS.forEach((st, i) => {
+    const g = el("g", { class: "station" + (i === s.at ? " active" : i < s.at ? " done" : ""), transform: `translate(${st.x},110)` }, svg);
+    el("rect", { x: -58, y: -34, width: 116, height: 68, rx: 10 }, g);
+    const a = el("text", { x: 0, y: -4, "text-anchor": "middle", "font-size": "13", "font-weight": "600" }, g); a.textContent = st.label;
+    const b = el("text", { x: 0, y: 15, "text-anchor": "middle", "font-size": "10.5", class: "mono", style: "fill: var(--muted)" }, g); b.textContent = st.sub;
+  });
+  const backends = el("text", { x: 490, y: 185, "text-anchor": "middle", "font-size": "11", class: "mono", style: "fill: var(--muted)" }, svg);
+  backends.textContent = "ports: Redis Stack · Spanner · memory";
+  const gb = el("text", { x: 910, y: 185, "text-anchor": "middle", "font-size": "11", class: "mono", style: "fill: var(--muted)" }, svg);
+  gb.textContent = "Neo4j · Spanner · memory";
+  const packet = el("g", { class: "packet", transform: `translate(${packetX},60)` }, svg);
+  el("circle", { r: 11, style: "fill: var(--accent)" }, packet);
+  const pt = el("text", { y: 4, "text-anchor": "middle", "font-size": "10", "font-weight": "600", style: "fill: var(--surface)" }, packet);
+  pt.textContent = "#7";
+  stage.appendChild(svg);
+  requestAnimationFrame(() => requestAnimationFrame(() => { packet.setAttribute("transform", `translate(${STATIONS[s.at].x},60)`); }));
+  packetX = STATIONS[s.at].x;
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.marginTop = "10px";
+  card.innerHTML = `<h3>${s.card[0]}</h3><pre class="code">${s.card[1]}</pre>`;
+  stage.appendChild(card);
+}
+
+/* ------------------------------------------------------------------ journey 4: retrieve */
+const W = {
+  "PAY-300": { x: 120, y: 80, label: "PAY-300 · epic", id: "WorkItem:jira|PAY-300" },
+  "PAY-341": { x: 120, y: 230, label: "PAY-341 · story", id: "WorkItem:jira|PAY-341" },
+  "#7": { x: 400, y: 230, label: "PR #7 · merged", id: "Change:acme/payments|7" },
+  "#8": { x: 400, y: 380, label: "PR #8", id: "Change:acme/payments|8" },
+  "rev": { x: 400, y: 80, label: "Review 9001", id: "Review:acme/payments|7|9001" },
+  "run": { x: 680, y: 80, label: "TestRun 555 · failure", id: "TestRun:555" },
+  "dep": { x: 680, y: 230, label: "Deploy prod · def456", id: "Deployment:production|def456|2026-10-02T09:00:00+00:00" },
+  "rel": { x: 680, y: 380, label: "Release v1.4.0", id: "Release:acme/payments|v1.4.0" },
+};
+const WE = [
+  ["DECOMPOSES_INTO", "PAY-300", "PAY-341"], ["IMPLEMENTS", "#7", "PAY-341"], ["REVIEWS", "rev", "#7"],
+  ["RAN_AGAINST", "run", "#7"], ["DEPLOYS", "dep", "#7"], ["INCLUDES", "rel", "#7"], ["INCLUDES", "rel", "#8"],
+];
+const QUESTIONS = [
+  { id: "deployed-where", q: "Where is PAY-341 deployed?", steps: [
+    { title: "Classify the question", state: {}, text: `<p>The question is matched against every active intent's keywords. "deployed" is a <code>trace</code> keyword, so trace is inferred with its edge weights: <code>IMPLEMENTS 5</code>, <code>DEPLOYS 4</code>, <code>DEPLOYED_TO 3</code> and the rest.</p>` },
+    { title: "Check the gate", state: {}, text: `<p>PDLC's evaluation set has been recorded as passing, so its intents may be used. Had it not, naming the intent would return 409 and an inferred one would be reported in <code>meta.eval_pending</code>.</p>` },
+    { title: "Find the seed", state: { seed: ["PAY-341"] }, text: `<p>Precise references are tried before words: a ticket key, <code>#N</code>, or a pack's key pattern. "PAY-341" matches a WorkItem key exactly, so <code>WorkItem:jira|PAY-341</code> is the seed. Only if nothing precise matched would the retriever fall back to IDF-weighted word search over the seed types.</p>` },
+    { title: "Walk the weighted edges", state: { seed: ["PAY-341"], visit: ["#7", "dep"], walk: [1, 4] }, text: `<p>From the seed, trace follows the highest-weighted edges first, in either direction, up to 5 hops: <code>IMPLEMENTS</code> back to PR #7, then <code>DEPLOYS</code> back to the deployment of <code>def456</code>.</p><p>Drift rules keep it on track: it does not hop to siblings through a shared release (PR #8), or back up to the epic's other children.</p>` },
+    { title: "Admit what may be shown", state: { seed: ["PAY-341"], visit: ["#7", "dep"], walk: [1, 4] }, text: `<p>Before anything reaches the agent, admission rules apply. Superseded or reversed items are left out (trace is not status or why). Untrusted items without trusted backing are left out of the action context. Proposed links are shown with their confidence and never counted as confirmed.</p><p>Everything here came from signed webhooks, so all of it is trusted.</p>` },
+    { title: "Answer, with provenance", state: { seed: ["PAY-341"], visit: ["#7"], answer: ["dep"], walk: [1, 4] }, text: `<p>The response is an Atlas: nodes with their type, a <code>retrieval_reason</code> (the seed is <code>direct</code>, reached nodes are <code>proactive</code>), scores, and provenance back to the ledger event and its position.</p><p>The evaluation set expects exactly <code>Deployment:production|def456|2026-10-02T09:00:00+00:00</code>, and gets it (F1 1.0).</p>` },
+  ]},
+  { id: "untested-tickets", q: "Which tickets have no tests?", steps: [
+    { title: "Classify the question", state: {}, text: `<p>"have no" and "tests" are <code>completeness</code> keywords. Completeness asks what is missing, which no traversal can find, so it is served by the <code>missing_links</code> plugin.</p>` },
+    { title: "Take every candidate", state: { cand: ["PAY-300", "PAY-341"] }, text: `<p>"tickets" names the WorkItem type through the pack's synonyms. The plugin takes every WorkItem as a candidate: the epic PAY-300 and the story PAY-341.</p>` },
+    { title: "Subtract those with the link", state: { cand: ["PAY-300", "PAY-341"], fade: ["#7", "run", "rev", "dep", "rel", "#8"] }, text: `<p>The expected link for "tests" is <code>VERIFIES</code> from a TestCase. No TestCase verifies either ticket. TestRun 555 <em>ran against</em> PR #7, but a test run against a change is not a verification of a ticket, so it does not count.</p>` },
+    { title: "Report what is missing", state: { answer: ["PAY-300", "PAY-341"], fade: ["#7", "run", "rev", "dep", "rel", "#8"] }, text: `<p>Both tickets come back with <code>retrieval_reason: no_link</code>, which tells the agent they are answers because of a missing edge, not a match. The evaluation set expects both (F1 1.0).</p><p>Asked "Which tickets under PAY-300 have no tests?", the plugin first narrows the candidates to the epic's children and returns only PAY-341.</p>` },
+  ]},
+  { id: "before-editing-pr", q: "Anything I should know before editing PR #7?", steps: [
+    { title: "Classify the question", state: {}, text: `<p>"should know" and "before editing" are <code>preflight</code> keywords. Preflight weights favour lessons, constraints and touched components (5), affected and reverted items (4), and test runs and attributed incidents (3).</p>` },
+    { title: "Find the seed", state: { seed: ["#7"] }, text: `<p>"PR #7" is a precise reference: <code>#7</code> resolves to <code>Change:acme/payments|7</code>, the seed.</p>` },
+    { title: "Walk the preflight edges", state: { seed: ["#7"], visit: ["run"], walk: [3] }, text: `<p>From the change, preflight follows its weighted edges. Here the only matching neighbour is TestRun 555 over <code>RAN_AGAINST</code>, a <strong>failed</strong> run. No lessons, constraints, incidents or reverts touch this change yet.</p><p>Review, release and deployment edges are not preflight edges, so they are not followed.</p>` },
+    { title: "Answer", state: { seed: ["#7"], answer: ["run"], walk: [3] }, text: `<p>The answer is the failing test run: the thing to know before editing. The evaluation set expects <code>TestRun:555</code> (F1 1.0).</p><p>As the graph grows, the same question would also surface lessons <code>LEARNED_FROM</code> earlier changes and incidents <code>ATTRIBUTED_TO</code> them.</p>` },
+  ]},
+];
+let qIndex = 0;
+function drawRetrieve(stage, step) {
+  const Q = QUESTIONS[qIndex];
+  const st = Q.steps[step].state;
+  const svg = el("svg", { viewBox: "0 0 820 450", role: "img", "aria-label": "The fixture graph and how the question is answered" });
+  arrowDefs(svg, "arrR", "--muted");
+  const qBox = el("text", { x: 20, y: 24, "font-size": "16", style: "font-family: var(--font-display)" }, svg);
+  qBox.textContent = `“${Q.q}”`;
+  WE.forEach(([type, s, d], i) => {
+    const a = W[s], b = W[d];
+    const walk = (st.walk || []).includes(i);
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const [x1, y1] = boundary(a.x, a.y, 82, 18, dx, dy);
+    const [x2, y2] = boundary(b.x, b.y, 82, 18, -dx, -dy);
+    const p = el("path", { d: `M${x1},${y1} L${x2},${y2}`, class: "redge" + (walk ? " walk" + (reduceMotion ? "" : " flow") : ""), "marker-end": "url(#arrR)" }, svg);
+    const t = el("text", { x: (x1 + x2) / 2 + (dy === 0 ? 0 : 8), y: (y1 + y2) / 2 - 6, "text-anchor": dy === 0 ? "middle" : "start", class: "elabel" }, svg);
+    t.textContent = type;
+    p.appendChild(el("title", {})).textContent = `${type}: ${W[s].id} → ${W[d].id}`;
+  });
+  Object.entries(W).forEach(([k, n]) => {
+    const cls = ["rnode"];
+    if ((st.answer || []).includes(k)) cls.push("answer");
+    else if ((st.visit || []).includes(k)) cls.push("visit");
+    if ((st.seed || []).includes(k)) cls.push("seed");
+    if ((st.cand || []).includes(k) && !(st.answer || []).includes(k)) cls.push("cand");
+    if ((st.fade || []).includes(k)) cls.push("fade");
+    const g = el("g", { class: cls.join(" "), transform: `translate(${n.x},${n.y})` }, svg);
+    el("rect", { x: -82, y: -18, width: 164, height: 36, rx: 8 }, g);
+    const t = el("text", { x: 0, y: 5, "text-anchor": "middle", "font-size": "12.5", "font-weight": "600" }, g);
+    t.textContent = n.label;
+    g.appendChild(el("title", {})).textContent = n.id;
+  });
+  const legend = el("text", { x: 20, y: 440, "font-size": "11", class: "mono", style: "fill: var(--muted)" }, svg);
+  legend.textContent = "thick outline: seed · tinted: reached · filled: answer · dashed: candidate";
+  stage.appendChild(svg);
+}
+
+/* ------------------------------------------------------------------ journeys and steps */
+const JOURNEYS = [
+  { id: "packs", n: "1", label: "Packs", eyebrow: "Ontology packs", steps: () => PACK_STEPS.length },
+  { id: "map", n: "2", label: "PDLC map", eyebrow: "PDLC ontology · lenses", steps: () => LENSES.length },
+  { id: "ingest", n: "3", label: "Ingest", eyebrow: "Engine · from event to graph", steps: () => INGEST_STEPS.length },
+  { id: "retrieve", n: "4", label: "Retrieve", eyebrow: "Engine · from question to answer", steps: () => QUESTIONS[qIndex].steps.length },
+];
+let J = 0, S = 0;
+try { const saved = JSON.parse(localStorage.getItem("pdlc-atlas") || "null"); if (saved) { J = saved.J || 0; S = saved.S || 0; qIndex = saved.q || 0; } } catch (e) { /* storage unavailable */ }
+const hashJ = JOURNEYS.findIndex((j) => j.id === location.hash.slice(1));
+if (hashJ >= 0) { J = hashJ; S = 0; }
+
+function renderTabs() {
+  const nav = $("journeyTabs");
+  nav.innerHTML = "";
+  JOURNEYS.forEach((j, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(i === J));
+    b.innerHTML = `<span class="n">${j.n}</span><span class="t">${j.label}</span>`;
+    b.addEventListener("click", () => { stopTour(); J = i; S = 0; render(); });
+    nav.appendChild(b);
+  });
+}
+function renderStep() {
+  const j = JOURNEYS[J];
+  const stage = $("stage");
+  stage.innerHTML = "";
+  $("eyebrow").textContent = j.eyebrow;
+  const extra = $("extra"), detail = $("detail");
+  extra.innerHTML = ""; detail.innerHTML = "";
+  let title = "", text = "";
+  if (j.id === "packs") {
+    drawPacks(stage, S); ({ title, text } = PACK_STEPS[S]);
+  } else if (j.id === "map") {
+    mapState.lens = LENSES[S].id;
+    drawMap(stage);
+    const lens = LENSES[S]; title = lens.title; text = lens.text;
+    const chips = document.createElement("div"); chips.className = "chips";
+    LENSES.forEach((l, i) => {
+      const c = document.createElement("button"); c.type = "button"; c.className = "chip";
+      c.setAttribute("aria-pressed", String(i === S)); c.textContent = l.label;
+      c.addEventListener("click", () => { stopTour(); S = i; render(); });
+      chips.appendChild(c);
+    });
+    extra.appendChild(chips);
+    detail.innerHTML = (lens.weights ? weightsTable(lens) : "") + (mapState.selected ? typeDetail(mapState.selected) : (lens.id === "lifecycle" ? typeDetail("Decision") : ""));
+  } else if (j.id === "ingest") {
+    drawIngest(stage, S); ({ title, text } = INGEST_STEPS[S]);
+  } else {
+    const chips = document.createElement("div"); chips.className = "chips";
+    QUESTIONS.forEach((q, i) => {
+      const c = document.createElement("button"); c.type = "button"; c.className = "chip";
+      c.setAttribute("aria-pressed", String(i === qIndex)); c.textContent = q.q;
+      c.addEventListener("click", () => { stopTour(); qIndex = i; S = 0; render(); });
+      chips.appendChild(c);
+    });
+    extra.appendChild(chips);
+    drawRetrieve(stage, S); ({ title, text } = QUESTIONS[qIndex].steps[S]);
+  }
+  $("stepTitle").textContent = title;
+  $("narration").innerHTML = text;
+  const dots = $("dots"); dots.innerHTML = "";
+  const total = j.steps();
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement("button"); d.type = "button"; d.textContent = String(i + 1);
+    d.setAttribute("aria-label", `Step ${i + 1}`);
+    if (i === S) d.setAttribute("aria-current", "step");
+    d.addEventListener("click", () => { stopTour(); S = i; render(); });
+    dots.appendChild(d);
+  }
+  $("prevBtn").disabled = J === 0 && S === 0;
+  try { localStorage.setItem("pdlc-atlas", JSON.stringify({ J, S, q: qIndex })); } catch (e) { /* storage unavailable */ }
+}
+function render() { renderTabs(); renderStep(); }
+function next() {
+  const total = JOURNEYS[J].steps();
+  if (S < total - 1) S++;
+  else if (JOURNEYS[J].id === "retrieve" && qIndex < QUESTIONS.length - 1) { qIndex++; S = 0; }
+  else if (J < JOURNEYS.length - 1) { J++; S = 0; if (JOURNEYS[J].id === "retrieve") qIndex = 0; }
+  else return false;
+  render();
+  return true;
+}
+function prev() {
+  if (S > 0) S--;
+  else if (JOURNEYS[J].id === "retrieve" && qIndex > 0) { qIndex--; S = QUESTIONS[qIndex].steps.length - 1; }
+  else if (J > 0) { J--; if (JOURNEYS[J].id === "retrieve") qIndex = QUESTIONS.length - 1; S = JOURNEYS[J].steps() - 1; }
+  render();
+}
+$("nextBtn").addEventListener("click", () => { stopTour(); next(); });
+$("prevBtn").addEventListener("click", () => { stopTour(); prev(); });
+document.addEventListener("keydown", (ev) => {
+  if (ev.target.closest && ev.target.closest("input, textarea")) return;
+  if (ev.key === "ArrowRight") { stopTour(); next(); }
+  if (ev.key === "ArrowLeft") { stopTour(); prev(); }
+});
+
+/* tour: the "video" mode */
+let tourTimer = null;
+const STEP_MS = 7000;
+function stopTour() {
+  if (!tourTimer) return;
+  clearInterval(tourTimer); tourTimer = null;
+  $("tourBtn").textContent = "Play tour"; $("tourStatus").textContent = "";
+}
+$("tourBtn").addEventListener("click", () => {
+  if (tourTimer) { stopTour(); return; }
+  J = 0; S = 0; qIndex = 0; mapState.selected = null; render();
+  $("tourBtn").textContent = "Pause tour";
+  $("tourStatus").textContent = "Playing: a new step every 7 seconds. Use the arrow keys to skip.";
+  tourTimer = setInterval(() => { if (!next()) { stopTour(); $("tourStatus").textContent = "Tour finished."; } }, STEP_MS);
+});
+render();
+})();
+</script>
+</body>
+</html>
