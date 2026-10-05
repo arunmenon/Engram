@@ -346,6 +346,30 @@ class TestReviewFindings:
         problems = _problems(CORE, parse_pack(text))
         assert "demo: Ticket.title conflicts with interface Titled" in problems
 
+    def test_a_source_found_by_match_needs_a_keyed_target(self) -> None:
+        """Review N3: ``from: {match: ...}`` finds sources for a target named by key."""
+        keyed = _demo(
+            **{"from: {type: Fix, key: {sha: $.sha}}": "from: {type: Fix, match: {sha: $.sha}}"}
+        )
+        assert OntologyRegistry([CORE, keyed]).allows("RESOLVES", "Fix", "Ticket")
+        both = _demo(
+            **{
+                "from: {type: Fix, key: {sha: $.sha}}": "from: {type: Fix, match: {sha: $.sha}}",
+                "to: {type: Ticket, key: {tracker: $.tracker, number: $.number}}": (
+                    "to: {type: Ticket, match: {tracker: $.tracker}}"
+                ),
+            }
+        )
+        assert any(
+            "finds the source by match, so the target needs a key" in p
+            for p in _problems(CORE, both)
+        )
+        by_prefix = "from: {type: Fix, match_any_prefix: {sha: $.sha}}"
+        prefix = _demo(**{"from: {type: Fix, key: {sha: $.sha}}": by_prefix})
+        assert any(
+            "cannot find an edge's source by match_any_prefix" in p for p in _problems(CORE, prefix)
+        )
+
     def test_expressions_and_map_states_are_checked(self) -> None:
         problems = _problems(
             CORE,

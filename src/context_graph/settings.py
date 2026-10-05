@@ -455,6 +455,12 @@ class ConsumerSettings(BaseSettings):
     # H5: Max delivery attempts before dead-lettering a message
     max_retries: int = 5
 
+    # A storage call that fails because the backend is unavailable or slow is
+    # retried in place (never dead-lettered): first wait, and the cap the
+    # doubling wait stops at
+    transient_backoff_ms: int = 200
+    transient_backoff_max_ms: int = 10_000
+
     # H5: DLQ stream suffix — appended to the source stream key
     dlq_stream_suffix: str = ":dlq"
 

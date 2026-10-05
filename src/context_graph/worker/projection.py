@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import time
 from collections import OrderedDict
+from functools import partial
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -18,6 +19,7 @@ import structlog
 from context_graph.domain.models import Event
 from context_graph.domain.projection import project_event
 from context_graph.metrics import CONSUMER_MESSAGE_ERRORS
+from context_graph.ports.errors import is_transient
 from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.pack_projection import apply_plan
@@ -67,6 +69,8 @@ class ProjectionConsumer(BaseConsumer):
             subscription,
             block_timeout_ms=settings.consumer.block_timeout_ms,
             max_retries=settings.consumer.max_retries,
+            transient_backoff_ms=settings.consumer.transient_backoff_ms,
+            transient_backoff_max_ms=settings.consumer.transient_backoff_max_ms,
         )
         self._event_log = event_log
         self._graph_store = graph_store
@@ -151,24 +155,43 @@ class ProjectionConsumer(BaseConsumer):
                 edge_count=len(result.edges),
             )
 
-        # Batch write to Neo4j
+        # Batch write to the graph (writes are idempotent, so a retry is safe)
         if all_nodes:
             if hasattr(self._graph_store, "merge_event_nodes_batch"):
-                await self._graph_store.merge_event_nodes_batch(all_nodes)
+                await self._retry_transient(
+                    lambda: self._graph_store.merge_event_nodes_batch(all_nodes),
+                    "merge_event_nodes",
+                )
             else:
                 for node in all_nodes:
-                    await self._graph_store.merge_event_node(node)
+                    await self._retry_transient(
+                        partial(self._graph_store.merge_event_node, node), "merge_event_node"
+                    )
         if all_edges:
-            await self._graph_store.create_edges_batch(all_edges)
+            await self._retry_transient(
+                lambda: self._graph_store.create_edges_batch(all_edges), "create_edges"
+            )
 
         # Ontology pack rules (ADR-0018), in log order, after the Event nodes exist.
-        # One event's failure is dead-lettered on its own; the batch goes on.
+        # An unavailable backend is retried in place; an event whose rules fail
+        # otherwise (a bad value, a refused write) is dead-lettered on its own,
+        # and the batch goes on.
         if self._pack_projector is not None:
             for entry_id, data, event, document in pack_events:
                 try:
                     plan = self._pack_projector.plan(event, document)
-                    await apply_plan(self._graph_store, plan, self._pack_lookup_limit)  # type: ignore[arg-type]
-                except Exception:
+                    await self._retry_transient(
+                        partial(
+                            apply_plan,
+                            self._graph_store,  # type: ignore[arg-type]
+                            plan,
+                            self._pack_lookup_limit,
+                        ),
+                        "apply_pack_plan",
+                    )
+                except Exception as exc:
+                    if is_transient(exc):
+                        raise  # stopping mid-outage: the batch stays pending
                     CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
                     log.exception(
                         "pack_projection_failed",
@@ -196,13 +219,17 @@ class ProjectionConsumer(BaseConsumer):
         if cached is not None:
             return cached
         event_id = str(event.event_id)
-        session_ids = await self._event_log.read_session_ids(event.session_id)
+        session_ids = await self._retry_transient(
+            lambda: self._event_log.read_session_ids(event.session_id), "read_session_ids"
+        )
         if event_id not in session_ids:
             return None
         index = session_ids.index(event_id)
         if index == 0:
             return None
-        (document,) = await self._event_log.get_documents([session_ids[index - 1]])
+        (document,) = await self._retry_transient(
+            lambda: self._event_log.get_documents([session_ids[index - 1]]), "get_documents"
+        )
         if document is None:
             return None
         previous = Event.model_validate(document, strict=False)
@@ -243,7 +270,9 @@ class ProjectionConsumer(BaseConsumer):
             log.warning("stream_entry_missing_event_id", entry_id=entry_id)
             return None
 
-        documents = await self._event_log.get_documents([event_id])
+        documents = await self._retry_transient(
+            lambda: self._event_log.get_documents([event_id]), "get_documents"
+        )
         doc = documents[0]
         if doc is None:
             log.warning(

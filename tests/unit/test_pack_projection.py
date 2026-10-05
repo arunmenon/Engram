@@ -29,20 +29,29 @@ START = datetime(2026, 10, 4, 10, 0, tzinfo=UTC)
 
 
 class Harness:
-    def __init__(self, trusted: frozenset[str] = frozenset({"webhook:github"})) -> None:
+    def __init__(
+        self, trusted: frozenset[str] = frozenset({"webhook:github"}), lookup_limit: int = 1000
+    ) -> None:
         self.graph = MemoryGraphStore()
         self.projector = PackProjector(REGISTRY, trusted)
+        self.lookup_limit = lookup_limit
         self.minute = 0
         self.events: list[Event] = []
 
     async def ingest(
-        self, event_type: str, payload: dict[str, Any], agent_id: str = "webhook:github"
+        self,
+        event_type: str,
+        payload: dict[str, Any],
+        agent_id: str = "webhook:github",
+        *,
+        at_minute: int | None = None,
     ) -> Event:
+        """Project one event; it occurs a minute after the last, or at ``at_minute``."""
         self.minute += 1
         event = Event(
             event_id=uuid4(),
             event_type=event_type,
-            occurred_at=START + timedelta(minutes=self.minute),
+            occurred_at=START + timedelta(minutes=self.minute if at_minute is None else at_minute),
             session_id="pdlc:acme/app",
             agent_id=agent_id,
             trace_id="trace",
@@ -52,7 +61,7 @@ class Harness:
         await self.graph.merge_event_node(event_to_node(event))
         document = orjson.loads(event.model_dump_json())
         document["payload"] = payload
-        await apply_plan(self.graph, self.projector.plan(event, document), 1000)
+        await apply_plan(self.graph, self.projector.plan(event, document), self.lookup_limit)
         self.events.append(event)
         return event
 
@@ -249,7 +258,11 @@ class TestReleasesTestsDeployments:
         assert h.node("TestRun:2")["outcome"] == "failure"
 
     async def test_a_deployed_commit_links_its_merged_change(self) -> None:
-        """PDLC 1.4.0: a GitHub deployment names a commit; the change merged as it is linked."""
+        """A deployment names a commit; the change merged as it is linked, whichever comes first.
+
+        PDLC 1.4.0 linked deployments projected after the merge; 1.7.0 (review N3) also
+        links those projected before it, when the change merges. Never across repositories.
+        """
         h = Harness()
         deploy = {
             "service": "acme/app",
@@ -273,11 +286,13 @@ class TestReleasesTestsDeployments:
         )
         await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "sha7"})
         await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "unknown"})
-        later = make_node_id(
-            "Deployment", ["prod", "sha7", (START + timedelta(minutes=4)).isoformat()]
+        earlier, later = (
+            make_node_id("Deployment", ["prod", "sha7", (START + timedelta(minutes=m)).isoformat()])
+            for m in (1, 4)
         )
-        # Only the deployment projected after the merge, and only to the change in its repo
-        assert set(h.edges("DEPLOYS")) == {(later, CHANGE)}
+        # Both deployments of the commit, and only to the change in their repo
+        assert set(h.edges("DEPLOYS")) == {(earlier, CHANGE), (later, CHANGE)}
+        assert h.node(earlier)["repo"] == "acme/app"
 
     async def test_github_revert_forms_link_the_reverted_change(self) -> None:
         """PDLC 1.5.0: git's quoted-title revert and the revert button's "Reverts owner/repo#N"."""
@@ -328,6 +343,54 @@ class TestReleasesTestsDeployments:
         assert h.node(second)["status"] == "succeeded"
         await h.ingest("pdlc.incident.resolved", {"incident_id": "INC-1", "summary": "rolled back"})
         assert h.node("Incident:INC-1")["status"] == "resolved"
+
+    async def test_the_latest_deployment_however_many_match(self) -> None:
+        """Review 3.2: the lookup limit cut matches in key order before picking the latest."""
+        h = Harness(lookup_limit=2)
+        deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}
+        # Redeployed at minutes 30, 10, 20: key order (by start time) is 10, 20, 30
+        for minute in (30, 10, 20):
+            await h.ingest(
+                "pdlc.service.deployed",
+                {**deploy, "repo": "acme/app", "change_numbers": []},
+                at_minute=minute,
+            )
+        await h.ingest(
+            "pdlc.incident.detected",
+            {**deploy, "incident_id": "INC-2", "severity": "high"},
+            at_minute=40,
+        )
+        latest = make_node_id(
+            "Deployment", ["prod", "app:1.2", (START + timedelta(minutes=30)).isoformat()]
+        )
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-2", latest)}
+
+    async def test_an_incident_never_occurs_on_a_later_deployment(self) -> None:
+        """Review N2: the deployment running when the incident happened, not a later one."""
+        h = Harness()
+        deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}
+        for minute in (10, 50):  # the second deployment comes after the incident
+            await h.ingest(
+                "pdlc.service.deployed",
+                {**deploy, "repo": "acme/app", "change_numbers": []},
+                at_minute=minute,
+            )
+        await h.ingest(
+            "pdlc.incident.detected",
+            {**deploy, "incident_id": "INC-3", "severity": "high"},
+            at_minute=30,
+        )
+        running = make_node_id(
+            "Deployment", ["prod", "app:1.2", (START + timedelta(minutes=10)).isoformat()]
+        )
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-3", running)}
+        # Before any deployment of the artifact: no link at all
+        await h.ingest(
+            "pdlc.incident.detected",
+            {**deploy, "incident_id": "INC-4", "severity": "low"},
+            at_minute=5,
+        )
+        assert ("Incident:INC-4", running) not in h.edges("OCCURRED_ON")
 
 
 class TestKnowledge:

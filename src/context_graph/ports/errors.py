@@ -36,3 +36,12 @@ class StorageTimeoutError(StorageError, TimeoutError):
 
 class InvalidRequestError(StorageError):
     """The backend rejected the request as malformed or not permitted."""
+
+
+# Errors a retry can fix: the backend was unreachable or slow, not the request wrong
+TRANSIENT_ERRORS: tuple[type[StorageError], ...] = (UnavailableError, StorageTimeoutError)
+
+
+def is_transient(exc: BaseException) -> bool:
+    """Whether ``exc`` is a storage error that retrying the same request may fix."""
+    return isinstance(exc, TRANSIENT_ERRORS)

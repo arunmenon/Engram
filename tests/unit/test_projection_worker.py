@@ -419,3 +419,90 @@ class TestPackFailureIsolation:
         assert await subscription.delivery_counts(100) == {}  # all acknowledged
         dead = event_log.stream.dead_letters
         assert [d["event_id"] for d in dead] == [str(bad.event_id)]
+
+
+class TestTransientStorageFailures:
+    """An unavailable backend is retried in place, never dead-lettered (review N1)."""
+
+    @staticmethod
+    def _consumer(
+        monkeypatch: pytest.MonkeyPatch, graph: MemoryGraphStore, failures: int
+    ) -> tuple[ProjectionConsumer, MemoryEventLog, MemorySubscription, list[int]]:
+        from context_graph.domain.pack_projection import ProjectionPlan
+        from context_graph.ports.errors import UnavailableError
+        from context_graph.ports.pack_graph import NodeRef, NodeWrite
+
+        attempts: list[int] = []
+
+        class FlakyGraph(MemoryGraphStore):
+            async def upsert_nodes(self, nodes: list[NodeWrite]) -> None:
+                attempts.append(len(nodes))
+                if len(attempts) <= failures:
+                    msg = "graph down"
+                    raise UnavailableError(msg)
+                await super().upsert_nodes(nodes)
+
+        class Projector:
+            def handles(self, event_type: str) -> bool:
+                return True
+
+            def plan(self, event: Event, document: dict[str, object]) -> ProjectionPlan:
+                ref = NodeRef("Change", f"Change:{event.session_id}")
+                return ProjectionPlan(nodes=[NodeWrite(ref, {"node_type": "Change"}, {})])
+
+        monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+        monkeypatch.setenv("CG_CONSUMER_TRANSIENT_BACKOFF_MS", "1")
+        monkeypatch.setenv("CG_CONSUMER_TRANSIENT_BACKOFF_MAX_MS", "4")
+        settings = Settings()
+        event_log = MemoryEventLog()
+        subscription = MemorySubscription(
+            event_log.stream, settings.consumer.group_projection, "projection-1"
+        )
+        flaky = FlakyGraph()
+        flaky.nodes, flaky.edges = graph.nodes, graph.edges
+        consumer = ProjectionConsumer(
+            subscription=subscription,
+            event_log=event_log,
+            graph_store=flaky,
+            settings=settings,
+            pack_projector=Projector(),  # type: ignore[arg-type]
+        )
+        return consumer, event_log, subscription, attempts
+
+    @pytest.mark.asyncio
+    async def test_an_outage_is_waited_out_not_dead_lettered(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        graph = MemoryGraphStore()
+        consumer, event_log, subscription, attempts = self._consumer(monkeypatch, graph, 3)
+        event = _event("sess-outage", minutes_ago=1)
+        await event_log.append(event)
+        await subscription.ensure_group()
+        for delivery in await subscription.read_new(10, 0):
+            await consumer.process_message(delivery.position, delivery.fields)
+        await consumer._flush_buffer()
+
+        assert len(attempts) == 4  # three failures, then the write
+        assert ("Change", "Change:sess-outage") in graph.nodes
+        assert event_log.stream.dead_letters == []
+        assert await subscription.delivery_counts(100) == {}  # acknowledged
+
+    @pytest.mark.asyncio
+    async def test_stopping_mid_outage_leaves_the_batch_pending(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from context_graph.ports.errors import UnavailableError
+
+        graph = MemoryGraphStore()
+        consumer, event_log, subscription, _attempts = self._consumer(monkeypatch, graph, 99)
+        event = _event("sess-stop", minutes_ago=1)
+        await event_log.append(event)
+        await subscription.ensure_group()
+        for delivery in await subscription.read_new(10, 0):
+            await consumer.process_message(delivery.position, delivery.fields)
+        consumer.stop()
+        with pytest.raises(UnavailableError):
+            await consumer._flush_buffer()
+
+        assert event_log.stream.dead_letters == []
+        assert len(await subscription.delivery_counts(100)) == 1  # retried at the next start

@@ -1048,6 +1048,17 @@ class OntologyRegistry:
         edge = self.edge_types.get(edge_rule.type)
         source = self._check_ref(pack, where, edge_rule.from_, problems)
         target = self._check_ref(pack, where, edge_rule.target, problems)
+        origin = edge_rule.from_
+        if origin.match_any_prefix is not None:
+            problems.append(f"{pack}: {where} cannot find an edge's source by match_any_prefix")
+        if origin.match is not None and (
+            edge_rule.to_latest is not None
+            or edge_rule.target.match is not None
+            or edge_rule.target.match_any_prefix is not None
+        ):
+            problems.append(
+                f"{pack}: {where} finds the source by match, so the target needs a key or node_id"
+            )
         if edge is None:
             problems.append(f"{pack}: {where} creates unknown edge type {edge_rule.type!r}")
             return

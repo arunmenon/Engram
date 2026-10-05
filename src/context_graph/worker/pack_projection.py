@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from context_graph.domain.pack_projection import LATEST_FALLBACK
 from context_graph.ports.pack_graph import EdgeWrite
 from context_graph.ports.pack_graph import NodeRef as GraphRef
 
@@ -22,9 +23,6 @@ if TYPE_CHECKING:
     from context_graph.ports.pack_graph import PackGraph
 
 log = structlog.get_logger(__name__)
-
-# Fields that order matches for ``to_latest``, most specific first
-LATEST_ORDER = ("started_at", "occurred_at", "updated_at")
 
 
 def _under(path: str, prefix: str) -> bool:
@@ -45,15 +43,18 @@ def _matches_prefix(node: dict[str, Any], lookup: EdgeLookup) -> bool:
     return any(_under(path, prefix) for prefix in declared for path in lookup.prefixes)
 
 
-def _latest(nodes: list[dict[str, Any]], key_property: str) -> list[dict[str, Any]]:
-    """The most recent node, by the first ordering field any match has; ties by key."""
-    if not nodes:
+def _latest(nodes: list[dict[str, Any]], lookup: EdgeLookup) -> list[dict[str, Any]]:
+    """The match ``find_latest`` would pick, among nodes already read."""
+    order_by = lookup.order_by or LATEST_FALLBACK
+    dated = [
+        n
+        for n in nodes
+        if n.get(order_by) is not None
+        and (lookup.not_after is None or str(n[order_by]) <= lookup.not_after)
+    ]
+    if not dated:
         return []
-    for order_field in LATEST_ORDER:
-        dated = [n for n in nodes if n.get(order_field)]
-        if dated:
-            return [max(dated, key=lambda n: (str(n[order_field]), str(n.get(key_property))))]
-    return [max(nodes, key=lambda n: str(n.get(key_property)))]
+    return [max(dated, key=lambda n: (str(n[order_by]), str(n.get(lookup.key_property))))]
 
 
 async def resolve_lookups(
@@ -61,6 +62,13 @@ async def resolve_lookups(
 ) -> list[EdgeWrite]:
     edges: list[EdgeWrite] = []
     for lookup in lookups:
+        if lookup.latest and lookup.prefix_field is None:
+            # The backend orders and limits: right however many nodes match
+            node = await graph.find_latest(
+                lookup.label, lookup.equals, lookup.order_by or LATEST_FALLBACK, lookup.not_after
+            )
+            edges.extend(_edges(lookup, [node] if node is not None else []))
+            continue
         found = await graph.find_nodes(lookup.label, lookup.equals, limit)
         if len(found) >= limit:
             log.warning(
@@ -71,13 +79,20 @@ async def resolve_lookups(
             )
         matched = [node for node in found if _matches_prefix(node, lookup)]
         if lookup.latest:
-            matched = _latest(matched, lookup.key_property)
-        for node in matched:
-            key = node.get(lookup.key_property)
-            if key is None:
-                continue
-            target = GraphRef(lookup.label, str(key), lookup.key_property)
-            edges.append(EdgeWrite(lookup.edge_type, lookup.source, target, lookup.properties))
+            matched = _latest(matched, lookup)
+        edges.extend(_edges(lookup, matched))
+    return edges
+
+
+def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]:
+    edges = []
+    for node in matched:
+        key = node.get(lookup.key_property)
+        if key is None:
+            continue
+        found = GraphRef(lookup.label, str(key), lookup.key_property)
+        source, target = (found, lookup.known) if lookup.reverse else (lookup.known, found)
+        edges.append(EdgeWrite(lookup.edge_type, source, target, lookup.properties))
     return edges
 
 

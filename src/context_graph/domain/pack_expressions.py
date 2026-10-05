@@ -8,7 +8,8 @@ expression over the triggering event:
 - ``$event.x`` reads the event envelope (``occurred_at``,
   ``global_position``, ``event_id``, ``session_id``, ...);
 - ``a + b`` concatenates text (a missing operand counts as empty);
-- functions: ``regex(text, 'pattern')`` (first capture group, or the
+- functions (patterns use the ``regex`` engine, each match bounded in
+  time by ``MATCH_TIMEOUT_SECONDS``): ``regex(text, 'pattern')`` (first capture group, or the
   whole match), ``regex_all(text, 'pattern')`` (every capture; a capture
   holding a comma-separated list gives one item per entry),
   ``match(text, 'pattern')`` (true or false), ``sha256(text)``,
@@ -29,6 +30,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+import regex
+
 FUNCTIONS = {
     "regex": 2,
     "regex_all": 2,
@@ -40,10 +43,22 @@ FUNCTIONS = {
 
 # Text a pattern is matched against, at most (bounds regex work per value)
 MAX_TEXT_LENGTH = 100_000
+# Time one pattern may take on one value. Capping the text does not bound a
+# pattern that backtracks catastrophically (``(a+)+$``): this does.
+MATCH_TIMEOUT_SECONDS = 0.25
 
 
 class ExpressionError(ValueError):
     """An expression does not parse."""
+
+
+class PatternTimeoutError(ValueError):
+    """A pattern took longer than ``MATCH_TIMEOUT_SECONDS`` on a value.
+
+    The same pattern on the same value always does, so the event's rules
+    fail like any other bad value: the projection worker dead-letters the
+    event instead of stalling on it.
+    """
 
 
 # ---------------------------------------------------------------------------
@@ -204,8 +219,8 @@ class _Parser:
             if not isinstance(pattern, Literal) or not isinstance(pattern.value, str):
                 raise self.error(f"{name} needs a quoted pattern")
             try:
-                re.compile(pattern.value)
-            except re.error as exc:
+                regex.compile(pattern.value)
+            except regex.error as exc:
                 raise self.error(f"invalid pattern: {exc}") from exc
         if name == "map" and not isinstance(args[1], MapLiteral):
             raise self.error("map needs a {...} table")
@@ -316,17 +331,24 @@ def _call(node: Call, scope: Scope) -> Any:
     text = _text(first)
     if text is None:
         return [] if name == "regex_all" else (False if name == "match" else None)
-    if name == "match":
-        return re.search(pattern.value, text) is not None
-    if name == "regex":
-        found = re.search(pattern.value, text)
-        if found is None:
-            return None
-        return found.group(1) if found.groups() else found.group(0)
-    # regex_all: every capture (the first group, or the whole match), in order
-    results: list[str] = []
-    for found in re.finditer(pattern.value, text):
-        captured = found.group(1) if found.groups() else found.group(0)
-        if captured is not None:
-            results.extend(part.strip() for part in captured.split(",") if part.strip())
-    return results
+    try:
+        if name == "match":
+            return regex.search(pattern.value, text, timeout=MATCH_TIMEOUT_SECONDS) is not None
+        if name == "regex":
+            found = regex.search(pattern.value, text, timeout=MATCH_TIMEOUT_SECONDS)
+            if found is None:
+                return None
+            return found.group(1) if found.groups() else found.group(0)
+        # regex_all: every capture (the first group, or the whole match), in order
+        results: list[str] = []
+        for found in regex.finditer(pattern.value, text, timeout=MATCH_TIMEOUT_SECONDS):
+            captured = found.group(1) if found.groups() else found.group(0)
+            if captured is not None:
+                results.extend(part.strip() for part in captured.split(",") if part.strip())
+        return results
+    except TimeoutError as exc:
+        msg = (
+            f"{name}() pattern {pattern.value!r} took over {MATCH_TIMEOUT_SECONDS}s "
+            f"on a {len(text)}-character value"
+        )
+        raise PatternTimeoutError(msg) from exc

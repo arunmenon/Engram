@@ -685,6 +685,21 @@ class GraphOperations:
         rows = sorted(rows, key=lambda row: str(row.get(key, "")))
         return [dict(row) for row in rows[:limit]]
 
+    async def find_latest(
+        self, label: str, equals: dict[str, Any], order_by: str, not_after: str | None
+    ) -> dict[str, Any] | None:
+        key = key_property(label)
+        candidates: list[dict[str, Any]] = [
+            row
+            for row in await self._find_nodes(label, stored_values(equals))
+            if row.get(order_by) is not None
+            and (not_after is None or str(row[order_by]) <= not_after)
+        ]
+        if not candidates:
+            return None
+        latest = max(candidates, key=lambda row: (str(row[order_by]), str(row.get(key, ""))))
+        return dict(latest)
+
     async def search_nodes(
         self, label: str, fields: list[str], terms: list[str], limit: int
     ) -> list[tuple[dict[str, Any], int]]:

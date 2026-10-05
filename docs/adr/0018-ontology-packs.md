@@ -359,3 +359,25 @@ This addresses findings 1.1, 1.2, 2.1, 2.4 and 2.5 of the ontology packs and ing
 - **Versioning.** Core 1.0.0 → 1.1.0 and PDLC 1.5.0 → 1.6.0 classify as additive: applied hot, with no replay and no evaluation required. Every PDLC score and the full suite are unchanged.
 
 Not covered here: the `UserProfile` key mismatch in `adapters/graph_ops.py`, which predates packs (Codex). The other items of the review plan are separate work.
+
+#### Projection correctness: outages, latest matches, late links, slow patterns (2026-10-05)
+
+Item 2 of the review plan: findings N1, 3.2, N2, N3 and 1.3. Each has a test that fails on the code before it.
+- **An outage is waited out, not dead-lettered (N1).** The pack loop dead-lettered every exception on its first failure, so a brief graph outage permanently lost those events' artifacts. Pending items were also only retried after a restart.
+  - `BaseConsumer._retry_transient` retries a storage call that raised a transient error (`UnavailableError` or `StorageTimeoutError`, from `ports/errors.TRANSIENT_ERRORS`). It retries in place, waiting from `CG_CONSUMER_TRANSIENT_BACKOFF_MS` (200) and doubling up to `CG_CONSUMER_TRANSIENT_BACKOFF_MAX_MS` (10,000), until the call succeeds or the consumer stops.
+  - The projection consumer wraps every storage call with it: document fetches, the previous-event lookup, Event node and edge writes, and each pack plan. Retrying in place keeps log order and does not re-read the item, so an outage neither reorders writes nor counts towards an item's dead-lettering.
+  - A worker that stops mid-outage raises the error and leaves the batch pending for the next start.
+  - Other errors (a bad value, a refused write) are still dead-lettered for their own event.
+  - The rebuild inherits this: it now waits for the backend instead of dead-lettering.
+- **`to_latest` is ordered in the backend (3.2) and never looks past the event (N2).** A new `PackGraph.find_latest(label, equals, order_by, not_after)` returns the match with the greatest `order_by` value no later than `not_after`, ties going to the greatest key. Neo4j does it in one ordered query; the generic layer used by memory and Spanner orders in Python.
+  - Before, `lookup_limit` cut the matches in key order and the newest of that subset was taken, so with more matches than the limit the edge could point at the wrong node.
+  - The projector orders by the first of `started_at` or `occurred_at` that the target type declares (else `updated_at`), and passes the triggering event's time as `not_after`. An incident links to the deployment that was running when it happened, never to a later one.
+  - `match_any_prefix` lookups combined with `to_latest` keep the read-then-filter path, with the same cutoff.
+  - Conformance tests run `find_latest` on all three backends.
+- **Late merges are linked (N3, PDLC 1.7.0).** Before, a deployment projected before its change merged never got its `DEPLOYS` edge.
+  - The rule language now lets an edge's `from` be found by `match` when its target is named by key or node_id. Validation refuses `match_any_prefix` on `from`, and `from: {match}` combined with a matched or latest target.
+  - Deployments record their `repo`. `pdlc.change.merged` links every deployment of the same repository whose `artifact_id` is the merge SHA, so either arrival order draws the edge, and never across repositories.
+  - PDLC 1.6.0 → 1.7.0 classifies as mapping: it replays `pdlc.change.merged` and `pdlc.service.deployed`, which records the repository on existing deployments and draws the missing links.
+- **Pattern matching is bounded in time (1.3).** Pack expression patterns now use the `regex` engine (a new explicit dependency; it was already installed through litellm), each match limited to `MATCH_TIMEOUT_SECONDS` (0.25 s).
+  - Capping the text at 100,000 characters did not bound catastrophic backtracking. `regex` already defuses `(a+)+$`, but overlapping alternatives such as `^(a|aa|aaa)+$` still take minutes on 40 characters.
+  - A match that runs out of time raises `PatternTimeoutError`, a `ValueError`, so the projection worker dead-letters that event instead of stalling on it.

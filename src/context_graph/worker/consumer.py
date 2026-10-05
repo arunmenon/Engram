@@ -13,7 +13,8 @@ Source: ADR-0005, ADR-0013, ADR-0019
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import asyncio
+from typing import TYPE_CHECKING, TypeVar
 
 import structlog
 
@@ -23,10 +24,15 @@ from context_graph.metrics import (
     CONSUMER_MESSAGES_DEAD_LETTERED,
     CONSUMER_MESSAGES_PROCESSED,
 )
+from context_graph.ports.errors import TRANSIENT_ERRORS
 from context_graph.ports.subscription import Delivery
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from context_graph.ports.subscription import Subscription
+
+ResultT = TypeVar("ResultT")
 
 log = structlog.get_logger(__name__)
 
@@ -42,6 +48,10 @@ class BaseConsumer:
     - Orphaned items from crashed consumers are claimed at start-up
     - Items delivered more than ``max_retries`` times are dead-lettered
       so they cannot block the pending drain indefinitely
+    - ``_retry_transient`` retries a storage call that failed because the
+      backend was unavailable or slow, in place, until it succeeds or the
+      consumer stops; such a failure is not the item's fault and never
+      counts towards dead-lettering it
     """
 
     def __init__(
@@ -51,6 +61,8 @@ class BaseConsumer:
         block_timeout_ms: int = 5000,
         *,
         max_retries: int = 5,
+        transient_backoff_ms: int = 200,
+        transient_backoff_max_ms: int = 10_000,
     ) -> None:
         self._subscription = subscription
         self._group_name = subscription.group_name
@@ -60,10 +72,44 @@ class BaseConsumer:
         self._block_timeout_ms = block_timeout_ms
         self._stopped = False
         self._max_retries = max_retries
+        self._transient_backoff_ms = transient_backoff_ms
+        self._transient_backoff_max_ms = transient_backoff_max_ms
 
     async def ensure_group(self) -> None:
         """Create the consumer group if it does not already exist."""
         await self._subscription.ensure_group()
+
+    # -- Transient storage failures -----------------------------------------
+
+    async def _retry_transient(
+        self, operation: Callable[[], Awaitable[ResultT]], what: str
+    ) -> ResultT:
+        """Run ``operation``; while it fails transiently, wait and run it again.
+
+        The wait doubles from ``transient_backoff_ms`` up to
+        ``transient_backoff_max_ms``. Retrying in place keeps log order
+        and does not re-read the item, so an outage neither reorders
+        writes nor dead-letters healthy items. Once the consumer is
+        stopping the error is raised: the items stay pending and are
+        retried at the next start. Other errors are raised at once.
+        """
+        delay_ms = self._transient_backoff_ms
+        while True:
+            try:
+                return await operation()
+            except TRANSIENT_ERRORS as exc:
+                if self._stopped:
+                    raise
+                CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
+                log.warning(
+                    "storage_unavailable_retrying",
+                    group=self._group_name,
+                    operation=what,
+                    retry_in_ms=delay_ms,
+                    error=str(exc),
+                )
+                await asyncio.sleep(delay_ms / 1000)
+                delay_ms = min(delay_ms * 2, self._transient_backoff_max_ms)
 
     # -- H4: Orphaned message recovery ------------------------------------
 

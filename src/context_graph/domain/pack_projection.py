@@ -63,12 +63,26 @@ if TYPE_CHECKING:
 INT64_MIN, INT64_MAX = -(2**63), 2**63 - 1
 
 
+# Fields that order matches for ``to_latest``: the first the target type declares
+LATEST_ORDER = ("started_at", "occurred_at")
+# Otherwise: when the node was last written (every pack node has it)
+LATEST_FALLBACK = "updated_at"
+
+
+def _latest_order(node_type: NodeType) -> str:
+    return next((f for f in LATEST_ORDER if f in node_type.properties), LATEST_FALLBACK)
+
+
 @dataclass(frozen=True)
 class EdgeLookup:
-    """An edge whose target is found by matching nodes, not by key."""
+    """An edge whose far end is found by matching nodes, not by key.
+
+    ``known`` is the end the rule names by key: the edge's source, or its
+    target when ``reverse`` (the rule's ``from`` is the one matched).
+    """
 
     edge_type: str
-    source: GraphRef
+    known: GraphRef
     label: str
     key_property: str
     equals: dict[str, Any]
@@ -76,9 +90,14 @@ class EdgeLookup:
     # values is a prefix of one of ``prefixes``
     prefix_field: str | None = None
     prefixes: tuple[str, ...] = ()
-    # to_latest: only the most recent match
+    # to_latest: only the most recent match, by ``order_by``, among those not
+    # after ``not_after`` (the triggering event's time)
     latest: bool = False
+    order_by: str | None = None
+    not_after: str | None = None
     properties: dict[str, Any] = field(default_factory=dict)
+    # The matched nodes are the edge's sources (``from: {match: ...}``)
+    reverse: bool = False
 
 
 @dataclass
@@ -427,10 +446,15 @@ class PackProjector:
         scope = context.scope
         if edge_rule.when is not None and not _truthy(self._eval(edge_rule.when, scope)):
             return
-        sources = self._endpoint_refs(edge_rule.from_, context, plan)
         target = edge_rule.target
+        if edge_rule.from_.match is not None:
+            # Sources found by matching, for a target named by key
+            known = self._endpoint_refs(target, context, plan)
+            self._plan_lookup(edge_rule, edge_rule.from_, known, context, plan, reverse=True)
+            return
+        sources = self._endpoint_refs(edge_rule.from_, context, plan)
         if target.match is not None or target.match_any_prefix is not None:
-            self._plan_lookup(edge_rule, sources, context, plan)
+            self._plan_lookup(edge_rule, target, sources, context, plan)
             return
         targets = self._endpoint_refs(target, context, plan)
         # Both ends fanned from lists of the same length: pair them; otherwise every pair
@@ -459,19 +483,22 @@ class PackProjector:
     def _plan_lookup(
         self,
         edge_rule: EdgeRuleDef,
-        sources: list[_Keyed],
+        matched: NodeRef,
+        known: list[_Keyed],
         context: _Context,
         plan: ProjectionPlan,
+        *,
+        reverse: bool = False,
     ) -> None:
-        target = edge_rule.target
-        assert target.type is not None
-        node_type = self._node_type(target.type)
+        """Plan an edge between each ``known`` end and the nodes ``matched`` finds."""
+        assert matched.type is not None
+        node_type = self._node_type(matched.type)
         equals: dict[str, Any] = {}
         prefix_field: str | None = None
         prefixes: tuple[str, ...] = ()
-        for name, expr in (target.match or target.match_any_prefix or {}).items():
+        for name, expr in (matched.match or matched.match_any_prefix or {}).items():
             value = self._eval(expr, context.scope)
-            if target.match_any_prefix is not None and isinstance(value, list):
+            if matched.match_any_prefix is not None and isinstance(value, list):
                 prefix_field, prefixes = name, tuple(str(v) for v in value if v is not None)
                 continue
             value = coerce(value, node_type.properties.get(name))
@@ -482,20 +509,25 @@ class PackProjector:
             **self._edge_properties(edge_rule, context.scope, None),
             "source_trust": context.trust,
         }
-        for source in sources:
-            if not self._registry.allows(edge_rule.type, source.type_name, node_type.name):
+        latest = edge_rule.to_latest is not None
+        for end in known:
+            ends = (node_type.name, end.type_name) if reverse else (end.type_name, node_type.name)
+            if not self._registry.allows(edge_rule.type, *ends):
                 continue
             plan.lookups.append(
                 EdgeLookup(
                     edge_type=edge_rule.type,
-                    source=source.ref,
+                    known=end.ref,
                     label=node_type.name,
                     key_property=node_type.key_property,
                     equals=equals,
                     prefix_field=prefix_field,
                     prefixes=prefixes,
-                    latest=edge_rule.to_latest is not None,
+                    latest=latest,
+                    order_by=_latest_order(node_type) if latest else None,
+                    not_after=(context.occurred_at or None) if latest else None,
                     properties=props,
+                    reverse=reverse,
                 )
             )
 

@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import hashlib
+import time
 
 import pytest
 
 from context_graph.domain.pack_expressions import (
+    MATCH_TIMEOUT_SECONDS,
     ExpressionError,
+    PatternTimeoutError,
     Scope,
     compile_value,
     evaluate,
@@ -89,3 +92,17 @@ def test_constants_are_not_expressions() -> None:
 def test_invalid_expressions(bad: str) -> None:
     with pytest.raises(ExpressionError):
         compile_value(bad)
+
+
+@pytest.mark.parametrize("function", ["regex", "regex_all", "match"])
+def test_a_backtracking_pattern_is_cut_off(function: str) -> None:
+    """Review 1.3: the text cap does not bound backtracking; the match timeout does.
+
+    The regex engine already defuses '(a+)+$'; overlapping alternatives still
+    blow up, taking minutes on 40 characters without the timeout.
+    """
+    scope = Scope(payload={"body": "a" * 40 + "!"}, event={})
+    started = time.monotonic()
+    with pytest.raises(PatternTimeoutError, match="took over"):
+        evaluate(compile_value(f"{function}($.body, '^(a|aa|aaa)+$')"), scope)
+    assert time.monotonic() - started < MATCH_TIMEOUT_SECONDS * 8

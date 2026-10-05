@@ -112,6 +112,19 @@ class PackGraph(Protocol):
         """Properties of up to ``limit`` nodes of ``label`` whose properties equal ``equals``."""
         ...
 
+    async def find_latest(
+        self, label: str, equals: dict[str, Any], order_by: str, not_after: str | None
+    ) -> dict[str, Any] | None:
+        """The node of ``label`` matching ``equals`` with the greatest ``order_by``.
+
+        Only nodes that have ``order_by`` count, and with ``not_after``
+        only those whose value is not after it (values are canonical ISO
+        datetimes, compared as text). Ties go to the greatest node key.
+        The backend orders and limits, so the answer does not depend on
+        how many nodes match.
+        """
+        ...
+
     async def search_nodes(
         self, label: str, fields: list[str], terms: list[str], limit: int
     ) -> list[tuple[dict[str, Any], int]]:

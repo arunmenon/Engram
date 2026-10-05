@@ -182,6 +182,72 @@ class TestReviewFindings:
         assert [n["node_id"] for n in found] == ["Deployment:a", "Deployment:b"]
 
 
+class TestFindLatest:
+    """to_latest is ordered in the backend, before any limit (review 3.2 and N2)."""
+
+    async def _deployments(self, graph: GraphBackend) -> None:
+        # Key order (z, a, m, b) differs from start order
+        starts = {
+            "z": "2026-10-01T10:00:00+00:00",
+            "a": "2026-10-03T10:00:00+00:00",
+            "m": "2026-10-02T10:00:00+00:00",
+            "b": "2026-10-04T10:00:00+00:00",
+        }
+        writes = [
+            NodeWrite(
+                NodeRef("Deployment", f"Deployment:{name}"),
+                {"environment": "prod", "artifact_id": "app:1", "started_at": started},
+            )
+            for name, started in starts.items()
+        ]
+        writes.append(
+            NodeWrite(
+                NodeRef("Deployment", "Deployment:staging"),
+                {
+                    "environment": "staging",
+                    "artifact_id": "app:1",
+                    "started_at": "2026-10-05T10:00:00+00:00",
+                },
+            )
+        )
+        writes.append(
+            NodeWrite(
+                NodeRef("Deployment", "Deployment:undated"),
+                {"environment": "prod", "artifact_id": "app:1"},
+            )
+        )
+        await graph.upsert_nodes(writes)
+
+    async def test_the_latest_match(self, graph: GraphBackend) -> None:
+        await self._deployments(graph)
+        prod = {"environment": "prod", "artifact_id": "app:1"}
+        latest = await graph.find_latest("Deployment", prod, "started_at", None)
+        assert latest is not None
+        assert latest["node_id"] == "Deployment:b"
+        assert (
+            await graph.find_latest("Deployment", {"environment": "dev"}, "started_at", None)
+            is None
+        )
+
+    async def test_not_after_a_moment(self, graph: GraphBackend) -> None:
+        await self._deployments(graph)
+        prod = {"environment": "prod", "artifact_id": "app:1"}
+        before = await graph.find_latest(
+            "Deployment", prod, "started_at", "2026-10-03T12:00:00+00:00"
+        )
+        assert before is not None
+        assert before["node_id"] == "Deployment:a"
+        exactly = await graph.find_latest(
+            "Deployment", prod, "started_at", "2026-10-02T10:00:00+00:00"
+        )
+        assert exactly is not None
+        assert exactly["node_id"] == "Deployment:m"  # the bound is inclusive
+        assert (
+            await graph.find_latest("Deployment", prod, "started_at", "2026-09-30T00:00:00+00:00")
+            is None
+        )
+
+
 class TestCreateOnlyEdges:
     """Phase 3 review: a proposal never changes an existing link (ADR-0018 notes)."""
 

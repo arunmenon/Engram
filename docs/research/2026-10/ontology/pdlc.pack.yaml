@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 1.6.0   # 1.6.0: shared interfaces and provenance move to core 1.1.0; lifecycles name their superseded states (minor: additive).
+  version: 1.7.0   # 1.7.0: Deployment records its repo; a merge links deployments of its commit seen earlier (minor: mapping).
+                   # 1.6.0: shared interfaces and provenance move to core 1.1.0; lifecycles name their superseded states (minor: additive).
                    # 1.5.0: REVERTS also read from GitHub's revert forms (minor: mapping, an added rule part).
                    # 1.4.0: DEPLOYS from a deployment to the change whose merge_sha it deployed (minor: mapping).
                    # 1.3.0: completeness paraphrase keywords; Release and TestCase are seed types (minor: additive).
@@ -113,7 +114,7 @@ types:
     Deployment:
       key: [environment, artifact_id, started_at]
       interfaces: [Lifecycled, Sourced]
-      properties: {environment: string, artifact_id: string, started_at: datetime}
+      properties: {environment: string, artifact_id: string, started_at: datetime, repo: string}
       lifecycle: {initial: started, states: [started, succeeded, failed, rolled_back]}
     Component:
       key: [catalog_name]
@@ -238,6 +239,8 @@ projection:
       - type: TOUCHES
         from: {type: Change, key: {repo: $.repo, number: $.number}}
         to_each: {type: Component, match_any_prefix: {repo: $.repo, path_prefixes: $.files}}
+      # Deployments of this merge commit projected before the merge (the deployment's own rule links later ones)
+      - {type: DEPLOYS, from: {type: Deployment, match: {repo: $.repo, artifact_id: $.merge_sha}}, to: {type: Change, key: {repo: $.repo, number: $.number}}, when: $.merge_sha}
   - event: pdlc.change.committed            # git-only sources (no PR webhook): derive what the commit message declares
     upsert:
       - {type: Change, key: {repo: $.repo, number: "regex($.subject, '\\(#(\\d+)\\)$')"}, set: {title: $.subject, files: $.files, change_type: "regex($.subject, '^(\\w+)')", scope: "regex($.subject, '^\\w+\\(([^)]+)\\)')", ticket_exempt: "match($.subject, '(?i)^MINOR')"}}
@@ -265,12 +268,12 @@ projection:
   - event: pdlc.service.deployed
     upsert:
       - {type: Component, key: {catalog_name: $.service}}
-      - {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}
+      - {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo}}
     transition: {type: Deployment, to: succeeded}
     edges:
       - {type: DEPLOYED_TO, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
       - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
-      # A deployed commit is the merge commit of a change: link it (only changes merged before the deployment is projected)
+      # A deployed commit is the merge commit of a change: link it (a change merged later is linked by its merge rule)
       - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
   - event: pdlc.incident.detected
     upsert:
