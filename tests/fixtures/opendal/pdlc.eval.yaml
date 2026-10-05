@@ -1,0 +1,115 @@
+# PDLC evaluation set on real data: Apache OpenDAL (ADR-0018 decision 10).
+#
+# The ledger is deliveries.json in this directory: GitHub webhook deliveries
+# rebuilt from OpenDAL's git history (build_deliveries.py) and sent through
+# the signed webhook route, so the real GitHub adapter translates them:
+#   288 merged PRs since v0.58.0 (squash commits), and
+#   4 releases (v0.58.1, v0.58.2, v0.59.0, v0.59.1) with the notes from
+#   CHANGELOG.md that list their PRs (57, 62, 51 and 6 PRs).
+# OpenDAL stands in until our own GitHub and Jira are wired: it has no Jira,
+# and git carries no reviews, CI runs, deployments or ticket links, so this
+# set covers releases, reverts and finding a change by what it did.
+#
+# Every expected answer comes from git or CHANGELOG.md, not from retrieval:
+#   release-of-*      the release whose notes link the PR (/pull/N)
+#   release-contents  every PR the release's notes link
+#   reverted-*        the revert PR whose body quotes the reverted PR's title
+#   change-for-*      the one PR in the window whose title states the feature
+#                     (grep of PR titles; the question uses the title's words)
+#   release-for-*     that PR's release
+#
+# Measured at PDLC 1.4.0 with the traversal drift rules: mean F1 0.63.
+#   1.00  release-of-* (6), release-for-s3-express
+#   0.92  release-contents-v0.59.1: also returns #8228, "chore: prepare
+#         release v0.59.1", matched by the version in its title
+#   0.22  reverted-*: no REVERTS edge is drawn; the pack's rule reads only
+#         "revert #N", while GitHub's revert body quotes the reverted PR's
+#         title, "(#N)" inside it (the pack's own note says the title counts)
+#   0.18-0.50  change-for-*: the right PR is always found, with 2-7 others
+#         sharing common words ("added", "support", "s3", "service")
+#   0.50  release-for-gcs-grpc: those extra changes bring their releases
+# min_f1 sits just under the measured level, so the gate catches regressions;
+# raise it as the gaps are fixed.
+#
+# Queries are quoted: in YAML " #" starts a comment.
+pack: pdlc
+min_f1: 0.6
+questions:
+  # Release membership: which release shipped a PR
+  - id: release-of-8216
+    query: "Which release shipped #8216?"
+    expected: ["Release:apache/opendal|v0.59.1"]
+    answer: {node_type: Release}
+  - id: release-of-8191
+    query: "Which release shipped #8191?"
+    expected: ["Release:apache/opendal|v0.59.0"]
+    answer: {node_type: Release}
+  - id: release-of-7949
+    query: "Which release shipped #7949?"
+    expected: ["Release:apache/opendal|v0.58.2"]
+    answer: {node_type: Release}
+  - id: release-of-8035
+    query: "Which release shipped #8035?"
+    expected: ["Release:apache/opendal|v0.58.2"]
+    answer: {node_type: Release}
+  - id: release-of-7386
+    query: "Which release shipped #7386?"
+    expected: ["Release:apache/opendal|v0.58.1"]
+    answer: {node_type: Release}
+  - id: release-of-7869
+    query: "Which release shipped #7869?"
+    expected: ["Release:apache/opendal|v0.58.1"]
+    answer: {node_type: Release}
+
+  # Release contents
+  - id: release-contents-v0.59.1
+    query: "What shipped in release v0.59.1?"
+    expected: ["Change:apache/opendal|8206", "Change:apache/opendal|8213", "Change:apache/opendal|8214",
+               "Change:apache/opendal|8215", "Change:apache/opendal|8216", "Change:apache/opendal|8223"]
+    answer: {node_type: Change}
+
+  # Reverts: the revert's body is "Revert \"<title> (#N)\"\n\nThis reverts commit <sha>."
+  - id: reverted-7983
+    query: "Which change reverted #7983?"
+    expected: ["Change:apache/opendal|8034"]
+    answer: {node_type: Change}
+  - id: reverted-7927
+    query: "Was #7927 reverted?"
+    expected: ["Change:apache/opendal|7943"]
+    answer: {node_type: Change}
+
+  # Finding a change by what it did
+  - id: change-for-s3-express
+    query: "Which change added S3 Express session authentication?"
+    expected: ["Change:apache/opendal|8135"]
+    answer: {node_type: Change}
+  - id: change-for-s3-restoration
+    query: "Which change added S3 object restoration?"
+    expected: ["Change:apache/opendal|8143"]
+    answer: {node_type: Change}
+  - id: change-for-gcs-grpc
+    query: "Which change added the GCS gRPC service?"
+    expected: ["Change:apache/opendal|8153"]
+    answer: {node_type: Change}
+  - id: change-for-aws-profiles
+    query: "Which change added explicit AWS profiles for S3?"
+    expected: ["Change:apache/opendal|7949"]
+    answer: {node_type: Change}
+  - id: change-for-http-429
+    query: "Which change retries HTTP 429 responses?"
+    expected: ["Change:apache/opendal|8035"]
+    answer: {node_type: Change}
+  - id: change-for-gcs-compose
+    query: "Which change added GCS compose support?"
+    expected: ["Change:apache/opendal|8191"]
+    answer: {node_type: Change}
+
+  # Two hops: a feature, then its release
+  - id: release-for-gcs-grpc
+    query: "Which release shipped the GCS gRPC service?"
+    expected: ["Release:apache/opendal|v0.59.0"]
+    answer: {node_type: Release}
+  - id: release-for-s3-express
+    query: "Which release shipped S3 Express session authentication?"
+    expected: ["Release:apache/opendal|v0.59.0"]
+    answer: {node_type: Release}

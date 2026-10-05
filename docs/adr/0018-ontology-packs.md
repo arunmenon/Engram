@@ -317,3 +317,18 @@ The two remaining misses in the fixture eval set were traversal drift, not missi
 - **What is kept:** transitive chains (Requirement `REFINES` Spec `REFINES` Request: different roles), and families of seeds ("Trace PAY-300" still reaches its stories).
 
 The fixture set now scores 1.00 (`min_f1` 0.95), and the Phase 2 evaluation is unchanged. Tests: `tests/unit/test_pdlc_retrieval_eval.py::TestTraversalDrift`, and the pinned scores in `test_pdlc_end_to_end.py` on memory, Spanner and Neo4j.
+
+#### PDLC evaluation set on real data: Apache OpenDAL (2026-10-05)
+
+`tests/fixtures/opendal/` is the first evaluation set on real data. It holds 17 questions about Apache OpenDAL's history, standing in until our own GitHub and Jira are wired: our repository has only three merged PRs and no issues, releases or deployments.
+
+- **Ledger:** `deliveries.json`, built by `build_deliveries.py` from a clone of apache/opendal at a recorded commit (GitHub's API was not reachable). It holds 288 merged PRs since v0.58.0, rebuilt as `pull_request` deliveries from their squash commits, and 4 `release` deliveries (v0.58.1 to v0.59.1) carrying the CHANGELOG notes that list their PRs. `test_pdlc_opendal_eval.py` signs and sends every delivery through `POST /v1/webhooks/github`, so the real adapter translates them, then runs a blue/green rebuild with the set as its gate.
+- **Ground truth:** from git and the changelog only. Release membership comes from the notes' PR links; reverts from the revert's body; "which change did X" from the one PR whose title states it.
+- **Not covered:** git carries no tickets, reviews, CI runs or deployments, and webhook deliveries carry no changed files, so completeness and file-history questions are left out.
+
+At PDLC 1.4.0 the set scores a mean F1 of 0.63. `min_f1` is 0.6, and the test pins each score. Three real gaps:
+- **Reverts are never linked (0.22).** The `REVERTS` rule matches only "revert #N". GitHub's revert body quotes the reverted PR's title, with "(#N)" inside it, and the pack's own note says that form counts.
+- **Word seeds are imprecise (0.18–0.50).** "Which change added S3 object restoration?" finds #8143 along with 7 PRs that share "added", "s3" or "support". Two-hop questions inherit those extras' releases.
+- **Version tokens over-match (0.92).** "What shipped in release v0.59.1?" also returns #8228, "chore: prepare release v0.59.1".
+
+Release membership questions all score 1.00.
