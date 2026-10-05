@@ -13,8 +13,12 @@ two native fast paths:
 - lineage uses a Spanner Graph GQL ``TRAIL`` quantified path, the
   equivalent of Neo4j's ``-[:CAUSED_BY*1..10]->`` with edge uniqueness.
 
-Writes that read-modify-write (MERGE then SET) run in one read-write
-transaction per primitive call.
+Writes that read-modify-write (MERGE then SET) run in read-write
+transactions sized by a ``CommitBudget`` (``adapters.spanner.commits``):
+a primitive call's items are grouped by key, the groups are packed into
+commit-sized runs, and a run whose rows turn out larger than estimated
+(existing properties are only known inside the transaction) is split in
+two and retried. One key's items always share a transaction.
 
 Source: ADR-0009, ADR-0018, ADR-0019, spanner-design-brief.md D4/G8/G9/G10
 """
@@ -36,10 +40,21 @@ from context_graph.adapters.graph_ops import (
     key_property,
     state_change_applies,
 )
+from context_graph.adapters.spanner.commits import (
+    EDGE_DELETE_MUTATIONS,
+    NODE_DELETE_MUTATIONS,
+    CommitBudget,
+    CommitTooLarge,
+    edge_row_cost,
+    group_by_key,
+    node_row_cost,
+)
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from context_graph.ports.pack_graph import StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
@@ -127,6 +142,7 @@ class SpannerGraphStore(GraphOperations):
         embedding_dimensions: int = 384,
         decay_settings: DecaySettings | None = None,
         ppr_settings: PPRSettings | None = None,
+        commit_budget: CommitBudget | None = None,
     ) -> None:
         super().__init__(
             decay_settings=decay_settings,
@@ -135,6 +151,7 @@ class SpannerGraphStore(GraphOperations):
         )
         self._database = database
         self._dimensions = embedding_dimensions
+        self._budget = commit_budget or CommitBudget()
         self._reads = SpannerGraphReads(self)
 
     # ------------------------------------------------------------------
@@ -165,6 +182,52 @@ class SpannerGraphStore(GraphOperations):
 
     async def _transact(self, fn: Any) -> Any:
         return await asyncio.to_thread(self._database.run_in_transaction, fn)
+
+    async def _write_in_commits(
+        self,
+        groups: list[list[Any]],
+        estimate: Callable[[list[Any]], tuple[int, int]],
+        write: Callable[[list[Any], bool], Callable[[Any], Any]],
+    ) -> list[Any]:
+        """Write key groups in commit-sized transactions; each transaction's result.
+
+        ``write(items, enforce)`` returns the transaction body. With
+        ``enforce`` it raises ``CommitTooLarge`` once it knows its rows
+        exceed the budget, and the run is split in two and retried. A run
+        of one group is written whatever its size.
+        """
+        pending = self._budget.chunks(groups, estimate)
+        results = []
+        while pending:
+            run = pending.pop(0)
+            items = [item for group in run for item in group]
+            try:
+                results.append(await self._transact(write(items, len(run) > 1)))
+            except CommitTooLarge:
+                middle = len(run) // 2
+                pending[:0] = [run[:middle], run[middle:]]
+        return results
+
+    def _node_rows(
+        self, nodes: dict[NodeKey, dict[str, Any]], keys: Any, enforce: bool
+    ) -> list[list[Any]]:
+        """GraphNodes rows for ``keys``; with ``enforce``, checked against the budget."""
+        rows = []
+        costs = []
+        for label, node_id in keys:
+            props = nodes[(label, node_id)]
+            embedding = self._embedding_column(label, props)
+            rows.append([label, node_id, json_param(props), embedding])
+            costs.append(node_row_cost((label, node_id), props, embedding))
+        if enforce:
+            self._budget.check(costs)
+        return rows
+
+    @staticmethod
+    def _node_estimate(group: list[Any]) -> tuple[int, int]:
+        """Cost of a node key's writes before its stored properties are read."""
+        key = group[0][0]
+        return node_row_cost(key, {k: v for item in group for k, v in item[1].items()}, None)
 
     @staticmethod
     def _prefix_keyset(prefixes: list[list[Any]]) -> Any:
@@ -226,109 +289,115 @@ class SpannerGraphStore(GraphOperations):
         if not items:
             return
 
-        def work(transaction: Any) -> None:
-            keys = sorted({key for key, _updates in items})
-            current = {
-                (label, node_id): json_value(props)
-                for label, node_id, props in transaction.read(
-                    "GraphNodes",
-                    ["label", "node_id", "props"],
-                    KeySet(keys=[list(key) for key in keys]),
+        def write(run: list[tuple[NodeKey, dict[str, Any]]], enforce: bool) -> Any:
+            def work(transaction: Any) -> None:
+                keys = sorted({key for key, _updates in run})
+                current = {
+                    (label, node_id): json_value(props)
+                    for label, node_id, props in transaction.read(
+                        "GraphNodes",
+                        ["label", "node_id", "props"],
+                        KeySet(keys=[list(key) for key in keys]),
+                    )
+                }
+                for (label, node_id), updates in run:
+                    props = current.setdefault((label, node_id), {key_property(label): node_id})
+                    apply_set(props, updates)
+                transaction.insert_or_update(
+                    "GraphNodes", NODE_COLUMNS, self._node_rows(current, current, enforce)
                 )
-            }
-            for (label, node_id), updates in items:
-                props = current.setdefault((label, node_id), {key_property(label): node_id})
-                apply_set(props, updates)
-            transaction.insert_or_update(
-                "GraphNodes",
-                NODE_COLUMNS,
-                [
-                    [label, node_id, json_param(props), self._embedding_column(label, props)]
-                    for (label, node_id), props in current.items()
-                ],
-            )
 
-        await self._transact(work)
+            return work
+
+        await self._write_in_commits(
+            group_by_key(items, lambda item: item[0]), self._node_estimate, write
+        )
 
     async def _merge_nodes(
         self, items: list[tuple[NodeKey, dict[str, Any], dict[str, Any]]]
     ) -> None:
-        """MERGE with create-only defaults, read and written in one transaction."""
+        """MERGE with create-only defaults, read and written in one transaction per run."""
         from google.cloud.spanner_v1 import KeySet
 
         if not items:
             return
 
-        def work(transaction: Any) -> None:
-            keys = sorted({key for key, _u, _d in items})
-            current = {
-                (label, node_id): json_value(props)
-                for label, node_id, props in transaction.read(
-                    "GraphNodes",
-                    ["label", "node_id", "props"],
-                    KeySet(keys=[list(key) for key in keys]),
+        def write(run: list[tuple[NodeKey, dict[str, Any], dict[str, Any]]], enforce: bool) -> Any:
+            def work(transaction: Any) -> None:
+                keys = sorted({key for key, _u, _d in run})
+                current = {
+                    (label, node_id): json_value(props)
+                    for label, node_id, props in transaction.read(
+                        "GraphNodes",
+                        ["label", "node_id", "props"],
+                        KeySet(keys=[list(key) for key in keys]),
+                    )
+                }
+                for (label, node_id), updates, defaults in run:
+                    props = current.get((label, node_id))
+                    if props is None:
+                        props = current[(label, node_id)] = {
+                            key_property(label): node_id,
+                            **defaults,
+                        }
+                    apply_set(props, updates)
+                transaction.insert_or_update(
+                    "GraphNodes", NODE_COLUMNS, self._node_rows(current, current, enforce)
                 )
-            }
-            for (label, node_id), updates, defaults in items:
-                props = current.get((label, node_id))
-                if props is None:
-                    props = current[(label, node_id)] = {key_property(label): node_id, **defaults}
-                apply_set(props, updates)
-            transaction.insert_or_update(
-                "GraphNodes",
-                NODE_COLUMNS,
-                [
-                    [label, node_id, json_param(props), self._embedding_column(label, props)]
-                    for (label, node_id), props in current.items()
-                ],
-            )
 
-        await self._transact(work)
+            return work
+
+        await self._write_in_commits(
+            group_by_key(items, lambda item: item[0]),
+            lambda group: node_row_cost(
+                group[0][0], {k: v for _key, u, d in group for k, v in (d | u).items()}, None
+            ),
+            write,
+        )
 
     async def _apply_state_changes(self, changes: list[StateChange]) -> int:
-        """Apply transitions in order, read and written in one transaction."""
+        """Apply transitions in order; one node's transitions share a transaction."""
         from google.cloud.spanner_v1 import KeySet
 
-        def work(transaction: Any) -> int:
-            keys = sorted({(c.ref.label, c.ref.key) for c in changes})
-            current = {
-                (label, node_id): json_value(props)
-                for label, node_id, props in transaction.read(
-                    "GraphNodes",
-                    ["label", "node_id", "props"],
-                    KeySet(keys=[list(key) for key in keys]),
-                )
-            }
-            changed: set[NodeKey] = set()
-            count = 0
-            for change in changes:
-                key = (change.ref.label, change.ref.key)
-                props = current.get(key)
-                if not state_change_applies(props, change):
-                    continue
-                assert props is not None
-                props["status"] = change.to_state
-                props["status_changed_at"] = change.changed_at
-                changed.add(key)
-                count += 1
-            if changed:
-                transaction.update(
-                    "GraphNodes",
-                    NODE_COLUMNS,
-                    [
-                        [
-                            label,
-                            node_id,
-                            json_param(current[(label, node_id)]),
-                            self._embedding_column(label, current[(label, node_id)]),
-                        ]
-                        for label, node_id in sorted(changed)
-                    ],
-                )
-            return count
+        if not changes:
+            return 0
 
-        result: int = await self._transact(work)
-        return result
+        def write(run: list[StateChange], enforce: bool) -> Any:
+            def work(transaction: Any) -> int:
+                keys = sorted({(c.ref.label, c.ref.key) for c in run})
+                current = {
+                    (label, node_id): json_value(props)
+                    for label, node_id, props in transaction.read(
+                        "GraphNodes",
+                        ["label", "node_id", "props"],
+                        KeySet(keys=[list(key) for key in keys]),
+                    )
+                }
+                changed: set[NodeKey] = set()
+                count = 0
+                for change in run:
+                    key = (change.ref.label, change.ref.key)
+                    props = current.get(key)
+                    if not state_change_applies(props, change):
+                        continue
+                    assert props is not None
+                    props["status"] = change.to_state
+                    props["status_changed_at"] = change.changed_at
+                    changed.add(key)
+                    count += 1
+                if changed:
+                    rows = self._node_rows(current, sorted(changed), enforce)
+                    transaction.update("GraphNodes", NODE_COLUMNS, rows)
+                return count
+
+            return work
+
+        counts = await self._write_in_commits(
+            group_by_key(changes, lambda change: (change.ref.label, change.ref.key)),
+            lambda group: node_row_cost((group[0].ref.label, group[0].ref.key), {}, None),
+            write,
+        )
+        return sum(counts)
 
     def _incident_edges_sync(self, transaction: Any, keys: list[NodeKey]) -> list[list[Any]]:
         prefixes = [list(key) for key in keys]
@@ -342,31 +411,60 @@ class SpannerGraphStore(GraphOperations):
         return [list(row) for row in outgoing] + [list(row) for row in incoming]
 
     async def _delete_nodes(self, keys: list[NodeKey]) -> int:
+        """Detach-delete nodes, in commit-sized transactions.
+
+        A run whose incident edges would not fit in one commit deletes those
+        edges first, in transactions of their own, and is then retried; the
+        nodes and any edges added meanwhile go together.
+        """
         from google.cloud.spanner_v1 import KeySet
 
         unique = sorted(set(keys))
         if not unique:
             return 0
+        budget = self._budget.max_mutations
+        deleted = 0
+        for run in self._budget.chunks(unique, lambda _key: (NODE_DELETE_MUTATIONS, 0)):
 
-        def work(transaction: Any) -> int:
-            existing = [
-                (label, node_id)
-                for label, node_id in transaction.read(
-                    "GraphNodes",
-                    ["label", "node_id"],
-                    KeySet(keys=[list(key) for key in unique]),
-                )
-            ]
-            if not existing:
-                return 0
-            edges = self._incident_edges_sync(transaction, existing)
-            if edges:
-                transaction.delete("GraphEdges", KeySet(keys=edges))
-            transaction.delete("GraphNodes", KeySet(keys=[list(key) for key in existing]))
-            return len(existing)
+            def work(transaction: Any, run: list[NodeKey] = run) -> int | list[list[Any]]:
+                existing = [
+                    (label, node_id)
+                    for label, node_id in transaction.read(
+                        "GraphNodes",
+                        ["label", "node_id"],
+                        KeySet(keys=[list(key) for key in run]),
+                    )
+                ]
+                if not existing:
+                    return 0
+                edges = self._incident_edges_sync(transaction, existing)
+                mutations = len(edges) * EDGE_DELETE_MUTATIONS
+                if mutations + len(existing) * NODE_DELETE_MUTATIONS > budget:
+                    return edges  # too many to delete with the nodes
+                if edges:
+                    transaction.delete("GraphEdges", KeySet(keys=edges))
+                transaction.delete("GraphNodes", KeySet(keys=[list(key) for key in existing]))
+                return len(existing)
 
-        deleted: int = await self._transact(work)
+            while True:
+                outcome = await self._transact(work)
+                if isinstance(outcome, int):
+                    deleted += outcome
+                    break
+                await self._delete_edge_rows(outcome)
         return deleted
+
+    async def _delete_edge_rows(self, rows: list[list[Any]]) -> None:
+        """Delete GraphEdges rows by primary key, in commit-sized transactions."""
+        from google.cloud.spanner_v1 import KeySet
+
+        unique = sorted({tuple(row) for row in rows})
+        for run in self._budget.chunks(unique, lambda _row: (EDGE_DELETE_MUTATIONS, 0)):
+
+            def work(transaction: Any, run: list[tuple[Any, ...]] = run) -> None:
+                transaction.delete("GraphEdges", KeySet(keys=[list(row) for row in run]))
+
+            await self._transact(work)
 
     async def _edges(
         self,
@@ -428,61 +526,70 @@ class SpannerGraphStore(GraphOperations):
 
         if not items:
             return 0
+        budget = self._budget
 
-        def work(transaction: Any) -> int:
-            endpoints = sorted({key[0] for key, _u in items} | {key[2] for key, _u in items})
-            existing_nodes = {
-                (label, node_id)
-                for label, node_id in transaction.read(
-                    "GraphNodes",
-                    ["label", "node_id"],
-                    KeySet(keys=[list(key) for key in endpoints]),
-                )
-            }
-            wanted = sorted(
-                {key for key, _u in items if key[0] in existing_nodes and key[2] in existing_nodes}
-            )
-            if not wanted:
-                return 0
-            current = {
-                key: props
-                for key, props in (
-                    _edge_row(list(row))
-                    for row in transaction.read(
-                        "GraphEdges",
-                        EDGE_COLUMNS,
-                        KeySet(keys=[[s[0], s[1], t, d[0], d[1]] for s, t, d in wanted]),
+        def write(run: list[tuple[EdgeKey, dict[str, Any]]], enforce: bool) -> Any:
+            def work(transaction: Any) -> int:
+                endpoints = sorted({key[0] for key, _u in run} | {key[2] for key, _u in run})
+                existing_nodes = {
+                    (label, node_id)
+                    for label, node_id in transaction.read(
+                        "GraphNodes",
+                        ["label", "node_id"],
+                        KeySet(keys=[list(key) for key in endpoints]),
                     )
+                }
+                wanted = sorted(
+                    {
+                        key
+                        for key, _u in run
+                        if key[0] in existing_nodes and key[2] in existing_nodes
+                    }
                 )
-            }
-            wanted_set = set(wanted)
-            for key, updates in items:
-                if key in wanted_set:
-                    apply_set(current.setdefault(key, {}), updates)
-            transaction.insert_or_update(
-                "GraphEdges",
-                EDGE_COLUMNS,
-                [
-                    [s[0], s[1], edge_type, d[0], d[1], json_param(props)]
-                    for (s, edge_type, d), props in current.items()
-                ],
-            )
-            return len(wanted)
+                if not wanted:
+                    return 0
+                current = {
+                    key: props
+                    for key, props in (
+                        _edge_row(list(row))
+                        for row in transaction.read(
+                            "GraphEdges",
+                            EDGE_COLUMNS,
+                            KeySet(keys=[[s[0], s[1], t, d[0], d[1]] for s, t, d in wanted]),
+                        )
+                    )
+                }
+                wanted_set = set(wanted)
+                for key, updates in run:
+                    if key in wanted_set:
+                        apply_set(current.setdefault(key, {}), updates)
+                if enforce:
+                    budget.check([edge_row_cost(key, props) for key, props in current.items()])
+                transaction.insert_or_update(
+                    "GraphEdges",
+                    EDGE_COLUMNS,
+                    [
+                        [s[0], s[1], edge_type, d[0], d[1], json_param(props)]
+                        for (s, edge_type, d), props in current.items()
+                    ],
+                )
+                return len(wanted)
 
-        written: int = await self._transact(work)
-        return written
+            return work
+
+        counts = await self._write_in_commits(
+            group_by_key(items, lambda item: item[0]),
+            lambda group: edge_row_cost(
+                group[0][0], {k: v for _key, updates in group for k, v in updates.items()}
+            ),
+            write,
+        )
+        return sum(counts)
 
     async def _delete_edges(self, keys: list[EdgeKey]) -> None:
-        from google.cloud.spanner_v1 import KeySet
-
         if not keys:
             return
-        keyset = KeySet(keys=[[s[0], s[1], t, d[0], d[1]] for s, t, d in sorted(set(keys))])
-
-        def work(transaction: Any) -> None:
-            transaction.delete("GraphEdges", keyset)
-
-        await self._transact(work)
+        await self._delete_edge_rows([[s[0], s[1], t, d[0], d[1]] for s, t, d in keys])
 
     async def _clear(self) -> None:
         def clear() -> None:

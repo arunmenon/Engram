@@ -152,6 +152,7 @@ async def open_stores(
             embedding_dimensions=settings.spanner.embedding_dimensions,
             decay_settings=settings.decay,
             ppr_settings=settings.ppr,
+            commit_budget=_spanner_budget(settings),
         )
     elif storage.graph == "memory":
         from context_graph.adapters.memory.graph import MemoryGraphStore
@@ -274,6 +275,16 @@ def _open_memory_log(
     return memory_log, open_subscription
 
 
+def _spanner_budget(settings: Settings) -> Any:
+    """The Spanner commit budget from ``CG_SPANNER_COMMIT_MAX_*``."""
+    from context_graph.adapters.spanner.commits import CommitBudget
+
+    return CommitBudget(
+        max_mutations=settings.spanner.commit_max_mutations,
+        max_bytes=settings.spanner.commit_max_bytes,
+    )
+
+
 def _open_spanner_log(
     settings: Settings,
     database: Any,
@@ -285,7 +296,11 @@ def _open_spanner_log(
     spanner_settings = settings.spanner
     consumer_settings = settings.consumer
     spanner_log = SpannerEventLog(
-        database, shards=spanner_settings.shards, keyword=settings.keyword
+        database,
+        shards=spanner_settings.shards,
+        keyword=settings.keyword,
+        commit_budget=_spanner_budget(settings),
+        retention_batch_rows=spanner_settings.retention_batch_rows,
     )
 
     def open_subscription(group_name: str, consumer_name: str) -> Subscription:

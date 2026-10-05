@@ -537,9 +537,25 @@ class SpannerSettings(BaseSettings):
     database: str = "engram"
     emulator_host: str | None = None
 
-    # Create the instance (emulator only) and database when missing. For
-    # local development and tests; real instances are provisioned outside.
+    # Create the database when missing (and, on the emulator, the instance).
+    # For local development and tests. On a real instance the database is
+    # created only when allow_create_on_instance is also set; instances are
+    # always provisioned outside Engram.
     create_if_missing: bool = False
+    allow_create_on_instance: bool = False
+
+    # Check an existing database against the expected schema when opening it
+    check_schema: bool = True
+
+    # Commit budget: writes are split into transactions under these estimates.
+    # Spanner refuses a commit over 80,000 mutations or 100 MiB (indexes
+    # included); the defaults keep half of each as headroom for estimate error.
+    commit_max_mutations: int = 40_000
+    commit_max_bytes: int = 50 * 1024 * 1024
+
+    # Rows each retention statement (trim, expire, housekeep, purge) changes
+    # per transaction; it repeats until no rows are left.
+    retention_batch_rows: int = 1_000
 
     # Session shards for the ledger's time index (design brief D3)
     shards: int = 16

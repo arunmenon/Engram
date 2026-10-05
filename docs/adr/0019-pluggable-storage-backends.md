@@ -377,3 +377,23 @@ The dual-run test no longer flushes explicitly.
   - **Bound:** the drain ends after a clean sweep, at most `max_retries + 1` sweeps.
   - **Backends:** the original change covered Redis only. Memory and Spanner now implement the cursor too, and a conformance case pins it for every backend.
 
+
+## Spanner commit budgets and database opening (2026-10-05)
+
+From the maturity review (`docs/review/2026-10-05-maturity-review-guide.md`, items S5 and S7, review F1 and F4), before a first real-instance trial.
+
+**Database opening** (`adapters/spanner/schema.py`):
+- `CG_SPANNER_CREATE_IF_MISSING` used to create the database on any instance; only instance creation was limited to the emulator. It now creates the database on the emulator only. On a real instance it also needs `CG_SPANNER_ALLOW_CREATE_ON_INSTANCE=true`, and instances are never created.
+- A missing database raises `SchemaMismatchError` at start-up instead of failing on first use.
+- An existing database is checked against the schema the code expects: tables, columns, indexes (search and vector included) and the property graph, read from `INFORMATION_SCHEMA` and parsed from the DDL in `schema_statements`. Anything missing stops start-up with a list. Extra objects are allowed. `CG_SPANNER_CHECK_SCHEMA=false` turns the check off. There is still no `ALTER` path; the check makes a stale database visible.
+
+**Commit budgets** (`adapters/spanner/commits.py`):
+- Spanner refuses a commit over 80,000 mutations or 100 MiB, indexes included. Writes were sized by event or item count only.
+- Every write that takes a caller's list is now split into transactions under `CommitBudget` (`CG_SPANNER_COMMIT_MAX_MUTATIONS`, 40,000; `CG_SPANNER_COMMIT_MAX_BYTES`, 50 MiB: half of each limit, since costs are estimates). Costs per row come from the schema: columns written plus the columns each index holds; bytes are the values written, counted again per index that stores them.
+- **Ledger:** appends and imports are split in order. Commit timestamps keep the order across transactions. `append_batch_outcomes` reports events from a failed later transaction as `failed` and keeps the earlier ones; a failure in the first transaction writes nothing and raises, as before. `append_batch` and `append_imported` raise; the mirror resumes from its checkpoint.
+- **Graph:** node, merge, state-change and edge writes are grouped by key, so one key's ordered updates share a transaction, and the groups are packed into budget-sized runs. Stored properties are only known inside the transaction, so a run whose actual rows exceed the budget raises `CommitTooLarge`, rolls back, and is split in two. A single key is written whatever its size. Detach-delete of a node whose incident edges do not fit deletes the edges first in their own transactions, then retries.
+- **Retention:** `trim`, `expire`, `housekeep` and the purge ran one unbounded statement each. They now change `CG_SPANNER_RETENTION_BATCH_ROWS` (1,000) rows per transaction until none are left: select ids, then change those rows with the condition checked again. The emulator refuses DML whose subquery reads `Events` itself, hence the two steps. `expire` also reads and archives one batch at a time instead of loading every expired document.
+
+**Tests:** `tests/unit/test_spanner_commits.py`. Unit tests cover budget arithmetic, the expected schema and the creation refusal with a mocked client. Emulator tests use tiny budgets so that every path has to split: ordered appends with a duplicate across transactions, a failed later transaction, retention in batches of two, per-key order in node writes, a run larger than estimated, transitions split by node, and a hub node delete.
+
+**Not covered:** key size limits (8 KiB) are not checked, so an oversized key fails its transaction (and, in projection, dead-letters its event). The estimates have not been compared with Spanner's commit statistics; that is part of the real-instance trial.

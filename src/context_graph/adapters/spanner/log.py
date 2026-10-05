@@ -34,6 +34,7 @@ import orjson
 import structlog
 
 from context_graph.adapters.errors import translate_errors
+from context_graph.adapters.spanner.commits import CommitBudget, event_row_cost
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.domain.keyword_search import event_search_text, query_terms
 from context_graph.domain.models import Event
@@ -165,10 +166,14 @@ class SpannerEventLog:
         *,
         shards: int = 16,
         keyword: KeywordSearchSettings | None = None,
+        commit_budget: CommitBudget | None = None,
+        retention_batch_rows: int = 1_000,
     ) -> None:
         self._database = database
         self._shards = shards
         self._keyword = keyword or KeywordSearchSettings()
+        self._budget = commit_budget or CommitBudget()
+        self._retention_rows = retention_batch_rows
 
     @property
     def database(self) -> Any:
@@ -251,10 +256,38 @@ class SpannerEventLog:
     def _append_entries_sync(
         self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
     ) -> list[str]:
-        """Append (event_id, session_id, document, occurred_at_ms) in one transaction."""
-        return [outcome.position or "" for outcome in self._append_outcomes_sync(entries)]
+        """Append (event_id, session_id, document, occurred_at_ms); raise if any chunk fails."""
+        positions = []
+        for chunk in self._budget.chunks(entries, lambda entry: event_row_cost(entry[2])):
+            positions += [outcome.position or "" for outcome in self._append_chunk_sync(chunk)]
+        return positions
 
     def _append_outcomes_sync(
+        self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
+    ) -> list[AppendOutcome]:
+        """Append in commit-sized chunks, in order; each entry's outcome.
+
+        Each chunk is one transaction, written whole or not at all. When the
+        first chunk fails nothing is written and the error is raised. When a
+        later one fails, the chunks before it stay written and every entry
+        from the failed chunk on is ``failed``: sending them again is safe.
+        """
+        outcomes: list[AppendOutcome] = []
+        chunks = self._budget.chunks(entries, lambda entry: event_row_cost(entry[2]))
+        for number, chunk in enumerate(chunks):
+            try:
+                outcomes += self._append_chunk_sync(chunk)
+            except Exception as exc:
+                if number == 0:
+                    raise
+                log.warning("append_chunk_failed", written=len(outcomes), error=str(exc))
+                error = f"not written: {exc}"
+                return outcomes + [AppendOutcome("failed", error=error)] * (
+                    len(entries) - len(outcomes)
+                )
+        return outcomes
+
+    def _append_chunk_sync(
         self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
     ) -> list[AppendOutcome]:
         """Append in one transaction; each entry's outcome (created or duplicate)."""
@@ -345,7 +378,7 @@ class SpannerEventLog:
         events: list[Event],
         payloads: list[dict[str, Any] | None] | None = None,
     ) -> list[AppendOutcome]:
-        """One transaction: the batch is written whole, or the error is raised."""
+        """Commit-sized transactions, in order (see ``_append_outcomes_sync``)."""
         if not events:
             return []
         entries = [
@@ -363,7 +396,13 @@ class SpannerEventLog:
     # -- migration (ADR-0019 §7, design brief phase 3) ------------------------
 
     async def append_imported(self, events: list[ImportedEvent]) -> list[str]:
-        """Import copied events in one transaction; ``batch_index`` keeps their order."""
+        """Import copied events in order, in commit-sized transactions.
+
+        ``batch_index`` keeps their order within a transaction and commit
+        timestamps across them. A failed chunk raises; the chunks before it
+        stay written, which the mirror's checkpoint (``last_legacy_position``)
+        picks up from.
+        """
         if not events:
             return []
         entries = []
@@ -629,6 +668,48 @@ class SpannerEventLog:
         counts: list[int] = await self._run(self._database.run_in_transaction, work)
         return counts
 
+    async def _update_in_batches(
+        self, change: str, where: str, params: dict[str, Any], types: dict[str, Any]
+    ) -> int:
+        """Apply ``change`` (DML on ``Events e``) to the rows matching ``where``, a batch at a time.
+
+        Each transaction selects up to ``CG_SPANNER_RETENTION_BATCH_ROWS``
+        matching ids, then changes those rows, checking ``where`` again, so a
+        retention pass over a large ledger never exceeds a commit's limits.
+        ``change`` must take each row out of ``where``, or the loop would not
+        end. (The ids are read first because the emulator refuses DML whose
+        subquery reads ``Events`` itself.)
+        """
+        from google.cloud.spanner_v1 import param_types
+
+        select = f"SELECT e.event_id FROM Events e WHERE {where} LIMIT @rows"
+        update = f"{change} WHERE e.event_id IN UNNEST(@ids) AND {where}"
+        select_params = {**params, "rows": self._retention_rows}
+        select_types = {**types, "rows": param_types.INT64}
+        update_types = {**types, "ids": param_types.Array(param_types.STRING)}
+
+        def work(transaction: Any) -> tuple[int, int]:
+            ids = [
+                row[0]
+                for row in transaction.execute_sql(
+                    select, params=select_params, param_types=select_types
+                )
+            ]
+            if not ids:
+                return 0, 0
+            changed: int = transaction.execute_update(
+                update, params={**params, "ids": ids}, param_types=update_types
+            )
+            return len(ids), changed
+
+        total = 0
+        while True:
+            batch: tuple[int, int] = await self._run(self._database.run_in_transaction, work)
+            selected, changed = batch
+            total += changed
+            if selected < self._retention_rows:
+                return total
+
     async def trim(self, max_age_days: int, consumer_groups: list[str]) -> int:
         from google.cloud.spanner_v1 import param_types
 
@@ -636,9 +717,8 @@ class SpannerEventLog:
         # too: a skewed application host must not trim fresh entries.
         # An entry is still needed by a group while it is pending for it or
         # lies after the group's cursor in its shard (not yet delivered).
-        sql = (
-            "UPDATE Events e SET in_log = FALSE "
-            "WHERE e.in_log "
+        where = (
+            "e.in_log "
             "AND e.commit_ts < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY) "
             "AND NOT EXISTS (SELECT 1 FROM ConsumerDeliveries d "
             "  WHERE d.group_name IN UNNEST(@groups) AND d.event_id = e.event_id) "
@@ -648,17 +728,11 @@ class SpannerEventLog:
             "  AND (e.batch_index > c.batch_index OR (e.batch_index = c.batch_index "
             "  AND e.event_id > c.event_id)))))"
         )
-        (trimmed,) = await self._execute_updates(
-            [
-                (
-                    sql,
-                    {"days": max_age_days, "groups": list(consumer_groups)},
-                    {
-                        "days": param_types.INT64,
-                        "groups": param_types.Array(param_types.STRING),
-                    },
-                )
-            ]
+        trimmed = await self._update_in_batches(
+            "UPDATE Events e SET in_log = FALSE",
+            where,
+            {"days": max_age_days, "groups": list(consumer_groups)},
+            {"days": param_types.INT64, "groups": param_types.Array(param_types.STRING)},
         )
         await self._purge()
         return trimmed
@@ -668,43 +742,51 @@ class SpannerEventLog:
         max_age_days: int,
         archive_store: ArchiveStore | None = None,
     ) -> tuple[int, int]:
+        """Archive (when given) and drop documents older than the cutoff, a batch at a time.
+
+        An archive failure stops the pass: documents not archived are kept.
+        """
         from google.cloud.spanner_v1 import param_types
 
         cutoff_ms = _epoch_ms(datetime.now(UTC) - timedelta(days=max_age_days))
-        rows = await self._query(
-            f"SELECT document, {POSITION_COLUMNS}, occurred_at_ms FROM Events "
-            "WHERE document IS NOT NULL AND occurred_at_ms < @cutoff",
-            {"cutoff": cutoff_ms},
-            {"cutoff": param_types.INT64},
-        )
-        if not rows:
-            return 0, 0
-        expired_ids = [eid for _doc, _ts, _batch, eid, _ms in rows]
-        archived = 0
-        if archive_store is not None:
-            documents = []
-            for doc, ts, batch, eid, occurred_ms in rows:
-                public = self._public(doc, ts, batch, eid)
-                public["occurred_at_epoch_ms"] = occurred_ms
-                documents.append(public)
-            partition_key = datetime.now(UTC).strftime("%Y/%m/%d")
-            try:
-                await archive_store.archive_events(documents, partition_key)
-            except Exception:
-                log.exception("archive_failed_skipping_delete", event_count=len(documents))
-                return 0, 0
-            archived = len(documents)
-        (deleted,) = await self._execute_updates(
-            [
-                (
-                    "UPDATE Events SET document = NULL "
-                    "WHERE event_id IN UNNEST(@ids) AND document IS NOT NULL",
-                    {"ids": expired_ids},
-                    {"ids": param_types.Array(param_types.STRING)},
-                )
-            ]
-        )
-        await self._purge()
+        partition_key = datetime.now(UTC).strftime("%Y/%m/%d")
+        archived = deleted = 0
+        while True:
+            rows = await self._query(
+                f"SELECT document, {POSITION_COLUMNS}, occurred_at_ms FROM Events "
+                "WHERE document IS NOT NULL AND occurred_at_ms < @cutoff LIMIT @rows",
+                {"cutoff": cutoff_ms, "rows": self._retention_rows},
+                {"cutoff": param_types.INT64, "rows": param_types.INT64},
+            )
+            if not rows:
+                break
+            if archive_store is not None:
+                documents = []
+                for doc, ts, batch, eid, occurred_ms in rows:
+                    public = self._public(doc, ts, batch, eid)
+                    public["occurred_at_epoch_ms"] = occurred_ms
+                    documents.append(public)
+                try:
+                    await archive_store.archive_events(documents, partition_key)
+                except Exception:
+                    log.exception("archive_failed_skipping_delete", event_count=len(documents))
+                    break
+                archived += len(documents)
+            (changed,) = await self._execute_updates(
+                [
+                    (
+                        "UPDATE Events SET document = NULL "
+                        "WHERE event_id IN UNNEST(@ids) AND document IS NOT NULL",
+                        {"ids": [eid for _doc, _ts, _batch, eid, _ms in rows]},
+                        {"ids": param_types.Array(param_types.STRING)},
+                    )
+                ]
+            )
+            deleted += changed
+            if len(rows) < self._retention_rows:
+                break
+        if deleted:
+            await self._purge()
         return archived, deleted
 
     async def housekeep(
@@ -722,22 +804,19 @@ class SpannerEventLog:
             {"hours": param_types.INT64},
         )
         session_ids = [row[0] for row in stale_sessions]
-        dedup_removed, _ = await self._execute_updates(
-            [
-                (
-                    "UPDATE Events SET dedup_active = FALSE "
-                    "WHERE dedup_active AND occurred_at_ms <= @cutoff",
-                    {"cutoff": dedup_cutoff_ms},
-                    {"cutoff": param_types.INT64},
-                ),
-                (
-                    "UPDATE Events SET in_session_index = FALSE "
-                    "WHERE in_session_index AND session_id IN UNNEST(@sessions)",
-                    {"sessions": session_ids},
-                    {"sessions": param_types.Array(param_types.STRING)},
-                ),
-            ]
+        dedup_removed = await self._update_in_batches(
+            "UPDATE Events e SET dedup_active = FALSE",
+            "e.dedup_active AND e.occurred_at_ms <= @cutoff",
+            {"cutoff": dedup_cutoff_ms},
+            {"cutoff": param_types.INT64},
         )
+        if session_ids:
+            await self._update_in_batches(
+                "UPDATE Events e SET in_session_index = FALSE",
+                "e.in_session_index AND e.session_id IN UNNEST(@sessions)",
+                {"sessions": session_ids},
+                {"sessions": param_types.Array(param_types.STRING)},
+            )
         await self._purge()
         return {
             "dedup_entries_removed": dedup_removed,
@@ -746,15 +825,11 @@ class SpannerEventLog:
 
     async def _purge(self) -> None:
         """Delete rows no structure needs any more (all four flags cleared)."""
-        await self._execute_updates(
-            [
-                (
-                    "DELETE FROM Events WHERE NOT in_log AND document IS NULL "
-                    "AND NOT dedup_active AND NOT in_session_index",
-                    {},
-                    {},
-                )
-            ]
+        await self._update_in_batches(
+            "DELETE FROM Events e",
+            "NOT e.in_log AND e.document IS NULL AND NOT e.dedup_active AND NOT e.in_session_index",
+            {},
+            {},
         )
 
     # -- test support -------------------------------------------------------

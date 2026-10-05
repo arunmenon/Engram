@@ -69,7 +69,9 @@ class EventStore(Protocol):
         duplicate is reported as such, and an event the backend could not
         write is reported ``failed`` without failing the others when the
         backend writes events independently (Redis). A backend that writes
-        the batch in one transaction (Spanner) fails or writes it whole.
+        in transactions (Spanner) writes each commit-sized part whole, in
+        order: when a later part fails, the events from it on are ``failed``,
+        and when the first fails, nothing is written and the error is raised.
         An event_id repeated within the batch is created once.
         """
         ...

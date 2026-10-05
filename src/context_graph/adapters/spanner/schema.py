@@ -23,6 +23,7 @@ Source: ADR-0019, docs/research/2026-10/ontology/spanner-design-brief.md
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -136,11 +137,86 @@ def schema_statements(embedding_dimensions: int) -> list[str]:
     ]
 
 
+class SchemaMismatchError(RuntimeError):
+    """The Spanner database is missing, or lacks tables, columns or indexes the code needs."""
+
+
+def expected_schema(embedding_dimensions: int) -> dict[str, set[str]]:
+    """What ``schema_statements`` creates, by kind: ``table:<name>`` -> its columns,
+    ``indexes`` -> index names, ``graphs`` -> property graph names."""
+    expected: dict[str, set[str]] = {"indexes": set(), "graphs": set()}
+    for statement in schema_statements(embedding_dimensions):
+        if table := re.match(r"CREATE TABLE (\w+) \((.*)\) PRIMARY KEY", statement, re.S):
+            columns = {
+                match.group(1)
+                for line in table.group(2).splitlines()
+                if (match := re.match(r"\s*(\w+) [A-Z]", line))
+            }
+            expected[f"table:{table.group(1)}"] = columns
+        elif index := re.match(r"CREATE (?:SEARCH |VECTOR )?INDEX (\w+)", statement):
+            expected["indexes"].add(index.group(1))
+        elif graph := re.match(r"CREATE PROPERTY GRAPH (\w+)", statement):
+            expected["graphs"].add(graph.group(1))
+    return expected
+
+
+def schema_differences(database: Any, embedding_dimensions: int) -> list[str]:
+    """What the database lacks of the schema the code expects (empty when it matches).
+
+    Extra tables, columns and indexes are allowed: a database may be ahead
+    of this code. There is no ``ALTER`` path yet, so a database created by
+    an older schema is reported here instead of failing on first use.
+    """
+    expected = expected_schema(embedding_dimensions)
+    with database.snapshot(multi_use=True) as snapshot:
+        columns = list(
+            snapshot.execute_sql(
+                "SELECT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
+                "WHERE TABLE_SCHEMA = ''"
+            )
+        )
+        indexes = list(
+            snapshot.execute_sql(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE TABLE_SCHEMA = ''"
+            )
+        )
+        graphs = list(
+            snapshot.execute_sql(
+                "SELECT PROPERTY_GRAPH_NAME FROM INFORMATION_SCHEMA.PROPERTY_GRAPHS"
+            )
+        )
+    actual: dict[str, set[str]] = {}
+    for table, column in columns:
+        actual.setdefault(f"table:{table}", set()).add(column)
+    differences = []
+    for kind, names in sorted(expected.items()):
+        if kind.startswith("table:"):
+            table = kind.removeprefix("table:")
+            if kind not in actual:
+                differences.append(f"table {table} is missing")
+            elif missing := sorted(names - actual[kind]):
+                differences.append(f"table {table} lacks columns {', '.join(missing)}")
+    differences += [
+        f"index {name} is missing" for name in sorted(expected["indexes"] - {r[0] for r in indexes})
+    ]
+    differences += [
+        f"property graph {name} is missing"
+        for name in sorted(expected["graphs"] - {r[0] for r in graphs})
+    ]
+    return differences
+
+
 def open_database(settings: SpannerSettings) -> Any:
     """Return a ``google.cloud.spanner`` Database handle for the settings.
 
-    With ``create_if_missing`` the instance (emulator only) and the
-    database with the full schema are created when absent.
+    On the emulator, ``create_if_missing`` creates the instance and the
+    database with the full schema when absent. On a real instance the
+    database is provisioned deliberately: it is created only when
+    ``allow_create_on_instance`` is also set, and never the instance.
+
+    An existing database is checked against the schema the code expects
+    (``schema_differences``); a missing database or a mismatch raises
+    ``SchemaMismatchError`` instead of failing later on first use.
     """
     if settings.emulator_host:
         os.environ["SPANNER_EMULATOR_HOST"] = settings.emulator_host
@@ -154,9 +230,35 @@ def open_database(settings: SpannerSettings) -> Any:
         settings.database,
         ddl_statements=schema_statements(settings.embedding_dimensions),
     )
-    if settings.create_if_missing and not database.exists():
+    if not database.exists():
+        if not settings.create_if_missing:
+            msg = (
+                f"Spanner database {settings.database} does not exist on instance "
+                f"{settings.instance}: provision it, or set CG_SPANNER_CREATE_IF_MISSING"
+            )
+            raise SchemaMismatchError(msg)
+        if not settings.emulator_host and not settings.allow_create_on_instance:
+            msg = (
+                f"Spanner database {settings.database} does not exist on instance "
+                f"{settings.instance}. CG_SPANNER_CREATE_IF_MISSING creates databases on "
+                "the emulator only; to create one on a real instance, also set "
+                "CG_SPANNER_ALLOW_CREATE_ON_INSTANCE=true"
+            )
+            raise SchemaMismatchError(msg)
         database.create().result(timeout=300)
-        log.info("spanner_database_created", database=settings.database)
+        log.info(
+            "spanner_database_created",
+            database=settings.database,
+            emulator=bool(settings.emulator_host),
+        )
+        return database
+    if settings.check_schema and (
+        differences := schema_differences(database, settings.embedding_dimensions)
+    ):
+        msg = f"Spanner database {settings.database} does not match the schema: " + "; ".join(
+            differences
+        )
+        raise SchemaMismatchError(msg)
     return database
 
 

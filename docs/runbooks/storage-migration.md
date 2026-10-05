@@ -8,7 +8,7 @@ Commands below use `--to spanner`. The source is whatever `CG_STORAGE_*` names t
 
 - The target database is empty, or holds only events imported by an earlier run. The tool refuses (exit code 2) when the target holds events that were not imported, because copying then would place migrated events after newer ones.
 - Note the source's retention settings. Events whose document already expired are skipped and counted (`skipped_without_document`), never copied as empty.
-- No Spanner resources are created by this tool unless `CG_SPANNER_CREATE_IF_MISSING=true`, which is meant for the emulator.
+- No Spanner resources are created by this tool. `CG_SPANNER_CREATE_IF_MISSING=true` creates the database on the emulator only; on a real instance it also needs `CG_SPANNER_ALLOW_CREATE_ON_INSTANCE=true`, and the instance is always provisioned outside Engram. An existing database is checked against the expected schema when opened, and a mismatch stops start-up (`CG_SPANNER_CHECK_SCHEMA`).
 
 ## 1. Copy
 

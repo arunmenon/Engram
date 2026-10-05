@@ -88,7 +88,8 @@ src/context_graph/
             subscription.py   # Subscription
             graph.py          # Graph primitives for graph_ops
         spanner/              # Cloud Spanner backend for every port (CG_STORAGE_*=spanner, CG_SPANNER_*)
-            schema.py         # DDL: Events, consumer tables, GraphNodes/GraphEdges, property graph, indexes
+            schema.py         # DDL: Events, consumer tables, GraphNodes/GraphEdges, property graph, indexes; schema check on open
+            commits.py        # Commit budgets: writes split under Spanner's mutation and size limits
             log.py            # EventLog: commit-ts positions, sharded by session, full-text search
             subscription.py   # Consumer groups: per-shard cursors, deliveries, dead letters
             graph.py          # Graph primitives + GQL lineage and vector-index fast paths

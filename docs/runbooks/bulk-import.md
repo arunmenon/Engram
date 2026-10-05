@@ -36,7 +36,7 @@ Each line carries `index`, the event's position among the non-blank input lines,
 
 **Writes.** Events are appended `CG_INGEST_IMPORT_BATCH_SIZE` (500) at a time.
 - On Redis each event is written atomically on its own, so one failed write is `failed` without affecting the others.
-- On Spanner each chunk is one transaction, written whole or not at all.
+- On Spanner a chunk is split further into transactions that fit the commit budget (`CG_SPANNER_COMMIT_MAX_MUTATIONS`, `CG_SPANNER_COMMIT_MAX_BYTES`: half of Spanner's 80,000 mutations and 100 MiB). Each transaction is written whole or not at all, in order. If one fails after earlier ones were written, the earlier events are `created` and the rest `failed`.
 - If the store fails, every remaining event is `failed` and the import stops.
 
 **Resuming.** Imports are idempotent by `event_id`: send the same file again. Events already written come back `duplicate`, and the rest are written.
