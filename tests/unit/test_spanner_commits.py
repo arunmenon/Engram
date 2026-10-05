@@ -286,6 +286,18 @@ class TestSpannerOnEmulator:
                 "open",
             ]
 
+    async def test_payload_floats_round_trip(self):
+        from context_graph.adapters.spanner.log import SpannerEventLog
+
+        async with _database() as database:
+            log = SpannerEventLog(database)
+            event = make_event(session_id="s1")
+            payload = {"scores": TestJsonFloats.REFUSED, "weight": 0.25}
+            await log.append_batch([event], [payload])
+            (document,) = await log.get_documents([str(event.event_id)])
+            assert document is not None
+            assert document["payload"] == payload
+
     async def test_hub_node_delete_removes_edges_first(self):
         from context_graph.adapters.spanner.graph import SpannerGraphStore
 
@@ -302,3 +314,40 @@ class TestSpannerOnEmulator:
             assert await graph._edges(targets=[("Hub", "h")]) == []
             assert await graph._get_nodes([("Hub", "h")]) == {}
             assert len(await graph._get_nodes(spokes)) == 12
+
+
+class TestJsonFloats:
+    """Floats reach Spanner JSON as tagged strings (real Spanner refuses some numbers)."""
+
+    # Refused by a real instance on 2026-10-05 (docs/review/2026-10-05-spanner-trial-results.md)
+    REFUSED = [0.0928069675519494, 0.770496225183326, -0.707176497086, 5.81439691724e-05]
+
+    def test_floats_are_encoded_and_decoded_exactly(self):
+        pytest.importorskip("google.cloud.spanner")
+        import math
+
+        from context_graph.adapters.spanner.log import FLOAT_TAG, json_param, json_value
+
+        value = {
+            "scores": self.REFUSED,
+            "nested": {"x": 0.1, "inf": float("inf"), "nan": float("nan")},
+            "count": 3,
+            "whole": 2.0,
+            "text": "0.5",
+        }
+        cell = json_param(value)
+        assert f'"{FLOAT_TAG}"' in cell.serialize()
+        assert '"whole":2.0' in cell.serialize()  # integral floats stay numbers
+        decoded = json_value(cell)
+        assert decoded["scores"] == self.REFUSED
+        assert decoded["nested"]["x"] == 0.1
+        assert math.isinf(decoded["nested"]["inf"])
+        assert math.isnan(decoded["nested"]["nan"])
+        assert (decoded["count"], decoded["whole"], decoded["text"]) == (3, 2.0, "0.5")
+
+    def test_a_lookalike_dict_with_more_keys_is_kept(self):
+        pytest.importorskip("google.cloud.spanner")
+        from context_graph.adapters.spanner.log import json_param, json_value
+
+        value = {"$float": "1.5", "other": 1}
+        assert json_value(json_param(value)) == value

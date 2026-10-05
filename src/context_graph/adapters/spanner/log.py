@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import zlib
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -115,23 +116,56 @@ def event_id_of(position: str) -> str:
     return position.rsplit("/", 1)[-1]
 
 
+# Spanner JSON cells hold non-integral floats as {"$float": "<repr>"}.
+#
+# Real Spanner refuses some JSON numbers as "cannot round-trip through string
+# representation": about 1 in 1,000 ordinary decimals (-0.707176497086,
+# 0.0928069675519494), whatever the digit count or notation, while the
+# emulator accepts them all (trial of 2026-10-05,
+# docs/review/2026-10-05-spanner-trial-results.md). A refused number fails
+# the whole write: an event whose payload holds one, or a node with an
+# embedding in its properties. So floats never reach Spanner as JSON
+# numbers; integers, and floats with an integral value, do.
+FLOAT_TAG = "$float"
+_EXACT_INTEGER = 2**53
+
+
+def _encode_floats(value: Any) -> Any:
+    if isinstance(value, float):
+        if math.isfinite(value) and value.is_integer() and abs(value) <= _EXACT_INTEGER:
+            return value
+        return {FLOAT_TAG: repr(value)}
+    if isinstance(value, dict):
+        return {key: _encode_floats(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_encode_floats(item) for item in value]
+    return value
+
+
+def _decode_float(obj: dict[str, Any]) -> Any:
+    if len(obj) == 1 and isinstance(obj.get(FLOAT_TAG), str):
+        return float(obj[FLOAT_TAG])
+    return obj
+
+
 def json_value(value: Any) -> Any:
-    """Plain Python value from a Spanner JSON cell (JsonObject or str)."""
+    """Plain Python value from a Spanner JSON cell (JsonObject or str); floats decoded."""
     if value is None:
         return None
     serialize = getattr(value, "serialize", None)
     if serialize is not None:
         serialized = serialize()
-        return json.loads(serialized) if serialized is not None else None
+        return json.loads(serialized, object_hook=_decode_float) if serialized is not None else None
     if isinstance(value, str):
-        return json.loads(value)
+        return json.loads(value, object_hook=_decode_float)
     return value
 
 
 def json_param(value: Any) -> Any:
+    """A JSON cell for ``value``, floats encoded (see ``FLOAT_TAG``)."""
     from google.cloud.spanner_v1.data_types import JsonObject
 
-    return JsonObject(value)
+    return JsonObject(_encode_floats(value))
 
 
 def _tag(value: Any) -> str | None:

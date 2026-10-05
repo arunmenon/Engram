@@ -92,11 +92,16 @@ class SpannerGraphReads(GraphOperationReads):
         if hop_limit < 1:
             return []
         # One row per path: the node ids along it, start to ancestor.
+        # Labels are matched on the key columns, not as `:Event` / `:CAUSED_BY`:
+        # on a real instance a dynamic-label filter matched nothing while
+        # LABELS() listed the label (trial of 2026-10-05); the emulator
+        # matched both ways.
         rows = await self._store._query(
             "GRAPH EngramGraph "
             # The bound is an int we computed, so inlining it is safe.
-            f"MATCH p = TRAIL (start:Event)-[e:CAUSED_BY]->{{1,{int(hop_limit)}}}(ancestor) "
-            "WHERE start.node_id = @node_id "
+            "MATCH p = TRAIL (start)-[e WHERE e.edge_type = 'CAUSED_BY']->"
+            f"{{1,{int(hop_limit)}}}(ancestor) "
+            "WHERE start.label = 'Event' AND start.node_id = @node_id "
             "RETURN ARRAY(SELECT n.node_id FROM UNNEST(NODES(p)) AS n WITH OFFSET o "
             "ORDER BY o) AS ids "
             "LIMIT @limit",

@@ -397,3 +397,16 @@ From the maturity review (`docs/review/2026-10-05-maturity-review-guide.md`, ite
 **Tests:** `tests/unit/test_spanner_commits.py`. Unit tests cover budget arithmetic, the expected schema and the creation refusal with a mocked client. Emulator tests use tiny budgets so that every path has to split: ordered appends with a duplicate across transactions, a failed later transaction, retention in batches of two, per-key order in node writes, a run larger than estimated, transitions split by node, and a hub node delete.
 
 **Not covered:** key size limits (8 KiB) are not checked, so an oversized key fails its transaction (and, in projection, dead-letters its event). The estimates have not been compared with Spanner's commit statistics; that is part of the real-instance trial.
+
+## First real-instance trial (2026-10-05)
+
+Results: `docs/review/2026-10-05-spanner-trial-results.md`; script: `scripts/engram_trial.py`.
+
+- **What held.**
+  - The schema applies, Enterprise features included.
+  - Two consumer groups each got all 2,070 events from 8 concurrent producers, with nothing missing, duplicated or out of session order.
+  - Spanner counted 28 mutations per Events row against our estimate of 33.
+- **What a real instance showed that the emulator does not:**
+  - **Some JSON numbers are refused.** About 1 in 1,000 ordinary floats fails as "cannot round-trip". JSON cells now carry non-integral floats as `{"$float": "<repr>"}`, encoded by `json_param` and decoded by `json_value`.
+  - **Dynamic-label filters match nothing in GQL.** The lineage query now filters on the `label` and `edge_type` key columns.
+- **Latency.** Each call took about 0.65 s or more from the trial client, including reads that found nothing. That bounds throughput more than Spanner capacity did, and needs a same-region client to measure properly.
