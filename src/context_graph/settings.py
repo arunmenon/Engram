@@ -34,6 +34,8 @@ class RedisSettings(BaseSettings):
     # Stream keys
     global_stream: str = "events:__global__"
     dedup_set: str = "dedup:events"
+    # Entries read per step when a session stream is read backwards
+    session_scan_count: int = 200
 
     # Consumer group names (ADR-0013)
     group_projection: str = "graph-projection"
@@ -480,6 +482,11 @@ class ConsumerSettings(BaseSettings):
     # doubling wait stops at
     transient_backoff_ms: int = 200
     transient_backoff_max_ms: int = 10_000
+
+    # Projection worker: events per flush (also the number read per poll, so
+    # one read fills one flush), and the longest a partial flush waits
+    projection_batch_size: int = 50
+    projection_batch_timeout_ms: int = 100
 
     # H5: DLQ stream suffix — appended to the source stream key
     dlq_stream_suffix: str = ":dlq"

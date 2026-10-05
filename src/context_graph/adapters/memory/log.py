@@ -239,6 +239,13 @@ class MemoryEventLog:
     async def read_session_ids(self, session_id: str) -> list[str]:
         return [event_id for _pos, event_id, _ms in self._sessions.get(session_id, [])]
 
+    async def previous_in_session(self, session_id: str, event_id: str) -> str | None:
+        ids = await self.read_session_ids(session_id)
+        if event_id not in ids:
+            return None
+        index = ids.index(event_id)
+        return ids[index - 1] if index > 0 else None
+
     def _sorted_documents(self, documents: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return sorted(
             documents,

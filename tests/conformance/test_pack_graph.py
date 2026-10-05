@@ -248,6 +248,39 @@ class TestFindLatest:
         )
 
 
+class TestFindNodesMatching:
+    """Many lookups of one type in one call, as a projection flush makes them (review 3.1)."""
+
+    async def test_each_condition_answers_like_find_nodes(self, graph: GraphBackend) -> None:
+        refs = {
+            name: NodeRef("Deployment", f"Deployment:{name}") for name in ("c", "a", "b", "other")
+        }
+        await graph.upsert_nodes(
+            [
+                NodeWrite(refs["c"], {"repo": "acme/app", "artifact_id": "s1"}),
+                NodeWrite(refs["a"], {"repo": "acme/app", "artifact_id": "s1"}),
+                NodeWrite(refs["b"], {"repo": "acme/app", "artifact_id": "s2"}),
+                NodeWrite(refs["other"], {"repo": "acme/other", "artifact_id": "s1"}),
+            ]
+        )
+        conditions = [
+            {"repo": "acme/app", "artifact_id": "s1"},
+            {"repo": "acme/app", "artifact_id": "none"},
+            {"repo": "acme/app", "artifact_id": "s2"},
+        ]
+        answers = await graph.find_nodes_matching("Deployment", conditions, 10)
+        assert [[n["node_id"] for n in answer] for answer in answers] == [
+            ["Deployment:a", "Deployment:c"],
+            [],
+            ["Deployment:b"],
+        ]
+        for condition, answer in zip(conditions, answers, strict=True):
+            assert answer == await graph.find_nodes("Deployment", condition, 10)
+        limited = await graph.find_nodes_matching("Deployment", conditions[:1], 1)
+        assert [n["node_id"] for n in limited[0]] == ["Deployment:a"]
+        assert await graph.find_nodes_matching("Deployment", [], 10) == []
+
+
 class TestCreateOnlyEdges:
     """Phase 3 review: a proposal never changes an existing link (ADR-0018 notes)."""
 

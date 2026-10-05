@@ -22,10 +22,10 @@ from context_graph.metrics import CONSUMER_MESSAGE_ERRORS
 from context_graph.ports.errors import is_transient
 from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
-from context_graph.worker.pack_projection import apply_plan
+from context_graph.worker.pack_projection import apply_plan, apply_plans
 
 if TYPE_CHECKING:
-    from context_graph.domain.pack_projection import PackProjector
+    from context_graph.domain.pack_projection import PackProjector, ProjectionPlan
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
     from context_graph.ports.subscription import Subscription
@@ -49,8 +49,6 @@ class ProjectionConsumer(BaseConsumer):
     """
 
     _MAX_SESSION_CACHE = 10_000
-    _BATCH_SIZE = 50
-    _BATCH_TIMEOUT_MS = 100
 
     @property
     def deferred_ack(self) -> bool:  # noqa: D102
@@ -67,17 +65,20 @@ class ProjectionConsumer(BaseConsumer):
     ) -> None:
         super().__init__(
             subscription,
+            batch_size=settings.consumer.projection_batch_size,
             block_timeout_ms=settings.consumer.block_timeout_ms,
             max_retries=settings.consumer.max_retries,
             transient_backoff_ms=settings.consumer.transient_backoff_ms,
             transient_backoff_max_ms=settings.consumer.transient_backoff_max_ms,
         )
+        # Events per flush, and the longest a partial flush waits
+        # (CG_CONSUMER_PROJECTION_BATCH_SIZE / _BATCH_TIMEOUT_MS)
+        self._BATCH_SIZE = settings.consumer.projection_batch_size
+        self._BATCH_TIMEOUT_MS = settings.consumer.projection_batch_timeout_ms
         self._event_log = event_log
         self._graph_store = graph_store
         self._pack_projector = pack_projector
         self._pack_lookup_limit = pack_lookup_limit
-        # Documents fetched for the batch being flushed, by event id
-        self._documents: dict[str, dict[str, Any]] = {}
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
         self._last_flush_time: float = time.monotonic()
@@ -117,13 +118,14 @@ class ProjectionConsumer(BaseConsumer):
         all_edges = []
         pack_events: list[tuple[str, dict[str, str], Event, dict[str, Any]]] = []
 
+        fetched = await self._fetch_batch(batch)
         for entry_id, data in batch:
-            event = await self._fetch_event(entry_id, data)
-            if event is None:
+            loaded = fetched.get(entry_id)
+            if loaded is None:
                 continue
-            document = self._documents.pop(str(event.event_id), None)
+            event, document = loaded
             if self._pack_projector is not None and self._pack_projector.handles(event.event_type):
-                pack_events.append((entry_id, data, event, document or {}))
+                pack_events.append((entry_id, data, event, document))
 
             # Look up previous event in this session for FOLLOWS edge
             prev_event = await self._previous_event(event)
@@ -173,38 +175,74 @@ class ProjectionConsumer(BaseConsumer):
             )
 
         # Ontology pack rules (ADR-0018), in log order, after the Event nodes exist.
-        # An unavailable backend is retried in place; an event whose rules fail
-        # otherwise (a bad value, a refused write) is dead-lettered on its own,
-        # and the batch goes on.
-        if self._pack_projector is not None:
-            for entry_id, data, event, document in pack_events:
-                try:
-                    plan = self._pack_projector.plan(event, document)
-                    await self._retry_transient(
-                        partial(
-                            apply_plan,
-                            self._graph_store,  # type: ignore[arg-type]
-                            plan,
-                            self._pack_lookup_limit,
-                        ),
-                        "apply_pack_plan",
-                    )
-                except Exception as exc:
-                    if is_transient(exc):
-                        raise  # stopping mid-outage: the batch stays pending
-                    CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
-                    log.exception(
-                        "pack_projection_failed",
-                        event_id=str(event.event_id),
-                        event_type=event.event_type,
-                        entry_id=entry_id,
-                    )
-                    await self._dead_letter_message(entry_id, data, 1)
+        if self._pack_projector is not None and pack_events:
+            await self._apply_pack_rules(pack_events)
 
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]
         if entry_ids:
             await self._ack(*entry_ids)
+
+    async def _apply_pack_rules(
+        self, pack_events: list[tuple[str, dict[str, str], Event, dict[str, Any]]]
+    ) -> None:
+        """Plan each event's pack rules, then write the whole flush in four staged calls.
+
+        An event whose rules cannot be planned (a bad value) is dead-lettered
+        on its own. An unavailable backend is retried in place. When the
+        staged write fails for another reason, the events are written one at
+        a time, so only the event that fails is dead-lettered and the batch
+        goes on.
+        """
+        assert self._pack_projector is not None
+        planned: list[tuple[str, dict[str, str], Event, ProjectionPlan]] = []
+        for entry_id, data, event, document in pack_events:
+            try:
+                planned.append((entry_id, data, event, self._pack_projector.plan(event, document)))
+            except Exception:
+                await self._pack_failed(entry_id, data, event)
+        if not planned:
+            return
+        try:
+            await self._retry_transient(
+                partial(
+                    apply_plans,
+                    self._graph_store,  # type: ignore[arg-type]
+                    [plan for *_ids, plan in planned],
+                    self._pack_lookup_limit,
+                ),
+                "apply_pack_plans",
+            )
+            return
+        except Exception as exc:
+            if is_transient(exc):
+                raise  # stopping mid-outage: the batch stays pending
+            log.warning("pack_batch_failed_retrying_per_event", events=len(planned), error=str(exc))
+        for entry_id, data, event, plan in planned:
+            try:
+                await self._retry_transient(
+                    partial(
+                        apply_plan,
+                        self._graph_store,  # type: ignore[arg-type]
+                        plan,
+                        self._pack_lookup_limit,
+                    ),
+                    "apply_pack_plan",
+                )
+            except Exception as exc:
+                if is_transient(exc):
+                    raise
+                await self._pack_failed(entry_id, data, event)
+
+    async def _pack_failed(self, entry_id: str, data: dict[str, str], event: Event) -> None:
+        CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
+        log.exception(
+            "pack_projection_failed",
+            event_id=str(event.event_id),
+            event_type=event.event_type,
+            entry_id=entry_id,
+        )
+        await self._dead_letter_message(entry_id, data, 1)
 
     async def _previous_event(self, event: Event) -> Event | None:
         """The event this one FOLLOWS, or None.
@@ -219,16 +257,14 @@ class ProjectionConsumer(BaseConsumer):
         if cached is not None:
             return cached
         event_id = str(event.event_id)
-        session_ids = await self._retry_transient(
-            lambda: self._event_log.read_session_ids(event.session_id), "read_session_ids"
+        previous_id = await self._retry_transient(
+            partial(self._event_log.previous_in_session, event.session_id, event_id),
+            "previous_in_session",
         )
-        if event_id not in session_ids:
-            return None
-        index = session_ids.index(event_id)
-        if index == 0:
+        if previous_id is None:
             return None
         (document,) = await self._retry_transient(
-            lambda: self._event_log.get_documents([session_ids[index - 1]]), "get_documents"
+            partial(self._event_log.get_documents, [previous_id]), "get_documents"
         )
         if document is None:
             return None
@@ -249,42 +285,29 @@ class ProjectionConsumer(BaseConsumer):
             log.info("flushing_buffer_on_stop", buffered=len(self._buffer))
             await self._flush_buffer()
 
-    async def _fetch_event(self, entry_id: str, data: dict[str, str]) -> Event | None:
-        """Fetch and deserialize a single event from the event log.
-
-        Keeps the stored document (with the payload) for the pack rules.
-        """
-        fetched = await self._fetch(entry_id, data)
-        if fetched is None:
-            return None
-        event, document = fetched
-        self._documents[str(event.event_id)] = document
-        return event
-
-    async def _fetch(
-        self, entry_id: str, data: dict[str, str]
-    ) -> tuple[Event, dict[str, Any]] | None:
-        """Fetch an event and its stored document (payload included)."""
-        event_id = data.get("event_id")
-        if event_id is None:
-            log.warning("stream_entry_missing_event_id", entry_id=entry_id)
-            return None
-
+    async def _fetch_batch(
+        self, batch: list[tuple[str, dict[str, str]]]
+    ) -> dict[str, tuple[Event, dict[str, Any]]]:
+        """The events of a flush and their stored documents (payload included), in one read."""
+        wanted = [(entry_id, data.get("event_id")) for entry_id, data in batch]
+        for entry_id, event_id in wanted:
+            if event_id is None:
+                log.warning("stream_entry_missing_event_id", entry_id=entry_id)
+        ids = [event_id for _entry, event_id in wanted if event_id is not None]
         documents = await self._retry_transient(
-            lambda: self._event_log.get_documents([event_id]), "get_documents"
+            partial(self._event_log.get_documents, ids), "get_documents"
         )
-        doc = documents[0]
-        if doc is None:
-            log.warning(
-                "event_json_not_found",
-                event_id=event_id,
-                entry_id=entry_id,
-            )
-            return None
-
-        event = Event.model_validate(doc, strict=False)
-
-        if event.global_position is None:
-            event = event.model_copy(update={"global_position": entry_id})
-
-        return event, doc
+        by_id = dict(zip(ids, documents, strict=True))
+        fetched: dict[str, tuple[Event, dict[str, Any]]] = {}
+        for entry_id, event_id in wanted:
+            if event_id is None:
+                continue
+            doc = by_id.get(event_id)
+            if doc is None:
+                log.warning("event_json_not_found", event_id=event_id, entry_id=entry_id)
+                continue
+            event = Event.model_validate(doc, strict=False)
+            if event.global_position is None:
+                event = event.model_copy(update={"global_position": entry_id})
+            fetched[entry_id] = (event, doc)
+        return fetched

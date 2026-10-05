@@ -550,3 +550,60 @@ class TestReviewFindings:
             {"repo": "acme/app", "number": 8, "body": "", "files": ["src/a.py"]},
         )
         assert set(h.edges("TOUCHES")) == {("Change:acme/app|8", "Component:src")}
+
+
+class TestStagedFlush:
+    """A flush's plans are written in four staged calls, with the same result (review 3.1)."""
+
+    @staticmethod
+    def _events(items: list[tuple[str, dict[str, Any]]]) -> list[tuple[Event, dict[str, Any]]]:
+        events = []
+        for minute, (event_type, payload) in enumerate(items, start=1):
+            event = Event(
+                event_id=uuid4(),
+                event_type=event_type,
+                occurred_at=START + timedelta(minutes=minute),
+                session_id="pdlc:acme/app",
+                agent_id="webhook:github",
+                trace_id="trace",
+                payload_ref="payload",
+                global_position=f"{minute}-0",
+            )
+            events.append((event, orjson.loads(event.model_dump_json()) | {"payload": payload}))
+        return events
+
+    @staticmethod
+    async def _plans(h: Harness, events: list[tuple[Event, dict[str, Any]]]) -> list[Any]:
+        for event, _document in events:
+            await h.graph.merge_event_node(event_to_node(event))
+        return [h.projector.plan(event, document) for event, document in events]
+
+    async def test_transitions_apply_in_log_order(self) -> None:
+        from context_graph.worker.pack_projection import apply_plans
+
+        change = {"repo": "acme/app", "number": 7, "title": "Fix"}
+        items = [
+            ("pdlc.change.created", change),
+            ("pdlc.change.merged", {**change, "merge_sha": "sha7"}),
+            ("pdlc.change.abandoned", change),  # only_from [open, reviewed]: refused
+            (
+                "pdlc.service.deployed",
+                {
+                    "service": "acme/app",
+                    "environment": "prod",
+                    "repo": "acme/app",
+                    "artifact_id": "sha7",
+                    "change_numbers": [],
+                },
+            ),
+        ]
+        events = self._events(items)
+        staged, single = Harness(), Harness()
+        await apply_plans(staged.graph, await self._plans(staged, events), 1000)
+        for plan in await self._plans(single, events):
+            await apply_plan(single.graph, plan, 1000)
+
+        assert staged.node(CHANGE)["status"] == "merged"
+        assert staged.graph.nodes == single.graph.nodes
+        assert staged.graph.edges == single.graph.edges
+        assert len(staged.edges("DEPLOYS")) == 1

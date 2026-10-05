@@ -74,6 +74,14 @@ class EventLog(EventStore, Protocol):
         """Return the ids of a session's events in log order."""
         ...
 
+    async def previous_in_session(self, session_id: str, event_id: str) -> str | None:
+        """The id of the event just before ``event_id`` in its session's log order.
+
+        None when it is the session's first event, or not in the session.
+        Answers without reading the whole session where the backend can.
+        """
+        ...
+
     async def trim(self, max_age_days: int, consumer_groups: list[str]) -> int:
         """Drop hot-tier log entries older than ``max_age_days``.
 

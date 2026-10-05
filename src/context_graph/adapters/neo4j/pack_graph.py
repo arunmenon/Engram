@@ -208,6 +208,32 @@ class Neo4jPackGraph:
         )
         return [row["props"] for row in rows]
 
+    async def find_nodes_matching(
+        self, label: str, conditions: list[dict[str, Any]], limit: int
+    ) -> list[list[dict[str, Any]]]:
+        if not conditions:
+            return []
+        fields = sorted(conditions[0])
+        where = " AND ".join(f"n.{_property(k)} = c.values.{k}" for k in fields) or "true"
+        key = _property(LABEL_KEYS.get(label, "node_id"))
+        rows = await self._pack_read(
+            f"UNWIND $conditions AS c MATCH (n:{_label(label)}) WHERE {where} "
+            f"WITH c, n ORDER BY toString(n.{key}) "
+            "WITH c.index AS index, collect(properties(n))[..$limit] AS props "
+            "RETURN index, props",
+            {
+                "conditions": [
+                    {"index": i, "values": {k: _value(v) for k, v in condition.items()}}
+                    for i, condition in enumerate(conditions)
+                ],
+                "limit": limit,
+            },
+        )
+        answers: list[list[dict[str, Any]]] = [[] for _ in conditions]
+        for row in rows:
+            answers[row["index"]] = list(row["props"])
+        return answers
+
     async def find_latest(
         self, label: str, equals: dict[str, Any], order_by: str, not_after: str | None
     ) -> dict[str, Any] | None:

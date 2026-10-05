@@ -71,7 +71,7 @@ Re-importing history older than the retention window writes it again.
 
 ## After the import
 
-The projection worker reads the imported events like any others: watch its lag (`CONSUMER_LAG`) until it reaches zero. For a new ontology pack, run its evaluation set once the history is projected:
+The projection worker reads the imported events like any others: watch its lag (`CONSUMER_LAG`) until it reaches zero. It reads and writes a flush of `CG_CONSUMER_PROJECTION_BATCH_SIZE` events (50) at a time, in a few calls per flush. For a large backfill, a larger flush (200 to 500) means fewer round trips, at the cost of more events retried together if a flush fails. For a new ontology pack, run its evaluation set once the history is projected:
 
 ```
 python -m context_graph.ontology evaluate --record

@@ -117,8 +117,8 @@ class TestMicroBatching:
         consumer._BATCH_SIZE = 3
         consumer._BATCH_TIMEOUT_MS = 10_000  # high timeout so only size triggers
 
-        # Mock _fetch_event to return None (skip actual processing but test buffering)
-        with patch.object(consumer, "_fetch_event", new_callable=AsyncMock, return_value=None):
+        # Mock _fetch_batch to find nothing (skip actual processing but test buffering)
+        with patch.object(consumer, "_fetch_batch", new_callable=AsyncMock, return_value={}):
             for i in range(3):
                 await consumer.process_message(f"entry-{i}", {"event_id": f"evt-{i}"})
 
@@ -134,7 +134,7 @@ class TestMicroBatching:
         consumer._BATCH_SIZE = 100  # high size so only timeout triggers
         consumer._BATCH_TIMEOUT_MS = 0  # immediate timeout
 
-        with patch.object(consumer, "_fetch_event", new_callable=AsyncMock, return_value=None):
+        with patch.object(consumer, "_fetch_batch", new_callable=AsyncMock, return_value={}):
             # Set last flush time in the past
             consumer._last_flush_time = 0.0
             await consumer.process_message("entry-0", {"event_id": "evt-0"})
@@ -159,10 +159,16 @@ class TestMicroBatching:
         mock_event.global_position = "100-0"
 
         fetch_patch = patch.object(
-            consumer, "_fetch_event", new_callable=AsyncMock, return_value=mock_event
+            consumer,
+            "_fetch_batch",
+            new_callable=AsyncMock,
+            return_value={"entry-0": (mock_event, {})},
         )
         project_patch = patch("context_graph.worker.projection.project_event")
-        with fetch_patch, project_patch as mock_project:
+        previous_patch = patch.object(
+            consumer, "_previous_event", new_callable=AsyncMock, return_value=None
+        )
+        with fetch_patch, previous_patch, project_patch as mock_project:
             mock_result = MagicMock()
             mock_result.node = MagicMock()
             mock_result.edges = []

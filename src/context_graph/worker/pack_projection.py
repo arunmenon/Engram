@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import orjson
 import structlog
 
 from context_graph.domain.pack_projection import LATEST_FALLBACK
@@ -60,28 +61,63 @@ def _latest(nodes: list[dict[str, Any]], lookup: EdgeLookup) -> list[dict[str, A
 async def resolve_lookups(
     graph: PackGraph, lookups: list[EdgeLookup], limit: int
 ) -> list[EdgeWrite]:
+    """Edges to the nodes each lookup finds.
+
+    Identical lookups (same type, values, ordering and cutoff) are read
+    once: a flush of changes in one repository asks for that repository's
+    components once, not once per change.
+    """
     edges: list[EdgeWrite] = []
+    latest_cache: dict[str, dict[str, Any] | None] = {}
+    found_cache = await _prefetch(graph, lookups, limit)
     for lookup in lookups:
         if lookup.latest and lookup.prefix_field is None:
             # The backend orders and limits: right however many nodes match
-            node = await graph.find_latest(
-                lookup.label, lookup.equals, lookup.order_by or LATEST_FALLBACK, lookup.not_after
-            )
+            order_by = lookup.order_by or LATEST_FALLBACK
+            key = _cache_key(lookup.label, lookup.equals, order_by, lookup.not_after)
+            if key not in latest_cache:
+                latest_cache[key] = await graph.find_latest(
+                    lookup.label, lookup.equals, order_by, lookup.not_after
+                )
+            node = latest_cache[key]
             edges.extend(_edges(lookup, [node] if node is not None else []))
             continue
-        found = await graph.find_nodes(lookup.label, lookup.equals, limit)
-        if len(found) >= limit:
-            log.warning(
-                "pack_lookup_limit_reached",
-                label=lookup.label,
-                edge_type=lookup.edge_type,
-                limit=limit,
-            )
-        matched = [node for node in found if _matches_prefix(node, lookup)]
+        key = _cache_key(lookup.label, lookup.equals, limit)
+        if key not in found_cache:
+            found_cache[key] = await graph.find_nodes(lookup.label, lookup.equals, limit)
+            if len(found_cache[key]) >= limit:
+                log.warning(
+                    "pack_lookup_limit_reached",
+                    label=lookup.label,
+                    edge_type=lookup.edge_type,
+                    limit=limit,
+                )
+        matched = [node for node in found_cache[key] if _matches_prefix(node, lookup)]
         if lookup.latest:
             matched = _latest(matched, lookup)
         edges.extend(_edges(lookup, matched))
     return edges
+
+
+async def _prefetch(
+    graph: PackGraph, lookups: list[EdgeLookup], limit: int
+) -> dict[str, list[dict[str, Any]]]:
+    """The matches of every distinct non-latest lookup, one call per type and field set."""
+    groups: dict[tuple[str, tuple[str, ...]], dict[str, dict[str, Any]]] = {}
+    for lookup in lookups:
+        if lookup.latest and lookup.prefix_field is None:
+            continue
+        group = groups.setdefault((lookup.label, tuple(sorted(lookup.equals))), {})
+        group.setdefault(_cache_key(lookup.label, lookup.equals, limit), lookup.equals)
+    found: dict[str, list[dict[str, Any]]] = {}
+    for (label, _fields), conditions in groups.items():
+        answers = await graph.find_nodes_matching(label, list(conditions.values()), limit)
+        found.update(zip(conditions, answers, strict=True))
+    return found
+
+
+def _cache_key(label: str, equals: dict[str, Any], *rest: Any) -> str:
+    return orjson.dumps([label, equals, *rest], option=orjson.OPT_SORT_KEYS).decode()
 
 
 def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]:
@@ -98,18 +134,42 @@ def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]
 
 async def apply_plan(graph: PackGraph, plan: ProjectionPlan, lookup_limit: int) -> int:
     """Write a plan; returns the number of edges written."""
-    for reason in plan.rejected:
-        log.warning("pack_write_rejected", reason=reason)
-    if plan.empty:
+    return await apply_plans(graph, [plan], lookup_limit)
+
+
+async def apply_plans(graph: PackGraph, plans: list[ProjectionPlan], lookup_limit: int) -> int:
+    """Write several events' plans, in log order, in four stages; returns edges written.
+
+    All nodes, then all lifecycle transitions (in order: a later event's
+    transition sees an earlier one's), then the lookups, then all edges.
+    That is one call per stage for a whole projection flush instead of one
+    per stage per event. Lookups see every node of the flush, and a
+    ``to_latest`` lookup still never looks past its own event's time.
+    Node writes only set properties and create states on creation, so
+    writing a later event's nodes before an earlier event's transitions
+    leaves the same graph.
+    """
+    for plan in plans:
+        for reason in plan.rejected:
+            log.warning("pack_write_rejected", reason=reason)
+    plans = [plan for plan in plans if not plan.empty]
+    if not plans:
         return 0
-    await graph.upsert_nodes(plan.nodes)
-    await graph.change_states(plan.states)
-    edges = [*plan.edges, *await resolve_lookups(graph, plan.lookups, lookup_limit)]
-    written = await graph.upsert_edges(edges)
+    nodes = [node for plan in plans for node in plan.nodes]
+    states = [state for plan in plans for state in plan.states]
+    lookups = [lookup for plan in plans for lookup in plan.lookups]
+    if nodes:
+        await graph.upsert_nodes(nodes)
+    if states:
+        await graph.change_states(states)
+    edges = [edge for plan in plans for edge in plan.edges]
+    edges += await resolve_lookups(graph, lookups, lookup_limit)
+    written = await graph.upsert_edges(edges) if edges else 0
     log.debug(
-        "pack_plan_applied",
-        nodes=len(plan.nodes),
-        states=len(plan.states),
+        "pack_plans_applied",
+        events=len(plans),
+        nodes=len(nodes),
+        states=len(states),
         edges=written,
     )
     return written

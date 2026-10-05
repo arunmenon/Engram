@@ -89,6 +89,24 @@ class TestAppend:
         assert await log.append_batch_outcomes([]) == []
 
 
+class TestPreviousInSession:
+    async def test_the_event_before_in_log_order(self, log_harness: LogHarness) -> None:
+        """A cache miss in the projection asks for one id, not the whole session (review 3.4)."""
+        log = log_harness.log
+        session = _session()
+        first, second, third = (make_event(session_id=session) for _ in range(3))
+        elsewhere = make_event(session_id=_session())
+        await log.append_batch([first, second])
+        await log.append(elsewhere)
+        await log.append(third)
+        ids = [str(e.event_id) for e in (first, second, third)]
+        assert await log.previous_in_session(session, ids[0]) is None
+        assert await log.previous_in_session(session, ids[1]) == ids[0]
+        assert await log.previous_in_session(session, ids[2]) == ids[1]
+        assert await log.previous_in_session(session, str(elsewhere.event_id)) is None
+        assert await log.previous_in_session(_session(), ids[1]) is None
+
+
 class TestReads:
     async def test_read_your_writes(self, log_harness: LogHarness) -> None:
         log = log_harness.log

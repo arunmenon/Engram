@@ -112,6 +112,16 @@ class PackGraph(Protocol):
         """Properties of up to ``limit`` nodes of ``label`` whose properties equal ``equals``."""
         ...
 
+    async def find_nodes_matching(
+        self, label: str, conditions: list[dict[str, Any]], limit: int
+    ) -> list[list[dict[str, Any]]]:
+        """For each condition, what ``find_nodes(label, condition, limit)`` returns, in one call.
+
+        Every condition names the same properties. The answer has one list
+        per condition, in order.
+        """
+        ...
+
     async def find_latest(
         self, label: str, equals: dict[str, Any], order_by: str, not_after: str | None
     ) -> dict[str, Any] | None:

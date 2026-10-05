@@ -685,6 +685,21 @@ class GraphOperations:
         rows = sorted(rows, key=lambda row: str(row.get(key, "")))
         return [dict(row) for row in rows[:limit]]
 
+    async def find_nodes_matching(
+        self, label: str, conditions: list[dict[str, Any]], limit: int
+    ) -> list[list[dict[str, Any]]]:
+        if not conditions:
+            return []
+        # One read of the label, filtered per condition
+        key = key_property(label)
+        rows = sorted(await self._find_nodes(label), key=lambda row: str(row.get(key, "")))
+        answers = []
+        for condition in conditions:
+            wanted = stored_values(condition)
+            matched = [row for row in rows if all(row.get(k) == v for k, v in wanted.items())]
+            answers.append([dict(row) for row in matched[:limit]])
+        return answers
+
     async def find_latest(
         self, label: str, equals: dict[str, Any], order_by: str, not_after: str | None
     ) -> dict[str, Any] | None:

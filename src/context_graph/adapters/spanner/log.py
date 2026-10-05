@@ -481,6 +481,24 @@ class SpannerEventLog:
         )
         return [row[0] for row in rows]
 
+    async def previous_in_session(self, session_id: str, event_id: str) -> str | None:
+        """The session index read backwards from the event's position, one row."""
+        from google.cloud.spanner_v1 import param_types
+
+        rows = await self._query(
+            "SELECT p.event_id FROM Events AS e "
+            "JOIN Events@{FORCE_INDEX=EventsBySession} AS p ON p.session_id = e.session_id "
+            "WHERE e.event_id = @event AND e.session_id = @session AND e.in_session_index "
+            "AND p.in_session_index AND (p.commit_ts < e.commit_ts "
+            "OR (p.commit_ts = e.commit_ts AND p.batch_index < e.batch_index) "
+            "OR (p.commit_ts = e.commit_ts AND p.batch_index = e.batch_index "
+            "AND p.event_id < e.event_id)) "
+            "ORDER BY p.commit_ts DESC, p.batch_index DESC, p.event_id DESC LIMIT 1",
+            {"event": event_id, "session": session_id},
+            {"event": param_types.STRING, "session": param_types.STRING},
+        )
+        return str(rows[0][0]) if rows else None
+
     async def _search_documents(
         self,
         where: list[str],

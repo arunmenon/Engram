@@ -423,3 +423,26 @@ The last item of the review plan: findings 3.3, 3.6, 3.7, 3.8, 3.9 and N4. The u
 Left open from the review:
 - **Projection throughput (3.1, 3.4, 3.5, 3.10):** coalescing pack plans per flush, the previous-event lookup by position, fetching each flush's documents in one call, and configurable batch sizes.
 - **A source-adapter registry for webhooks (2.3).**
+
+#### Projection throughput (2026-10-05)
+
+Findings 3.1, 3.4, 3.5 and 3.10. Measured by projecting the OpenDAL ledger (292 events) on the memory backend, counting port calls:
+
+| Per event | Before | After |
+|---|---|---|
+| Graph calls | 5.01 | 0.14 |
+| Ledger calls | 1.01 | 0.03 |
+
+The graph built is identical, every node and edge property compared, to one built one event at a time, and a unit test pins the same equivalence on a PDLC sequence with an `only_from` transition.
+- **Pack writes are staged per flush (3.1).** The worker plans every event's rules, then `apply_plans` writes the whole flush in four calls: all nodes, all lifecycle transitions (in log order, so `only_from` guards see earlier events' transitions), the lookups, then all edges.
+  - An event whose rules cannot be planned is dead-lettered on its own, and an outage is retried in place, as before.
+  - Any other failure of the staged write falls back to one event at a time, so only the failing event is dead-lettered.
+  - Lookups see every node of the flush; `to_latest` still never looks past its own event's time.
+- **Lookups are batched (3.1).** Identical lookups in a flush are read once. The rest are fetched with a new `PackGraph.find_nodes_matching(label, conditions, limit)`, which answers for each condition what `find_nodes` would, in one call per type and field set: one `UNWIND` query on Neo4j, one read of the type on memory and Spanner. Before, Spanner read every node of the type once per lookup. On OpenDAL, the 288 per-merge `DEPLOYS` lookups become one call per flush. Conformance tests cover all three backends.
+- **One document read per flush (3.5).** The worker reads a flush's documents with one `get_documents` call, and Redis pipelines the `JSON.GET`s when there are several.
+- **The previous event by position (3.4).** A new `EventLog.previous_in_session(session_id, event_id)` replaces reading the whole session on a cache miss.
+  - Memory and Spanner answer it exactly; Spanner uses one indexed query.
+  - Redis reads the session stream backwards `CG_REDIS_SESSION_SCAN_COUNT` (200) entries at a time, so the usual case, an event among the session's newest, is one read.
+- **Batch sizes are settings (3.10).** `CG_CONSUMER_PROJECTION_BATCH_SIZE` (50) and `CG_CONSUMER_PROJECTION_BATCH_TIMEOUT_MS` (100). The subscription now reads a whole flush per poll, where it used to read 10.
+
+Not done: Redis Stack is not available in the test environment, so the Redis paths (pipelined documents, `previous_in_session`) are covered by unit tests over a mocked client, not by the conformance suite.

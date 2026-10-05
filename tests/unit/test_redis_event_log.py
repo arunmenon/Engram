@@ -7,6 +7,7 @@ to the ones the workers issued directly before the change.
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import orjson
@@ -23,24 +24,38 @@ def _settings() -> MagicMock:
     return settings
 
 
+def _pipeline(redis: AsyncMock, results: list[Any]) -> MagicMock:
+    """A non-transactional pipeline on ``redis`` whose execute returns ``results``."""
+    pipe = MagicMock()
+    pipe.execute = AsyncMock(return_value=results)
+    redis.pipeline = MagicMock(return_value=pipe)
+    return pipe
+
+
 def _store(redis: AsyncMock) -> RedisEventStore:
     return RedisEventStore(client=redis, settings=_settings())
 
 
 class TestGetDocuments:
     @pytest.mark.asyncio()
-    async def test_issues_json_get_per_id_in_order(self):
+    async def test_pipelines_json_get_per_id_in_order(self):
+        """Several documents are one round trip (review 3.5)."""
         redis = AsyncMock()
-        redis.execute_command.side_effect = [
-            orjson.dumps([{"event_id": "a", "occurred_at_epoch_ms": 1, "payload": {"x": 1}}]),
-            None,
-        ]
+        pipe = _pipeline(
+            redis,
+            [
+                orjson.dumps([{"event_id": "a", "occurred_at_epoch_ms": 1, "payload": {"x": 1}}]),
+                None,
+            ],
+        )
         documents = await _store(redis).get_documents(["a", "b"])
 
-        assert [c.args for c in redis.execute_command.call_args_list] == [
+        assert [c.args for c in pipe.execute_command.call_args_list] == [
             ("JSON.GET", "evt:a", "$"),
             ("JSON.GET", "evt:b", "$"),
         ]
+        pipe.execute.assert_awaited_once()
+        redis.execute_command.assert_not_called()
         assert documents == [{"event_id": "a", "payload": {"x": 1}}, None]
 
     @pytest.mark.asyncio()
@@ -49,6 +64,35 @@ class TestGetDocuments:
         redis.execute_command.return_value = orjson.dumps({"event_id": "a"}).decode()
         documents = await _store(redis).get_documents(["a"])
         assert documents == [{"event_id": "a"}]
+
+
+class TestPreviousInSession:
+    @pytest.mark.asyncio()
+    async def test_reads_backwards_in_chunks_until_found(self):
+        redis = AsyncMock()
+        store = _store(redis)
+        store._settings.session_scan_count = 2
+        redis.xrevrange.side_effect = [
+            [(b"5-0", {b"event_id": b"e5"}), (b"4-0", {b"event_id": b"e4"})],
+            [(b"3-0", {b"event_id": b"e3"}), (b"2-0", {b"event_id": b"e2"})],
+        ]
+        # e4 is the last entry of the first chunk: its previous is in the next one
+        assert await store.previous_in_session("s1", "e4") == "e3"
+        calls = redis.xrevrange.call_args_list
+        assert calls[0].kwargs == {"max": "+", "min": "-", "count": 2}
+        assert calls[1].kwargs == {"max": "(4-0", "min": "-", "count": 2}
+
+    @pytest.mark.asyncio()
+    async def test_first_or_unknown_event_has_none(self):
+        redis = AsyncMock()
+        store = _store(redis)
+        store._settings.session_scan_count = 10
+        redis.xrevrange.return_value = [
+            (b"2-0", {b"event_id": b"e2"}),
+            (b"1-0", {b"event_id": b"e1"}),
+        ]
+        assert await store.previous_in_session("s1", "e1") is None
+        assert await store.previous_in_session("s1", "missing") is None
 
 
 class TestReadSessionIds:
@@ -214,10 +258,13 @@ class TestMigration:
             (b"3-0", {b"event_id": b"e3"}),
             (b"2-0", {b"event_id": b"e2"}),
         ]
-        redis.execute_command.side_effect = [
-            orjson.dumps([{"event_id": "e3"}]),
-            orjson.dumps([{"event_id": "e2", "legacy_position": "src-2"}]),
-        ]
+        _pipeline(
+            redis,
+            [
+                orjson.dumps([{"event_id": "e3"}]),
+                orjson.dumps([{"event_id": "e2", "legacy_position": "src-2"}]),
+            ],
+        )
         assert await _store(redis).last_legacy_position() == "src-2"
         redis.xrevrange.assert_called_once()
 

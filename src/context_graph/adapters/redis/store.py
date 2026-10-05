@@ -672,14 +672,23 @@ class RedisEventStore:
     async def get_documents(self, event_ids: list[str]) -> list[dict[str, Any] | None]:
         """Return the stored JSON document for each id, in the order given.
 
-        Issues one ``JSON.GET`` per id, as the workers did before reading
-        through the port. The adapter-only ``occurred_at_epoch_ms`` field
-        is removed; ``payload`` is kept when stored.
+        One round trip: a single ``JSON.GET``, or a pipeline of them. The
+        adapter-only ``occurred_at_epoch_ms`` field is removed; ``payload``
+        is kept when stored.
         """
+        if not event_ids:
+            return []
+        keys = [f"{self._settings.event_key_prefix}{event_id}" for event_id in event_ids]
+        raw_documents: list[Any]
+        if len(keys) == 1:
+            raw_documents = [await self._client.execute_command("JSON.GET", keys[0], "$")]  # type: ignore[no-untyped-call]
+        else:
+            pipe = self._client.pipeline(transaction=False)
+            for key in keys:
+                pipe.execute_command("JSON.GET", key, "$")
+            raw_documents = await pipe.execute()
         documents: list[dict[str, Any] | None] = []
-        for event_id in event_ids:
-            json_key = f"{self._settings.event_key_prefix}{event_id}"
-            raw_json = await self._client.execute_command("JSON.GET", json_key, "$")  # type: ignore[no-untyped-call]
+        for raw_json in raw_documents:
             if raw_json is None:
                 documents.append(None)
                 continue
@@ -705,6 +714,33 @@ class RedisEventStore:
                 raw_event_id.decode() if isinstance(raw_event_id, bytes) else str(raw_event_id)
             )
         return event_ids
+
+    async def previous_in_session(self, session_id: str, event_id: str) -> str | None:
+        """Read the session stream backwards, a chunk at a time, until the event is found.
+
+        The event being projected is usually among the session's newest, so
+        this reads one chunk where ``read_session_ids`` read the whole stream.
+        """
+        session_stream_key = f"{_SESSION_STREAM_PREFIX}{session_id}"
+        upper = "+"
+        found = False
+        while True:
+            entries: Any = await self._client.xrevrange(
+                session_stream_key, max=upper, min="-", count=self._settings.session_scan_count
+            )
+            for entry_id, entry_data in entries:
+                raw_event_id = entry_data.get(b"event_id", entry_data.get("event_id"))
+                entry_event = (
+                    raw_event_id.decode() if isinstance(raw_event_id, bytes) else raw_event_id
+                )
+                if found and entry_event:
+                    return str(entry_event)
+                if entry_event == event_id:
+                    found = True
+                upper = entry_id.decode() if isinstance(entry_id, bytes) else str(entry_id)
+            if len(entries) < self._settings.session_scan_count:
+                return None
+            upper = f"({upper}"  # exclusive: continue below the last entry read
 
     # -- EventLog hot-tier retention (ADR-0014, ADR-0019) ------------------
 
