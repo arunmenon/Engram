@@ -42,9 +42,8 @@ import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from context_graph.domain.ontology import EnumSpec
+from context_graph.domain.ontology import PROVENANCE_EDGE, EnumSpec
 from context_graph.domain.pack_projection import (
-    PROVENANCE_EDGE,
     ProjectionPlan,
     _datetime,
     coerce,

@@ -8,10 +8,31 @@
 
 pack:
   name: core
-  version: 1.0.0
+  version: 1.1.0   # 1.1.0: the shared interfaces (from pdlc 1.5.0), so domain packs can share them (minor: additive).
   requires: []
   owner: engram
-  description: Agent and tool events, entities, summaries and their links.
+  description: Agent and tool events, entities, summaries and their links, and the interfaces domain packs share.
+
+# Interfaces every domain pack may use. The engine gives each one meaning, so a
+# pack gets that behaviour by naming the interface on a type:
+#   Lifecycled  the projector writes `status` (the lifecycle's initial state on
+#               creation) and `status_changed_at`; transitions move `status`. A
+#               domain type with a lifecycle must use it. States listed in the
+#               lifecycle's `superseded_states` mean "no longer current" to retrieval.
+#   Sourced     the projector sets `source_trust` from the emitting source's
+#               allowlist entry (CG_ONTOLOGY_TRUSTED_SOURCES), never from content;
+#               retrieval's `untrusted_uncorroborated` admission rule reads it.
+#   Claim       a belief with a confidence and a method; never auto-promoted.
+#   Anchored    where the item lives in a document or repository, and its hash.
+#   Versioned   a version string.
+# Every domain pack type also gets a DERIVED_FROM edge to the Event that
+# observed it (provenance) without declaring it.
+interfaces:
+  Lifecycled:  {properties: {status: string, status_changed_at: datetime}}
+  Anchored:    {properties: {source_uri: string, content_hash: string, anchor_path: string}}
+  Versioned:   {properties: {version: string}}
+  Claim:       {properties: {confidence: float, method: string}, note: "a belief, not a fact; never auto-promoted to declared"}
+  Sourced:     {properties: {source_trust: {enum: [trusted, untrusted]}}, note: "set from the emitting source's allowlist entry, never from content (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)"}
 
 types:
   nodes:

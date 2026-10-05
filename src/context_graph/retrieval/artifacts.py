@@ -36,8 +36,10 @@ packs add (PDLC: changes, tickets, requirements, decisions, incidents):
    both directions; a tie prefers an
    intent with a plugin (a question about absence names it).
 4. **Admission** (the packs' ``retrieval.admission`` rules):
-   - superseded or reversed items are left out, except for the intents a
-     rule lists, where they are kept and marked ``superseded``;
+   - superseded items (in a state their type's lifecycle lists in
+     ``superseded_states``, or the target of a ``SUPERSEDES`` edge) are
+     left out, except for the intents a rule lists, where they are kept
+     and marked ``superseded``;
    - untrusted items are left out unless a trusted source linked a trusted
      item in the answer to them with a confirmed link, or the caller asks
      for untrusted items (they are then marked ``untrusted``);
@@ -85,7 +87,7 @@ from context_graph.domain.models import (
     QueryCapacity,
     QueryMeta,
 )
-from context_graph.domain.ontology import OPEN_PACKS, EnumSpec
+from context_graph.domain.ontology import OPEN_PACKS, PROVENANCE_EDGE, EnumSpec
 from context_graph.domain.pack_intents import RegistryIntents
 from context_graph.ports.pack_graph import NodeRef
 
@@ -96,9 +98,7 @@ if TYPE_CHECKING:
     from context_graph.ports.pack_graph import Direction, PackGraph
 
 MISSING_LINKS_PLUGIN = "missing_links"
-PROVENANCE_EDGE = "DERIVED_FROM"
 SUPERSEDES_EDGE = "SUPERSEDES"
-SUPERSEDED_STATES = frozenset({"superseded", "reversed"})
 LINK_REPORTS = ("no_link", "proposed_only", "confirmed")
 DIRECTIONS: dict[str, Direction] = {"outbound": "out", "inbound": "in", "both": "both"}
 
@@ -668,22 +668,40 @@ class ArtifactRetriever:
     # -- admission ---------------------------------------------------------------------------
 
     def _admission(self) -> dict[str, dict[str, Any]]:
+        """The active packs' admission rules; a rule several packs declare is merged.
+
+        Intents that keep superseded items are the union of what the packs
+        list; for other settings the first pack (in load order) wins.
+        """
         rules: dict[str, dict[str, Any]] = {}
         for pack in self._registry.packs:
             for name, rule in pack.retrieval.admission.items():
-                rules[name] = rule.model_dump()
+                declared = rule.model_dump()
+                merged = rules.setdefault(name, declared)
+                if merged is not declared:
+                    merged["include_for_intents"] = list(
+                        dict.fromkeys(
+                            [*merged["include_for_intents"], *declared["include_for_intents"]]
+                        )
+                    )
+                    for setting, value in declared.items():
+                        merged.setdefault(setting, value)
         return rules
 
+    def _superseded_state(self, found: _Found) -> bool:
+        """Whether the node's status is one its type's lifecycle calls superseded."""
+        node_type = self._registry.node_types.get(found.ref.label)
+        lifecycle = node_type.lifecycle if node_type else None
+        return lifecycle is not None and found.props.get("status") in lifecycle.superseded_states
+
     async def _superseded(self, result: _Result, found: Iterable[_Found]) -> set[str]:
-        """Of ``found``, the nodes whose status says superseded, or that a node SUPERSEDES."""
+        """Of ``found``, the nodes in a superseded state, or that a node SUPERSEDES."""
         found = list(found)
         rows = await self._neighbors_all(
             [f.ref for f in found], [SUPERSEDES_EDGE], "in", result, mark_truncated=False
         )
         replaced = {self._node_key(self._row_ends(r)[1]) for r in rows}
-        return replaced | {
-            self._node_key(f.ref) for f in found if f.props.get("status") in SUPERSEDED_STATES
-        }
+        return replaced | {self._node_key(f.ref) for f in found if self._superseded_state(f)}
 
     @staticmethod
     def _untrusted(props: dict[str, Any]) -> bool:

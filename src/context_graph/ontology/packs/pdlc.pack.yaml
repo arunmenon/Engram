@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 1.5.0   # 1.5.0: REVERTS also read from GitHub's revert forms (minor: mapping, an added rule part).
+  version: 1.6.0   # 1.6.0: shared interfaces and provenance move to core 1.1.0; lifecycles name their superseded states (minor: additive).
+                   # 1.5.0: REVERTS also read from GitHub's revert forms (minor: mapping, an added rule part).
                    # 1.4.0: DEPLOYS from a deployment to the change whose merge_sha it deployed (minor: mapping).
                    # 1.3.0: completeness paraphrase keywords; Release and TestCase are seed types (minor: additive).
                    # 1.2.0: intent keywords; change.merged sets title/body/files (minor: additive).
@@ -30,18 +31,14 @@ pack:
                    # 0.4: 0.4: changes from mapping OpenDAL, Kafka and GitLab samples (mapping-step2.md).
                    # 0.3: 0.3: four edges and five fields added from the competency-question check (competency-questions.yaml).
                    # 0.2: names verified against CDEvents and OSLC vocabularies; trace-link, supersession and trust rules from the R10/R4/R8 briefs
-  requires: [core>=1.0]          # Event, Entity, DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS
+  requires: [core>=1.1]          # Event, Entity, DERIVED_FROM, SUPERSEDES, CONTRADICTS, REFERENCES, CAUSED_BY, SAME_AS; the shared interfaces
   owner: TBD                     # decision 4 in the design doc
   description: Requests, specs, requirements, decisions, work, changes, verification, deployment and operations.
 
-# Interfaces: shapes shared by many types. Generic code (retrieval, retention, C6 normalisation) keys off these.
+# Interfaces: Lifecycled, Anchored, Versioned, Claim and Sourced come from core (core 1.1.0);
+# every PDLC type is Sourced. Owned stays here: it promises OWNED_BY, a PDLC edge.
 interfaces:
-  Lifecycled:  {properties: {status: string, status_changed_at: datetime}}
   Owned:       {edges: [OWNED_BY]}
-  Anchored:    {properties: {source_uri: string, content_hash: string, anchor_path: string}}
-  Versioned:   {properties: {version: string}}
-  Claim:       {properties: {confidence: float, method: string}, note: "a belief, not a fact; never auto-promoted to declared"}
-  Sourced:     {properties: {source_trust: {enum: [trusted, untrusted]}}, note: "set from the emitting source's allowlist entry, never from content; every PDLC node is Sourced (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)"}
 
 types:
   nodes:
@@ -56,7 +53,7 @@ types:
       key: [doc_id, version]
       interfaces: [Lifecycled, Anchored, Versioned, Sourced]
       properties: {doc_id: string, title: string, acceptance_criteria: text, scope: text}
-      lifecycle: {initial: draft, states: [draft, approved, superseded]}
+      lifecycle: {initial: draft, states: [draft, approved, superseded], superseded_states: [superseded]}
       text_fields: [title, acceptance_criteria, scope]
       embed_fields: [title, acceptance_criteria]
     Requirement:
@@ -70,7 +67,7 @@ types:
       key: [content_hash]
       interfaces: [Lifecycled, Anchored, Claim, Sourced]
       properties: {statement: text, rationale: text, alternatives: text, decided_at: datetime, valid_from: datetime, valid_to: datetime}
-      lifecycle: {initial: proposed, states: [proposed, accepted, superseded, reversed]}
+      lifecycle: {initial: proposed, states: [proposed, accepted, superseded, reversed], superseded_states: [superseded, reversed]}
       text_fields: [statement, rationale]
       embed_fields: [statement]
     Constraint:
@@ -84,7 +81,7 @@ types:
       key: [doc_id, section_path]
       interfaces: [Lifecycled, Anchored, Versioned, Sourced]
       properties: {doc_id: string, section_path: string, kind: {enum: [hld, lld]}, title: string, body: text}
-      lifecycle: {initial: draft, states: [draft, reviewed, approved, superseded]}
+      lifecycle: {initial: draft, states: [draft, reviewed, approved, superseded], superseded_states: [superseded]}
       text_fields: [title, body]
       embed_fields: [title, body]
     WorkItem:
@@ -186,7 +183,6 @@ types:
   extends_core_edges:
     SUPERSEDES:   {from: [Decision, Spec, DesignElement], to: [Decision, Spec, DesignElement]}
     CONTRADICTS:  {from: [Decision, Constraint], to: [Decision, Constraint]}
-    DERIVED_FROM: {from: "*", to: ["core:Event"], note: "provenance: every PDLC node links to the event(s) that observed it"}
     REFERENCES:   {from: ["core:Event"], to: "*", note: "agent sessions link to the PDLC artifacts they touched (role object|result)"}
     SAME_AS:      {from: [WorkItem, Component], to: [WorkItem, Component], note: "cross-tool identity, e.g. GitHub issue == Jira ticket"}
 

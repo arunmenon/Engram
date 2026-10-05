@@ -38,6 +38,7 @@ types:
   nodes:
     Ticket:
       key: [tracker, number]
+      interfaces: [Lifecycled]
       properties: {tracker: string, number: int, title: string}
       lifecycle: {initial: open, states: [open, closed]}
     Fix:

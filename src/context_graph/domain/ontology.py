@@ -94,6 +94,17 @@ LOWER_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 # Packs restating today's schema; their event namespaces stay open at ingest
 OPEN_PACKS = frozenset({"core", "memory", "user"})
 
+# Edge every domain pack type gets to the Event that observed it (provenance)
+PROVENANCE_EDGE = "DERIVED_FROM"
+# Interface a domain type with a lifecycle must use (core declares it)
+LIFECYCLED_INTERFACE = "Lifecycled"
+# Admission rules retrieval understands, with the settings each one takes
+ADMISSION_RULES: dict[str, frozenset[str]] = {
+    "superseded_or_reversed": frozenset({"default", "include_for_intents", "label_as"}),
+    "untrusted_uncorroborated": frozenset({"default", "available_via"}),
+    "proposed_links": frozenset({"default", "never_counted_as"}),
+}
+
 # Index names a node type may not use (they would clash with its key constraint)
 RESERVED_INDEX_FIELDS = frozenset({"pk", "node_id"})
 
@@ -203,11 +214,20 @@ class InterfaceDef(_Strict):
 class LifecycleDef(_Strict):
     initial: str
     states: list[str]
+    # States meaning "no longer current" (retrieval's superseded_or_reversed rule)
+    superseded_states: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _states(self) -> LifecycleDef:
         if self.initial not in self.states:
             msg = f"initial state {self.initial!r} is not one of {self.states}"
+            raise ValueError(msg)
+        unknown = [s for s in self.superseded_states if s not in self.states]
+        if unknown:
+            msg = f"superseded states {unknown} are not among {self.states}"
+            raise ValueError(msg)
+        if self.initial in self.superseded_states:
+            msg = f"initial state {self.initial!r} cannot be a superseded state"
             raise ValueError(msg)
         if len(set(self.states)) != len(self.states):
             msg = f"repeated state in {self.states}"
@@ -714,6 +734,13 @@ class OntologyRegistry:
                     continue
                 self._add_endpoints(pack.name, edge_type, extension.from_, extension.to, problems)
 
+        # Provenance: every domain pack type may link to the Event that observed it
+        provenance = self.edge_types.get(PROVENANCE_EDGE)
+        if provenance is not None and "Event" in provenance.to_types:
+            for pack in packs:
+                if pack.name not in OPEN_PACKS and pack.types.nodes:
+                    provenance.from_packs.add(pack.name)
+
         # Weights other packs add to an intent
         for pack in packs:
             for intent_name, weights in pack.retrieval.core_intent_weights.items():
@@ -907,6 +934,15 @@ class OntologyRegistry:
         for field_name in node.indexes:
             if field_name in RESERVED_INDEX_FIELDS or field_name == node.id_property:
                 problems.append(f"{pack}: {name} cannot index its key field {field_name!r}")
+        # The projector writes status for a lifecycle: the type must declare it
+        if (
+            node.lifecycle is not None
+            and pack not in OPEN_PACKS
+            and LIFECYCLED_INTERFACE not in node.interfaces
+        ):
+            problems.append(
+                f"{pack}: {name} has a lifecycle, so it must use interface {LIFECYCLED_INTERFACE}"
+            )
         # Every edge an interface promises must accept this type as its source
         for interface_name in node.interfaces:
             declared = self.interfaces.get(interface_name)
@@ -1055,6 +1091,15 @@ class OntologyRegistry:
                         f"{pack.name}: intent {name} prefers unknown type {type_name!r}"
                     )
         for name, rule in retrieval.admission.items():
+            settings = ADMISSION_RULES.get(name)
+            if settings is None:
+                problems.append(
+                    f"{pack.name}: unknown admission rule {name!r} "
+                    f"(known: {', '.join(sorted(ADMISSION_RULES))})"
+                )
+                continue
+            for setting in sorted(set(rule.model_dump(exclude_defaults=True)) - settings):
+                problems.append(f"{pack.name}: admission {name} has unknown setting {setting!r}")
             for intent_name in rule.include_for_intents:
                 if intent_name not in self.intents:
                     problems.append(

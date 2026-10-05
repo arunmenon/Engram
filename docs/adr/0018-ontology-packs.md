@@ -343,3 +343,19 @@ The OpenDAL set now scores a mean F1 of 0.91 (from 0.63). `min_f1` is 0.9.
 - **Version tokens (0.92 → 1.00).** A key token that is a node's own most specific key names that node. Nodes that only mention it (#8228, "chore: prepare release v0.59.1") are not seeds for it.
 
 Still below 1.00: "Which change added the GCS gRPC service?" (0.33), "…GCS compose support?" (0.67) and the two-hop release question built on the first (0.50). The extras share "gcs" and "service" through conventional-commit scopes ("fix(services/gcs): …"), or name the same feature with another verb ("enable gcs-grpc service"). Substring words cannot separate these; embeddings or the title's verb could. The fixture set still scores 1.00, and the synthetic categories still score 1.00.
+
+#### The common layer in core: core 1.1.0, PDLC 1.6.0 (2026-10-05)
+
+This addresses findings 1.1, 1.2, 2.1, 2.4 and 2.5 of the ontology packs and ingestion review (`docs/review/2026-10-05-ontology-ingestion-review-guide.md`), with Codex's second opinion. A second domain pack can now be active next to PDLC and get the same behaviour without code changes. `tests/unit/test_pack_common_layer.py` proves it with a small `crm` pack.
+- **Shared interfaces live in core.** `Lifecycled`, `Sourced`, `Claim`, `Anchored` and `Versioned` move from PDLC to core 1.1.0. Interface names are global, so two packs that each declared `Sourced` could not be loaded together. `Owned` stays in PDLC: it promises `OWNED_BY`, a PDLC edge, and core must not depend on a domain pack (Codex). Core's header documents what the engine does with each interface:
+  - `Lifecycled`: the projector writes `status` and `status_changed_at`.
+  - `Sourced`: the projector sets `source_trust` from `CG_ONTOLOGY_TRUSTED_SOURCES`, and admission reads it.
+  
+  A domain type with a lifecycle must now use `Lifecycled`; validation refuses it otherwise.
+- **Provenance is automatic.** Every type of a domain pack (any pack beyond core, memory and user) may link to the Event that observed it by `DERIVED_FROM`, and the projector writes that edge for every upserted node. PDLC no longer declares it. Before this, a pack that forgot the `extends_core_edges` entry silently lost lineage. The base packs keep their own declarations.
+- **Superseded states are declared per lifecycle.** `lifecycle.superseded_states` lists the states that mean "no longer current", and must be states of the lifecycle other than the initial one. Retrieval's `superseded_or_reversed` admission rule now reads these instead of a hardcoded `{superseded, reversed}`. PDLC declares `[superseded, reversed]` on Decision and `[superseded]` on Spec and DesignElement, which is exactly the old behaviour. A `SUPERSEDES` edge still marks its target, whatever the state.
+- **Admission rules are validated and merged.** The known rules and their settings are listed in `ADMISSION_RULES` (`domain/ontology.py`), and an unknown rule or setting is refused instead of silently ignored. When several packs declare the same rule, `include_for_intents` is the union of their lists; for other settings the first pack wins. Before, the last pack replaced the rule.
+- **Base packs cannot be replaced.** `core`, `memory` and `user` always load from the built-in directory. A `CG_ONTOLOGY_PACK_DIRS` directory holding one of them is refused with an error naming the directory. These packs describe the schema the code itself writes, so a replacement made the registry, `GET /v1/ontology` and the graph disagree.
+- **Versioning.** Core 1.0.0 → 1.1.0 and PDLC 1.5.0 → 1.6.0 classify as additive: applied hot, with no replay and no evaluation required. Every PDLC score and the full suite are unchanged.
+
+Not covered here: the `UserProfile` key mismatch in `adapters/graph_ops.py`, which predates packs (Codex). The other items of the review plan are separate work.

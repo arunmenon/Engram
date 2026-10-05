@@ -42,7 +42,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from context_graph.domain.ontology import EnumSpec, NodeRef, transition_key
+from context_graph.domain.ontology import PROVENANCE_EDGE, EnumSpec, NodeRef, transition_key
 from context_graph.domain.pack_expressions import Scope, compile_value, evaluate, is_expression
 from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
 from context_graph.ports.pack_graph import NodeRef as GraphRef
@@ -58,7 +58,6 @@ if TYPE_CHECKING:
         RuleValue,
     )
 
-PROVENANCE_EDGE = "DERIVED_FROM"
 
 # Integers are stored as 64-bit (Neo4j and Spanner INT64)
 INT64_MIN, INT64_MAX = -(2**63), 2**63 - 1

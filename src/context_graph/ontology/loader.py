@@ -169,6 +169,22 @@ def find_eval_set(name: str, search_dirs: list[Path]) -> Path | None:
 
 
 def find_pack(name: str, search_dirs: list[Path]) -> Path:
+    """The file of a pack: the search directories first, then the built-in packs.
+
+    The base packs (``core``, ``memory``, ``user``) describe the schema the
+    code itself writes, so they are always the built-in files: a search
+    directory holding one is refused rather than silently used.
+    """
+    if name in BASE_PACKS:
+        shadowing = [str(d) for d in search_dirs if (d / f"{name}.pack.yaml").is_file()]
+        if shadowing:
+            raise OntologyError(
+                [
+                    f"base pack {name!r} cannot be replaced: remove {name}.pack.yaml from "
+                    + ", ".join(shadowing)
+                ]
+            )
+        return BUILTIN_PACK_DIR / f"{name}.pack.yaml"
     for directory in [*search_dirs, BUILTIN_PACK_DIR]:
         candidate = directory / f"{name}.pack.yaml"
         if candidate.is_file():

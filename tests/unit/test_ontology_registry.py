@@ -20,6 +20,7 @@ types:
   nodes:
     Ticket:
       key: [tracker, number]
+      interfaces: [Lifecycled]
       properties: {tracker: string, number: int, title: string}
       lifecycle: {initial: open, states: [open, closed]}
     Fix:
@@ -82,7 +83,7 @@ class TestRequirements:
         problems = _problems(
             CORE, _demo(**{"requires: [core>=1.0]": "requires: [core>=2.0, jira]"})
         )
-        assert any("requires core>=2.0; core is 1.0.0" in p for p in problems)
+        assert any("requires core>=2.0; core is 1.1.0" in p for p in problems)
         assert any("requires pack 'jira'" in p for p in problems)
 
     def test_pack_loaded_twice(self) -> None:
@@ -332,7 +333,7 @@ class TestReviewFindings:
             "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}\n"
             "interfaces: {Owned: {edges: [RESOLVES]}}",
         ).replace("      properties: {sha: string}", "      properties: {sha: string}")
-        text = text.replace("    Ticket:\n", "    Ticket:\n      interfaces: [Owned]\n")
+        text = text.replace("interfaces: [Lifecycled]", "interfaces: [Lifecycled, Owned]")
         problems = _problems(CORE, parse_pack(text))
         assert any("RESOLVES does not start from Ticket" in p for p in problems)
 
@@ -341,7 +342,7 @@ class TestReviewFindings:
             "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}",
             "pack: {name: demo, version: 1.2.0, requires: [core>=1.0]}\n"
             "interfaces: {Titled: {properties: {title: text}}}",
-        ).replace("    Ticket:\n", "    Ticket:\n      interfaces: [Titled]\n")
+        ).replace("interfaces: [Lifecycled]", "interfaces: [Lifecycled, Titled]")
         problems = _problems(CORE, parse_pack(text))
         assert "demo: Ticket.title conflicts with interface Titled" in problems
 
