@@ -3,6 +3,7 @@
     "allow": [
       "Bash(python scripts/engram_trial.py:*)",
       "Bash(python3 scripts/engram_trial.py:*)",
+      "Bash(.venv/bin/python scripts/engram_trial.py:*)",
       "Bash(gcloud spanner databases execute-sql engram --instance engram-experiment*)"
     ]
   }

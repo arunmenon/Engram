@@ -28,6 +28,14 @@ Phases:
 4. graph     node and edge writes at flush size, a label scan
              (find_nodes_matching), GQL lineage and vector search timings
 
+Behaviour probes (``scripts/spanner_probes.py``; not in the default phases):
+
+gql          Spanner Graph semantics: label filters, property types, path modes
+search       keyword channel: Spanner SEARCH/SCORE against memory BM25
+vector       approximate vector search against exact cosine (recall@10)
+retrieval    OpenDAL and CRM evaluation sets and core engine queries,
+             projected into memory and into Spanner, compared
+
 Usage (``pip install -e ".[spanner]"`` first; ``.claude/settings.json``
 allows exactly ``python scripts/engram_trial.py ...``):
 
@@ -48,6 +56,8 @@ import time
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
+
+import spanner_probes
 
 TRIAL_INSTANCE = "engram-experiment"
 MAX_MINUTES = 60
@@ -359,6 +369,7 @@ async def main() -> None:
     parser.add_argument("--database", default=os.environ.get("SPANNER_DATABASE_ID", "engram"))
     parser.add_argument("--emulator", help="host:port of a Spanner emulator (dry run)")
     parser.add_argument("--minutes", type=float, default=50)
+    parser.add_argument("--out", help="also write the JSON report to this file")
     parser.add_argument("--phases", default="schema,ledger,import,graph")
     parser.add_argument("--producers", type=int, default=8)
     parser.add_argument("--sessions", type=int, default=40)
@@ -388,6 +399,11 @@ async def main() -> None:
         "ledger": lambda: phase_ledger(database, args, lat),
         "import": lambda: phase_import(database, args, lat),
         "graph": lambda: phase_graph(database, args, lat),
+        # Behaviour probes (scripts/spanner_probes.py): observe, compare, never assert
+        "gql": lambda: spanner_probes.phase_gql(database),
+        "search": lambda: spanner_probes.phase_search(database),
+        "vector": lambda: spanner_probes.phase_vector(database),
+        "retrieval": lambda: spanner_probes.phase_retrieval(database),
     }
     for name in args.phases.split(","):
         if clock.left_s() < 120:
@@ -412,7 +428,11 @@ async def main() -> None:
         / timedelta(minutes=1),
         1,
     )
-    print(json.dumps(report, indent=2, default=str))
+    text = json.dumps(report, indent=2, default=str)
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as handle:
+            handle.write(text)
+    print(text)
 
 
 if __name__ == "__main__":
