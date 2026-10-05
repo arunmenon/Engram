@@ -34,6 +34,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+import regex
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from context_graph.domain.pack_expressions import (
@@ -98,6 +99,12 @@ OPEN_PACKS = frozenset({"core", "memory", "user"})
 PROVENANCE_EDGE = "DERIVED_FROM"
 # Interface a domain type with a lifecycle must use (core declares it)
 LIFECYCLED_INTERFACE = "Lifecycled"
+# Query plugins an intent may name (served by retrieval/artifacts.py)
+INTENT_PLUGINS = frozenset({"missing_links"})
+# Node types the system writes itself; packs may not declare them
+RESERVED_NODE_TYPES = frozenset({"OntologyState"})
+# Link policy settings the engine reads; others are recorded but inert
+LINK_POLICY_SETTINGS = frozenset({"applies_to", "link_status"})
 # Admission rules retrieval understands, with the settings each one takes
 ADMISSION_RULES: dict[str, frozenset[str]] = {
     "superseded_or_reversed": frozenset({"default", "include_for_intents", "label_as"}),
@@ -429,6 +436,10 @@ class AdmissionRuleDef(_Open):
 
 class RetrievalSection(_Strict):
     seed_types: list[str] = Field(default_factory=list)
+    # How a question names a node of a type by its key: a pattern per type
+    # (``Deal: 'D-\\d+'``); a match (its first group, if any) is looked up
+    # as the type's most specific key value
+    key_patterns: dict[str, str] = Field(default_factory=dict)
     intents: dict[str, IntentDef] = Field(default_factory=dict)
     admission: dict[str, AdmissionRuleDef] = Field(default_factory=dict)
     # Weights this pack adds to intents another pack declares
@@ -553,6 +564,38 @@ class EventTypeDecl:
     definition: EventDef
 
 
+# The base packs come first, in this order
+_BASE_ORDER = {"core": 0, "memory": 1, "user": 2}
+
+
+def _canonical_order(packs: list[Pack]) -> list[Pack]:
+    """The base packs, then each pack after the active packs it requires; ties by name.
+
+    Requirements on packs that are not active, and cycles (reported by
+    validation), do not hold a pack back.
+    """
+    by_name = {pack.name: pack for pack in packs}
+    needs = {
+        pack.name: {
+            match.group(1)
+            for requirement in pack.pack.requires
+            if (match := _REQUIREMENT.match(requirement)) and match.group(1) in by_name
+        }
+        - {pack.name}
+        for pack in packs
+    }
+    ordered: list[Pack] = []
+    placed: set[str] = set()
+    while len(ordered) < len(packs):
+        ready = [n for n in by_name if n not in placed and needs[n] <= placed]
+        if not ready:  # a cycle: place the rest by name
+            ready = [n for n in by_name if n not in placed]
+        name = min(ready, key=lambda n: (_BASE_ORDER.get(n, len(_BASE_ORDER)), n))
+        ordered.append(by_name[name])
+        placed.add(name)
+    return ordered
+
+
 class OntologyRegistry:
     """The composed, validated ontology of the active packs."""
 
@@ -561,7 +604,9 @@ class OntologyRegistry:
         duplicates = sorted({name for name in names if names.count(name) > 1})
         if duplicates:
             raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
-        self._packs: dict[str, Pack] = {pack.name: pack for pack in packs}
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
         self.node_types: dict[str, NodeType] = {}
         self.edge_types: dict[str, EdgeType] = {}
         self.event_types: dict[str, EventTypeDecl] = {}
@@ -660,6 +705,34 @@ class OntologyRegistry:
             "event_types": len(self.event_types),
             "intents": sorted(self.intents),
         }
+
+    def inert_settings(self) -> list[str]:
+        """Settings domain packs declare that nothing reads yet (review 2.7).
+
+        They load and validate, so packs can state intent, but an author
+        should not rely on them: the loader logs each one as a warning.
+        """
+        notes: list[str] = []
+        for pack in self.packs:
+            if pack.name in OPEN_PACKS:
+                continue
+            for name, node in pack.types.nodes.items():
+                if node.embed_fields:
+                    notes.append(f"{pack.name}: {name}.embed_fields (no embeddings for pack types)")
+            policy = pack.types.link_policy
+            declared = set(policy.model_dump(exclude_defaults=True)) if policy else set()
+            extra = sorted(declared - LINK_POLICY_SETTINGS)
+            if extra:
+                notes.append(f"{pack.name}: link_policy {', '.join(extra)}")
+            if pack.extraction.derived_proposals:
+                notes.append(f"{pack.name}: extraction.derived_proposals")
+            if pack.lifecycle.decay:
+                notes.append(f"{pack.name}: lifecycle.decay")
+            if pack.lifecycle.terminal_states_reduce_importance:
+                notes.append(f"{pack.name}: lifecycle.terminal_states_reduce_importance")
+            if pack.mappings:
+                notes.append(f"{pack.name}: mappings (vocabulary only)")
+        return notes
 
     # -- composition ---------------------------------------------------------------
 
@@ -881,6 +954,18 @@ class OntologyRegistry:
                 check(PROPERTY_NAME, prop, f"property name {name}.", "snake_case")
         for name in pack.events:
             check(EVENT_TYPE_NAME, name, "event type", "dot-namespaced lowercase")
+            namespace = name.split(".")[0]
+            owners = {
+                e.pack for e in self.event_types.values() if e.name.split(".")[0] == namespace
+            }
+            if owners - {pack.name}:
+                problems.append(
+                    f"{pack.name}: event {name!r} is in namespace {namespace!r}, "
+                    f"which pack {sorted(owners - {pack.name})[0]} owns"
+                )
+        for name in pack.types.nodes:
+            if name in RESERVED_NODE_TYPES:
+                problems.append(f"{pack.name}: node type name {name!r} is reserved")
         for name in pack.retrieval.intents:
             check(LOWER_NAME, name, "intent name", "lowercase letters, digits and underscores")
 
@@ -1089,6 +1174,16 @@ class OntologyRegistry:
         for type_name in retrieval.seed_types:
             if type_name not in self.node_types:
                 problems.append(f"{pack.name}: unknown seed type {type_name!r}")
+        for type_name, pattern in retrieval.key_patterns.items():
+            if type_name not in self.node_types:
+                problems.append(f"{pack.name}: key pattern for unknown type {type_name!r}")
+            elif type_name not in retrieval.seed_types:
+                problems.append(f"{pack.name}: key pattern for {type_name}, not a seed type")
+            try:
+                if regex.compile(pattern).search(""):
+                    problems.append(f"{pack.name}: key pattern for {type_name} matches empty text")
+            except regex.error as exc:
+                problems.append(f"{pack.name}: key pattern for {type_name}: {exc}")
         weight_sets = [(f"intent {n}", i.weights) for n, i in retrieval.intents.items()]
         weight_sets += [(f"weights for {n}", w) for n, w in retrieval.core_intent_weights.items()]
         for where, weights in weight_sets:
@@ -1096,6 +1191,11 @@ class OntologyRegistry:
                 if edge_name not in self.edge_types:
                     problems.append(f"{pack.name}: {where} weights unknown edge {edge_name!r}")
         for name, intent in retrieval.intents.items():
+            if intent.plugin is not None and intent.plugin not in INTENT_PLUGINS:
+                problems.append(
+                    f"{pack.name}: intent {name} names unknown plugin {intent.plugin!r} "
+                    f"(known: {', '.join(sorted(INTENT_PLUGINS))})"
+                )
             for type_name in intent.prefer_types:
                 if type_name not in self.node_types:
                     problems.append(

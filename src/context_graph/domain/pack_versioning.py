@@ -43,6 +43,8 @@ import json
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal
 
+from context_graph.domain.ontology import OPEN_PACKS
+
 if TYPE_CHECKING:
     from context_graph.domain.ontology import OntologyRegistry, Pack
 
@@ -137,6 +139,10 @@ def classify_change(old: OntologyRegistry | None, new: OntologyRegistry) -> Chan
     plan = ChangePlan()
     if old is None:
         plan.note("initial", "the graph records no ontology version")
+        # Decision 10 from the first deploy: no pack's weights are trusted unevaluated
+        plan.eval_required = {
+            p.name for p in new.packs if p.name not in OPEN_PACKS and p.retrieval.intents
+        }
         return plan
     if old.version == new.version:
         return plan

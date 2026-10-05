@@ -56,6 +56,10 @@ from context_graph.settings import Settings
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from context_graph.domain.ontology import OntologyRegistry
+    from context_graph.ontology.evaluation import EvalReport
+    from context_graph.ports.graph_backend import GraphBackend
+
 
 def _print(value: Any) -> None:
     print(orjson.dumps(value, option=orjson.OPT_INDENT_2).decode())  # noqa: T201 - CLI output
@@ -164,32 +168,55 @@ async def run_status(settings: Settings) -> int:
         await stores.close()
 
 
+async def evaluate_graph(
+    settings: Settings,
+    graph: GraphBackend,
+    registry: OntologyRegistry,
+    eval_dirs: list[Path],
+    *,
+    record: bool,
+) -> list[EvalReport]:
+    """Run the active packs' evaluation sets on ``graph``; with ``record``, record the result.
+
+    Recording clears ``eval_pending`` when every set passes (decision 10:
+    the packs' weights are trusted from then on); otherwise it lists every
+    pack that has a set. Nothing is recorded on a graph that records no
+    ontology, or another version.
+    """
+    reports = await run_gate(
+        registry,
+        _retriever(settings, graph, registry),
+        eval_dirs,
+        max_nodes=settings.query.default_max_nodes,
+    )
+    passed = all(report.passed for report in reports)
+    state = await read_state(graph)
+    if record and state is not None and state.version == registry.version:
+        await record_state(
+            graph,
+            registry,
+            applied=str(state.properties.get("applied", "")),
+            extra={
+                "eval_pending": [] if passed else sorted(r.pack for r in reports),
+                "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in reports],
+            },
+        )
+    return reports
+
+
 async def run_evaluate(settings: Settings, eval_dirs: list[str], *, record: bool) -> int:
     projector = configured_projector(settings.ontology)
     stores = await open_stores(settings)
     try:
-        registry = projector.registry
-        reports = await run_gate(
-            registry,
-            _retriever(settings, stores.graph, registry),
+        reports = await evaluate_graph(
+            settings,
+            stores.graph,
+            projector.registry,
             _eval_dirs(settings, eval_dirs),
-            max_nodes=settings.query.default_max_nodes,
+            record=record,
         )
         _print([report.as_dict() for report in reports])
-        passed = all(report.passed for report in reports)
-        state = await read_state(stores.graph)
-        if record and state is not None and state.version == registry.version:
-            # Decision 10: the packs' weights are trusted once their sets pass
-            await record_state(
-                stores.graph,
-                registry,
-                applied=str(state.properties.get("applied", "")),
-                extra={
-                    "eval_pending": [] if passed else sorted(r.pack for r in reports),
-                    "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in reports],
-                },
-            )
-        return 0 if passed else 1
+        return 0 if all(report.passed for report in reports) else 1
     finally:
         await stores.close()
 

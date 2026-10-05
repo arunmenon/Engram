@@ -98,6 +98,8 @@ def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]
 
 async def apply_plan(graph: PackGraph, plan: ProjectionPlan, lookup_limit: int) -> int:
     """Write a plan; returns the number of edges written."""
+    for reason in plan.rejected:
+        log.warning("pack_write_rejected", reason=reason)
     if plan.empty:
         return 0
     await graph.upsert_nodes(plan.nodes)

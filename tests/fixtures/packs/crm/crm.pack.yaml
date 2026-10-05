@@ -1,0 +1,97 @@
+# Example domain pack: a small CRM (accounts, their contacts and deals).
+# The engine knows nothing about it. It is the worked example in
+# docs/runbooks/pack-authoring.md, and tests/unit/test_pack_toy_end_to_end.py
+# runs it through the ingest API, the projection worker, the evaluation gate
+# and artifact retrieval with no PDLC pack active.
+pack:
+  name: crm
+  version: 1.0.0
+  requires: [core>=1.1]          # Lifecycled and Sourced, SUPERSEDES, provenance
+  owner: docs
+  description: Accounts, the people who work at them, and the deals with them.
+
+types:
+  nodes:
+    Account:
+      key: [account_id]
+      interfaces: [Sourced]
+      properties: {account_id: string, name: string, industry: string}
+      text_fields: [name, industry]
+    Contact:
+      key: [email]
+      interfaces: [Sourced]
+      properties: {email: string, name: string, title: string}
+      text_fields: [name, title]
+    Deal:
+      key: [deal_id]
+      interfaces: [Lifecycled, Sourced]
+      properties: {deal_id: string, title: string, amount: float}
+      # A replaced deal is no longer current: retrieval leaves it out
+      lifecycle: {initial: open, states: [open, won, lost, replaced], superseded_states: [replaced]}
+      text_fields: [title]
+  edges:
+    BELONGS_TO: {from: [Deal], to: [Account]}
+    WORKS_AT:   {from: [Contact], to: [Account]}
+  extends_core_edges:
+    SUPERSEDES: {from: [Deal], to: [Deal]}
+
+events:
+  crm.account.created: {}
+  crm.contact.added:   {}
+  crm.deal.created:    {}
+  crm.deal.won:        {}
+  crm.deal.lost:       {}
+  crm.deal.replaced:   {note: "payload: deal_id, replaced_by"}
+
+projection:
+  - event: crm.account.created
+    upsert:
+      - {type: Account, key: {account_id: $.account_id}, set: {name: $.name, industry: $.industry}}
+  - event: crm.contact.added
+    upsert:
+      - {type: Contact, key: {email: $.email}, set: {name: $.name, title: $.title}}
+    edges:
+      - {type: WORKS_AT, from: {type: Contact, key: {email: $.email}}, to: {type: Account, key: {account_id: $.account_id}}}
+  - event: crm.deal.created
+    upsert:
+      - {type: Deal, key: {deal_id: $.deal_id}, set: {title: $.title, amount: $.amount}}
+    edges:
+      - {type: BELONGS_TO, from: {type: Deal, key: {deal_id: $.deal_id}}, to: {type: Account, key: {account_id: $.account_id}}}
+  - event: crm.deal.won
+    upsert:  # upserting the deal links it to this event (provenance); a bare transition does not
+      - {type: Deal, key: {deal_id: $.deal_id}}
+    transition: {type: Deal, to: won, only_from: [open]}
+  - event: crm.deal.lost
+    upsert:  # upserting the deal links it to this event (provenance); a bare transition does not
+      - {type: Deal, key: {deal_id: $.deal_id}}
+    transition: {type: Deal, to: lost, only_from: [open]}
+  - event: crm.deal.replaced
+    upsert:
+      - {type: Deal, key: {deal_id: $.deal_id}}
+    transition: {type: Deal, to: replaced}
+    edges:
+      - {type: SUPERSEDES, from: {type: Deal, key: {deal_id: $.replaced_by}}, to: {type: Deal, key: {deal_id: $.deal_id}}, when: $.replaced_by}
+
+retrieval:
+  seed_types: [Account, Contact, Deal]
+  key_patterns: {Deal: 'D-\d+'}  # questions name deals "D-7"
+  intents:
+    pipeline:
+      description: "The deals of an account"
+      examples: ["what is in the Acme pipeline", "which account does deal D-7 belong to"]
+      keywords: [pipeline, deal, deals]
+      weights: {BELONGS_TO: 5}
+    people:
+      description: "Who works at an account"
+      examples: ["who works at Globex"]
+      keywords: [who works, contact, contacts, people]
+      weights: {WORKS_AT: 5}
+    coverage:
+      description: "Accounts with no deals or no contacts"
+      examples: ["which accounts have no deals"]
+      keywords: [no deals, without deals, no contacts, without contacts, have no]
+      weights: {BELONGS_TO: 5, WORKS_AT: 4}
+      plugin: missing_links
+  admission:
+    superseded_or_reversed: {default: exclude, include_for_intents: [], label_as: superseded}
+    untrusted_uncorroborated: {default: exclude_from_action_context, available_via: lookup_untrusted}

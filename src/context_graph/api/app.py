@@ -34,6 +34,7 @@ from context_graph.api.routes.users import router as users_router
 from context_graph.api.routes.webhooks import router as webhooks_router
 from context_graph.domain.pack_intents import RegistryIntents
 from context_graph.ontology.runtime import configured_registry
+from context_graph.ontology.versioning import EvalPending
 from context_graph.retrieval import RetrievalEngine
 from context_graph.retrieval.artifacts import ArtifactRetriever
 from context_graph.settings import Settings
@@ -135,6 +136,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.retrieval = retrieval
     app.state.ontology = ontology
     app.state.artifacts = artifacts
+    app.state.eval_pending = EvalPending(stores.graph, ontology, settings.ontology.eval_state_ttl_s)
 
     logger.info(
         "app_started",

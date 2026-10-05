@@ -24,6 +24,7 @@ Backend-neutral: ``EventLog`` and ``PackGraph`` only.
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -31,7 +32,7 @@ from typing import TYPE_CHECKING, Any
 import structlog
 
 from context_graph.domain.models import Event
-from context_graph.domain.ontology import OntologyError, OntologyRegistry, Pack
+from context_graph.domain.ontology import OPEN_PACKS, OntologyError, OntologyRegistry, Pack
 from context_graph.domain.pack_versioning import ChangePlan, classify_change
 from context_graph.ports.pack_graph import NodeRef, NodeWrite
 from context_graph.worker.pack_projection import apply_plan
@@ -254,3 +255,39 @@ async def reconcile(
         },
     )
     return plan
+
+
+class EvalPending:
+    """Packs whose evaluation is pending on this graph (decision 10), re-read every ``ttl_s``.
+
+    Pending: the packs the recorded ontology lists in ``eval_pending``,
+    plus those the active packs would add to it (a graph that records no
+    ontology, or another version, has not evaluated them). Cleared by
+    ``python -m context_graph.ontology evaluate --record`` or a rebuild
+    whose gate passes. A failed read keeps the last answer.
+    """
+
+    def __init__(self, graph: PackGraph, registry: OntologyRegistry, ttl_s: float) -> None:
+        self._graph = graph
+        self._registry = registry
+        self._ttl_s = ttl_s
+        self._packs: frozenset[str] | None = None
+        self._read_at = 0.0
+
+    async def packs(self) -> frozenset[str]:
+        now = time.monotonic()
+        if self._packs is not None and now - self._read_at < self._ttl_s:
+            return self._packs
+        try:
+            state = await read_state(self._graph)
+        except Exception:
+            if self._packs is None:
+                raise
+            log.warning("eval_pending_read_failed", exc_info=True)
+            return self._packs
+        recorded = set(state.properties.get("eval_pending") or []) if state else set()
+        pending = recorded | plan_for_state(state, self._registry).eval_required
+        active = {p.name for p in self._registry.packs if p.name not in OPEN_PACKS}
+        self._packs = frozenset(pending & active)
+        self._read_at = now
+        return self._packs

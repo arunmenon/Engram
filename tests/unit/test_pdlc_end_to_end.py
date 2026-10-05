@@ -33,7 +33,7 @@ from context_graph.domain.models import Event
 from context_graph.domain.pack_extraction import extraction_profiles
 from context_graph.domain.projection import event_to_node
 from context_graph.migration.compare import compare_graphs
-from context_graph.ontology.__main__ import same_graph, target_settings
+from context_graph.ontology.__main__ import evaluate_graph, same_graph, target_settings
 from context_graph.ontology.rebuild import RebuildRefusedError, rebuild
 from context_graph.ontology.runtime import configured_projector
 from context_graph.ontology.versioning import reconcile
@@ -107,6 +107,7 @@ async def test_webhooks_build_a_pdlc_graph(monkeypatch: pytest.MonkeyPatch, back
         monkeypatch.setenv("CG_SPANNER_DATABASE", f"pdlc{uuid4().hex[:12]}")
         monkeypatch.setenv("CG_SPANNER_CREATE_IF_MISSING", "true")
     monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+    monkeypatch.setenv("CG_ONTOLOGY_EVAL_STATE_TTL_S", "0")  # see each recorded change at once
     monkeypatch.setenv("CG_WEBHOOK_GITHUB_SECRET", SECRET)
     monkeypatch.setenv("CG_WEBHOOK_JIRA_SECRET", SECRET)
     monkeypatch.delenv("CG_AUTH_API_KEY", raising=False)
@@ -206,9 +207,40 @@ async def _run(
             )
             await _drain(projection, stores, settings.consumer.group_projection)
             await _check_graph(stores.graph)
+            await _check_eval_gate(client, settings, stores)
             await _check_queries(client)
             await _check_versioning(client, settings, stores, backend)
             await _check_extraction(client, settings, stores)
+
+
+async def _check_eval_gate(client: httpx.AsyncClient, settings: Settings, stores: Stores) -> None:
+    """Decision 10: PDLC's weights wait on its evaluation set, from the first deploy."""
+    # Before the worker records the ontology, and after: PDLC is pending either way
+    question = {"query": "Where is PAY-341 deployed? Trace it."}
+    unrecorded = (await client.post("/v1/query/artifacts", json=question)).json()
+    assert unrecorded["meta"]["eval_pending"] == ["pdlc"]
+    projector = configured_projector(settings.ontology)
+    plan = await reconcile(
+        stores.graph,
+        stores.event_log,
+        projector,
+        allow_breaking=False,
+        batch_size=100,
+        lookup_limit=settings.ontology.lookup_limit,
+    )
+    assert plan.kind == "initial"
+    assert plan.eval_required == {"pdlc"}
+    pending = (await client.post("/v1/query/artifacts", json=question)).json()
+    assert pending["meta"]["eval_pending"] == ["pdlc"]
+    assert pending["meta"]["inferred_intents"] == {}  # trace is PDLC's: not used yet
+    asked = await client.post("/v1/query/artifacts", json={**question, "intent": "trace"})
+    assert asked.status_code == 409, asked.text
+    assert "evaluate --record" in asked.json()["detail"]
+
+    reports = await evaluate_graph(
+        settings, stores.graph, projector.registry, [EVAL_SETS], record=True
+    )
+    assert [(r.pack, r.passed) for r in reports] == [("pdlc", True)]
 
 
 async def _check_queries(client: httpx.AsyncClient) -> None:
@@ -218,6 +250,7 @@ async def _check_queries(client: httpx.AsyncClient) -> None:
     )
     assert trace.status_code == 200, trace.text
     body = trace.json()
+    assert body["meta"]["eval_pending"] == []
     assert body["meta"]["inferred_intents"] == {"trace": 1.0}
     assert body["meta"]["seed_nodes"][0] == "WorkItem:jira|PAY-341"
     assert "Change:acme/payments|7" in body["nodes"]
@@ -284,7 +317,7 @@ async def _check_versioning(
         batch_size=100,
         lookup_limit=settings.ontology.lookup_limit,
     )
-    assert plan.kind == "initial"
+    assert plan.kind == "none"  # recorded when the evaluation gate was checked
     response = await client.get("/v1/ontology")
     assert response.status_code == 200, response.text
     body = response.json()

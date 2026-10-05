@@ -57,6 +57,20 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
         return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
     if body.intent is not None and body.intent not in retriever.intents:
         return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+    # Decision 10: packs whose evaluation set has not passed on this graph
+    pending: frozenset[str] = frozenset()
+    if not ontology.serve_unevaluated:
+        pending = await request.app.state.eval_pending.packs()
+    if body.intent is not None and request.app.state.ontology.intents[body.intent].pack in pending:
+        pack = request.app.state.ontology.intents[body.intent].pack
+        return ORJSONResponse(
+            status_code=409,
+            content={
+                "detail": f"intent {body.intent!r} belongs to pack {pack!r}, whose evaluation "
+                "set has not passed on this graph; run python -m context_graph.ontology "
+                "evaluate --record (or set CG_ONTOLOGY_SERVE_UNEVALUATED=true in development)"
+            },
+        )
     if body.max_depth is not None and body.max_depth > limits.max_max_depth:
         return _invalid(f"max_depth is at most {limits.max_max_depth}")
     if body.max_nodes is not None and body.max_nodes > limits.max_max_nodes:
@@ -71,6 +85,7 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
                     max_depth=body.max_depth,
                     max_nodes=body.max_nodes or limits.default_max_nodes,
                     include_untrusted=body.include_untrusted,
+                    exclude_packs=pending,
                 )
             ),
             timeout=limits.default_timeout_ms / 1000.0,

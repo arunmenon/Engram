@@ -381,3 +381,27 @@ Item 2 of the review plan: findings N1, 3.2, N2, N3 and 1.3. Each has a test tha
 - **Pattern matching is bounded in time (1.3).** Pack expression patterns now use the `regex` engine (a new explicit dependency; it was already installed through litellm), each match limited to `MATCH_TIMEOUT_SECONDS` (0.25 s).
   - Capping the text at 100,000 characters did not bound catastrophic backtracking. `regex` already defuses `(a+)+$`, but overlapping alternatives such as `^(a|aa|aaa)+$` still take minutes on 40 characters.
   - A match that runs out of time raises `PatternTimeoutError`, a `ValueError`, so the projection worker dead-letters that event instead of stalling on it.
+
+#### A second pack works end to end (2026-10-05)
+
+Item 3 of the review plan: findings 2.2, 2.6, 2.7, 2.8, 1.4, 1.5 and 1.6. `tests/fixtures/packs/crm/` is an example CRM pack with its evaluation set, and the engine has no code for it. `tests/unit/test_pack_toy_end_to_end.py` runs it alone on memory, Neo4j and Spanner, end to end:
+- batch ingest from a trusted importer, with the pack's namespace closed;
+- projection, where core's interfaces give status, trust and provenance;
+- the evaluation gate, on the first deploy;
+- artifact questions, including a key pattern, supersession and completeness;
+- a gated rebuild that scores 1.0.
+
+`docs/runbooks/pack-authoring.md` takes a new pack from an empty file to production.
+- **The evaluation gate is enforced (2.6).** On a graph that records no ontology, the initial plan now lists every domain pack with intents as `eval_required`, so reconcile records them in `eval_pending` from the first deploy.
+  - `ontology/versioning.EvalPending` reads the pending packs from the graph's recorded ontology every `CG_ONTOLOGY_EVAL_STATE_TTL_S` (30 s). That is the recorded `eval_pending`, plus what the active packs would add to it.
+  - The artifacts route passes them to `ArtifactRetriever` as `exclude_packs`, and their intents and the weights on their edges are not used. Their nodes can still be seeds.
+  - Naming a pending pack's intent returns 409, and every response lists the pending packs in `meta.eval_pending`.
+  - `evaluate --record` (now `evaluate_graph`, callable from tests) clears them when every set passes. `CG_ONTOLOGY_SERVE_UNEVALUATED=true` turns the check off for development.
+- **Packs say how questions name their keys (2.2).** `retrieval.key_patterns` maps a seed type to a pattern (`Deal: 'D-\d+'`). A match is looked up exactly as the type's most specific key value, and counts as a precise reference, so word seeds are skipped. Validation refuses an unknown type, a type that is not a seed type, an invalid pattern, and a pattern that matches empty text.
+- **Hardening (1.4, 1.5, 1.6, 2.7):**
+  - An intent's `plugin` must be a known plugin (`INTENT_PLUGINS`).
+  - A transition to a state outside the lifecycle is recorded in `ProjectionPlan.rejected` and logged by the worker, instead of vanishing.
+  - The registry orders packs canonically: base packs first, then each pack after those it requires, ties by name. Rule order and merges no longer depend on how `CG_ONTOLOGY_PACKS` is listed.
+  - `OntologyState` is a reserved type name, and an event namespace belongs to the one pack that declares events in it.
+  - `OntologyRegistry.inert_settings()` lists the declared settings nothing reads yet, and the loader logs each one as a warning: `embed_fields`, `derived_proposals`, `decay`, `terminal_states_reduce_importance`, other link policy settings, and `mappings`.
+- **A finding while writing the example.** Provenance is written for upserted nodes, so a rule with a bare transition records the new state but not which event set it. The example pack and the runbook upsert the node in every rule that changes it, as the PDLC rules do. Writing provenance for bare transitions is left open.

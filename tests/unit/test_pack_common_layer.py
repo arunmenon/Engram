@@ -62,6 +62,7 @@ projection:
     transition: {type: Deal, to: replaced}
 retrieval:
   seed_types: [Deal, Account]
+  key_patterns: {Deal: 'D-\\d+'}
   intents:
     pipeline:
       description: "The deals of an account"
@@ -143,7 +144,9 @@ async def _two_deals(registry: OntologyRegistry, agent: str = IMPORTER) -> _Crm:
 class TestComposition:
     def test_two_domain_packs_share_the_core_interfaces(self, tmp_path: Path) -> None:
         registry = _registry(tmp_path)
-        assert [p.name for p in registry.packs] == ["core", "memory", "user", "pdlc", "crm"]
+        assert [p.name for p in registry.packs] == ["core", "memory", "user", "crm", "pdlc"]
+        # The same registry whatever order the packs are listed in
+        assert _registry(tmp_path, packs=("crm", "pdlc")).version == registry.version
         for name in ("Lifecycled", "Sourced", "Claim", "Anchored", "Versioned"):
             assert registry.interfaces[name][0] == "core"
         assert registry.interfaces["Owned"][0] == "pdlc"  # it promises OWNED_BY, a PDLC edge
@@ -228,3 +231,146 @@ class TestBehaviour:
         crm = await _two_deals(_registry(tmp_path, text))
         response = await crm.retriever().retrieve(ArtifactQuery("Acme", seed_node_ids=(ACME,)))
         assert {DEAL_1, DEAL_2} <= set(response.nodes)
+
+
+class TestKeyPatterns:
+    """Review 2.2: a pack says how questions name its keys (``D-7``), not only ``PAY-341``."""
+
+    async def test_a_key_pattern_seeds_its_node(self, tmp_path: Path) -> None:
+        crm = _Crm(_registry(tmp_path), frozenset({IMPORTER}))
+        payload = {
+            "deal_id": "D-7",
+            "title": "Renewal",
+            "account_id": "acme",
+            "account_name": "Acme",
+        }
+        await crm.ingest("crm.deal.created", payload, IMPORTER)
+        response = await crm.retriever().retrieve(
+            ArtifactQuery("Which account does deal D-7 belong to?")
+        )
+        assert response.meta.seed_nodes == [make_node_id("Deal", ["D-7"])]
+        assert ACME in response.nodes
+
+    async def test_without_one_the_question_finds_nothing(self, tmp_path: Path) -> None:
+        text = CRM.replace("  key_patterns: {Deal: 'D-\\d+'}\n", "")
+        crm = _Crm(_registry(tmp_path, text), frozenset({IMPORTER}))
+        payload = {
+            "deal_id": "D-7",
+            "title": "Renewal",
+            "account_id": "acme",
+            "account_name": "Acme",
+        }
+        await crm.ingest("crm.deal.created", payload, IMPORTER)
+        response = await crm.retriever().retrieve(
+            ArtifactQuery("Which account does deal D-7 belong to?")
+        )
+        assert response.meta.seed_nodes == []
+
+    def test_key_patterns_are_checked(self, tmp_path: Path) -> None:
+        for pattern, problem in (
+            ("'D-(\\d+'", "key pattern for Deal: missing )"),
+            ("'D?'", "key pattern for Deal matches empty text"),
+        ):
+            text = CRM.replace("{Deal: 'D-\\d+'}", "{Deal: " + pattern + "}")
+            assert any(problem in p for p in _problems(tmp_path, text)), pattern
+        text = CRM.replace("{Deal: 'D-\\d+'}", "{Contact: 'C-\\d+'}")
+        assert any("key pattern for unknown type 'Contact'" in p for p in _problems(tmp_path, text))
+
+
+def _tagger(name: str, requires: str = "core>=1.1") -> str:
+    """A pack that tags every tool.execute event with a node of its own."""
+    tag = name.capitalize() + "Tag"
+    return f"""\
+pack: {{name: {name}, version: 1.0.0, requires: [{requires}]}}
+types:
+  nodes:
+    {tag}:
+      key: [tag_id]
+      properties: {{tag_id: string}}
+projection:
+  - event: "core:tool.execute"
+    upsert:
+      - {{type: {tag}, key: {{tag_id: $event.event_id}}}}
+"""
+
+
+class TestHardening:
+    """Review 1.4, 1.5, 1.6 and 2.7."""
+
+    def _packs(self, *texts: str) -> list[Any]:
+        from context_graph.ontology import load_pack_file, parse_pack
+
+        base = [
+            load_pack_file(BUILTIN_PACK_DIR / f"{n}.pack.yaml") for n in ("core", "memory", "user")
+        ]
+        return [*base, *(parse_pack(t) for t in texts)]
+
+    def test_rules_run_in_one_order_whatever_the_listing(self) -> None:
+        alpha, beta = _tagger("alpha"), _tagger("beta")
+        forward = OntologyRegistry(self._packs(alpha, beta))
+        backward = OntologyRegistry(self._packs(beta, alpha))
+        order = [pack for pack, _rule in forward.projection_rules["tool.execute"]]
+        assert order == ["alpha", "beta"]  # by name when neither requires the other
+        assert [p for p, _r in backward.projection_rules["tool.execute"]] == order
+        # A pack's rules run after those of the packs it requires
+        needs_beta = _tagger("alpha", "beta>=1.0")
+        required = OntologyRegistry(self._packs(needs_beta, beta))
+        assert [p for p, _r in required.projection_rules["tool.execute"]] == ["beta", "alpha"]
+
+    def test_reserved_types_and_owned_namespaces(self, tmp_path: Path) -> None:
+        text = CRM.replace(
+            "    Account:\n",
+            "    OntologyState:\n      key: [state_id]\n"
+            "      properties: {state_id: string}\n    Account:\n",
+        )
+        assert "crm: node type name 'OntologyState' is reserved" in _problems(tmp_path, text)
+        text = CRM.replace(
+            "  crm.deal.replaced: {}\n", "  crm.deal.replaced: {}\n  pdlc.deal.won: {}\n"
+        )
+        assert any(
+            "event 'pdlc.deal.won' is in namespace 'pdlc', which pack pdlc owns" in p
+            for p in _problems(tmp_path, text)
+        )
+
+    def test_unknown_plugins_are_refused(self, tmp_path: Path) -> None:
+        text = CRM.replace(
+            "      keywords: [pipeline]\n",
+            "      keywords: [pipeline]\n      plugin: mising_links\n",
+        )
+        assert any(
+            "intent pipeline names unknown plugin 'mising_links'" in p
+            for p in _problems(tmp_path, text)
+        )
+
+    def test_settings_nothing_reads_are_listed(self, tmp_path: Path) -> None:
+        notes = _registry(tmp_path).inert_settings()
+        assert "pdlc: extraction.derived_proposals" in notes
+        assert "pdlc: lifecycle.decay" in notes
+        assert "pdlc: Change.embed_fields (no embeddings for pack types)" in notes
+        assert any(n.startswith("pdlc: link_policy ") and "read_time_threshold" in n for n in notes)
+        assert not any(n.startswith("crm:") for n in notes)
+
+    def test_a_transition_to_an_unknown_state_is_reported(self, tmp_path: Path) -> None:
+        text = CRM.replace(
+            "transition: {type: Deal, to: replaced}", "transition: {type: Deal, to: $.state}"
+        )
+        registry = _registry(tmp_path, text)
+        projector = PackProjector(registry, frozenset({IMPORTER}))
+        event = Event(
+            event_id=uuid4(),
+            event_type="crm.deal.replaced",
+            occurred_at=START,
+            session_id="s",
+            agent_id=IMPORTER,
+            trace_id="t",
+            payload_ref="p",
+            global_position="1-0",
+        )
+        document = orjson.loads(event.model_dump_json()) | {
+            "payload": {"deal_id": "D1", "state": "archived"}
+        }
+        plan = projector.plan(event, document)
+        assert plan.states == []
+        assert plan.rejected == [
+            "Deal: state 'archived' is not in its lifecycle ['open', 'won', 'lost', 'replaced']"
+        ]

@@ -18,10 +18,13 @@ import re
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
 from pydantic import ValidationError
 
 from context_graph.domain.ontology import OntologyError, OntologyRegistry, Pack
+
+log = structlog.get_logger(__name__)
 
 BUILTIN_PACK_DIR = Path(__file__).parent / "packs"
 
@@ -210,4 +213,7 @@ def load_registry(names: list[str], search_dirs: list[Path] | None = None) -> On
             match = _REQUIRED_NAME.match(requirement)
             if match:
                 pending.append(match.group(1))
-    return OntologyRegistry(list(packs.values()))
+    registry = OntologyRegistry(list(packs.values()))
+    for setting in registry.inert_settings():
+        log.warning("ontology_setting_not_implemented", setting=setting)
+    return registry

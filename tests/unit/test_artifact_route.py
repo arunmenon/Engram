@@ -11,6 +11,7 @@ from fastapi import FastAPI
 
 from context_graph.api.routes.artifacts import router
 from context_graph.domain.models import AtlasResponse
+from context_graph.ontology import load_registry
 from context_graph.settings import Settings
 
 
@@ -34,7 +35,17 @@ def _app(monkeypatch: pytest.MonkeyPatch, delay_s: float) -> tuple[FastAPI, Slow
     retriever = SlowRetriever(delay_s)
     app.state.artifacts = retriever
     app.state.settings = Settings()
+    app.state.ontology = load_registry(["pdlc"])
+    app.state.eval_pending = _Pending(frozenset())
     return app, retriever
+
+
+class _Pending:
+    def __init__(self, packs: frozenset[str]) -> None:
+        self._packs = packs
+
+    async def packs(self) -> frozenset[str]:
+        return self._packs
 
 
 async def _post(app: FastAPI, body: dict[str, Any]) -> httpx.Response:
@@ -71,3 +82,19 @@ async def test_query_is_stripped(monkeypatch: pytest.MonkeyPatch) -> None:
     app, retriever = _app(monkeypatch, delay_s=0.0)
     assert (await _post(app, {"query": "  trace PAY-1 "})).status_code == 200
     assert retriever.queries[0].query == "trace PAY-1"
+
+
+async def test_a_pending_packs_weights_are_not_used(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Decision 10: until its evaluation set passes, a pack's intents are refused or skipped."""
+    app, retriever = _app(monkeypatch, delay_s=0)
+    app.state.eval_pending = _Pending(frozenset({"pdlc"}))
+    asked = await _post(app, {"query": "trace PAY-1", "intent": "trace"})
+    assert asked.status_code == 409
+    assert "evaluate --record" in asked.json()["detail"]
+    assert (await _post(app, {"query": "trace PAY-1"})).status_code == 200
+    assert retriever.queries[-1].exclude_packs == frozenset({"pdlc"})
+
+    monkeypatch.setenv("CG_ONTOLOGY_SERVE_UNEVALUATED", "true")
+    app.state.settings = Settings()
+    assert (await _post(app, {"query": "trace PAY-1", "intent": "trace"})).status_code == 200
+    assert retriever.queries[-1].exclude_packs == frozenset()

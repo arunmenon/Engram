@@ -106,6 +106,9 @@ class ProjectionPlan:
     states: list[StateChange] = field(default_factory=list)
     edges: list[EdgeWrite] = field(default_factory=list)
     lookups: list[EdgeLookup] = field(default_factory=list)
+    # Writes a rule asked for that the ontology refuses (a state not in the
+    # type's lifecycle); the worker logs them rather than dropping them unseen
+    rejected: list[str] = field(default_factory=list)
 
     @property
     def empty(self) -> bool:
@@ -396,6 +399,10 @@ class PackProjector:
         lifecycle = node_type.lifecycle
         key = transition_key(rule, node_type.name)
         state = self._eval(transition.to, context.scope)
+        if lifecycle is not None and state is not None and state not in lifecycle.states:
+            plan.rejected.append(
+                f"{node_type.name}: state {state!r} is not in its lifecycle {lifecycle.states}"
+            )
         if lifecycle is None or key is None or state not in lifecycle.states:
             return
         for keyed in self._keyed_refs(node_type, key, context.scope):

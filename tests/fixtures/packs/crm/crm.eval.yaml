@@ -1,0 +1,27 @@
+# Evaluation set for the example crm pack (decision 10). The ledger is the
+# events in tests/unit/test_pack_toy_end_to_end.py: accounts acme, globex and
+# initech; deals D-1 (replaced by D-2), D-2 and D-7 (won) at acme, D-8 at
+# globex; contacts ann@acme.com and bo@globex.com.
+pack: crm
+min_f1: 1.0
+questions:
+  - id: account-of-deal
+    query: "Which account does deal D-7 belong to?"
+    expected: ["Account:acme"]
+    answer: {node_type: Account}
+  - id: pipeline-of-globex
+    query: "Show the pipeline for Globex"
+    expected: ["Deal:D-8"]
+    answer: {node_type: Deal, reasons: [proactive]}
+  - id: current-pipeline-of-acme
+    query: "What is in the Acme pipeline?"
+    expected: ["Deal:D-2", "Deal:D-7"]   # not D-1: replaced
+    answer: {node_type: Deal, reasons: [proactive]}
+  - id: accounts-without-deals
+    query: "Which accounts have no deals?"
+    expected: ["Account:initech"]
+    answer: {reasons: [no_link]}
+  - id: people-at-globex
+    query: "Who works at Globex?"
+    expected: ["Contact:bo@globex.com"]
+    answer: {node_type: Contact}

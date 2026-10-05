@@ -576,6 +576,9 @@ class QueryMeta(BaseModel):
     )
     retrieval_channels: dict[str, int] = Field(default_factory=dict)
     capacity: QueryCapacity | None = None
+    # Packs whose evaluation set has not passed: their intents and edge
+    # weights were not used for this answer (ADR-0018 decision 10)
+    eval_pending: list[str] = Field(default_factory=list)
 
 
 class Pagination(BaseModel):

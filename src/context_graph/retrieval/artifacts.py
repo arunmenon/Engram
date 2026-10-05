@@ -6,7 +6,10 @@ packs add (PDLC: changes, tickets, requirements, decisions, incidents):
 
 1. **Intent**: classified from the query with the keywords of the intents
    that weight pack edges (``trace``, ``completeness``, ``status``,
-   ``impact``, ``preflight``, and ``why``/``who_is``); or given.
+   ``impact``, ``preflight``, and ``why``/``who_is``); or given. The
+   intents and edges of ``exclude_packs`` (packs whose evaluation set has
+   not passed, decision 10) are not used, and the response lists them in
+   ``meta.eval_pending``.
 2. **Seeds**: node ids given by the caller, plus nodes of the packs'
    seed types matched by the query. Precise references come first: key-like
    tokens (``PAY-341``, ``refund/retry.py``, ``v1.4.0``) search text, key
@@ -78,6 +81,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+import regex
+import structlog
+
 from context_graph.domain.models import (
     AtlasEdge,
     AtlasNode,
@@ -88,7 +94,9 @@ from context_graph.domain.models import (
     QueryMeta,
 )
 from context_graph.domain.ontology import OPEN_PACKS, PROVENANCE_EDGE, EnumSpec
+from context_graph.domain.pack_expressions import MATCH_TIMEOUT_SECONDS
 from context_graph.domain.pack_intents import RegistryIntents
+from context_graph.domain.pack_projection import coerce
 from context_graph.ports.pack_graph import NodeRef
 
 if TYPE_CHECKING:
@@ -96,6 +104,8 @@ if TYPE_CHECKING:
 
     from context_graph.domain.ontology import NodeType, OntologyRegistry
     from context_graph.ports.pack_graph import Direction, PackGraph
+
+log = structlog.get_logger(__name__)
 
 MISSING_LINKS_PLUGIN = "missing_links"
 SUPERSEDES_EDGE = "SUPERSEDES"
@@ -129,6 +139,8 @@ class ArtifactQuery:
     max_depth: int | None = None
     max_nodes: int = 100
     include_untrusted: bool = False
+    # Packs whose intents and edge weights are not used (evaluation pending)
+    exclude_packs: frozenset[str] = frozenset()
 
 
 @dataclass
@@ -218,6 +230,12 @@ class ArtifactRetriever:
             if pack.name not in OPEN_PACKS
             for name in pack.retrieval.seed_types
         ]
+        # Pack-declared key patterns: (type, compiled pattern)
+        self._key_patterns = [
+            (type_name, regex.compile(pattern))
+            for pack in registry.packs
+            for type_name, pattern in pack.retrieval.key_patterns.items()
+        ]
         self._type_words = self._type_vocabulary()
         self._artifact_edges = self._edges_between_pack_types()
 
@@ -229,10 +247,17 @@ class ArtifactRetriever:
 
     async def retrieve(self, query: ArtifactQuery) -> AtlasResponse:
         started = time.monotonic()
+        excluded = query.exclude_packs
         if query.intent is not None:
             intents = {query.intent: 1.0}
         else:
             intents = self._intents.classify(query.query)
+        if excluded:
+            intents = {
+                name: confidence
+                for name, confidence in intents.items()
+                if self._registry.intents[name].pack not in excluded
+            }
         dominant = self._dominant(intents)
         intent = self._registry.intents[dominant] if dominant else None
         if intents:
@@ -240,7 +265,13 @@ class ArtifactRetriever:
         else:
             # No intent named: every artifact intent's edges, both directions
             weights = self._intents.edge_weights(dict.fromkeys(self._intents.names, 1.0))
-        weights = {e: w for e, w in weights.items() if w > 0 and e in self._artifact_edges}
+        weights = {
+            e: w
+            for e, w in weights.items()
+            if w > 0
+            and e in self._artifact_edges
+            and self._registry.edge_types[e].pack not in excluded
+        }
         depth = query.max_depth or (intent.definition.max_depth if intent else None)
         depth = depth or self._default_depth
         direction = DIRECTIONS[intent.definition.direction] if intent else "both"
@@ -425,6 +456,7 @@ class ArtifactRetriever:
             numbers = numbers[: self._max_terms]
         if key_terms:
             await self._key_seeds(key_terms, found, given_refs, result)
+        await self._pattern_seeds(text, found, given_refs, result)
         for number in numbers:
             for label in self._seed_types:
                 node_type = self._registry.node_types[label]
@@ -509,6 +541,36 @@ class ArtifactRetriever:
         for match_ref, (terms_hit, is_named) in matched.items():
             if not is_named and terms_hit and terms_hit <= named:
                 del found[match_ref]
+
+    async def _pattern_seeds(
+        self,
+        text: str,
+        found: dict[NodeRef, _Found],
+        given_refs: set[NodeRef],
+        result: _Result,
+    ) -> None:
+        """Nodes the question names by a pack's key pattern (``D-1``), looked up exactly."""
+        for label, pattern in self._key_patterns:
+            try:
+                matches = list(pattern.finditer(text, timeout=MATCH_TIMEOUT_SECONDS))
+            except TimeoutError:
+                log.warning("key_pattern_timeout", type=label, pattern=pattern.pattern)
+                continue
+            tokens = list(dict.fromkeys(m.group(1) if m.groups() else m.group(0) for m in matches))
+            if len(tokens) > self._max_terms:
+                result.truncated = True
+            node_type = self._registry.node_types[label]
+            key_field = node_type.key[-1]
+            for token in tokens[: self._max_terms]:
+                value = coerce(token, node_type.properties.get(key_field))
+                if value is None or not self._spend(result):
+                    continue
+                for props in await self._graph.find_nodes(
+                    label, {key_field: value}, self._seed_limit
+                ):
+                    ref = self._ref(label, props)
+                    if ref is not None and ref not in given_refs:
+                        found[ref] = _Found(ref, props, 2.0, 0, origin="key")
 
     async def _word_seeds(
         self,
@@ -1031,5 +1093,6 @@ class ArtifactRetriever:
                 capacity=QueryCapacity(
                     max_nodes=query.max_nodes, used_nodes=len(nodes), max_depth=depth
                 ),
+                eval_pending=sorted(query.exclude_packs),
             ),
         )

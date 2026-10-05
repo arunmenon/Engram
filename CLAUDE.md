@@ -223,6 +223,7 @@ Optional: `tool_name`, `parent_event_id` (UUID), `ended_at`, `status`, `schema_v
 - Event types: dot-namespaced (`agent.invoke`, `tool.execute`)
 - Edge types: UPPER_SNAKE_CASE (`CAUSED_BY`, `SIMILAR_TO`)
 - Redis keys: colon-namespaced (`evt:{event_id}`, `events:{session_id}`)
+- Ontology packs: a new domain pack follows `docs/runbooks/pack-authoring.md` (worked example: `tests/fixtures/packs/crm/`)
 - Storage backends: a new or changed adapter must pass `tests/conformance/` (ADR-0019 §5); the memory backend is the reference and runs in the unit job, Redis, Neo4j and Spanner (emulator, `CG_SPANNER_EMULATOR_HOST`) run as `integration`
 
 ## API Response Pattern

@@ -565,6 +565,12 @@ class OntologySettings(BaseSettings):
     # Candidates per seed type a word search reads to weigh each word by
     # how rare it is among them
     retrieval_word_scan_limit: int = 500
+    # Decision 10: a pack's intents and edge weights are not used for
+    # artifact queries until its evaluation set passes on this graph. The
+    # recorded state is re-read this often; serve_unevaluated turns the
+    # check off (development only)
+    eval_state_ttl_s: float = 30.0
+    serve_unevaluated: bool = False
     retrieval_max_query_length: int = 2000
     retrieval_max_seed_ids: int = 50
 
