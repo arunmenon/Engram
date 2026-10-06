@@ -1,0 +1,3181 @@
+<title>Engram Packs and Spanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+/>
+<style>
+  /* Layout: one reading column with a sticky section index on wide screens; diagrams, tables and code scroll inside their own boxes. */
+  :root {
+    --bg: #f5f7fa;
+    --panel: #ffffff;
+    --fg: #18212d;
+    --muted: #5a6574;
+    --line: #dce2ea;
+    --accent: #2c55c9;
+    --accent-soft: #e6ecfb;
+    --spanner: #0d7a5f;
+    --spanner-soft: #e1f3ed;
+    --warn: #9a5b00;
+    --warn-soft: #fbf0dd;
+    --code-bg: #eef1f6;
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11161d;
+      --panel: #171e27;
+      --fg: #e3e8ef;
+      --muted: #98a3b3;
+      --line: #2a3441;
+      --accent: #8aa8ff;
+      --accent-soft: #1d2a4a;
+      --spanner: #5fd0ac;
+      --spanner-soft: #12302a;
+      --warn: #f0b75a;
+      --warn-soft: #33270f;
+      --code-bg: #1d2530;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11161d;
+    --panel: #171e27;
+    --fg: #e3e8ef;
+    --muted: #98a3b3;
+    --line: #2a3441;
+    --accent: #8aa8ff;
+    --accent-soft: #1d2a4a;
+    --spanner: #5fd0ac;
+    --spanner-soft: #12302a;
+    --warn: #f0b75a;
+    --warn-soft: #33270f;
+    --code-bg: #1d2530;
+    color-scheme: dark;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 var(--font-body);
+    padding-inline: 16px;
+    padding-block: 40px 80px;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 48px;
+  }
+  nav.toc {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 24px);
+    align-self: start;
+    font-size: 13.5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  nav.toc .label {
+    font: 500 11px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 10px 0 4px;
+  }
+  nav.toc .label:first-child {
+    margin-top: 0;
+  }
+  nav.toc a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 2px 0;
+  }
+  nav.toc a:hover,
+  nav.toc a:focus-visible {
+    color: var(--accent);
+  }
+  main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+  header .eyebrow {
+    font: 500 12px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 {
+    font: 700 clamp(30px, 5vw, 44px)/1.1 var(--font-display);
+    margin: 12px 0 14px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font: 700 26px/1.2 var(--font-display);
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  h3 {
+    font: 600 17px/1.3 var(--font-body);
+    margin: 30px 0 8px;
+  }
+  p,
+  li {
+    max-width: 68ch;
+  }
+  p {
+    margin: 0 0 12px;
+  }
+  ul,
+  ol {
+    margin: 0 0 12px;
+    padding-left: 22px;
+  }
+  li {
+    margin-bottom: 6px;
+  }
+  .lede {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 64ch;
+  }
+  .meta {
+    font: 13px/1.5 var(--font-mono);
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 16px;
+  }
+  section .kicker {
+    font: 500 12px/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  section.spanner .kicker {
+    color: var(--spanner);
+  }
+  code {
+    font: 0.88em var(--font-mono);
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  pre.code {
+    font: 13px/1.55 var(--font-mono);
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0 0 14px;
+  }
+  .tablebox {
+    overflow-x: auto;
+    margin: 0 0 16px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14.5px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 8px 12px 8px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    font: 500 12px/1.3 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  td.mono,
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  td.mono {
+    white-space: nowrap;
+  }
+  td.path {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 0 0 16px;
+    max-width: 72ch;
+  }
+  .callout.spanner {
+    border-color: var(--spanner);
+    background: var(--spanner-soft);
+  }
+  .callout.warn {
+    border-color: var(--warn);
+    background: var(--warn-soft);
+  }
+  .callout p:last-child,
+  .callout ul:last-child {
+    margin-bottom: 0;
+  }
+  .glance {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .glance div {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .glance h4 {
+    margin: 0 0 6px;
+    font: 600 15px/1.3 var(--font-body);
+  }
+  .glance p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--muted);
+  }
+  .compare {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin: 0 0 16px;
+  }
+  .compare div {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: var(--panel);
+  }
+  .compare h4 {
+    margin: 0 0 6px;
+    font: 500 12px/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .compare ul {
+    margin: 0;
+    font-size: 14.5px;
+  }
+  dl.glossary {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 18px;
+    margin: 0;
+    font-size: 15px;
+  }
+  dl.glossary dt {
+    font: 500 13.5px/1.6 var(--font-mono);
+    color: var(--accent);
+  }
+  dl.glossary dd {
+    margin: 0;
+    max-width: 64ch;
+  }
+  .diagram {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 0 0 16px;
+  }
+  pre.mermaid {
+    margin: 0;
+    background: transparent;
+  }
+  .insight {
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+    margin-top: 18px;
+  }
+  .insight h4 {
+    font: 600 16px/1.35 var(--font-body);
+    margin: 0 0 6px;
+  }
+  a {
+    color: var(--accent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  @media (max-width: 820px) {
+    .wrap {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+    nav.toc {
+      position: static;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+    }
+    nav.toc .label {
+      width: 100%;
+      margin: 6px 0 0;
+    }
+    dl.glossary {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
+    dl.glossary dd {
+      margin-bottom: 8px;
+    }
+  }
+
+  .fig { margin: 0 0 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 16px 12px; }
+  .figscroll { overflow-x: auto; }
+  .fig svg { display: block; width: 100%; height: auto; min-width: 620px; color: var(--fg); font-family: var(--font-body); }
+  .fig figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); margin-top: 10px; max-width: 74ch; }
+  .fig text { fill: currentColor; font-size: 13px; }
+  .fig .t-title { font-weight: 600; font-size: 13.5px; }
+  .fig .t-sub { fill: var(--muted); font-size: 11.5px; }
+  .fig .t-edge { fill: var(--muted); font: 500 10.5px var(--font-mono); }
+  .fig .t-edge-new { fill: var(--accent); font: 500 10.5px var(--font-mono); }
+  .fig .t-label { fill: var(--muted); font: 500 11px var(--font-mono); letter-spacing: .08em; }
+  .fig .bx { fill: var(--panel); stroke: var(--muted); stroke-width: 1.2; }
+  .fig .bx-new, .fig .bx-key { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+  .fig .bx-sp { fill: var(--spanner-soft); stroke: var(--spanner); stroke-width: 1.5; }
+  .fig .bx-ghost { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .fig .grp { fill: none; stroke: var(--line); stroke-width: 1.5; }
+  .fig .divider { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 6 5; }
+  .fig .ln { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+  .fig .ln-new { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+  .fig .ln-sp { stroke: var(--spanner); stroke-width: 1.6; fill: none; }
+  .fig .dash { stroke-dasharray: 5 4; }
+  .fig .ah { fill: var(--muted); }
+  .fig .ah-new { fill: var(--accent); }
+  .fig .ah-sp { fill: var(--spanner); }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Sections">
+    <span class="label">Overview</span>
+    <a href="#glance">The big picture</a>
+    <a href="#terms">Words used here</a>
+    <span class="label">Ontology</span>
+    <a href="#layers">Common layer and packs</a>
+    <a href="#packs">What a pack declares</a>
+    <a href="#change">Changing a pack safely</a>
+    <a href="#pdlc">The PDLC ontology</a>
+    <span class="label">Flows</span>
+    <a href="#ingest">Ingestion</a>
+    <a href="#retrieve">Retrieval</a>
+    <span class="label">Storage</span>
+    <a href="#spanner">How Engram talks to Spanner</a>
+    <a href="#insights">Spanner insights</a>
+    <span class="label">Reference</span>
+    <a href="#risks">Open risks</a>
+  </nav>
+
+  <main>
+    <header>
+      <div class="eyebrow">
+        Engram · context graph · engineering walkthrough
+      </div>
+      <h1>Ontology packs and the Spanner backend</h1>
+      <p class="lede">
+        This is a large refactor in two parts. First, the graph's schema is now
+        data rather than code: a common ontology layer that every deployment
+        shares, plus domain "packs" written in YAML. Second, every storage call
+        now goes through five ports, and Spanner is one of the backends behind
+        them.
+      </p>
+      <div class="meta">
+        <span>ADR-0018 · ontology packs</span>
+        <span>ADR-0019 · pluggable storage backends</span>
+      </div>
+    </header>
+
+    <section id="glance">
+      <div class="kicker">Overview</div>
+      <h2>The big picture</h2>
+      <div class="glance">
+        <div>
+          <h4>Schema as data</h4>
+          <p>
+            A common layer describes agent memory. Domain packs add their own
+            types, rules and question types on top, with no engine code.
+          </p>
+        </div>
+        <div>
+          <h4>The PDLC pack</h4>
+          <p>
+            The first domain pack. It traces work from a request to code, tests,
+            releases, deployments and incidents, and cites a source for every
+            answer.
+          </p>
+        </div>
+        <div>
+          <h4>Storage behind ports</h4>
+          <p>
+            The ledger, the subscriptions, the graph and the search indexes sit
+            behind five interfaces. Redis with Neo4j, an in-memory backend and
+            Spanner all implement them.
+          </p>
+        </div>
+      </div>
+
+      <figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 760 495"
+      role="img"
+      aria-label="Before the refactor, the ingest API, workers and retrieval each called Redis and Neo4j directly and the schema was hard-coded. After, they load the schema from packs through the ontology registry and call five storage ports, which Redis plus Neo4j, an in-memory backend or Spanner implement."
+    >
+      <defs>
+        <marker
+          id="ah-m1"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah" />
+        </marker>
+        <marker
+          id="ah-n1"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah-new" />
+        </marker>
+        <marker
+          id="ah-s1"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah-sp" />
+        </marker>
+      </defs>
+
+      <text x="20" y="24" class="t-label">BEFORE</text>
+      <rect x="20" y="40" width="140" height="50" rx="8" class="bx-ghost" />
+      <text x="90" y="61" text-anchor="middle" class="t-title">Schema</text>
+      <text x="90" y="78" text-anchor="middle" class="t-sub">
+        hard-coded in code
+      </text>
+      <line
+        x1="160"
+        y1="65"
+        x2="204"
+        y2="65"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <text x="182" y="58" text-anchor="middle" class="t-edge">fixed</text>
+      <rect x="208" y="36" width="544" height="58" rx="10" class="grp" />
+      <rect x="220" y="45" width="150" height="40" rx="6" class="bx" />
+      <text x="295" y="62" text-anchor="middle" class="t-title">
+        Ingest API
+      </text>
+      <text x="295" y="77" text-anchor="middle" class="t-sub">
+        events, batch
+      </text>
+      <rect x="405" y="45" width="150" height="40" rx="6" class="bx" />
+      <text x="480" y="62" text-anchor="middle" class="t-title">Workers</text>
+      <text x="480" y="77" text-anchor="middle" class="t-sub">
+        Redis stream calls
+      </text>
+      <rect x="590" y="45" width="150" height="40" rx="6" class="bx" />
+      <text x="665" y="62" text-anchor="middle" class="t-title">Retrieval</text>
+      <text x="665" y="77" text-anchor="middle" class="t-sub">
+        inside Neo4j adapter
+      </text>
+      <line
+        x1="295"
+        y1="85"
+        x2="312"
+        y2="147"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <line
+        x1="460"
+        y1="85"
+        x2="372"
+        y2="147"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <line
+        x1="500"
+        y1="85"
+        x2="568"
+        y2="147"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <line
+        x1="650"
+        y1="85"
+        x2="626"
+        y2="147"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <line
+        x1="620"
+        y1="85"
+        x2="404"
+        y2="147"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <rect x="250" y="150" width="160" height="40" rx="6" class="bx" />
+      <text x="330" y="167" text-anchor="middle" class="t-title">Redis</text>
+      <text x="330" y="182" text-anchor="middle" class="t-sub">
+        ledger, streams, search
+      </text>
+      <rect x="520" y="150" width="160" height="40" rx="6" class="bx" />
+      <text x="600" y="167" text-anchor="middle" class="t-title">Neo4j</text>
+      <text x="600" y="182" text-anchor="middle" class="t-sub">graph</text>
+      <text x="20" y="152" class="t-sub">Every component</text>
+      <text x="20" y="168" class="t-sub">calls Redis and</text>
+      <text x="20" y="184" class="t-sub">Neo4j directly.</text>
+
+      <line x1="20" y1="222" x2="740" y2="222" class="divider" />
+
+      <text x="20" y="252" class="t-label">AFTER</text>
+      <rect x="20" y="268" width="140" height="50" rx="8" class="bx-new" />
+      <text x="90" y="289" text-anchor="middle" class="t-title">
+        Ontology registry
+      </text>
+      <text x="90" y="306" text-anchor="middle" class="t-sub">
+        core + domain packs
+      </text>
+      <line
+        x1="160"
+        y1="293"
+        x2="204"
+        y2="293"
+        class="ln-new"
+        marker-end="url(#ah-n1)"
+      />
+      <text x="182" y="286" text-anchor="middle" class="t-edge-new">loads</text>
+      <rect x="208" y="264" width="544" height="58" rx="10" class="grp" />
+      <rect x="220" y="273" width="150" height="40" rx="6" class="bx" />
+      <text x="295" y="290" text-anchor="middle" class="t-title">
+        Ingest API
+      </text>
+      <text x="295" y="305" text-anchor="middle" class="t-sub">
+        events, import, webhooks
+      </text>
+      <rect x="405" y="273" width="150" height="40" rx="6" class="bx" />
+      <text x="480" y="290" text-anchor="middle" class="t-title">Workers</text>
+      <text x="480" y="305" text-anchor="middle" class="t-sub">
+        projection, extraction
+      </text>
+      <rect x="590" y="273" width="150" height="40" rx="6" class="bx" />
+      <text x="665" y="290" text-anchor="middle" class="t-title">
+        Retrieval
+      </text>
+      <text x="665" y="305" text-anchor="middle" class="t-sub">
+        engine + artifacts
+      </text>
+      <line
+        x1="295"
+        y1="313"
+        x2="295"
+        y2="357"
+        class="ln-new"
+        marker-end="url(#ah-n1)"
+      />
+      <line
+        x1="480"
+        y1="313"
+        x2="480"
+        y2="357"
+        class="ln-new"
+        marker-end="url(#ah-n1)"
+      />
+      <line
+        x1="665"
+        y1="313"
+        x2="665"
+        y2="357"
+        class="ln-new"
+        marker-end="url(#ah-n1)"
+      />
+      <text x="303" y="340" class="t-edge-new">calls</text>
+      <rect x="220" y="360" width="520" height="40" rx="6" class="bx-new" />
+      <text x="480" y="377" text-anchor="middle" class="t-title">
+        Five storage ports
+      </text>
+      <text x="480" y="392" text-anchor="middle" class="t-sub">
+        EventLog · Subscription · GraphBackend · KeywordIndex · VectorIndex
+      </text>
+      <line
+        x1="295"
+        y1="440"
+        x2="295"
+        y2="403"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <line
+        x1="480"
+        y1="440"
+        x2="480"
+        y2="403"
+        class="ln"
+        marker-end="url(#ah-m1)"
+      />
+      <line
+        x1="665"
+        y1="440"
+        x2="665"
+        y2="403"
+        class="ln-sp"
+        marker-end="url(#ah-s1)"
+      />
+      <text x="303" y="426" class="t-edge">implements</text>
+      <rect x="220" y="440" width="150" height="40" rx="6" class="bx" />
+      <text x="295" y="457" text-anchor="middle" class="t-title">
+        Redis + Neo4j
+      </text>
+      <text x="295" y="472" text-anchor="middle" class="t-sub">original</text>
+      <rect x="405" y="440" width="150" height="40" rx="6" class="bx" />
+      <text x="480" y="457" text-anchor="middle" class="t-title">
+        In-memory
+      </text>
+      <text x="480" y="472" text-anchor="middle" class="t-sub">
+        reference, tests
+      </text>
+      <rect x="590" y="440" width="150" height="40" rx="6" class="bx-sp" />
+      <text x="665" y="457" text-anchor="middle" class="t-title">Spanner</text>
+      <text x="665" y="472" text-anchor="middle" class="t-sub">new</text>
+      <text x="20" y="378" class="t-sub">Code calls ports.</text>
+      <text x="20" y="394" class="t-sub">A setting picks</text>
+      <text x="20" y="410" class="t-sub">the backend.</text>
+      <rect x="20" y="458" width="12" height="12" rx="2" class="bx-new" />
+      <text x="38" y="469" class="t-sub">new or changed</text>
+    </svg>
+  </div>
+  <figcaption>
+    Before, every component called Redis and Neo4j directly, and the schema was
+    compiled into the code. After, components load the schema from packs at
+    start-up and call five storage ports. A setting picks which backend
+    implements them.
+  </figcaption>
+</figure>
+
+      <h3>What changed, layer by layer</h3>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Before</th>
+              <th>After</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Schema</td>
+              <td>
+                Hard-coded in enums, constraints, queries, prompts and keyword
+                tables
+              </td>
+              <td>
+                A common layer (core, memory, user packs) plus domain packs,
+                loaded by a registry
+              </td>
+            </tr>
+            <tr>
+              <td>Ingest API</td>
+              <td>Single and batch events</td>
+              <td>
+                Adds bulk import, signed webhooks, a status for each event, size
+                limits and quotas
+              </td>
+            </tr>
+            <tr>
+              <td>Workers</td>
+              <td>Called Redis stream commands directly</td>
+              <td>
+                Read through the <code>Subscription</code> port, with the same
+                lifecycle on every backend
+              </td>
+            </tr>
+            <tr>
+              <td>Projection</td>
+              <td>Hand-written code only</td>
+              <td>
+                Hand-written for agent memory, plus pack rules for domain types,
+                in the same flush
+              </td>
+            </tr>
+            <tr>
+              <td>Retrieval</td>
+              <td>Lived inside the Neo4j adapter</td>
+              <td>
+                A backend-neutral engine over read ports, plus a new pack-driven
+                artifact retriever
+              </td>
+            </tr>
+            <tr>
+              <td>Storage</td>
+              <td>Redis and Neo4j only</td>
+              <td>
+                Five ports, each with three backends: Redis+Neo4j, in-memory and
+                Spanner
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="terms">
+      <div class="kicker">Overview</div>
+      <h2>Words used here</h2>
+      <dl class="glossary">
+        <dt>ledger</dt>
+        <dd>
+          The append-only log of events. It is the source of truth. The graph is
+          built from it and can be rebuilt from it.
+        </dd>
+        <dt>projection</dt>
+        <dd>
+          Turning events into graph nodes and edges. A worker does it
+          asynchronously.
+        </dd>
+        <dt>pack</dt>
+        <dd>
+          A YAML file that declares a domain: its node and edge types, how
+          events become graph writes, and how questions about it are answered.
+        </dd>
+        <dt>port</dt>
+        <dd>
+          A Python interface (<code>typing.Protocol</code>) that a storage
+          backend implements. Application code only ever calls ports.
+        </dd>
+        <dt>intent</dt>
+        <dd>
+          The kind of question being asked, such as <code>why</code> or
+          <code>trace</code>. It decides which edges matter.
+        </dd>
+        <dt>seed</dt>
+        <dd>
+          A starting node for a search, found by ID, keyword or vector
+          similarity.
+        </dd>
+        <dt>walk</dt>
+        <dd>
+          Following edges out from the seeds, within depth and size limits.
+        </dd>
+        <dt>admission</dt>
+        <dd>
+          The final filter that decides what goes into an answer, for example
+          dropping superseded or untrusted items.
+        </dd>
+        <dt>stub</dt>
+        <dd>
+          A placeholder node created when an edge points at something that
+          hasn't arrived yet. It is filled in later.
+        </dd>
+        <dt>Atlas response</dt>
+        <dd>
+          Engram's standard answer shape: nodes with provenance and scores,
+          edges, pagination and meta.
+        </dd>
+      </dl>
+    </section>
+
+    <section id="layers">
+      <div class="kicker">Ontology</div>
+      <h2>The common layer and domain packs</h2>
+      <p>
+        The ontology has two layers. The common layer is always loaded and is
+        the same in every deployment. Domain packs sit on top and are chosen by
+        configuration.
+      </p>
+      <figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 760 305"
+      role="img"
+      aria-label="Domain packs such as pdlc and the crm test pack sit on top of the common layer of core, memory and user packs, and inherit provenance, source trust, lifecycle states and answer filters from it."
+    >
+      <defs>
+        <marker
+          id="ah-n2"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah-new" />
+        </marker>
+      </defs>
+      <text x="20" y="22" class="t-label">
+        DOMAIN PACKS · CHOSEN BY CG_ONTOLOGY_PACKS
+      </text>
+      <rect x="20" y="34" width="230" height="50" rx="8" class="bx-new" />
+      <text x="135" y="55" text-anchor="middle" class="t-title">pdlc</text>
+      <text x="135" y="72" text-anchor="middle" class="t-sub">
+        WorkItem, Change, Deployment, +14
+      </text>
+      <rect x="265" y="34" width="230" height="50" rx="8" class="bx" />
+      <text x="380" y="55" text-anchor="middle" class="t-title">
+        crm (test pack)
+      </text>
+      <text x="380" y="72" text-anchor="middle" class="t-sub">
+        Account, Contact, Deal
+      </text>
+      <rect x="510" y="34" width="230" height="50" rx="8" class="bx-ghost" />
+      <text x="625" y="55" text-anchor="middle" class="t-title">your pack</text>
+      <text x="625" y="72" text-anchor="middle" class="t-sub">
+        one YAML file, no engine code
+      </text>
+
+      <line
+        x1="135"
+        y1="224"
+        x2="135"
+        y2="88"
+        class="ln-new"
+        marker-end="url(#ah-n2)"
+      />
+      <line
+        x1="625"
+        y1="224"
+        x2="625"
+        y2="88"
+        class="ln-new"
+        marker-end="url(#ah-n2)"
+      />
+      <text x="143" y="200" class="t-edge-new">inherits</text>
+      <text x="633" y="200" class="t-edge-new">inherits</text>
+      <rect x="200" y="104" width="360" height="76" rx="8" class="grp" />
+      <text x="380" y="127" text-anchor="middle" class="t-title">
+        Every domain pack inherits
+      </text>
+      <text x="380" y="147" text-anchor="middle" class="t-sub">
+        DERIVED_FROM provenance · source trust
+      </text>
+      <text x="380" y="165" text-anchor="middle" class="t-sub">
+        lifecycle and superseded states · answer filters
+      </text>
+
+      <rect x="20" y="226" width="230" height="50" rx="8" class="bx" />
+      <text x="135" y="247" text-anchor="middle" class="t-title">core</text>
+      <text x="135" y="264" text-anchor="middle" class="t-sub">
+        Event, Entity, Summary · 7 intents
+      </text>
+      <rect x="265" y="226" width="230" height="50" rx="8" class="bx" />
+      <text x="380" y="247" text-anchor="middle" class="t-title">memory</text>
+      <text x="380" y="264" text-anchor="middle" class="t-sub">
+        Belief, Goal, Episode
+      </text>
+      <rect x="510" y="226" width="230" height="50" rx="8" class="bx" />
+      <text x="625" y="247" text-anchor="middle" class="t-title">user</text>
+      <text x="625" y="264" text-anchor="middle" class="t-sub">
+        Profile, Preference, Skill, +2
+      </text>
+      <text x="20" y="298" class="t-label">
+        COMMON LAYER · ALWAYS LOADED · TODAY'S 11 NODE AND 20 EDGE TYPES
+      </text>
+    </svg>
+  </div>
+  <figcaption>
+    Domain packs sit on the common layer and inherit provenance, trust,
+    lifecycle states and answer filters from it. Adding a domain means adding
+    one box to the top row.
+  </figcaption>
+</figure>
+
+      <h3>The common layer: core, memory and user</h3>
+      <p>
+        These three packs together are Engram's existing agent-memory schema: 11
+        node types and 20 edge types. They always load first, and a deployment
+        can't replace them.
+      </p>
+      <ul>
+        <li>
+          <strong>core</strong> holds the event model: <code>Event</code>,
+          <code>Entity</code>, <code>Summary</code>, the edges between them, the
+          event types, and the seven core intents (why, when, what, related,
+          general, who_is, how_does).
+        </li>
+        <li><strong>memory</strong> adds beliefs, goals and episodes.</li>
+        <li>
+          <strong>user</strong> adds profiles, preferences, skills, workflows
+          and behavioural patterns, plus the <code>personalize</code> intent.
+        </li>
+      </ul>
+      <div class="callout">
+        <p>
+          <strong
+            >The common layer describes agent memory, but it doesn't drive it
+            yet.</strong
+          >
+          Event nodes and the <code>FOLLOWS</code> and
+          <code>CAUSED_BY</code> edges are still written by the original
+          projection code, and a test keeps the packs and the code identical.
+          Only domain packs are written by pack rules.
+        </p>
+      </div>
+
+      <h3>What every domain pack gets from the common layer</h3>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Shared piece</th>
+              <th>What it means for a domain pack</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">Lifecycled</td>
+              <td>
+                A type with states (open, merged, done...) gets
+                <code>status</code> and <code>status_changed_at</code>. The pack
+                lists which states mean "no longer current"
+                (<code>superseded_states</code>), and retrieval leaves those
+                out.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">Sourced</td>
+              <td>
+                Every node and edge records <code>source_trust</code>: trusted
+                or untrusted, taken from an allowlist of sources and never from
+                the content.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">DERIVED_FROM</td>
+              <td>
+                Added automatically. Every node a pack writes gets an edge back
+                to the event that caused it. That is how answers cite their
+                sources.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">SUPERSEDES, CONTRADICTS</td>
+              <td>
+                Core edges that a pack can extend to its own types, for example
+                "this decision replaces that one".
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">Claim, Anchored, Versioned</td>
+              <td>
+                Shared property bundles: confidence and method, source location
+                and content hash, version number.
+              </td>
+            </tr>
+            <tr>
+              <td>Admission rules</td>
+              <td>
+                Shared filters such as "drop superseded" and "drop untrusted
+                unless backed up". If several packs set the same rule, their
+                settings are merged.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Rules for domain packs</h3>
+      <ul>
+        <li>
+          A pack declares what it needs, for example
+          <code>requires: core&gt;=1.1</code>. The registry loads the common
+          layer first, then domain packs in dependency order.
+        </li>
+        <li>
+          A pack can add types, edges, event types and intents. It can extend
+          core edges to its own types, and add weights to a core intent (PDLC
+          adds its edges to <code>why</code> and <code>who_is</code>).
+        </li>
+        <li>
+          A pack can't override a common-layer pack, reuse another pack's names,
+          or set the same weight twice.
+        </li>
+        <li>
+          The registry computes one version hash for the whole set of loaded
+          packs. The graph records that hash. This is what "the graph depends on
+          the ontology version" means in practice.
+        </li>
+      </ul>
+      <p>
+        Choose domain packs with <code>CG_ONTOLOGY_PACKS</code> (default
+        <code>pdlc</code>), and add folders of your own packs with
+        <code>CG_ONTOLOGY_PACK_DIRS</code>. An invalid pack stops the API and
+        the worker from starting, and every problem is reported at once.
+        <code>GET /v1/ontology</code> shows what's loaded and whether the graph
+        has been built and evaluated for it.
+      </p>
+    </section>
+
+    <section id="packs">
+      <div class="kicker">Ontology</div>
+      <h2>What a pack declares</h2>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Section</th>
+              <th>What it says</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">types</td>
+              <td>
+                Node types (key fields, properties, lifecycle states) and edge
+                types (allowed endpoints, properties)
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">events</td>
+              <td>The event types this pack owns</td>
+            </tr>
+            <tr>
+              <td class="mono">projection</td>
+              <td>
+                Rules: when event X arrives, upsert these nodes, move this
+                state, draw these edges
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">extraction</td>
+              <td>
+                What an LLM may propose from free text, with a confidence
+                ceiling, and what it must never propose
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">retrieval</td>
+              <td>
+                Intents with keywords and edge weights, seed types, ID patterns,
+                and admission rules
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A projection rule reads like this. When a change is merged, upsert the
+        Change, mark it merged, and link it to any ticket key found in its
+        description:
+      </p>
+      <pre class="code">
+- event: pdlc.change.merged
+  upsert:
+    - {type: Change, key: {repo: $.repo, number: $.number}, set: {merge_sha: $.merge_sha, title: $.title}}
+  transition: {type: Change, to: merged}
+  edges:
+    - type: IMPLEMENTS
+      from: {type: Change, key: {repo: $.repo, number: $.number}}
+      to_each: {type: WorkItem, key: {tracker: jira, external_key: "regex($.body, 'fixes\s+([A-Z]+-\d+)')"}}
+      set: {confidence: 1.0, method: declared, link_status: confirmed}</pre>
+      <p>
+        Values like <code>$.repo</code> come from the event. A small expression
+        language covers paths, <code>regex</code>, <code>sha256</code> and
+        lists. Regexes have a time limit per match.
+      </p>
+    </section>
+
+    <section id="change">
+      <div class="kicker">Ontology</div>
+      <h2>Changing a pack safely</h2>
+      <p>
+        Because the graph depends on the pack version, changing a pack is
+        treated like a schema migration. When the worker starts, it compares the
+        loaded packs with the version the graph recorded and classifies the
+        difference. The pack's version bump has to match.
+      </p>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Kind</th>
+              <th>Example</th>
+              <th>What happens</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">additive</td>
+              <td>New type, property or intent</td>
+              <td>Applied live</td>
+            </tr>
+            <tr>
+              <td class="mono">mapping</td>
+              <td>A projection rule gains or changes a part</td>
+              <td>
+                Affected events are replayed from the ledger (run one projection
+                replica while it does)
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">breaking</td>
+              <td>Removing a type, edge, key or state; changing an identity</td>
+              <td>
+                Start-up is refused unless
+                <code>CG_ONTOLOGY_ALLOW_BREAKING</code> is set; do a blue/green
+                rebuild
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Blue/green rebuild</h3>
+      <ol>
+        <li>
+          Run
+          <code
+            >python -m context_graph.ontology rebuild --target
+            CG_KEY=VALUE</code
+          >
+          against a new, empty graph. It replays the whole ledger with the
+          normal projection code.
+        </li>
+        <li>
+          The rebuild runs the evaluation gate on the new graph and records the
+          result.
+        </li>
+        <li>
+          Redeploy pointing at the new graph, with new consumer group names
+          (<code>CG_CONSUMER_GROUP_*</code>). New groups read from the start of
+          the ledger, so nothing written during the switch is lost.
+        </li>
+      </ol>
+      <h3>Evaluation gate</h3>
+      <p>
+        Every domain pack ships with an evaluation set: questions with the nodes
+        they should return. A pack's intents aren't served until it passes on
+        the live graph (<code
+          >python -m context_graph.ontology evaluate --record</code
+        >) or a rebuild passes. Until then, asking for one of its intents
+        returns 409, and responses list it under <code>meta.eval_pending</code>.
+        Changing a pack's retrieval section puts it back to pending.
+      </p>
+    </section>
+
+    <section id="pdlc">
+      <div class="kicker">Ontology</div>
+      <h2>The PDLC ontology</h2>
+      <p>
+        PDLC (product development lifecycle) is the first real domain pack. It
+        lets an agent follow work from a request, through code, tests and
+        shipping, to incidents and lessons. Every answer cites the events it
+        came from.
+      </p>
+
+      <div class="callout">
+        <p>
+          <strong>Common mix-up.</strong> There are no Epic, Story, PR, Commit,
+          File, Build or Environment types. Epics, stories, tasks and bugs are
+          all a <code>WorkItem</code> with a <code>work_type</code>. A pull or
+          merge request is a <code>Change</code>, and its commit SHAs and files
+          are properties on it. Environment is a property of
+          <code>Deployment</code>. CI shows up as <code>TestRun</code>.
+        </p>
+      </div>
+
+      <h3>The main chain</h3>
+      <p>
+        Arrows follow the edge direction stored in the graph. Dashed arrows are
+        trace links, which can be proposed or confirmed.
+      </p>
+      <figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 760 590"
+      role="img"
+      aria-label="The PDLC trace path runs from Request through Spec, WorkItem, Change, Deployment and Incident to Lesson. Requirements, test cases and test runs sit on the left; reviews and releases on the right; decisions apply to changes. Edges point from the newer thing back to what it builds on."
+    >
+      <defs>
+        <marker
+          id="ah-m3"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah" />
+        </marker>
+      </defs>
+      <rect x="310" y="30" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="53" text-anchor="middle" class="t-title">Request</text>
+      <rect x="310" y="110" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="133" text-anchor="middle" class="t-title">Spec</text>
+      <rect x="310" y="190" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="213" text-anchor="middle" class="t-title">WorkItem</text>
+      <rect x="310" y="270" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="293" text-anchor="middle" class="t-title">Change</text>
+      <rect x="310" y="350" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="373" text-anchor="middle" class="t-title">
+        Deployment
+      </text>
+      <rect x="310" y="430" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="453" text-anchor="middle" class="t-title">Incident</text>
+      <rect x="310" y="510" width="160" height="36" rx="6" class="bx-key" />
+      <text x="390" y="533" text-anchor="middle" class="t-title">Lesson</text>
+
+      <rect x="50" y="110" width="160" height="36" rx="6" class="bx" />
+      <text x="130" y="133" text-anchor="middle" class="t-title">
+        Requirement
+      </text>
+      <rect x="50" y="190" width="160" height="36" rx="6" class="bx" />
+      <text x="130" y="213" text-anchor="middle" class="t-title">TestCase</text>
+      <rect x="50" y="270" width="160" height="36" rx="6" class="bx" />
+      <text x="130" y="293" text-anchor="middle" class="t-title">TestRun</text>
+      <rect x="50" y="430" width="160" height="36" rx="6" class="bx" />
+      <text x="130" y="453" text-anchor="middle" class="t-title">Decision</text>
+      <rect x="550" y="270" width="160" height="36" rx="6" class="bx" />
+      <text x="630" y="293" text-anchor="middle" class="t-title">Review</text>
+      <rect x="550" y="350" width="160" height="36" rx="6" class="bx" />
+      <text x="630" y="373" text-anchor="middle" class="t-title">Release</text>
+
+      <line
+        x1="390"
+        y1="110"
+        x2="390"
+        y2="69"
+        class="ln dash"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="400" y="94" class="t-edge">REFINES</text>
+      <line
+        x1="390"
+        y1="146"
+        x2="390"
+        y2="187"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="400" y="172" class="t-edge">DECOMPOSES_INTO</text>
+      <line
+        x1="390"
+        y1="270"
+        x2="390"
+        y2="229"
+        class="ln dash"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="400" y="254" class="t-edge">IMPLEMENTS</text>
+      <line
+        x1="390"
+        y1="350"
+        x2="390"
+        y2="309"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="400" y="334" class="t-edge">DEPLOYS</text>
+      <line
+        x1="390"
+        y1="430"
+        x2="390"
+        y2="389"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="400" y="414" class="t-edge">OCCURRED_ON</text>
+      <line
+        x1="390"
+        y1="510"
+        x2="390"
+        y2="469"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="400" y="494" class="t-edge">LEARNED_FROM</text>
+
+      <line
+        x1="210"
+        y1="128"
+        x2="307"
+        y2="128"
+        class="ln dash"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="258" y="120" text-anchor="middle" class="t-edge">REFINES</text>
+      <line
+        x1="130"
+        y1="190"
+        x2="130"
+        y2="149"
+        class="ln dash"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="140" y="174" class="t-edge">VERIFIES</text>
+      <line
+        x1="130"
+        y1="270"
+        x2="130"
+        y2="229"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="140" y="254" class="t-edge">EXECUTES</text>
+      <line
+        x1="210"
+        y1="288"
+        x2="307"
+        y2="288"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="258" y="280" text-anchor="middle" class="t-edge">
+        RAN_AGAINST
+      </text>
+      <line
+        x1="550"
+        y1="288"
+        x2="473"
+        y2="288"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="511" y="280" text-anchor="middle" class="t-edge">REVIEWS</text>
+      <line
+        x1="550"
+        y1="360"
+        x2="473"
+        y2="302"
+        class="ln"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="508" y="356" text-anchor="middle" class="t-edge">INCLUDES</text>
+      <line
+        x1="210"
+        y1="440"
+        x2="308"
+        y2="303"
+        class="ln dash"
+        marker-end="url(#ah-m3)"
+      />
+      <text x="236" y="382" text-anchor="end" class="t-edge">APPLIES_TO</text>
+
+      <line x1="50" y1="571" x2="84" y2="571" class="ln dash" />
+      <text x="92" y="575" class="t-sub">
+        trace link: proposed or confirmed
+      </text>
+      <line x1="320" y1="571" x2="354" y2="571" class="ln" />
+      <text x="362" y="575" class="t-sub">recorded fact</text>
+      <rect x="500" y="564" width="12" height="12" rx="2" class="bx-key" />
+      <text x="518" y="575" class="t-sub">main trace path</text>
+    </svg>
+  </div>
+  <figcaption>
+    The main trace path runs down the middle. Arrows show the stored direction
+    of each edge: from the newer thing back to what it builds on. A change
+    IMPLEMENTS a ticket, and a deployment DEPLOYS a change. So "where is PAY-341
+    deployed?" walks these edges in reverse. Not shown here: AFFECTS,
+    ATTRIBUTED_TO, REMEDIATES, CITES and the other edges listed below.
+  </figcaption>
+</figure>
+
+      <h3>17 node types in eight groups</h3>
+      <p>
+        Every node's ID is built from its key fields, for example
+        <code>Change:acme/payments|7</code> or
+        <code>WorkItem:jira|PAY-341</code>. The same ID from two sources means
+        the same node.
+      </p>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Types</th>
+              <th>What they hold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Intake</td>
+              <td class="mono">Request, Spec, Requirement, DesignElement</td>
+              <td>
+                The ask, the current contract, single requirement statements,
+                HLD and LLD sections
+              </td>
+            </tr>
+            <tr>
+              <td>Plan</td>
+              <td class="mono">WorkItem</td>
+              <td>A ticket: epic, story, task, bug or production change</td>
+            </tr>
+            <tr>
+              <td>Build</td>
+              <td class="mono">Change, Review</td>
+              <td>
+                A pull or merge request with its SHAs and files; a review
+                verdict
+              </td>
+            </tr>
+            <tr>
+              <td>Verify</td>
+              <td class="mono">TestCase, TestRun</td>
+              <td>A test, and one run of it against a commit</td>
+            </tr>
+            <tr>
+              <td>Ship</td>
+              <td class="mono">Release, Deployment, Component</td>
+              <td>
+                A library release, one deploy to an environment, a service or
+                module (file path prefixes map files to it)
+              </td>
+            </tr>
+            <tr>
+              <td>Operate</td>
+              <td class="mono">Incident</td>
+              <td>Severity, environment, what was running</td>
+            </tr>
+            <tr>
+              <td>Knowledge</td>
+              <td class="mono">Decision, Constraint, Lesson</td>
+              <td>
+                Why we did it, rules for future work (pinned, never decayed),
+                what we learned
+              </td>
+            </tr>
+            <tr>
+              <td>Org</td>
+              <td class="mono">Team</td>
+              <td>Owner group</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The other edges:</p>
+      <ul>
+        <li><code>DEPENDS_ON</code> between work items or components.</li>
+        <li>
+          <code>TOUCHES</code> from a change to a component, and
+          <code>REVERTS</code> from one change to another.
+        </li>
+        <li>
+          <code>DEPLOYED_TO</code>, <code>AFFECTS</code>,
+          <code>REMEDIATES</code> and <code>RAISES</code> around deployments and
+          incidents.
+        </li>
+        <li>
+          <code>DECIDED_BY</code>, <code>CITES</code>, <code>AMENDS</code> and
+          <code>CONSTRAINS</code> around decisions and constraints, plus
+          <code>OWNED_BY</code> for ownership.
+        </li>
+        <li>
+          From the common layer it extends <code>SUPERSEDES</code>,
+          <code>CONTRADICTS</code>, <code>SAME_AS</code> (two tools' tickets for
+          the same work) and <code>REFERENCES</code> (an agent event that
+          mentions a PDLC node).
+        </li>
+      </ul>
+
+      <h3>Five question types (intents)</h3>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Intent</th>
+              <th>Example question</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">trace</td>
+              <td>Where is PAY-341 deployed right now?</td>
+            </tr>
+            <tr>
+              <td class="mono">completeness</td>
+              <td>
+                Which requirements for the next release still have no tests?
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">status</td>
+              <td>
+                Is this section of the refunds HLD still the approved version,
+                and what replaced the old one?
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">impact</td>
+              <td>
+                Have we tried this fix before, and did it get reverted or cause
+                an incident?
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">preflight</td>
+              <td>Before I edit refund/retry.py, what should I know?</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Three rules that shape every answer</h3>
+      <ul>
+        <li>
+          <strong>Trace links are proposed or confirmed.</strong> Eight edges
+          carry a confidence and a status. A link a tool declared, such as
+          "Fixes PAY-341" in a change description, starts confirmed. An inferred
+          link starts proposed. Nothing is thrown away on write; the confidence
+          cut-off is applied on read. An LLM may only propose knowledge and link
+          edges, never facts like a Change or a Deployment.
+        </li>
+        <li>
+          <strong>Superseded things drop out.</strong> A decision that is
+          superseded or reversed, or anything another node
+          <code>SUPERSEDES</code>, is left out of answers. For status and why
+          questions it's shown and marked as superseded.
+        </li>
+        <li>
+          <strong>Trust comes from the source, not the content.</strong> Webhook
+          sources ingest under a reserved agent ID that the public API refuses,
+          so an API client can't pose as a trusted tool. Untrusted items that
+          nothing trusted backs up stay out of the agent's working context.
+        </li>
+      </ul>
+
+      <h3>Worked example: a change is merged</h3>
+      <p>
+        The code host reports change #7, "Fix refund retry", with the
+        description "Fixes PAY-341" and merge SHA <code>def456</code>. The
+        webhook adapter checks the signature and emits
+        <code>pdlc.change.merged</code>. The pack rule then:
+      </p>
+      <ol>
+        <li>
+          Upserts <code>Change:acme/payments|7</code> with its title,
+          description and merge SHA, and moves it to <code>merged</code>.
+        </li>
+        <li>
+          Adds a confirmed <code>IMPLEMENTS</code> edge to ticket
+          <code>PAY-341</code>. If the ticket hasn't arrived from the issue
+          tracker yet, a stub is created.
+        </li>
+        <li>
+          Links any deployment already seen for commit <code>def456</code> with
+          <code>DEPLOYS</code>. That edge is what answers "Where is PAY-341
+          deployed?"
+        </li>
+        <li>
+          Adds <code>DERIVED_FROM</code> back to the source event, so the answer
+          can cite it.
+        </li>
+      </ol>
+
+      <h3>How it is evaluated</h3>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Eval set</th>
+              <th>Size</th>
+              <th>Mean F1</th>
+              <th>Pass mark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tool event fixtures</td>
+              <td>11 questions</td>
+              <td>1.00</td>
+              <td>0.95</td>
+            </tr>
+            <tr>
+              <td>Apache OpenDAL project history</td>
+              <td>17 questions over 288 merged changes and 4 releases</td>
+              <td>0.91</td>
+              <td>0.90</td>
+            </tr>
+            <tr>
+              <td>Synthetic payments project</td>
+              <td>Supersession, completeness and negation questions</td>
+              <td>1.00 each (keyword search: 0.53, 0.17, 0.67)</td>
+              <td>n/a</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">
+        <p><strong>Known gaps.</strong></p>
+        <ul>
+          <li>
+            The tool event fixtures are hand-written, not recorded from a real
+            project.
+          </li>
+          <li>
+            Deployment, TestRun and Lesson haven't been checked against real
+            data.
+          </li>
+          <li>
+            A change that references an issue by number (<code>#12</code>)
+            doesn't link yet; only tracker keys like <code>PAY-341</code> do.
+          </li>
+          <li>
+            With no service catalog importer, <code>TOUCHES</code> stays empty.
+          </li>
+          <li>
+            Aggregate, time-window, similarity and snapshot questions can't be
+            answered yet.
+          </li>
+          <li>
+            Some pack settings (decay, embedding fields, vocabulary mappings)
+            are declared but not yet read by the engine.
+          </li>
+        </ul>
+      </div>
+      <p>
+        For a click-through tour of the types, the edges and the merge example,
+        see the
+        <a href="https://claude.ai/artifact/R6KG4NuQpAcwCZXL33Doqo"
+          >PDLC Ontology Atlas</a
+        >.
+      </p>
+    </section>
+
+    <section id="ingest">
+      <div class="kicker">Flows</div>
+      <h2>Ingestion</h2>
+      <p>
+        The ledger's role hasn't changed: an append-only source of truth. What's
+        new is a wider front door, workers that no longer depend on Redis, and a
+        projection step that asks the ontology what to write.
+      </p>
+      <figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 760 400"
+      role="img"
+      aria-label="Agents, bulk import and signed webhooks enter through the ingest API, which appends to the EventLog port. The Subscription port delivers batches to the projection worker, which writes structural edges first and pack rules second, and to the extraction worker. The ontology registry supplies event types to the API and rules to the projector."
+    >
+      <defs>
+        <marker
+          id="ah-m4"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah" />
+        </marker>
+        <marker
+          id="ah-n4"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah-new" />
+        </marker>
+      </defs>
+      <rect x="20" y="30" width="140" height="32" rx="6" class="bx" />
+      <text x="90" y="51" text-anchor="middle" class="t-title">
+        Agents, SDKs
+      </text>
+      <rect x="20" y="76" width="140" height="32" rx="6" class="bx-new" />
+      <text x="90" y="97" text-anchor="middle" class="t-title">
+        Bulk import
+      </text>
+      <rect x="20" y="122" width="140" height="32" rx="6" class="bx-new" />
+      <text x="90" y="143" text-anchor="middle" class="t-title">
+        Signed webhooks
+      </text>
+      <line
+        x1="160"
+        y1="46"
+        x2="207"
+        y2="46"
+        class="ln"
+        marker-end="url(#ah-m4)"
+      />
+      <line
+        x1="160"
+        y1="92"
+        x2="207"
+        y2="92"
+        class="ln-new"
+        marker-end="url(#ah-n4)"
+      />
+      <line
+        x1="160"
+        y1="138"
+        x2="207"
+        y2="138"
+        class="ln-new"
+        marker-end="url(#ah-n4)"
+      />
+
+      <rect x="210" y="30" width="130" height="124" rx="8" class="bx" />
+      <text x="275" y="64" text-anchor="middle" class="t-title">
+        Ingest API
+      </text>
+      <text x="275" y="90" text-anchor="middle" class="t-sub">
+        checks namespace,
+      </text>
+      <text x="275" y="106" text-anchor="middle" class="t-sub">
+        size and quota;
+      </text>
+      <text x="275" y="122" text-anchor="middle" class="t-sub">
+        status per event
+      </text>
+
+      <line
+        x1="340"
+        y1="92"
+        x2="387"
+        y2="92"
+        class="ln"
+        marker-end="url(#ah-m4)"
+      />
+      <text x="364" y="84" text-anchor="middle" class="t-edge">append</text>
+      <rect x="390" y="70" width="130" height="44" rx="6" class="bx-new" />
+      <text x="455" y="89" text-anchor="middle" class="t-title">EventLog</text>
+      <text x="455" y="105" text-anchor="middle" class="t-sub">
+        port · dedup
+      </text>
+      <line
+        x1="520"
+        y1="92"
+        x2="567"
+        y2="92"
+        class="ln"
+        marker-end="url(#ah-m4)"
+      />
+      <text x="544" y="84" text-anchor="middle" class="t-edge">read</text>
+      <rect x="570" y="70" width="130" height="44" rx="6" class="bx-new" />
+      <text x="635" y="89" text-anchor="middle" class="t-title">
+        Subscription
+      </text>
+      <text x="635" y="105" text-anchor="middle" class="t-sub">
+        port · groups
+      </text>
+
+      <line
+        x1="600"
+        y1="114"
+        x2="600"
+        y2="177"
+        class="ln"
+        marker-end="url(#ah-m4)"
+      />
+      <text x="592" y="150" text-anchor="end" class="t-edge">batch</text>
+      <line
+        x1="680"
+        y1="114"
+        x2="680"
+        y2="177"
+        class="ln-new"
+        marker-end="url(#ah-n4)"
+      />
+
+      <rect x="300" y="180" width="320" height="136" rx="10" class="grp" />
+      <text x="316" y="201" class="t-title">Projection worker</text>
+      <rect x="316" y="212" width="288" height="40" rx="6" class="bx" />
+      <text x="330" y="229" class="t-title">1 Structural</text>
+      <text x="330" y="244" class="t-sub">Event nodes, FOLLOWS, CAUSED_BY</text>
+      <rect x="316" y="264" width="288" height="40" rx="6" class="bx-new" />
+      <text x="330" y="281" class="t-title">2 Pack rules</text>
+      <text x="330" y="296" class="t-sub">
+        plan, then write nodes, states, lookups, edges
+      </text>
+
+      <rect x="632" y="180" width="120" height="50" rx="6" class="bx-new" />
+      <text x="692" y="201" text-anchor="middle" class="t-title">
+        Extraction
+      </text>
+      <text x="692" y="218" text-anchor="middle" class="t-sub">
+        LLM proposals
+      </text>
+
+      <line
+        x1="460"
+        y1="316"
+        x2="460"
+        y2="343"
+        class="ln"
+        marker-end="url(#ah-m4)"
+      />
+      <text x="468" y="334" class="t-edge">write, then ack</text>
+      <polyline
+        points="720,230 720,366 543,366"
+        class="ln-new"
+        marker-end="url(#ah-n4)"
+      />
+      <text x="712" y="300" text-anchor="end" class="t-edge-new">
+        create-only
+      </text>
+      <rect x="380" y="346" width="160" height="40" rx="6" class="bx" />
+      <text x="460" y="363" text-anchor="middle" class="t-title">Graph</text>
+      <text x="460" y="378" text-anchor="middle" class="t-sub">
+        nodes and edges
+      </text>
+
+      <rect x="20" y="230" width="180" height="60" rx="8" class="bx-new" />
+      <text x="110" y="255" text-anchor="middle" class="t-title">
+        Ontology registry
+      </text>
+      <text x="110" y="273" text-anchor="middle" class="t-sub">
+        core + domain packs
+      </text>
+      <line
+        x1="110"
+        y1="230"
+        x2="246"
+        y2="157"
+        class="ln-new dash"
+        marker-end="url(#ah-n4)"
+      />
+      <text x="144" y="200" text-anchor="end" class="t-edge-new">
+        event types
+      </text>
+      <line
+        x1="200"
+        y1="284"
+        x2="313"
+        y2="284"
+        class="ln-new dash"
+        marker-end="url(#ah-n4)"
+      />
+      <text x="256" y="276" text-anchor="middle" class="t-edge-new">rules</text>
+      <rect x="20" y="330" width="12" height="12" rx="2" class="bx-new" />
+      <text x="38" y="341" class="t-sub">new or changed</text>
+    </svg>
+  </div>
+  <figcaption>
+    An event is appended once (a duplicate gets the original position back) and
+    delivered to each consumer group. The projection worker writes a whole batch
+    in one flush, structural edges first and pack rules second, and acknowledges
+    only after the graph write. Extraction runs as its own group and can only
+    add proposals.
+  </figcaption>
+</figure>
+
+      <h3>1. Ways in</h3>
+      <ul>
+        <li>
+          <code>POST /v1/events</code> and <code>/v1/events/batch</code> (up to
+          1,000 events) for agents and SDKs.
+        </li>
+        <li>
+          <code>POST /v1/events/import</code> for admins: gzip NDJSON, up to
+          500,000 events, appended in time order after everything already in the
+          ledger.
+        </li>
+        <li>
+          <code>POST /v1/webhooks/{source}</code> for tools. The request's
+          signature is checked, and an adapter translates the payload into a
+          pack event such as <code>pdlc.change.merged</code>. A redelivered
+          webhook gets the same event ID, so it's deduplicated.
+        </li>
+      </ul>
+
+      <h3>2. Checks</h3>
+      <ul>
+        <li>
+          A domain pack owns its event namespace. An undeclared
+          <code>pdlc.foo</code> gets 422. Agent namespaces stay open.
+        </li>
+        <li>Body size limits apply before and after decompression.</li>
+        <li>
+          A per-client quota (default 60,000 events a minute) answers 429 with
+          <code>Retry-After</code>.
+        </li>
+        <li>
+          The public API refuses the reserved webhook agent IDs, so a client
+          can't claim to be a trusted tool.
+        </li>
+      </ul>
+
+      <h3>3. Ledger: the EventLog port</h3>
+      <p>
+        Dedup is now part of the port's contract: appending the same event ID
+        twice returns the original position. Each backend keeps that promise in
+        its own way. On Redis it's the Lua ingest script. On Spanner it's a read
+        and a write in one transaction. Every event comes back with its own
+        outcome: <code>created</code>, <code>duplicate</code> or
+        <code>failed</code>.
+      </p>
+      <div class="callout">
+        <p>
+          <strong>Ingest contract change.</strong> Responses now include a
+          <code>status</code> for each event. A batch where nothing was stored
+          answers 422 (all refused) or 503 (store failed) instead of 201.
+          Clients that only checked for 201 should be reviewed.
+        </p>
+      </div>
+
+      <h3>4. Workers: the Subscription port</h3>
+      <p>
+        Workers used to call Redis stream commands directly. Now the base worker
+        talks to the <code>Subscription</code> port, so the same loop runs on
+        every backend:
+      </p>
+      <ol>
+        <li>
+          <strong>Drain pending.</strong> Re-process items this consumer was
+          given but never acknowledged. Each pending item is read once per
+          sweep, and an item that keeps failing is dead-lettered instead of
+          being retried forever.
+        </li>
+        <li>
+          <strong>Read new</strong> items, process them, and
+          <strong>acknowledge</strong> them.
+        </li>
+        <li><strong>Claim orphaned</strong> items from consumers that died.</li>
+        <li>
+          <strong>Retry outages in place.</strong> If storage is unavailable or
+          times out, the worker waits and retries (200 ms, doubling up to 10 s).
+          These failures never count towards dead-lettering, and log order is
+          kept.
+        </li>
+        <li>
+          <strong>On idle,</strong> flush anything still buffered, so the last
+          few events aren't left unprojected when traffic stops.
+        </li>
+      </ol>
+
+      <h3>5. Projection: two steps in one flush</h3>
+      <p>
+        The projection worker buffers events and writes them in flushes. Each
+        flush does both kinds of projection:
+      </p>
+      <ol>
+        <li>
+          <strong>Structural (unchanged code).</strong> Event nodes, plus
+          <code>FOLLOWS</code> and <code>CAUSED_BY</code> edges. The previous
+          event in a session is now looked up from the ledger when it's not in
+          memory, so <code>FOLLOWS</code> edges survive restarts and extra
+          replicas.
+        </li>
+        <li>
+          <strong>Pack rules (new).</strong> For events a pack has rules for, a
+          pure function (no I/O) turns each event into a plan. The whole flush
+          is then written in four steps: upsert nodes, change states, resolve
+          lookups, upsert edges.
+        </li>
+      </ol>
+      <p>
+        Batching made projection much cheaper. On the OpenDAL history, graph
+        calls per event fell from 5.01 to 0.14, and ledger calls from 1.01 to
+        0.03, producing the same graph.
+      </p>
+
+      <h3>What every pack write guarantees</h3>
+      <ul>
+        <li>
+          <strong>Stable identity.</strong> IDs come from key fields, so two
+          sources naming the same thing land on the same node.
+        </li>
+        <li>
+          <strong>Provenance and trust.</strong> Every node gets
+          <code>DERIVED_FROM</code> to its event, and records
+          <code>source_trust</code>.
+        </li>
+        <li>
+          <strong>Late events can't undo state.</strong> A state change says
+          which states it may move from, so a late "opened" event doesn't undo a
+          merge.
+        </li>
+        <li>
+          <strong>Arrival order doesn't matter for links.</strong> A merge links
+          to an earlier deployment of its commit, and a deployment links to an
+          earlier merge.
+        </li>
+        <li>
+          <strong>Missing endpoints become stubs</strong> that are filled in
+          when the real event arrives.
+        </li>
+        <li>
+          <strong>One bad event doesn't block a batch.</strong> If a flush fails
+          for a reason other than an outage, the worker retries one event at a
+          time and dead-letters only the bad one.
+        </li>
+      </ul>
+
+      <h3>6. Extraction</h3>
+      <p>
+        A separate consumer group, <code>pack-extraction</code>, asks an LLM for
+        proposals using each pack's extraction profile. Proposals are capped in
+        confidence, never marked confirmed, and never overwrite an existing node
+        or link. A decision extracted by the LLM and the same decision recorded
+        by a tool end up as one node, because both are keyed by a hash of the
+        content.
+      </p>
+    </section>
+
+    <section id="retrieve">
+      <div class="kicker">Flows</div>
+      <h2>Retrieval</h2>
+      <p>
+        There are now two retrievers. The agent-memory engine answers the
+        existing endpoints. The artifact retriever is new and answers questions
+        about domain things like tickets, changes and deployments.
+      </p>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Served by</th>
+              <th>Contract</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">GET /v1/context/{session_id}</td>
+              <td>Retrieval engine</td>
+              <td>Unchanged</td>
+            </tr>
+            <tr>
+              <td class="mono">POST /v1/query/subgraph</td>
+              <td>Retrieval engine</td>
+              <td>Unchanged</td>
+            </tr>
+            <tr>
+              <td class="mono">GET /v1/nodes/{id}/lineage</td>
+              <td>Retrieval engine</td>
+              <td>Unchanged</td>
+            </tr>
+            <tr>
+              <td class="mono">POST /v1/query/artifacts</td>
+              <td>Artifact retriever</td>
+              <td>New</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        All responses use the Atlas shape. The only additions are a new
+        <code>meta.eval_pending</code> list, and <code>provenance.source</code>,
+        which can now be <code>memory</code> or <code>spanner</code> as well as
+        <code>redis</code>.
+      </p>
+
+      <h3>What the refactor changed in the agent-memory engine</h3>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>Before</th>
+              <th>After</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Where it lives</td>
+              <td>Inside the Neo4j adapter, mixed with Cypher</td>
+              <td>Its own engine, with no database code</td>
+            </tr>
+            <tr>
+              <td>Storage calls</td>
+              <td>Neo4j driver and RediSearch directly</td>
+              <td>
+                Three read ports: <code>GraphReads</code>,
+                <code>KeywordIndex</code>, <code>VectorIndex</code>
+              </td>
+            </tr>
+            <tr>
+              <td>Intents and edge weights</td>
+              <td>
+                Fixed keyword and weight tables in code
+              </td>
+              <td>
+                Read from the common-layer packs (same values, tested to be
+                equal)
+              </td>
+            </tr>
+            <tr>
+              <td>Keyword channel</td>
+              <td>Returned nothing in practice (see below)</td>
+              <td>
+                Fixed: searchable text built at ingest, any query word can match
+              </td>
+            </tr>
+            <tr>
+              <td>Algorithms</td>
+              <td colspan="2">
+                Unchanged. Fusion (RRF), PageRank (PPR), diversity (MMR), query
+                expansion (HyDE) and decay scoring were already pure Python.
+                They moved, they weren't rewritten.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Subgraph query, step by step</h3>
+      <figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 940 250"
+      role="img"
+      aria-label="A subgraph query picks an intent from pack keywords, then runs graph, keyword and vector seed channels in parallel through the read ports, fuses them by rank, expands neighbours, scores by decay and returns an Atlas response."
+    >
+      <defs>
+        <marker
+          id="ah-m5"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah" />
+        </marker>
+        <marker
+          id="ah-n5"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah-new" />
+        </marker>
+      </defs>
+      <rect x="20" y="110" width="90" height="44" rx="6" class="bx" />
+      <text x="65" y="137" text-anchor="middle" class="t-title">Query</text>
+
+      <rect x="140" y="30" width="130" height="44" rx="6" class="bx-new" />
+      <text x="205" y="49" text-anchor="middle" class="t-title">Intent</text>
+      <text x="205" y="65" text-anchor="middle" class="t-sub">
+        from pack keywords
+      </text>
+      <line
+        x1="80"
+        y1="110"
+        x2="160"
+        y2="77"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+
+      <rect x="300" y="22" width="170" height="222" rx="10" class="grp" />
+      <text x="385" y="16" text-anchor="middle" class="t-label">
+        READ PORTS · IN PARALLEL
+      </text>
+      <rect x="312" y="30" width="146" height="44" rx="6" class="bx" />
+      <text x="385" y="49" text-anchor="middle" class="t-title">
+        Graph seeds
+      </text>
+      <text x="385" y="65" text-anchor="middle" class="t-sub">GraphReads</text>
+      <rect x="312" y="110" width="146" height="44" rx="6" class="bx-new" />
+      <text x="385" y="129" text-anchor="middle" class="t-title">
+        Keyword seeds
+      </text>
+      <text x="385" y="145" text-anchor="middle" class="t-sub">
+        KeywordIndex · now works
+      </text>
+      <rect x="312" y="190" width="146" height="44" rx="6" class="bx" />
+      <text x="385" y="209" text-anchor="middle" class="t-title">
+        Vector seeds
+      </text>
+      <text x="385" y="225" text-anchor="middle" class="t-sub">
+        VectorIndex
+      </text>
+
+      <line
+        x1="270"
+        y1="52"
+        x2="309"
+        y2="52"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <line
+        x1="110"
+        y1="132"
+        x2="309"
+        y2="132"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <line
+        x1="100"
+        y1="154"
+        x2="309"
+        y2="208"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <text x="200" y="124" text-anchor="middle" class="t-edge">
+        query text
+      </text>
+      <text x="200" y="196" text-anchor="middle" class="t-edge">
+        query embedding
+      </text>
+
+      <line
+        x1="458"
+        y1="52"
+        x2="497"
+        y2="118"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <line
+        x1="458"
+        y1="132"
+        x2="497"
+        y2="132"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <line
+        x1="458"
+        y1="212"
+        x2="497"
+        y2="146"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <rect x="500" y="106" width="96" height="52" rx="6" class="bx" />
+      <text x="548" y="127" text-anchor="middle" class="t-title">Fuse</text>
+      <text x="548" y="145" text-anchor="middle" class="t-sub">
+        RRF, top 10
+      </text>
+      <line
+        x1="596"
+        y1="132"
+        x2="623"
+        y2="132"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <rect x="626" y="106" width="100" height="52" rx="6" class="bx" />
+      <text x="676" y="127" text-anchor="middle" class="t-title">Expand</text>
+      <text x="676" y="145" text-anchor="middle" class="t-sub">neighbours</text>
+      <line
+        x1="726"
+        y1="132"
+        x2="753"
+        y2="132"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      <rect x="756" y="106" width="100" height="52" rx="6" class="bx" />
+      <text x="806" y="127" text-anchor="middle" class="t-title">Score</text>
+      <text x="806" y="145" text-anchor="middle" class="t-sub">
+        decay, PPR off
+      </text>
+      <line
+        x1="856"
+        y1="132"
+        x2="890"
+        y2="132"
+        class="ln"
+        marker-end="url(#ah-m5)"
+      />
+      
+
+      
+      
+      <polyline points="500,170 500,176 856,176 856,170" class="ln"/><text x="678" y="192" text-anchor="middle" class="t-edge">moved over unchanged</text><text x="896" y="136" class="t-edge">Atlas</text><rect x="20" y="222" width="12" height="12" rx="2" class="bx-new" />
+      <text x="38" y="233" class="t-sub">changed by the refactor</text>
+    </svg>
+  </div>
+  <figcaption>
+    Three seed channels run in parallel through the read ports and are merged by
+    rank. Blue marks what the refactor changed: intents now come from packs, and
+    the keyword channel now returns results. Everything after the channels moved
+    over unchanged.
+  </figcaption>
+</figure>
+      <ol>
+        <li>
+          <strong>Intent.</strong> From an LLM classifier if one is configured,
+          otherwise from the packs' keywords. The caller can also name the
+          intent. The intent picks the edge weights and the seed strategy.
+        </li>
+        <li>
+          <strong>Three seed channels, in parallel.</strong> Graph seeds from
+          <code>GraphReads</code>, keyword seeds from <code>KeywordIndex</code>,
+          and vector seeds from <code>VectorIndex</code> (entity embeddings,
+          similarity at least 0.5). If one channel fails, the others still
+          answer, and <code>meta.retrieval_channels</code> shows the count from
+          each.
+        </li>
+        <li>
+          <strong>Fuse.</strong> Reciprocal rank fusion (k = 60) merges the
+          three lists by rank and keeps the top 10.
+        </li>
+        <li>
+          <strong>Expand.</strong> For who_is, personalize and related
+          questions, events from other sessions about the same entities are
+          added. Then each seed's neighbours are read in one batched call. Added
+          nodes are marked <code>proactive</code>.
+        </li>
+        <li>
+          <strong>Score and rank.</strong> Every node gets the four-factor decay
+          score (recency, importance, relevance, user affinity). Personalised
+          PageRank can blend in, but it's off by default
+          (<code>CG_PPR_ENABLED</code>). MMR adjusts only the relevance score
+          for diversity. Results are sorted by decay score and cut to
+          <code>max_nodes</code>.
+        </li>
+        <li>
+          <strong>Respond.</strong> Access counts are bumped, and the Atlas
+          response is built with provenance and meta.
+        </li>
+      </ol>
+      <p>
+        <strong>Session context</strong> (<code
+          >GET /v1/context/{session_id}</code
+        >) is simpler: read the session's events a page at a time, score them by
+        decay, and return the top <code>max_nodes</code> with the edges between
+        them. There's no intent step and no seeds.
+        <strong>Lineage</strong> follows <code>CAUSED_BY</code> paths from a
+        node within depth limits. On Spanner, it's one graph (GQL) query.
+      </p>
+
+      <div class="callout warn">
+        <p><strong>Two behaviour changes to know about.</strong></p>
+        <ul>
+          <li>
+            <strong
+              >The keyword channel now works, so rankings can change.</strong
+            >
+            Before, the Redis index looked at fields events don't have, and it
+            required every word in the question to match, so it returned almost
+            nothing. Now each event gets searchable text built once at ingest
+            from its tool name and payload, and a query matches on any
+            meaningful word. Older events aren't backfilled, and the ranking
+            change hasn't been measured yet.
+          </li>
+          <li>
+            <strong>The evaluation gate doesn't cover this engine.</strong>
+            Domain intents such as trace and status never reach it; it only uses
+            the common-layer intents. Pack weight additions to
+            <code>why</code> and <code>who_is</code> are included, but they
+            should have no effect here because the engine only walks edges
+            leaving events. That last point isn't covered by a test.
+          </li>
+        </ul>
+      </div>
+
+      <h3>Artifact query, step by step</h3>
+      <p>
+        The artifact retriever is a separate component. It reads through the
+        <code>PackGraph</code> port and shares only the response models with the
+        engine. It uses no fusion, PageRank or decay.
+      </p>
+      <figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 900 180"
+      role="img"
+      aria-label="An artifact question picks an intent. Most intents find seeds from exact IDs, walk pack edges and pass through admission. Completeness questions skip the walk and compute a set difference before the same admission step."
+    >
+      <defs>
+        <marker
+          id="ah-m6"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah" />
+        </marker>
+      </defs>
+      <rect x="20" y="38" width="96" height="44" rx="6" class="bx" />
+      <text x="68" y="65" text-anchor="middle" class="t-title">Question</text>
+      <line
+        x1="116"
+        y1="60"
+        x2="143"
+        y2="60"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+      <rect x="146" y="38" width="110" height="44" rx="6" class="bx" />
+      <text x="201" y="57" text-anchor="middle" class="t-title">Intent</text>
+      <text x="201" y="73" text-anchor="middle" class="t-sub">
+        pack keywords
+      </text>
+      <line
+        x1="256"
+        y1="60"
+        x2="289"
+        y2="60"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+      <text x="272" y="30" text-anchor="middle" class="t-edge">others</text>
+      <rect x="292" y="38" width="136" height="44" rx="6" class="bx" />
+      <text x="360" y="57" text-anchor="middle" class="t-title">Seeds</text>
+      <text x="360" y="73" text-anchor="middle" class="t-sub">
+        IDs first, then words
+      </text>
+      <line
+        x1="428"
+        y1="60"
+        x2="455"
+        y2="60"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+      <rect x="458" y="38" width="136" height="44" rx="6" class="bx" />
+      <text x="526" y="57" text-anchor="middle" class="t-title">Walk</text>
+      <text x="526" y="73" text-anchor="middle" class="t-sub">
+        pack edges, no drift
+      </text>
+      <line
+        x1="594"
+        y1="60"
+        x2="621"
+        y2="60"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+      <rect x="624" y="38" width="136" height="44" rx="6" class="bx" />
+      <text x="692" y="57" text-anchor="middle" class="t-title">Admission</text>
+      <text x="692" y="73" text-anchor="middle" class="t-sub">
+        superseded, trust
+      </text>
+      <line
+        x1="760"
+        y1="60"
+        x2="787"
+        y2="60"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+      <rect x="790" y="38" width="96" height="44" rx="6" class="bx" />
+      <text x="838" y="57" text-anchor="middle" class="t-title">Answer</text>
+      <text x="838" y="73" text-anchor="middle" class="t-sub">
+        cited sources
+      </text>
+
+      <polyline
+        points="201,82 201,144 455,144"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+      <text x="209" y="118" class="t-edge">completeness</text>
+      <rect x="458" y="122" width="136" height="44" rx="6" class="bx" />
+      <text x="526" y="141" text-anchor="middle" class="t-title">
+        Set difference
+      </text>
+      <text x="526" y="157" text-anchor="middle" class="t-sub">
+        what has no link
+      </text>
+      <polyline
+        points="594,144 692,144 692,85"
+        class="ln"
+        marker-end="url(#ah-m6)"
+      />
+    </svg>
+  </div>
+  <figcaption>
+    Most intents walk the graph from exact references. Completeness questions
+    skip the walk and compute what's missing. Both paths end in the same
+    admission filter.
+  </figcaption>
+</figure>
+      <ol>
+        <li>
+          <strong>Gate.</strong> Packs that haven't passed evaluation are left
+          out. Naming one of their intents returns 409.
+        </li>
+        <li>
+          <strong>Intent</strong> from the pack keywords, or passed by the
+          caller.
+        </li>
+        <li>
+          <strong>Seeds.</strong> Exact references first: ticket keys like
+          <code>PAY-341</code>, file paths, version tokens, <code>#7</code>, and
+          the pack's ID patterns. Rare words are used only when no ID matches.
+        </li>
+        <li>
+          <strong>Walk.</strong> Only edges between pack types are followed, in
+          the intent's direction, level by level within limits. Two rules stop
+          drift. The walk won't hop to siblings through a shared node (change,
+          then its release, then every other change in that release). It also
+          won't wander into the family of a node it reached (change, then its
+          ticket, then that ticket's epic).
+        </li>
+        <li>
+          <strong>Admission.</strong> Superseded items are dropped, except for
+          status and why questions. Untrusted items need a trusted link to stay
+          in. Proposed links stay, with their confidence.
+        </li>
+        <li>
+          <strong>Completeness</strong> questions skip the walk and compute a
+          set difference. Each subject comes back as <code>no_link</code>,
+          <code>proposed_only</code> or <code>confirmed</code>.
+        </li>
+        <li>
+          <strong>Bounds.</strong> Each request has a budget of graph calls
+          (400) and query terms (16). <code>truncated</code> is set when a limit
+          cut the answer, and a timeout returns 504.
+        </li>
+      </ol>
+    </section>
+
+    <section id="spanner" class="spanner">
+      <div class="kicker">Storage</div>
+      <h2>How Engram talks to Spanner</h2>
+      <p>
+        Engram's application code never calls Spanner directly. The API, the
+        workers and the two retrievers call storage ports. A backend is a set of
+        classes that implements them.
+      </p>
+
+      <h3>The five contracts</h3>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Port</th>
+              <th>What it promises</th>
+              <th>Main methods</th>
+              <th>Called by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">EventLog</td>
+              <td>
+                Idempotent append: the same event twice returns the original
+                position. Positions are opaque and ordered.
+              </td>
+              <td class="mono">
+                append_batch_outcomes, get_documents, read_after,
+                previous_in_session, search_bm25, trim, expire
+              </td>
+              <td>Ingest, workers, retention, migration</td>
+            </tr>
+            <tr>
+              <td class="mono">Subscription</td>
+              <td>
+                A consumer group over the log. At-least-once delivery, in order
+                within a session, no order promised across sessions.
+              </td>
+              <td class="mono">
+                read_new, read_pending, ack, claim_orphaned, dead_letter, lag
+              </td>
+              <td>The base worker only</td>
+            </tr>
+            <tr>
+              <td class="mono">GraphBackend</td>
+              <td>
+                Merge-style idempotent writes; an edge to a missing node writes
+                nothing; reads are bounded. It bundles the graph store,
+                maintenance, user store, <code>PackGraph</code> and
+                <code>GraphReads</code>.
+              </td>
+              <td class="mono">
+                upsert_nodes, upsert_edges, change_states, find_latest,
+                neighbors; reads.seed_events, reads.event_neighbors,
+                reads.lineage_chains
+              </td>
+              <td>
+                Workers write; the engine reads only <code>GraphReads</code>;
+                the artifact retriever reads <code>PackGraph</code>
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">KeywordIndex</td>
+              <td>Text search, scores normalised to 0 to 1</td>
+              <td class="mono">search(text, session_id, limit)</td>
+              <td>Retrieval engine</td>
+            </tr>
+            <tr>
+              <td class="mono">VectorIndex</td>
+              <td>
+                Nearest neighbours by embedding, scores 0 to 1, best first
+              </td>
+              <td class="mono">nearest(embedding, top_k, threshold)</td>
+              <td>Retrieval engine</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        All backends raise the same errors: <code>StorageError</code>, with
+        <code>ConflictError</code>, <code>NotFoundError</code>,
+        <code>UnavailableError</code>, <code>StorageTimeoutError</code> and
+        <code>InvalidRequestError</code> under it. Spanner's exceptions are
+        mapped onto these. An aborted transaction becomes
+        <code>UnavailableError</code>, which the workers retry in place.
+      </p>
+
+      <h3>Choosing a backend</h3>
+      <pre class="code">
+CG_STORAGE_EVENT_LOG=spanner      # redis | memory | spanner
+CG_STORAGE_SUBSCRIPTION=spanner   # must match the event log
+CG_STORAGE_KEYWORD_INDEX=spanner  # must match the event log
+CG_STORAGE_GRAPH=spanner          # neo4j | memory | spanner
+CG_STORAGE_VECTOR_INDEX=spanner   # must match the graph
+CG_SPANNER_PROJECT=... CG_SPANNER_INSTANCE=... CG_SPANNER_DATABASE=...</pre>
+      <p>
+        One factory reads these settings and hands the
+        API and the workers one object per port. If any port uses Spanner, they
+        all share one database handle. A sixth setting,
+        <code>CG_STORAGE_ARCHIVE</code> (<code>fs</code> or <code>gcs</code>),
+        predates this work and picks where expired events are archived. A unit test fails the build if anything outside the storage adapters imports a Redis, Neo4j or Google Cloud client.
+      </p>
+
+      <h3>How each port maps onto Spanner</h3>
+<figure class="fig">
+  <div class="figscroll">
+    <svg
+      viewBox="0 0 760 370"
+      role="img"
+      aria-label="Each storage port maps onto its own objects in one Spanner database: EventLog to the Events table, KeywordIndex to a search index, Subscription to consumer cursor and delivery tables, GraphBackend to the node and edge tables of the property graph, and VectorIndex to a vector index. The ledger side and graph side never share a transaction."
+    >
+      <defs>
+        <marker
+          id="ah-s7"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" class="ah-sp" />
+        </marker>
+      </defs>
+      <text x="20" y="22" class="t-label">PORT</text>
+      <text x="440" y="22" class="t-label">SPANNER OBJECT · ONE DATABASE</text>
+
+      <rect x="20" y="40" width="170" height="44" rx="6" class="bx" />
+      <text x="105" y="67" text-anchor="middle" class="t-title">EventLog</text>
+      <rect x="20" y="100" width="170" height="44" rx="6" class="bx" />
+      <text x="105" y="127" text-anchor="middle" class="t-title">
+        KeywordIndex
+      </text>
+      <rect x="20" y="160" width="170" height="44" rx="6" class="bx" />
+      <text x="105" y="187" text-anchor="middle" class="t-title">
+        Subscription
+      </text>
+      <rect x="20" y="250" width="170" height="44" rx="6" class="bx" />
+      <text x="105" y="277" text-anchor="middle" class="t-title">
+        GraphBackend
+      </text>
+      <rect x="20" y="310" width="170" height="44" rx="6" class="bx" />
+      <text x="105" y="337" text-anchor="middle" class="t-title">
+        VectorIndex
+      </text>
+
+      <line
+        x1="190"
+        y1="62"
+        x2="437"
+        y2="62"
+        class="ln-sp"
+        marker-end="url(#ah-s7)"
+      />
+      <text x="314" y="54" text-anchor="middle" class="t-edge">
+        insert at commit timestamp
+      </text>
+      <line
+        x1="190"
+        y1="122"
+        x2="437"
+        y2="122"
+        class="ln-sp"
+        marker-end="url(#ah-s7)"
+      />
+      <text x="314" y="114" text-anchor="middle" class="t-edge">
+        SEARCH, SCORE
+      </text>
+      <line
+        x1="190"
+        y1="182"
+        x2="437"
+        y2="182"
+        class="ln-sp"
+        marker-end="url(#ah-s7)"
+      />
+      <text x="314" y="174" text-anchor="middle" class="t-edge">
+        read-write txn moves cursor
+      </text>
+      <line
+        x1="190"
+        y1="272"
+        x2="437"
+        y2="272"
+        class="ln-sp"
+        marker-end="url(#ah-s7)"
+      />
+      <text x="314" y="264" text-anchor="middle" class="t-edge">
+        upsert · GQL for lineage
+      </text>
+      <line
+        x1="190"
+        y1="332"
+        x2="437"
+        y2="332"
+        class="ln-sp"
+        marker-end="url(#ah-s7)"
+      />
+      <text x="314" y="324" text-anchor="middle" class="t-edge">
+        APPROX_COSINE_DISTANCE
+      </text>
+
+      <rect x="440" y="40" width="300" height="44" rx="6" class="bx-sp" />
+      <text x="590" y="59" text-anchor="middle" class="t-title">
+        Events table
+      </text>
+      <text x="590" y="75" text-anchor="middle" class="t-sub">
+        key: event_id · shard by session
+      </text>
+      <rect x="440" y="100" width="300" height="44" rx="6" class="bx-sp" />
+      <text x="590" y="119" text-anchor="middle" class="t-title">
+        EventsText search index
+      </text>
+      <text x="590" y="135" text-anchor="middle" class="t-sub">
+        on each event's searchable text
+      </text>
+      <rect x="440" y="160" width="300" height="44" rx="6" class="bx-sp" />
+      <text x="590" y="179" text-anchor="middle" class="t-title">
+        ConsumerCursors, ConsumerDeliveries
+      </text>
+      <text x="590" y="195" text-anchor="middle" class="t-sub">
+        a cursor per group per shard
+      </text>
+      <rect x="440" y="250" width="300" height="44" rx="6" class="bx-sp" />
+      <text x="590" y="269" text-anchor="middle" class="t-title">
+        GraphNodes, GraphEdges
+      </text>
+      <text x="590" y="285" text-anchor="middle" class="t-sub">
+        property graph EngramGraph
+      </text>
+      <rect x="440" y="310" width="300" height="44" rx="6" class="bx-sp" />
+      <text x="590" y="329" text-anchor="middle" class="t-title">
+        Vector index
+      </text>
+      <text x="590" y="345" text-anchor="middle" class="t-sub">
+        on GraphNodes.embedding
+      </text>
+
+      <line x1="20" y1="222" x2="740" y2="222" class="divider" />
+      <text x="380" y="240" text-anchor="middle" class="t-sub">
+        Ledger side above, graph side below: never written in the same
+        transaction
+      </text>
+    </svg>
+  </div>
+  <figcaption>
+    Each port maps onto its own objects inside one Spanner database. The ledger
+    side and the graph side are never written in the same transaction, so the
+    graph can still be rebuilt from the ledger.
+  </figcaption>
+</figure>
+      <p>
+        Everything lives in one Spanner database: the ledger, the consumer-group
+        state and the graph.
+      </p>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Port</th>
+              <th>Spanner shape</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">EventLog</td>
+              <td>
+                <code>Events</code> table keyed by the event's random UUID, so
+                writes spread evenly. Each row records the commit timestamp and
+                a shard (a hash of the session ID, 16 shards), so one session's
+                events stay together. Position is
+                <code>commit_ts / batch_index / event_id</code>. Dedup is a read
+                and a write in one transaction.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">Subscription</td>
+              <td>
+                Consumers poll. <code>read_new</code> runs in a read-write
+                transaction: it reads events past the group's per-shard cursor,
+                records them in <code>ConsumerDeliveries</code> and moves the
+                cursor. <code>ack</code> deletes delivery rows.
+                <code>lag</code> counts undelivered rows. Dead letters have
+                their own table.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">GraphBackend</td>
+              <td>
+                Two tables, <code>GraphNodes</code> (label, ID, properties as
+                JSON, embedding) and <code>GraphEdges</code>, declared as one
+                property graph. Spanner and the in-memory backend share a
+                generic graph layer built on eight primitives: get, find, upsert and delete for nodes and
+                for edges. Lineage and entity similarity use native Spanner
+                features. Everything else is key and index reads.
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">KeywordIndex</td>
+              <td>
+                A Spanner full-text search index over the event's searchable
+                text, queried with <code>SEARCH</code> and <code>SCORE</code>
+              </td>
+            </tr>
+            <tr>
+              <td class="mono">VectorIndex</td>
+              <td>
+                A cosine vector index on the embedding column (384 dimensions),
+                queried with <code>APPROX_COSINE_DISTANCE</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="code">
+CREATE PROPERTY GRAPH EngramGraph
+  NODE TABLES (GraphNodes KEY (label, node_id)
+      DYNAMIC LABEL (label) DYNAMIC PROPERTIES (props))
+  EDGE TABLES (GraphEdges KEY (src_label, src_id, edge_type, dst_label, dst_id)
+      SOURCE KEY (src_label, src_id) REFERENCES GraphNodes (label, node_id)
+      DESTINATION KEY (dst_label, dst_id) REFERENCES GraphNodes (label, node_id)
+      DYNAMIC LABEL (edge_type) DYNAMIC PROPERTIES (props))</pre>
+
+      <h3>One event, end to end on Spanner</h3>
+      <ol>
+        <li>
+          <strong>Ingest.</strong> The API validates the batch and appends it.
+          Each transaction writes <code>Events</code> rows with the commit
+          timestamp and returns an outcome for each event.
+        </li>
+        <li>
+          <strong>Deliver.</strong> A worker's <code>read_new</code> moves its
+          group's cursor and gets back event IDs.
+        </li>
+        <li>
+          <strong>Project.</strong> The worker fetches event bodies, looks up
+          the previous event in the session for <code>FOLLOWS</code>, and writes
+          nodes and edges through the graph port.
+        </li>
+        <li><strong>Ack.</strong> The delivery rows are deleted.</li>
+        <li>
+          <strong>Enrich.</strong> Embeddings are written to the embedding
+          column, which feeds the vector index.
+        </li>
+        <li>
+          <strong>Retrieve.</strong> Keyword seeds come from the search index,
+          vector seeds from the vector index, and graph reads from key and index
+          reads (GQL for lineage). Ranking and the response are the same code as
+          on every other backend.
+        </li>
+      </ol>
+
+      <h3>Guardrails</h3>
+      <ul>
+        <li>
+          <strong>Commit budget.</strong> Spanner caps a commit at 80,000
+          mutations and 100 MiB. Engram aims for half of each, estimating the
+          cost of each row (an event about 33 mutations, a node 11, an edge 18).
+          A ledger split keeps order: if a later part fails, that part and
+          everything after it is reported <code>failed</code>. A graph write
+          that turns out too large is rolled back and halved.
+        </li>
+        <li>
+          <strong>No surprise databases.</strong> A database is created
+          automatically only on the emulator. A real instance needs
+          <code>CG_SPANNER_ALLOW_CREATE_ON_INSTANCE=true</code>, and instances
+          are never created. At start-up the expected tables, indexes and
+          property graph are checked, and a mismatch stops start-up.
+        </li>
+      </ul>
+
+      <h3>How it is verified</h3>
+      <ul>
+        <li>
+          <strong>Conformance suites.</strong> One test suite per port runs
+          against every backend: in-memory always, and Redis, Neo4j and the
+          Spanner emulator as integration tests. The retrieval engine is run on
+          each backend too.
+        </li>
+        <li>
+          <strong>Dual run.</strong> Neo4j as primary and the Spanner emulator
+          as secondary, compared on the ledger, the graph and retrieval answers:
+          no differences.
+        </li>
+        <li>
+          <strong>Behaviour probes on the emulator.</strong> Retrieval answers
+          matched the in-memory backend on 22 of 22 evaluation questions. Search
+          returned the same results on 11 of 11 queries. Vector recall@10 was
+          1.0.
+        </li>
+        <li>
+          <strong>Real-instance trial.</strong> 8 producers wrote 2,070 events.
+          Two consumer groups each received all of them, with nothing missing,
+          duplicated or out of session order.
+        </li>
+      </ul>
+
+      <h3>Moving data from Redis to Spanner</h3>
+      <pre class="code">
+python -m context_graph.migration copy    --to spanner   # copy the ledger until caught up
+python -m context_graph.migration mirror  --to spanner   # keep copying (dual run)
+python -m context_graph.migration compare --to spanner --graph   # non-zero exit on any difference</pre>
+      <p>
+        The mirror reads the Redis ledger in order and imports it into Spanner.
+        Each event keeps its original position as <code>legacy_position</code>,
+        so a copy can resume where it stopped. It won't run if Spanner already
+        holds events written there directly. The graph isn't copied: Spanner's
+        own projection worker rebuilds it from the imported ledger. Cutover
+        needs a short pause in ingest, because the API writes to one side only.
+      </p>
+    </section>
+
+    <section id="insights" class="spanner">
+      <div class="kicker">Storage</div>
+      <h2>Spanner insights</h2>
+      <p>
+        Lessons from the design, the emulator and the real instance that matter
+        for anyone taking this further.
+      </p>
+
+      <div class="insight">
+        <h4>1. One database, but the graph stays disposable</h4>
+        <p>
+          The ledger and the graph share a database but never a transaction.
+          That keeps the original promise: the graph is derived from the ledger
+          and can be rebuilt at any time. It also means a single Spanner
+          instance can replace both Redis and Neo4j without coupling their
+          failure modes.
+        </p>
+      </div>
+
+      <div class="insight">
+        <h4>2. Dynamic labels make packs cheap on Spanner</h4>
+        <p>
+          Nodes and edges carry their type as a value (a dynamic label), and
+          properties live in JSON. A new pack type is just a new label value: no
+          new table and no DDL. The price is that JSON properties have no
+          secondary indexes, so finding nodes by a property scans every node
+          with that label. Hot pack keys will need generated columns with
+          indexes once data grows.
+        </p>
+      </div>
+
+      <div class="insight">
+        <h4>3. The emulator is not Spanner</h4>
+        <p>
+          Three differences showed up, and only the real instance revealed them:
+        </p>
+        <ul>
+          <li>
+            Real Spanner rejects about 1 in 1,000 ordinary decimal numbers in
+            JSON columns, and one bad value fails the whole write. Floats are
+            now stored tagged as <code>{"$float": "..."}</code>.
+          </li>
+          <li>
+            GQL label filters such as <code>(a:Event)</code> matched nothing on
+            the real instance. Queries now filter on the <code>label</code> and
+            <code>edge_type</code> columns. The cause is unknown, so new GQL
+            should follow the same rule.
+          </li>
+          <li>
+            The emulator runs transactions one at a time, so it can't show lock
+            contention.
+          </li>
+        </ul>
+        <p>
+          Anything that matters on Spanner has to be proven on a real instance.
+        </p>
+      </div>
+
+      <div class="insight">
+        <h4>4. The trial measured the network, not Spanner</h4>
+        <p>
+          Calls took about 0.4 to 1.4 seconds each (append 1.4 s, read 0.67 s,
+          ack 0.65 s, 200-node flush 0.69 s). The client ran in an unknown
+          region away from the instance, so these are mostly round trips. The
+          trial's 54 events a second is a client limit, not a Spanner limit. A
+          test from a client in the same region is needed before drawing any
+          capacity conclusions.
+        </p>
+      </div>
+
+      <div class="insight">
+        <h4>5. The subscription is the piece to watch</h4>
+        <p>
+          Consumers poll, and <code>read_new</code> reads across all 16 shards
+          inside a read-write transaction. That's what guarantees no event is
+          skipped, but it may contend with ingest under load. Shards keep each
+          session's events in order; they don't spread the read work across
+          consumers. Load testing at 100 and 1,000 events a second should focus
+          here first.
+        </p>
+      </div>
+
+      <div class="insight">
+        <h4>6. Plan the operations work</h4>
+        <p>
+          Still missing: a way to change the schema in place (today it's only
+          checked at start-up), a CI job against the emulator, IAM design,
+          metrics, backups and point-in-time recovery. A blue/green pack rebuild
+          needs a second database, which hasn't been tried. The smallest
+          Enterprise instance (100 processing units) is about $90 a month plus
+          storage, and a 90-day free trial instance exists. These prices haven't
+          been checked against a live price list.
+        </p>
+      </div>
+    </section>
+
+    <section id="risks">
+      <div class="kicker">Reference</div>
+      <h2>Open risks</h2>
+      <div class="callout warn">
+        <p>
+          None of this is on <code>main</code> yet, and ADR-0019 (storage
+          backends) is still marked Proposed.
+        </p>
+      </div>
+      <div class="tablebox">
+        <table>
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Risk</th>
+              <th>Why it matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Retrieval</td>
+              <td>Ranking change not measured</td>
+              <td>
+                The keyword channel now feeds fusion, which changes seeds and
+                rankings for agent-memory queries. Older events have no
+                searchable text.
+              </td>
+            </tr>
+            <tr>
+              <td>Ingest</td>
+              <td>Response codes changed</td>
+              <td>
+                Batches that store nothing now get 422 or 503 instead of 201.
+                Check existing clients.
+              </td>
+            </tr>
+            <tr>
+              <td>Packs</td>
+              <td>Gate covers artifact queries only</td>
+              <td>
+                The agent-memory engine doesn't apply the evaluation gate. This
+                is safe today because domain intents never reach it, but nothing
+                enforces that.
+              </td>
+            </tr>
+            <tr>
+              <td>Packs</td>
+              <td>Missing question types</td>
+              <td>
+                Pack types have no embeddings yet, so similarity questions can't
+                be answered. Aggregate, time-window and snapshot questions
+                aren't supported.
+              </td>
+            </tr>
+            <tr>
+              <td>PDLC</td>
+              <td>Thin real-data coverage</td>
+              <td>
+                The fixtures are hand-written. Deployments, test runs and
+                lessons haven't been checked on real data. Without a service
+                catalog, <code>TOUCHES</code> stays empty.
+              </td>
+            </tr>
+            <tr>
+              <td>Spanner</td>
+              <td>Untested under load</td>
+              <td>
+                Only a low-load trial so far. The emulator hides contention.
+              </td>
+            </tr>
+            <tr>
+              <td>Spanner</td>
+              <td>Locking reads in the subscription</td>
+              <td>
+                <code>read_new</code> reads all shards in a read-write
+                transaction and may contend with ingest.
+              </td>
+            </tr>
+            <tr>
+              <td>Spanner</td>
+              <td>Full scans</td>
+              <td>
+                Property lookups scan a whole label, and an unfiltered edge read
+                scans every edge.
+              </td>
+            </tr>
+            <tr>
+              <td>Spanner</td>
+              <td>Operations not set up</td>
+              <td>
+                No in-place schema changes, CI job, IAM design, metrics or
+                backups.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>

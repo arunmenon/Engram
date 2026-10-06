@@ -9,8 +9,10 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from prometheus_client import REGISTRY
 
 from context_graph.adapters.redis.subscription import RedisStreamSubscription
+from context_graph.metrics import CONSUMER_LAG
 from context_graph.worker.consumer import BaseConsumer
 
 # ---------------------------------------------------------------------------
@@ -714,6 +716,36 @@ class TestConsumerLagMetric:
         consumer = StubConsumer(redis, "test-group", "c1", "stream:test")
         # Should not raise, just silently ignore
         await consumer._update_lag_metric()
+
+    @pytest.mark.asyncio()
+    async def test_update_lag_metric_decodes_bytes_group_name(self):
+        """With decode_responses=False, XINFO GROUPS returns the name as bytes."""
+        CONSUMER_LAG.labels(group="test-group").set(-1)
+        redis = AsyncMock()
+        redis.xinfo_groups.return_value = [
+            {"name": b"test-group", "lag": 42},
+        ]
+        consumer = StubConsumer(redis, "test-group", "c1", "stream:test")
+        await consumer._update_lag_metric()
+        gauge_value = REGISTRY.get_sample_value(
+            "engram_consumer_lag_messages", {"group": "test-group"}
+        )
+        assert gauge_value == 42
+
+    @pytest.mark.asyncio()
+    async def test_update_lag_metric_skips_nil_lag(self):
+        """Redis versions that report lag as nil leave the gauge untouched."""
+        CONSUMER_LAG.labels(group="nil-lag-group").set(-1)
+        redis = AsyncMock()
+        redis.xinfo_groups.return_value = [
+            {"name": b"nil-lag-group", "lag": None},
+        ]
+        consumer = StubConsumer(redis, "nil-lag-group", "c1", "stream:test")
+        await consumer._update_lag_metric()
+        gauge_value = REGISTRY.get_sample_value(
+            "engram_consumer_lag_messages", {"group": "nil-lag-group"}
+        )
+        assert gauge_value == -1
 
     @pytest.mark.asyncio()
     async def test_update_lag_metric_handles_exception(self):

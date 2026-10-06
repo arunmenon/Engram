@@ -1,5 +1,9 @@
 # Research pack, 2026-10
 
+## Walkthrough
+
+- **[walkthrough.md](walkthrough.md) — shareable engineering walkthrough of ontology packs, the PDLC ontology, ingestion and retrieval after the refactor, and the Spanner backend: https://claude.ai/artifact/2xnRzwTAnwV1D21hyBLW7g**
+
 ## Ontology
 
 - **[ontology/pdlc-ontology-v1-summary.md](ontology/pdlc-ontology-v1-summary.md) — start here: one-page sign-off for PDLC ontology v1.0, ADR-0018, connectors and the Spanner approach.**
