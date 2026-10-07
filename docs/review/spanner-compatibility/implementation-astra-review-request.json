@@ -1,0 +1,57 @@
+{
+  "requested_at": "2026-10-07T01:46:52.182468+00:00",
+  "reviewer": "/root/astra_implemented_review",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "issues": [
+    15,
+    16,
+    23,
+    26,
+    27,
+    28,
+    33
+  ],
+  "status": "complete",
+  "scope": "Read-only implementation review; concrete correctness/regressions/failure paths and evidence gaps; no cloud calls or unrelated backlog.",
+  "baseline_commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "source_sha256": {
+    "pyproject.toml": "8b79b23183c629f44b0fc7d1ab4bf86a9671591cec251e032e19db35cb2498bc",
+    "src/context_graph/adapters/graph_ops.py": "078e4ecccf7902ed6ac3c64484b3fbf37f9386b4d306b1d4b51670cb9a35cca3",
+    "src/context_graph/adapters/neo4j/maintenance.py": "780c550190504e3a73e6047887a5e9e57c5b8928952eb655a77a6f40942e0944",
+    "src/context_graph/adapters/neo4j/store.py": "d2071e9e21bb1d36f149942bc1531cec35146b7fa95d0e4c007acbcbd6221b09",
+    "src/context_graph/adapters/registry.py": "a363da45bdf0b65919f9bb77e054b86afaa94b860de77fd7cc5de4d5632bb855",
+    "src/context_graph/adapters/spanner/lifecycle.py": "04f3a05194c3d89cc6de5f6bdc1e926b04235d3aa901195f257c8fce4dafeed8",
+    "src/context_graph/adapters/spanner/log.py": "2ff28dbc613ae0474ee4868fabad180466493e831f51337776be0085b999f8d4",
+    "src/context_graph/adapters/spanner/schema.py": "d4b3f90f13f5cf5b98ad8356eb3c294b31153e08ad4b3e6ec4007d69be84dc3b",
+    "src/context_graph/api/ingest.py": "fa0d04f2df14feeca7954123753a9e55b25a666ff2a3db7f226715efb34c390f",
+    "src/context_graph/api/middleware.py": "2be8d0ea026fd8e1cbe99decab7b5d202000ec7bbbb4bbe0aef45a7ba5b11802",
+    "src/context_graph/api/routes/admin.py": "fb7c244b31cc56e3296459fbe239e41ca215343a4c9f58dfce16893e094f6a28",
+    "src/context_graph/domain/forgetting.py": "07900394815d05b780635f46c4f7440e67c408030adaa19f48b1f63c62f79787",
+    "src/context_graph/domain/models.py": "51b721e3d3bbd24b07ad45cfd664e51ef813c45fbcf168a4b2ce2223ee7eb289",
+    "src/context_graph/ports/maintenance.py": "549e79da8e18d7fb1a53806fd5b12a7d811cd9abb1cefbcac92266df4c37ce33",
+    "tests/unit/test_admin_pruning_scores.py": "958856d3e176174f4dbad4cdb0dcc1e42bdc6892ef2524f72de876ab286365b9",
+    "tests/unit/test_ingress_time_and_gzip.py": "33026fefbf5477a6696aac3847c065289f585a3bc18fc96c03756f2786026678",
+    "tests/unit/test_spanner_json_codec.py": "98c5d30adb39649e8bc986e58eaa907db285b05a3ba1a936f49d77e86671f166",
+    "tests/unit/test_spanner_lifecycle.py": "3fa0e307ae8cbb595b1ea30c9009a3759a3d9c872a0b15a8d357aed2e8620353",
+    "tests/unit/test_spanner_schema_handshake.py": "5a2fe7a049f4450c16b3924798b0d2c9a688e309d23da51a8c438e2d121a165d",
+    "tests/unit/test_storage_unavailable_http.py": "30f65b475469a34089da001c5a3deb76df2cde4d708ed814255ec2969bdb73b2"
+  },
+  "tracked_diff_sha256": "f6183fd66316e197ab83ecac8a5259cb7b29fbcdf9d02ceecd8f1d8540a4ef82",
+  "completed_at": "2026-10-07T01:48:15.687093+00:00",
+  "report": "docs/review/spanner-compatibility/2026-10-07-astra-implementation-review.md",
+  "source_unchanged_through_review": true,
+  "verified_findings": [
+    {
+      "issue": 27,
+      "severity": "P1",
+      "status": "accepted_pending_fix"
+    },
+    {
+      "issue": 26,
+      "severity": "P2",
+      "status": "accepted_pending_fix"
+    }
+  ],
+  "reviewer_unit_tests_passed": 27
+}

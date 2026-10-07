@@ -1,0 +1,367 @@
+{
+  "as_of": "2026-10-06T16:38:57.163919+00:00",
+  "compatibility_signoff": false,
+  "warning": "Partial rows retain unexecuted assertions. Failed rows are not proof of every other corner; fixes and independent rechecks remain required. Historical runs and harness failures are preserved.",
+  "rows": [
+    {
+      "scenario_id": "BOOT-02",
+      "flow": "credentials",
+      "required_assertions": "explicit token bootstrap vs ordinary ADC; invalid/expired/denied; no fallback",
+      "status": "blocked",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-startup-a9067dfe/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "PROJ-02",
+      "flow": "pack writes",
+      "required_assertions": "PDLC/CRM/custom keys/content hash; types/defaults/null; stub vs authoritative; replay",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json",
+      "issue_numbers": "9",
+      "remaining_detail": "Additional property/default/null/stub and partial-plan permutations; custom/additive/replay plus PDLC/CRM fixture execution already recorded."
+    },
+    {
+      "scenario_id": "EXT-01",
+      "flow": "entity extraction",
+      "required_assertions": "scripted valid/invalid/model outage; entity references and resolution; merge clusters",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-extraction-completion-1ba7b6cd/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Semantic resolution tier and merge combinations beyond exact/alias and native cluster writes. Interest extraction remains failed separately (#20)."
+    },
+    {
+      "scenario_id": "CONS-01",
+      "flow": "summarization",
+      "required_assertions": "session end/threshold/timer; overlap guard; summary edges; provider failure; repeats",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-consolidation-completion-59bb437b/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Session-end behavior explicitly separate from manual/timer triggers; distributed-cycle overlap and interruption semantics remain to verify."
+    },
+    {
+      "scenario_id": "CONS-02",
+      "flow": "graph maintenance",
+      "required_assertions": "cluster consolidation/centrality/importance/forgetting; bounded writes and deletions",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-retention-completion-3dbff638/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Graph commit-sized cluster/delete boundaries beyond small successful native operations; retain separate admin prune failure33."
+    },
+    {
+      "scenario_id": "MEM-04",
+      "flow": "ranking/features",
+      "required_assertions": "RRF/PPR/MMR/decay/reranking/intent/HyDE when enabled; cross-session; no implicit feature pass",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-keyword-features-601ffec7/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Complete RRF/decay/reranking/intent branch oracles; current PPR/MMR/HyDE and keyword fallback evidence is bounded feature smoke."
+    },
+    {
+      "scenario_id": "ART-01",
+      "flow": "PDLC competencies",
+      "required_assertions": "PDLC + OpenDAL fixture questions; full expected evidence; exact seed/text/inbound intents",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-api-64e30b68/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Every exact-seed/text/inbound intent and exact answer/provenance check; OpenDAL aggregate gate passes but three questions over-return."
+    },
+    {
+      "scenario_id": "ART-02",
+      "flow": "CRM competencies",
+      "required_assertions": "CRM fixture questions; deal lifecycle/current pipeline/coverage; exact answers",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-journeys-59e6f628/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "All CRM lifecycle/pipeline/coverage admission and question combinations beyond current fixtures."
+    },
+    {
+      "scenario_id": "USER-01",
+      "flow": "read/export",
+      "required_assertions": "profile/preferences/skills/patterns/interests; missing; stable ordering; export evidence; entity references",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-user-feedback-09524f75/observations.json",
+      "issue_numbers": "20",
+      "remaining_detail": "Stable ordering across equal timestamps, all entity references and preference creation/contradiction routes beyond current read/export fixtures."
+    },
+    {
+      "scenario_id": "FB-02",
+      "flow": "feedback failure",
+      "required_assertions": "ledger succeeds/graph fails; partial progress visible and documented retry semantics",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Explicit public partial-progress/retry contract review; durable audit and repeated graph effect already reproduced, no atomicity/idempotency promise."
+    },
+    {
+      "scenario_id": "OPS-02",
+      "flow": "auth/limits",
+      "required_assertions": "API/admin/HMAC separation; request/event limits; import tier; provider degradation",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-boundaries-5778ddba/observations.json",
+      "issue_numbers": "5;17",
+      "remaining_detail": "Remaining quota/stalled-body/import-tier edge cases and per-provider recovery; API/admin/HMAC separation and configured size/count boundaries passed."
+    },
+    {
+      "scenario_id": "OPS-05",
+      "flow": "bounded workload",
+      "required_assertions": "bounded sessions/replicas; cold/warm latency p50/95/99; backlog drains; no global occurrence order assumption",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-workload-completion-660c44b3/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Independent-process cold server/network startup distributions and broader bounded replica workload; current ASGI measurements are two lifespans in one process."
+    },
+    {
+      "scenario_id": "APP-02",
+      "flow": "PDLC journey",
+      "required_assertions": "change/test/review/release/deployment/decision evidence",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-api-64e30b68/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Complete app evidence acceptance beyond passing PDLC/OpenDAL mean-F1 gate; preserve exact-answer mismatches."
+    },
+    {
+      "scenario_id": "APP-05",
+      "flow": "live providers",
+      "required_assertions": "separate live smoke; explicit config/cost; absent provider is blocked not pass",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-live-pack-463a33c4/observations.json",
+      "issue_numbers": "",
+      "remaining_detail": "Full live entity/user extraction separately from one bounded configured live pack call; no live provider substitution."
+    },
+    {
+      "scenario_id": "APP-06",
+      "flow": "Keymaker requirements",
+      "required_assertions": "inputs/expected questions/provenance requirements unspecified; resolve before app sign-off",
+      "status": "blocked",
+      "evidence": "",
+      "issue_numbers": ""
+    }
+  ],
+  "failed_rows": [
+    {
+      "scenario_id": "BOOT-01",
+      "issues": "26",
+      "requirements_to_recheck": "all five ports Spanner; independent processes share data; shutdown/clients",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-shutdown-71530641/observations.json"
+    },
+    {
+      "scenario_id": "BOOT-03",
+      "issues": "23",
+      "requirements_to_recheck": "missing/wrong database/schema/dimensions/index readiness; creation disabled",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-schema-fd247214/observations.json"
+    },
+    {
+      "scenario_id": "ING-01",
+      "issues": "4;5;15",
+      "requirements_to_recheck": "valid/invalid fields/payload; naive/aware/future time; namespaces; trusted ID",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-boundaries-5778ddba/observations.json"
+    },
+    {
+      "scenario_id": "ING-02",
+      "issues": "4;5",
+      "requirements_to_recheck": "empty/max/max+1; mixed outcomes; duplicate/conflicting IDs; indices",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ingress-completion-197593e8/observations.json"
+    },
+    {
+      "scenario_id": "ING-03",
+      "issues": "16",
+      "requirements_to_recheck": "gzip truncation/CRC/trailing/multiple members; byte/decoded size; timeout",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-boundaries-5778ddba/observations.json"
+    },
+    {
+      "scenario_id": "ING-04",
+      "issues": "28",
+      "requirements_to_recheck": "uncertain commit; concurrent same ID; changed contents; committed prefix",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json"
+    },
+    {
+      "scenario_id": "HOOK-03",
+      "issues": "4;17",
+      "requirements_to_recheck": "signature/secret/unsupported source; changed delivery redelivery; malformed nested shape; timestamp; fanout partial writes; stalled body",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-boundaries-5778ddba/observations.json"
+    },
+    {
+      "scenario_id": "LED-01",
+      "issues": "27",
+      "requirements_to_recheck": "nested float tags/null/bool/list/unicode/datetime; lossless round-trip",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-json-22af9759/observations.json"
+    },
+    {
+      "scenario_id": "LED-02",
+      "issues": "18;19;21;30",
+      "requirements_to_recheck": "commit/batch ties; page0/1/many; same-session arrivals; predecessor; unknown/missing docs",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json"
+    },
+    {
+      "scenario_id": "SUB-02",
+      "issues": "14",
+      "requirements_to_recheck": "live transient/permanent failure; bounded backoff; DLQ; pending beyond one page; partial ACK",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-recovery-dd24b1e3/observations.json"
+    },
+    {
+      "scenario_id": "SUB-03",
+      "issues": "14;19",
+      "requirements_to_recheck": "crash before/after graph write/ACK; orphan pagination; surviving replica; stop during retry",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-retention-85231d1e/observations.json"
+    },
+    {
+      "scenario_id": "SUB-04",
+      "issues": "18",
+      "requirements_to_recheck": "same/interleaved sessions; conflicting transactions; repeated side effects; per-session order",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-concurrency-daf16e16/observations.json"
+    },
+    {
+      "scenario_id": "PROJ-01",
+      "issues": "18;30",
+      "requirements_to_recheck": "Event/FOLLOWS/CAUSED_BY; missing parent; session end; idle/stop flush; cache eviction",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json"
+    },
+    {
+      "scenario_id": "PROJ-03",
+      "issues": "8",
+      "requirements_to_recheck": "direct/list/latest/prefix; limit boundaries; no silent subset; absent endpoint",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pack-cases-143609a6/observations.json"
+    },
+    {
+      "scenario_id": "PROJ-04",
+      "issues": "9;18",
+      "requirements_to_recheck": "guarded transitions/order; state evidence; planning error/DLQ; partial write failure",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pack-cases-143609a6/observations.json"
+    },
+    {
+      "scenario_id": "ENR-01",
+      "issues": "29",
+      "requirements_to_recheck": "keyword/importance/embedding persistence; missing doc/node; projection lag; duplicate delivery",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json"
+    },
+    {
+      "scenario_id": "ENR-02",
+      "issues": "14",
+      "requirements_to_recheck": "disabled/failing/wrong dimension/zero vector; provider vs storage error",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-enrichment-cases-b8ea023e/observations.json"
+    },
+    {
+      "scenario_id": "EXT-02",
+      "issues": "20",
+      "requirements_to_recheck": "profiles/preferences/skills/interests; contradiction supersession; evidence; reobservation",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-knowledge-ca060841/observations.json"
+    },
+    {
+      "scenario_id": "EXT-03",
+      "issues": "10;29",
+      "requirements_to_recheck": "projection lag; partial writes; repeated delivery/restart; limits",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json"
+    },
+    {
+      "scenario_id": "PEXT-02",
+      "issues": "10",
+      "requirements_to_recheck": "authoritative node/link preservation; known-item caps; missing endpoints; extraction first",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pack-cases-143609a6/observations.json"
+    },
+    {
+      "scenario_id": "MEM-01",
+      "issues": "31;32",
+      "requirements_to_recheck": "empty/missing; pages/ties; access updates; time budget; evidence",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-context-completion-6c14d9b2/observations.json"
+    },
+    {
+      "scenario_id": "MEM-02",
+      "issues": "24",
+      "requirements_to_recheck": "dynamic labels/GQL keys; cyclic branching graph; depth/node bounds; missing parent",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json"
+    },
+    {
+      "scenario_id": "MEM-03",
+      "issues": "25",
+      "requirements_to_recheck": "graph-only/keyword-only/vector-only/combined/empty; session filter; channel failure",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-vector-9f8fc3ca/observations.json"
+    },
+    {
+      "scenario_id": "MEM-05",
+      "issues": "24;31;32",
+      "requirements_to_recheck": "tie/cursor pages; max_nodes/depth/time; cancellation including SDK thread completion",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-context-completion-6c14d9b2/observations.json"
+    },
+    {
+      "scenario_id": "ART-03",
+      "issues": "7",
+      "requirements_to_recheck": "trusted/untrusted/superseded/reversed/proposed/rejected/alternate valid route",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-artifacts-cc114156/observations.json"
+    },
+    {
+      "scenario_id": "ART-04",
+      "issues": "6",
+      "requirements_to_recheck": "call/scan/neighbor budget; confirmed link unseen; unknown vs absent; empty answer",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-artifacts-cc114156/observations.json"
+    },
+    {
+      "scenario_id": "ONT-02",
+      "issues": "11",
+      "requirements_to_recheck": "initial/additive/mapping/breaking/version refusal; failed replay restart",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-upgrades-bdcddac8/observations.json"
+    },
+    {
+      "scenario_id": "ONT-03",
+      "issues": "12",
+      "requirements_to_recheck": "empty target/refuse live graph; partial history/failed writes/interruption/gate results",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-upgrades-bdcddac8/observations.json"
+    },
+    {
+      "scenario_id": "ONT-04",
+      "issues": "13",
+      "requirements_to_recheck": "same-backend source ledger kept; concurrent ingest catchup; rollback; no migration",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ontology-359246f7/observations.json"
+    },
+    {
+      "scenario_id": "LIFE-01",
+      "issues": "19",
+      "requirements_to_recheck": "log/document/dedup/session flags; pending/unread protection for five groups; old history import",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-retention-85231d1e/observations.json"
+    },
+    {
+      "scenario_id": "LIFE-03",
+      "issues": "33",
+      "requirements_to_recheck": "warm/cold dry vs live; actual counts; truncated scan; edges/orphans; commit-sized deletes",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-retention-completion-3dbff638/observations.json"
+    },
+    {
+      "scenario_id": "LIFE-04",
+      "issues": "21",
+      "requirements_to_recheck": "confirm/admin required; >100 tied times; interleaved sessions; pack nodes/eval state restored; hard process deadline; repeated-page/no-progress detection; per-case owned-database guard",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-replay-93151f94/observations.json"
+    },
+    {
+      "scenario_id": "OPS-01",
+      "issues": "22",
+      "requirements_to_recheck": "backend identity and status; gauges for pending work; bounded errors/log redaction",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-stats-a4a0c509/observations.json"
+    },
+    {
+      "scenario_id": "OPS-03",
+      "issues": "14;28",
+      "requirements_to_recheck": "permission denial/token expiry; SDK translated errors; process/connection recovery; no false ACK",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json"
+    },
+    {
+      "scenario_id": "OPS-04",
+      "issues": "28",
+      "requirements_to_recheck": "configured mutation/byte limits; exact boundary/oversized row; split/partial failure/idempotence",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json"
+    },
+    {
+      "scenario_id": "APP-01",
+      "issues": "20",
+      "requirements_to_recheck": "full independent-process conversation/tool/entity/user/summary retrieval evidence",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-knowledge-ca060841/observations.json"
+    }
+  ],
+  "deployment_not_configured": [
+    "GCS archive bucket"
+  ],
+  "credential_window": {
+    "started_UTC": "2026-10-06T16:22:36Z",
+    "last_cloud_phase_finished": true,
+    "refresh_inside_phase": false,
+    "ordinary_ADC_proven": false
+  }
+}

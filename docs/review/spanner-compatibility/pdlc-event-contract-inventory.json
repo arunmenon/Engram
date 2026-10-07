@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-07T06:27:29.424820+00:00",
+  "pack": "pdlc",
+  "pack_version": "1.7.0",
+  "pack_file": "src/context_graph/ontology/packs/pdlc.pack.yaml",
+  "pack_sha256": "42d3c1d9691a915d647d9be3f7b29b11ac32cc36c30b175c0cb71e37b3c81892",
+  "owned_event_count": 23,
+  "with_deterministic_projection": 16,
+  "without_deterministic_projection": [
+    "pdlc.testcaserun.skipped",
+    "pdlc.service.rolledback",
+    "pdlc.service.upgraded",
+    "pdlc.incident.reported",
+    "pdlc.request.created",
+    "pdlc.requirement.changed",
+    "pdlc.design.section_changed"
+  ],
+  "with_builtin_source_adapter_literal": 12,
+  "extraction_sources": [
+    "pdlc.design.section_changed",
+    "pdlc.spec.approved",
+    "core:observation.input"
+  ],
+  "cross_pack_extraction_sources": [
+    "core:observation.input"
+  ],
+  "inventory_scope": "All current PDLC event declarations and rule usage; source module AST literal association, not complete producer contract validation. Generic/import producers and per-event fixture behavior still to verify.",
+  "contracts_implemented": false,
+  "all_event_schema_and_fixture_acceptance_complete": false
+}

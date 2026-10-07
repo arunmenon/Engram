@@ -1,0 +1,97 @@
+{
+  "at": "2026-10-06T17:23:51.625512+00:00",
+  "implemented_scoped_rechecks": [
+    15,
+    16,
+    23,
+    26,
+    27,
+    28,
+    33
+  ],
+  "planned_issue_count": 23,
+  "issues_closed": 0,
+  "independent_review": "complete: Astra low; two verified defects pending correction",
+  "source_publication": "local uncommitted",
+  "compatibility_signoff": false,
+  "local_test_run": "20261006-local-implementation-validation-01",
+  "local_result": {
+    "passed": 188,
+    "deselected_integration": 10
+  },
+  "cloud_run_ids": [
+    "20261006-cloud-foundation-recheck-2b1052d9",
+    "20261006-cloud-ingress-safety-recheck-ea36e04b",
+    "20261006-cloud-retention-completion-27c3df0c"
+  ],
+  "historical_full_scenario_matrix": {
+    "passed": 14,
+    "failed": 36,
+    "partial": 13,
+    "blocked": 2
+  },
+  "next_wave_one_issues": [
+    4,
+    5,
+    14,
+    17,
+    19
+  ],
+  "review_request": "implementation-astra-review-request.json",
+  "review_report": "docs/review/spanner-compatibility/2026-10-07-astra-implementation-review.md",
+  "review_findings_pending": [
+    26,
+    27,
+    33
+  ],
+  "scoped_review_ready": [
+    15,
+    16,
+    23,
+    28
+  ],
+  "priority_buckets": [
+    1,
+    2,
+    3
+  ],
+  "bulk_review_status": "complete: three Astra low reviews,22 issues; no runtime changes",
+  "bulk_review_request": "implementation-bucket-review-requests.json",
+  "design_status": "proposed: detailed step-by-step pack contracts/handoffs/onboarding plan added; no runtime changes",
+  "design_plan": "docs/review/2026-10-06-spanner-compatibility-plan.md",
+  "design_issue_coverage": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33
+  ],
+  "design_independent_review": "not performed for new design refinements",
+  "pack_neutral_recheck": "proposed design refined: raw/normalized boundary, owner/subscriber distinction, unknown-domain admission and unfamiliar-third-pack coverage",
+  "design_probe_run": "20261007-local-pack-neutral-design-01"
+}
