@@ -178,3 +178,27 @@ def test_g05_guard_preserves_failure_exit_and_detects_retained_data_change(
         ).read_text()
     )
     assert evidence["passed"] is not changed
+
+
+@pytest.mark.parametrize("run_id", ["../escape", "already-used"])
+def test_goal06_driver_refuses_unsafe_or_existing_run_before_credentials(
+    monkeypatch, tmp_path, run_id
+):
+    import engram_goal06_incident_demo as driver
+
+    previous = tmp_path / "docs/review/spanner-compatibility/runs/already-used"
+    previous.mkdir(parents=True)
+    evidence = previous / "g05-protection.json"
+    evidence.write_text("original evidence")
+    monkeypatch.setattr(driver, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["demo", "--credentials", "missing", "--run-id", run_id])
+
+    def unexpected_credentials(_):
+        pytest.fail("Refused run must not load credentials or contact Spanner")
+
+    monkeypatch.setattr(driver, "load_credentials", unexpected_credentials)
+    with pytest.raises(SystemExit) as error:
+        driver.main()
+    assert error.value.code == 2
+    assert evidence.read_text() == "original evidence"
+    assert not (tmp_path / "docs/review/spanner-compatibility/escape").exists()

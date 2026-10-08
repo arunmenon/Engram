@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 
 from engram_experiment_support import durable_json, fingerprint, load_credentials, read_owner
@@ -22,6 +23,11 @@ def main():
     parser.add_argument("--credentials", type=Path, required=True)
     parser.add_argument("--run-id", required=True)
     args, _ = parser.parse_known_args()
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,100}", args.run_id):
+        parser.error("Invalid run ID")
+    directory = ROOT / "docs/review/spanner-compatibility/runs" / args.run_id
+    if directory.exists():
+        parser.error("Run ID already exists; historical evidence will not be overwritten")
     values = load_credentials(args.credentials)
     assert (values["GOOGLE_CLOUD_PROJECT"], values["SPANNER_INSTANCE_ID"]) == (
         "portiq-mvp",
@@ -69,7 +75,6 @@ def main():
             close_database(database)
         except BaseException as exc:
             evidence.update(passed=False, close_error=type(exc).__name__)
-        directory = ROOT / "docs/review/spanner-compatibility/runs" / args.run_id
         directory.mkdir(parents=True, exist_ok=True)
         durable_json(directory / "g05-protection.json", evidence)
         assert evidence["passed"], "G05 retention guard failed; inspect g05-protection.json"
