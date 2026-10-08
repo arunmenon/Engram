@@ -1,0 +1,277 @@
+<title>Engram System Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a briefing deck read top to bottom. Sticky section tabs; each section is one figure (inline SVG) with a caption and a short "what to know" column. Two hues only: teal for the data path, amber for tenancy and fences. */
+:root {
+  --bg: #f3f5f6;
+  --surface: #ffffff;
+  --ink: #16202a;
+  --muted: #5d6b78;
+  --line: #d4dbe1;
+  --soft: #e7edf1;
+  --flow: #0f7c8c;
+  --flow-soft: #d6eef1;
+  --fence: #b4700e;
+  --fence-soft: #f8e9d2;
+  --good: #2e7d4f;
+  --good-soft: #dcefe3;
+  --warn: #a8402e;
+  --warn-soft: #f6e0db;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1419; --surface: #171e26; --ink: #e6ebf0; --muted: #9aa7b4; --line: #2c3642; --soft: #1f2932;
+    --flow: #4fc3d0; --flow-soft: #123a40; --fence: #e9a94c; --fence-soft: #3d2c12;
+    --good: #6fcf97; --good-soft: #1b3a2a; --warn: #f08a76; --warn-soft: #3f2320;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1419; --surface: #171e26; --ink: #e6ebf0; --muted: #9aa7b4; --line: #2c3642; --soft: #1f2932;
+  --flow: #4fc3d0; --flow-soft: #123a40; --fence: #e9a94c; --fence-soft: #3d2c12;
+  --good: #6fcf97; --good-soft: #1b3a2a; --warn: #f08a76; --warn-soft: #3f2320;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 16px 48px; }
+header.top { padding-block: 8px 18px; }
+.eyebrow { font: 500 11.5px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 clamp(30px, 4.4vw, 46px)/1.02 var(--font-display); margin: 6px 0 8px; letter-spacing: -0.015em; text-wrap: balance; }
+header p.lede { margin: 0; color: var(--muted); max-width: 70ch; font-size: 16px; }
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; gap: 2px; overflow-x: auto; padding-block: 6px; }
+nav.tabs a { flex: 0 0 auto; text-decoration: none; color: var(--muted); font: 500 13px var(--font-body); padding: 6px 12px; border-radius: 6px; white-space: nowrap; }
+nav.tabs a:hover { color: var(--ink); background: var(--soft); }
+nav.tabs a.on { color: var(--ink); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+nav.tabs a:focus-visible { outline: 2px solid var(--flow); outline-offset: 2px; }
+section.part { padding-block: 34px 10px; border-bottom: 1px solid var(--line); scroll-margin-top: 64px; }
+section.part:last-of-type { border-bottom: 0; }
+.part-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 10px; }
+.part-head h2 { font: 700 26px/1.1 var(--font-display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.part-head .q { color: var(--muted); font-size: 15px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 12px 8px; min-width: 0; overflow-x: auto; }
+figure svg { width: 100%; height: auto; display: block; min-width: 760px; }
+figcaption { font-size: 13px; color: var(--muted); padding: 8px 4px 2px; max-width: 78ch; }
+.notes { min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px 28px; }
+.notes h3 { margin: 0 0 4px; font: 600 14px var(--font-body); }
+.notes p { margin: 0 0 8px; max-width: 60ch; }
+.notes ul { margin: 0; padding-left: 18px; }
+.notes li { margin-bottom: 5px; }
+.notes li::marker { color: var(--muted); }
+code { font: 12.5px var(--font-mono); background: var(--soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--muted); padding: 10px 4px 0; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { display: inline-block; width: 22px; height: 0; border-top: 2px solid currentColor; }
+.legend i.flow { color: var(--flow); }
+.legend i.fence { color: var(--fence); }
+.legend i.dash { border-top-style: dashed; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.card h3 { margin: 0 0 6px; font: 600 14px var(--font-body); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.card ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.card li { margin-bottom: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; font-size: 12.5px; color: var(--muted); }
+td.n { font: 500 12.5px var(--font-mono); white-space: nowrap; }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 4px 8px; }
+footer.note { margin-top: 28px; font-size: 13px; color: var(--muted); max-width: 90ch; }
+/* SVG vocabulary (page CSS applies to inline SVG) */
+svg text { font-family: var(--font-body); fill: var(--ink); font-size: 13px; }
+svg .t-head { font-weight: 600; font-size: 14px; }
+svg .t-sub { font-size: 13px; fill: var(--muted); }
+svg .t-small { font-size: 12.5px; fill: var(--muted); }
+svg .t-frame { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+svg .t-warn { font-size: 13px; fill: var(--warn); font-weight: 500; }
+svg .t-inv { fill: var(--surface); }
+svg .t-inv2 { fill: var(--surface); opacity: 0.9; }
+svg .bx { fill: var(--surface); stroke: var(--ink); stroke-width: 1.2; }
+svg .bx-soft { fill: var(--soft); stroke: var(--line); stroke-width: 1; }
+svg .bx-flow { fill: var(--flow-soft); stroke: var(--flow); stroke-width: 1.4; }
+svg .bx-fence { fill: var(--fence-soft); stroke: var(--fence); stroke-width: 1.4; }
+svg .bx-fill { fill: var(--flow); stroke: var(--flow); }
+svg .bx-dash { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 5 4; }
+svg .bx-good { fill: var(--good-soft); stroke: var(--good); stroke-width: 1.2; }
+svg .bx-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.2; }
+svg .ln { fill: none; stroke: var(--ink); stroke-width: 1.3; }
+svg .ln-flow { fill: none; stroke: var(--flow); stroke-width: 2; }
+svg .ln-fence { fill: none; stroke: var(--fence); stroke-width: 1.6; }
+svg .ln-dash { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+svg .ln-warn { fill: none; stroke: var(--warn); stroke-width: 1.4; }
+svg .mk-ink { fill: var(--ink); }
+svg .mk-flow { fill: var(--flow); }
+svg .mk-fence { fill: var(--fence); }
+svg .mk-muted { fill: var(--muted); }
+svg .mk-warn { fill: var(--warn); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Engram · context graph for agents · design overview</div>
+    <h1>Engram System Map</h1>
+    <p class="lede">The whole path from a source event to an agent's answer, with the three things that shape it: the ontology packs that define each domain, the tenant binding that keeps one customer's data in one Spanner database, and the handshake every process makes before it touches that database.</p>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <a href="#overview">1 Overview</a>
+    <a href="#ingest">2 Ingestion</a>
+    <a href="#retrieve">3 Retrieval</a>
+    <a href="#tenancy">4 Multi-tenancy</a>
+    <a href="#handshake">5 Spanner handshake</a>
+    <a href="#packs">6 Ontology packs</a>
+  </nav>
+
+  <!-- 1 OVERVIEW -->
+  <section class="part" id="overview">
+    <div class="part-head"><h2>One picture</h2><span class="q">Where does an event go, and what decides what happens to it?</span></div>
+    <div class="grid">
+      <figure>
+        <svg viewBox="0 0 1110 500" role="img" aria-label="Sources enter the ingress API and are appended to the tenant&#x27;s Spanner ledger; workers project them into the graph in the same database; the retrieval API answers the agent from the graph. The pack bundle configures ingress, workers and retrieval. The tenant binding authenticates writers and must match the owner row that every transaction checks."><defs><marker id="ov-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-ink"/></marker><marker id="ov-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-flow"/></marker><marker id="ov-fence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-fence"/></marker><marker id="ov-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-muted"/></marker><marker id="ov-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-warn"/></marker></defs><rect x="210" y="24" width="880" height="62" rx="8" class="bx-flow"/><text x="650.0" y="50.5" text-anchor="middle" class="t-head">Active pack bundle</text><text x="650.0" y="70.5" text-anchor="middle" class="t-sub">core + pdlc (+ memory, user), composed into one bundle with one digest</text><rect x="420" y="150" width="490" height="335" rx="12" class="bx-dash"/><text x="434" y="172" class="t-frame">one Spanner database per tenant</text><rect x="20" y="222" width="140" height="96" rx="8" class="bx-soft"/><text x="90.0" y="248.5" text-anchor="middle" class="t-head">Sources</text><text x="90.0" y="268.5" text-anchor="middle" class="t-sub">webhooks</text><text x="90.0" y="285.5" text-anchor="middle" class="t-sub">agents</text><text x="90.0" y="302.5" text-anchor="middle" class="t-sub">importers</text><rect x="210" y="222" width="160" height="96" rx="8" class="bx"/><text x="290.0" y="248.5" text-anchor="middle" class="t-head">Ingress API</text><text x="290.0" y="268.5" text-anchor="middle" class="t-sub">authenticate</text><text x="290.0" y="285.5" text-anchor="middle" class="t-sub">admit vs. bundle</text><text x="290.0" y="302.5" text-anchor="middle" class="t-sub">check payload</text><rect x="440" y="222" width="130" height="96" rx="8" class="bx"/><text x="505.0" y="248.5" text-anchor="middle" class="t-head">Ledger</text><text x="505.0" y="268.5" text-anchor="middle" class="t-sub">append-only</text><text x="505.0" y="285.5" text-anchor="middle" class="t-sub">with acceptance</text><text x="505.0" y="302.5" text-anchor="middle" class="t-sub">source of truth</text><rect x="606" y="222" width="130" height="96" rx="8" class="bx-flow"/><text x="671.0" y="248.5" text-anchor="middle" class="t-head">5 workers</text><text x="671.0" y="268.5" text-anchor="middle" class="t-sub">read in order</text><text x="671.0" y="285.5" text-anchor="middle" class="t-sub">project</text><text x="671.0" y="302.5" text-anchor="middle" class="t-sub">enrich, extract</text><rect x="772" y="222" width="118" height="96" rx="8" class="bx"/><text x="831.0" y="248.5" text-anchor="middle" class="t-head">Graph</text><text x="831.0" y="268.5" text-anchor="middle" class="t-sub">nodes, edges</text><text x="831.0" y="285.5" text-anchor="middle" class="t-sub">provenance</text><text x="831.0" y="302.5" text-anchor="middle" class="t-sub">rebuildable</text><rect x="950" y="222" width="140" height="96" rx="8" class="bx"/><text x="1020.0" y="248.5" text-anchor="middle" class="t-head">Retrieval API</text><text x="1020.0" y="268.5" text-anchor="middle" class="t-sub">pack intents</text><text x="1020.0" y="285.5" text-anchor="middle" class="t-sub">weighted walk</text><text x="1020.0" y="302.5" text-anchor="middle" class="t-sub">answer, evidence</text><rect x="950" y="400" width="140" height="56" rx="8" class="bx-soft"/><text x="1020.0" y="432.0" text-anchor="middle" class="t-head">Agent</text><rect x="440" y="392" width="430" height="70" rx="8" class="bx-fence"/><text x="655.0" y="422.5" text-anchor="middle" class="t-head">Owner row (TenantControl)</text><text x="655.0" y="442.5" text-anchor="middle" class="t-sub">tenant · binding · epoch · digest · state</text><rect x="20" y="392" width="330" height="70" rx="8" class="bx-fence"/><text x="185.0" y="422.5" text-anchor="middle" class="t-head">Tenant binding</text><text x="185.0" y="442.5" text-anchor="middle" class="t-sub">which database, epoch and bundle digest</text><path d="M160,270 L210,270" class="ln-flow" marker-end="url(#ov-flow)"/><text x="185" y="262" text-anchor="middle" class="t-small">event</text><path d="M370,270 L440,270" class="ln-flow" marker-end="url(#ov-flow)"/><text x="395" y="262" text-anchor="middle" class="t-small">append</text><path d="M570,270 L606,270" class="ln-flow" marker-end="url(#ov-flow)"/><path d="M736,270 L772,270" class="ln-flow" marker-end="url(#ov-flow)"/><path d="M890,270 L950,270" class="ln-flow" marker-end="url(#ov-flow)"/><text x="930" y="262" text-anchor="middle" class="t-small">read</text><path d="M1040,318 L1040,400" class="ln-flow" marker-end="url(#ov-flow)"/><text x="1048" y="364" text-anchor="start" class="t-small">answer</text><path d="M1000,400 L1000,318" class="ln-dash" marker-end="url(#ov-muted)"/><text x="992" y="364" text-anchor="end" class="t-small">question</text><path d="M290,86 L290,222" class="ln-dash" marker-end="url(#ov-muted)"/><path d="M671,86 L671,222" class="ln-dash" marker-end="url(#ov-muted)"/><path d="M1020,86 L1020,222" class="ln-dash" marker-end="url(#ov-muted)"/><text x="282" y="160" text-anchor="end" class="t-small">which events</text><text x="679" y="132" text-anchor="start" class="t-small">which rules</text><text x="1028" y="160" text-anchor="start" class="t-small">which intents</text><path d="M290,392 L290,318" class="ln-fence" marker-end="url(#ov-fence)"/><text x="282" y="362" text-anchor="end" class="t-small">who may write</text><path d="M350,427 L440,427" class="ln-fence" marker-end="url(#ov-fence)"/><text x="395" y="419" text-anchor="middle" class="t-small">match</text><path d="M505,392 L505,318" class="ln-fence" marker-end="url(#ov-fence)"/><path d="M671,392 L671,318" class="ln-fence" marker-end="url(#ov-fence)"/><path d="M831,392 L831,318" class="ln-fence" marker-end="url(#ov-fence)"/><text x="588" y="360" text-anchor="middle" class="t-small">checked in</text><text x="588" y="376" text-anchor="middle" class="t-small">every transaction</text></svg>
+        <figcaption>Everything durable for a tenant lives in one Spanner database: the ledger, the consumer-group state, the graph and the ownership row. The bundle says what the engine will accept and how it projects and retrieves. The binding says which database, and the fence refuses any read or write whose epoch and digest no longer match the owner row.</figcaption>
+        <div class="legend"><span><i class="flow"></i>data path</span><span><i class="fence"></i>tenant authority and fences</span><span><i class="dash"></i>configuration from the pack bundle</span></div>
+      </figure>
+      <div class="notes">
+        <div>
+          <h3>Three facts that shape everything else</h3>
+          <ul>
+            <li><strong>The ledger is the truth.</strong> Events are appended once, with their acceptance record, and never changed. The graph is derived from them and can be rebuilt.</li>
+            <li><strong>Domains are data, not code.</strong> A pack file declares types, events, projection rules, retrieval intents and what an LLM may propose. The engine has no PDLC code.</li>
+            <li><strong>One tenant, one database.</strong> Isolation comes from the database boundary plus an ownership row that every process checks, not from filtering by a tenant column.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 INGESTION -->
+  <section class="part" id="ingest">
+    <div class="part-head"><h2>Ingestion: from a source event to graph writes</h2><span class="q">What has to be true before a byte is stored, and what the workers do after.</span></div>
+    <div class="grid">
+      <figure>
+        <svg viewBox="0 0 1110 720" role="img" aria-label="An event passes four checks before it is stored: authenticate, admission context, pack contract and a fenced append. Each refusal stores nothing. The ledger then feeds five workers, of which projection builds the graph."><defs><marker id="in-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-ink"/></marker><marker id="in-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-flow"/></marker><marker id="in-fence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-fence"/></marker><marker id="in-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-muted"/></marker><marker id="in-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-warn"/></marker></defs><rect x="40" y="16" width="480" height="60" rx="8" class="bx-soft"/><text x="56" y="41.5" text-anchor="start" class="t-head">Source event</text><text x="56" y="61.5" text-anchor="start" class="t-sub">signed webhook, or POST /v1/events (single, batch, import)</text><rect x="40" y="96" width="480" height="60" rx="8" class="bx"/><text x="56" y="121.5" text-anchor="start" class="t-head">1  Who sent it</text><text x="56" y="141.5" text-anchor="start" class="t-sub">webhook signature or bearer token; the server sets the source id</text><rect x="40" y="176" width="480" height="60" rx="8" class="bx-fence"/><text x="56" y="201.5" text-anchor="start" class="t-head">2  Which tenant and bundle</text><text x="56" y="221.5" text-anchor="start" class="t-sub">tenant, database, binding, epoch, bundle digest</text><rect x="40" y="256" width="480" height="60" rx="8" class="bx-flow"/><text x="56" y="281.5" text-anchor="start" class="t-head">3  Valid for these packs?</text><text x="56" y="301.5" text-anchor="start" class="t-sub">type owned by an active pack; payload fields and types; timezone</text><rect x="40" y="336" width="480" height="60" rx="8" class="bx-fence"/><text x="56" y="361.5" text-anchor="start" class="t-head">4  Commit, if we still own the database</text><text x="56" y="381.5" text-anchor="start" class="t-sub">owner row matches; same id seen before?; stamp acceptance</text><rect x="40" y="436" width="480" height="60" rx="8" class="bx"/><text x="56" y="461.5" text-anchor="start" class="t-head">Events ledger</text><text x="56" y="481.5" text-anchor="start" class="t-sub">201 created, with position and acceptance record</text><path d="M280,76 L280,96" class="ln-flow" marker-end="url(#in-flow)"/><path d="M280,156 L280,176" class="ln-flow" marker-end="url(#in-flow)"/><path d="M280,236 L280,256" class="ln-flow" marker-end="url(#in-flow)"/><path d="M280,316 L280,336" class="ln-flow" marker-end="url(#in-flow)"/><path d="M280,396 L280,436" class="ln-flow" marker-end="url(#in-flow)"/><rect x="600" y="106" width="300" height="40" rx="8" class="bx-warn"/><text x="750.0" y="130.5" text-anchor="middle" class="t-sub">401 · nothing stored</text><rect x="600" y="186" width="300" height="40" rx="8" class="bx-warn"/><text x="750.0" y="210.5" text-anchor="middle" class="t-sub">refused · no tenant for this credential</text><rect x="600" y="266" width="300" height="40" rx="8" class="bx-warn"/><text x="750.0" y="290.5" text-anchor="middle" class="t-sub">422 · nothing stored</text><rect x="600" y="326" width="300" height="36" rx="8" class="bx-warn"/><text x="750.0" y="348.5" text-anchor="middle" class="t-sub">409 · same id, different content</text><rect x="600" y="370" width="300" height="36" rx="8" class="bx-soft"/><text x="750.0" y="392.5" text-anchor="middle" class="t-sub">201 · exact duplicate, same answer</text><path d="M520,126 L600,126" class="ln-warn" marker-end="url(#in-warn)"/><path d="M520,206 L600,206" class="ln-warn" marker-end="url(#in-warn)"/><path d="M520,286 L600,286" class="ln-warn" marker-end="url(#in-warn)"/><path d="M520,360 L560,360 L560,344 L600,344" class="ln-warn" marker-end="url(#in-warn)"/><path d="M560,360 L560,388 L600,388" class="ln-dash" marker-end="url(#in-muted)"/><rect x="20" y="530" width="1070" height="176" rx="12" class="bx-dash"/><text x="34" y="552" class="t-frame">workers: each is a consumer group on the ledger; it acknowledges only after its writes succeed</text><path d="M280,496 L280,530" class="ln-flow" marker-end="url(#in-flow)"/><text x="290" y="518" text-anchor="start" class="t-small">read in position order</text><rect x="40" y="566" width="196" height="120" rx="8" class="bx-flow"/><text x="138.0" y="596.0" text-anchor="middle" class="t-head">Projection</text><text x="138.0" y="616.0" text-anchor="middle" class="t-sub">builds the graph</text><text x="138.0" y="633.0" text-anchor="middle" class="t-sub">Event node, FOLLOWS</text><text x="138.0" y="650.0" text-anchor="middle" class="t-sub">pack rules: nodes, edges</text><text x="138.0" y="667.0" text-anchor="middle" class="t-sub">DERIVED_FROM to event</text><rect x="248" y="566" width="196" height="120" rx="8" class="bx"/><text x="346.0" y="604.5" text-anchor="middle" class="t-head">Pack extraction</text><text x="346.0" y="624.5" text-anchor="middle" class="t-sub">LLM on prose events</text><text x="346.0" y="641.5" text-anchor="middle" class="t-sub">only declared types</text><text x="346.0" y="658.5" text-anchor="middle" class="t-sub">links start proposed</text><rect x="456" y="566" width="196" height="120" rx="8" class="bx"/><text x="554.0" y="604.5" text-anchor="middle" class="t-head">Enrichment</text><text x="554.0" y="624.5" text-anchor="middle" class="t-sub">keywords, importance</text><text x="554.0" y="641.5" text-anchor="middle" class="t-sub">embeddings</text><text x="554.0" y="658.5" text-anchor="middle" class="t-sub">SIMILAR_TO, REFERENCES</text><rect x="664" y="566" width="196" height="120" rx="8" class="bx-soft"/><text x="762.0" y="604.5" text-anchor="middle" class="t-head">Extraction</text><text x="762.0" y="624.5" text-anchor="middle" class="t-sub">session memory, user</text><text x="762.0" y="641.5" text-anchor="middle" class="t-sub">profile, preferences</text><text x="762.0" y="658.5" text-anchor="middle" class="t-sub">only with memory, user</text><rect x="872" y="566" width="196" height="120" rx="8" class="bx-soft"/><text x="970.0" y="604.5" text-anchor="middle" class="t-head">Consolidation</text><text x="970.0" y="624.5" text-anchor="middle" class="t-sub">summaries, patterns</text><text x="970.0" y="641.5" text-anchor="middle" class="t-sub">retention</text><text x="970.0" y="658.5" text-anchor="middle" class="t-sub">scheduled</text></svg>
+        <figcaption>Four checks run before any byte is stored, and three of the four outcomes that stop an event leave nothing behind. A duplicate of an accepted event gets the same answer as the first time; the same id with different content is refused. After the append, the five workers read the ledger independently; projection is the one that builds the graph, and it writes a provenance edge from every node it creates back to the event.</figcaption>
+      </figure>
+      <div class="notes">
+        <div>
+          <h3>What makes this tenant-safe</h3>
+          <ul>
+            <li>Trust comes from who authenticated, never from a field in the JSON. A webhook's identity is the verified signature; an agent's identity is its token.</li>
+            <li>The acceptance record stamped on each event names the tenant, database, binding, epoch and bundle digest that accepted it. Workers verify that record before they interpret the event.</li>
+            <li>The append is one transaction with the fence check, so a frozen or re-pointed tenant cannot accept a late write.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 RETRIEVAL -->
+  <section class="part" id="retrieve">
+    <div class="part-head"><h2>Retrieval: from a question to an answer with evidence</h2><span class="q">Why the answer is the one the stored evidence supports, and nothing more.</span></div>
+    <div class="grid">
+      <figure>
+        <svg viewBox="0 0 1110 346" role="img" aria-label="A question passes the tenant guard, is classified against pack intents, checked against the evaluation gate and seeded; the walk follows intent weights over the active packs only; admission rules filter what may be returned; the Atlas response carries provenance and is released after a fresh tenant check."><defs><marker id="rt-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-ink"/></marker><marker id="rt-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-flow"/></marker><marker id="rt-fence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-fence"/></marker><marker id="rt-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-muted"/></marker><marker id="rt-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-warn"/></marker></defs><rect x="20" y="24" width="180" height="92" rx="8" class="bx-soft"/><text x="110.0" y="65.5" text-anchor="middle" class="t-head">Question</text><text x="110.0" y="85.5" text-anchor="middle" class="t-sub">text, optional seeds</text><rect x="238" y="24" width="180" height="92" rx="8" class="bx-fence"/><text x="328.0" y="57.0" text-anchor="middle" class="t-head">Tenant guard</text><text x="328.0" y="77.0" text-anchor="middle" class="t-sub">token → tenant</text><text x="328.0" y="94.0" text-anchor="middle" class="t-sub">owner row active?</text><rect x="456" y="24" width="180" height="92" rx="8" class="bx-flow"/><text x="546.0" y="57.0" text-anchor="middle" class="t-head">Classify</text><text x="546.0" y="77.0" text-anchor="middle" class="t-sub">intent from pack</text><text x="546.0" y="94.0" text-anchor="middle" class="t-sub">keywords</text><rect x="674" y="24" width="180" height="92" rx="8" class="bx"/><text x="764.0" y="57.0" text-anchor="middle" class="t-head">Eval gate</text><text x="764.0" y="77.0" text-anchor="middle" class="t-sub">pack&#x27;s eval set</text><text x="764.0" y="94.0" text-anchor="middle" class="t-sub">recorded passing?</text><rect x="892" y="24" width="180" height="92" rx="8" class="bx"/><text x="982.0" y="57.0" text-anchor="middle" class="t-head">Seed</text><text x="982.0" y="77.0" text-anchor="middle" class="t-sub">exact ids first,</text><text x="982.0" y="94.0" text-anchor="middle" class="t-sub">then weighted words</text><path d="M200,70 L238,70" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M418,70 L456,70" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M636,70 L674,70" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M854,70 L892,70" class="ln-flow" marker-end="url(#rt-flow)"/><rect x="238" y="144" width="180" height="34" rx="8" class="bx-warn"/><text x="328.0" y="165.5" text-anchor="middle" class="t-sub">401 / 403</text><rect x="674" y="144" width="180" height="34" rx="8" class="bx-warn"/><text x="764.0" y="165.5" text-anchor="middle" class="t-sub">409 · intent pending</text><path d="M328,116 L328,144" class="ln-warn" marker-end="url(#rt-warn)"/><path d="M764,116 L764,144" class="ln-warn" marker-end="url(#rt-warn)"/><rect x="892" y="220" width="180" height="110" rx="8" class="bx-flow"/><text x="982.0" y="253.5" text-anchor="middle" class="t-head">Walk</text><text x="982.0" y="273.5" text-anchor="middle" class="t-sub">intent edge weights</text><text x="982.0" y="290.5" text-anchor="middle" class="t-sub">bounded depth, calls</text><text x="982.0" y="307.5" text-anchor="middle" class="t-sub">active packs only</text><rect x="674" y="220" width="180" height="110" rx="8" class="bx"/><text x="764.0" y="253.5" text-anchor="middle" class="t-head">Admit</text><text x="764.0" y="273.5" text-anchor="middle" class="t-sub">drop superseded,</text><text x="764.0" y="290.5" text-anchor="middle" class="t-sub">untrusted, rejected;</text><text x="764.0" y="307.5" text-anchor="middle" class="t-sub">proposed: flagged</text><rect x="456" y="220" width="180" height="110" rx="8" class="bx"/><text x="546.0" y="253.5" text-anchor="middle" class="t-head">Atlas response</text><text x="546.0" y="273.5" text-anchor="middle" class="t-sub">nodes, edges, scores</text><text x="546.0" y="290.5" text-anchor="middle" class="t-sub">reason per node</text><text x="546.0" y="307.5" text-anchor="middle" class="t-sub">provenance per node</text><rect x="238" y="220" width="180" height="110" rx="8" class="bx-fence"/><text x="328.0" y="262.0" text-anchor="middle" class="t-head">Response guard</text><text x="328.0" y="282.0" text-anchor="middle" class="t-sub">fresh owner check</text><text x="328.0" y="299.0" text-anchor="middle" class="t-sub">before release</text><rect x="20" y="220" width="180" height="110" rx="8" class="bx-soft"/><text x="110.0" y="279.0" text-anchor="middle" class="t-head">Agent</text><path d="M892,275 L854,275" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M674,275 L636,275" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M456,275 L418,275" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M238,275 L200,275" class="ln-flow" marker-end="url(#rt-flow)"/><path d="M982,116 L982,220" class="ln-flow" marker-end="url(#rt-flow)"/></svg>
+        <figcaption>Retrieval is system-owned: the engine infers the intent from the pack's keywords, picks seeds, and walks edges by the intent's weights. The walk sees only the types of packs in the bundle, so a tenant that runs core and PDLC never gets memory or user artifacts. Admission rules decide what may reach the agent at all, and the answer carries provenance back to the ledger.</figcaption>
+      </figure>
+      <div class="notes">
+        <div>
+          <h3>What keeps an answer honest</h3>
+          <ul>
+            <li><strong>Bounded walks.</strong> Every traversal has a depth, node count and time limit, and the response says when a limit cut it short.</li>
+            <li><strong>Admission before the agent.</strong> Superseded, untrusted and rejected links are dropped; proposed links arrive flagged.</li>
+            <li><strong>Provenance on every node.</strong> Each returned node points back to the ledger event that produced it.</li>
+            <li><strong>Eval-gated weights.</strong> A pack's retrieval weights serve only after its evaluation set passes.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 TENANCY -->
+  <section class="part" id="tenancy">
+    <div class="part-head"><h2>Multi-tenancy: one database per tenant, fenced by an owner row</h2><span class="q">How one customer's data stays in one database.</span></div>
+    <div class="grid">
+      <figure>
+        <svg viewBox="0 0 1110 460" role="img" aria-label="Two tenants authenticate through the catalog and are bound to separate Spanner databases. Each database holds an owner row naming its tenant, binding, epoch and bundle digest; every transaction checks it. A dispatcher routes each request to its tenant&#x27;s binding."><defs><marker id="tn-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-ink"/></marker><marker id="tn-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-flow"/></marker><marker id="tn-fence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-fence"/></marker><marker id="tn-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-muted"/></marker><marker id="tn-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-warn"/></marker></defs><rect x="20" y="150" width="220" height="110" rx="8" class="bx-fence"/><text x="130.0" y="183.5" text-anchor="middle" class="t-head">Tenant catalog</text><text x="130.0" y="203.5" text-anchor="middle" class="t-sub">token → principal</text><text x="130.0" y="220.5" text-anchor="middle" class="t-sub">principal → one binding</text><text x="130.0" y="237.5" text-anchor="middle" class="t-sub">no default tenant</text><rect x="20" y="300" width="220" height="80" rx="8" class="bx-fence"/><text x="130.0" y="327.0" text-anchor="middle" class="t-head">Dispatcher</text><text x="130.0" y="347.0" text-anchor="middle" class="t-sub">many tenants per process</text><text x="130.0" y="364.0" text-anchor="middle" class="t-sub">request → its binding</text><rect x="310" y="40" width="240" height="116" rx="8" class="bx-fence"/><text x="430.0" y="76.5" text-anchor="middle" class="t-head">Binding: tenant A</text><text x="430.0" y="96.5" text-anchor="middle" class="t-sub">database tenant-a</text><text x="430.0" y="113.5" text-anchor="middle" class="t-sub">epoch 18</text><text x="430.0" y="130.5" text-anchor="middle" class="t-sub">bundle digest f57f…</text><rect x="310" y="290" width="240" height="116" rx="8" class="bx-fence"/><text x="430.0" y="326.5" text-anchor="middle" class="t-head">Binding: tenant B</text><text x="430.0" y="346.5" text-anchor="middle" class="t-sub">database tenant-b</text><text x="430.0" y="363.5" text-anchor="middle" class="t-sub">epoch 3</text><text x="430.0" y="380.5" text-anchor="middle" class="t-sub">bundle digest 91c0…</text><path d="M240,186 L275,186 L275,98 L310,98" class="ln-fence" marker-end="url(#tn-fence)"/><path d="M240,224 L275,224 L275,348 L310,348" class="ln-fence" marker-end="url(#tn-fence)"/><text x="430" y="210" text-anchor="middle" class="t-sub">Every transaction re-reads</text><text x="430" y="228" text-anchor="middle" class="t-sub">its owner row and refuses</text><text x="430" y="246" text-anchor="middle" class="t-sub">on any mismatch</text><rect x="620" y="20" width="470" height="170" rx="12" class="bx-dash"/><text x="634" y="42" class="t-frame">Spanner database tenant-a</text><rect x="640" y="56" width="130" height="56" rx="8" class="bx"/><text x="705.0" y="79.5" text-anchor="middle" class="t-head">Events</text><text x="705.0" y="99.5" text-anchor="middle" class="t-sub">PR #7, payments</text><rect x="790" y="56" width="130" height="56" rx="8" class="bx"/><text x="855.0" y="79.5" text-anchor="middle" class="t-head">Graph</text><text x="855.0" y="99.5" text-anchor="middle" class="t-sub">Change #7</text><rect x="940" y="56" width="130" height="56" rx="8" class="bx"/><text x="1005.0" y="79.5" text-anchor="middle" class="t-head">Cursors</text><text x="1005.0" y="99.5" text-anchor="middle" class="t-sub">per group</text><rect x="640" y="124" width="430" height="52" rx="8" class="bx-fence"/><text x="855.0" y="145.5" text-anchor="middle" class="t-head">Owner row</text><text x="855.0" y="165.5" text-anchor="middle" class="t-sub">tenant A · tenant-a · epoch 18 · f57f… · active</text><rect x="620" y="270" width="470" height="170" rx="12" class="bx-dash"/><text x="634" y="292" class="t-frame">Spanner database tenant-b</text><rect x="640" y="306" width="130" height="56" rx="8" class="bx"/><text x="705.0" y="329.5" text-anchor="middle" class="t-head">Events</text><text x="705.0" y="349.5" text-anchor="middle" class="t-sub">PR #7, payments</text><rect x="790" y="306" width="130" height="56" rx="8" class="bx"/><text x="855.0" y="329.5" text-anchor="middle" class="t-head">Graph</text><text x="855.0" y="349.5" text-anchor="middle" class="t-sub">Change #7</text><rect x="940" y="306" width="130" height="56" rx="8" class="bx"/><text x="1005.0" y="329.5" text-anchor="middle" class="t-head">Cursors</text><text x="1005.0" y="349.5" text-anchor="middle" class="t-sub">per group</text><rect x="640" y="374" width="430" height="52" rx="8" class="bx-fence"/><text x="855.0" y="395.5" text-anchor="middle" class="t-head">Owner row</text><text x="855.0" y="415.5" text-anchor="middle" class="t-sub">tenant B · tenant-b · epoch 3 · 91c0… · active</text><path d="M550,98 L620,98" class="ln-flow" marker-end="url(#tn-flow)"/><text x="585" y="90" text-anchor="middle" class="t-small">opens</text><path d="M550,348 L620,348" class="ln-flow" marker-end="url(#tn-flow)"/><text x="585" y="340" text-anchor="middle" class="t-small">opens</text><text x="855" y="230" text-anchor="middle" class="t-warn">same ids in both databases, never joined</text></svg>
+        <figcaption>A tenant is a binding: an id, a Spanner database, an epoch and the digest of the exact pack bundle it runs. The database holds a single owner row with the same values. Every API request and every worker transaction reads that row inside the transaction and refuses if anything differs or the state forbids the operation. Tenant B can hold "PR #7 in payments" with the same ids as tenant A; nothing ever joins the two databases.</figcaption>
+      </figure>
+      <div class="notes">
+        <div>
+          <h3>Why an epoch and a digest</h3>
+          <ul>
+            <li><strong>Epoch</strong> is a fence against stale processes. Freezing or re-pointing a tenant advances it; anything still holding the old number is refused mid-flight, including a response that was computed but not yet sent.</li>
+            <li><strong>Digest</strong> pins the pack bundle. Acceptance records say which bundle admitted an event; a worker running a different bundle will not interpret it.</li>
+            <li>Ownership is adopted by an operator, never created by startup. A database with no owner row refuses service.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 HANDSHAKE -->
+  <section class="part" id="handshake">
+    <div class="part-head"><h2>The Spanner handshake</h2><span class="q">What an API or worker process checks before it serves, and what it refuses to repair on its own.</span></div>
+    <div class="grid">
+      <figure>
+        <svg viewBox="0 0 1110 470" role="img" aria-label="Startup ladder: open with the binding&#x27;s settings, verify the physical schema, the entity vector index, the acceptance column and control table, and the owner row; then serve. Each step refuses on mismatch; none applies DDL or creates ownership."><defs><marker id="hs-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-ink"/></marker><marker id="hs-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-flow"/></marker><marker id="hs-fence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-fence"/></marker><marker id="hs-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-muted"/></marker><marker id="hs-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-warn"/></marker></defs><rect x="40" y="20" width="520" height="58" rx="8" class="bx-fence"/><text x="56" y="44.5" text-anchor="start" class="t-head">1  Open with the binding&#x27;s settings</text><text x="56" y="64.5" text-anchor="start" class="t-sub">all ports on Spanner; no emulator; create flags off</text><rect x="40" y="96" width="520" height="58" rx="8" class="bx"/><text x="56" y="120.5" text-anchor="start" class="t-head">2  Schema matches the code</text><text x="56" y="140.5" text-anchor="start" class="t-sub">tables, columns, indexes, property graph</text><path d="M300,78 L300,96" class="ln" marker-end="url(#hs-ink)"/><rect x="40" y="172" width="520" height="58" rx="8" class="bx"/><text x="56" y="196.5" text-anchor="start" class="t-head">3  Entity vector index</text><text x="56" y="216.5" text-anchor="start" class="t-sub">same dimensions, and ready</text><path d="M300,154 L300,172" class="ln" marker-end="url(#hs-ink)"/><rect x="40" y="248" width="520" height="58" rx="8" class="bx"/><text x="56" y="272.5" text-anchor="start" class="t-head">4  Acceptance column and control table</text><text x="56" y="292.5" text-anchor="start" class="t-sub">present, with the expected shape</text><path d="M300,230 L300,248" class="ln" marker-end="url(#hs-ink)"/><rect x="40" y="324" width="520" height="58" rx="8" class="bx-fence"/><text x="56" y="348.5" text-anchor="start" class="t-head">5  Owner row matches the binding</text><text x="56" y="368.5" text-anchor="start" class="t-sub">tenant, database, binding, epoch, digest; state allows it</text><path d="M300,306 L300,324" class="ln" marker-end="url(#hs-ink)"/><path d="M300,382 L300,400" class="ln" marker-end="url(#hs-ink)"/><rect x="40" y="400" width="520" height="50" rx="8" class="bx-good"/><text x="300.0" y="429.0" text-anchor="middle" class="t-head">Serve; the same check runs in every transaction</text><path d="M560,125 L640,125" class="ln-warn" marker-end="url(#hs-warn)"/><text x="600" y="118" text-anchor="middle" class="t-small">differs</text><path d="M560,201 L640,201" class="ln-warn" marker-end="url(#hs-warn)"/><text x="600" y="194" text-anchor="middle" class="t-small">differs</text><path d="M560,277 L640,277" class="ln-warn" marker-end="url(#hs-warn)"/><text x="600" y="270" text-anchor="middle" class="t-small">missing</text><path d="M560,353 L640,353" class="ln-warn" marker-end="url(#hs-warn)"/><text x="600" y="346" text-anchor="middle" class="t-small">mismatch</text><rect x="640" y="20" width="450" height="380" rx="8" class="bx-warn"/><text x="660" y="50" class="t-head">Refuse, and say why. Never:</text><circle cx="666" cy="74" r="2.5" class="mk-warn"/><text x="680" y="78" class="t-sub">apply DDL at startup; schema changes are</text><text x="680" y="101" class="t-sub">a recorded operator step</text><circle cx="666" cy="124" r="2.5" class="mk-warn"/><text x="680" y="128" class="t-sub">create a database on a real instance</text><text x="680" y="151" class="t-sub">without an explicit flag</text><circle cx="666" cy="174" r="2.5" class="mk-warn"/><text x="680" y="178" class="t-sub">create, repair or adopt an owner row</text><circle cx="666" cy="201" r="2.5" class="mk-warn"/><text x="680" y="205" class="t-sub">reactivate a frozen owner</text><circle cx="666" cy="228" r="2.5" class="mk-warn"/><text x="680" y="232" class="t-sub">fall back to a default tenant, the emulator</text><text x="680" y="255" class="t-sub">or other credentials</text><circle cx="666" cy="278" r="2.5" class="mk-warn"/><text x="680" y="282" class="t-sub">serve a bundle the owner row does not name</text><text x="660" y="319" class="t-head">At shutdown</text><circle cx="666" cy="343" r="2.5" class="mk-warn"/><text x="680" y="347" class="t-sub">close the SDK session pool Engram opened</text></svg>
+        <figcaption>The handshake is deliberately one-directional: a process can prove the database is the one it was bound to and that the schema is what the code expects, but it cannot change either. Every structural change (a new column, a new index, taking ownership of a database) is an operator action recorded outside normal startup.</figcaption>
+      </figure>
+      <div class="notes">
+        <div>
+          <h3>Spanner constraints the design respects</h3>
+          <ul>
+            <li>Spanner rejects some floats inside JSON columns, so floats are stored tagged and decoded exactly.</li>
+            <li>Graph queries filter on key columns, not on dynamic labels.</li>
+            <li>Writes are split to stay under Spanner's commit limits on mutations and bytes.</li>
+            <li>Every call is a network round trip, so reads and writes are batched per flush.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 PACKS -->
+  <section class="part" id="packs">
+    <div class="part-head"><h2>Ontology packs in play</h2><span class="q">How a domain is declared once and used at four points of the engine.</span></div>
+    <div class="grid">
+      <figure>
+        <svg viewBox="0 0 1110 470" role="img" aria-label="Core is mandatory; memory and user are optional; PDLC and the CRM example are domain packs. The loader composes the selected packs into one bundle with a digest, which is read at admission, projection, extraction and retrieval."><defs><marker id="pk-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-ink"/></marker><marker id="pk-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-flow"/></marker><marker id="pk-fence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-fence"/></marker><marker id="pk-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-muted"/></marker><marker id="pk-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-warn"/></marker></defs><rect x="20" y="24" width="380" height="56" rx="8" class="bx-dash"/><text x="36" y="47.5" text-anchor="start" class="t-head">crm (example)</text><text x="36" y="67.5" text-anchor="start" class="t-sub">Account, Contact, Deal: new domain, no code</text><rect x="20" y="90" width="380" height="56" rx="8" class="bx-flow"/><text x="36" y="113.5" text-anchor="start" class="t-head">pdlc 2.1</text><text x="36" y="133.5" text-anchor="start" class="t-sub">17 types · 25 edges · 25 events · 5 intents</text><rect x="20" y="156" width="185" height="56" rx="8" class="bx-soft"/><text x="36" y="179.5" text-anchor="start" class="t-head">memory</text><text x="36" y="199.5" text-anchor="start" class="t-sub">optional</text><rect x="215" y="156" width="185" height="56" rx="8" class="bx-soft"/><text x="231" y="179.5" text-anchor="start" class="t-head">user</text><text x="231" y="199.5" text-anchor="start" class="t-sub">optional</text><rect x="20" y="222" width="380" height="56" rx="8" class="bx"/><text x="36" y="245.5" text-anchor="start" class="t-head">core 1.1 (mandatory)</text><text x="36" y="265.5" text-anchor="start" class="t-sub">Event, Entity, DERIVED_FROM, shared interfaces</text><text x="210" y="300" text-anchor="middle" class="t-small">each tenant selects its packs</text><rect x="20" y="330" width="380" height="120" rx="8" class="bx-soft"/><text x="36" y="368.5" text-anchor="start" class="t-head">Changing a pack</text><text x="36" y="388.5" text-anchor="start" class="t-sub">additive → applies live</text><text x="36" y="405.5" text-anchor="start" class="t-sub">mapping → replay affected events</text><text x="36" y="422.5" text-anchor="start" class="t-sub">breaking → rebuild from ledger, eval-gated</text><rect x="460" y="96" width="200" height="110" rx="8" class="bx-flow"/><text x="560.0" y="129.5" text-anchor="middle" class="t-head">Compose, check</text><text x="560.0" y="149.5" text-anchor="middle" class="t-sub">fixed order</text><text x="560.0" y="166.5" text-anchor="middle" class="t-sub">one owner per namespace</text><text x="560.0" y="183.5" text-anchor="middle" class="t-sub">edges, weights merged</text><rect x="720" y="96" width="200" height="110" rx="8" class="bx-fill"/><text x="820.0" y="129.5" text-anchor="middle" class="t-head t-inv">Active bundle</text><text x="820.0" y="149.5" text-anchor="middle" class="t-sub t-inv2">one digest</text><text x="820.0" y="166.5" text-anchor="middle" class="t-sub t-inv2">in the binding and</text><text x="820.0" y="183.5" text-anchor="middle" class="t-sub t-inv2">on every event</text><path d="M400,151 L460,151" class="ln-flow" marker-end="url(#pk-flow)"/><path d="M660,151 L720,151" class="ln-flow" marker-end="url(#pk-flow)"/><rect x="460" y="300" width="150" height="110" rx="8" class="bx"/><text x="535.0" y="333.5" text-anchor="middle" class="t-head">Admission</text><text x="535.0" y="353.5" text-anchor="middle" class="t-sub">event types</text><text x="535.0" y="370.5" text-anchor="middle" class="t-sub">payload contracts</text><text x="535.0" y="387.5" text-anchor="middle" class="t-sub">trusted sources</text><rect x="620" y="300" width="150" height="110" rx="8" class="bx"/><text x="695.0" y="333.5" text-anchor="middle" class="t-head">Projection</text><text x="695.0" y="353.5" text-anchor="middle" class="t-sub">upserts, edges</text><text x="695.0" y="370.5" text-anchor="middle" class="t-sub">transitions</text><text x="695.0" y="387.5" text-anchor="middle" class="t-sub">keys, lifecycles</text><rect x="780" y="300" width="150" height="110" rx="8" class="bx"/><text x="855.0" y="342.0" text-anchor="middle" class="t-head">Extraction</text><text x="855.0" y="362.0" text-anchor="middle" class="t-sub">what an LLM may</text><text x="855.0" y="379.0" text-anchor="middle" class="t-sub">propose, with caps</text><rect x="940" y="300" width="150" height="110" rx="8" class="bx"/><text x="1015.0" y="333.5" text-anchor="middle" class="t-head">Retrieval</text><text x="1015.0" y="353.5" text-anchor="middle" class="t-sub">intents, weights</text><text x="1015.0" y="370.5" text-anchor="middle" class="t-sub">seeds, admission</text><text x="1015.0" y="387.5" text-anchor="middle" class="t-sub">read scope</text><path d="M820,206 L820,260" class="ln-dash"/><path d="M535,260 L1015,260" class="ln-dash"/><path d="M535,260 L535,300" class="ln-dash" marker-end="url(#pk-muted)"/><path d="M695,260 L695,300" class="ln-dash" marker-end="url(#pk-muted)"/><path d="M855,260 L855,300" class="ln-dash" marker-end="url(#pk-muted)"/><path d="M1015,260 L1015,300" class="ln-dash" marker-end="url(#pk-muted)"/><text x="828" y="240" text-anchor="start" class="t-small">read at four points</text></svg>
+        <figcaption>Packs stack on core. The loader composes the tenant's selection into one immutable bundle with a digest, and that digest travels with the tenant binding and with every accepted event. The same bundle is read at the four points where the engine needs domain knowledge, so none of them carries domain code.</figcaption>
+      </figure>
+      <div class="notes">
+        <div>
+          <h3>What the PDLC pack declares</h3>
+          <ul>
+            <li><strong>Delivery:</strong> pull requests, reviews, test runs, releases, deployments and incidents, with the rules that link them.</li>
+            <li><strong>Planning:</strong> versioned specs, requirements and design elements; an approval binds to one revision, and a new revision supersedes the old.</li>
+            <li><strong>Traceability:</strong> explicit references from ticket to requirement, PR to ticket and test to requirement.</li>
+            <li><strong>Contracts:</strong> a bounded payload contract for every event type.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="note">Based on ADR-0018 (ontology packs) and ADR-0019 (backend-neutral storage). The figures show the mechanism at a 30,000-foot level; file-level detail is in the ADRs.</footer>
+</div>
+
+<script>
+(() => {
+  const links = Array.from(document.querySelectorAll("#tabs a"));
+  const sections = links.map((a) => document.getElementById(a.getAttribute("href").slice(1)));
+  const mark = () => {
+    const y = window.scrollY + 120;
+    let current = 0;
+    sections.forEach((s, i) => { if (s && s.offsetTop <= y) current = i; });
+    links.forEach((a, i) => a.classList.toggle("on", i === current));
+  };
+  window.addEventListener("scroll", mark, { passive: true });
+  window.addEventListener("resize", mark);
+  mark();
+})();
+</script>
