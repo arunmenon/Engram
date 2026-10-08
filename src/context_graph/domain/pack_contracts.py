@@ -22,6 +22,7 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+from pydantic_core import SchemaError
 
 MAX_DEPTH = 16
 MAX_FIELDS = 256
@@ -43,9 +44,12 @@ class PayloadField(BaseModel):
     maximum: int | float | None = Field(default=None, allow_inf_nan=False)
     min_length: int | None = Field(default=None, ge=0)
     max_length: int | None = Field(default=None, ge=0)
+    pattern: str | None = Field(default=None, max_length=1000)
 
     @model_validator(mode="after")
     def _shape(self) -> PayloadField:
+        if self.pattern is not None and self.type != "string":
+            raise ValueError("pattern is supported only for strings")
         if self.enum is not None and self.type != "string":
             raise ValueError("enum is supported only for strings")
         if self.type not in {"integer", "number"} and (
@@ -113,11 +117,15 @@ def _field_type(spec: PayloadField) -> Any:
         result = Annotated[result, Field(ge=spec.minimum, le=spec.maximum)]
     if spec.min_length is not None or spec.max_length is not None:
         result = Annotated[result, Field(min_length=spec.min_length, max_length=spec.max_length)]
+    if spec.pattern is not None:
+        result = Annotated[result, Field(pattern=spec.pattern)]
     return result | None if spec.nullable else result
 
 
 class PayloadContract(BaseModel):
-    """Version1 prototype. No defaults, remote refs, regex or executable validators."""
+    """Version1 prototype. No defaults, remote refs or executable validators.
+
+    String patterns use Pydantic's bounded, non-backtracking Rust regex engine."""
 
     model_config = ConfigDict(extra="forbid", strict=True)
 
@@ -147,7 +155,10 @@ class PayloadContract(BaseModel):
             if spec.items is not None:
                 stack.append((spec.items, depth + 1))
         # Fail unsupported model/alias construction at declaration time.
-        _object_model(self.properties, self.additional_fields)
+        try:
+            _object_model(self.properties, self.additional_fields)
+        except SchemaError as exc:
+            raise ValueError("unsupported payload field pattern") from exc
         return self
 
     def declares_path(self, steps: tuple[str, ...]) -> bool:

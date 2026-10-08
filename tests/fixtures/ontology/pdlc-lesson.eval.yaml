@@ -1,0 +1,21 @@
+# #53 normalized producer journey in test_incident_lessons.py.
+# Lesson identity is the admitted assertion UUID digest plus authored namespace.
+pack: pdlc
+min_f1: 1.0
+questions:
+  - id: incident-future-spec
+    query: "Which specification cites this incident lesson?"
+    intent: incident
+    seed_node_ids: ["Incident:acme/auth|reset|INC-51"]
+    answer: {node_type: Spec}
+    expected: ["Spec:TOKEN-EXPIRY-2027|2"]
+  - id: future-spec-incident
+    query: "Which incident supports this specification lesson?"
+    intent: incident
+    seed_node_ids: ["Spec:TOKEN-EXPIRY-2027|2"]
+    answer: {node_type: Incident}
+    expected: ["Incident:acme/auth|reset|INC-51"]
+  - id: natural-language-reuse
+    query: "What incident lesson does TOKEN-EXPIRY-2027 cite?"
+    answer: {node_type: Lesson}
+    expected: ["Lesson:ffb16a4316632c432747bd88f60e759b85315cb41b75a60d48ae6c76c63e0a7c:authored"]

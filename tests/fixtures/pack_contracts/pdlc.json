@@ -1,6 +1,6 @@
 {
   "pack": "pdlc",
-  "pack_version": "4.1.0",
+  "pack_version": "4.2.0",
   "fixture_kind": "synthetic_normalized_contract_examples_not_public_webhooks",
   "event_time": "2026-10-07T00:00:00Z",
   "cases": [
@@ -643,6 +643,41 @@
         ]
       ],
       "note": "Complete keyed references create reference-only stubs without artifact observation provenance; edge declares correction, never completion or causality.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.incident.lesson_recorded",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "statement": "Check token expiry server-side",
+        "incident": {
+          "repo": "example/payments",
+          "service": "payments",
+          "incident_id": "inc-1"
+        },
+        "change": {
+          "repo": "example/payments",
+          "number": 8
+        }
+      },
+      "expected_observed_node_ids": [
+        "Lesson:7ac1b8d7010bb6cd3a3e84e7f90136b880bbc899e428ece49333372911ab9052:authored"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [
+        [
+          "LEARNED_FROM",
+          "Lesson:7ac1b8d7010bb6cd3a3e84e7f90136b880bbc899e428ece49333372911ab9052:authored",
+          "Incident:example/payments|payments|inc-1"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7ac1b8d7010bb6cd3a3e84e7f90136b880bbc899e428ece49333372911ab9052:authored",
+          "Change:example/payments|8"
+        ]
+      ],
+      "note": "Each admitted authored assertion has event-derived identity and initial tentative state; source declaration is not human validation.",
       "cloud_execution": "not_run"
     }
   ]

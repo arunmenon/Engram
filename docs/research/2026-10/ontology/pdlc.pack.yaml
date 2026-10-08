@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 4.1.0   # 4.1.0: source-declared remediation with independent incident resolution.
+  version: 4.2.0   # 4.2.0: authored incident lessons and typed specification lesson references.
+                   # 4.1.0: source-declared remediation with independent incident resolution.
                    # 4.0.0: repository/service-scoped incident identities and reported projection.
                    # 3.0.0: scoped deployment identities, failure outcomes and explicit release links.
                    # 2.1.0: explicit implementation/verification references and reviewer trace.
@@ -182,11 +183,11 @@ types:
     AMENDS:          {from: [Decision], to: [Decision], properties: {kind: {enum: [builds_on, updates, replaces_part]}}, requires: [confidence, method, link_status], note: "step 2: OpenDAL RFCs cite earlier RFCs with 'updates', 'builds on', 'changes'; none says 'supersedes'"}
     REMEDIATES:      {from: [Change], to: [Incident], properties: {source_event_id: string, pinned_position: string}, requires: [confidence, method, link_status], note: "source-declared corrective intent, neither causal attribution nor completed resolution"}
     RAISES:          {from: [Incident], to: [Request]}
-    LEARNED_FROM:    {from: [Lesson], to: [Incident, Change]}
+    LEARNED_FROM:    {from: [Lesson], to: [Incident, Change], requires: [confidence, method, link_status], properties: {source_event_id: string, pinned_position: string}, note: "producer-declared support for a tentative lesson, not authenticated human validation"}
   # Trace-link policy (BRIEF E-20261002-01-r2): a confidence cut-off at write time left about 1 trail in 3 intact in the
   # source study, and the confidence was never calibrated. So links are never dropped at write time.
   link_policy:
-    applies_to: [APPROVES, REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO, APPLIES_TO, AMENDS, AFFECTS, REMEDIATES]
+    applies_to: [APPROVES, REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO, APPLIES_TO, AMENDS, AFFECTS, REMEDIATES, LEARNED_FROM]
     link_status: {enum: [proposed, confirmed, rejected], declared_links_start_as: confirmed, inferred_links_start_as: proposed}
     write_time_threshold: none                     # store every proposed link with its score
     read_time_threshold: per_edge_type_fitted      # fitted on our own labelled data, per type (B14)
@@ -651,6 +652,46 @@ events:
             type: integer
             minimum: 1
             maximum: 9223372036854775807
+  pdlc.incident.lesson_recorded:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        link_status:
+          type: string
+          enum: [proposed, confirmed, rejected]
+        statement:
+          type: string
+          required: true
+          min_length: 1
+        change:
+          type: object
+          properties:
+            repo:
+              type: string
+              required: true
+              min_length: 1
+            number:
+              type: integer
+              required: true
+              minimum: 1
+              maximum: 9223372036854775807
+        incident:
+          type: object
+          required: true
+          properties:
+            repo:
+              type: string
+              required: true
+              min_length: 1
+            service:
+              type: string
+              required: true
+              min_length: 1
+            incident_id:
+              type: string
+              required: true
+              min_length: 1
   pdlc.incident.remediation_recorded:
     payload_contract:
       version: 1
@@ -1007,6 +1048,18 @@ events:
           items:
             type: string
             min_length: 1
+        lesson_refs:
+          type: array
+          max_length: 1000
+          items:
+            type: object
+            properties:
+              content_hash:
+                type: string
+                required: true
+                min_length: 73
+                max_length: 73
+                pattern: "^[0-9a-f]{64}:authored$"
         cited_node_ids:
           type: array
           max_length: 1000
@@ -1309,6 +1362,12 @@ projection:
       # A deployed commit is the merge commit of a change: link it (a change merged later is linked by its merge rule)
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Release, key: {repo: $.repo, version: $.release_version}}, when: $.release_version}
+  - event: pdlc.incident.lesson_recorded
+    upsert:
+      - {type: Lesson, key: {content_hash: "sha256($event.event_id) + ':authored'"}, set: {statement: $.statement, content_hash: "sha256($event.event_id) + ':authored'"}}
+    edges:
+      - {type: LEARNED_FROM, from: {type: Lesson, key: {content_hash: "sha256($event.event_id) + ':authored'"}}, to: {type: Incident, key: {repo: $.incident.repo, service: $.incident.service, incident_id: $.incident.incident_id}}, set: {link_status: $.link_status, source_event_id: $event.event_id, pinned_position: $event.global_position}}
+      - {type: LEARNED_FROM, from: {type: Lesson, key: {content_hash: "sha256($event.event_id) + ':authored'"}}, to: {type: Change, key: {repo: $.change.repo, number: $.change.number}}, set: {link_status: $.link_status, source_event_id: $event.event_id, pinned_position: $event.global_position}, when: $.change}
   - event: pdlc.incident.remediation_recorded
     edges:
       - {type: REMEDIATES, from: {type: Change, key: {repo: $.change.repo, number: $.change.number}}, to: {type: Incident, key: {repo: $.incident.repo, service: $.incident.service, incident_id: $.incident.incident_id}}, set: {source_event_id: $event.event_id, pinned_position: $event.global_position}}
@@ -1369,6 +1428,7 @@ projection:
     edges:
       - {type: REFINES, from: {type: Spec, key: {doc_id: $.doc_id, version: $.version}}, to_each: {type: Request, key: {source_system: $.request_system, external_id: "$.request_ids[*]"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
       - {type: CITES, from: {type: Spec, key: {doc_id: $.doc_id, version: $.version}}, to_each: {node_id: "$.cited_node_ids[*]"}, set: {pinned_position: $event.global_position}}
+      - {type: CITES, from: {type: Spec, key: {doc_id: $.doc_id, version: $.version}}, to_each: {type: Lesson, key: {content_hash: "$.lesson_refs[*].content_hash"}}, set: {pinned_position: $event.global_position}}
   - event: pdlc.decision.recorded
     upsert:
       - {type: Decision, key: {content_hash: "sha256($.statement)"}, set: {statement: $.statement, rationale: $.rationale, source_uri: $.source_uri, content_hash: "sha256($.statement)"}}
@@ -1402,7 +1462,7 @@ retrieval:
       description: "Retrieve declared incident occurrence, affected service and deployment evidence"
       examples: ["which deployment did incident INC-1 occur on", "show incident OUTAGE-73"]
       keywords: [incident, incidents, outage, outages]
-      weights: {REMEDIATES: 5, OCCURRED_ON: 5, AFFECTS: 4, DEPLOYS: 3, INCLUDES: 3}
+      weights: {LEARNED_FROM: 5, CITES: 5, REMEDIATES: 5, OCCURRED_ON: 5, AFFECTS: 4, DEPLOYS: 3, INCLUDES: 3}
       max_depth: 3
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
