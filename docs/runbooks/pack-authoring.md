@@ -156,6 +156,11 @@ values must be finite. Use explicit source normalization for provider-specific
 identifier representations. This syntax is provisional pending full-pack and
 mapping acceptance, not a permanently frozen compatibility format.
 
+Strings may also declare `format: date-time`. This validates an explicit RFC3339
+UTC offset, calendar validity and UTC representability, preserving the original
+string. The supported subset uses uppercase `T`/`Z`, up to six fractional digits
+and no leap seconds; other field types and unknown formats reject at pack load.
+
 Required and nullable are independent: a required nullable field must be present
 but may contain null. Optional non-nullable fields may be absent but cannot be
 explicitly null. Validation does not rewrite the original payload, insert absent

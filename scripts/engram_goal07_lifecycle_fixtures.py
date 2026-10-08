@@ -61,6 +61,15 @@ def fixtures(run_id, *, start=None):
             extra_nodes=extra or {},
             **flags,
         )
+        if "expected_observed_node_ids" not in step:
+            step["expected_observed_node_ids"] = sorted(
+                ([node] if node else [])
+                + (
+                    [key for key in step["extra_nodes"] if key.startswith("Review:")]
+                    if event_type == "change.committed"
+                    else []
+                )
+            )
         steps.append(step)
         return step
 
