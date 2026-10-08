@@ -147,8 +147,11 @@ and `maximum`. Projection payload paths, including list traversal and paths
 inside expressions, must be declared in the owning event contract. This checks
 field existence/shape, not expression result types or graph cardinality. Definitions
 are limited to 16 field levels and 256 declarations, including list item specs.
-Unknown keywords, remote references, regex, defaults and executable validators
-are unsupported. An integer does not accept booleans or numeric strings; number
+Strings may declare a `pattern` of at most 1,000 characters, using Pydantic's
+non-backtracking Rust regex engine. Lookaround and backreferences are unsupported;
+use anchors when the entire value must match. Unknown keywords, remote references,
+defaults and executable validators are unsupported.
+An integer does not accept booleans or numeric strings; number
 values must be finite. Use explicit source normalization for provider-specific
 identifier representations. This syntax is provisional pending full-pack and
 mapping acceptance, not a permanently frozen compatibility format.

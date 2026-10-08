@@ -307,7 +307,11 @@ async def execute(
                     (edge["edge_type"], edge["source"], edge["target"]) for edge in answer["edges"]
                 }
                 required_edges = {
-                    edge for edge in expected_edges if edge[1] in required and edge[2] in required
+                    edge
+                    for edge in expected_edges
+                    if edge[1] in required
+                    and edge[2] in required
+                    and expected_edge_properties.get(edge, {}).get("link_status") != "rejected"
                 }
                 assert required_edges <= returned_edges, (
                     "Missing required retrieval edges",
@@ -460,36 +464,47 @@ async def execute(
                 nodes = {row[1]: row[2] for row in state["nodes"]}
                 if nid:
                     expected_nodes[nid] = fixture["expected_props"]
-                    artifact_events.setdefault(nid, set()).add(eid)
+                    if fixture.get("observes_node", True):
+                        artifact_events.setdefault(nid, set()).add(eid)
                 for extra_id, extra_props in fixture.get("extra_nodes", {}).items():
                     expected_nodes[extra_id] = extra_props
                     if extra_id not in fixture.get("placeholders", []):
                         artifact_events.setdefault(extra_id, set()).add(eid)
+                for existing_id, properties in fixture.get("node_assertions", {}).items():
+                    assert existing_id in expected_nodes, "Assertion references an unobserved node"
+                    expected_nodes[existing_id] = {**expected_nodes[existing_id], **properties}
                 for placeholder in fixture.get("placeholders", []):
                     assert not any(
                         r[1] == placeholder and r[2] == "DERIVED_FROM" for r in state["edges"]
                     ), ("Placeholder falsely has event evidence", placeholder)
                 expected_edges.update(tuple(e) for e in fixture["expected_edges"])
                 for kind, source, target, properties in fixture.get("expected_edge_properties", []):
-                    expected_edge_properties[(kind, source, target)] = properties
+                    expected_edge_properties[(kind, source, target)] = {
+                        name: response.json()["global_position"] if value == "$receipt" else value
+                        for name, value in properties.items()
+                    }
                 domain = {
                     n[1]
                     for n in state["nodes"]
+                    if n[0] != "Lesson" or n[1].endswith(":authored")
                     if n[0]
-                    in {
-                        "Spec",
-                        "Requirement",
-                        "DesignElement",
-                        "DesignApproval",
-                        "WorkItem",
-                        "Change",
-                        "Review",
-                        "TestCase",
-                        "TestRun",
-                        "Release",
-                        "Deployment",
-                        "Component",
-                    }
+                    in (
+                        {
+                            "Spec",
+                            "Requirement",
+                            "DesignElement",
+                            "DesignApproval",
+                            "WorkItem",
+                            "Change",
+                            "Review",
+                            "TestCase",
+                            "TestRun",
+                            "Release",
+                            "Deployment",
+                            "Component",
+                        }
+                        | ({"Incident", "Lesson"} if goal == "G06" else set())
+                    )
                 }
                 expected_domain = set(expected_nodes)
                 assert domain == expected_domain, (
@@ -503,19 +518,26 @@ async def execute(
                     (r[2], r[1], r[4])
                     for r in state["edges"]
                     if r[2]
-                    in {
-                        "REFINES",
-                        "APPROVES",
-                        "SUPERSEDES",
-                        "IMPLEMENTS",
-                        "REVIEWS",
-                        "VERIFIES",
-                        "EXECUTES",
-                        "RAN_AGAINST",
-                        "INCLUDES",
-                        "DEPLOYS",
-                        "DEPLOYED_TO",
-                    }
+                    in (
+                        {
+                            "REFINES",
+                            "APPROVES",
+                            "SUPERSEDES",
+                            "IMPLEMENTS",
+                            "REVIEWS",
+                            "VERIFIES",
+                            "EXECUTES",
+                            "RAN_AGAINST",
+                            "INCLUDES",
+                            "DEPLOYS",
+                            "DEPLOYED_TO",
+                        }
+                        | (
+                            {"AFFECTS", "OCCURRED_ON", "REMEDIATES", "LEARNED_FROM", "CITES"}
+                            if goal == "G06"
+                            else set()
+                        )
+                    )
                 }
                 assert actual_edges == expected_edges, (
                     "Wrong declared planning links",

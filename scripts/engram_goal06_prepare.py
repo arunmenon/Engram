@@ -53,7 +53,10 @@ def main():
         "preserved_database": "engram-compat-target",
         "ddl": ddl,
         "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-        "scope": "Create only absent G06 database and bootstrap empty core owner; no G05 writes",
+        "scope": (
+            "Initialize only empty-schema G06 database and bootstrap empty core owner; "
+            "no G05 writes"
+        ),
     }
     tracker = ROOT / "scripts/track_spanner_compatibility.py"
     with Path("/private/tmp/engram-spanner-compat.lock").open("w") as lock:
@@ -82,10 +85,17 @@ def main():
             assert evidence["g05_owner_before"] == [retained["owner"]]
             durable_json(directory / "observations.json", evidence)
             g06 = instance.database("engram-g06-target", ddl_statements=ddl)
-            assert not g06.exists(), "Existing G06 database requires explicit reconciliation"
-            evidence["creation_intent"] = {"database": g06.name, "ddl": ddl}
-            durable_json(directory / "observations.json", evidence)
-            operation = g06.create()
+            if g06.exists():
+                g06.reload()
+                evidence["existing_ddl"] = list(g06.ddl_statements)
+                assert not g06.ddl_statements, "Refusing to adopt a database with existing schema"
+                evidence["schema_intent"] = {"database": g06.name, "ddl": ddl}
+                durable_json(directory / "observations.json", evidence)
+                operation = g06.update_ddl(ddl)
+            else:
+                evidence["creation_intent"] = {"database": g06.name, "ddl": ddl}
+                durable_json(directory / "observations.json", evidence)
+                operation = g06.create()
             evidence["operation"] = operation.operation.name
             evidence["creation_completion"] = "unknown_until_operation_result"
             durable_json(directory / "observations.json", evidence)
