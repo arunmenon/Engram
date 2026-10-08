@@ -307,3 +307,14 @@ Future (Phase 3+): `sentence-transformers, instructor, litellm`
 | domain-architect | `domain/extraction.py`, `domain/entity_resolution.py`, `domain/models.py` (extend) |
 | data-engineer | `worker/extraction.py`, `adapters/llm/client.py`, `adapters/neo4j/user_queries.py` |
 | api-engineer | `api/routes/users.py`, extend `api/routes/query.py` |
+
+
+## Agent skills
+
+### Issue tracker
+
+GitHub issues in arunmenon/Engram; read `docs/agents/issue-tracker.md` before ticket operations. Its goal approval and real-Spanner completion rules override generic skill defaults.
+
+### Domain docs
+
+Single-context repository using existing ADRs and goal documents; read `docs/agents/domain.md`. Skill installation does not authorize starting any new goal.
