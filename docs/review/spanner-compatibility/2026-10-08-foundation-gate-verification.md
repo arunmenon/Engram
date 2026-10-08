@@ -96,3 +96,7 @@ Stakeholder authorized G02/G03 revalidation after G01. Both passed from source c
 Final target state: seven application tables empty, mandatory-core owner epoch40/digest f57ffb… active. Existing ordering, public tenant, capability-combination, retention/retry and baseline acceptance requirements remain separate. No new defect or feature bucket from these reruns. G04 is not authorized and has not started. The retired broad goal remains paused.
 
 The dependency CSV/import graph is retained as the initial pre-cleanup source-review input; current helper imports and exact run archives show the cleaned dependency boundary. Historical scenario runners are no longer imported by the goal drivers. Failed/interrupted attempts remain evidence and are not counted as passes.
+
+## Cleaned rerun publication receipts
+
+[GitHub reconciliation](2026-10-08-cleaned-g02-g03-issue-reconciliation.json) records the actual #34, #39 and #41 updates and confirms all remain OPEN. Evidence commit: `7e0a82d50779399ea93b67ca5dca44eba2dbb906`. No new defect or feature bucket; G04 remains unstarted.

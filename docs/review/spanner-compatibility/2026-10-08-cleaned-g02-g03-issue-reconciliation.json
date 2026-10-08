@@ -1,0 +1,39 @@
+{
+  "evidence_commit": "7e0a82d50779399ea93b67ca5dca44eba2dbb906",
+  "executed_source_commit": "13e9d12be28feee1d05d0325f67ff35466a70921",
+  "runs": {
+    "G02": {
+      "id": "20261008-cloud-cleaned-g02-01",
+      "checks_passed": 22
+    },
+    "G03": {
+      "id": "20261008-cloud-cleaned-g03-01",
+      "checks_passed": 28
+    }
+  },
+  "issues": [
+    {
+      "number": 34,
+      "state": "OPEN",
+      "comment_url": "https://github.com/arunmenon/Engram/issues/34#issuecomment-6053087300",
+      "disposition": "Evidence updated only; broader acceptance remains open"
+    },
+    {
+      "number": 39,
+      "state": "OPEN",
+      "comment_url": "https://github.com/arunmenon/Engram/issues/39#issuecomment-6053087653",
+      "disposition": "Evidence updated only; broader acceptance remains open"
+    },
+    {
+      "number": 41,
+      "state": "OPEN",
+      "comment_url": "https://github.com/arunmenon/Engram/issues/41#issuecomment-6053087963",
+      "disposition": "Evidence updated only; broader acceptance remains open"
+    }
+  ],
+  "new_defects": [],
+  "new_feature_bucket_required": false,
+  "assessment": "Reruns confirm existing bounded journeys; no source changes needed. Existing umbrella scopes remain incomplete.",
+  "stop_boundary": "G04 not started; separate stakeholder approval required",
+  "cleanup": "Seven application tables empty; owner epoch 40"
+}

@@ -168,3 +168,7 @@ Actual synchronization links and status changes are recorded below. #46 is the o
 | #46 | OPEN → CLOSED | Bounded missing-selected-edge bug fixed, reviewed and verified on cloud. | [GitHub update](https://github.com/arunmenon/Engram/issues/46#issuecomment-6051648083) |
 
 #34 and #40 body summaries were also refreshed to distinguish current G02 evidence from historical gaps. #46 acceptance checkboxes are complete and the defect is closed. Review: no blockers in bounded technical acceptance; all source hashes matched. No new feature bucket was created because both the mapping work and retrieval fix fit existing ownership. Publication commit b81398599ef63c259498d60c61544b36ed116619 includes implementation, exact-source archives, failed attempts and passing rerun. The subsequent documentation commit carries these actual reconciliation links.
+
+## Cleaned rerun publication receipts
+
+[GitHub reconciliation](2026-10-08-cleaned-g02-g03-issue-reconciliation.json) records the actual #34, #39 and #41 updates and confirms all remain OPEN. Evidence commit: `7e0a82d50779399ea93b67ca5dca44eba2dbb906`. No new defect or feature bucket; G04 remains unstarted.

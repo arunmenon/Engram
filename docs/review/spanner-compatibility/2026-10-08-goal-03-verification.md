@@ -160,3 +160,7 @@ The test-only fixture import was made portable using the existing scripts-packag
 | #41 | OPEN → OPEN | 28G03cloud extension checks verified; original65baseline statuses unchanged. | [GitHub update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6051983894) |
 
 #34 and #40 body summaries were refreshed to current G03 evidence and the G04 approval boundary. No issue was closed on partial acceptance. No new product defect was found and no new feature bucket is needed: this is existing #34/#40 journey work. Technical acceptance, independent review, actual issue synchronization, committed evidence and the recorded stakeholder walkthrough are delivered. Stakeholder sign-off remains separate. Implementation/evidence commit: fed05ec50f952ec342efcf92d558938f03c99eba; the subsequent documentation commit publishes these actual links. Stop here: G04 is not started.
+
+## Cleaned rerun publication receipts
+
+[GitHub reconciliation](2026-10-08-cleaned-g02-g03-issue-reconciliation.json) records the actual #34, #39 and #41 updates and confirms all remain OPEN. Evidence commit: `7e0a82d50779399ea93b67ca5dca44eba2dbb906`. No new defect or feature bucket; G04 remains unstarted.
