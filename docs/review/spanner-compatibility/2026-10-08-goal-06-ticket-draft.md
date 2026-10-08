@@ -1,6 +1,6 @@
 # G06 to-tickets draft: incident to corrective action and feedback
 
-Status: proposed for stakeholder review. No new GitHub tickets published, runtime changes, cloud execution or goal activation. Prepared with to-tickets. Parent scope already exists in #40 under #34; reuse it. #39 owns general conformance, #41 cloud verification, #36 projection semantics, #8 lookup correctness, #7 rejected-link exclusion and #10 extraction evidence. These broad issues remain open unless their complete acceptance is separately proved.
+Status: stakeholder approved the three tickets and G06 implementation; #51 → #52 → #53 published with native dependencies. G05 data must be retained. G06 uses separate engram-g06-target; no G06 cloud acceptance yet. Prepared with to-tickets. Parent scope already exists in #40 under #34; reuse it. #39 owns general conformance, #41 cloud verification, #36 projection semantics, #8 lookup correctness, #7 rejected-link exclusion and #10 extraction evidence. These broad issues remain open unless their complete acceptance is separately proved.
 
 ## User-visible outcome
 
@@ -71,3 +71,7 @@ G05 retained dataset is protected. The current target must not be cleared, overw
 T1 → T2 → T3. Each ticket is an independently demoable write-to-read journey; verification is embedded rather than split into a separate horizontal test ticket. G05 stakeholder delivery/reconciliation remains separate and must not be labeled complete merely because its cloud checks and Astra evidence review passed.
 
 Review requested: Is this granularity and sequence right, and should any ticket be merged or split? Publish only after stakeholder approval of the breakdown, per to-tickets step4/5. Existing parent #40 is not modified by drafting.
+
+## Confirmed implementation boundaries
+
+Public test seams: typed event admission/contract, generic pack projection and actual retrieval; final cloud acceptance is real Engram HTTP through workers and Spanner. Approved goal review supplies these seams; no additional test-seam approval needed. Incident identity will be scoped by repository,service and incident_id on fresh PDLC4.0; no historical migration. Scoped deployment lookup may use the latest matching repository/service/environment/artifact at or before incident occurrence, with no link when reference information is insufficient.
