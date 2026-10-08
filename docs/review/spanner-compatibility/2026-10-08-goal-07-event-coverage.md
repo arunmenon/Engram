@@ -1,7 +1,8 @@
 # G07 specification: complete the declared PDLC event paths
 
-Status: PREPARED FOR REVIEW. Preparation only is authorized. No G07 implementation,
-new tickets, Astra review, cloud execution or completion is claimed. G08 is not started.
+Status: SELECTED FOR EXECUTION by the stakeholder after scope discussion. Specification
+is published; no implementation, new tickets, Astra review, cloud execution or completion
+is claimed yet. Complete the ticket/review gates before runtime work. G08 is not started.
 
 ## Outcome and boundary
 

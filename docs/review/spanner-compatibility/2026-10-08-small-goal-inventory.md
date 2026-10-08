@@ -1,6 +1,6 @@
 # Small goal inventory
 
-## Current checkpoint — G06 verified; G07 specification prepared
+## Current checkpoint — G06 verified; G07 selected for execution
 
 G01–G06 have bounded published verification records. G05's connected dataset is
 retained in `engram-compat-target`; G06's separate dataset is retained in
@@ -13,11 +13,20 @@ scoped #51–#53 while eleven broader issues remain open. Both failed full attem
 are preserved with runner/oracle explanations. No whole-pack/baseline65 or
 stakeholder-sign-off claim is made. No new feature bucket was needed.
 
-G07 preparation is authorized; its [specification and proposed slices](2026-10-08-goal-07-event-coverage.md),
+The stakeholder selected G07 first. Its [specification and proposed slices](2026-10-08-goal-07-event-coverage.md),
 [28-event matrix](2026-10-08-g07-event-coverage.csv) and [verification template](2026-10-08-goal-07-verification.md)
-are prepared for review. G07 implementation/cloud runs and G08 remain unstarted
-and require explicit stakeholder selection. Older
-status paragraphs below are historical checkpoints, not current authorization.
+are published. Selection authorizes kickoff; implementation/review/cloud results
+remain NOT RUN until actual evidence is recorded. Do not infer ticket publication
+or a running cloud process from this authorization.
+
+After G07, present a separate prerequisite pack-composition/worker assessment
+before the expanded two-tenant controlled pilot. [Stakeholder requirements and
+assessment/pilot discovery brief](2026-10-08-controlled-pilot-discovery-brief.md)
+cover core+user, core+user+memory, core+PDLC and core+PDLC+memory, both retrieval paths,
+worker behavior and tenant isolation. This supersedes the earlier one-team-only
+pilot recommendation. G08–G13 remain relevant; reconcile rather than duplicate them.
+Assessment/pilot execution and G08 are not automatically authorized by G07 selection.
+Older status paragraphs below are historical checkpoints, not current authorization.
 The retired broad goal stays paused.
 
 ## Scope decision — disposable experiments (2026-10-08)
