@@ -14,6 +14,8 @@ from hashlib import sha256
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
 
+from pydantic import ValidationError
+
 from context_graph.ontology import load_registry
 
 CATALOG_PATH = Path(__file__).resolve().parents[1] / "tests/fixtures/pack_contracts/pdlc.json"
@@ -25,6 +27,20 @@ def fixtures(run_id, *, start=None):
     start = (start or datetime(2026, 10, 8, 10, tzinfo=UTC)).astimezone(UTC)
     stamp = start.isoformat()
     steps, ids = [], {}
+    nested_baselines = {}
+    # Small declared producer examples for the current PDLC reference branches.
+    # Validate a fully populated parent before attempting any child rejection.
+    references = {
+        "work_items": {"tracker": "jira", "external_key": "PAY-7"},
+        "entries": {"pr_number": 7, "section": "fixed"},
+        "requirements": {"spec_id": "payments", "spec_version": "1", "local_id": "R1"},
+        "designs": {"doc_id": "payments-hld", "section_path": "Retries", "version": "1"},
+        "refines_designs": {"doc_id": "payments-hld", "section_path": "Retries", "version": "1"},
+        "lesson_refs": {"content_hash": "a" * 64 + ":authored"},
+        "change": {"repo": "example/payments", "number": 8},
+        "incident": {"repo": "example/payments", "service": "payments", "incident_id": "inc-1"},
+    }
+    unpopulated = []
     for index, original in enumerate(catalog["cases"], 1):
         scenario = f"E{index:02d}-{original['event_type'].removeprefix('pdlc.')}"
         scope = f"g07-e/{run_id}/{index:02d}"
@@ -165,6 +181,64 @@ def fixtures(run_id, *, start=None):
                     negative["request"]["payload"][name] = invalid
                 negative["expected_status"] = 422
                 steps.append(negative)
+        for branch, container in contract.properties.items():
+            is_list = container.type == "array" and container.items.type == "object"
+            if container.type != "object" and not is_list:
+                continue
+            child = container.items if is_list else container
+            if branch not in references:
+                unpopulated.append(case["event_type"] + ":" + branch)
+                continue
+            baseline = deepcopy(request["payload"])
+            baseline[branch] = (
+                [scoped(references[branch])] if is_list else scoped(references[branch])
+            )
+            contract.validate_payload(baseline)
+            baseline_id = scenario + ":" + branch
+            nested_baselines[baseline_id] = baseline
+            for name, field in child.properties.items():
+                if not field.required:
+                    continue
+                variants = [("missing", ...), ("null", None), ("wrong-type", [])]
+                if field.type == "string" and (field.min_length or field.enum):
+                    variants.append(("empty", ""))
+                if field.enum:
+                    variants.append(("invalid-enum", "not-a-declared-enum-value"))
+                location = [branch, 0, name] if is_list else [branch, name]
+                for variant, invalid in variants:
+                    negative = deepcopy(conflict)
+                    negative["request"] = deepcopy(request)
+                    negative["request"]["payload"] = deepcopy(baseline)
+                    negative["scenario"] = (
+                        scenario + "-nested-" + branch + "-" + name + "-" + variant
+                    )
+                    negative["request"]["event_id"] = str(
+                        uuid5(NAMESPACE_URL, run_id + ":" + negative["scenario"])
+                    )
+                    parent = negative["request"]["payload"][branch]
+                    if is_list:
+                        parent = parent[0]
+                    if invalid is ...:
+                        del parent[name]
+                    else:
+                        parent[name] = invalid
+                    negative.update(
+                        expected_status=422,
+                        validation_baseline=baseline_id,
+                        expected_validation_location=location,
+                        validation_variant=variant,
+                    )
+                    try:
+                        contract.validate_payload(negative["request"]["payload"])
+                    except ValidationError as exc:
+                        if {error["loc"] for error in exc.errors()} != {tuple(location)}:
+                            raise ValueError(
+                                "nested probe rejected at unintended location: "
+                                + negative["scenario"]
+                            ) from exc
+                    else:
+                        raise ValueError("nested probe unexpectedly valid: " + negative["scenario"])
+                    steps.append(negative)
     return dict(
         ids=ids,
         steps=steps,
@@ -172,14 +246,16 @@ def fixtures(run_id, *, start=None):
         fallback_seed=next(iter(ids.values())),
         source_kind=catalog["fixture_kind"],
         pack_version=catalog["pack_version"],
+        nested_validation_baselines=nested_baselines,
+        unpopulated_nested_branches=unpopulated,
         limitations=[
             (
                 "Expected properties are declared literally for four newly mapped cases; "
                 "all28 declare exact observed IDs, domain edges and lifecycle transitions."
             ),
             (
-                "Required-field negatives cover top-level declarations; nested contract mutation "
-                "coverage remains in local generic contract tests."
+                "Required nested probes use validated populated producer examples and exact "
+                "ValidationError locations; any unavailable branches are listed explicitly."
             ),
         ],
     )
