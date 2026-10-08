@@ -1,0 +1,28 @@
+{
+  "kind": "G06 separate database preparation",
+  "target": "engram-g06-target",
+  "preserved_database": "engram-compat-target",
+  "ddl": [
+    "CREATE TABLE Events (\n            event_id STRING(64) NOT NULL,\n            shard INT64 NOT NULL,\n            commit_ts TIMESTAMP NOT NULL OPTIONS (allow_commit_timestamp = true),\n            batch_index INT64 NOT NULL,\n            session_id STRING(MAX) NOT NULL,\n            occurred_at_ms INT64 NOT NULL,\n            session_tag STRING(MAX),\n            agent_tag STRING(MAX),\n            trace_tag STRING(MAX),\n            event_type_tag STRING(MAX),\n            tool_name_tag STRING(MAX),\n            document JSON,\n            acceptance JSON,\n            legacy_position STRING(MAX),\n            in_log BOOL NOT NULL,\n            in_session_index BOOL NOT NULL,\n            dedup_active BOOL NOT NULL,\n            summary STRING(MAX),\n            keywords STRING(MAX),\n            search_text STRING(MAX),\n            summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n            keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n            search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n            text_tokens TOKENLIST AS (\n                TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])\n            ) HIDDEN\n        ) PRIMARY KEY (event_id)",
+    "CREATE INDEX EventsByShardPosition ON Events (shard, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySession ON Events (session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events (session_tag, occurred_at_ms)",
+    "CREATE SEARCH INDEX EventsText ON Events (text_tokens) STORING (session_tag)",
+    "CREATE TABLE ConsumerGroups (\n            group_name STRING(MAX) NOT NULL,\n            created_at TIMESTAMP NOT NULL\n        ) PRIMARY KEY (group_name)",
+    "CREATE TABLE ConsumerCursors (\n            group_name STRING(MAX) NOT NULL,\n            shard INT64 NOT NULL,\n            commit_ts TIMESTAMP NOT NULL,\n            batch_index INT64 NOT NULL,\n            event_id STRING(64) NOT NULL\n        ) PRIMARY KEY (group_name, shard)",
+    "CREATE TABLE ConsumerDeliveries (\n            group_name STRING(MAX) NOT NULL,\n            event_id STRING(64) NOT NULL,\n            consumer STRING(MAX) NOT NULL,\n            delivery_count INT64 NOT NULL,\n            last_delivered_at TIMESTAMP NOT NULL,\n            commit_ts TIMESTAMP NOT NULL,\n            batch_index INT64 NOT NULL\n        ) PRIMARY KEY (group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries (group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerDeadLetters (\n            group_name STRING(MAX) NOT NULL,\n            event_id STRING(64) NOT NULL,\n            dead_lettered_at TIMESTAMP NOT NULL,\n            fields JSON NOT NULL\n        ) PRIMARY KEY (group_name, event_id)",
+    "CREATE TABLE GraphNodes (\n            label STRING(64) NOT NULL,\n            node_id STRING(MAX) NOT NULL,\n            props JSON NOT NULL,\n            session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n            embedding ARRAY<FLOAT64>(vector_length=>384),\n            entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN\n        ) PRIMARY KEY (label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes (label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes (embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (distance_type = 'COSINE')",
+    "CREATE TABLE GraphEdges (\n            src_label STRING(64) NOT NULL,\n            src_id STRING(MAX) NOT NULL,\n            edge_type STRING(64) NOT NULL,\n            dst_label STRING(64) NOT NULL,\n            dst_id STRING(MAX) NOT NULL,\n            props JSON NOT NULL\n        ) PRIMARY KEY (src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges (dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges (edge_type) STORING (props)",
+    "CREATE PROPERTY GRAPH EngramGraph\n            NODE TABLES (\n                GraphNodes KEY (label, node_id)\n                    DYNAMIC LABEL (label) DYNAMIC PROPERTIES (props)\n            )\n            EDGE TABLES (\n                GraphEdges KEY (src_label, src_id, edge_type, dst_label, dst_id)\n                    SOURCE KEY (src_label, src_id) REFERENCES GraphNodes (label, node_id)\n                    DESTINATION KEY (dst_label, dst_id) REFERENCES GraphNodes (label, node_id)\n                    DYNAMIC LABEL (edge_type) DYNAMIC PROPERTIES (props)\n            )",
+    "CREATE TABLE TenantControl (\n    control_id STRING(16) NOT NULL,\n    tenant_id STRING(128) NOT NULL,\n    database_resource STRING(MAX) NOT NULL,\n    binding_id STRING(128) NOT NULL,\n    epoch INT64 NOT NULL,\n    bundle_digest STRING(80) NOT NULL,\n    serving_state STRING(16) NOT NULL\n) PRIMARY KEY (control_id)"
+  ],
+  "source_sha256": "b1ba82c149a44efe6a04c66bbf327373c76daea20c1dcfef2097e36888c07cb3",
+  "scope": "Create only absent G06 database and bootstrap empty core owner; no G05 writes",
+  "run_id": "20261008-cloud-g06-prepare-01"
+}
