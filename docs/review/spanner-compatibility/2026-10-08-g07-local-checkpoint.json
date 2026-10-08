@@ -1,0 +1,59 @@
+{
+  "kind": "local fixture audit; not executed against cloud",
+  "http_steps": 623,
+  "query_checks": 15,
+  "total_planned_checks": 638,
+  "positive_event_types": [
+    "pdlc.change.abandoned",
+    "pdlc.change.committed",
+    "pdlc.change.created",
+    "pdlc.change.merged",
+    "pdlc.change.reviewed",
+    "pdlc.change.updated",
+    "pdlc.decision.recorded",
+    "pdlc.design.approval_recorded",
+    "pdlc.design.section_changed",
+    "pdlc.incident.detected",
+    "pdlc.incident.lesson_recorded",
+    "pdlc.incident.remediation_recorded",
+    "pdlc.incident.reported",
+    "pdlc.incident.resolved",
+    "pdlc.release.published",
+    "pdlc.request.created",
+    "pdlc.requirement.changed",
+    "pdlc.service.deployed",
+    "pdlc.service.deployment_failed",
+    "pdlc.service.rolledback",
+    "pdlc.service.upgraded",
+    "pdlc.spec.approved",
+    "pdlc.spec.changed",
+    "pdlc.testcaserun.finished",
+    "pdlc.testcaserun.skipped",
+    "pdlc.ticket.closed",
+    "pdlc.ticket.created",
+    "pdlc.ticket.updated"
+  ],
+  "statuses": {
+    "201": 99,
+    "409": 30,
+    "422": 490,
+    "202": 4
+  },
+  "nested_baselines": 15,
+  "unpopulated_nested_branches": [],
+  "cloud_status": "NOT RUN",
+  "runtime_commit": "c8eb4f5",
+  "pack_version": "5.0.0",
+  "pack_sha256": "df2de060e7a597c34b3947fff0346655cf61ee98af5393326b8e1fdacb68308f",
+  "local_tests": {
+    "selected": 234,
+    "final_review_targeted": 57
+  },
+  "issues_open": [
+    54,
+    55,
+    56,
+    57,
+    58
+  ]
+}

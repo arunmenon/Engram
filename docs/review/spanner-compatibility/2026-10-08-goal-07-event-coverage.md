@@ -1,6 +1,6 @@
 # G07 specification: complete the declared PDLC event paths
 
-Status: IMPLEMENTATION IN PROGRESS. Selected by the stakeholder. Slices A–E are
+Status: LOCAL IMPLEMENTATION REVIEWED; CLOUD BLOCKED. Selected by the stakeholder. Slices A–E are
 tracked in #54–#58. Astra medium completed the preimplementation review; see
 [findings](2026-10-08-astra-g07-plan-review.md). No G07 cloud execution or completion
 is claimed. Read-only database preflight returned PermissionDenied for engram-g07-target;

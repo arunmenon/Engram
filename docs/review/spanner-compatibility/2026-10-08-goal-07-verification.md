@@ -1,9 +1,9 @@
 # G07 verification and stakeholder walkthrough
 
-Status: LOCAL IMPLEMENTATION IN PROGRESS; CLOUD NOT RUN. A–D runtime changes
+Status: LOCAL IMPLEMENTATION REVIEWED; CLOUD NOT RUN. A–D runtime changes
 and the local 28-event catalog are integrated on feature/engram-g07-event-coverage.
-Astra medium preimplementation review is recorded; final implementation/harness review
-and stakeholder sign-off remain pending. G08 has not started.
+Astra medium preimplementation review is recorded; final runtime and harness reviews cleared the scoped findings.
+Cloud acceptance and stakeholder sign-off remain pending. G08 has not started.
 
 [Specification and proposed slices](2026-10-08-goal-07-event-coverage.md) ·
 [28-event baseline matrix](2026-10-08-g07-event-coverage.csv) ·
@@ -101,9 +101,58 @@ Preparation tracking: [actual #39 update](https://github.com/arunmenon/Engram/is
 - Integration d75e4ec: PDLC 5.0.0; runtime/research copies identical; 28 declared events, all with deterministic mappings.
 - 151 catalog and G07 unit checks passed; 27 affected ontology checks passed. These verify contracts/plans/public retrieval seams, not real-Spanner execution.
 - Request mapping and seed, strict skipped TestRun projection, no-PR commit guard, and exact rollback action/upgraded deployment declarations integrated.
-- Cloud fixture/oracle and runner reconciliation, final independent review, and the full tracked Spanner write-to-read run remain outstanding.
+- Cloud fixture/oracle and runner reconciliation and final independent review are complete. The full tracked Spanner write-to-read run remains outstanding.
 - G05/G06 have not been written or cleaned by this goal. No G07 issue is closed.
 
 - Astra scoped runtime review found a UTC-overflow admission defect. Fixed in d379637 with observational date-time validation; 167 focused contract/deployment/catalog checks passed. Astra rechecked the correction: P2 resolved, no further runtime blockers, 233 scoped local checks passed. Harness/cloud proof remains outside that review.
 - Matrix preserves the original 4.2.0 baseline columns and now identifies the 5.0.0 G07 target separately; every cloud status remains NOT RUN.
 - Slice issue progress comments are preserved in the ticket receipt file. Updates are evidence checkpoints, not closure.
+
+## Final local gate — ready to execute after database access
+
+Runtime commit: `c8eb4f5`. PDLC **5.0.0**, same **28** event types. All mapped
+positive paths have independently authored fixture expectations. No cloud case is
+promoted from earlier goals or from these local checks.
+
+The combined plan has **623 HTTP steps and 15 retrieval checks (638 planned checks)**:
+99 expected HTTP201 cases (including unchanged retries), 30 HTTP409 conflicts,
+490 HTTP422 rejection cases, and four signed webhook HTTP202 posts (two deliveries
+plus their unchanged replays). Nested probes cover all 38 required child fields;
+15 valid populated parents are retained in the fixture audit. No nested branch is
+silently unpopulated. These are **planned counts, not passed cloud counts**.
+
+Local selected tests: **234 passed**. Astra's final recheck: **57 targeted tests
+passed**, zero authored-observation mismatches and zero unregistered artifacts.
+[Runtimes recheck](2026-10-08-astra-g07-runtime-recheck.md),
+[initial harness findings](2026-10-08-g07-spec-review.md),
+[resolved harness findings](2026-10-08-g07-spec-recheck.md), and
+[standards review](2026-10-08-g07-standards-review.md) preserve the review trail.
+The two P3 standards heuristics are deferred: existing repeated goal-membership
+checks and small CLI-validation duplication do not block correctness, and a wider
+runner refactor is outside this bounded functional goal. No documented-standard
+violation was found. Literal fixture independence is retained deliberately.
+
+The ledger-only commit now has a public `/v1/query/subgraph` Event read. It checks
+the available event envelope and provenance; that API does not expose raw payload
+or payload_ref. Exact payload verification remains a separate ledger observation.
+No new Event API or full-content retrieval claim is introduced.
+
+### Commands after access is available
+
+Refresh the existing private token file using the token script; never commit it.
+Use a fresh run ID for each preparation or execution and retain every failure.
+
+```sh
+PYTHONPATH=src:scripts .venv/bin/python scripts/engram_goal07_prepare.py --credentials /private/tmp/engram-spanner-token-env --run-id <fresh-preparation-id>
+PYTHONPATH=src:scripts .venv/bin/python scripts/engram_goal07_event_demo.py --credentials /private/tmp/engram-spanner-token-env --run-id <fresh-execution-id> --expected-epoch <prepared-owner-epoch> --expected-digest <prepared-owner-digest>
+```
+
+Read the successful preparation receipt for the exact owner epoch and digest;
+do not guess or adopt observed state after a failed/unknown operation. Both commands
+read-only guard G05 and G06 before and after. G07 successful data is retained.
+
+Current external blocker: read-only `get_database` returned `PermissionDenied` for
+`engram-g07-target`. Ensure that database exists and the configured experiment
+service account has its required database permissions. No G07 DDL or data write has
+been attempted. All #54–#58 remain open; #34/#41 compatibility sign-off is unchanged.
+G08, the composition assessment and the developer pilot have not started.
