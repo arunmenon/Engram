@@ -11,15 +11,19 @@ import argparse
 import asyncio
 import fcntl
 import hashlib
+import hmac
 import os
 import socket
 import subprocess
 import sys
 import tarfile
 import traceback
+from copy import deepcopy
 from pathlib import Path
+from uuid import UUID, uuid5
 
 import httpx
+import orjson
 import structlog
 import uvicorn
 from engram_experiment_support import (
@@ -68,6 +72,138 @@ OLD = [
 ]
 
 
+def http_steps(data):
+    """Materialize independent webhook ledger oracles; never run a translator."""
+    steps = deepcopy(data["steps"])
+    for step in steps:
+        if "expected_observed_node_ids" in step:
+            observed = set(step["expected_observed_node_ids"])
+            step["observes_node"] = step.get("expected_node") in observed
+            references = (
+                {step.get("expected_node"), *step.get("extra_nodes", {})} - {None}
+            ) - observed
+            step["placeholders"] = sorted(set(step.get("placeholders", [])) | references)
+    for case in data.get("webhook_cases", []):
+        assert case["expected_event_type"] == "pdlc.testcaserun.skipped"
+        assert case["event"] == "check_run", "Only G07's declared check wrappers are supported"
+        body = orjson.dumps(case["body"])
+        digest = hashlib.sha256(body).hexdigest()
+        # Literal public protocol namespace; deliberately independent of build_events.
+        event_id = str(
+            uuid5(UUID("69b4bced-9a3e-53c8-a2aa-1c4a0ca4d245"), "github:" + digest + ":0")
+        )
+        request = dict(
+            event_id=event_id,
+            event_type=case["expected_event_type"],
+            occurred_at=case["body"]["check_run"]["completed_at"],
+            session_id="pdlc:" + case["body"]["repository"]["full_name"],
+            agent_id="webhook:github",
+            trace_id=digest,
+            payload_ref="webhook:github:" + digest,
+            payload={
+                **case["expected_payload"],
+                "cdevents_type": "dev.cdevents.testcaserun.skipped",
+            },
+        )
+        step = dict(
+            deepcopy(case),
+            webhook=True,
+            request=request,
+            expected_status=202,
+            expected_authority="webhook.github",
+        )
+        step["expected_edge_properties"] = [
+            [
+                kind,
+                source,
+                target,
+                dict(
+                    source_event_id=event_id,
+                    pinned_position="$receipt",
+                    **(
+                        {"commit_sha": case["expected_payload"]["commit_sha"]}
+                        if kind == "RAN_AGAINST"
+                        else {}
+                    ),
+                ),
+            ]
+            for kind, source, target in step["expected_edges"]
+        ]
+        steps.append(step)
+        retry = deepcopy(step)
+        retry.update(scenario=step["scenario"] + "-retry", duplicate=True)
+        steps.append(retry)
+    return steps
+
+
+async def submit_fixture(http, fixture, secret):
+    """Submit one predeclared input through the real HTTP client's public seam."""
+    if fixture.get("webhook"):
+        body = orjson.dumps(fixture["body"])
+        response = await http.post(
+            "/v1/webhooks/github",
+            content=body,
+            headers={
+                "content-type": "application/json",
+                "x-github-event": fixture["event"],
+                "x-github-delivery": fixture["scenario"],
+                "x-hub-signature-256": "sha256="
+                + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest(),
+            },
+        )
+    else:
+        response = await http.post("/v1/events", json=fixture["request"])
+    assert response.status_code == fixture["expected_status"], response.text
+    if fixture["expected_status"] == 202:
+        assert response.json()["event_ids"] == [fixture["request"]["event_id"]]
+    elif fixture["expected_status"] == 201:
+        assert response.json()["event_id"] == fixture["request"]["event_id"]
+        assert response.json()["global_position"]
+        expected_outcome = (
+            "duplicate"
+            if fixture.get("duplicate", fixture["scenario"] == "IM11-duplicate")
+            else "created"
+        )
+        assert response.json()["status"] == expected_outcome
+    return response
+
+
+def assert_retrieval_policy(answer, policy):
+    for nid, reason in policy.get("expected_retrieval_reasons", {}).items():
+        assert answer["nodes"][nid].get("retrieval_reason") == reason, (
+            "Wrong retrieval reason",
+            nid,
+        )
+    for nid, state in policy.get("expected_states", {}).items():
+        assert answer["nodes"][nid]["attributes"].get("status") == state, (
+            "Wrong retrieval state",
+            nid,
+        )
+    for nid, expected in policy.get("expected_observation_events", {}).items():
+        evidence = answer["nodes"][nid].get("provenance")
+        if expected is None:
+            assert not evidence, ("False observation evidence", nid)
+        else:
+            allowed = expected if isinstance(expected, list) else [expected]
+            assert evidence and evidence.get("event_id") in allowed, (
+                "Wrong observation evidence",
+                nid,
+            )
+
+
+def assert_forbidden_edges(state, fixture):
+    scoped = {fixture.get("expected_node"), *fixture.get("extra_nodes", {})} - {None}
+    for edge in state["edges"]:
+        assert not (
+            edge[2] in fixture.get("forbidden_edge_types", [])
+            and (edge[1] in scoped or edge[4] in scoped)
+        ), ("Forbidden scoped edge", edge)
+        assert not (
+            edge[1] == fixture.get("expected_node")
+            and edge[2] in fixture.get("forbidden_outgoing_edge_types", [])
+        ), ("Forbidden outgoing edge", edge)
+
+
 async def execute(
     values,
     run_id,
@@ -80,6 +216,7 @@ async def execute(
     target_database="engram-compat-target",
 ):
     data = fixture_factory(run_id)
+    data["steps"] = http_steps(data)
     journey_passed = False
     durable_json(directory / "fixtures.json", data)
     evidence = {
@@ -130,7 +267,9 @@ async def execute(
     old_logging = None
     settings = runtime_settings(values, database=target_database)
     settings.ontology.packs = ["pdlc"]
-    settings.ontology.trusted_source_ids = ["demo.query"]
+    settings.ontology.trusted_source_ids = (
+        ["demo.query", "webhook.github"] if goal == "G07" else ["demo.query"]
+    )
     settings.ontology.serve_unevaluated = True
     settings.intent.use_llm = False
     settings.webhooks.github_secret = SECRET
@@ -172,7 +311,12 @@ async def execute(
             item["request"]["payload"],
         )
         for item in data["steps"]
-        if item["expected_status"] == 201
+        if item["expected_status"] in {201, 202}
+    }
+    expected_authorities = {
+        item["request"]["event_id"]: item.get("expected_authority", "demo.query")
+        for item in data["steps"]
+        if item["expected_status"] in {201, 202}
     }
     allowed = {name: [] for name in KEYS}
     allowed["Events"] = [[eid] for eid in all_events]
@@ -283,7 +427,7 @@ async def execute(
         ) as http:
 
             async def retrieve(
-                query, required, forbidden, *, exact=False, expected_query_edges=None
+                query, required, forbidden, *, exact=False, expected_query_edges=None, policy=None
             ):
                 response = await http.post("/v1/query/artifacts", json=query)
                 result = {"request": query, "status": response.status_code, "body": response.json()}
@@ -323,14 +467,17 @@ async def execute(
                     "Missing required retrieval edges",
                     required_edges - returned_edges,
                 )
-                if goal in {"G04", "G05", "G06"} and exact:
+                if goal in {"G04", "G05", "G06", "G07"} and exact:
                     assert returned_edges == required_edges, (
                         "Unexpected retrieval edges",
                         returned_edges ^ required_edges,
                     )
                 for edge in answer["edges"]:
                     edge_key = (edge["edge_type"], edge["source"], edge["target"])
-                    if goal in {"G04", "G05", "G06"} and edge_key in expected_edge_properties:
+                    if (
+                        goal in {"G04", "G05", "G06", "G07"}
+                        and edge_key in expected_edge_properties
+                    ):
                         for name, value in expected_edge_properties[edge_key].items():
                             assert edge.get("properties", {}).get(name) == value, (
                                 "Wrong retrieval edge property",
@@ -352,7 +499,7 @@ async def execute(
                         and provenance.get("source") == "spanner"
                         and provenance.get("event_id") in artifact_events[nid]
                     ), ("Wrong evidence", nid, provenance)
-                    if goal in {"G04", "G05", "G06"}:
+                    if goal in {"G04", "G05", "G06", "G07"}:
                         newest = max(
                             artifact_events[nid],
                             key=lambda event_id: all_events[event_id][0].occurred_at,
@@ -369,7 +516,33 @@ async def execute(
                             nid,
                             key,
                         )
+                assert_retrieval_policy(answer, policy or {})
                 return result
+
+            async def run_query(fixture):
+                sid = fixture["scenario"]
+                query = fixture.get("request") or {
+                    "query": fixture.get("text")
+                    or fixture["intent"] + " " + (fixture.get("seed") or ""),
+                    "seed_node_ids": fixture.get(
+                        "seeds", [fixture["seed"]] if fixture.get("seed") else []
+                    ),
+                    "intent": fixture["intent"],
+                    "max_nodes": 50,
+                    "max_depth": fixture.get("max_depth", 5),
+                }
+                result = await retrieve(
+                    query,
+                    fixture.get("required", fixture.get("required_nodes", [])),
+                    fixture.get("forbidden", []),
+                    exact=fixture.get("exact", False),
+                    expected_query_edges=fixture.get("expected_edges"),
+                    policy=fixture,
+                )
+                evidence["scenarios"].append(dict(scenario=sid, retrieval=result, verdict="passed"))
+                evidence["checks"].append(dict(name=sid, passed=True, scenarios=[]))
+                durable_json(directory / "observations.json", evidence)
+                print(sid + " passed", flush=True)
 
             for fixture in data["steps"]:
                 sid = fixture["scenario"]
@@ -383,23 +556,18 @@ async def execute(
                 evidence["scenarios"].append(item)
                 durable_json(directory / "observations.json", evidence)
                 previous = await asyncio.to_thread(snapshot, database)
-                negative = fixture["expected_status"] != 201 or fixture.get(
+                negative = fixture["expected_status"] not in {201, 202} or fixture.get(
                     "duplicate", sid == "IM11-duplicate"
                 )
                 before_fingerprint = (
                     await asyncio.to_thread(fingerprint, database)
-                    if goal in {"G04", "G05", "G06"} and negative
+                    if goal in {"G04", "G05", "G06", "G07"} and negative
                     else None
                 )
-                response = await http.post("/v1/events", json=request)
+                response = await submit_fixture(http, fixture, SECRET)
                 item["response"] = {"status": response.status_code, "body": response.json()}
                 durable_json(directory / "observations.json", evidence)
-                assert response.status_code == fixture["expected_status"], item["response"]
-                if fixture["expected_status"] == 201:
-                    assert response.json()["event_id"] == eid and response.json()["global_position"]
-                    is_duplicate = fixture.get("duplicate", sid == "IM11-duplicate")
-                    expected_outcome = "duplicate" if is_duplicate else "created"
-                    assert response.json()["status"] == expected_outcome
+                if fixture["expected_status"] in {201, 202}:
                     accepted.add(eid)
                 completed = False
                 for _ in range(600):
@@ -426,9 +594,9 @@ async def execute(
                     for outcome in extraction_outcomes
                     if outcome.get("event_id") == eid and outcome.get("pack") == "pdlc"
                 ]
-                if fixture["expected_status"] == 201 and (
+                if fixture["expected_status"] in {201, 202} and (
                     request["event_type"] == "pdlc.design.section_changed"
-                    or (goal == "G06" and request["event_type"] == "pdlc.spec.approved")
+                    or (goal in {"G06", "G07"} and request["event_type"] == "pdlc.spec.approved")
                 ):
                     assert matching and all(
                         o["event"] == "pack_extraction_applied" for o in matching
@@ -440,6 +608,22 @@ async def execute(
                 assert {row[0] for row in state["events"]} == accepted, "Unexpected ledger events"
                 for key, doc, authority in state["events"]:
                     expected = all_events[key]
+                    if goal == "G07":
+                        actual_event = Event.model_validate(doc, strict=False)
+                        for field in (
+                            "event_id",
+                            "event_type",
+                            "occurred_at",
+                            "session_id",
+                            "agent_id",
+                            "trace_id",
+                            "payload_ref",
+                        ):
+                            assert getattr(actual_event, field) == getattr(expected[0], field), (
+                                "Wrong normalized envelope",
+                                key,
+                                field,
+                            )
                     assert (
                         doc["payload"] == expected[1]
                         and doc["event_type"] == expected[0].event_type
@@ -451,13 +635,13 @@ async def execute(
                     assert (
                         authority["bundle_digest"] == binding.bundle_digest
                         and authority["accepted_epoch"] == owner[3]
-                        and authority["source_id"] == "demo.query"
+                        and authority["source_id"] == expected_authorities[key]
                     )
-                if fixture["expected_status"] != 201 or fixture.get(
+                if fixture["expected_status"] not in {201, 202} or fixture.get(
                     "duplicate", sid == "IM11-duplicate"
                 ):
                     assert state == previous, "Rejected/duplicate request changed persistent state"
-                    if goal in {"G04", "G05", "G06"}:
+                    if goal in {"G04", "G05", "G06", "G07"}:
                         after_fingerprint = await asyncio.to_thread(fingerprint, database)
                         item["no_write_fingerprints"] = {
                             "before": before_fingerprint,
@@ -466,6 +650,15 @@ async def execute(
                         assert before_fingerprint == after_fingerprint, (
                             "Rejected/duplicate request changed full persistent state"
                         )
+                assert_forbidden_edges(state, fixture)
+                receipt_position = response.json().get("global_position")
+                if fixture["expected_status"] == 202:
+                    receipt_position = next(
+                        props["global_position"]
+                        for label, key, props in state["nodes"]
+                        if label == "Event" and key == eid
+                    )
+                    assert receipt_position, "Webhook Event is missing its committed position"
                 nid = fixture["expected_node"]
                 nodes = {row[1]: row[2] for row in state["nodes"]}
                 if nid:
@@ -486,7 +679,7 @@ async def execute(
                 expected_edges.update(tuple(e) for e in fixture["expected_edges"])
                 for kind, source, target, properties in fixture.get("expected_edge_properties", []):
                     expected_edge_properties[(kind, source, target)] = {
-                        name: response.json()["global_position"] if value == "$receipt" else value
+                        name: receipt_position if value == "$receipt" else value
                         for name, value in properties.items()
                     }
                 domain = {
@@ -509,7 +702,12 @@ async def execute(
                             "Deployment",
                             "Component",
                         }
-                        | ({"Incident", "Lesson"} if goal == "G06" else set())
+                        | ({"Incident", "Lesson"} if goal in {"G06", "G07"} else set())
+                        | (
+                            {"Request", "Decision", "DeploymentRollback"}
+                            if goal == "G07"
+                            else set()
+                        )
                     )
                 }
                 expected_domain = set(expected_nodes)
@@ -547,19 +745,25 @@ async def execute(
                                 "CITES",
                                 "ATTRIBUTED_TO",
                             }
-                            if goal == "G06"
+                            if goal in {"G06", "G07"}
                             else set()
                         )
                     )
                 }
+                if goal == "G07":
+                    actual_edges |= {
+                        (r[2], r[1], r[4])
+                        for r in state["edges"]
+                        if r[2] in {"APPLIES_TO", "ROLLS_BACK", "DECOMPOSES_INTO", "REVERTS"}
+                    }
                 assert actual_edges == expected_edges, (
                     "Wrong declared planning links",
                     actual_edges ^ expected_edges,
                 )
                 for edge in state["edges"]:
-                    if goal in {"G04", "G05", "G06"} and edge[2] == "DEPLOYED_TO":
+                    if goal in {"G04", "G05", "G06", "G07"} and edge[2] == "DEPLOYED_TO":
                         assert edge[5].get("environment") == nodes[edge[1]].get("environment")
-                    if goal in {"G04", "G05", "G06"}:
+                    if goal in {"G04", "G05", "G06", "G07"}:
                         for name, value in expected_edge_properties.get(
                             (edge[2], edge[1], edge[4]), {}
                         ).items():
@@ -579,7 +783,7 @@ async def execute(
                     assert {(key, event) for event in events} <= {
                         (r[1], r[4]) for r in state["edges"] if r[2] == "DERIVED_FROM"
                     }
-                if goal in {"G04", "G05", "G06"}:
+                if goal in {"G04", "G05", "G06", "G07"}:
                     actual_sources = {
                         (r[1], r[4])
                         for r in state["edges"]
@@ -618,7 +822,7 @@ async def execute(
                         "max_nodes": 50,
                     }
                     item["retrieval"] = await retrieve(query, [nid], [])
-                    if goal in {"G04", "G05", "G06"}:
+                    if goal in {"G04", "G05", "G06", "G07"}:
                         for placeholder in fixture.get("placeholders", []):
                             result = await retrieve(
                                 {
@@ -651,35 +855,16 @@ async def execute(
                 evidence["checks"].append({"name": sid, "passed": True, "scenarios": []})
                 durable_json(directory / "observations.json", evidence)
                 print(sid + " passed", flush=True)
+                if not first_only:
+                    for query_fixture in data["queries"]:
+                        if query_fixture.get("after_scenario") == sid:
+                            await run_query(query_fixture)
                 if first_only:
                     break
             if not first_only:
                 for fixture in data["queries"]:
-                    sid = fixture["scenario"]
-                    query = {
-                        "query": fixture.get("text") or fixture["intent"] + " " + fixture["seed"],
-                        "seed_node_ids": fixture.get(
-                            "seeds", [fixture["seed"]] if fixture["seed"] else []
-                        ),
-                        "intent": fixture["intent"],
-                        "max_nodes": 50,
-                        "max_depth": fixture.get("max_depth", 5),
-                    }
-                    item = {
-                        "scenario": sid,
-                        "retrieval": await retrieve(
-                            query,
-                            fixture["required"],
-                            fixture["forbidden"],
-                            exact=fixture.get("exact", False),
-                            expected_query_edges=fixture.get("expected_edges"),
-                        ),
-                        "verdict": "passed",
-                    }
-                    evidence["scenarios"].append(item)
-                    evidence["checks"].append({"name": sid, "passed": True, "scenarios": []})
-                    durable_json(directory / "observations.json", evidence)
-                    print(sid + " passed", flush=True)
+                    if not fixture.get("after_scenario"):
+                        await run_query(fixture)
             journey_passed = not first_only and len(evidence["checks"]) == len(data["steps"]) + len(
                 data["queries"]
             )
@@ -840,7 +1025,18 @@ def main(
             for p in (
                 Path(__file__),
                 ROOT / "scripts/engram_experiment_support.py",
-                ROOT / ("scripts/engram_" + goal.lower().replace("g", "goal", 1) + "_fixtures.py"),
+                *(
+                    sorted((ROOT / "scripts").glob("engram_goal07*.py"))
+                    if goal == "G07"
+                    else [
+                        ROOT
+                        / (
+                            "scripts/engram_"
+                            + goal.lower().replace("g", "goal", 1)
+                            + "_fixtures.py"
+                        )
+                    ]
+                ),
             )
         },
         "code_head": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
@@ -866,7 +1062,7 @@ def main(
             check=True,
         )
         directory = RECORDS / "runs" / args.run_id
-        if goal in {"G04", "G05", "G06"}:
+        if goal in {"G04", "G05", "G06", "G07"}:
             # Freeze contents before the first cloud read/write, not just after execution.
             paths = sorted(
                 set(manifest["runtime_sources"])
@@ -883,6 +1079,15 @@ def main(
                             for p in (ROOT / "tests/unit").glob("test_goal06*.py")
                         ]
                         if goal == "G06"
+                        else []
+                    ),
+                    *(
+                        [
+                            str(p.relative_to(ROOT))
+                            for pattern in ("test_goal07*.py", "test_g07*.py")
+                            for p in (ROOT / "tests/unit").glob(pattern)
+                        ]
+                        if goal == "G07"
                         else []
                     ),
                     "tests/fixtures/pack_contracts/pdlc.json",
