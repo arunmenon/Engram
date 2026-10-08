@@ -1,0 +1,93 @@
+FF...................................................................... [ 42%]
+........................................................................ [ 84%]
+..........................                                               [100%]
+=================================== FAILURES ===================================
+______________ test_explicit_planning_code_review_and_test_trace _______________
+
+    async def test_explicit_planning_code_review_and_test_trace():
+        data = fixtures("local-g03")
+        registry = load_registry(["pdlc"])
+        graph = MemoryGraphStore()
+        expected_edges = set()
+        expected_props = {}
+        for step in data["steps"]:
+            request = step["request"]
+            contract = registry.event_types[request["event_type"]].definition.payload_contract
+            if step["expected_status"] == 422:
+                with pytest.raises(ValidationError):
+                    contract.validate_payload(request["payload"])
+                continue
+            if step["expected_status"] != 201 or step["scenario"] == "IM11-duplicate":
+                continue  # Admission duplicate/conflict behavior is verified through real HTTP.
+            contract.validate_payload(request["payload"])
+>           event = Event.model_validate(request).model_copy(update={"global_position": "1-0"})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 2 validation errors for Event
+E           event_id
+E             Input should be an instance of UUID [type=is_instance_of, input_value='9a138d6d-579a-5175-8773-f4a9d67885d8', input_type=str]
+E               For further information visit https://errors.pydantic.dev/2.13/v/is_instance_of
+E           occurred_at
+E             Input should be a valid datetime [type=datetime_type, input_value='2026-10-08T03:51:54.606724+00:00', input_type=str]
+E               For further information visit https://errors.pydantic.dev/2.13/v/datetime_type
+
+tests/unit/test_implementation_journey.py:34: ValidationError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+________ test_multiple_explicit_references_keep_each_complete_identity _________
+
+    def test_multiple_explicit_references_keep_each_complete_identity():
+        registry = load_registry(["pdlc"])
+>       event = Event(
+            event_id=UUID(int=7),
+            event_type="pdlc.ticket.created",
+            occurred_at="2026-10-08T00:00:00Z",
+            session_id="test",
+            agent_id="publisher",
+            trace_id="t",
+            payload_ref="p",
+            global_position="1-0",
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Event
+E       occurred_at
+E         Input should be a valid datetime [type=datetime_type, input_value='2026-10-08T00:00:00Z', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.13/v/datetime_type
+
+tests/unit/test_implementation_journey.py:84: ValidationError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:26:54 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+=============================== warnings summary ===============================
+tests/unit/test_webhooks.py: 18 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_implementation_journey.py::test_explicit_planning_code_review_and_test_trace
+FAILED tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity
+2 failed, 168 passed, 18 warnings in 8.61s

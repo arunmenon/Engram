@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 2.0.0   # 2.0.0: versioned planning identities, deterministic planning rules and revision approvals.
+  version: 2.1.0   # 2.1.0: explicit implementation/verification references and reviewer trace.
+                   # 2.0.0: versioned planning identities, deterministic planning rules and revision approvals.
                    # 1.8.0: optional bounded payload contracts for all23 events; ingress enforcement pending.
                    # 1.7.0: Deployment records its repo; a merge links deployments of its commit seen earlier (minor: mapping).
                    # 1.6.0: shared interfaces and provenance move to core 1.1.0; lifecycles name their superseded states (minor: additive).
@@ -108,7 +109,7 @@ types:
     Review:
       key: [repo, number, review_id]
       interfaces: [Sourced]
-      properties: {repo: string, number: int, review_id: string, verdict: {enum: [commented, approved, changes_requested]}}
+      properties: {repo: string, number: int, review_id: string, reviewer: string, verdict: {enum: [commented, approved, changes_requested]}}
     TestCase:
       key: [repo, test_id]
       interfaces: [Lifecycled, Sourced]
@@ -226,6 +227,22 @@ events:
           max_length: 1000
           items:
             type: string
+        work_items:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            additional_fields: preserve
+            properties:
+              tracker:
+                type: string
+                required: true
+                min_length: 1
+              external_key:
+                type: string
+                required: true
+                min_length: 1
+
   pdlc.change.reviewed:
     aliases:
       cdevents: dev.cdevents.change.reviewed
@@ -253,6 +270,10 @@ events:
           - approved
           - commented
           - changes_requested
+        reviewer:
+          type: string
+          min_length: 1
+
   pdlc.change.merged:
     aliases:
       cdevents: dev.cdevents.change.merged
@@ -330,6 +351,22 @@ events:
         head_sha:
           type: string
           nullable: true
+        work_items:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            additional_fields: preserve
+            properties:
+              tracker:
+                type: string
+                required: true
+                min_length: 1
+              external_key:
+                type: string
+                required: true
+                min_length: 1
+
   pdlc.change.committed:
     note: git-only fallback when no PR webhook is available
     payload_contract:
@@ -424,6 +461,26 @@ events:
           minimum: 1
           maximum: 9223372036854775807
           nullable: true
+        requirements:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              spec_id:
+                type: string
+                required: true
+                min_length: 1
+              spec_version:
+                type: string
+                required: true
+                min_length: 1
+              local_id:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+
   pdlc.testcaserun.skipped:
     aliases:
       cdevents: dev.cdevents.testcaserun.skipped
@@ -646,6 +703,45 @@ events:
         resolution:
           type: string
           nullable: true
+        requirements:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              spec_id:
+                type: string
+                required: true
+                min_length: 1
+              spec_version:
+                type: string
+                required: true
+                min_length: 1
+              local_id:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+        designs:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              doc_id:
+                type: string
+                required: true
+                min_length: 1
+              section_path:
+                type: string
+                required: true
+                min_length: 1
+              version:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+
   pdlc.ticket.updated:
     aliases:
       cdevents: dev.cdevents.ticket.updated
@@ -681,6 +777,45 @@ events:
         resolution:
           type: string
           nullable: true
+        requirements:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              spec_id:
+                type: string
+                required: true
+                min_length: 1
+              spec_version:
+                type: string
+                required: true
+                min_length: 1
+              local_id:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+        designs:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              doc_id:
+                type: string
+                required: true
+                min_length: 1
+              section_path:
+                type: string
+                required: true
+                min_length: 1
+              version:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+
   pdlc.ticket.closed:
     aliases:
       cdevents: dev.cdevents.ticket.closed
@@ -1004,6 +1139,8 @@ projection:
     upsert:
       - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title, body: $.body, head_sha: $.head_sha, files: $.files}}
     transition: {type: Change, to: open, only_from: [abandoned]}   # a reopen; a late or replayed "opened" never undoes a merge
+    edges:
+      - {type: IMPLEMENTS, from: {type: Change, key: {repo: $.repo, number: $.number}}, to_each: {type: WorkItem, key: {tracker: "$.work_items[*].tracker", external_key: "$.work_items[*].external_key"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.change.merged
     upsert:
       - {type: Change, key: {repo: $.repo, number: $.number}, set: {merge_sha: $.merge_sha, title: $.title, body: $.body, files: $.files}}
@@ -1037,7 +1174,7 @@ projection:
       - {type: INCLUDES, from: {type: Release, key: {repo: $.repo, version: $.version}}, to_each: {type: Change, key: {repo: $.repo, number: "$.entries[*].pr_number"}}, set: {section: "$.entries[*].section"}}
   - event: pdlc.change.reviewed
     upsert:
-      - {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}, set: {verdict: $.verdict}}
+      - {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}, set: {verdict: $.verdict, reviewer: $.reviewer}}
     edges:
       - {type: REVIEWS, from: {type: Review, key: {repo: $.repo, number: $.number, review_id: $.review_id}}, to: {type: Change, key: {repo: $.repo, number: $.number}}}
     transition: {type: Change, to: reviewed, only_from: [open]}
@@ -1047,7 +1184,8 @@ projection:
       - {type: TestRun, key: {run_id: $.run_id}, set: {outcome: $.outcome, commit_sha: $.commit_sha, finished_at: $event.occurred_at}}
     edges:
       - {type: EXECUTES, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}}
-      - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number}
+      - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number, set: {commit_sha: $.commit_sha}}
+      - {type: VERIFIES, from: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}, to_each: {type: Requirement, key: {spec_id: "$.requirements[*].spec_id", spec_version: "$.requirements[*].spec_version", local_id: "$.requirements[*].local_id"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.service.deployed
     upsert:
       - {type: Component, key: {catalog_name: $.service}}
@@ -1073,12 +1211,16 @@ projection:
     edges:
       - {type: DECOMPOSES_INTO, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.parent_key}}, to: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, when: $.parent_key}
   # 1.1.0: the rest of the ticket, change and incident lifecycle the webhook adapters emit
+      - {type: IMPLEMENTS, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, to_each: {type: Requirement, key: {spec_id: "$.requirements[*].spec_id", spec_version: "$.requirements[*].spec_version", local_id: "$.requirements[*].local_id"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+      - {type: IMPLEMENTS, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, to_each: {type: DesignElement, key: {doc_id: "$.designs[*].doc_id", section_path: "$.designs[*].section_path", version: "$.designs[*].version"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.ticket.created
     upsert:
       - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, work_type: $.work_type}}
     transition: {type: WorkItem, to: "map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})"}
     edges:
       - {type: DECOMPOSES_INTO, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.parent_key}}, to: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, when: $.parent_key}
+      - {type: IMPLEMENTS, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, to_each: {type: Requirement, key: {spec_id: "$.requirements[*].spec_id", spec_version: "$.requirements[*].spec_version", local_id: "$.requirements[*].local_id"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+      - {type: IMPLEMENTS, from: {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}}, to_each: {type: DesignElement, key: {doc_id: "$.designs[*].doc_id", section_path: "$.designs[*].section_path", version: "$.designs[*].version"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.ticket.closed
     upsert:
       - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, resolution: $.resolution}}
@@ -1086,6 +1228,8 @@ projection:
   - event: pdlc.change.updated
     upsert:
       - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title, body: $.body, head_sha: $.head_sha}}
+    edges:
+      - {type: IMPLEMENTS, from: {type: Change, key: {repo: $.repo, number: $.number}}, to_each: {type: WorkItem, key: {tracker: "$.work_items[*].tracker", external_key: "$.work_items[*].external_key"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.change.abandoned
     upsert:
       - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title}}
@@ -1128,13 +1272,13 @@ extraction:
     VERIFIES: {rule: "a test file changed in the same commit as the change", confidence: 0.3, method: co_change, link_status: proposed}   # Kafka 74%, OpenDAL 14% of commits change tests too   # these come only from tool events
 
 retrieval:
-  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, TestCase, DesignApproval]
+  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, TestCase, TestRun, Review, DesignApproval]
   intents:
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
       examples: ["where is PAY-341 deployed", "trace the refund retry requirement", "what implements REQ-12"]
       keywords: [trace, deployed, implements, implemented, delivered, deliver, shipped, ship, release]
-      weights: {APPROVES: 4, SUPERSEDES: 4, REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
+      weights: {REVIEWS: 4, EXECUTES: 4, RAN_AGAINST: 4, APPROVES: 4, SUPERSEDES: 4, REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
       max_depth: 5
     completeness:
       description: "Find artifacts missing an expected link (requirement without test, change without review)"

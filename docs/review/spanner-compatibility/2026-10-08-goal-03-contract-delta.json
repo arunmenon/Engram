@@ -1,0 +1,410 @@
+{
+  "goal": "G03",
+  "previous_version": "2.0.0",
+  "current_version": "2.1.0",
+  "event_catalog_count": 25,
+  "new_events": [],
+  "changed_event_contracts": {
+    "pdlc.ticket.created": {
+      "version": 1,
+      "additional_fields": "preserve",
+      "properties": {
+        "tracker": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "key": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "title": {
+          "type": "string",
+          "nullable": true
+        },
+        "work_type": {
+          "type": "string",
+          "enum": [
+            "epic",
+            "story",
+            "task",
+            "bug",
+            "production_change"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "nullable": true
+        },
+        "parent_key": {
+          "type": "string",
+          "nullable": true
+        },
+        "resolution": {
+          "type": "string",
+          "nullable": true
+        },
+        "requirements": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "spec_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "spec_version": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "local_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            },
+            "additional_fields": "preserve"
+          }
+        },
+        "designs": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "doc_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "section_path": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            },
+            "additional_fields": "preserve"
+          }
+        }
+      }
+    },
+    "pdlc.ticket.updated": {
+      "version": 1,
+      "additional_fields": "preserve",
+      "properties": {
+        "tracker": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "key": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "title": {
+          "type": "string",
+          "nullable": true
+        },
+        "work_type": {
+          "type": "string",
+          "enum": [
+            "epic",
+            "story",
+            "task",
+            "bug",
+            "production_change"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "nullable": true
+        },
+        "parent_key": {
+          "type": "string",
+          "nullable": true
+        },
+        "resolution": {
+          "type": "string",
+          "nullable": true
+        },
+        "requirements": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "spec_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "spec_version": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "local_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            },
+            "additional_fields": "preserve"
+          }
+        },
+        "designs": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "doc_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "section_path": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            },
+            "additional_fields": "preserve"
+          }
+        }
+      }
+    },
+    "pdlc.change.created": {
+      "version": 1,
+      "additional_fields": "preserve",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807,
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "nullable": true
+        },
+        "body": {
+          "type": "string",
+          "nullable": true
+        },
+        "head_sha": {
+          "type": "string",
+          "nullable": true
+        },
+        "files": {
+          "type": "array",
+          "max_length": 1000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "work_items": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "additional_fields": "preserve",
+            "properties": {
+              "tracker": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "external_key": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "pdlc.change.updated": {
+      "version": 1,
+      "additional_fields": "preserve",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807,
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "nullable": true
+        },
+        "body": {
+          "type": "string",
+          "nullable": true
+        },
+        "head_sha": {
+          "type": "string",
+          "nullable": true
+        },
+        "work_items": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "additional_fields": "preserve",
+            "properties": {
+              "tracker": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "external_key": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "pdlc.change.reviewed": {
+      "version": 1,
+      "additional_fields": "preserve",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807,
+          "required": true
+        },
+        "review_id": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "verdict": {
+          "type": "string",
+          "required": true,
+          "enum": [
+            "approved",
+            "commented",
+            "changes_requested"
+          ]
+        },
+        "reviewer": {
+          "type": "string",
+          "min_length": 1
+        }
+      }
+    },
+    "pdlc.testcaserun.finished": {
+      "version": 1,
+      "additional_fields": "preserve",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "test_id": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "run_id": {
+          "type": "string",
+          "required": true,
+          "min_length": 1
+        },
+        "outcome": {
+          "type": "string",
+          "required": true,
+          "enum": [
+            "success",
+            "failure",
+            "cancel",
+            "error",
+            "skipped"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "nullable": true
+        },
+        "path": {
+          "type": "string",
+          "nullable": true
+        },
+        "commit_sha": {
+          "type": "string",
+          "nullable": true
+        },
+        "change_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807,
+          "nullable": true
+        },
+        "requirements": {
+          "type": "array",
+          "max_length": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "spec_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "spec_version": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              },
+              "local_id": {
+                "type": "string",
+                "required": true,
+                "min_length": 1
+              }
+            },
+            "additional_fields": "preserve"
+          }
+        }
+      }
+    }
+  },
+  "migration_scope": "excluded",
+  "reference_semantics": "explicit source assertions; no automatic interpretation; omitted arrays create no links"
+}
