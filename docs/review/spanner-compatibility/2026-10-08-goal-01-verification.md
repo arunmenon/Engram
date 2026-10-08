@@ -1,6 +1,6 @@
 # G01 verification and stakeholder demonstration
 
-Status: all eight required scenarios PASSED on real Spanner; independent Astra review found no blocking findings; stakeholder delivery is tracked below. Only G01 is authorized. G02 remains stopped. This is PR-slice acceptance, not completion of #34 or Spanner umbrella #41.
+Status: G01 verification complete and recorded stakeholder demo published. All eight required scenarios PASSED on real Spanner; independent Astra review found no blocking findings. Only G01 is authorized. G02 remains stopped. This is PR-slice acceptance, not completion of #34 or Spanner umbrella #41.
 
 ## What this demonstrates
 
@@ -89,8 +89,22 @@ A future run must pin its known predecessor; do not adopt whatever owner happens
 
 ## GitHub reconciliation and bucket assessment
 
-Pending publication links. Existing broad issues remain open unless their full acceptance has been met. #45 fits existing retrieval bucket 5 under #34 and Spanner evidence #41; no additional feature bucket is justified by this discovery.
+| Issue | State before → after | Verified scope | Remaining acceptance | Actual GitHub update |
+|---|---|---|---|---|
+| #4 | OPEN → OPEN | PR validation/no-write rejection | All pack events and combinations | [Update](https://github.com/arunmenon/Engram/issues/4#issuecomment-6051128963) |
+| #5 | OPEN → OPEN | HMAC authority recorded in acceptance | Other ingress/trust attack cases | [Update](https://github.com/arunmenon/Engram/issues/5#issuecomment-6051129316) |
+| #17 | OPEN → OPEN | Source-shape, envelope and bound admission fixes | Other source kinds and routes | [Update](https://github.com/arunmenon/Engram/issues/17#issuecomment-6051129597) |
+| #35 | OPEN → OPEN | Pinned core+PDLC API/worker bundle | Mismatch and upgrade matrix | [Update](https://github.com/arunmenon/Engram/issues/35#issuecomment-6051129855) |
+| #36 | OPEN → OPEN | Late edit preserves merged lifecycle | Timestamp/property ordering, full semantics | [Update](https://github.com/arunmenon/Engram/issues/36#issuecomment-6051130152) |
+| #37 | OPEN → OPEN | Same-body/new-header retry deduplicates | Historical normalization/replay and conflicts | [Update](https://github.com/arunmenon/Engram/issues/37#issuecomment-6051130406) |
+| #39 | OPEN → OPEN | Eight exact PR fixtures/artifact/retrieval cases | Remaining PDLC, CRM, unfamiliar-pack journeys | [Update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6051130674) |
+| #42 | OPEN → OPEN | Core+PDLC without memory/user artifacts | Other compositions and visibility policies | [Update](https://github.com/arunmenon/Engram/issues/42#issuecomment-6051130938) |
+| #41 | OPEN → OPEN | Eight additional real-Spanner slice scenarios | 65-scenario compatibility baseline unchanged | [Update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6051131207) |
+| #34 | OPEN → OPEN | G01 verified; existing retrieval bucket owns #45 | Remaining feature/sub-issue acceptance | [Update](https://github.com/arunmenon/Engram/issues/34#issuecomment-6051131516) |
+| #45 | OPEN → CLOSED | Sibling retrieval defect fixed and rerun/review passed | None within this defect scope | [Update](https://github.com/arunmenon/Engram/issues/45#issuecomment-6051131766) |
+
+All listed GitHub updates were posted and #45 closed after passing rerun/review. Existing broad issues remain open because their full acceptance has not been met. #45 fits existing retrieval bucket 5 under #34 and Spanner evidence #41; no additional feature bucket is justified by this discovery.
 
 ## Stakeholder delivery and next-goal gate
 
-This document is the recorded demonstration script. Live stakeholder sign-off is not assumed. Final delivery must explain all eight results and limitations and link the actual issue updates. G02 cannot start without explicit user approval; the original broad goal remains paused and retired from execution.
+This document is the published recorded demonstration and final response walkthrough. GitHub reconciliation is complete. Live stakeholder sign-off is not assumed; stakeholder approval has not been given. G02 cannot start without explicit user approval; the original broad goal remains paused and retired from execution.

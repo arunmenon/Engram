@@ -1,6 +1,6 @@
 # Small goal inventory
 
-Status: G01 authorized and its eight cloud scenarios passed; stakeholder delivery pending. All other goals remain proposed and unstarted. User chooses each goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
+Status: G01 verified, independently reviewed and recorded demonstration published; stakeholder approval not assumed. All other goals remain proposed and unstarted. User chooses each goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
 
 Every goal must follow the [verification and stakeholder demonstration standard](goal-verification-standard.md), produce its own detailed verification document, and end with a stakeholder walkthrough. G01's [verification document](2026-10-08-goal-01-verification.md) contains the recorded real-Spanner results.
 
