@@ -39,3 +39,5 @@ Stakeholder approved the necessity recommendations and requested concise, unders
 ## G01-only revalidation approval
 
 Stakeholder explicitly authorized G01 only on the cleaned-up foundation. Run `20261008-cloud-cleaned-g01-01` uses source commit `a718377c101fc8ac4ca1b315dfdc7bf2d86eeaee`, explicit predecessor epoch34/digest, original eight scenarios, real HTTP/Spanner/five workers/retrieval, exact owned cleanup and evidence publication. This approval does not restart G02/G03 or G04. No code changes during the run.
+
+G01-only revalidation completed successfully in `20261008-cloud-cleaned-g01-01`: all eight scenarios passed, Astra evidence review found no blockers, owned cleanup verified all seven tables empty and core epoch36 restored. Evidence and review published with issue updates. Execution stops here; G02/G03/G04 require separate approval.
