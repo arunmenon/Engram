@@ -509,10 +509,6 @@ events:
           type: string
           required: true
           enum:
-          - success
-          - failure
-          - cancel
-          - error
           - skipped
         name:
           type: string
@@ -1340,6 +1336,13 @@ projection:
       - {type: EXECUTES, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}}
       - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number, set: {commit_sha: $.commit_sha}}
       - {type: VERIFIES, from: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}, to_each: {type: Requirement, key: {spec_id: "$.requirements[*].spec_id", spec_version: "$.requirements[*].spec_version", local_id: "$.requirements[*].local_id"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+  - event: pdlc.testcaserun.skipped
+    upsert:
+      - {type: TestCase, key: {repo: $.repo, test_id: $.test_id}, set: {path: $.path, name: $.name}}
+      - {type: TestRun, key: {run_id: $.run_id}, set: {outcome: $.outcome, commit_sha: $.commit_sha, finished_at: $event.occurred_at}}
+    edges:
+      - {type: EXECUTES, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}}
+      - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number, set: {commit_sha: $.commit_sha}}
   - event: pdlc.service.deployed
     upsert:
       - {type: Component, key: {catalog_name: $.service}}
