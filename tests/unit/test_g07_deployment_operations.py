@@ -55,6 +55,8 @@ def test_unknown_rollback_preserves_action_evidence_without_observing_target():
         "2026-02-30T10:00:00Z",
         "2026-10-08T24:00:00Z",
         "2026-10-08T10:00:00+24:00",
+        "0001-01-01T00:00:00+01:00",
+        "9999-12-31T23:00:00-02:00",
     ],
 )
 def test_rollback_rejects_missing_naive_or_malformed_target_timestamp(timestamp):
@@ -293,3 +295,22 @@ async def test_observed_target_rollback_preserves_other_attempt_and_links():
         (TARGET, "DEPLOYED_TO", "Component:api"),
         (TARGET, "DEPLOYS", "Change:acme/app|9"),
     }
+
+
+@pytest.mark.parametrize(
+    "timestamp,canonical",
+    [
+        ("0001-01-01T00:00:00Z", "0001-01-01T00:00:00+00:00"),
+        ("9999-12-31T23:59:59.999999Z", "9999-12-31T23:59:59.999999+00:00"),
+        ("0001-01-01T01:00:00+01:00", "0001-01-01T00:00:00+00:00"),
+        ("9999-12-31T21:00:00-02:00", "9999-12-31T23:00:00+00:00"),
+    ],
+)
+def test_rollback_preserves_representable_year_boundaries(timestamp, canonical):
+    payload = IDENTITY | {"target_started_at": timestamp}
+    REGISTRY.event_types["pdlc.service.rolledback"].definition.payload_contract.validate_payload(
+        payload
+    )
+    assert payload["target_started_at"] == timestamp
+    result = plan("rolledback", payload)
+    assert result.states[0].ref.key == "Deployment:acme/app|api|prod|abc|" + canonical

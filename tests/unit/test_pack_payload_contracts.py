@@ -180,3 +180,59 @@ def test_numeric_bounds_and_string_enum_are_strict():
             schema.validate_payload({"id": value, "state": "open"})
     with pytest.raises(ValidationError):
         schema.validate_payload({"id": 1, "state": "unknown"})
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        "0001-01-01T00:00:00Z",
+        "9999-12-31T23:59:59.999999Z",
+        "2026-10-08T15:30:00+05:30",
+        "2026-10-08T08:00:00-02:00",
+    ],
+)
+def test_date_time_format_preserves_source_string(timestamp):
+    schema = PayloadContract.model_validate(
+        {"properties": {"at": {"type": "string", "required": True, "format": "date-time"}}}
+    )
+    payload = {"at": timestamp}
+    schema.validate_payload(payload)
+    validated = schema.compile_validator().model_validate(payload).model_dump(by_alias=True)
+    assert validated == {"at": timestamp}
+    assert payload == {"at": timestamp}
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        "0001-01-01T00:00:00+01:00",
+        "9999-12-31T23:00:00-02:00",
+        "2026-02-30T10:00:00Z",
+        "2026-10-08T10:00:00",
+        "2026-10-08 10:00:00Z",
+        "20261008T100000Z",
+        "2026-10-08T24:00:00Z",
+        "2026-10-08T10:00:60Z",
+        "2026-10-08T10:00:00+01:60",
+        "2026-10-08T10:00:00+24:00",
+        7,
+    ],
+)
+def test_date_time_format_rejects_invalid_or_utc_unrepresentable_timestamp(timestamp):
+    schema = PayloadContract.model_validate(
+        {"properties": {"at": {"type": "string", "required": True, "format": "date-time"}}}
+    )
+    with pytest.raises(ValidationError):
+        schema.validate_payload({"at": timestamp})
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        {"type": "integer", "format": "date-time"},
+        {"type": "string", "format": "date"},
+    ],
+)
+def test_date_time_format_rejects_nonstring_and_unknown_declarations(field):
+    with pytest.raises(ValidationError):
+        PayloadContract.model_validate({"properties": {"at": field}})
