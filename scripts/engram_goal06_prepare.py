@@ -85,8 +85,10 @@ def main():
             durable_json(directory / "observations.json", evidence)
             operation = g06.create()
             evidence["operation"] = operation.operation.name
+            evidence["creation_completion"] = "unknown_until_operation_result"
             durable_json(directory / "observations.json", evidence)
             operation.result(timeout=300)
+            evidence["creation_completion"] = "completed"
             pool06 = BurstyPool()
             g06 = instance.database("engram-g06-target", pool=pool06)
             prepare_cleanup(g06, client, pool06)
@@ -116,6 +118,9 @@ def main():
             )
         except BaseException as exc:
             evidence["error"] = type(exc).__name__ + ": " + str(exc)
+            checks.append(
+                {"name": "G06 separate database preparation", "passed": False, "scenarios": []}
+            )
             raise
         finally:
             try:
@@ -126,31 +131,48 @@ def main():
                 checks.append(
                     {"name": "G05 retained data unchanged", "passed": True, "scenarios": []}
                 )
-            finally:
-                durable_json(directory / "observations.json", evidence)
-                if g06 is not None:
-                    close_database(g06)
-                close_database(g05)
-                results = {
-                    "checks": checks,
-                    "scenarios": [],
-                    "summary": "G06 preparation only; no journey compatibility claim",
-                    "cleanup": "G05 unchanged; G06 schema/core owner retained",
-                }
-                r = directory / "finish-input.json"
-                durable_json(r, results)
-                subprocess.run(
-                    [
-                        sys.executable,
-                        str(tracker),
-                        "finish",
-                        "--run-id",
-                        args.run_id,
-                        "--results",
-                        str(r),
-                    ],
-                    check=True,
+            except BaseException as exc:
+                evidence["g05_after_error"] = type(exc).__name__ + ": " + str(exc)
+                checks.append(
+                    {"name": "G05 retained data unchanged", "passed": False, "scenarios": []}
                 )
+            close_errors = []
+            for name, database in [("g06", g06), ("g05", g05)]:
+                if database is not None:
+                    try:
+                        close_database(database)
+                    except BaseException as exc:
+                        close_errors.append({"database": name, "error": type(exc).__name__})
+            evidence["close_errors"] = close_errors
+            if close_errors:
+                checks.append({"name": "SDK resource shutdown", "passed": False, "scenarios": []})
+            evidence["checks"] = checks
+            durable_json(directory / "observations.json", evidence)
+            success = bool(checks) and all(c["passed"] for c in checks)
+            results = {
+                "scenarios": [],
+                "summary": "G06 preparation passed; G05 retained unchanged"
+                if success
+                else "G06 preparation failed or incomplete; inspect recorded operation and checks",
+                "cleanup": "Database state and shutdown are recorded in observations; "
+                "no database deletion performed; unknown operations require reconciliation",
+            }
+            r = directory / "finish-input.json"
+            durable_json(r, results)
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(tracker),
+                    "finish",
+                    "--run-id",
+                    args.run_id,
+                    "--results",
+                    str(r),
+                ],
+                check=True,
+            )
+            if not success and "error" not in evidence:
+                raise RuntimeError("G06 preparation verification or shutdown failed")
 
 
 if __name__ == "__main__":
