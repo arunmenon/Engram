@@ -1,8 +1,9 @@
 # Approved Astra review request: pilot composition assessment
 
-Status: dispatched to `astra_pilot_composition_assessment`, model `gpt-6-astra`,
-reasoning effort **medium**, following stakeholder approval. Review result pending;
-no findings, implementation or cloud acceptance is claimed by this request.
+Status: completed by `astra_pilot_composition_assessment`, model `gpt-6-astra`,
+reasoning effort **medium**, following stakeholder approval. [Full report](2026-10-08-astra-pilot-composition-assessment.md)
+is preserved and findings incorporated into the discovery brief. Review was code
+inspection only; no implementation or new runtime/cloud acceptance is claimed.
 Requested source baseline: `51a680a`; reviewer must record the actual full commit.
 
 ## Task

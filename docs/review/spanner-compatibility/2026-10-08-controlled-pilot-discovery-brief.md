@@ -5,12 +5,76 @@ completed assessment, approved implementation specification or pilot-readiness
 claim. G07 is selected first. Do not automatically start this assessment, G08 or
 the pilot when G07 ends; present the assessment scope at that checkpoint.
 
-## Grounding review
+## Grounding review — completed, code inspection only
 
-The stakeholder approved the [Astra medium review request](2026-10-08-astra-pilot-composition-review-request.md).
-It has been dispatched; findings are pending. Incorporate the report here when it
-arrives, distinguishing inspected code from runtime proof and retaining explicit
-assessment/pilot execution boundaries.
+The approved Astra medium review is [preserved in full](2026-10-08-astra-pilot-composition-assessment.md).
+Reviewed source: `51a680adeca608618e0e7905991037349631994e`. No tests or cloud
+runs were performed. The coordinating agent spot-checked the pack bundle, memory
+manifest, public tenant factory and profile-key/read-filter references. Source
+inspection is not reproduction of the suspected runtime failures.
+
+### Current implementation facts to carry into the assessment
+
+- Explicit optional pack selection and immutable active bundles exist. Core stays
+  mandatory; specialized user extraction has an actual enable/disable gate. Older
+  claims that memory/user always load are stale at this revision.
+- The five worker loops are projection, session extraction, enrichment,
+  consolidation and pack extraction. Core summaries come from consolidation;
+  they are not memory Episode artifacts. Session extraction still extracts core
+  entities with user disabled; pack extraction runs only selected prose profiles.
+- Memory declares Belief/Goal/Episode vocabulary but has no registered producer or
+  projection/extraction rules. Selecting it does not automatically turn a ticket
+  into a Goal or a session into an Episode, or join memory to PDLC artifacts.
+- Public `create_tenant_app` deliberately refuses startup. Private bound tenant
+  machinery and database fences are not a supported public two-tenant service.
+- User preference extraction is LLM-driven, not a deterministic preference command.
+  Its user identity follows the triggering `agent_id`, not automatically the
+  authenticated human or each person mentioned in prose. That is an application
+  mapping to specify, not an authorization guarantee.
+- Event retrieval has an Entity-vector channel. Artifact retrieval uses domain
+  keys/text/traversal, with no vector seed channel in inspected code. User endpoints
+  are a third relevant read surface; compare them with personalization retrieval.
+
+| Requested combination | Code-grounded baseline | What remains to prove or specify |
+|---|---|---|
+| core alone | Core Event/Entity/Summary processing; user extraction gated off | Exact core outputs, provider behavior and both APIs' unsupported/fallback responses |
+| core+user | Adds specialized profile/preference/skill processing and user reads | Canonical profile identity, extraction/correction/retry behavior and consistent retrieval |
+| core+user+memory | Same implemented producers as core+user; memory adds vocabulary | Minimum useful memory behavior, producer and evidence contract; absence is not memory-value success |
+| core+PDLC | Core plus declared domain projection and selected prose extraction | Broader worker-order, evidence and read behavior beyond bounded G1–G6 evidence |
+| core+PDLC+memory | Same implemented producers as core+PDLC; no automatic memory/domain join | Chosen memory producer/meaning and explicit integration proof; do not invent a concurrent memory writer |
+
+### Review findings and dispositions
+
+All six additions below are accepted into the **assessment plan**, not authorized
+fixes or confirmed cloud failures. Reuse the listed existing ownership after live
+issue reconciliation; no issue has been filed, modified or closed by this integration.
+
+| Finding | Impact on the requested pilot | Bounded next assessment step | Owning scope |
+|---|---|---|---|
+| Memory lacks a producer — code-established | Memory-added configurations cannot promise useful Belief/Goal/Episode output yet | Compare fresh matched configurations; confirm current absence, then propose one minimum useful memory contract for stakeholder choice | #35/#42 |
+| Public tenant factory is disabled — code-established | Two databases alone do not supply the requested shared supported entrypoint | Specify API dispatch/bootstrap and worker binding/lifecycle; keep fail-closed behavior until prerequisites are proven | #43 |
+| UserProfile schema uses user_id while storage uses profile_id — discrepancy inspected; runtime impact unverified | User endpoint may show a profile while composed personalization cannot find it | Compare one extracted profile's canonical key, user endpoint and personalization evidence | #42/#39 |
+| Random fallback preference IDs, repeat counts and correction dictionaries — suspected failure sequence | Retry may duplicate observations; a correction may not supersede the intended preference | Force retry after write/before ACK and run same-key/opposite-polarity sessions; assert exact IDs/counts/evidence/supersession | #42/#37/#39 |
+| Enrichment can run before Event projection — concrete code path; runtime effect unverified here | Zero lag may conceal missing annotations; partial writes need convergence proof | Hold projection, allow enrichment, resume; interrupt pack apply between stages; verify exact converged graph and evidence | Existing #29/#14/#10, reconcile actual acceptance |
+| Session-wide evidence and retention need explicit policy | Returned evidence may be broader than a specific claim or later unavailable | One user-correction evidence query and one bounded PDLC retention case, with predeclared expected availability | #39/#19 |
+
+Detailed file/line evidence, five-worker matrix, concrete supported user and PDLC
+inputs, and two grounded diagrams are in the full report. Preserve its evidence
+labels: code-established, inspected prior execution evidence, unverified.
+
+### Changes to the proposed assessment execution
+
+Run the decisive probes before promising the extensive pilot. Capture actual
+settings, resolved manifests/handler digest and provider prerequisites per configuration.
+Separate three verdicts: configuration resolves; useful output is produced; supported
+public tenant execution exists. A loadable pack or zero-output extraction invocation
+cannot substitute for the other verdicts.
+
+Do not yet mark the requested matrix supported. In particular, bring back a bounded
+product decision on useful memory behavior and a concrete tenant-runtime prerequisite
+before implementing either. These findings narrow the assessment; they do not authorize
+a new memory framework, removal of tenant guards, historical migration or runtime changes.
+G07 remains the selected execution goal; the assessment/pilot gate remains separate.
 
 ## Product question
 
