@@ -607,7 +607,7 @@ async def execute(
                             },
                             [],
                             [fixture["absence_id"]],
-                            exact=True,
+                            exact=fixture.get("absence_exact", True),
                         )
                 assert not any(
                     r[0] in {"UserProfile", "Preference", "Skill", "Belief", "Goal", "Episode"}

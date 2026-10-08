@@ -386,6 +386,10 @@ def fixtures(run_id, *, start=None):
             step["absence_id"] = (
                 "Lesson:" + sha256(step["request"]["event_id"].encode()).hexdigest() + ":authored"
             )
+        if step.get("absence_id"):
+            # Seeds are search hints; fallback may return other text matches.
+            # Rejection requires this candidate absent, not every result absent.
+            step["absence_exact"] = False
 
     queries = []
     allowed_query_edges = {"OCCURRED_ON", "AFFECTS", "REMEDIATES", "LEARNED_FROM", "CITES"}

@@ -202,3 +202,22 @@ def test_goal06_driver_refuses_unsafe_or_existing_run_before_credentials(
     assert error.value.code == 2
     assert evidence.read_text() == "original evidence"
     assert not (tmp_path / "docs/review/spanner-compatibility/escape").exists()
+
+
+async def test_missing_candidate_seed_can_discover_other_matching_artifacts():
+    h = Harness()
+    await h.ingest(
+        "pdlc.spec.approved",
+        {"doc_id": "known-spec", "version": "1", "title": "Check token expiry server-side"},
+    )
+    missing = "Lesson:" + "0" * 64 + ":authored"
+    answer = await ArtifactRetriever(h.graph, REGISTRY).retrieve(
+        ArtifactQuery(
+            query="absence-check-00000000-0000-0000-0000-000000000099",
+            seed_node_ids=(missing,),
+            intent="status",
+        )
+    )
+    assert missing not in answer.nodes
+    assert "Spec:known-spec|1" in answer.nodes
+    assert not answer.meta.truncated
