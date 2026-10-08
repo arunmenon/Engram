@@ -1320,7 +1320,7 @@ projection:
       - {type: Change, key: {repo: $.repo, number: "regex($.subject, '\\(#(\\d+)\\)$')"}, set: {title: $.subject, files: $.files, change_type: "regex($.subject, '^(\\w+)')", scope: "regex($.subject, '^\\w+\\(([^)]+)\\)')", ticket_exempt: "match($.subject, '(?i)^MINOR')"}}
       - {type: Review, key: {repo: $.repo, number: "regex($.subject, '\\(#(\\d+)\\)$')", review_id: "each(regex_all($.body, '(?im)^reviewers?:\\s*(.+)$'))"}, set: {verdict: approved}}
     edges:
-      - {type: IMPLEMENTS, from: {type: Change, key: {repo: $.repo, number: "regex($.subject, '\\(#(\\d+)\\)$')"}}, to_each: {type: WorkItem, key: {tracker: jira, external_key: "regex_all($.subject + ' ' + $.body, '([A-Z][A-Z0-9]+-\\d+)')"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+      - {type: IMPLEMENTS, when: "match($.subject, '\\(#(\\d+)\\)$')", from: {type: Change, key: {repo: $.repo, number: "regex($.subject, '\\(#(\\d+)\\)$')"}}, to_each: {type: WorkItem, key: {tracker: jira, external_key: "regex_all($.subject + ' ' + $.body, '([A-Z][A-Z0-9]+-\\d+)')"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.release.published
     upsert:
       - {type: Release, key: {repo: $.repo, version: $.version}, set: {released_at: $event.occurred_at, breaking: $.has_breaking}}
