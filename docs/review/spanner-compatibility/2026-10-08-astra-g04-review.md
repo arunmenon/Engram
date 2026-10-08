@@ -18,3 +18,7 @@ Exact edge equality and per-edge section/environment values; exact latest API pr
 Astra: “Approved for the bounded G04 cloud run. No remaining concrete pre-cloud blockers found.”
 
 Recheck confirmed exact topology/property assertions, latest API and complete stored provenance checks, placeholder/negative retrieval checks, full-table no-write fingerprints, frozen source archive, and local execution of all four RD12 oracles. G03 retains its default fixture path; strengthened assertions are G04-gated. Approval covers implementation/harness readiness, not end-to-end acceptance or stakeholder delivery.
+
+## Review request
+
+Review G04 design and final changes against current pack, artifact traversal and shared harness. Prioritize scoped identity, explicit release/change links, failed outcome preservation, exact seed-specific traversal, no-write rejection/retry evidence, source provenance, placeholder behavior and owned cleanup. Work read-only; no cloud calls, migration, G01–G03 reruns or G05. Return concrete blockers and smallest corrections, then review their disposition. Model: Astra, medium.

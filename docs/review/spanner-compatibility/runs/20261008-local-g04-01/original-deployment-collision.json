@@ -1,0 +1,28 @@
+{
+  "source": "e243838",
+  "pack_version": "2.1.0",
+  "failure": "Three independent repo/service deployments produce the same identity",
+  "observed": [
+    {
+      "repo": "demo/payments",
+      "service": "demo/payments/api",
+      "deployment_ids": [
+        "Deployment:production|same-sha|2026-10-08T00:00:00+00:00"
+      ]
+    },
+    {
+      "repo": "demo/newsletter",
+      "service": "demo/newsletter/api",
+      "deployment_ids": [
+        "Deployment:production|same-sha|2026-10-08T00:00:00+00:00"
+      ]
+    },
+    {
+      "repo": "demo/payments",
+      "service": "demo/payments/worker",
+      "deployment_ids": [
+        "Deployment:production|same-sha|2026-10-08T00:00:00+00:00"
+      ]
+    }
+  ]
+}

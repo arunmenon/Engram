@@ -1,0 +1,176 @@
+{"event": "start", "run_id": "20261008-cloud-g04-all-01", "at": "2026-10-08T05:51:42.384962+00:00", "record": "docs/review/spanner-compatibility/runs/20261008-cloud-g04-all-01"}
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 11:21:43 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-08 11:21:45 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-08 11:21:45 [info     ] llm_client_initialized
+2026-10-08 11:21:48 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@3.0.0'] ontology_version=sha256:e7b20b2b67e4dcce redis_host=localhost
+2026-10-08 11:21:51 [info     ] ontology_loaded                edge_types=36 event_types=37 intents=['completeness', 'general', 'how_does', 'impact', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=21 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '3.0.0', 'owner': 'TBD'}] version=sha256:e7b20b2b67e4dcce
+2026-10-08 11:21:51 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-08 11:21:52 [info     ] consumer_started               consumer=projection-1 group=g04-20261008-cloud-g04-all-01-projection stream=Events
+2026-10-08 11:21:53 [info     ] pending_drain_completed        group=g04-20261008-cloud-g04-all-01-projection
+2026-10-08 11:21:55 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-08 11:21:55 [info     ] consumer_started               consumer=extraction-1 group=g04-20261008-cloud-g04-all-01-extraction stream=Events
+2026-10-08 11:21:56 [info     ] pending_drain_completed        group=g04-20261008-cloud-g04-all-01-extraction
+2026-10-08 11:21:58 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-08 11:21:58 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-08 11:21:58 [info     ] consumer_started               consumer=enrichment-1 group=g04-20261008-cloud-g04-all-01-enrichment stream=Events
+2026-10-08 11:21:59 [info     ] pending_drain_completed        group=g04-20261008-cloud-g04-all-01-enrichment
+2026-10-08 11:22:01 [info     ] consumer_started               consumer=pack-extraction-1 group=g04-20261008-cloud-g04-all-01-pack_extraction stream=Events
+2026-10-08 11:22:02 [info     ] pending_drain_completed        group=g04-20261008-cloud-g04-all-01-pack_extraction
+2026-10-08 11:22:04 [info     ] consolidation_llm_client_initialized
+2026-10-08 11:22:04 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-08 11:22:05 [info     ] consumer_started               consumer=consolidation-1 group=g04-20261008-cloud-g04-all-01-consolidation stream=Events
+2026-10-08 11:22:05 [info     ] pending_drain_completed        group=g04-20261008-cloud-g04-all-01-consolidation
+2026-10-08 11:22:05 [info     ] event_ingested                 event_id=2c32607d-e091-5e51-9c7d-f669abe28e84 event_type=pdlc.change.created global_position=2026-10-08T05:52:05.877359000Z/000000/2c32607d-e091-5e51-9c7d-f669abe28e84 request_id=0ddfc07d-9016-49d4-a299-fc7f00134b0a status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-08 11:22:06 [debug    ] event_projected                edge_count=0 entry_id=2026-10-08T05:52:05.877359000Z/000000/2c32607d-e091-5e51-9c7d-f669abe28e84 event_id=2c32607d-e091-5e51-9c7d-f669abe28e84 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:22:06 [debug    ] event_enriched                 event_id=2c32607d-e091-5e51-9c7d-f669abe28e84 importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-08 11:22:11 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1008 11:22:11.478219 52097522 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1008 11:22:11.478298 52097522 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1008 11:22:11.478318 52097522 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1008 11:22:11.478322 52097522 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6327.92it/s]
+2026-10-08 11:22:12 [debug    ] event_embedding_stored         event_id=2c32607d-e091-5e51-9c7d-f669abe28e84
+2026-10-08 11:22:12 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+RD01-open passed
+2026-10-08 11:22:18 [info     ] event_ingested                 event_id=ce56bcb8-fa35-54ff-89eb-c4a8647a85e9 event_type=pdlc.change.merged global_position=2026-10-08T05:52:18.444271000Z/000000/ce56bcb8-fa35-54ff-89eb-c4a8647a85e9 request_id=8f180fcf-d875-4427-a5dc-361b72289b42 status=created
+2026-10-08 11:22:18 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:52:18.444271000Z/000000/ce56bcb8-fa35-54ff-89eb-c4a8647a85e9 event_id=ce56bcb8-fa35-54ff-89eb-c4a8647a85e9 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:22:19 [debug    ] event_enriched                 event_id=ce56bcb8-fa35-54ff-89eb-c4a8647a85e9 importance_score=5 keywords=['pdlc', 'change', 'merged']
+2026-10-08 11:22:19 [debug    ] event_embedding_stored         event_id=ce56bcb8-fa35-54ff-89eb-c4a8647a85e9
+2026-10-08 11:22:20 [debug    ] pack_plans_applied             edges=1 events=1 nodes=6 states=1
+RD02-merge passed
+2026-10-08 11:22:26 [info     ] event_ingested                 event_id=133252a7-4fa9-53c3-b951-718e18391d4b event_type=pdlc.release.published global_position=2026-10-08T05:52:26.893039000Z/000000/133252a7-4fa9-53c3-b951-718e18391d4b request_id=b0569636-54f1-4735-8585-3104a80fc3cd status=created
+2026-10-08 11:22:27 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:52:26.893039000Z/000000/133252a7-4fa9-53c3-b951-718e18391d4b event_id=133252a7-4fa9-53c3-b951-718e18391d4b session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:22:27 [debug    ] event_enriched                 event_id=133252a7-4fa9-53c3-b951-718e18391d4b importance_score=5 keywords=['pdlc', 'release', 'published']
+2026-10-08 11:22:27 [debug    ] event_embedding_stored         event_id=133252a7-4fa9-53c3-b951-718e18391d4b
+2026-10-08 11:22:28 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+RD03-release passed
+2026-10-08 11:22:35 [info     ] event_ingested                 event_id=a7510869-ca9f-556d-a7f3-42c919f2cc5e event_type=pdlc.service.deployment_failed global_position=2026-10-08T05:52:35.759279000Z/000000/a7510869-ca9f-556d-a7f3-42c919f2cc5e request_id=84971f7d-4908-45b8-bafe-a2076aea1841 status=created
+2026-10-08 11:22:36 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:52:35.759279000Z/000000/a7510869-ca9f-556d-a7f3-42c919f2cc5e event_id=a7510869-ca9f-556d-a7f3-42c919f2cc5e session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:22:36 [debug    ] event_enriched                 event_id=a7510869-ca9f-556d-a7f3-42c919f2cc5e importance_score=5 keywords=['pdlc', 'service', 'deployment_failed']
+2026-10-08 11:22:36 [debug    ] event_embedding_stored         event_id=a7510869-ca9f-556d-a7f3-42c919f2cc5e
+2026-10-08 11:22:37 [debug    ] pack_plans_applied             edges=6 events=1 nodes=9 states=1
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+RD04-failed passed
+2026-10-08 11:22:45 [info     ] event_ingested                 event_id=89aca3c1-80ad-55bb-b33f-b9426f8c090e event_type=pdlc.service.deployed global_position=2026-10-08T05:52:44.989599000Z/000000/89aca3c1-80ad-55bb-b33f-b9426f8c090e request_id=4b202c73-da8c-4184-871b-76ca89b9e41a status=created
+2026-10-08 11:22:45 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:52:44.989599000Z/000000/89aca3c1-80ad-55bb-b33f-b9426f8c090e event_id=89aca3c1-80ad-55bb-b33f-b9426f8c090e session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:22:45 [debug    ] event_enriched                 event_id=89aca3c1-80ad-55bb-b33f-b9426f8c090e importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:22:45 [debug    ] event_embedding_stored         event_id=89aca3c1-80ad-55bb-b33f-b9426f8c090e
+2026-10-08 11:22:46 [debug    ] pack_plans_applied             edges=6 events=1 nodes=9 states=1
+RD05-succeeded passed
+2026-10-08 11:22:54 [info     ] event_ingested                 event_id=3d16c76e-c76f-59c4-913f-6e9eb48e4d0f event_type=pdlc.service.deployed global_position=2026-10-08T05:52:54.206191000Z/000000/3d16c76e-c76f-59c4-913f-6e9eb48e4d0f request_id=930465e3-a709-48c6-98c6-c4a1cd24674d status=created
+2026-10-08 11:22:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:52:54.206191000Z/000000/3d16c76e-c76f-59c4-913f-6e9eb48e4d0f event_id=3d16c76e-c76f-59c4-913f-6e9eb48e4d0f session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:22:54 [debug    ] event_enriched                 event_id=3d16c76e-c76f-59c4-913f-6e9eb48e4d0f importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:22:55 [debug    ] event_embedding_stored         event_id=3d16c76e-c76f-59c4-913f-6e9eb48e4d0f
+2026-10-08 11:22:56 [debug    ] pack_plans_applied             edges=6 events=1 nodes=9 states=1
+RD06-staging passed
+2026-10-08 11:23:04 [info     ] event_ingested                 event_id=89aca3c1-80ad-55bb-b33f-b9426f8c090e event_type=pdlc.service.deployed global_position=2026-10-08T05:52:44.989599000Z/000000/89aca3c1-80ad-55bb-b33f-b9426f8c090e request_id=4a0de75d-531e-4b35-a458-a36a664809bb status=duplicate
+RD07-duplicate passed
+RD07-conflict passed
+2026-10-08 11:23:20 [info     ] event_ingested                 event_id=38ff9b2a-8651-5a6e-a0b9-ee24d4868001 event_type=pdlc.release.published global_position=2026-10-08T05:53:20.332815000Z/000000/38ff9b2a-8651-5a6e-a0b9-ee24d4868001 request_id=b910c548-dd4c-434b-baf8-adf860e3e529 status=created
+2026-10-08 11:23:20 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:53:20.332815000Z/000000/38ff9b2a-8651-5a6e-a0b9-ee24d4868001 event_id=38ff9b2a-8651-5a6e-a0b9-ee24d4868001 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:23:20 [debug    ] event_enriched                 event_id=38ff9b2a-8651-5a6e-a0b9-ee24d4868001 importance_score=5 keywords=['pdlc', 'release', 'published']
+2026-10-08 11:23:20 [debug    ] event_embedding_stored         event_id=38ff9b2a-8651-5a6e-a0b9-ee24d4868001
+2026-10-08 11:23:22 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+RD08-release-first passed
+2026-10-08 11:23:34 [info     ] event_ingested                 event_id=5cdb4e80-4f42-53ad-b859-9f970bb838cb event_type=pdlc.change.created global_position=2026-10-08T05:53:34.333935000Z/000000/5cdb4e80-4f42-53ad-b859-9f970bb838cb request_id=40891966-fb80-427a-a940-818cc4ba2cc0 status=created
+2026-10-08 11:23:34 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:53:34.333935000Z/000000/5cdb4e80-4f42-53ad-b859-9f970bb838cb event_id=5cdb4e80-4f42-53ad-b859-9f970bb838cb session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:23:34 [debug    ] event_enriched                 event_id=5cdb4e80-4f42-53ad-b859-9f970bb838cb importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-08 11:23:35 [debug    ] event_embedding_stored         event_id=5cdb4e80-4f42-53ad-b859-9f970bb838cb
+2026-10-08 11:23:36 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+RD08-change-arrives passed
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-08 11:23:44 [info     ] event_ingested                 event_id=b2e8311b-77b3-5b20-b7fa-3da655228dda event_type=pdlc.service.deployed global_position=2026-10-08T05:53:44.122223000Z/000000/b2e8311b-77b3-5b20-b7fa-3da655228dda request_id=eb41d6a8-24e1-4cfd-86f6-26bddb254679 status=created
+2026-10-08 11:23:44 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:53:44.122223000Z/000000/b2e8311b-77b3-5b20-b7fa-3da655228dda event_id=b2e8311b-77b3-5b20-b7fa-3da655228dda session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:23:44 [debug    ] event_enriched                 event_id=b2e8311b-77b3-5b20-b7fa-3da655228dda importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:23:45 [debug    ] event_embedding_stored         event_id=b2e8311b-77b3-5b20-b7fa-3da655228dda
+2026-10-08 11:23:46 [debug    ] pack_plans_applied             edges=4 events=1 nodes=8 states=1
+RD08-deploy-first passed
+2026-10-08 11:23:58 [info     ] event_ingested                 event_id=99859ffd-b84f-5c6a-bf08-8315c7e41072 event_type=pdlc.release.published global_position=2026-10-08T05:53:58.377439000Z/000000/99859ffd-b84f-5c6a-bf08-8315c7e41072 request_id=4e989d1b-0f16-472d-b3a5-ddd868bad60c status=created
+2026-10-08 11:23:58 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:53:58.377439000Z/000000/99859ffd-b84f-5c6a-bf08-8315c7e41072 event_id=99859ffd-b84f-5c6a-bf08-8315c7e41072 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:23:58 [debug    ] event_enriched                 event_id=99859ffd-b84f-5c6a-bf08-8315c7e41072 importance_score=5 keywords=['pdlc', 'release', 'published']
+2026-10-08 11:23:59 [debug    ] event_embedding_stored         event_id=99859ffd-b84f-5c6a-bf08-8315c7e41072
+2026-10-08 11:23:59 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=0
+RD08-release-arrives passed
+2026-10-08 11:24:07 [info     ] event_ingested                 event_id=9bec26d5-778f-5e61-980f-01bc15d3d157 event_type=pdlc.release.published global_position=2026-10-08T05:54:07.366767000Z/000000/9bec26d5-778f-5e61-980f-01bc15d3d157 request_id=c37338e6-6dd3-4608-ab8e-b20ce16f2f2a status=created
+2026-10-08 11:24:07 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:54:07.366767000Z/000000/9bec26d5-778f-5e61-980f-01bc15d3d157 event_id=9bec26d5-778f-5e61-980f-01bc15d3d157 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:24:07 [debug    ] event_enriched                 event_id=9bec26d5-778f-5e61-980f-01bc15d3d157 importance_score=5 keywords=['pdlc', 'release', 'published']
+2026-10-08 11:24:08 [debug    ] event_embedding_stored         event_id=9bec26d5-778f-5e61-980f-01bc15d3d157
+2026-10-08 11:24:09 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=0
+RD09-empty-release passed
+2026-10-08 11:24:16 [info     ] event_ingested                 event_id=6346f99f-bbe2-56bc-932b-0fd38c73c82a event_type=pdlc.service.deployed global_position=2026-10-08T05:54:16.808463000Z/000000/6346f99f-bbe2-56bc-932b-0fd38c73c82a request_id=4ccce077-558a-4fae-bf67-9bdb20eee53f status=created
+2026-10-08 11:24:17 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:54:16.808463000Z/000000/6346f99f-bbe2-56bc-932b-0fd38c73c82a event_id=6346f99f-bbe2-56bc-932b-0fd38c73c82a session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:24:17 [debug    ] event_enriched                 event_id=6346f99f-bbe2-56bc-932b-0fd38c73c82a importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:24:17 [debug    ] event_embedding_stored         event_id=6346f99f-bbe2-56bc-932b-0fd38c73c82a
+2026-10-08 11:24:18 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+RD09-unlinked-deploy passed
+2026-10-08 11:24:26 [info     ] event_ingested                 event_id=2fc44fb0-74ed-51ed-adce-d05fc7ba8b70 event_type=pdlc.change.created global_position=2026-10-08T05:54:26.373343000Z/000000/2fc44fb0-74ed-51ed-adce-d05fc7ba8b70 request_id=eae76c1b-4e77-431d-ad15-061fb1ac3c5c status=created
+2026-10-08 11:24:26 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:54:26.373343000Z/000000/2fc44fb0-74ed-51ed-adce-d05fc7ba8b70 event_id=2fc44fb0-74ed-51ed-adce-d05fc7ba8b70 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:24:26 [debug    ] event_enriched                 event_id=2fc44fb0-74ed-51ed-adce-d05fc7ba8b70 importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-08 11:24:27 [debug    ] event_embedding_stored         event_id=2fc44fb0-74ed-51ed-adce-d05fc7ba8b70
+2026-10-08 11:24:28 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+RD10-other-change passed
+2026-10-08 11:24:35 [info     ] event_ingested                 event_id=e22dd911-ccff-5c94-9cf3-b98a47c94b09 event_type=pdlc.release.published global_position=2026-10-08T05:54:35.924495000Z/000000/e22dd911-ccff-5c94-9cf3-b98a47c94b09 request_id=1b654e6e-7bf1-479b-960b-87fc9b78102f status=created
+2026-10-08 11:24:36 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:54:35.924495000Z/000000/e22dd911-ccff-5c94-9cf3-b98a47c94b09 event_id=e22dd911-ccff-5c94-9cf3-b98a47c94b09 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:24:36 [debug    ] event_enriched                 event_id=e22dd911-ccff-5c94-9cf3-b98a47c94b09 importance_score=5 keywords=['pdlc', 'release', 'published']
+2026-10-08 11:24:36 [debug    ] event_embedding_stored         event_id=e22dd911-ccff-5c94-9cf3-b98a47c94b09
+2026-10-08 11:24:37 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+RD10-other-release passed
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-08 11:24:44 [info     ] event_ingested                 event_id=3ecd7677-414a-55a9-bc45-cacf3c1ae92b event_type=pdlc.service.deployed global_position=2026-10-08T05:54:44.827775000Z/000000/3ecd7677-414a-55a9-bc45-cacf3c1ae92b request_id=962b4f5a-e26b-4e8c-88cd-cbd169098df7 status=created
+2026-10-08 11:24:45 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:54:44.827775000Z/000000/3ecd7677-414a-55a9-bc45-cacf3c1ae92b event_id=3ecd7677-414a-55a9-bc45-cacf3c1ae92b session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:24:45 [debug    ] event_enriched                 event_id=3ecd7677-414a-55a9-bc45-cacf3c1ae92b importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:24:45 [debug    ] event_embedding_stored         event_id=3ecd7677-414a-55a9-bc45-cacf3c1ae92b
+2026-10-08 11:24:46 [debug    ] pack_plans_applied             edges=5 events=1 nodes=9 states=1
+RD10-other-repo-same-time passed
+2026-10-08 11:24:54 [info     ] event_ingested                 event_id=e631275a-fd2a-538c-adb4-47c517ebf639 event_type=pdlc.service.deployed global_position=2026-10-08T05:54:54.570831000Z/000000/e631275a-fd2a-538c-adb4-47c517ebf639 request_id=e6aecbb3-d30f-4218-81e7-53ec875dadb8 status=created
+2026-10-08 11:24:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:54:54.570831000Z/000000/e631275a-fd2a-538c-adb4-47c517ebf639 event_id=e631275a-fd2a-538c-adb4-47c517ebf639 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:24:55 [debug    ] event_enriched                 event_id=e631275a-fd2a-538c-adb4-47c517ebf639 importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:24:55 [debug    ] event_embedding_stored         event_id=e631275a-fd2a-538c-adb4-47c517ebf639
+2026-10-08 11:24:56 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+RD10-other-repo-same-service passed
+2026-10-08 11:25:04 [info     ] event_ingested                 event_id=a9ca97c4-3965-5f01-8035-57db03c73485 event_type=pdlc.service.deployed global_position=2026-10-08T05:55:04.332399000Z/000000/a9ca97c4-3965-5f01-8035-57db03c73485 request_id=791fa32a-bc8e-45d9-b62f-a5a2c8ad2461 status=created
+2026-10-08 11:25:04 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T05:55:04.332399000Z/000000/a9ca97c4-3965-5f01-8035-57db03c73485 event_id=a9ca97c4-3965-5f01-8035-57db03c73485 session_id=g04/20261008-cloud-g04-all-01
+2026-10-08 11:25:04 [debug    ] event_enriched                 event_id=a9ca97c4-3965-5f01-8035-57db03c73485 importance_score=5 keywords=['pdlc', 'service', 'deployed']
+2026-10-08 11:25:05 [debug    ] event_embedding_stored         event_id=a9ca97c4-3965-5f01-8035-57db03c73485
+2026-10-08 11:25:06 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=1
+RD10-other-service-same-time passed
+RD11-null-release passed
+RD11-empty-release passed
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+RD11-typed-release passed
+RD11-missing-environment passed
+RD11-missing-section passed
+RD11-bad-section passed
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+RD11-bad-number passed
+RD11-bogus-event passed
+RD12-release passed
+RD12-change passed
+RD12-failed-attempt passed
+RD12-component passed
+2026-10-08 11:27:30 [info     ] consumer_stopped               consumer=projection-1 group=g04-20261008-cloud-g04-all-01-projection
+2026-10-08 11:27:30 [info     ] consumer_stopped               consumer=consolidation-1 group=g04-20261008-cloud-g04-all-01-consolidation
+2026-10-08 11:27:30 [info     ] consumer_stopped               consumer=pack-extraction-1 group=g04-20261008-cloud-g04-all-01-pack_extraction
+2026-10-08 11:27:30 [info     ] consumer_stopped               consumer=extraction-1 group=g04-20261008-cloud-g04-all-01-extraction
+2026-10-08 11:27:30 [info     ] consumer_stopped               consumer=enrichment-1 group=g04-20261008-cloud-g04-all-01-enrichment
+2026-10-08 11:27:32 [info     ] app_stopped
+I1008 11:27:36.899452 52140864 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(41, generation: 1)
+{"event": "finish", "run_id": "20261008-cloud-g04-all-01", "at": "2026-10-08T05:57:36.973165+00:00", "record": "docs/review/spanner-compatibility/runs/20261008-cloud-g04-all-01"}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

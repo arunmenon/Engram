@@ -1,6 +1,6 @@
 # G04 — Changes, releases and deployment outcomes
 
-Status: AUTHORIZED, implementation in progress. G04 only; stop before G05. No separate foundation track or G01–G03 reruns. Historical migration excluded.
+Status: TECHNICALLY VERIFIED in 20261008-cloud-g04-all-01;31checks passed and independent evidence review cleared. Publication and issue reconciliation pending. G04 only; stop before G05. No separate foundation track or G01–G03 reruns. Historical migration excluded.
 
 ## Outcome and bounded changes
 
@@ -39,3 +39,7 @@ Targeted local contract/projection/retrieval tests, independent Astra design/imp
 Deployment identity now includes repo and service; fixtures deliberately collide all remaining fields. Changing identity warrants pack3.0, not a minor bump. Incident lookup remains outside G04, and incident isolation is not claimed. Deployment outcome comes from the event type; arbitrary extra payload fields are preserved and are not promised as rejected outcome overrides. An independent new attempt with the same repo/service/environment/artifact/timestamp remains indistinguishable under this timestamp-based contract; producers must provide distinct attempt timestamps. Broader native attempt-ID support is not inferred.
 
 Retrieval sets are seed-specific: a single production attempt returns itself, Change, Release and Component, not sibling attempts. Release/Change queries may include staging and another service when connected by the same declared/commit link. A Component query can include a deployment from another repo if the producer explicitly uses the identical catalog service ID; this is a real shared identity, not tenant separation. Separate tenants are not part of G04. Exact sets live in fixtures. Graph storage must retain all DERIVED_FROM; API provenance is the latest source event only. Reference placeholders have no provenance until their own source arrives.
+
+## Observed outcome
+
+All27input steps and four exact final retrievals passed on real Spanner, on fixed PDLC3.0 and source431a29d. See [verification and recorded walkthrough](2026-10-08-goal-04-verification.md) and [final Astra evidence review](2026-10-08-astra-g04-evidence-review.md). Cleanup leaves seven application tables empty, core epoch42. Identity defect#47 belongs to existing#34/#40 scope; no distinct feature bucket needed. Stop before G05.

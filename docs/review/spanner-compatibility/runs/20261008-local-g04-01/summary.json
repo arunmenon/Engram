@@ -1,0 +1,22 @@
+{
+  "scope": "G04 local supplements, not Spanner acceptance",
+  "final_result": {
+    "passed": 190,
+    "warnings": 7,
+    "log": "engram-g04-local-verified-02.log"
+  },
+  "retained_preflight_failures": [
+    "old deployment identity oracles",
+    "old invalid release-section fixture",
+    "strict local Event conversion",
+    "fixture aliasing corrected by deepcopy",
+    "incorrect test path"
+  ],
+  "new_defect": {
+    "issue": 47,
+    "url": "https://github.com/arunmenon/Engram/issues/47",
+    "parent": 34,
+    "reproduction": "original-deployment-collision.json"
+  },
+  "no_G01_G02_G03_cloud_reruns": true
+}
