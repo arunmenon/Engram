@@ -281,7 +281,9 @@ async def execute(
             headers={"Authorization": "Bearer g03-local-query-key"},
         ) as http:
 
-            async def retrieve(query, required, forbidden, *, exact=False):
+            async def retrieve(
+                query, required, forbidden, *, exact=False, expected_query_edges=None
+            ):
                 response = await http.post("/v1/query/artifacts", json=query)
                 result = {"request": query, "status": response.status_code, "body": response.json()}
                 evidence.setdefault("retrieval_attempts", []).append(result)
@@ -313,6 +315,9 @@ async def execute(
                     and edge[2] in required
                     and expected_edge_properties.get(edge, {}).get("link_status") != "rejected"
                 }
+                if expected_query_edges is not None:
+                    required_edges = {tuple(edge) for edge in expected_query_edges}
+                    assert required_edges <= expected_edges, "Query expects an undeclared edge"
                 assert required_edges <= returned_edges, (
                     "Missing required retrieval edges",
                     required_edges - returned_edges,
@@ -533,7 +538,14 @@ async def execute(
                             "DEPLOYED_TO",
                         }
                         | (
-                            {"AFFECTS", "OCCURRED_ON", "REMEDIATES", "LEARNED_FROM", "CITES"}
+                            {
+                                "AFFECTS",
+                                "OCCURRED_ON",
+                                "REMEDIATES",
+                                "LEARNED_FROM",
+                                "CITES",
+                                "ATTRIBUTED_TO",
+                            }
                             if goal == "G06"
                             else set()
                         )
@@ -659,6 +671,7 @@ async def execute(
                             fixture["required"],
                             fixture["forbidden"],
                             exact=fixture.get("exact", False),
+                            expected_query_edges=fixture.get("expected_edges"),
                         ),
                         "verdict": "passed",
                     }
