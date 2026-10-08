@@ -15,9 +15,9 @@ stakeholder-sign-off claim is made. No new feature bucket was needed.
 
 The stakeholder selected G07 first. Its local implementation and final runtime/harness reviews are complete on `feature/engram-g07-event-coverage`;234 focused checks passed. Real-Spanner acceptance is NOT RUN because `engram-g07-target` access returned PermissionDenied. The638 planned checks and actual open-issue updates are preserved in its verification record. No G07 issue is closed. Its [specification and proposed slices](2026-10-08-goal-07-event-coverage.md),
 [28-event matrix](2026-10-08-g07-event-coverage.csv) and [verification template](2026-10-08-goal-07-verification.md)
-are published. Selection authorizes kickoff; implementation/review/cloud results
-remain NOT RUN until actual evidence is recorded. Do not infer ticket publication
-or a running cloud process from this authorization.
+are published. Scoped implementation tickets #54–#58 are open; local implementation
+and review evidence is recorded. Cloud execution and stakeholder verification remain
+NOT RUN. There is no running cloud process.
 
 After G07, present a separate prerequisite pack-composition/worker assessment
 before the expanded two-tenant controlled pilot. [Stakeholder requirements and
@@ -104,7 +104,7 @@ G02 was separately authorized. G03 is now separately authorized; G04 and every l
 | G04 | Change → release → failed/successful deployment; merge/release does not imply deployment success |
 | G05 | Rebuild the individual slices through Engram into one retained connected dataset; exercise cross-journey retrieval and unrelated-feature separation. Retain this combined demo dataset until stakeholder approves cleanup; this retention proposal does not retroactively change disposable G01/G02 cleanup |
 | G06 | Incident → explicit corrective action and evidence-backed feedback |
-| G07 | Reconcile whole PDLC event coverage; original23 plus approved pack extensions (G02 pack2.0 catalog25), not a fixed23-event completeness claim |
+| G07 | Reconcile the current28-event PDLC catalog on pack5.0.0; local gate reviewed, cloud acceptance blocked; no whole-ontology completeness claim |
 | G08 | Core alone, optional artifact absence |
 | G09 | Memory capability enabled/disabled behavior and retrieval |
 | G10 | User capability enabled/disabled behavior and stored-data visibility |
