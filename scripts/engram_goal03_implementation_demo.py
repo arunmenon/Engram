@@ -76,6 +76,7 @@ async def execute(
     goal="G03",
     fixture_factory=fixtures,
     retain_success=False,
+    target_database="engram-compat-target",
 ):
     data = fixture_factory(run_id)
     journey_passed = False
@@ -118,9 +119,7 @@ async def execute(
     spanner.Client = authenticated_client
     client = authenticated_client(project=values["GOOGLE_CLOUD_PROJECT"])
     pool = BurstyPool()
-    database = client.instance(values["SPANNER_INSTANCE_ID"]).database(
-        "engram-compat-target", pool=pool
-    )
+    database = client.instance(values["SPANNER_INSTANCE_ID"]).database(target_database, pool=pool)
     prepare_cleanup(database, client, pool)
     consumers, stores, tasks = [], [], []
     server = server_task = None
@@ -128,7 +127,7 @@ async def execute(
     mutation_attempted = False
     extraction_outcomes = []
     old_logging = None
-    settings = runtime_settings(values)
+    settings = runtime_settings(values, database=target_database)
     settings.ontology.packs = ["pdlc"]
     settings.ontology.trusted_source_ids = ["demo.query"]
     settings.ontology.serve_unevaluated = True
@@ -161,7 +160,7 @@ async def execute(
         "compat-control",
         "compat-control-binding",
         OLD[3] + 2,
-        runtime_settings(values),
+        runtime_settings(values, database=target_database),
         engine_revision="tenant-control-conformance-v1",
     )
     owner = [*TenantFence.from_binding(binding)._identity(), "active"]
@@ -314,14 +313,14 @@ async def execute(
                     "Missing required retrieval edges",
                     required_edges - returned_edges,
                 )
-                if goal in {"G04", "G05"} and exact:
+                if goal in {"G04", "G05", "G06"} and exact:
                     assert returned_edges == required_edges, (
                         "Unexpected retrieval edges",
                         returned_edges ^ required_edges,
                     )
                 for edge in answer["edges"]:
                     edge_key = (edge["edge_type"], edge["source"], edge["target"])
-                    if goal in {"G04", "G05"} and edge_key in expected_edge_properties:
+                    if goal in {"G04", "G05", "G06"} and edge_key in expected_edge_properties:
                         for name, value in expected_edge_properties[edge_key].items():
                             assert edge.get("properties", {}).get(name) == value, (
                                 "Wrong retrieval edge property",
@@ -343,7 +342,7 @@ async def execute(
                         and provenance.get("source") == "spanner"
                         and provenance.get("event_id") in artifact_events[nid]
                     ), ("Wrong evidence", nid, provenance)
-                    if goal in {"G04", "G05"}:
+                    if goal in {"G04", "G05", "G06"}:
                         newest = max(
                             artifact_events[nid],
                             key=lambda event_id: all_events[event_id][0].occurred_at,
@@ -379,7 +378,7 @@ async def execute(
                 )
                 before_fingerprint = (
                     await asyncio.to_thread(fingerprint, database)
-                    if goal in {"G04", "G05"} and negative
+                    if goal in {"G04", "G05", "G06"} and negative
                     else None
                 )
                 response = await http.post("/v1/events", json=request)
@@ -448,7 +447,7 @@ async def execute(
                     "duplicate", sid == "IM11-duplicate"
                 ):
                     assert state == previous, "Rejected/duplicate request changed persistent state"
-                    if goal in {"G04", "G05"}:
+                    if goal in {"G04", "G05", "G06"}:
                         after_fingerprint = await asyncio.to_thread(fingerprint, database)
                         item["no_write_fingerprints"] = {
                             "before": before_fingerprint,
@@ -523,9 +522,9 @@ async def execute(
                     actual_edges ^ expected_edges,
                 )
                 for edge in state["edges"]:
-                    if goal in {"G04", "G05"} and edge[2] == "DEPLOYED_TO":
+                    if goal in {"G04", "G05", "G06"} and edge[2] == "DEPLOYED_TO":
                         assert edge[5].get("environment") == nodes[edge[1]].get("environment")
-                    if goal in {"G04", "G05"}:
+                    if goal in {"G04", "G05", "G06"}:
                         for name, value in expected_edge_properties.get(
                             (edge[2], edge[1], edge[4]), {}
                         ).items():
@@ -545,7 +544,7 @@ async def execute(
                     assert {(key, event) for event in events} <= {
                         (r[1], r[4]) for r in state["edges"] if r[2] == "DERIVED_FROM"
                     }
-                if goal in {"G04", "G05"}:
+                if goal in {"G04", "G05", "G06"}:
                     actual_sources = {
                         (r[1], r[4])
                         for r in state["edges"]
@@ -584,7 +583,7 @@ async def execute(
                         "max_nodes": 50,
                     }
                     item["retrieval"] = await retrieve(query, [nid], [])
-                    if goal in {"G04", "G05"}:
+                    if goal in {"G04", "G05", "G06"}:
                         for placeholder in fixture.get("placeholders", []):
                             result = await retrieve(
                                 {
@@ -735,7 +734,7 @@ async def execute(
                         "compat-control",
                         "compat-control-binding",
                         OLD[3] + 1,
-                        runtime_settings(values),
+                        runtime_settings(values, database=target_database),
                         engine_revision="tenant-control-conformance-v1",
                     )
                     evidence["preactivation_recovery_intent"] = [
@@ -753,7 +752,19 @@ async def execute(
         assert not shutdown_errors, ("Shutdown errors", shutdown_errors)
 
 
-def main(*, goal="G03", fixture_factory=fixtures, driver_path=None, retain_success=False):
+def main(
+    *,
+    goal="G03",
+    fixture_factory=fixtures,
+    driver_path=None,
+    retain_success=False,
+    target_database="engram-compat-target",
+):
+    global RESOURCE
+    if (goal == "G06") != (target_database == "engram-g06-target"):
+        raise ValueError("G06 requires its separate reserved database")
+    RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/" + target_database
+    OLD[1] = RESOURCE
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--credentials", type=Path, required=True)
@@ -815,7 +826,7 @@ def main(*, goal="G03", fixture_factory=fixtures, driver_path=None, retain_succe
             check=True,
         )
         directory = RECORDS / "runs" / args.run_id
-        if goal in {"G04", "G05"}:
+        if goal in {"G04", "G05", "G06"}:
             # Freeze contents before the first cloud read/write, not just after execution.
             paths = sorted(
                 set(manifest["runtime_sources"])
@@ -826,6 +837,14 @@ def main(*, goal="G03", fixture_factory=fixtures, driver_path=None, retain_succe
                     "uv.lock",
                     "tests/unit/test_goal04_release_journey.py",
                     *(["tests/unit/test_goal05_connected_journey.py"] if goal == "G05" else []),
+                    *(
+                        [
+                            str(p.relative_to(ROOT))
+                            for p in (ROOT / "tests/unit").glob("test_goal06*.py")
+                        ]
+                        if goal == "G06"
+                        else []
+                    ),
                     "tests/fixtures/pack_contracts/pdlc.json",
                 }
             )
@@ -848,6 +867,7 @@ def main(*, goal="G03", fixture_factory=fixtures, driver_path=None, retain_succe
                         goal=goal,
                         fixture_factory=fixture_factory,
                         retain_success=retain_success,
+                        target_database=target_database,
                     )
                 )
             )

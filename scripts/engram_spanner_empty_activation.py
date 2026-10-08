@@ -10,6 +10,8 @@ from engram_experiment_support import CONTROL_COLUMNS as COLUMNS
 from google.cloud.spanner_v1 import KeySet
 
 RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target"
+G06_RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-g06-target"
+RESERVED_RESOURCES = frozenset({RESOURCE, G06_RESOURCE})
 KEYS = {
     "Events": ("event_id",),
     "GraphNodes": ("label", "node_id"),
@@ -27,9 +29,9 @@ class ActivationRefusedError(RuntimeError):
 
 def validate_target(database, owner):
     if (
-        database.name != RESOURCE
+        database.name not in RESERVED_RESOURCES
         or len(owner) != 6
-        or owner[1] != RESOURCE
+        or owner[1] != database.name
         or owner[0] != "compat-control"
         or owner[2] != "compat-control-binding"
     ):
