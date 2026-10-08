@@ -1,6 +1,6 @@
 # Small goal inventory
 
-Status: G01 verified, independently reviewed and recorded demonstration published; stakeholder approval not assumed. G02 explicitly authorized on 2026-10-08 and technically verified in run 20261008-cloud-g02-all-03; final review/publication reconciliation in progress; G03 and later remain proposed and unstarted. User chooses each goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
+Status: G01 verified, independently reviewed and recorded demonstration published; stakeholder approval not assumed. G02 explicitly authorized on 2026-10-08 and verified, independently reviewed, pushed and issue-reconciled in run 20261008-cloud-g02-all-03; G03 and later remain proposed and unstarted. User chooses each goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
 
 Every goal must follow the [verification and stakeholder demonstration standard](goal-verification-standard.md), produce its own detailed verification document, and end with a stakeholder walkthrough. G01's [verification document](2026-10-08-goal-01-verification.md) contains the recorded real-Spanner results.
 
@@ -79,3 +79,5 @@ G02 was separately authorized. G03 and every later goal below remain unstarted. 
 | G18 | Full65-scenario Spanner baseline plus agreed additions; evidence-backed sign-off |
 
 Supporting safety cases not completed by the selected journeys remain explicit, including protected-field clearing, conflicting semantic identities and full historical replay. Grouping is not closure. Every goal ends with its verification document, stakeholder demo, independent review, issue reconciliation and explicit stop boundary.
+
+G02 [verification and recorded stakeholder walkthrough](2026-10-08-goal-02-verification.md) is published; #46 closed, broad issues remain open. Stakeholder sign-off is not inferred. Stop boundary: G03 and all subsequent goals remain unstarted pending explicit approval.

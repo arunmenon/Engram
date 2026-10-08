@@ -1,6 +1,6 @@
 # G02 verification and stakeholder demonstration
 
-Status: technically VERIFIED on real Spanner; independent final evidence review and GitHub reconciliation are tracked below. Recorded walkthrough delivered in this document; stakeholder sign-off is not assumed. G03 remains unstarted.
+Status: VERIFIED on real Spanner, independently reviewed, pushed and reconciled with GitHub. Recorded walkthrough delivered in this document; stakeholder sign-off is not assumed. G03 remains unstarted.
 
 ## What this proves
 
@@ -127,4 +127,18 @@ For a recorded walkthrough, follow PL01 → PL02 → PL03/04 → PL05/06, then s
 
 ## GitHub reconciliation and feature-bucket assessment
 
-Pending final synchronization links are appended below before goal delivery. #46 is the only newly discovered product defect; it fits the existing retrieval bucket under #34, so no new feature umbrella is warranted. Planning mapping work fits #40. Broad issues retain remaining acceptance and stay open; a bounded G02 pass does not close them. #46 may close only after final cloud evidence and independent review are reconciled.
+Actual synchronization links and status changes are recorded below. #46 is the only newly discovered product defect; it fits the existing retrieval bucket under #34, so no new feature umbrella is warranted. Planning mapping work fits #40. Broad issues retain remaining acceptance and stay open; a bounded G02 pass does not close them. #46 is closed after final cloud evidence and independent review; all broader issues remain open.
+
+| Issue | Before → after | Verified scope / remaining work | Actual update |
+|---|---|---|---|
+| #34 | OPEN → OPEN | Planning milestone recorded; original32 plus discovered45/46 tracked. Other feature acceptance remains. | [GitHub update](https://github.com/arunmenon/Engram/issues/34#issuecomment-6051645912) |
+| #4 | OPEN → OPEN | Planning payload rejection/no-write evidence; remaining whole-pack and ingress cases. | [GitHub update](https://github.com/arunmenon/Engram/issues/4#issuecomment-6051646172) |
+| #35 | OPEN → OPEN | Core+PDLC authority/configuration evidence; broader capabilities and version mismatch remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/35#issuecomment-6051646439) |
+| #36 | OPEN → OPEN | Version keys, approval, supersession and placeholders; general ordering/update rules remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/36#issuecomment-6051646700) |
+| #37 | OPEN → OPEN | Same-ID duplicate/conflict verified; other producers and normalization remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/37#issuecomment-6051646919) |
+| #39 | OPEN → OPEN | Exact planning paths/evidence and retrieval; whole-pack/unfamiliar-pack conformance remains. | [GitHub update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6051647193) |
+| #40 | OPEN → OPEN | Planning journey implemented and verified; code/test and operational journeys remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/40#issuecomment-6051647461) |
+| #41 | OPEN → OPEN | G02 cloud extension evidence added; original65 baseline statuses unchanged. | [GitHub update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6051647737) |
+| #46 | OPEN → CLOSED | Bounded missing-selected-edge bug fixed, reviewed and verified on cloud. | [GitHub update](https://github.com/arunmenon/Engram/issues/46#issuecomment-6051648083) |
+
+#34 and #40 body summaries were also refreshed to distinguish current G02 evidence from historical gaps. #46 acceptance checkboxes are complete and the defect is closed. Review: no blockers in bounded technical acceptance; all source hashes matched. No new feature bucket was created because both the mapping work and retrieval fix fit existing ownership. Publication commit b81398599ef63c259498d60c61544b36ed116619 includes implementation, exact-source archives, failed attempts and passing rerun. The subsequent documentation commit carries these actual reconciliation links.

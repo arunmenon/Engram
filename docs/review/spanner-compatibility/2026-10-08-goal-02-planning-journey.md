@@ -1,6 +1,6 @@
 # G02 — Versioned planning journey on real Spanner
 
-Status: IN PROGRESS. User explicitly authorized G02 on 2026-10-08. G01 complete; G03 and later goals remain unstarted. The old broad control goal remains paused. Follow goal-verification-standard.md; this file tracks only G02.
+Status: VERIFIED. User explicitly authorized G02 on 2026-10-08. G01 complete; G03 and later goals remain unstarted. The old broad control goal remains paused. Follow goal-verification-standard.md; this file tracks only G02.
 
 ## Outcome and existing gap
 
@@ -52,3 +52,7 @@ Full cloud all-01 passed all17 source requests but failed the final HLD-v1 conne
 ## Reviewed oracle correction after all-02
 
 The expiry-seeded final trace originally required the separate single-use Requirement. That conflicts with the existing sibling-drift suppression policy: sharing a Spec or HLD is not sufficient to expand an expiry answer into sibling requirements. Astra confirmed the oracle error against the saved failed response. The corrected query still requires expiry, its Spec and current HLD; exact graph assertions and HLD-seeded queries still require both requirements and all declared links. Preserve all-02 as failed; rerun the whole journey. This correction does not weaken the HLD/LLD chain or evidence assertions.
+
+## Final disposition
+
+All22 subchecks across PL01–PL12 passed in 20261008-cloud-g02-all-03. Independent review found no blockers. Verification document, exact executed sources, retained failures and actual GitHub reconciliation are published. #46 closed; broader tickets remain open. G03 not started.
