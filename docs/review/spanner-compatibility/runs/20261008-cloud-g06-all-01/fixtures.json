@@ -1,0 +1,2070 @@
+{
+  "ids": {
+    "component": "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+    "deployment": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+    "repo_collision": "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+    "other_component": "Component:g06/20261008-cloud-g06-all-01/other/reset",
+    "other_deployment": "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+    "service_collision_component": "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+    "service_collision": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+    "future_deployment": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+    "incident": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+    "other_incident": "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+    "early_incident": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+    "no_reference": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+    "fix": "Change:g06/20261008-cloud-g06-all-01/auth|8",
+    "unlinked_fix": "Change:g06/20261008-cloud-g06-all-01/auth|9",
+    "placeholder_change": "Change:g06/20261008-cloud-g06-all-01/auth|88",
+    "placeholder_incident": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+    "lesson": "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+    "other_lesson": "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+    "rejected_lesson": "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+    "future_spec": "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+    "unciting_spec": "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1",
+    "unknown_lesson": "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+    "unknown_spec": "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1"
+  },
+  "steps": [
+    {
+      "scenario": "IC01-main-deploy",
+      "request": {
+        "event_id": "ff465ea2-adb6-5c81-84ca-b55cffe87bca",
+        "event_type": "pdlc.service.deployed",
+        "occurred_at": "2026-10-08T14:17:50+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC01-main-deploy",
+        "payload": {
+          "environment": "production",
+          "artifact_id": "reset-bad-sha",
+          "change_numbers": [],
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+      "expected_props": {
+        "status": "succeeded",
+        "repo": "g06/20261008-cloud-g06-all-01/auth",
+        "service": "g06/20261008-cloud-g06-all-01/auth/reset"
+      },
+      "expected_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC01-repo-collision",
+      "request": {
+        "event_id": "730057d5-d3e6-576d-b70b-33681d136d6a",
+        "event_type": "pdlc.service.deployed",
+        "occurred_at": "2026-10-08T14:18:00+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC01-repo-collision",
+        "payload": {
+          "environment": "production",
+          "artifact_id": "reset-bad-sha",
+          "change_numbers": [],
+          "repo": "g06/20261008-cloud-g06-all-01/other",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+      "expected_props": {
+        "status": "succeeded",
+        "repo": "g06/20261008-cloud-g06-all-01/other",
+        "service": "g06/20261008-cloud-g06-all-01/auth/reset"
+      },
+      "expected_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC01-other-scope",
+      "request": {
+        "event_id": "ca8916e6-abf6-5608-b9a0-228b8d9f21b5",
+        "event_type": "pdlc.service.deployed",
+        "occurred_at": "2026-10-08T14:18:10+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC01-other-scope",
+        "payload": {
+          "environment": "production",
+          "artifact_id": "reset-bad-sha",
+          "change_numbers": [],
+          "repo": "g06/20261008-cloud-g06-all-01/other",
+          "service": "g06/20261008-cloud-g06-all-01/other/reset"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+      "expected_props": {
+        "status": "succeeded",
+        "repo": "g06/20261008-cloud-g06-all-01/other",
+        "service": "g06/20261008-cloud-g06-all-01/other/reset"
+      },
+      "expected_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+          "Component:g06/20261008-cloud-g06-all-01/other/reset"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/other/reset": {}
+      }
+    },
+    {
+      "scenario": "IC01-service-collision",
+      "request": {
+        "event_id": "bd5b5824-fc8c-57ff-b118-d113c3d6f21c",
+        "event_type": "pdlc.service.deployed",
+        "occurred_at": "2026-10-08T14:18:15+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC01-service-collision",
+        "payload": {
+          "environment": "production",
+          "artifact_id": "reset-bad-sha",
+          "change_numbers": [],
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset/worker"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+      "expected_props": {
+        "status": "succeeded",
+        "repo": "g06/20261008-cloud-g06-all-01/auth",
+        "service": "g06/20261008-cloud-g06-all-01/auth/reset/worker"
+      },
+      "expected_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker": {}
+      }
+    },
+    {
+      "scenario": "IC01-future-deploy",
+      "request": {
+        "event_id": "b0dd0bf3-0089-5c3d-9d83-4769ab66f3f6",
+        "event_type": "pdlc.service.deployed",
+        "occurred_at": "2026-10-08T14:19:10+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC01-future-deploy",
+        "payload": {
+          "environment": "production",
+          "artifact_id": "reset-bad-sha",
+          "change_numbers": [],
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+      "expected_props": {
+        "status": "succeeded",
+        "repo": "g06/20261008-cloud-g06-all-01/auth",
+        "service": "g06/20261008-cloud-g06-all-01/auth/reset"
+      },
+      "expected_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC02-detected",
+      "request": {
+        "event_id": "e158ca40-fe96-5e50-9996-63849462b924",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:18:20+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC02-detected",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-RESET-51",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high",
+          "environment": "production",
+          "artifact_id": "reset-bad-sha"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+      "expected_props": {
+        "status": "detected"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC02-detected-retry",
+      "request": {
+        "event_id": "e158ca40-fe96-5e50-9996-63849462b924",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:18:20+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC02-detected",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-RESET-51",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high",
+          "environment": "production",
+          "artifact_id": "reset-bad-sha"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+      "expected_props": {
+        "status": "detected"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      },
+      "duplicate": true
+    },
+    {
+      "scenario": "IC02-detected-conflict",
+      "request": {
+        "event_id": "e158ca40-fe96-5e50-9996-63849462b924",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:18:20+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC02-detected",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-RESET-51",
+          "description": "Changed-content event ID reuse",
+          "severity": "high",
+          "environment": "production",
+          "artifact_id": "reset-bad-sha"
+        }
+      },
+      "expected_status": 409,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {},
+      "expected_edge_properties": []
+    },
+    {
+      "scenario": "IC02-reported-other-scope",
+      "request": {
+        "event_id": "d369208d-7996-520a-b6d3-9d7d15d43d3e",
+        "event_type": "pdlc.incident.reported",
+        "occurred_at": "2026-10-08T14:18:20+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC02-reported-other-scope",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/other",
+          "service": "g06/20261008-cloud-g06-all-01/other/reset",
+          "incident_id": "INC-RESET-51",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high",
+          "environment": "production",
+          "artifact_id": "reset-bad-sha"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+      "expected_props": {
+        "status": "detected"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/other/reset"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/other/reset": {}
+      }
+    },
+    {
+      "scenario": "IC03-before-deployment",
+      "request": {
+        "event_id": "f5ead058-c4c8-5726-a07b-3ddd7aef9b27",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:17:45+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC03-before-deployment",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-BEFORE",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high",
+          "environment": "production",
+          "artifact_id": "reset-bad-sha"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+      "expected_props": {
+        "status": "detected"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC03-no-reference",
+      "request": {
+        "event_id": "da3f9a27-6a08-5a8a-b517-4213201005e4",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:18:20+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC03-no-reference",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-UNKNOWN",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+      "expected_props": {
+        "status": "detected"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC04-pr-8",
+      "request": {
+        "event_id": "1ac1be1a-b19e-5dc5-9369-f544e9b17ce3",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T14:19:31+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC04-pr-8",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "number": 8,
+          "title": "Check token expiry server-side",
+          "head_sha": "same-fix-wording"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g06/20261008-cloud-g06-all-01/auth|8",
+      "expected_props": {
+        "status": "open"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC04-pr-9",
+      "request": {
+        "event_id": "70d836b7-0d75-518b-bacf-6aadbda3489f",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T14:19:32+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC04-pr-9",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "number": 9,
+          "title": "Check token expiry server-side",
+          "head_sha": "same-fix-wording"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g06/20261008-cloud-g06-all-01/auth|9",
+      "expected_props": {
+        "status": "open"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC05-remediation",
+      "request": {
+        "event_id": "0c2dd455-2963-5b10-8515-2ffaf626a32b",
+        "event_type": "pdlc.incident.remediation_recorded",
+        "occurred_at": "2026-10-08T14:19:33+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC05-remediation",
+        "payload": {
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 8
+          },
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          }
+        }
+      },
+      "expected_status": 201,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          {
+            "source_event_id": "0c2dd455-2963-5b10-8515-2ffaf626a32b",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC05-remediation-retry",
+      "request": {
+        "event_id": "0c2dd455-2963-5b10-8515-2ffaf626a32b",
+        "event_type": "pdlc.incident.remediation_recorded",
+        "occurred_at": "2026-10-08T14:19:33+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC05-remediation",
+        "payload": {
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 8
+          },
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          }
+        }
+      },
+      "expected_status": 201,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          {
+            "source_event_id": "0c2dd455-2963-5b10-8515-2ffaf626a32b",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ]
+      ],
+      "duplicate": true
+    },
+    {
+      "scenario": "IC05-remediation-conflict",
+      "request": {
+        "event_id": "0c2dd455-2963-5b10-8515-2ffaf626a32b",
+        "event_type": "pdlc.incident.remediation_recorded",
+        "occurred_at": "2026-10-08T14:19:33+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC05-remediation",
+        "payload": {
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 9
+          },
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          }
+        }
+      },
+      "expected_status": 409,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {},
+      "expected_edge_properties": []
+    },
+    {
+      "scenario": "IC06-merge-still-open",
+      "request": {
+        "event_id": "050193a0-cbc1-5385-b7c9-0a1d40c215aa",
+        "event_type": "pdlc.change.merged",
+        "occurred_at": "2026-10-08T14:19:36+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC06-merge-still-open",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "number": 8,
+          "merge_sha": "reset-fix-sha"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g06/20261008-cloud-g06-all-01/auth|8",
+      "expected_props": {
+        "status": "merged",
+        "merge_sha": "reset-fix-sha"
+      },
+      "expected_edges": [],
+      "extra_nodes": {},
+      "node_assertions": {
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51": {
+          "status": "detected"
+        }
+      }
+    },
+    {
+      "scenario": "IC07-explicit-resolution",
+      "request": {
+        "event_id": "4f3d40af-3ecf-54be-becd-b4ed7d844b02",
+        "event_type": "pdlc.incident.resolved",
+        "occurred_at": "2026-10-08T14:20:40+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC07-explicit-resolution",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-RESET-51",
+          "summary": "Verified server-side expiry enforcement"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+      "expected_props": {
+        "status": "resolved",
+        "summary": "Verified server-side expiry enforcement"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC07-late-detection",
+      "request": {
+        "event_id": "9c892d8f-6005-5bf2-95b5-416463fc65e9",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:18:30+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC07-late-detection",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INC-RESET-51",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high",
+          "environment": "production",
+          "artifact_id": "reset-bad-sha"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+      "expected_props": {
+        "status": "resolved",
+        "summary": "Verified server-side expiry enforcement"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset": {}
+      }
+    },
+    {
+      "scenario": "IC08-reference-first",
+      "request": {
+        "event_id": "18c1f66c-5638-5a3d-a01a-b47f115664b2",
+        "event_type": "pdlc.incident.remediation_recorded",
+        "occurred_at": "2026-10-08T14:19:39+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC08-reference-first",
+        "payload": {
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 88
+          },
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/future",
+            "incident_id": "INC-FUTURE"
+          }
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g06/20261008-cloud-g06-all-01/auth|88",
+      "expected_props": {
+        "status": "open"
+      },
+      "expected_edges": [
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|88",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE"
+        ]
+      ],
+      "extra_nodes": {
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE": {
+          "status": "detected"
+        }
+      },
+      "observes_node": false,
+      "placeholders": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE"
+      ],
+      "expected_edge_properties": [
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|88",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+          {
+            "source_event_id": "18c1f66c-5638-5a3d-a01a-b47f115664b2",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed"
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC08-change-arrives",
+      "request": {
+        "event_id": "48279c37-df92-510f-879a-e6671586dd9f",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T14:19:40+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC08-change-arrives",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "number": 88,
+          "title": "Future correction"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g06/20261008-cloud-g06-all-01/auth|88",
+      "expected_props": {
+        "status": "open"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC08-incident-arrives",
+      "request": {
+        "event_id": "530355a2-f55e-56d5-a9b8-37766ef81e76",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:18:20+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC08-incident-arrives",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/future",
+          "incident_id": "INC-FUTURE",
+          "description": "Expired password-reset tokens accepted",
+          "severity": "high"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+      "expected_props": {
+        "status": "detected"
+      },
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+          "Component:g06/20261008-cloud-g06-all-01/auth/future"
+        ]
+      ],
+      "extra_nodes": {
+        "Component:g06/20261008-cloud-g06-all-01/auth/future": {}
+      }
+    },
+    {
+      "scenario": "IC09-authored-lesson",
+      "request": {
+        "event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:42+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC09-authored-lesson",
+        "payload": {
+          "statement": "Check token expiry server-side",
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "link_status": "confirmed",
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 8
+          }
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+      "expected_props": {
+        "status": "tentative",
+        "statement": "Check token expiry server-side",
+        "content_hash": "7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+      },
+      "expected_edges": [
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          {
+            "source_event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          {
+            "source_event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC09-authored-lesson-retry",
+      "request": {
+        "event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:42+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC09-authored-lesson",
+        "payload": {
+          "statement": "Check token expiry server-side",
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "link_status": "confirmed",
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 8
+          }
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+      "expected_props": {
+        "status": "tentative",
+        "statement": "Check token expiry server-side",
+        "content_hash": "7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+      },
+      "expected_edges": [
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          {
+            "source_event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          {
+            "source_event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ]
+      ],
+      "duplicate": true
+    },
+    {
+      "scenario": "IC09-authored-lesson-conflict",
+      "request": {
+        "event_id": "a0a400f8-6c7b-58b2-b766-13f37f471f08",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:42+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC09-authored-lesson",
+        "payload": {
+          "statement": "Changed lesson event content",
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "link_status": "confirmed",
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 8
+          }
+        }
+      },
+      "expected_status": 409,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {},
+      "expected_edge_properties": []
+    },
+    {
+      "scenario": "IC09-identical-text-other-incident",
+      "request": {
+        "event_id": "8f6ed558-885c-5b61-a521-8f6c93b75bb6",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:45+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC09-identical-text-other-incident",
+        "payload": {
+          "statement": "Check token expiry server-side",
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/other",
+            "service": "g06/20261008-cloud-g06-all-01/other/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "link_status": "confirmed"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+      "expected_props": {
+        "status": "tentative",
+        "statement": "Check token expiry server-side",
+        "content_hash": "fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored"
+      },
+      "expected_edges": [
+        [
+          "LEARNED_FROM",
+          "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "LEARNED_FROM",
+          "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+          {
+            "source_event_id": "8f6ed558-885c-5b61-a521-8f6c93b75bb6",
+            "pinned_position": "$receipt",
+            "link_status": "confirmed",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC09-rejected-support",
+      "request": {
+        "event_id": "b2537649-c170-5c0d-83f5-4a42be4da44b",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:46+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC09-rejected-support",
+        "payload": {
+          "statement": "Check token expiry server-side",
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "link_status": "rejected"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+      "expected_props": {
+        "status": "tentative",
+        "statement": "Check token expiry server-side",
+        "content_hash": "07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored"
+      },
+      "expected_edges": [
+        [
+          "LEARNED_FROM",
+          "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "LEARNED_FROM",
+          "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          {
+            "source_event_id": "b2537649-c170-5c0d-83f5-4a42be4da44b",
+            "pinned_position": "$receipt",
+            "link_status": "rejected",
+            "method": "declared",
+            "confidence": 1.0
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC10-explicit-citation",
+      "request": {
+        "event_id": "d27ce984-3407-5c6f-bb7c-3c7b6f2a4964",
+        "event_type": "pdlc.spec.approved",
+        "occurred_at": "2026-10-08T14:19:47+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC10-explicit-citation",
+        "payload": {
+          "doc_id": "g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027",
+          "version": "2",
+          "title": "Explicit future token-expiry specification",
+          "lesson_refs": [
+            {
+              "content_hash": "7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+      "expected_props": {
+        "status": "approved"
+      },
+      "expected_edges": [
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+        ]
+      ],
+      "extra_nodes": {},
+      "expected_edge_properties": [
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          {
+            "pinned_position": "$receipt"
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC10-similar-unciting-spec",
+      "request": {
+        "event_id": "a92da93c-441b-59e0-abbe-8e838f814b0b",
+        "event_type": "pdlc.spec.approved",
+        "occurred_at": "2026-10-08T14:19:48+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC10-similar-unciting-spec",
+        "payload": {
+          "doc_id": "g06/20261008-cloud-g06-all-01-unrelated-spec",
+          "version": "1",
+          "title": "Check token expiry server-side"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1",
+      "expected_props": {
+        "status": "approved"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC10-unknown-lesson-citation",
+      "request": {
+        "event_id": "227d7b80-896b-5f53-afa1-0a239ff330d2",
+        "event_type": "pdlc.spec.approved",
+        "occurred_at": "2026-10-08T14:19:49+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC10-unknown-lesson-citation",
+        "payload": {
+          "doc_id": "g06/20261008-cloud-g06-all-01-unknown-reference",
+          "version": "1",
+          "lesson_refs": [
+            {
+              "content_hash": "0000000000000000000000000000000000000000000000000000000000000000:authored"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+      "expected_props": {
+        "status": "approved"
+      },
+      "expected_edges": [
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+          "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored"
+        ]
+      ],
+      "extra_nodes": {
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored": {
+          "status": "tentative"
+        }
+      },
+      "placeholders": [
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored"
+      ],
+      "expected_edge_properties": [
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+          "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+          {
+            "pinned_position": "$receipt"
+          }
+        ]
+      ]
+    },
+    {
+      "scenario": "IC11-detected-missing-repo",
+      "request": {
+        "event_id": "1ca832b9-4a96-53e1-84a0-8d1f46979273",
+        "event_type": "pdlc.incident.detected",
+        "occurred_at": "2026-10-08T14:19:50+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-detected-missing-repo",
+        "payload": {
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": "INVALID"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC11-reported-typed-service",
+      "request": {
+        "event_id": "a276afbf-9a72-5024-a3a8-5267375f4ca4",
+        "event_type": "pdlc.incident.reported",
+        "occurred_at": "2026-10-08T14:19:51+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-reported-typed-service",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": [],
+          "incident_id": "INC-RESET-51"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC11-resolved-typed-id",
+      "request": {
+        "event_id": "0a4801d3-d409-5f44-80cd-2cfaa1a422b2",
+        "event_type": "pdlc.incident.resolved",
+        "occurred_at": "2026-10-08T14:19:52+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-resolved-typed-id",
+        "payload": {
+          "repo": "g06/20261008-cloud-g06-all-01/auth",
+          "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+          "incident_id": []
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC11-remediation-incomplete-pr",
+      "request": {
+        "event_id": "dd2e6436-77a5-585e-976b-9f21d735f874",
+        "event_type": "pdlc.incident.remediation_recorded",
+        "occurred_at": "2026-10-08T14:19:53+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-remediation-incomplete-pr",
+        "payload": {
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth"
+          }
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC11-remediation-typed-incident",
+      "request": {
+        "event_id": "b8b3534c-b9dc-5cdc-a278-74a8e195c5b9",
+        "event_type": "pdlc.incident.remediation_recorded",
+        "occurred_at": "2026-10-08T14:19:54+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-remediation-typed-incident",
+        "payload": {
+          "incident": {
+            "repo": [],
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          },
+          "change": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "number": 8
+          }
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IC11-lesson-typed-statement",
+      "request": {
+        "event_id": "462a45e1-1593-5c1d-81a3-52424e606510",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:55+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-lesson-typed-statement",
+        "payload": {
+          "statement": [],
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "service": "g06/20261008-cloud-g06-all-01/auth/reset",
+            "incident_id": "INC-RESET-51"
+          }
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {},
+      "absence_id": "Lesson:217fdf20a7dc95f5f90ba5fe9adfc5a43a486116e5f97a05ac042f52c9e56114:authored"
+    },
+    {
+      "scenario": "IC11-lesson-incomplete-support",
+      "request": {
+        "event_id": "70d57dcd-67f5-5f1f-abd9-e235eaa0e646",
+        "event_type": "pdlc.incident.lesson_recorded",
+        "occurred_at": "2026-10-08T14:19:56+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-lesson-incomplete-support",
+        "payload": {
+          "statement": "Invalid",
+          "incident": {
+            "repo": "g06/20261008-cloud-g06-all-01/auth",
+            "incident_id": "INVALID"
+          }
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {},
+      "absence_id": "Lesson:89509768135d22fe461e62b3461d581a1a0af7d1f971467f4a4c82717d6a78e2:authored"
+    },
+    {
+      "scenario": "IC11-citation-nonhex",
+      "request": {
+        "event_id": "9a7b1e9f-5f75-55f7-94ba-4481800cff91",
+        "event_type": "pdlc.spec.approved",
+        "occurred_at": "2026-10-08T14:19:57+00:00",
+        "session_id": "g06/20261008-cloud-g06-all-01",
+        "agent_id": "incident.publisher",
+        "trace_id": "20261008-cloud-g06-all-01",
+        "payload_ref": "synthetic:20261008-cloud-g06-all-01:IC11-citation-nonhex",
+        "payload": {
+          "doc_id": "g06/20261008-cloud-g06-all-01-invalid-spec",
+          "version": "1",
+          "lesson_refs": [
+            {
+              "content_hash": "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg:authored"
+            }
+          ]
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {},
+      "absence_id": "Spec:g06/20261008-cloud-g06-all-01-invalid-spec|1"
+    }
+  ],
+  "queries": [
+    {
+      "scenario": "IQ1-incident-feedback",
+      "seed": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+      "seeds": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+      ],
+      "intent": "incident",
+      "text": "incident Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ],
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ2-deployment-incident",
+      "seed": "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+      "seeds": [
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+      ],
+      "intent": "incident",
+      "text": "incident Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ],
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ3-corrective-pr-incident",
+      "seed": "Change:g06/20261008-cloud-g06-all-01/auth|8",
+      "seeds": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8"
+      ],
+      "intent": "incident",
+      "text": "incident Change:g06/20261008-cloud-g06-all-01/auth|8",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ],
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ4-future-spec-back-to-incident",
+      "seed": "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+      "seeds": [
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2"
+      ],
+      "intent": "incident",
+      "text": "incident Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ],
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ5-natural-language-reuse",
+      "seed": null,
+      "seeds": [],
+      "intent": "incident",
+      "text": "What incident lesson does g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027 cite?",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ],
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00"
+        ],
+        [
+          "REMEDIATES",
+          "Change:g06/20261008-cloud-g06-all-01/auth|8",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ6-other-scope-identical-lesson",
+      "seed": "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+      "seeds": [
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51"
+      ],
+      "intent": "incident",
+      "text": "incident Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+          "Component:g06/20261008-cloud-g06-all-01/other/reset"
+        ],
+        [
+          "LEARNED_FROM",
+          "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51"
+        ],
+        [
+          "OCCURRED_ON",
+          "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+          "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ7-no-deployment-reference",
+      "seed": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+      "seeds": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN"
+      ],
+      "intent": "incident",
+      "text": "incident Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ8-before-any-deployment",
+      "seed": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+      "seeds": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE"
+      ],
+      "intent": "incident",
+      "text": "incident Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+      "required": [
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "AFFECTS",
+          "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+          "Component:g06/20261008-cloud-g06-all-01/auth/reset"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ9-rejected-support-excluded",
+      "seed": "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+      "seeds": [
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored"
+      ],
+      "intent": "incident",
+      "text": "incident Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+      "required": [
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": []
+    },
+    {
+      "scenario": "IQ10-unknown-citation-honest",
+      "seed": "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+      "seeds": [
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1"
+      ],
+      "intent": "incident",
+      "text": "incident Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+      "required": [
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": [
+        [
+          "CITES",
+          "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+          "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored"
+        ]
+      ]
+    },
+    {
+      "scenario": "IQ11-unciting-spec",
+      "seed": "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1",
+      "seeds": [
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "intent": "incident",
+      "text": "incident Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1",
+      "required": [
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Change:g06/20261008-cloud-g06-all-01/auth|9",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": []
+    },
+    {
+      "scenario": "IQ12-unlinked-pr",
+      "seed": "Change:g06/20261008-cloud-g06-all-01/auth|9",
+      "seeds": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|9"
+      ],
+      "intent": "incident",
+      "text": "incident Change:g06/20261008-cloud-g06-all-01/auth|9",
+      "required": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|9"
+      ],
+      "forbidden": [
+        "Change:g06/20261008-cloud-g06-all-01/auth|8",
+        "Change:g06/20261008-cloud-g06-all-01/auth|88",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset",
+        "Component:g06/20261008-cloud-g06-all-01/auth/reset/worker",
+        "Component:g06/20261008-cloud-g06-all-01/other/reset",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset/worker|production|reset-bad-sha|2026-10-08T14:18:15+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:17:50+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:19:10+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/auth/reset|production|reset-bad-sha|2026-10-08T14:18:00+00:00",
+        "Deployment:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|production|reset-bad-sha|2026-10-08T14:18:10+00:00",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/future|INC-FUTURE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-BEFORE",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+        "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-UNKNOWN",
+        "Incident:g06/20261008-cloud-g06-all-01/other|g06/20261008-cloud-g06-all-01/other/reset|INC-RESET-51",
+        "Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored",
+        "Lesson:07af1fa2a43d6415ae4c0f089ef1b90fcca78fd16f3d29878b4276c38ce9ba04:authored",
+        "Lesson:7d5bb4213723142c79cad0f871809891c94863860e21b08489ae579a20072b2f:authored",
+        "Lesson:fb0d10d15bb7651a1e0801c2e5c59896c72418586dfe7663ded73698bdd17c67:authored",
+        "Spec:g06/20261008-cloud-g06-all-01-TOKEN-EXPIRY-2027|2",
+        "Spec:g06/20261008-cloud-g06-all-01-unknown-reference|1",
+        "Spec:g06/20261008-cloud-g06-all-01-unrelated-spec|1"
+      ],
+      "exact": true,
+      "max_depth": 3,
+      "expected_edges": []
+    }
+  ],
+  "fallback_seed": "Incident:g06/20261008-cloud-g06-all-01/auth|g06/20261008-cloud-g06-all-01/auth/reset|INC-RESET-51",
+  "source_kind": "Synthetic normalized incident producers; no native adapters or automatic validated knowledge"
+}

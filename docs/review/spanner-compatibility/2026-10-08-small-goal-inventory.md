@@ -1,5 +1,20 @@
 # Small goal inventory
 
+## Current checkpoint — G06 authorized and running
+
+G01–G05 have bounded published verification records. G05's connected dataset is
+retained in `engram-compat-target` by stakeholder instruction. Its [verification
+document](2026-10-08-goal-05-verification.md) and issue receipts are published.
+
+G06 alone is authorized, through [tickets #51–#53](2026-10-08-goal-06-ticket-draft.md),
+using separate `engram-g06-target`. Preparation passed with G05 unchanged. The
+first full cloud attempt exposed a runner codec-comparison error and is preserved;
+the corrected full rerun `20261008-cloud-g06-all-02` is in progress. No G06
+completion or ticket closure is claimed yet. G07 and later remain unstarted and
+require explicit stakeholder selection. Older status paragraphs below are
+historical checkpoints, not current authorization. The retired broad goal stays
+paused.
+
 ## Scope decision — disposable experiments (2026-10-08)
 
 Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
