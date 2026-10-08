@@ -4,7 +4,7 @@ Status: PAUSED AT STAKEHOLDER REQUEST. This is the bounded foundation gate appro
 
 ## What this gate changes
 
-Previously, the walkthrough branch held the goal record while the snapshot held necessary runtime and helpers. This gate uses `feature/engram-verified-foundation`, based on snapshot `f6fd87ce1086522bdc6fea1846d92ab9d6f50f31`, as a self-contained checkout. Original branches and the original dirty working tree are preserved. Publication coordinates will be recorded after verification.
+Previously, the walkthrough branch held the goal record while the snapshot held necessary runtime and helpers. This gate uses `feature/engram-verified-foundation`, based on snapshot `f6fd87ce1086522bdc6fea1846d92ab9d6f50f31`, as a self-contained checkout. Original branches and the original dirty working tree are preserved. The approved review/tooling checkpoint is published at source commit `b51437bec119a3ae4c50c75a8f076fb133c7473e`; this does not complete the paused cloud gate. See [publication and issue receipts](2026-10-08-foundation-gate-publication.json).
 
 The [dependency inventory](2026-10-08-foundation-gate-dependencies.csv) and [import/subprocess graph](2026-10-08-foundation-gate-imports.json) identify the shared source and helper dependencies. Static imports overapproximate execution; imported alternative providers are not acceptance runners. The tracking script is an explicit subprocess dependency. Import probes confirm critical runtime and helpers resolve to this checkout, not the original working tree.
 
@@ -67,7 +67,7 @@ Each run must preserve observations, source hashes/archive, worker outcomes, ret
 
 ## Issue reconciliation and limits
 
-Pending publication updates to #34, #39 and #41; no existing umbrella closes on these bounded reruns. Assess any newly found defect separately with reproduction/evidence. No new feature bucket is implied merely by consolidating branches; distinct new scope would need explicit assessment. #45 and #46 retain their earlier closed fixes; the broader live-retry, retention, ordering, cutover, optional composition and public multi-tenant work remains open.
+Progress/evidence updates posted to #34, #39 and #41; all remain open. See [comment receipts](2026-10-08-foundation-gate-publication.json). No existing umbrella closes on these bounded reruns. Assess any newly found defect separately with reproduction/evidence. No new feature bucket is implied merely by consolidating branches; distinct new scope would need explicit assessment. #45 and #46 retain their earlier closed fixes; the broader live-retry, retention, ordering, cutover, optional composition and public multi-tenant work remains open.
 
 This verifies only the declared G01–G03 paths. It does not prove the original 65-scenario baseline, public tenant dispatch, all pack combinations, authenticated human review or external test execution. Producer review/test assertions remain assertions. G01 late-edit policy still preserves merged lifecycle while using delivery order for title/time. Unevaluated-bundle serving is explicitly enabled; no pack-wide evaluation claim. Monitoring export IAM failures must remain visible separately from the data path.
 
