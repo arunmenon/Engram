@@ -47,6 +47,17 @@ def fixtures(run_id, *, start=None):
                 extra_nodes={},
             )
         )
+        step = steps[-1]
+        step["extra_nodes"] = {
+            endpoint: {} for edge in edges for endpoint in edge[1:] if endpoint != nid
+        }
+        if kind == "rolledback" and status == 201:
+            for edge in edges:
+                if edge[0] == "ROLLS_BACK":
+                    step["extra_nodes"][edge[2]]["status"] = "rolled_back"
+        step["node_assertions"] = deepcopy(step["extra_nodes"])
+        if status == 201:
+            step["node_assertions"][nid] = deepcopy(props or {})
 
     def query(scenario, after, seed, required, states, observations, edges=()):
         queries.append(
@@ -92,14 +103,19 @@ def fixtures(run_id, *, start=None):
         rollback,
         edges=[("ROLLS_BACK", rollback, b)],
     )
+    steps[-1]["node_assertions"][a] = {"status": "succeeded"}
     query(
         "DQ02-retained-exact-target",
         "D02-rollback-B",
         rollback,
-        [rollback, a, b],
-        {a: "succeeded", b: "rolled_back"},
-        {a: event_id("D01-A"), b: event_id("D01-B"), rollback: event_id("D02-rollback-B")},
-        [("ROLLS_BACK", rollback, b), ("DEPLOYS", b, node("Change", repo, 9))],
+        [rollback, b, component, node("Change", repo, 9)],
+        {b: "rolled_back"},
+        {b: event_id("D01-B"), rollback: event_id("D02-rollback-B")},
+        [
+            ("ROLLS_BACK", rollback, b),
+            ("DEPLOYS", b, node("Change", repo, 9)),
+            ("DEPLOYED_TO", b, component),
+        ],
     )
     add(
         "D03-late-original-B",
@@ -108,7 +124,9 @@ def fixtures(run_id, *, start=None):
         1,
         b,
         dict(status="rolled_back"),
+        [("DEPLOYS", b, node("Change", repo, 9)), ("DEPLOYED_TO", b, component)],
     )
+    steps[-1]["node_assertions"][a] = {"status": "succeeded"}
 
     # Neighboring time and each scoped key are distinct attempts despite reused artifact.
     for suffix, changes in (
@@ -125,7 +143,15 @@ def fixtures(run_id, *, start=None):
             payload["artifact_id"],
             at(1),
         )
-        add("D03-collision-" + suffix, "deployed", payload, 1, target, dict(status="succeeded"))
+        add(
+            "D03-collision-" + suffix,
+            "deployed",
+            payload,
+            1,
+            target,
+            dict(status="succeeded"),
+            [("DEPLOYED_TO", target, node("Component", payload["service"]))],
+        )
 
     unknown = ids["unknown_target"] = node(
         "Deployment", repo, service, "production", "unknown-sha", at(2)
@@ -147,8 +173,17 @@ def fixtures(run_id, *, start=None):
         [unknown_rollback, unknown],
         {unknown: "rolled_back"},
         {unknown: None, unknown_rollback: event_id("D04-unknown")},
+        [("ROLLS_BACK", unknown_rollback, unknown)],
     )
-    add("D04-late-fill", "deployed", unknown_identity, 2, unknown, dict(status="rolled_back"))
+    add(
+        "D04-late-fill",
+        "deployed",
+        unknown_identity,
+        2,
+        unknown,
+        dict(status="rolled_back"),
+        [("DEPLOYED_TO", unknown, component)],
+    )
     query(
         "DQ04-real-observation",
         "D04-late-fill",
@@ -156,6 +191,7 @@ def fixtures(run_id, *, start=None):
         [unknown_rollback, unknown],
         {unknown: "rolled_back"},
         {unknown: event_id("D04-late-fill"), unknown_rollback: event_id("D04-unknown")},
+        [("ROLLS_BACK", unknown_rollback, unknown)],
     )
 
     upgrade = ids["upgrade"] = node(
