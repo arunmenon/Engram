@@ -1,6 +1,6 @@
 # Foundation handoff gate before G04
 
-Status: PAUSED AT STAKEHOLDER REQUEST. Stakeholder approved this bounded gate before G04. G04 and later stay unstarted. No historical migration or cross-version upgrade analysis/tests.
+Status: BOUNDED HANDOFF COMPLETE AFTER SEPARATE G01/G02/G03 APPROVALS. Stakeholder approved this bounded gate before G04. G04 and later stay unstarted. No historical migration or cross-version upgrade analysis/tests.
 
 ## Fixed objective and stop rule
 
@@ -41,3 +41,9 @@ Stakeholder approved the necessity recommendations and requested concise, unders
 Stakeholder explicitly authorized G01 only on the cleaned-up foundation. Run `20261008-cloud-cleaned-g01-01` uses source commit `a718377c101fc8ac4ca1b315dfdc7bf2d86eeaee`, explicit predecessor epoch34/digest, original eight scenarios, real HTTP/Spanner/five workers/retrieval, exact owned cleanup and evidence publication. This approval does not restart G02/G03 or G04. No code changes during the run.
 
 G01-only revalidation completed successfully in `20261008-cloud-cleaned-g01-01`: all eight scenarios passed, Astra evidence review found no blockers, owned cleanup verified all seven tables empty and core epoch36 restored. Evidence and review published with issue updates. Execution stops here; G02/G03/G04 require separate approval.
+
+## G02/G03 revalidation approval
+
+Stakeholder subsequently authorized G02 and G03 on the cleaned-up code, serially, preserving original22/28 checks. StartG02 from exact empty core epoch36; startG03 only after verified G02 restoration. Archive source/evidence, independently review, reconcile issues and publish. G04 remains unstarted; no historical migration or broader platform work. This approval supersedes the prior G02/G03 pause only for these two bounded reruns.
+
+Final checkpoint: G02 passed 22 checks, G03 passed 28 checks on cleaned helpers, both independently evidence-reviewed without blockers. Exact owned cleanup restored empty core epoch 40. All bounded gate steps are satisfied; publish evidence and issue receipts, then stop. G04 and the broader #34/#41 backlog are not authorized by this gate. Earlier pause history remains recorded above.

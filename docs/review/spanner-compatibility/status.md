@@ -1,10 +1,10 @@
 # Spanner compatibility execution status
 
-Updated: 2026-10-08T05:10:11.806843+00:00. No compatibility sign-off.
+Updated: 2026-10-08T05:29:15.671103+00:00. No compatibility sign-off.
 
 Full scenario matrix: 65 rows; blocked=2, failed=36, not_run=13, passed=14. `not_run` includes partially executed rows whose full assertions remain open.
 
-Recorded cloud subchecks across all attempts: {'passed': 578, 'failed': 80, 'blocked': 8}. These counts include retries, harness failures and blocked attempts; they are not unique scenario passes or a product failure count.
+Recorded cloud subchecks across all attempts: {'passed': 628, 'failed': 80, 'blocked': 8}. These counts include retries, harness failures and blocked attempts; they are not unique scenario passes or a product failure count.
 
 Active unfinished runs: 20261008-local-strict-properties-03.
 

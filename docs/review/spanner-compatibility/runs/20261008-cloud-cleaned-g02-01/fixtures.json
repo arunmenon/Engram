@@ -1,0 +1,694 @@
+{
+  "source": "Synthetic normalized producer examples; no captured native document-service payloads or public-source claim.",
+  "ids": {
+    "spec": "Spec:g02/20261008-cloud-cleaned-g02-01-reset|1",
+    "expiry": "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry",
+    "single": "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|single",
+    "hld1": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+    "hld2": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+    "lld": "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1",
+    "approval": "DesignApproval:g02/20261008-cloud-cleaned-g02-01-approval",
+    "late": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|late|1",
+    "late_lld": "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|late-storage|1",
+    "other_spec": "Spec:g02/20261008-cloud-cleaned-g02-01-newsletter|1",
+    "other_req": "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry",
+    "other_design": "DesignElement:g02/20261008-cloud-cleaned-g02-01-newsletter-hld|subscriptions|1"
+  },
+  "steps": [
+    {
+      "scenario": "PL01",
+      "request": {
+        "event_id": "b11b5cd0-37ac-524a-93fc-bc2bd0ca2f3b",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-08T05:14:01.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL01",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+          "version": "1",
+          "title": "Password reset PRD",
+          "scope": "Reset a forgotten password",
+          "acceptance_criteria": "Expiry and single-use token",
+          "source_uri": "fixture://password-reset/prd/v1"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g02/20261008-cloud-cleaned-g02-01-reset|1",
+      "expected_props": {
+        "title": "Password reset PRD",
+        "status": "draft"
+      },
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL02-expiry",
+      "request": {
+        "event_id": "b55ac6bc-cd9f-5736-b956-32f96edcdeb0",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T05:14:02.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL02-expiry",
+        "payload": {
+          "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+          "spec_version": "1",
+          "local_id": "expiry",
+          "statement": "Password reset token expires in fifteen minutes"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry",
+      "expected_props": {
+        "statement": "Password reset token expires in fifteen minutes"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry",
+          "Spec:g02/20261008-cloud-cleaned-g02-01-reset|1"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL02-single",
+      "request": {
+        "event_id": "5e189fd1-5f92-5e93-95ed-bed71058e051",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T05:14:03.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL02-single",
+        "payload": {
+          "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+          "spec_version": "1",
+          "local_id": "single",
+          "statement": "Password reset token can be used only once"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|single",
+      "expected_props": {
+        "statement": "Password reset token can be used only once"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|single",
+          "Spec:g02/20261008-cloud-cleaned-g02-01-reset|1"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL03",
+      "request": {
+        "event_id": "667e4dc4-3af1-5698-9539-fc5fb526b9e1",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:04.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL03",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "1",
+          "kind": "hld",
+          "title": "Reset token architecture",
+          "body": "Reset service issues a short-lived token and consumes it once.",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "single"
+            }
+          ],
+          "source_uri": "fixture://password-reset/hld/v1"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+      "expected_props": {
+        "kind": "hld",
+        "body": "Reset service issues a short-lived token and consumes it once."
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry"
+        ],
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|single"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL04",
+      "request": {
+        "event_id": "fbf62596-244a-57e9-b7fd-0b3e8f27a194",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:05.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL04",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-lld",
+          "section_path": "storage",
+          "version": "1",
+          "kind": "lld",
+          "title": "Token storage details",
+          "body": "Store a token digest and expire it after fifteen minutes.",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ],
+          "refines_designs": [
+            {
+              "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+              "section_path": "tokens",
+              "version": "1"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1",
+      "expected_props": {
+        "kind": "lld",
+        "body": "Store a token digest and expire it after fifteen minutes."
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1"
+        ],
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL05",
+      "request": {
+        "event_id": "45aa4aa2-080c-5409-861a-ce9fc02bd74c",
+        "event_type": "pdlc.design.approval_recorded",
+        "occurred_at": "2026-10-08T05:14:06.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL05",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "1",
+          "approval_id": "g02/20261008-cloud-cleaned-g02-01-approval",
+          "reviewer": "alex@example.test",
+          "verdict": "approved"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignApproval:g02/20261008-cloud-cleaned-g02-01-approval",
+      "expected_props": {
+        "verdict": "approved"
+      },
+      "expected_edges": [
+        [
+          "APPROVES",
+          "DesignApproval:g02/20261008-cloud-cleaned-g02-01-approval",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL05-not-approved",
+      "request": {
+        "event_id": "913bb78f-1dd6-5395-bc02-98a1d56021de",
+        "event_type": "pdlc.design.approval_recorded",
+        "occurred_at": "2026-10-08T05:14:07.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL05-not-approved",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "1",
+          "approval_id": "g02/20261008-cloud-cleaned-g02-01-rejected",
+          "reviewer": "alex@example.test",
+          "verdict": "changes_requested"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL06",
+      "request": {
+        "event_id": "8fbfa711-f843-5b1c-af27-713b9b4f90b1",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:08.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL06",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "2",
+          "kind": "hld",
+          "title": "Reset token architecture",
+          "body": "Reset service also rate-limits token issuance.",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "single"
+            }
+          ],
+          "source_uri": "fixture://password-reset/hld/v1",
+          "supersedes_version": "1"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+      "expected_props": {
+        "body": "Reset service also rate-limits token issuance."
+      },
+      "expected_edges": [
+        [
+          "SUPERSEDES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1"
+        ],
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry"
+        ],
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|single"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL07-duplicate",
+      "request": {
+        "event_id": "8fbfa711-f843-5b1c-af27-713b9b4f90b1",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:08.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL06",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "2",
+          "kind": "hld",
+          "title": "Reset token architecture",
+          "body": "Reset service also rate-limits token issuance.",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "single"
+            }
+          ],
+          "source_uri": "fixture://password-reset/hld/v1",
+          "supersedes_version": "1"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": null,
+      "expected_props": {
+        "body": "Reset service also rate-limits token issuance."
+      },
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL07-conflict",
+      "request": {
+        "event_id": "8fbfa711-f843-5b1c-af27-713b9b4f90b1",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:08.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL06",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "2",
+          "kind": "hld",
+          "title": "Reset token architecture",
+          "body": "Conflicting replacement",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "single"
+            }
+          ],
+          "source_uri": "fixture://password-reset/hld/v1",
+          "supersedes_version": "1"
+        }
+      },
+      "expected_status": 409,
+      "expected_node": null,
+      "expected_props": {
+        "body": "Reset service also rate-limits token issuance."
+      },
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL08-version",
+      "request": {
+        "event_id": "c3a95b63-72d0-5ca8-b1a7-880a9677218e",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:11.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL08-version",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "kind": "hld",
+          "title": "Reset token architecture",
+          "body": "Reset service issues a short-lived token and consumes it once.",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "single"
+            }
+          ],
+          "source_uri": "fixture://password-reset/hld/v1"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL08-kind",
+      "request": {
+        "event_id": "5de8439a-f246-5d91-a2b0-0631f64a555a",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:12.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL08-kind",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "tokens",
+          "version": "1",
+          "kind": "unknown",
+          "title": "Reset token architecture",
+          "body": "Reset service issues a short-lived token and consumes it once.",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-reset",
+              "spec_version": "1",
+              "local_id": "single"
+            }
+          ],
+          "source_uri": "fixture://password-reset/hld/v1"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL09-before",
+      "request": {
+        "event_id": "530c4946-e4e2-5e01-8e27-b9046f0152ee",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:13.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL09-before",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-lld",
+          "section_path": "late-storage",
+          "version": "1",
+          "kind": "lld",
+          "title": "Late parent example",
+          "body": "Storage layout for a parent that arrives later.",
+          "refines_designs": [
+            {
+              "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+              "section_path": "late",
+              "version": "1"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|late-storage|1",
+      "expected_props": {
+        "kind": "lld"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|late-storage|1",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|late|1"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL09-after",
+      "request": {
+        "event_id": "2fd96deb-2098-5c53-a476-65780dae69c8",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:14.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL09-after",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-hld",
+          "section_path": "late",
+          "version": "1",
+          "kind": "hld",
+          "body": "Late-arriving storage architecture"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|late|1",
+      "expected_props": {
+        "body": "Late-arriving storage architecture"
+      },
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL10-spec",
+      "request": {
+        "event_id": "1bfc580e-6c5a-55ab-8852-7f63c8781748",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-08T05:14:15.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL10-spec",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-newsletter",
+          "version": "1",
+          "title": "Newsletter subscription PRD"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g02/20261008-cloud-cleaned-g02-01-newsletter|1",
+      "expected_props": {
+        "title": "Newsletter subscription PRD"
+      },
+      "expected_edges": []
+    },
+    {
+      "scenario": "PL10-requirement",
+      "request": {
+        "event_id": "6f0760ce-131a-5e82-a9fa-82a01631a537",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T05:14:16.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL10-requirement",
+        "payload": {
+          "spec_id": "g02/20261008-cloud-cleaned-g02-01-newsletter",
+          "spec_version": "1",
+          "local_id": "expiry",
+          "statement": "Newsletter unsubscribe link expires after seven days"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry",
+      "expected_props": {},
+      "expected_edges": [
+        [
+          "REFINES",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry",
+          "Spec:g02/20261008-cloud-cleaned-g02-01-newsletter|1"
+        ]
+      ]
+    },
+    {
+      "scenario": "PL10-design",
+      "request": {
+        "event_id": "31269cb2-ef6c-5a81-9a62-0e8d5b58d897",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T05:14:17.820533+00:00",
+        "session_id": "planning:g02/20261008-cloud-cleaned-g02-01",
+        "agent_id": "planning.publisher",
+        "trace_id": "20261008-cloud-cleaned-g02-01",
+        "payload_ref": "synthetic:20261008-cloud-cleaned-g02-01:PL10-design",
+        "payload": {
+          "doc_id": "g02/20261008-cloud-cleaned-g02-01-newsletter-hld",
+          "section_path": "subscriptions",
+          "version": "1",
+          "kind": "hld",
+          "body": "Newsletter subscription architecture",
+          "requirements": [
+            {
+              "spec_id": "g02/20261008-cloud-cleaned-g02-01-newsletter",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g02/20261008-cloud-cleaned-g02-01-newsletter-hld|subscriptions|1",
+      "expected_props": {},
+      "expected_edges": [
+        [
+          "REFINES",
+          "DesignElement:g02/20261008-cloud-cleaned-g02-01-newsletter-hld|subscriptions|1",
+          "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry"
+        ]
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "scenario": "PL11-hld-v1",
+      "seed": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+      "intent": "status",
+      "required": [
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+        "DesignApproval:g02/20261008-cloud-cleaned-g02-01-approval",
+        "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry",
+        "Spec:g02/20261008-cloud-cleaned-g02-01-reset|1",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1"
+      ],
+      "forbidden": [
+        "Spec:g02/20261008-cloud-cleaned-g02-01-newsletter|1",
+        "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-newsletter-hld|subscriptions|1"
+      ]
+    },
+    {
+      "scenario": "PL11-requirement",
+      "seed": "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry",
+      "intent": "trace",
+      "required": [
+        "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry",
+        "Spec:g02/20261008-cloud-cleaned-g02-01-reset|1",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2"
+      ],
+      "forbidden": [
+        "Spec:g02/20261008-cloud-cleaned-g02-01-newsletter|1",
+        "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-newsletter-hld|subscriptions|1"
+      ]
+    },
+    {
+      "scenario": "PL11-history",
+      "seed": "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+      "intent": "status",
+      "required": [
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|1",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-hld|tokens|2",
+        "DesignApproval:g02/20261008-cloud-cleaned-g02-01-approval"
+      ],
+      "forbidden": []
+    },
+    {
+      "scenario": "PL11-lld",
+      "seed": "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1",
+      "intent": "status",
+      "required": [
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-lld|storage|1"
+      ],
+      "forbidden": []
+    },
+    {
+      "scenario": "PL12",
+      "seed": null,
+      "text": "fifteen minutes",
+      "intent": "trace",
+      "required": [
+        "Requirement:g02/20261008-cloud-cleaned-g02-01-reset|1|expiry"
+      ],
+      "forbidden": [
+        "Spec:g02/20261008-cloud-cleaned-g02-01-newsletter|1",
+        "Requirement:g02/20261008-cloud-cleaned-g02-01-newsletter|1|expiry",
+        "DesignElement:g02/20261008-cloud-cleaned-g02-01-newsletter-hld|subscriptions|1"
+      ]
+    }
+  ]
+}

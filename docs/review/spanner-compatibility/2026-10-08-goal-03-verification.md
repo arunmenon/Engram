@@ -1,5 +1,26 @@
 # G03 verification and stakeholder demonstration
 
+## Latest revalidation on cleaned-up foundation
+
+Run `20261008-cloud-cleaned-g03-01` passed all 28 original checks from executed source commit `13e9d12be28feee1d05d0325f67ff35466a70921`. Current core 1.1.0 and PDLC 2.1.0 use the cleaned-up shared helpers; original assertions and fixtures are preserved. No source changes or manual repair during execution. Earlier run details below remain historical evidence.
+
+| Functional check | Observed result |
+|---|---|
+| Planning → ticket → PR | Explicit requirement/HLD/LLD/work-item/code links retained with event evidence |
+| Reviews | Changes-requested and approved reviews remain separate, with their producer-asserted reviewers |
+| Verification results | Failed and passing TestRuns remain separate; VERIFIES means coverage, not passing; commit SHA retained |
+| Duplicate/conflict/invalid input | 17 unique accepted events, one idempotent retry, one 409 conflict and four 422 rejections across 23 input steps; retries/rejections add no writes |
+| Seeded retrieval | Four queries from Requirement, LLD, Change and TestCase include the 11 expected main artifacts and 14 declared main-chain links with evidence |
+| Text discovery | The fifth query discovers the expiry requirement without explicit seeds; it does not promise the complete chain |
+| Isolation and absent links | Unrelated newsletter data excluded despite colliding local IDs; unlinked artifacts acquire no invented requirement/code links |
+
+All five worker loops completed with zero lag and empty pending/dead-letter sets. Authenticated Engram HTTP, actual Spanner storage and ordinary workers/retrieval were used. Two actual LLM extraction outcomes are retained, including schema-filtered rejected proposals; generated artifacts are separately evidenced, not substituted for declared links. These normalized producer events do not establish new native source adapters or authenticated human approval/test execution by Engram.
+
+Owned cleanup removed 17 events, 41 nodes, 61 edges, 5 groups and 80 cursors. All seven application tables are empty; core ownership restored at epoch 40. Dynamic generated nodes were attributed through registered Event provenance before cleanup. No new defect or feature bucket; no historical migration. G04 has not started.
+
+Evidence: [observations](runs/20261008-cloud-cleaned-g03-01/observations.json), [fixtures](runs/20261008-cloud-cleaned-g03-01/fixtures.json), [preflight](runs/20261008-cloud-cleaned-g03-01/preflight.json), [manifest](runs/20261008-cloud-cleaned-g03-01/manifest.json), [source hashes](runs/20261008-cloud-cleaned-g03-01/executed-source-sha256.json), [source archive](runs/20261008-cloud-cleaned-g03-01/executed-source.tar.gz), [log](runs/20261008-cloud-cleaned-g03-01/runner.log). [Astra evidence review](2026-10-08-cleaned-g03-astra-evidence-review.md) found no blockers and confirmed all 189 source hashes. Issue reconciliation is recorded with publication; broader issues remain open. Public tenant dispatch, whole-pack evaluation and original 65-scenario sign-off remain separate. Monitoring export IAM 403 is retained independently of passing data-path checks.
+
+
 Status: VERIFIED on real Spanner, independently reviewed, pushed and GitHub-reconciled. Recorded walkthrough is provided here; stakeholder sign-off is not assumed. G04 has not started. Historical migration is excluded from all current goals.
 
 ## What the stakeholder can now ask

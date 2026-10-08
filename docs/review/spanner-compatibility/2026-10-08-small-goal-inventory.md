@@ -95,3 +95,7 @@ G02 [verification and recorded stakeholder walkthrough](2026-10-08-goal-02-verif
 G03 verified: [exact implementation/review/test specification](2026-10-08-goal-03-implementation-journey.md). G04 and later remain unstarted. Historical migration excluded.
 
 G03 [verification and recorded stakeholder walkthrough](2026-10-08-goal-03-verification.md) is published:28real-Spanner checks passed, no review blockers, seven issues updated and kept open for remaining acceptance. G04 and later remain unstarted.
+
+## Cleaned foundation revalidation checkpoint
+
+The stakeholder separately authorized G01, then G02/G03. All passed on `feature/engram-verified-foundation`: G01 eight scenarios, G02 22 checks and G03 28 checks, with independent evidence reviews and exact cleanup. See the [bounded foundation handoff](2026-10-08-foundation-gate-verification.md). Original runs and failed/interrupted reruns remain preserved. G04 has not started and needs explicit approval. The retired broad goal remains paused.

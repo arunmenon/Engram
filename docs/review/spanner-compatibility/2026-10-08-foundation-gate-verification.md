@@ -1,10 +1,10 @@
 # Foundation handoff gate: verification and stakeholder walkthrough
 
-Status: PAUSED AT STAKEHOLDER REQUEST. This is the bounded foundation gate approved before G04, not completion of #34 or #41. G04 has not started. Historical migration and cross-version upgrades remain excluded.
+Status: BOUNDED FOUNDATION HANDOFF VERIFIED. G01–G03 reruns complete; G04 remains unstarted. This is the bounded foundation gate approved before G04, not completion of #34 or #41. G04 has not started. Historical migration and cross-version upgrades remain excluded.
 
 ## What this gate changes
 
-Previously, the walkthrough branch held the goal record while the snapshot held necessary runtime and helpers. This gate uses `feature/engram-verified-foundation`, based on snapshot `f6fd87ce1086522bdc6fea1846d92ab9d6f50f31`, as a self-contained checkout. Original branches and the original dirty working tree are preserved. The approved review/tooling checkpoint is published at source commit `b51437bec119a3ae4c50c75a8f076fb133c7473e`; this does not complete the paused cloud gate. See [publication and issue receipts](2026-10-08-foundation-gate-publication.json).
+Previously, the walkthrough branch held the goal record while the snapshot held necessary runtime and helpers. This gate uses `feature/engram-verified-foundation`, based on snapshot `f6fd87ce1086522bdc6fea1846d92ab9d6f50f31`, as a self-contained checkout. Original branches and the original dirty working tree are preserved. The review/tooling checkpoint was published at `b51437bec119a3ae4c50c75a8f076fb133c7473e`; subsequent G01–G03 cloud reruns now complete this bounded handoff. See [publication and issue receipts](2026-10-08-foundation-gate-publication.json).
 
 The [dependency inventory](2026-10-08-foundation-gate-dependencies.csv) and [import/subprocess graph](2026-10-08-foundation-gate-imports.json) identify the shared source and helper dependencies. Static imports overapproximate execution; imported alternative providers are not acceptance runners. The tracking script is an explicit subprocess dependency. Import probes confirm critical runtime and helpers resolve to this checkout, not the original working tree.
 
@@ -40,9 +40,9 @@ Acceptance uses only `portiq-mvp/engram-experiment/engram-compat-target`. Creden
 
 | Journey | Expected proof | Run/result |
 |---|---|---|
-| G01: PR activity | All eight original scenarios; exact ledger/graph/retrieval and forbidden effects | Passed: [10 checks including setup steps](runs/20261008-cloud-foundation-g01-02/observations.json); cleanup restored epoch32 |
-| G02: planning | All 22 checks: versioned PRD/requirements/HLD/LLD, approval, revisions, rejection and retrieval | Interrupted at user request after 17 checks; [stop/cleanup record](runs/20261008-cloud-foundation-g02-01/user-stop.json); not a full pass |
-| G03: implementation | All 28 checks: explicit ticket/code/review/test chain, failed and passing runs, isolation | Pending |
+| G01: PR activity | All eight original scenarios; exact ledger/graph/retrieval and forbidden effects | Passed: [cleaned rerun, 10 checks including prerequisites](runs/20261008-cloud-cleaned-g01-01/observations.json); cleanup restored epoch36 |
+| G02: planning | All 22 checks: versioned PRD/requirements/HLD/LLD, approval, revisions, rejection and retrieval | Passed: [22 checks on cleaned helpers](runs/20261008-cloud-cleaned-g02-01/observations.json); cleanup restored epoch38. Earlier user-interrupted attempt retained separately |
+| G03: implementation | All 28 checks: explicit ticket/code/review/test chain, failed and passing runs, isolation | Passed: [28 checks on cleaned helpers](runs/20261008-cloud-cleaned-g03-01/observations.json); cleanup restored epoch40 |
 
 Repeat driver shape (replace the run ID and BOTH predecessor pins with the deliberately authorized current owner; do not use historical driver defaults):
 
@@ -88,3 +88,11 @@ No new feature bucket is needed: this is tooling simplification supporting exist
 ## G01 revalidated on cleaned-up helpers
 
 Stakeholder authorized G01 only. `20261008-cloud-cleaned-g01-01` passed all eight scenarios/10 checks from source commit `a718377c101fc8ac4ca1b315dfdc7bf2d86eeaee`. All five workers stopped and owned cleanup left seven tables empty; core owner restored epoch36. See [latest G01 verification walkthrough](2026-10-08-goal-01-verification.md). This supersedes only the statement that cleaned-up helpers lack any cloud revalidation: G01 is now revalidated, while G02/G03 and broader gate completion remain paused. No migration or G04 execution.
+
+## Final bounded handoff checkpoint
+
+Stakeholder authorized G02/G03 revalidation after G01. Both passed from source commit `13e9d12be28feee1d05d0325f67ff35466a70921`, with no source changes/manual repair. Independent [G02](2026-10-08-cleaned-g02-astra-evidence-review.md) and [G03](2026-10-08-cleaned-g03-astra-evidence-review.md) evidence reviews found no blockers; each archive's 189 hashes match. Read the [G02 walkthrough](2026-10-08-goal-02-verification.md) and [G03 walkthrough](2026-10-08-goal-03-verification.md) for expected/observed checks, source, workers, graph, retrieval and cleanup. This completes the bounded reproducible G01–G03 handoff, not feature #34 or compatibility #41.
+
+Final target state: seven application tables empty, mandatory-core owner epoch40/digest f57ffb… active. Existing ordering, public tenant, capability-combination, retention/retry and baseline acceptance requirements remain separate. No new defect or feature bucket from these reruns. G04 is not authorized and has not started. The retired broad goal remains paused.
+
+The dependency CSV/import graph is retained as the initial pre-cleanup source-review input; current helper imports and exact run archives show the cleaned dependency boundary. Historical scenario runners are no longer imported by the goal drivers. Failed/interrupted attempts remain evidence and are not counted as passes.

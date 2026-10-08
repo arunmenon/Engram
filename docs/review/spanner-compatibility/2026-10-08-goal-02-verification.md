@@ -1,5 +1,25 @@
 # G02 verification and stakeholder demonstration
 
+## Latest revalidation on cleaned-up foundation
+
+`20261008-cloud-cleaned-g02-01` passed all 22 original checks from executed source commit `13e9d12be28feee1d05d0325f67ff35466a70921`. This is current core 1.1.0 and PDLC 2.1.0 and the cleaned-up shared helpers, preserving the earlier goal's oracles. No source changes or manual repair during execution. Historical run details below remain retained evidence.
+
+| Functional check | Observed result |
+|---|---|
+| PRD → requirements → HLD → LLD | Explicit revision-specific artifacts and declared links projected and retrieved with evidence |
+| Approval and revision | Approval remains bound to HLD v1; HLD v2 supersedes v1 without inheriting approval |
+| Duplicate/conflict/invalid input | 12 unique accepted events, one idempotent retry and four no-write rejections (three 422, one 409) across 17 input steps |
+| Missing references | Identity-only placeholder later filled by the real artifact without losing its links |
+| Retrieval and isolation | Five final retrieval checks passed; unrelated newsletter artifacts excluded |
+| Actual pack extraction | Six applied LLM extraction outcomes recorded; proposals/outcomes retained separately from declared links |
+
+All five actual worker loops reached zero lag with empty pending/dead-letter sets. The full path used authenticated Engram HTTP → actual Spanner ledger → workers → graph → retrieval. Inputs are normalized producer events, not a new native PRD/HLD adapter or automatic field interpretation. Review/test/source assertions retain their declared trust scope.
+
+Owned cleanup removed 12 events, 29 nodes, 45 edges, 5 groups and 80 cursors. All seven application tables are empty; core owner restored epoch 38. [Astra's scoped evidence review](2026-10-08-cleaned-g02-astra-evidence-review.md) found no blockers and confirmed all 189 archived source hashes. No new product defect or new feature bucket.
+
+Evidence: [observations](runs/20261008-cloud-cleaned-g02-01/observations.json), [fixtures](runs/20261008-cloud-cleaned-g02-01/fixtures.json), [preflight](runs/20261008-cloud-cleaned-g02-01/preflight.json), [manifest](runs/20261008-cloud-cleaned-g02-01/manifest.json), [exact source hashes](runs/20261008-cloud-cleaned-g02-01/executed-source-sha256.json), [archive](runs/20261008-cloud-cleaned-g02-01/executed-source.tar.gz), [log](runs/20261008-cloud-cleaned-g02-01/runner.log). Broader issue acceptance, public tenant dispatch, whole-pack evaluation and original 65 baseline sign-off remain separate; Monitoring IAM 403 remains recorded. No migration work; G04 has not started.
+
+
 ## Scope decision — disposable experiments (2026-10-08)
 
 Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
@@ -129,7 +149,7 @@ For a recorded walkthrough, follow PL01 → PL02 → PL03/04 → PL05/06, then s
 - Approval asserts a named revision and supplied reviewer; it does not prove independently authenticated human approval or immutable content. Different event IDs can still rewrite the same revision. Design lifecycle remains draft; approval does not automatically promote it.
 - PDLC 2.0 breaks prior Requirement/DesignElement identities. Only an empty disposable target was activated. Historical migration is excluded from current goals and is not a blocker.
 - Actual cloud data operations succeed; monitoring metrics emit an IAM 403, so metrics publication is not verified.
-- All original65 Spanner baseline scenario statuses remain unchanged; these G02 extensions do not promote baseline cases. Full PDLC event coverage, CRM/unfamiliar packs and later journeys remain outside G02.
+- All original 65 Spanner baseline scenario statuses remain unchanged; these G02 extensions do not promote baseline cases. Full PDLC event coverage, CRM/unfamiliar packs and later journeys remain outside G02.
 
 ## GitHub reconciliation and feature-bucket assessment
 
@@ -144,7 +164,7 @@ Actual synchronization links and status changes are recorded below. #46 is the o
 | #37 | OPEN → OPEN | Same-ID duplicate/conflict verified; other producers and normalization remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/37#issuecomment-6051646919) |
 | #39 | OPEN → OPEN | Exact planning paths/evidence and retrieval; whole-pack/unfamiliar-pack conformance remains. | [GitHub update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6051647193) |
 | #40 | OPEN → OPEN | Planning journey implemented and verified; code/test and operational journeys remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/40#issuecomment-6051647461) |
-| #41 | OPEN → OPEN | G02 cloud extension evidence added; original65 baseline statuses unchanged. | [GitHub update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6051647737) |
+| #41 | OPEN → OPEN | G02 cloud extension evidence added; original 65 baseline statuses unchanged. | [GitHub update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6051647737) |
 | #46 | OPEN → CLOSED | Bounded missing-selected-edge bug fixed, reviewed and verified on cloud. | [GitHub update](https://github.com/arunmenon/Engram/issues/46#issuecomment-6051648083) |
 
 #34 and #40 body summaries were also refreshed to distinguish current G02 evidence from historical gaps. #46 acceptance checkboxes are complete and the defect is closed. Review: no blockers in bounded technical acceptance; all source hashes matched. No new feature bucket was created because both the mapping work and retrieval fix fit existing ownership. Publication commit b81398599ef63c259498d60c61544b36ed116619 includes implementation, exact-source archives, failed attempts and passing rerun. The subsequent documentation commit carries these actual reconciliation links.
