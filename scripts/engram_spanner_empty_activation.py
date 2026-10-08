@@ -11,7 +11,8 @@ from google.cloud.spanner_v1 import KeySet
 
 RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target"
 G06_RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-g06-target"
-RESERVED_RESOURCES = frozenset({RESOURCE, G06_RESOURCE})
+G07_RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target"
+RESERVED_RESOURCES = frozenset({RESOURCE, G06_RESOURCE, G07_RESOURCE})
 KEYS = {
     "Events": ("event_id",),
     "GraphNodes": ("label", "node_id"),

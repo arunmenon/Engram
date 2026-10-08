@@ -96,7 +96,7 @@ def fingerprint(database):
 
 
 def runtime_settings(values, *, database="engram-compat-target"):
-    if database not in {"engram-compat-target", "engram-g06-target"}:
+    if database not in {"engram-compat-target", "engram-g06-target", "engram-g07-target"}:
         raise ValueError("Only named disposable experiment databases are supported")
     settings = Settings()
     for port in ("event_log", "subscription", "graph", "keyword_index", "vector_index"):
