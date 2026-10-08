@@ -1,6 +1,6 @@
 # G04 — Changes, releases and deployment outcomes
 
-Status: TECHNICALLY VERIFIED in 20261008-cloud-g04-all-01;31checks passed and independent evidence review cleared. Publication and issue reconciliation pending. G04 only; stop before G05. No separate foundation track or G01–G03 reruns. Historical migration excluded.
+Status: VERIFIED in 20261008-cloud-g04-all-01; 31 checks passed, independent evidence review cleared, GitHub issues reconciled and verification walkthrough published. G04 only; stop before G05. No separate foundation track or G01–G03 reruns. Historical migration excluded.
 
 ## Outcome and bounded changes
 
@@ -42,4 +42,4 @@ Retrieval sets are seed-specific: a single production attempt returns itself, Ch
 
 ## Observed outcome
 
-All27input steps and four exact final retrievals passed on real Spanner, on fixed PDLC3.0 and source431a29d. See [verification and recorded walkthrough](2026-10-08-goal-04-verification.md) and [final Astra evidence review](2026-10-08-astra-g04-evidence-review.md). Cleanup leaves seven application tables empty, core epoch42. Identity defect#47 belongs to existing#34/#40 scope; no distinct feature bucket needed. Stop before G05.
+All27 input steps and four exact final retrievals passed on real Spanner, on fixed PDLC 3.0 and source 431a29d. See [verification and recorded walkthrough](2026-10-08-goal-04-verification.md) and [final Astra evidence review](2026-10-08-astra-g04-evidence-review.md). Cleanup leaves seven application tables empty, core epoch 42. Identity defect #47 belongs to existing #34/#40 scope; no distinct feature bucket needed. Stop before G05.

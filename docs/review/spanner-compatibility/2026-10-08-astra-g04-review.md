@@ -4,7 +4,7 @@ Reviewer: gpt-6-astra, medium effort, read-only. Scope: G04 design, PDLC declara
 
 ## Design findings and disposition
 
-- Deployment identity lacked repo/service: corrected all Deployment keys to repo+service+environment+artifact_id+started_at, PDLC3.0, with deliberately equal-timestamp collisions across repos/services. No historical migration.
+- Deployment identity lacked repo/service: corrected all Deployment keys to repo+service+environment+artifact_id+started_at, PDLC 3.0, with deliberately equal-timestamp collisions across repos/services. No historical migration.
 - Retrieval oracles needed seed-specific sets: frozen separately; one attempt does not imply sibling expansion, Component catalog identities can explicitly be shared.
 - API provenance is newest event only, while storage retains all: asserted separately; reference placeholders have no event provenance before arrival.
 - Outcome authority is event type; extra payload fields are preserved, not asserted rejected. Incidents remain outside G04, including their older environment/artifact latest lookup.

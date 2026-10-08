@@ -1,6 +1,6 @@
 # G04 verification and stakeholder demonstration
 
-Status: TECHNICALLY VERIFIED: all31predeclared real-Spanner checks passed; independent final evidence review found no blockers. GitHub reconciliation/publication remain pending until linked below. Stakeholder sign-off is not assumed. G05 has not started.
+Status: VERIFIED and independently reviewed; all 31 predeclared real-Spanner checks passed. Recorded stakeholder walkthrough delivered here; GitHub issues are reconciled below. Stakeholder sign-off is separate. Stakeholder sign-off is not assumed. G05 has not started.
 
 ## What this demonstrates
 
@@ -10,15 +10,15 @@ A password-reset change is merged and explicitly included in a release. Its firs
 
 The reconciled foundation supplies authentication/tenant binding, admission, receipts, five ordinary worker loops, Spanner ports, graph projection interpreter and artifact retrieval. No foundation track or G01–G03 cloud reruns. No generic retrieval/runtime change. The existing G03 demo harness accepts explicit G04 fixtures instead of copying a second runner; stronger checks are G04-gated and G03 retains its default fixture path.
 
-PDLC3.0 adds a failed deployment event, optional explicit release_version→Release mapping, Deployment query seeds, valid release-section enforcement and repo/service in deployment identity. That identity change is breaking and runs on a fresh disposable dataset; historical migration is excluded. The original identity collision is tracked in #47 under #34; G04 lifecycle work fits #40.
+PDLC 3.0 adds a failed deployment event, optional explicit release_version→Release mapping, Deployment query seeds, valid release-section enforcement and repo/service in deployment identity. That identity change is breaking and runs on a fresh disposable dataset; historical migration is excluded. The original identity collision is tracked in #47 under #34; G04 lifecycle work fits #40.
 
 ## Reproduction and source provenance
 
 - Run: `20261008-cloud-g04-all-01`. Executed commit: `431a29d5bb7d0e2dfa971f0264a2e2b94a02bc87`; per-file archive has 190 matching hashes. Contents were frozen before the first cloud operation.
 - Target: `projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target`; never the source database `engram`.
-- Core1.1 + PDLC3.0; memory/user disabled. Private bound tenant compat-control, real Bearer catalog authentication and response guard. All five ports use real Spanner, emulator unset, creation disabled.
+- Core 1.1 + PDLC 3.0; memory/user disabled. Private bound tenant compat-control, real Bearer catalog authentication and response guard. All five ports use real Spanner, emulator unset, creation disabled.
 - Inputs are synthetic normalized producer events. No new native release/deployment adapter or arbitrary raw-field interpretation is claimed. Source assertions record external outcomes; Engram does not actually deploy software.
-- Explicit serve_unevaluated experiment gate; no whole-pack/public-dispatch/baseline65 sign-off. Real cached embeddings run; no G04 event requires LLM pack extraction, so LLM client initialization is not reported as extraction execution.
+- Explicit serve_unevaluated experiment gate; no whole-pack/public-dispatch/65-scenario baseline sign-off. Real cached embeddings run; no G04 event requires LLM pack extraction, so LLM client initialization is not reported as extraction execution.
 
 ```bash
 PYTHONPATH=scripts .venv/bin/python scripts/engram_goal04_release_demo.py \
@@ -27,7 +27,7 @@ PYTHONPATH=scripts .venv/bin/python scripts/engram_goal04_release_demo.py \
   --expected-epoch CURRENT_VERIFIED_EMPTY_CORE_EPOCH
 ```
 
-Repeat from the archived source with locked dependencies and refreshed private credentials. Inspect owner/digest and all seven tables first; never override a changed owner or nonempty database. The completed run restored epoch42. No tokens appear in committed evidence.
+Repeat from the archived source with locked dependencies and refreshed private credentials. Inspect owner/digest and all seven tables first; never override a changed owner or nonempty database. The completed run restored epoch 42. No tokens appear in committed evidence.
 
 ## Graph meaning
 
@@ -98,10 +98,10 @@ A single failed-attempt query returns that attempt, its Change, Release and Comp
 
 ## Cleanup, failures and limitations
 
-Owned cleanup counts: `{'Events': 17, 'GraphNodes': 38, 'GraphEdges': 62, 'ConsumerGroups': 5, 'ConsumerCursors': 80, 'ConsumerDeliveries': 0, 'ConsumerDeadLetters': 0}`. All seven application tables are empty; active core ownership restored to epoch42. Shutdown errors: none. Owner40→41 for the experiment→42 restored; no manual graph repair or direct artifact setup.
-Local preflight failures (outdated test identity oracles, invalid old section fixture, strict local Event conversion, payload aliasing and an incorrect local test filename) are retained in the local G04 logs; final affected suite:190passed. These are not cloud passes. All cloud attempts remain retained; this first complete cloud run passed. Monitoring export403 is outside data-path assertions and remains unresolved.
+Owned cleanup counts: `{'Events': 17, 'GraphNodes': 38, 'GraphEdges': 62, 'ConsumerGroups': 5, 'ConsumerCursors': 80, 'ConsumerDeliveries': 0, 'ConsumerDeadLetters': 0}`. All seven application tables are empty; active core ownership restored to epoch 42. Shutdown errors: none. Owner40→41 for the experiment → 42 restored; no manual graph repair or direct artifact setup.
+Local preflight failures (outdated test identity oracles, invalid old section fixture, strict local Event conversion, payload aliasing and an incorrect local test filename) are retained in the local G04 logs; final affected suite:190 passed. These are not cloud passes. All cloud attempts remain retained; this first complete cloud run passed. Monitoring export403 is outside data-path assertions and remains unresolved.
 
-Deployment attempts still use timestamp-based identity: otherwise identical keys require distinct attempt timestamps; native attempt IDs are not added. Outcome authority is the event type; unrecognized extra payload fields are preserved. Incidents/rollback/upgrade, public tenant dispatch, optional-pack combinations and original65baseline remain outside this slice. No historical migration.
+Deployment attempts still use timestamp-based identity: otherwise identical keys require distinct attempt timestamps; native attempt IDs are not added. Outcome authority is the event type; unrecognized extra payload fields are preserved. Incidents/rollback/upgrade, public tenant dispatch, optional-pack combinations and original 65-scenario baseline remain outside this slice. No historical migration.
 
 ## Recorded stakeholder walkthrough
 
@@ -118,4 +118,20 @@ Deployment attempts still use timestamp-based identity: otherwise identical keys
 
 [Fixtures](runs/20261008-cloud-g04-all-01/fixtures.json), [observations](runs/20261008-cloud-g04-all-01/observations.json), [manifest](runs/20261008-cloud-g04-all-01/manifest.json), [source hashes](runs/20261008-cloud-g04-all-01/executed-source-sha256.json), [executed source](runs/20261008-cloud-g04-all-01/executed-source.tar.gz), [preflight](runs/20261008-cloud-g04-all-01/preflight.json), [runner log](runs/20261008-cloud-g04-all-01/runner.log), [implementation review](2026-10-08-astra-g04-review.md).
 
-[Final independent Astra evidence review](2026-10-08-astra-g04-evidence-review.md) found no blockers. Actual GitHub reconciliation will be linked after completion. Broader issues are not presumed closed. G05 remains unstarted.
+[Final independent Astra evidence review](2026-10-08-astra-g04-evidence-review.md) found no blockers. Actual [GitHub reconciliation receipts](2026-10-08-g04-issue-reconciliation.json) are recorded below. Broader issues are not presumed closed. G05 remains unstarted.
+
+## Actual GitHub reconciliation and feature-bucket assessment
+
+| Issue | Before → after | Acceptance advanced and remaining scope | Actual update |
+|---|---|---|---|
+| #34 | OPEN → OPEN | Bounded G04 milestone recorded; other feature goals remain open. New child #47 records the confirmed deployment identity defect. | [GitHub update](https://github.com/arunmenon/Engram/issues/34#issuecomment-6053441691) |
+| #4 | OPEN → OPEN | Eight G04 invalid inputs reject before append, with candidate absence and full-table no-write proof. Other event/ingress contract coverage remains open. | [GitHub update](https://github.com/arunmenon/Engram/issues/4#issuecomment-6053442676) |
+| #35 | OPEN → OPEN | New PDLC3.0 event/rules resolve in the existing core+PDLC bundle and reject an unsupported domain event. Other capability combinations, public routing and unfamiliar-pack scope remain open. | [GitHub update](https://github.com/arunmenon/Engram/issues/35#issuecomment-6053443252) |
+| #36 | OPEN → OPEN | Repo/service-scoped deployment identity, explicit release links and independent failed/successful attempts verified. Broader update/fan-out/late-ordering semantics remain open. | [GitHub update](https://github.com/arunmenon/Engram/issues/36#issuecomment-6053443769) |
+| #37 | OPEN → OPEN | Deployment event duplicate/conflict handling verified with ten unchanged full-table snapshots including rejects. Native adapters/other sources remain separate. | [GitHub update](https://github.com/arunmenon/Engram/issues/37#issuecomment-6053444281) |
+| #39 | OPEN → OPEN | Four exact G04 retrieval oracles verify node/edge/property/source sets; no truncation. Whole-pack and unfamiliar-pack conformance remain open. | [GitHub update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6053444754) |
+| #40 | OPEN → OPEN | Change→Release→failed/successful deployment journey verified; incident/rollback/upgrade and remaining lifecycle journeys remain open. | [GitHub update](https://github.com/arunmenon/Engram/issues/40#issuecomment-6053445232) |
+| #41 | OPEN → OPEN | 31 G04 real-Spanner extension checks passed; original 65-scenario baseline statuses are unchanged, no broad compatibility sign-off. | [GitHub update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6053446015) |
+| #47 | OPEN → CLOSED | Exact same-time environment/artifact collisions across repositories and services now remain separate on real Spanner; failed outcome/evidence retained. All bounded defect acceptance proved. | [GitHub update](https://github.com/arunmenon/Engram/issues/47#issuecomment-6053446495) |
+
+#34 and #40 body summaries now point to the G04 milestone; prior run context is retained as history. #47 is closed only after its scoped defect acceptance, independent review and actual cloud rerun. All eight broader issues remain OPEN. No new feature bucket is needed: release/deployment belongs to existing PDLC journey work under #34/#40. The new collision defect is a child of #34. No migration or separate foundation reruns. Stop here: G05 has not started.

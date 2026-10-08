@@ -6,7 +6,7 @@ Applies to every current goal: historical-data migration, migration adapters, co
 
 Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
 
-Status: G01–G03 verified and reconciled. G04 separately authorized and technically verified:31real-Spanner checks, Astra evidence review clear; publication/issue reconciliation pending. G05 and later require separate approval and remain unstarted. Earlier checkpoint sections below retain history; latest G04 record is authoritative. The former broad goal remains paused/retired.
+Status: G01–G03 verified and reconciled. G04 separately authorized and verified: 31 real-Spanner checks, Astra evidence review clear, recorded walkthrough published and GitHub issues reconciled. G05 and later require separate approval and remain unstarted. Earlier checkpoint sections below retain history; latest G04 record is authoritative. The former broad goal remains paused/retired.
 
 Every goal must follow the [verification and stakeholder demonstration standard](goal-verification-standard.md), produce its own detailed verification document, and end with a stakeholder walkthrough. G01's [verification document](2026-10-08-goal-01-verification.md) contains the recorded real-Spanner results.
 
@@ -105,3 +105,7 @@ The stakeholder separately authorized G01, then G02/G03. All passed on `feature/
 User explicitly authorized G04 after the completed foundation reconciliation and G02/G03 reruns. Execute [G04 release/deployment specification](2026-10-08-goal-04-release-deployment.md) only, with its [verification record](2026-10-08-goal-04-verification.md). Earlier “G04 unstarted” paragraphs are historical checkpoints. No separate foundation work or G01–G03 cloud reruns. G05 remains unstarted pending separate approval.
 
 G04 technical result: [verification and recorded walkthrough](2026-10-08-goal-04-verification.md),31checks passed, seven application tables empty at restored epoch42. Current PDLC3.0 catalog has26events; prior23/25counts describe earlier pack versions, not current completeness. No new foundation track or G01–G03 cloud reruns. G05 remains unstarted.
+
+## G04 completed checkpoint
+
+G04 is verified and published with [recorded stakeholder walkthrough](2026-10-08-goal-04-verification.md), [Astra evidence review](2026-10-08-astra-g04-evidence-review.md) and [actual issue receipts](2026-10-08-g04-issue-reconciliation.json). #47 closed; eight broader issues updated and remain open. G01–G03 results remain pinned to their prior versions, not retroactively proved on PDLC 3.0. No new feature bucket, no foundation track/reruns, no migration. G05 remains unstarted pending explicit approval; the retired broad goal remains paused.
