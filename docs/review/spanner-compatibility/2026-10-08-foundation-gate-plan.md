@@ -35,3 +35,7 @@ User requested immediate pause on 2026-10-08. Fresh setup, 2,531 unit tests (15 
 ## Approved bounded cleanup
 
 Stakeholder approved the necessity recommendations and requested concise, understandable, modular code. Extract only repeated experiment utilities/authentication/snapshot/shutdown into ordinary shared helpers; preserve goal fixtures, oracles and ownership cleanup, with no application runtime redesign. Verify authentication/cancellation/shutdown behavior locally and request one compact Astra diff review. The cloud gate and G04 remain paused.
+
+## G01-only revalidation approval
+
+Stakeholder explicitly authorized G01 only on the cleaned-up foundation. Run `20261008-cloud-cleaned-g01-01` uses source commit `a718377c101fc8ac4ca1b315dfdc7bf2d86eeaee`, explicit predecessor epoch34/digest, original eight scenarios, real HTTP/Spanner/five workers/retrieval, exact owned cleanup and evidence publication. This approval does not restart G02/G03 or G04. No code changes during the run.

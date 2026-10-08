@@ -1,5 +1,30 @@
 # G01 verification and stakeholder demonstration
 
+## Latest G01 revalidation after tooling cleanup
+
+Run: `20261008-cloud-cleaned-g01-01`, executed source commit `a718377c101fc8ac4ca1b315dfdc7bf2d86eeaee` on `feature/engram-verified-foundation`. All eight original scenarios passed (10 recorded checks including the ticket and second-PR prerequisites). Only G01 was authorized; G02/G03/G04 remain paused. No application or helper code changed during this run.
+
+This run uses core@1.1.0 + PDLC@2.1.0, memory/user disabled, one authenticated bound tenant and the disposable real `engram-compat-target`. The adapter → HTTP API → Spanner ledger → five actual worker loops → Spanner graph → artifact retrieval API path uses the cleaned-up shared helpers. Actual provider configuration and all original assertions were retained. Original-run details below remain historical evidence, including their earlier pack versions.
+
+| Scenario | What we sent | Observed result |
+|---|---|---|
+| PR01 | Open public-record-derived PR 8382 | One open Change, retrieved with its originating Spanner event evidence |
+| PR02 | Edit its title | Same Change updated; both events retained |
+| PR03 | Resend the identical body with a different delivery header | Same event identity; no additional ledger or graph writes |
+| PR04 | Remove repository from the webhook | HTTP422; no writes |
+| PR05 | Create Jira APP-42 through its webhook, then merge the PR referencing it | Merged Change with the explicit IMPLEMENTS link to APP-42 |
+| PR06 | Open and merge another PR without a ticket reference | Merged Change; no invented ticket relationship |
+| PR07 | Open PR8382 in a second repository | Distinct Changes; no repository sibling leakage |
+| PR08 | Send an older edit after the merge | Merged lifecycle preserved; title follows the declared delivery-order policy |
+
+Every step checks ledger identity/content/acceptance authority, actual graph effects, worker completion and retrieval evidence; duplicate/rejected steps preserve prior storage state. All five worker lags reached zero and pending/dead-letter sets were empty. These are reconstructed webhook inputs from public REST records, not captured native webhook deliveries.
+
+Cleanup stopped and joined all workers, closed the HTTP app and removed exactly the owned 8 events, 13 nodes, 14 edges, 5 groups and 80 cursors. All seven application tables are empty; core owner restored at epoch36 with digest `sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1`.
+
+Evidence: [observations and exact responses](runs/20261008-cloud-cleaned-g01-01/observations.json), [fixtures](runs/20261008-cloud-cleaned-g01-01/fixtures.json), [manifest](runs/20261008-cloud-cleaned-g01-01/manifest.json), [preflight](runs/20261008-cloud-cleaned-g01-01/preflight.json), [source hashes including shared helpers](runs/20261008-cloud-cleaned-g01-01/executed-source-sha256.json), [executed source archive](runs/20261008-cloud-cleaned-g01-01/executed-source.tar.gz), [runner log](runs/20261008-cloud-cleaned-g01-01/runner.log). [Independent Astra evidence review](2026-10-08-cleaned-g01-astra-evidence-review.md) found no blockers and confirmed all 189 archived source hashes. Issue reconciliation is recorded with publication; no issue is closed on this bounded rerun.
+
+Limits remain unchanged: PR08 does not establish timestamp ordering; the old edit can move `updated_at` backwards (#36 stays open). No public multi-tenant dispatcher, whole-pack evaluation or original65 compatibility sign-off is claimed. Cloud Monitoring export still returns403; this is retained separately from the passing data-path assertions. No historical migration work. No newly discovered defect or new feature bucket in this rerun.
+
 ## Scope decision — disposable experiments (2026-10-08)
 
 Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
