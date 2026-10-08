@@ -1,6 +1,6 @@
 # Small goal inventory
 
-## Current checkpoint — G06 verified; stop before G07
+## Current checkpoint — G06 verified; G07 specification prepared
 
 G01–G06 have bounded published verification records. G05's connected dataset is
 retained in `engram-compat-target`; G06's separate dataset is retained in
@@ -13,7 +13,10 @@ scoped #51–#53 while eleven broader issues remain open. Both failed full attem
 are preserved with runner/oracle explanations. No whole-pack/baseline65 or
 stakeholder-sign-off claim is made. No new feature bucket was needed.
 
-G07 and later remain unstarted and require explicit stakeholder selection. Older
+G07 preparation is authorized; its [specification and proposed slices](2026-10-08-goal-07-event-coverage.md),
+[28-event matrix](2026-10-08-g07-event-coverage.csv) and [verification template](2026-10-08-goal-07-verification.md)
+are prepared for review. G07 implementation/cloud runs and G08 remain unstarted
+and require explicit stakeholder selection. Older
 status paragraphs below are historical checkpoints, not current authorization.
 The retired broad goal stays paused.
 

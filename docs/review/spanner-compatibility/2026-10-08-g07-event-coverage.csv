@@ -1,0 +1,29 @@
+event_type,pack_version,required_fields,projection_rules,observed_types,declared_edges,prior_successful_run,prior_scenario,prior_evidence_scope,gap,slice,g7_status
+pdlc.change.created,4.2.0,repo;number,1,Change,IMPLEMENTS,20261008-cloud-cleaned-g01-01,PR01,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.change.reviewed,4.2.0,repo;number;review_id;verdict,1,Review,REVIEWS,20261008-cloud-cleaned-g03-01,IM07-requested,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.change.merged,4.2.0,repo;number,1,Change,DEPLOYS;IMPLEMENTS;REVERTS;TOUCHES,20261008-cloud-cleaned-g01-01,PR05,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.change.abandoned,4.2.0,repo;number,1,Change,,,,No successful example found in the six selected G1-G6 run records,missing_cloud_example,G7-B,NOT RUN
+pdlc.change.updated,4.2.0,repo;number,1,Change,IMPLEMENTS,20261008-cloud-cleaned-g01-01,PR02,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.change.committed,4.2.0,repo;subject,1,Change;Review,IMPLEMENTS,,,No successful example found in the six selected G1-G6 run records,missing_cloud_example,G7-B,NOT RUN
+pdlc.release.published,4.2.0,repo;version,1,Release,INCLUDES,20261008-cloud-g04-all-01,RD03-release,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.testcaserun.finished,4.2.0,repo;test_id;run_id;outcome,1,TestCase;TestRun,EXECUTES;RAN_AGAINST;VERIFIES,20261008-cloud-cleaned-g03-01,IM08-failure,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.testcaserun.skipped,4.2.0,repo;test_id;run_id;outcome,0,,,,,No successful example found in the six selected G1-G6 run records,missing_projection,G7-C,NOT RUN
+pdlc.service.deployed,4.2.0,service;environment;artifact_id;repo,1,Component;Deployment,DEPLOYED_TO;DEPLOYS,20261008-cloud-g04-all-01,RD05-succeeded,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.service.deployment_failed,4.2.0,service;environment;artifact_id;repo,1,Component;Deployment,DEPLOYED_TO;DEPLOYS,20261008-cloud-g04-all-01,RD04-failed,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.service.rolledback,4.2.0,service;environment;artifact_id;repo,0,,,,,No successful example found in the six selected G1-G6 run records,missing_projection,G7-D,NOT RUN
+pdlc.service.upgraded,4.2.0,service;environment;artifact_id;repo,0,,,,,No successful example found in the six selected G1-G6 run records,missing_projection,G7-D,NOT RUN
+pdlc.incident.lesson_recorded,4.2.0,statement;incident,1,Lesson,LEARNED_FROM,20261008-cloud-g06-all-03,IC09-authored-lesson,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.incident.remediation_recorded,4.2.0,change;incident,1,,REMEDIATES,20261008-cloud-g06-all-03,IC05-remediation,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.incident.detected,4.2.0,repo;service;incident_id,1,Component;Incident,AFFECTS;OCCURRED_ON,20261008-cloud-g06-all-03,IC02-detected,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.incident.resolved,4.2.0,repo;service;incident_id,1,Incident,,20261008-cloud-g06-all-03,IC07-explicit-resolution,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.incident.reported,4.2.0,repo;service;incident_id,1,Component;Incident,AFFECTS;OCCURRED_ON,20261008-cloud-g06-all-03,IC02-reported-other-scope,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.ticket.created,4.2.0,tracker;key,1,WorkItem,DECOMPOSES_INTO;IMPLEMENTS,20261008-cloud-cleaned-g01-01,PR05-ticket,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.ticket.updated,4.2.0,tracker;key,1,WorkItem,DECOMPOSES_INTO;IMPLEMENTS,,,No successful example found in the six selected G1-G6 run records,missing_cloud_example,G7-B,NOT RUN
+pdlc.ticket.closed,4.2.0,tracker;key,1,WorkItem,,,,No successful example found in the six selected G1-G6 run records,missing_cloud_example,G7-B,NOT RUN
+pdlc.request.created,4.2.0,source_system;external_id,0,,,,,No successful example found in the six selected G1-G6 run records,missing_projection,G7-A,NOT RUN
+pdlc.spec.approved,4.2.0,doc_id;version,1,Spec,CITES;REFINES,20261008-cloud-g06-all-03,IC10-explicit-citation,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.requirement.changed,4.2.0,spec_id;spec_version;local_id;statement,1,Requirement,REFINES,20261008-cloud-cleaned-g02-01,PL02-expiry,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.design.section_changed,4.2.0,doc_id;section_path;version;kind;body,1,DesignElement,REFINES;SUPERSEDES,20261008-cloud-cleaned-g02-01,PL03,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.decision.recorded,4.2.0,statement,1,Decision,APPLIES_TO;SUPERSEDES,,,No successful example found in the six selected G1-G6 run records,missing_cloud_example,G7-A,NOT RUN
+pdlc.spec.changed,4.2.0,doc_id;version;title,1,Spec,SUPERSEDES,20261008-cloud-cleaned-g02-01,PL01,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
+pdlc.design.approval_recorded,4.2.0,approval_id;reviewer;doc_id;section_path;version;verdict,1,DesignApproval,APPROVES,20261008-cloud-cleaned-g02-01,PL05,Historical bounded example; not final G7 pack acceptance,final_pack_confirmation,G7-E,NOT RUN
