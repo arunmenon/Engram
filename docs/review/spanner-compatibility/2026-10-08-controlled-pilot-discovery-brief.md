@@ -5,6 +5,13 @@ completed assessment, approved implementation specification or pilot-readiness
 claim. G07 is selected first. Do not automatically start this assessment, G08 or
 the pilot when G07 ends; present the assessment scope at that checkpoint.
 
+## Grounding review
+
+The stakeholder approved the [Astra medium review request](2026-10-08-astra-pilot-composition-review-request.md).
+It has been dispatched; findings are pending. Incorporate the report here when it
+arrives, distinguishing inspected code from runtime proof and retaining explicit
+assessment/pilot execution boundaries.
+
 ## Product question
 
 Can two developers use different tenant-selected pack combinations through the
