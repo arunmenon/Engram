@@ -1,6 +1,6 @@
 # G03 verification and stakeholder demonstration
 
-Status: technically VERIFIED on real Spanner. Independent final evidence review found no blockers; GitHub reconciliation and publication are tracked below. Recorded walkthrough is provided here; stakeholder sign-off is not assumed. G04 has not started. Historical migration is excluded from all current goals.
+Status: VERIFIED on real Spanner, independently reviewed, pushed and GitHub-reconciled. Recorded walkthrough is provided here; stakeholder sign-off is not assumed. G04 has not started. Historical migration is excluded from all current goals.
 
 ## What the stakeholder can now ask
 
@@ -122,6 +122,20 @@ PYTHONPATH=src:scripts /private/tmp/engram-ontology-review-venv/bin/python -u sc
 
 Historical migration is excluded, not a blocker or a pending acceptance task. Public tenant dispatch, native source adapters, all other PDLC journeys and the original65 compatibility baseline are not newly signed off by G03. The experiment permits an unevaluated bundle; whole-pack evaluation is not implied. Metrics IAM publication is separately limited by the observed monitoring403; actual data operations are evidenced above.
 
-GitHub reconciliation and final review links are appended before delivery. The mappings fit the existing #34/#40 implementation journey bucket; no new feature bucket is needed. Broad issues remain open wherever remaining acceptance exists. No new product defect is assumed from test harness setup failures. G04 and later require explicit stakeholder authorization.
+Actual GitHub reconciliation links and final review are recorded below. The mappings fit the existing #34/#40 implementation journey bucket; no new feature bucket is needed. Broad issues remain open wherever remaining acceptance exists. No new product defect is assumed from test harness setup failures. G04 and later require explicit stakeholder authorization.
 
 The test-only fixture import was made portable using the existing scripts-package pattern. Both new semantic tests additionally passed with normal PYTHONPATH=src in local-g03-import-01; no executed cloud code or expectations changed. Final independent review verified source hashes, all28checks, exact21declared edges, both review/test outcomes and cleanup.
+
+## Actual issue reconciliation
+
+| Issue | Before → after | Verified / remaining scope | Actual update |
+|---|---|---|---|
+| #34 | OPEN → OPEN | Bounded G03 milestone recorded; other feature/platform/lifecycle goals remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/34#issuecomment-6051981977) |
+| #4 | OPEN → OPEN | New nested reference and verdict/outcome rejection evidence; remaining catalog/ingress scope stays open. | [GitHub update](https://github.com/arunmenon/Engram/issues/4#issuecomment-6051982348) |
+| #36 | OPEN → OPEN | Explicit planning/code/test mappings and SHA; broader update/ordering/fan-out scope remains. | [GitHub update](https://github.com/arunmenon/Engram/issues/36#issuecomment-6051982651) |
+| #37 | OPEN → OPEN | Test-event duplicate/conflict verified; native-source normalization and other producers remain; migration excluded. | [GitHub update](https://github.com/arunmenon/Engram/issues/37#issuecomment-6051982909) |
+| #39 | OPEN → OPEN | Exact21links and four full retrieval routes plus text discovery; whole-pack/unfamiliar-pack coverage remains. | [GitHub update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6051983182) |
+| #40 | OPEN → OPEN | Planning-to-code/review/test implemented and verified; later operational/lifecycle journeys remain. | [GitHub update](https://github.com/arunmenon/Engram/issues/40#issuecomment-6051983528) |
+| #41 | OPEN → OPEN | 28G03cloud extension checks verified; original65baseline statuses unchanged. | [GitHub update](https://github.com/arunmenon/Engram/issues/41#issuecomment-6051983894) |
+
+#34 and #40 body summaries were refreshed to current G03 evidence and the G04 approval boundary. No issue was closed on partial acceptance. No new product defect was found and no new feature bucket is needed: this is existing #34/#40 journey work. Technical acceptance, independent review, actual issue synchronization, committed evidence and the recorded stakeholder walkthrough are delivered. Stakeholder sign-off remains separate. Implementation/evidence commit: fed05ec50f952ec342efcf92d558938f03c99eba; the subsequent documentation commit publishes these actual links. Stop here: G04 is not started.

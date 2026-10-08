@@ -1,6 +1,6 @@
 # G03 — Planning to code, review and verification on real Spanner
 
-Status: technically VERIFIED in 20261008-cloud-g03-all-01; independent final review cleared; publication reconciliation pending. Authorized on 2026-10-08. Implement G03 only; G04 requires separate approval. Historical migration is excluded by the shared verification standard.
+Status: VERIFIED in 20261008-cloud-g03-all-01; independent review cleared, publication and GitHub reconciliation complete. Authorized on 2026-10-08. Implement G03 only; G04 requires separate approval. Historical migration is excluded by the shared verification standard.
 
 ## Bounded outcome
 
