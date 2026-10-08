@@ -35,3 +35,13 @@ def test_g07_activation_rejects_retained_owner(database):
         validate_target(SimpleNamespace(name=target), owner)
     owner[1] = target
     validate_target(SimpleNamespace(name=target), owner)
+
+
+@pytest.mark.parametrize(
+    "goal,database", [("G07", "engram-g06-target"), ("G06", "engram-g07-target")]
+)
+def test_preparation_refuses_mismatched_goal_target_before_credentials(goal, database):
+    from engram_goal06_prepare import main as prepare
+
+    with pytest.raises(ValueError, match="separate reserved database"):
+        prepare(goal=goal, target_database=database)

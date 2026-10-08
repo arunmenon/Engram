@@ -1,7 +1,9 @@
 # G07 verification and stakeholder walkthrough
 
-Status: NOT RUN. Specification prepared; no implementation, cloud verification,
-independent G07 review or stakeholder sign-off is claimed. G08 has not started.
+Status: LOCAL IMPLEMENTATION IN PROGRESS; CLOUD NOT RUN. A–D runtime changes
+and the local 28-event catalog are integrated on feature/engram-g07-event-coverage.
+Astra medium preimplementation review is recorded; final implementation/harness review
+and stakeholder sign-off remain pending. G08 has not started.
 
 [Specification and proposed slices](2026-10-08-goal-07-event-coverage.md) ·
 [28-event baseline matrix](2026-10-08-g07-event-coverage.csv) ·
@@ -58,7 +60,8 @@ separate from requiring an entire discovery response to be empty.
 
 Execution commit, final pack/bundle/hash, fixture hash, provider configuration,
 exact command, target ownership/epoch and run IDs: **not yet assigned**.
-Proposed separate database: `engram-g07-target`; availability/access is unverified.
+Separate target: `engram-g07-target`. Read-only preflight returned `PermissionDenied`;
+no database creation, DDL, fixture ingestion or cloud acceptance has occurred.
 Do not reuse or alter retained G05 `engram-compat-target` or G06 `engram-g06-target`.
 Successful G07 data will be retained pending explicit cleanup approval. Failed runs
 must preserve evidence and clean only their own registered disposable keys.
@@ -80,8 +83,8 @@ This is a planned walkthrough, not a delivered recorded or live demo.
 
 Preparation owner: #39 under #34; journey scope #40, projection semantics #36,
 admission #37 and cloud verification #41. No issue is closed by preparation.
-Before implementation, publish only the approved slice tickets and record real IDs,
-blocking edges and owning umbrellas. At delivery include actual before/after states,
+Slices A–E are published as #54–#58. #54–#57 are under #40; #58 is under #39
+and natively blocked by all four implementation issues. All remain open. At delivery include actual before/after states,
 comment URLs, satisfied/remaining acceptance, new defects and scope changes.
 
 No separate feature bucket is proposed now: declared PDLC-event completion fits
@@ -92,3 +95,11 @@ Independent review, implementation delta, cloud run receipts, failed-attempt
 corrections, issue completion and stakeholder sign-off: **pending, not claimed**.
 
 Preparation tracking: [actual #39 update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6064974375). This is a preparation comment, not completed-goal reconciliation.
+
+## Local checkpoint (not cloud acceptance)
+
+- Integration d75e4ec: PDLC 5.0.0; runtime/research copies identical; 28 declared events, all with deterministic mappings.
+- 151 catalog and G07 unit checks passed; 27 affected ontology checks passed. These verify contracts/plans/public retrieval seams, not real-Spanner execution.
+- Request mapping and seed, strict skipped TestRun projection, no-PR commit guard, and exact rollback action/upgraded deployment declarations integrated.
+- Cloud fixture/oracle and runner reconciliation, final independent review, and the full tracked Spanner write-to-read run remain outstanding.
+- G05/G06 have not been written or cleaned by this goal. No G07 issue is closed.

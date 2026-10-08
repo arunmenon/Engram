@@ -1,4 +1,4 @@
-"""Prepare only the separate G06 disposable DB; preserve G05 fingerprints."""
+"""Prepare the selected separate G06/G07 disposable DB; preserve G05 fingerprints."""
 
 import argparse
 import fcntl
@@ -29,7 +29,9 @@ from context_graph.tenancy import TenantBinding
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def main():
+def main(*, goal="G06", target_database="engram-g06-target"):
+    if (goal, target_database) not in {("G06", "engram-g06-target"), ("G07", "engram-g07-target")}:
+        raise ValueError("Preparation requires a goal's separate reserved database")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--credentials", type=Path, required=True)
     parser.add_argument("--run-id", required=True)
@@ -48,20 +50,20 @@ def main():
     )
     ddl = [*schema_statements(384), TENANT_CONTROL_DDL]
     manifest = {
-        "kind": "G06 separate database preparation",
-        "target": "engram-g06-target",
+        "kind": goal + " separate database preparation",
+        "target": target_database,
         "preserved_database": "engram-compat-target",
         "ddl": ddl,
         "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "scope": (
-            "Initialize only empty-schema G06 database and bootstrap empty core owner; "
+            "Initialize only the selected empty-schema database and bootstrap empty core owner; "
             "no G05 writes"
         ),
     }
     tracker = ROOT / "scripts/track_spanner_compatibility.py"
     with Path("/private/tmp/engram-spanner-compat.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        m = Path("/private/tmp/engram-g06-prepare-manifest.json")
+        m = Path("/private/tmp/engram-" + goal.lower() + "-prepare-manifest.json")
         durable_json(m, manifest)
         subprocess.run(
             [sys.executable, str(tracker), "start", "--run-id", args.run_id, "--manifest", str(m)],
@@ -84,7 +86,7 @@ def main():
             assert evidence["g05_before"] == retained["fingerprints"]
             assert evidence["g05_owner_before"] == [retained["owner"]]
             durable_json(directory / "observations.json", evidence)
-            g06 = instance.database("engram-g06-target", ddl_statements=ddl)
+            g06 = instance.database(target_database, ddl_statements=ddl)
             if g06.exists():
                 g06.reload()
                 evidence["existing_ddl"] = list(g06.ddl_statements)
@@ -102,11 +104,11 @@ def main():
             operation.result(timeout=300)
             evidence["creation_completion"] = "completed"
             pool06 = BurstyPool()
-            g06 = instance.database("engram-g06-target", pool=pool06)
+            g06 = instance.database(target_database, pool=pool06)
             prepare_cleanup(g06, client, pool06)
             assert not any(t["count"] for t in fingerprint(g06).values())
             assert not read_owner(g06)
-            settings = runtime_settings(values, database="engram-g06-target")
+            settings = runtime_settings(values, database=target_database)
             binding = TenantBinding.from_settings(
                 "compat-control",
                 "compat-control-binding",
@@ -126,12 +128,16 @@ def main():
             assert evidence["g06_owner"] == [owner]
             assert not any(t["count"] for t in evidence["g06_tables"].values())
             checks.append(
-                {"name": "G06 separate empty database prepared", "passed": True, "scenarios": []}
+                {
+                    "name": goal + " separate empty database prepared",
+                    "passed": True,
+                    "scenarios": [],
+                }
             )
         except BaseException as exc:
             evidence["error"] = type(exc).__name__ + ": " + str(exc)
             checks.append(
-                {"name": "G06 separate database preparation", "passed": False, "scenarios": []}
+                {"name": goal + " separate database preparation", "passed": False, "scenarios": []}
             )
             raise
         finally:
@@ -163,9 +169,10 @@ def main():
             success = bool(checks) and all(c["passed"] for c in checks)
             results = {
                 "scenarios": [],
-                "summary": "G06 preparation passed; G05 retained unchanged"
+                "summary": goal + " preparation passed; G05 retained unchanged"
                 if success
-                else "G06 preparation failed or incomplete; inspect recorded operation and checks",
+                else goal
+                + " preparation failed or incomplete; inspect recorded operation and checks",
                 "cleanup": "Database state and shutdown are recorded in observations; "
                 "no database deletion performed; unknown operations require reconciliation",
             }
@@ -184,7 +191,7 @@ def main():
                 check=True,
             )
             if not success and "error" not in evidence:
-                raise RuntimeError("G06 preparation verification or shutdown failed")
+                raise RuntimeError(goal + " preparation verification or shutdown failed")
 
 
 if __name__ == "__main__":
