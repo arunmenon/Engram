@@ -205,8 +205,9 @@ def fixtures(run_id, *, start=None):
                 "existing repo/artifact merge-identity matching."
             ),
             (
-                "Timestamp contract uses a maintained bounded RFC3339 regex: year 0001–9999, "
-                "explicit offset, no leap seconds, 1–6 fractional digits."
+                "Timestamp contract uses string format date-time: calendar-valid year 0001–9999, "
+                "explicit offset, UTC-representable, uppercase T/Z, no leap seconds, "
+                "1–6 fractional digits."
             ),
         ],
     )

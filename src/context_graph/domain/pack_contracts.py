@@ -7,10 +7,13 @@ null remain distinct for the projector's separately specified update policy.
 
 from __future__ import annotations
 
+import re
+from datetime import UTC, datetime
 from types import GenericAlias
 from typing import Annotated, Any, Literal
 
 from pydantic import (
+    AfterValidator,
     BaseModel,
     ConfigDict,
     Field,
@@ -45,9 +48,12 @@ class PayloadField(BaseModel):
     min_length: int | None = Field(default=None, ge=0)
     max_length: int | None = Field(default=None, ge=0)
     pattern: str | None = Field(default=None, max_length=1000)
+    format: Literal["date-time"] | None = None
 
     @model_validator(mode="after")
     def _shape(self) -> PayloadField:
+        if self.format is not None and self.type != "string":
+            raise ValueError("format is supported only for strings")
         if self.pattern is not None and self.type != "string":
             raise ValueError("pattern is supported only for strings")
         if self.enum is not None and self.type != "string":
@@ -97,6 +103,27 @@ def _object_model(properties: dict[str, PayloadField], additional_fields: str) -
     )
 
 
+# Preserve the existing timestamp subset: uppercase T/Z, explicit offset and
+# microsecond precision. Calendar and UTC range checks belong to datetime.
+_DATE_TIME = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+    r"(?:\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
+)
+
+
+def _date_time(value: str) -> str:
+    if _DATE_TIME.fullmatch(value) is None:
+        raise ValueError("date-time requires an RFC3339 timestamp with an explicit offset")
+    try:
+        timestamp = datetime.fromisoformat(value)
+        if timestamp.utcoffset() is None:
+            raise ValueError("date-time requires an explicit offset")
+        timestamp.astimezone(UTC)
+    except (ValueError, OverflowError) as exc:
+        raise ValueError("date-time must be calendar-valid and representable in UTC") from exc
+    return value
+
+
 def _field_type(spec: PayloadField) -> Any:
     result: Any
     if spec.type == "object":
@@ -119,6 +146,8 @@ def _field_type(spec: PayloadField) -> Any:
         result = Annotated[result, Field(min_length=spec.min_length, max_length=spec.max_length)]
     if spec.pattern is not None:
         result = Annotated[result, Field(pattern=spec.pattern)]
+    if spec.format == "date-time":
+        result = Annotated[result, AfterValidator(_date_time)]
     return result | None if spec.nullable else result
 
 
