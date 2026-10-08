@@ -35,8 +35,12 @@ import orjson
 import structlog
 from fastapi import APIRouter, Request
 from fastapi.responses import ORJSONResponse
+from pydantic import ValidationError as ModelValidationError
 
+from context_graph.api.dependencies import get_event_writer
 from context_graph.domain.models import Event
+from context_graph.domain.pack_admission import compile_admission_policy
+from context_graph.domain.validation import validate_event
 from context_graph.metrics import EVENTS_INGESTED_TOTAL
 from context_graph.sources import github, jira
 from context_graph.sources.events import WEBHOOK_AGENT_PREFIX
@@ -101,10 +105,12 @@ def _occurred_at(value: object, now: datetime) -> datetime:
     if isinstance(value, str) and value:
         try:
             moment = datetime.fromisoformat(value.replace("Z", "+00:00"))
-        except ValueError:
-            return now
-        return moment if moment.tzinfo else moment.replace(tzinfo=UTC)
-    return now
+        except ValueError as exc:
+            raise ValueError("Source timestamp is invalid") from exc
+        if moment.tzinfo is not None:
+            return moment.astimezone(UTC)
+    # A clock fallback changes immutable event content on identical retries.
+    raise ValueError("Source timestamp requires an explicit timezone")
 
 
 def build_events(
@@ -131,8 +137,10 @@ def build_events(
             occurred_at=occurred_at,
             session_id=f"pdlc:{item.scope}",
             agent_id=f"{WEBHOOK_AGENT_PREFIX}{source}",
-            trace_id=delivery_id,
-            payload_ref=f"webhook:{source}:{delivery_id}",
+            # Delivery headers can change on replay. Keep semantic identity stable
+            # with the signed content; the transport delivery is logged separately.
+            trace_id=body_digest,
+            payload_ref=f"webhook:{source}:{body_digest}",
         )
         events.append((event, payload))
     return events
@@ -164,17 +172,64 @@ async def receive_webhook(source: str, request: Request) -> ORJSONResponse:
     body_digest = hashlib.sha256(body).hexdigest()
     delivery_id = request.headers.get(DELIVERY_HEADERS[source]) or body_digest
     registry: OntologyRegistry | None = getattr(request.app.state, "ontology", None)
-    translated = [
-        item
-        for item in _translate(source, request, payload)
-        if registry is None or item.event_type in registry.event_types
-    ]
-    event_store: EventStore = request.app.state.event_store
+    if (
+        source == "github"
+        and request.headers.get("x-github-event") == "pull_request"
+        and not isinstance(payload.get("action"), str)
+    ):
+        return ORJSONResponse(status_code=422, content={"detail": "Invalid pull request action"})
+    if (
+        source == "github"
+        and request.headers.get("x-github-event") == "pull_request"
+        and payload.get("action") in {"opened", "reopened", "edited", "synchronize", "closed"}
+        and (
+            not isinstance(payload.get("repository"), dict)
+            or not isinstance(payload["repository"].get("full_name"), str)
+            or not payload["repository"]["full_name"].strip()
+            or not isinstance(payload.get("pull_request"), dict)
+        )
+    ):
+        return ORJSONResponse(
+            status_code=422, content={"detail": "Invalid pull request source shape"}
+        )
+    try:
+        translated = _translate(source, request, payload)
+        events = build_events(source, delivery_id, body_digest, translated, datetime.now(UTC))
+    except (AttributeError, TypeError, ValueError, ModelValidationError):
+        return ORJSONResponse(status_code=422, content={"detail": "Invalid webhook source shape"})
+    for event, _event_payload in events:
+        if not validate_event(event).is_valid:
+            return ORJSONResponse(status_code=422, content={"detail": "Invalid event envelope"})
+        if (
+            getattr(request.app.state, "tenant_binding", None) is None
+            and registry is not None
+            and event.event_type not in registry.event_types
+        ):
+            return ORJSONResponse(status_code=422, content={"detail": "Event type is not active"})
+    binding = getattr(request.app.state, "tenant_binding", None)
+    if binding is not None:
+        # This single bound app's configured secret authenticated the source.
+        # This does not enable unbound webhook routing in the tenant dispatcher.
+        from context_graph.tenancy import Principal
+
+        request.scope["engram.principal"] = Principal(
+            f"webhook.{source}", binding.tenant_id, frozenset({"api"}), f"webhook.{source}"
+        )
+    elif (bundle := getattr(request.app.state, "bundle", None)) is not None:
+        policy = compile_admission_policy(bundle)
+        if any(not policy.decide(event.event_type, data).allowed for event, data in events):
+            return ORJSONResponse(status_code=422, content={"detail": "Invalid pack event payload"})
+    event_store: EventStore = get_event_writer(request)
     event_ids = []
-    events = build_events(source, delivery_id, body_digest, translated, datetime.now(UTC))
     for event, event_payload in events:
-        await event_store.append(event, payload=event_payload)
-        EVENTS_INGESTED_TOTAL.inc()
+        (outcome,) = await event_store.append_batch_outcomes([event], payloads=[event_payload])
+        if outcome.status not in {"created", "duplicate"}:
+            return ORJSONResponse(
+                status_code={"rejected": 422, "conflict": 409}.get(outcome.status, 503),
+                content={"detail": "Webhook event was not accepted", "reason": outcome.reason},
+            )
+        if outcome.status == "created":
+            EVENTS_INGESTED_TOTAL.inc()
         event_ids.append(str(event.event_id))
     logger.info(
         "webhook_ingested",

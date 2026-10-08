@@ -1,0 +1,3817 @@
+{
+  "goal": "G01",
+  "scenarios": [
+    {
+      "scenario": "PR01",
+      "source": "github",
+      "input_sha256": "140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3",
+      "expected_status": 202,
+      "response": {
+        "status": 202,
+        "body": {
+          "event_ids": [
+            "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+          ]
+        }
+      },
+      "storage": {
+        "events": [
+          [
+            "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+            {
+              "agent_id": "webhook:github",
+              "ended_at": null,
+              "event_id": "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+              "event_type": "pdlc.change.created",
+              "global_position": null,
+              "importance_hint": null,
+              "occurred_at": "2026-10-08T02:31:18.531984Z",
+              "parent_event_id": null,
+              "payload": {
+                "body": "",
+                "cdevents_type": "dev.cdevents.change.created",
+                "files": [],
+                "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+                "number": 8382,
+                "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+                "title": "ci(moonbit): update pinned MoonBit version"
+              },
+              "payload_ref": "webhook:github:140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3",
+              "schema_version": 1,
+              "search_text": "g01/20261008-cloud-g01-pr01-03-payments ci(moonbit): update pinned MoonBit version 38987761a30222544814a4ae04a48597471470e5 dev.cdevents.change.created",
+              "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+              "status": null,
+              "tool_name": null,
+              "trace_id": "140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3"
+            },
+            {
+              "accepted_epoch": 13,
+              "binding_id": "compat-control-binding",
+              "bundle_digest": "sha256:63dd6bc4441ed77f9482065c2cd5819b325fe645dc17b4c61d1800f0fade4501",
+              "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+              "engine_revision": "tenant-control-conformance-v1",
+              "envelope_version": 1,
+              "request_digest": "sha256:json-v1:5bbfab3e79fb5e93a89e2e4e2a7bd16fb6d1ed8c4a12b270184f0738b144c367",
+              "source_id": "webhook.github",
+              "tenant_id": "compat-control"
+            }
+          ]
+        ],
+        "nodes": [
+          [
+            "Change",
+            "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+            {
+              "body": "",
+              "files": [],
+              "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+              "node_id": "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+              "node_type": "Change",
+              "number": 8382,
+              "ontology_version": "sha256:4b77ce0dad3a98bc",
+              "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+              "source_trust": "trusted",
+              "status": "open",
+              "status_changed_at": "2026-10-08T02:31:18.531984+00:00",
+              "title": "ci(moonbit): update pinned MoonBit version",
+              "updated_at": "2026-10-08T02:31:18.531984+00:00"
+            }
+          ],
+          [
+            "Event",
+            "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+            {
+              "access_count": 0,
+              "agent_id": "webhook:github",
+              "event_id": "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+              "event_type": "pdlc.change.created",
+              "global_position": "2026-10-08T02:36:37.062287000Z/000000/cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+              "keywords": [],
+              "occurred_at": "2026-10-08T02:31:18.531984+00:00",
+              "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+              "trace_id": "140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3"
+            }
+          ],
+          [
+            "OntologyState",
+            "OntologyState:active",
+            {
+              "applied": "initial",
+              "eval_pending": [
+                "pdlc"
+              ],
+              "node_id": "OntologyState:active",
+              "node_type": "OntologyState",
+              "packs": [
+                "core@1.1.0",
+                "pdlc@1.8.0"
+              ],
+              "packs_json": "[{\"events\":{\"agent.create\":{\"aliases\":{\"otel\":\"create_agent\"}},\"agent.invoke\":{\"aliases\":{\"otel\":\"invoke_agent\"}},\"llm.chat\":{\"aliases\":{\"otel\":\"chat\"}},\"llm.completion\":{\"aliases\":{\"otel\":\"text_completion\"}},\"llm.embed\":{\"aliases\":{\"otel\":\"embeddings\"}},\"llm.generate\":{\"aliases\":{\"otel\":\"generate_content\"}},\"observation.input\":{\"aliases\":{}},\"observation.output\":{\"aliases\":{}},\"system.session_end\":{\"aliases\":{}},\"system.session_start\":{\"aliases\":{}},\"tool.execute\":{\"aliases\":{\"otel\":\"execute_tool\"}}},\"extraction\":{\"derived_proposals\":{},\"never_propose\":[],\"propose\":{},\"sources\":[]},\"interfaces\":{\"Anchored\":{\"edges\":[],\"properties\":{\"anchor_path\":\"string\",\"content_hash\":\"string\",\"source_uri\":\"string\"}},\"Claim\":{\"edges\":[],\"note\":\"a belief, not a fact; never auto-promoted to declared\",\"properties\":{\"confidence\":\"float\",\"method\":\"string\"}},\"Lifecycled\":{\"edges\":[],\"properties\":{\"status\":\"string\",\"status_changed_at\":\"datetime\"}},\"Sourced\":{\"edges\":[],\"note\":\"set from the emitting source's allowlist entry, never from content (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)\",\"properties\":{\"source_trust\":{\"enum\":[\"trusted\",\"untrusted\"]}}},\"Versioned\":{\"edges\":[],\"properties\":{\"version\":\"string\"}}},\"lifecycle\":{\"decay\":{},\"terminal_states_reduce_importance\":[]},\"mappings\":{\"prov\":{\"CAUSED_BY\":\"prov:wasInformedBy\",\"DERIVED_FROM\":\"prov:wasDerivedFrom\",\"Entity\":\"prov:Entity\",\"Event\":\"prov:Activity\",\"SUPERSEDES\":\"prov:wasRevisionOf\",\"Summary\":\"prov:Entity\"}},\"pack\":{\"description\":\"Agent and tool events, entities, summaries and their links, and the interfaces domain packs share.\",\"name\":\"core\",\"owner\":\"engram\",\"requires\":[],\"version\":\"1.1.0\"},\"projection\":[],\"retrieval\":{\"admission\":{},\"core_intent_weights\":{},\"fallback_intent\":\"general\",\"intents\":{\"general\":{\"description\":\"No specific intent\",\"direction\":\"both\",\"examples\":[],\"keywords\":[],\"prefer_types\":[],\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":2.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"how_does\":{\"description\":\"How a process or workflow runs\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"how\",\"process\",\"method\",\"approach\",\"workflow\",\"steps\"],\"prefer_types\":[],\"seed_strategy\":\"workflow_pattern\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":3.0,\"REFERENCES\":2.0,\"RELATED_TO\":2.0,\"SAME_AS\":1.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"related\":{\"description\":\"Similar or associated events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"similar\",\"related\",\"like\",\"compare\",\"associated\"],\"prefer_types\":[],\"seed_strategy\":\"similar_cluster\",\"weights\":{\"CAUSED_BY\":1.5,\"FOLLOWS\":0.5,\"REFERENCES\":2.0,\"SIMILAR_TO\":5.0,\"SUMMARIZES\":1.5}},\"what\":{\"description\":\"What something is or what happened\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"what\",\"describe\",\"explain\",\"definition\",\"meaning\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":1.0,\"REFERENCES\":5.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"when\":{\"description\":\"Order and timing of events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"when\",\"timeline\",\"before\",\"after\",\"sequence\",\"order\",\"time\"],\"prefer_types\":[],\"seed_strategy\":\"temporal_anchors\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":5.0,\"REFERENCES\":1.0,\"SIMILAR_TO\":0.5,\"SUMMARIZES\":0.5}},\"who_is\":{\"description\":\"Who a person, agent or team is\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"who\",\"person\",\"user\",\"team\",\"member\",\"author\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":0.5,\"REFERENCES\":3.0,\"RELATED_TO\":3.0,\"SAME_AS\":4.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"why\":{\"description\":\"Causes and reasons behind an event\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"why\",\"because\",\"caused\",\"reason\",\"root cause\",\"due to\"],\"prefer_types\":[],\"seed_strategy\":\"causal_roots\",\"weights\":{\"CAUSED_BY\":5.0,\"FOLLOWS\":1.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":1.5,\"SUMMARIZES\":1.0}}},\"key_patterns\":{},\"seed_types\":[\"Event\",\"Entity\"]},\"types\":{\"edges\":{\"CAUSED_BY\":{\"from\":[\"Event\"],\"properties\":{\"mechanism\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"CONTRADICTS\":{\"from\":[],\"note\":\"two claims cannot both hold\",\"properties\":{},\"requires\":[],\"to\":[]},\"DERIVED_FROM\":{\"from\":[],\"note\":\"provenance: a derived node links to the events it came from\",\"properties\":{\"evidence_quote\":\"text\",\"extracted_at\":\"datetime\",\"method\":\"string\",\"model_id\":\"string\",\"prompt_version\":\"string\",\"session_id\":\"string\",\"source_turn_index\":\"int\"},\"requires\":[],\"to\":[\"Event\"]},\"FOLLOWS\":{\"from\":[\"Event\"],\"properties\":{\"delta_ms\":\"int\",\"session_id\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"REFERENCES\":{\"from\":[\"Event\"],\"properties\":{\"role\":\"string\"},\"requires\":[],\"to\":[\"Entity\"]},\"RELATED_TO\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SAME_AS\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SIMILAR_TO\":{\"from\":[\"Event\"],\"properties\":{\"similarity_score\":\"float\"},\"requires\":[],\"to\":[\"Event\"]},\"SUMMARIZES\":{\"from\":[\"Summary\"],\"properties\":{},\"requires\":[],\"to\":[\"Event\",\"Summary\"]},\"SUPERSEDES\":{\"from\":[],\"note\":\"a newer version replaces an older one\",\"properties\":{},\"requires\":[],\"to\":[]}},\"extends_core_edges\":{},\"nodes\":{\"Entity\":{\"embed_fields\":[],\"id_property\":\"entity_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"entity_id\"],\"properties\":{\"embedding\":\"list<float>\",\"entity_id\":\"string\",\"entity_type\":{\"enum\":[\"agent\",\"user\",\"service\",\"tool\",\"resource\",\"concept\"]},\"first_seen\":\"datetime\",\"last_seen\":\"datetime\",\"mention_count\":\"int\",\"name\":\"string\"},\"text_fields\":[],\"vector_property\":\"embedding\"},\"Event\":{\"embed_fields\":[],\"id_property\":\"event_id\",\"indexes\":[\"session_id\"],\"interfaces\":[],\"key\":[\"event_id\"],\"properties\":{\"access_count\":\"int\",\"agent_id\":\"string\",\"embedding\":\"list<float>\",\"event_id\":\"string\",\"event_type\":\"string\",\"global_position\":\"string\",\"importance_score\":\"int\",\"keywords\":\"list<string>\",\"last_accessed_at\":\"datetime\",\"occurred_at\":\"datetime\",\"session_id\":\"string\",\"summary\":\"string\",\"tool_name\":\"string\",\"trace_id\":\"string\"},\"text_fields\":[\"summary\",\"keywords\"]},\"Summary\":{\"embed_fields\":[],\"id_property\":\"summary_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"summary_id\"],\"properties\":{\"content\":\"string\",\"created_at\":\"datetime\",\"event_count\":\"int\",\"scope\":\"string\",\"scope_id\":\"string\",\"summary_id\":\"string\",\"time_range\":\"list<datetime>\"},\"text_fields\":[\"content\"]}}}},{\"events\":{\"pdlc.change.abandoned\":{\"aliases\":{\"cdevents\":\"dev.cdevents.change.abandoned\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"body\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"integer\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.change.committed\":{\"aliases\":{},\"note\":\"git-only fallback when no PR webhook is available\",\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"body\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"files\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"subject\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.change.created\":{\"aliases\":{\"cdevents\":\"dev.cdevents.change.created\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"body\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"files\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"head_sha\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"integer\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.change.merged\":{\"aliases\":{\"cdevents\":\"dev.cdevents.change.merged\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"body\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"files\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"merge_sha\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"integer\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.change.reviewed\":{\"aliases\":{\"cdevents\":\"dev.cdevents.change.reviewed\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"integer\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"review_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"verdict\":{\"additional_fields\":\"preserve\",\"enum\":[\"approved\",\"commented\",\"changes_requested\"],\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.change.updated\":{\"aliases\":{\"cdevents\":\"dev.cdevents.change.updated\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"body\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"head_sha\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"integer\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.decision.recorded\":{\"aliases\":{},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"applies_to_node_ids\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"rationale\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"source_uri\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"statement\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"supersedes_hash\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.design.section_changed\":{\"aliases\":{},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"body\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"doc_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"section_path\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.incident.detected\":{\"aliases\":{\"cdevents\":\"dev.cdevents.incident.detected\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"artifact_id\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"description\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"environment\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"incident_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"service\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"severity\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.incident.reported\":{\"aliases\":{\"cdevents\":\"dev.cdevents.incident.reported\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"description\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"incident_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.incident.resolved\":{\"aliases\":{\"cdevents\":\"dev.cdevents.incident.resolved\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"incident_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"summary\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.release.published\":{\"aliases\":{\"cdevents\":\"dev.cdevents.artifact.published\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"entries\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{\"pr_number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"integer\"},\"section\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"required\":false,\"type\":\"object\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"has_breaking\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"boolean\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"version\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.request.created\":{\"aliases\":{},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"description\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"external_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"source_system\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.requirement.changed\":{\"aliases\":{},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"local_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"spec_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"statement\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.service.deployed\":{\"aliases\":{\"cdevents\":\"dev.cdevents.service.deployed\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"artifact_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"change_numbers\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"integer\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"environment\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"service\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.service.rolledback\":{\"aliases\":{\"cdevents\":\"dev.cdevents.service.rolledback\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"artifact_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"change_numbers\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"integer\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"environment\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"service\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.service.upgraded\":{\"aliases\":{\"cdevents\":\"dev.cdevents.service.upgraded\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"artifact_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"change_numbers\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"integer\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"environment\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"service\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.spec.approved\":{\"aliases\":{},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"acceptance_criteria\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"cited_node_ids\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"content_hash\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"doc_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"request_ids\":{\"additional_fields\":\"preserve\",\"items\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"max_length\":1000,\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"array\"},\"request_system\":{\"additional_fields\":\"preserve\",\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"},\"scope\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"source_uri\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"version\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.testcaserun.finished\":{\"aliases\":{\"cdevents\":\"dev.cdevents.testcaserun.finished\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"change_number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"integer\"},\"commit_sha\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"name\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"outcome\":{\"additional_fields\":\"preserve\",\"enum\":[\"success\",\"failure\",\"cancel\",\"error\",\"skipped\"],\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"path\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"run_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"test_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.testcaserun.skipped\":{\"aliases\":{\"cdevents\":\"dev.cdevents.testcaserun.skipped\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"change_number\":{\"additional_fields\":\"preserve\",\"maximum\":9223372036854775807,\"minimum\":1,\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"integer\"},\"commit_sha\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"name\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"outcome\":{\"additional_fields\":\"preserve\",\"enum\":[\"success\",\"failure\",\"cancel\",\"error\",\"skipped\"],\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"path\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"repo\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"run_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"test_id\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"}},\"version\":1}},\"pdlc.ticket.closed\":{\"aliases\":{\"cdevents\":\"dev.cdevents.ticket.closed\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"key\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"parent_key\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"resolution\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"status\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"tracker\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"work_type\":{\"additional_fields\":\"preserve\",\"enum\":[\"epic\",\"story\",\"task\",\"bug\",\"production_change\"],\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.ticket.created\":{\"aliases\":{\"cdevents\":\"dev.cdevents.ticket.created\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"key\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"parent_key\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"resolution\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"status\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"tracker\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"work_type\":{\"additional_fields\":\"preserve\",\"enum\":[\"epic\",\"story\",\"task\",\"bug\",\"production_change\"],\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}},\"pdlc.ticket.updated\":{\"aliases\":{\"cdevents\":\"dev.cdevents.ticket.updated\"},\"payload_contract\":{\"additional_fields\":\"preserve\",\"properties\":{\"key\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"parent_key\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"resolution\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"status\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"title\":{\"additional_fields\":\"preserve\",\"nullable\":true,\"properties\":{},\"required\":false,\"type\":\"string\"},\"tracker\":{\"additional_fields\":\"preserve\",\"min_length\":1,\"nullable\":false,\"properties\":{},\"required\":true,\"type\":\"string\"},\"work_type\":{\"additional_fields\":\"preserve\",\"enum\":[\"epic\",\"story\",\"task\",\"bug\",\"production_change\"],\"nullable\":false,\"properties\":{},\"required\":false,\"type\":\"string\"}},\"version\":1}}},\"extraction\":{\"derived_proposals\":{\"VERIFIES\":{\"confidence\":0.3,\"link_status\":\"proposed\",\"method\":\"co_change\",\"rule\":\"a test file changed in the same commit as the change\"}},\"never_propose\":[\"Change\",\"TestRun\",\"Deployment\",\"Incident\",\"WorkItem\",\"Release\"],\"propose\":{\"AMENDS\":{\"description\":\"How a decision changes an earlier one: builds on it, updates part of it, or replaces part of it\",\"link_status\":\"proposed\",\"method\":\"inferred\",\"scoring_question\":\"Does decision A change decision B? yes/no; then: builds_on, updates or replaces_part\"},\"APPLIES_TO\":{\"description\":\"Which service, requirement, design section or change a decision is about\",\"link_status\":\"proposed\",\"method\":\"inferred\",\"scoring_question\":\"Is this decision about this item? yes/no\"},\"Constraint\":{\"description\":\"A rule that limits future work, e.g. 'Refunds must never exceed the captured amount'\",\"max_confidence\":0.8},\"Decision\":{\"description\":\"A choice that was made, with its rationale, e.g. 'We will use idempotency keys on refund retries because\\u2026'\",\"max_confidence\":0.8},\"IMPLEMENTS\":{\"description\":\"An undeclared link from a change to the requirement it serves\",\"link_status\":\"proposed\",\"max_confidence\":0.7,\"method\":\"inferred\",\"scoring_question\":\"Does this change implement this requirement? yes/no\"},\"Lesson\":{\"description\":\"Something learned from an outcome, phrased as apply or avoid\",\"max_confidence\":0.6},\"VERIFIES\":{\"description\":\"An undeclared link from a test to the requirement it checks\",\"link_status\":\"proposed\",\"method\":\"inferred\",\"scoring_question\":\"Does this test check this requirement? yes/no\"}},\"sources\":[\"pdlc.design.section_changed\",\"pdlc.spec.approved\",\"core:observation.input\"]},\"interfaces\":{\"Owned\":{\"edges\":[\"OWNED_BY\"],\"properties\":{}}},\"lifecycle\":{\"decay\":{\"Constraint\":{\"class\":\"pinned\",\"compressible\":false},\"Decision\":{\"class\":\"slow\",\"compressible\":true},\"Requirement\":{\"class\":\"slow\",\"compressible\":true},\"Review\":{\"class\":\"medium\",\"compressible\":true},\"TestRun\":{\"class\":\"fast\",\"compressible\":true,\"retain_days\":30},\"default\":{\"class\":\"medium\",\"compressible\":true}},\"terminal_states_reduce_importance\":[\"retired\",\"cancelled\",\"abandoned\",\"deprecated\",\"superseded\"]},\"mappings\":{\"backstage\":{\"Component\":\"Component\",\"DEPENDS_ON\":\"dependsOn\",\"OWNED_BY\":\"ownedBy\",\"Team\":\"Group\"},\"essence\":{\"Component\":\"SoftwareSystem\",\"Request\":\"Opportunity\",\"Requirement\":\"Requirements\",\"Team\":\"Team\",\"WorkItem\":\"Work\"},\"oslc\":{\"DECOMPOSES_INTO\":\"inverse of oslc_cm:parent\",\"EXECUTES\":\"oslc_qm:reportsOnTestCase\",\"IMPLEMENTS\":\"oslc_cm:implementsRequirement (WorkItem->Requirement); inverse of oslc_cm:tracksChangeSet (Change->WorkItem)\",\"Requirement\":\"oslc_rm:Requirement\",\"Spec\":\"oslc_rm:RequirementCollection\",\"TestCase\":\"oslc_qm:TestCase\",\"TestRun\":\"oslc_qm:TestResult\",\"VERIFIES\":\"oslc_qm:validatesRequirement (->Requirement); oslc_qm:testsChangeRequest (->WorkItem)\",\"WorkItem\":\"oslc_cm:ChangeRequest\"},\"prov\":{\"Change\":\"prov:Entity\",\"DECIDED_BY\":\"prov:wasAttributedTo\",\"Decision\":\"prov:Entity\",\"Deployment\":\"prov:Activity\",\"SUPERSEDES\":\"prov:wasRevisionOf\",\"TestRun\":\"prov:Activity\"},\"synonyms\":{\"Change\":[\"pull request\",\"PR\",\"merge request\",\"MR\",\"changeset\"],\"Decision\":[\"ADR\",\"architecture decision\"],\"Incident\":[\"outage\",\"sev\",\"page\"],\"WorkItem\":[\"ticket\",\"issue\",\"story\",\"task\",\"bug\"]}},\"pack\":{\"description\":\"Requests, specs, requirements, decisions, work, changes, verification, deployment and operations.\",\"name\":\"pdlc\",\"owner\":\"TBD\",\"requires\":[\"core>=1.1\"],\"version\":\"1.8.0\"},\"projection\":[{\"edges\":[],\"event\":\"pdlc.change.created\",\"transition\":{\"only_from\":[\"abandoned\"],\"to\":\"open\",\"type\":\"Change\"},\"upsert\":[{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"set\":{\"body\":\"$.body\",\"files\":\"$.files\",\"head_sha\":\"$.head_sha\",\"title\":\"$.title\"},\"type\":\"Change\"}]},{\"edges\":[{\"from\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"set\":{\"confidence\":1.0,\"link_status\":\"confirmed\",\"method\":\"declared\"},\"to_each\":{\"key\":{\"external_key\":\"regex($.body, '(?i)(?:fixes|closes|resolves)\\\\s+([A-Z][A-Z0-9]+-\\\\d+)')\",\"tracker\":\"jira\"},\"type\":\"WorkItem\"},\"type\":\"IMPLEMENTS\"},{\"from\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"set\":{},\"to_each\":{\"key\":{\"number\":\"regex($.title + ' ' + $.body, '(?i)(?:revert(?:s)?\\\\s+#|this reverts #)(\\\\d+)')\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"REVERTS\"},{\"from\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"set\":{},\"to_each\":{\"key\":{\"number\":\"regex_all($.title + ' ' + $.body, '(?i)(?:\\\\brevert\\\\s+\\\"[^\\\"\\\\n]*\\\\(#|\\\\breverts\\\\s+[\\\\w.-]+/[\\\\w.-]+#)(\\\\d+)')\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"REVERTS\"},{\"from\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"set\":{},\"to_each\":{\"match_any_prefix\":{\"path_prefixes\":\"$.files\",\"repo\":\"$.repo\"},\"type\":\"Component\"},\"type\":\"TOUCHES\"},{\"from\":{\"match\":{\"artifact_id\":\"$.merge_sha\",\"repo\":\"$.repo\"},\"type\":\"Deployment\"},\"set\":{},\"to\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"DEPLOYS\",\"when\":\"$.merge_sha\"}],\"event\":\"pdlc.change.merged\",\"transition\":{\"only_from\":[],\"to\":\"merged\",\"type\":\"Change\"},\"upsert\":[{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"set\":{\"body\":\"$.body\",\"files\":\"$.files\",\"merge_sha\":\"$.merge_sha\",\"title\":\"$.title\"},\"type\":\"Change\"}]},{\"edges\":[{\"from\":{\"key\":{\"number\":\"regex($.subject, '\\\\(#(\\\\d+)\\\\)$')\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"set\":{\"confidence\":1.0,\"link_status\":\"confirmed\",\"method\":\"declared\"},\"to_each\":{\"key\":{\"external_key\":\"regex_all($.subject + ' ' + $.body, '([A-Z][A-Z0-9]+-\\\\d+)')\",\"tracker\":\"jira\"},\"type\":\"WorkItem\"},\"type\":\"IMPLEMENTS\"}],\"event\":\"pdlc.change.committed\",\"upsert\":[{\"key\":{\"number\":\"regex($.subject, '\\\\(#(\\\\d+)\\\\)$')\",\"repo\":\"$.repo\"},\"set\":{\"change_type\":\"regex($.subject, '^(\\\\w+)')\",\"files\":\"$.files\",\"scope\":\"regex($.subject, '^\\\\w+\\\\(([^)]+)\\\\)')\",\"ticket_exempt\":\"match($.subject, '(?i)^MINOR')\",\"title\":\"$.subject\"},\"type\":\"Change\"},{\"key\":{\"number\":\"regex($.subject, '\\\\(#(\\\\d+)\\\\)$')\",\"repo\":\"$.repo\",\"review_id\":\"each(regex_all($.body, '(?im)^reviewers?:\\\\s*(.+)$'))\"},\"set\":{\"verdict\":\"approved\"},\"type\":\"Review\"}]},{\"edges\":[{\"from\":{\"key\":{\"repo\":\"$.repo\",\"version\":\"$.version\"},\"type\":\"Release\"},\"set\":{\"section\":\"$.entries[*].section\"},\"to_each\":{\"key\":{\"number\":\"$.entries[*].pr_number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"INCLUDES\"}],\"event\":\"pdlc.release.published\",\"upsert\":[{\"key\":{\"repo\":\"$.repo\",\"version\":\"$.version\"},\"set\":{\"breaking\":\"$.has_breaking\",\"released_at\":\"$event.occurred_at\"},\"type\":\"Release\"}]},{\"edges\":[{\"from\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\",\"review_id\":\"$.review_id\"},\"type\":\"Review\"},\"set\":{},\"to\":{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"REVIEWS\"}],\"event\":\"pdlc.change.reviewed\",\"transition\":{\"only_from\":[\"open\"],\"to\":\"reviewed\",\"type\":\"Change\"},\"upsert\":[{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\",\"review_id\":\"$.review_id\"},\"set\":{\"verdict\":\"$.verdict\"},\"type\":\"Review\"}]},{\"edges\":[{\"from\":{\"key\":{\"run_id\":\"$.run_id\"},\"type\":\"TestRun\"},\"set\":{},\"to\":{\"key\":{\"repo\":\"$.repo\",\"test_id\":\"$.test_id\"},\"type\":\"TestCase\"},\"type\":\"EXECUTES\"},{\"from\":{\"key\":{\"run_id\":\"$.run_id\"},\"type\":\"TestRun\"},\"set\":{},\"to\":{\"key\":{\"number\":\"$.change_number\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"RAN_AGAINST\",\"when\":\"$.change_number\"}],\"event\":\"pdlc.testcaserun.finished\",\"upsert\":[{\"key\":{\"repo\":\"$.repo\",\"test_id\":\"$.test_id\"},\"set\":{\"name\":\"$.name\",\"path\":\"$.path\"},\"type\":\"TestCase\"},{\"key\":{\"run_id\":\"$.run_id\"},\"set\":{\"commit_sha\":\"$.commit_sha\",\"finished_at\":\"$event.occurred_at\",\"outcome\":\"$.outcome\"},\"type\":\"TestRun\"}]},{\"edges\":[{\"from\":{\"key\":{\"artifact_id\":\"$.artifact_id\",\"environment\":\"$.environment\",\"started_at\":\"$event.occurred_at\"},\"type\":\"Deployment\"},\"set\":{\"environment\":\"$.environment\"},\"to\":{\"key\":{\"catalog_name\":\"$.service\"},\"type\":\"Component\"},\"type\":\"DEPLOYED_TO\"},{\"from\":{\"key\":{\"artifact_id\":\"$.artifact_id\",\"environment\":\"$.environment\",\"started_at\":\"$event.occurred_at\"},\"type\":\"Deployment\"},\"set\":{},\"to_each\":{\"key\":{\"number\":\"$.change_numbers[*]\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"DEPLOYS\"},{\"from\":{\"key\":{\"artifact_id\":\"$.artifact_id\",\"environment\":\"$.environment\",\"started_at\":\"$event.occurred_at\"},\"type\":\"Deployment\"},\"set\":{},\"to_each\":{\"match\":{\"merge_sha\":\"$.artifact_id\",\"repo\":\"$.repo\"},\"type\":\"Change\"},\"type\":\"DEPLOYS\",\"when\":\"$.artifact_id\"}],\"event\":\"pdlc.service.deployed\",\"transition\":{\"only_from\":[],\"to\":\"succeeded\",\"type\":\"Deployment\"},\"upsert\":[{\"key\":{\"catalog_name\":\"$.service\"},\"set\":{},\"type\":\"Component\"},{\"key\":{\"artifact_id\":\"$.artifact_id\",\"environment\":\"$.environment\",\"started_at\":\"$event.occurred_at\"},\"set\":{\"repo\":\"$.repo\"},\"type\":\"Deployment\"}]},{\"edges\":[{\"from\":{\"key\":{\"incident_id\":\"$.incident_id\"},\"type\":\"Incident\"},\"set\":{},\"to\":{\"key\":{\"catalog_name\":\"$.service\"},\"type\":\"Component\"},\"type\":\"AFFECTS\"},{\"from\":{\"key\":{\"incident_id\":\"$.incident_id\"},\"type\":\"Incident\"},\"set\":{},\"to_latest\":{\"match\":{\"artifact_id\":\"$.artifact_id\",\"environment\":\"$.environment\"},\"type\":\"Deployment\"},\"type\":\"OCCURRED_ON\",\"when\":\"$.artifact_id\"}],\"event\":\"pdlc.incident.detected\",\"transition\":{\"only_from\":[],\"to\":\"detected\",\"type\":\"Incident\"},\"upsert\":[{\"key\":{\"incident_id\":\"$.incident_id\"},\"set\":{\"artifact_id\":\"$.artifact_id\",\"environment\":\"$.environment\",\"severity\":\"$.severity\",\"title\":\"$.description\"},\"type\":\"Incident\"},{\"key\":{\"catalog_name\":\"$.service\"},\"set\":{},\"type\":\"Component\"}]},{\"edges\":[{\"from\":{\"key\":{\"external_key\":\"$.parent_key\",\"tracker\":\"$.tracker\"},\"type\":\"WorkItem\"},\"set\":{},\"to\":{\"key\":{\"external_key\":\"$.key\",\"tracker\":\"$.tracker\"},\"type\":\"WorkItem\"},\"type\":\"DECOMPOSES_INTO\",\"when\":\"$.parent_key\"}],\"event\":\"pdlc.ticket.updated\",\"transition\":{\"only_from\":[],\"to\":\"map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})\",\"type\":\"WorkItem\"},\"upsert\":[{\"key\":{\"external_key\":\"$.key\",\"tracker\":\"$.tracker\"},\"set\":{\"title\":\"$.title\",\"work_type\":\"$.work_type\"},\"type\":\"WorkItem\"}]},{\"edges\":[{\"from\":{\"key\":{\"external_key\":\"$.parent_key\",\"tracker\":\"$.tracker\"},\"type\":\"WorkItem\"},\"set\":{},\"to\":{\"key\":{\"external_key\":\"$.key\",\"tracker\":\"$.tracker\"},\"type\":\"WorkItem\"},\"type\":\"DECOMPOSES_INTO\",\"when\":\"$.parent_key\"}],\"event\":\"pdlc.ticket.created\",\"transition\":{\"only_from\":[],\"to\":\"map($.status, {'To Do': open, 'In Progress': in_progress, 'Done': done, 'Won''t Do': cancelled})\",\"type\":\"WorkItem\"},\"upsert\":[{\"key\":{\"external_key\":\"$.key\",\"tracker\":\"$.tracker\"},\"set\":{\"title\":\"$.title\",\"work_type\":\"$.work_type\"},\"type\":\"WorkItem\"}]},{\"edges\":[],\"event\":\"pdlc.ticket.closed\",\"transition\":{\"only_from\":[],\"to\":\"map($.status, {'Done': done, 'Won''t Do': cancelled})\",\"type\":\"WorkItem\"},\"upsert\":[{\"key\":{\"external_key\":\"$.key\",\"tracker\":\"$.tracker\"},\"set\":{\"resolution\":\"$.resolution\",\"title\":\"$.title\"},\"type\":\"WorkItem\"}]},{\"edges\":[],\"event\":\"pdlc.change.updated\",\"upsert\":[{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"set\":{\"body\":\"$.body\",\"head_sha\":\"$.head_sha\",\"title\":\"$.title\"},\"type\":\"Change\"}]},{\"edges\":[],\"event\":\"pdlc.change.abandoned\",\"transition\":{\"only_from\":[\"open\",\"reviewed\"],\"to\":\"abandoned\",\"type\":\"Change\"},\"upsert\":[{\"key\":{\"number\":\"$.number\",\"repo\":\"$.repo\"},\"set\":{\"title\":\"$.title\"},\"type\":\"Change\"}]},{\"edges\":[],\"event\":\"pdlc.incident.resolved\",\"transition\":{\"only_from\":[],\"to\":\"resolved\",\"type\":\"Incident\"},\"upsert\":[{\"key\":{\"incident_id\":\"$.incident_id\"},\"set\":{\"summary\":\"$.summary\"},\"type\":\"Incident\"}]},{\"edges\":[{\"from\":{\"key\":{\"doc_id\":\"$.doc_id\",\"version\":\"$.version\"},\"type\":\"Spec\"},\"set\":{\"confidence\":1.0,\"link_status\":\"confirmed\",\"method\":\"declared\"},\"to_each\":{\"key\":{\"external_id\":\"$.request_ids[*]\",\"source_system\":\"$.request_system\"},\"type\":\"Request\"},\"type\":\"REFINES\"},{\"from\":{\"key\":{\"doc_id\":\"$.doc_id\",\"version\":\"$.version\"},\"type\":\"Spec\"},\"set\":{\"pinned_position\":\"$event.global_position\"},\"to_each\":{\"node_id\":\"$.cited_node_ids[*]\"},\"type\":\"CITES\"}],\"event\":\"pdlc.spec.approved\",\"transition\":{\"only_from\":[],\"to\":\"approved\",\"type\":\"Spec\"},\"upsert\":[{\"key\":{\"doc_id\":\"$.doc_id\",\"version\":\"$.version\"},\"set\":{\"acceptance_criteria\":\"$.acceptance_criteria\",\"content_hash\":\"$.content_hash\",\"scope\":\"$.scope\",\"source_uri\":\"$.source_uri\",\"title\":\"$.title\"},\"type\":\"Spec\"}]},{\"edges\":[{\"from\":{\"key\":{\"content_hash\":\"sha256($.statement)\"},\"type\":\"Decision\"},\"set\":{},\"to\":{\"key\":{\"content_hash\":\"$.supersedes_hash\"},\"type\":\"Decision\"},\"type\":\"SUPERSEDES\",\"when\":\"$.supersedes_hash\"},{\"from\":{\"key\":{\"content_hash\":\"sha256($.statement)\"},\"type\":\"Decision\"},\"set\":{\"confidence\":1.0,\"link_status\":\"confirmed\",\"method\":\"declared\"},\"to_each\":{\"node_id\":\"$.applies_to_node_ids[*]\"},\"type\":\"APPLIES_TO\",\"when\":\"$.applies_to_node_ids\"}],\"event\":\"pdlc.decision.recorded\",\"transition\":{\"only_from\":[],\"to\":\"accepted\",\"type\":\"Decision\"},\"upsert\":[{\"key\":{\"content_hash\":\"sha256($.statement)\"},\"set\":{\"content_hash\":\"sha256($.statement)\",\"rationale\":\"$.rationale\",\"source_uri\":\"$.source_uri\",\"statement\":\"$.statement\"},\"type\":\"Decision\"}]}],\"retrieval\":{\"admission\":{\"proposed_links\":{\"default\":\"show_with_confidence\",\"include_for_intents\":[],\"never_counted_as\":\"confirmed\"},\"superseded_or_reversed\":{\"default\":\"exclude\",\"include_for_intents\":[\"status\",\"why\"],\"label_as\":\"superseded\"},\"untrusted_uncorroborated\":{\"available_via\":\"lookup_untrusted\",\"default\":\"exclude_from_action_context\",\"include_for_intents\":[]}},\"core_intent_weights\":{\"who_is\":{\"DECIDED_BY\":4.0,\"OWNED_BY\":5.0},\"why\":{\"APPLIES_TO\":4.0,\"ATTRIBUTED_TO\":3.0,\"CITES\":3.0,\"DECIDED_BY\":3.0,\"IMPLEMENTS\":4.0,\"RAISES\":3.0,\"REFINES\":4.0}},\"intents\":{\"completeness\":{\"description\":\"Find artifacts missing an expected link (requirement without test, change without review)\",\"direction\":\"both\",\"examples\":[\"which requirements have no tests\",\"unreviewed merges last week\"],\"keywords\":[\"missing\",\"without\",\"no tests\",\"no test\",\"untested\",\"unreviewed\",\"unlinked\",\"not linked\",\"have no\",\"has no\",\"lack\",\"lacks\",\"lacking\",\"nobody\",\"uncovered\",\"no review\",\"no reviews\"],\"plugin\":\"missing_links\",\"prefer_types\":[],\"weights\":{\"IMPLEMENTS\":5.0,\"REFINES\":3.0,\"REVIEWS\":4.0,\"VERIFIES\":5.0}},\"impact\":{\"description\":\"What is affected if this changes\",\"direction\":\"inbound\",\"examples\":[\"what depends on the ledger service\",\"what breaks if we change the refunds API\"],\"keywords\":[\"depends\",\"depend\",\"dependent\",\"affected\",\"impact\",\"breaks\",\"break\",\"blast radius\"],\"prefer_types\":[],\"weights\":{\"AFFECTS\":3.0,\"CONSTRAINS\":4.0,\"DEPENDS_ON\":5.0,\"OWNED_BY\":2.0}},\"preflight\":{\"description\":\"Before acting on an artifact, surface lessons, open incidents, failing tests and constraints\",\"direction\":\"both\",\"examples\":[\"anything I should know before editing refund/retry.py\"],\"keywords\":[\"before i\",\"should know\",\"before editing\",\"before i edit\",\"lessons\",\"risks\",\"warnings\",\"gotchas\"],\"prefer_types\":[],\"weights\":{\"AFFECTS\":4.0,\"APPLIES_TO\":4.0,\"ATTRIBUTED_TO\":3.0,\"CONSTRAINS\":5.0,\"LEARNED_FROM\":5.0,\"RAN_AGAINST\":3.0,\"REVERTS\":4.0,\"TOUCHES\":5.0}},\"status\":{\"description\":\"Current, non-superseded state of a decision, spec or design\",\"direction\":\"both\",\"examples\":[\"is the idempotency decision still current\",\"latest version of the refunds HLD\"],\"keywords\":[\"still\",\"current\",\"latest\",\"valid\",\"superseded\",\"replaced\",\"reversed\",\"amended\",\"contradict\",\"contradicts\",\"approved version\"],\"prefer_types\":[\"Spec\"],\"weights\":{\"AMENDS\":4.0,\"APPLIES_TO\":3.0,\"CITES\":4.0,\"CONTRADICTS\":4.0,\"DECIDED_BY\":2.0,\"SUPERSEDES\":5.0}},\"trace\":{\"description\":\"Follow a requirement or request through design, code, tests and deployment\",\"direction\":\"both\",\"examples\":[\"where is PAY-341 deployed\",\"trace the refund retry requirement\",\"what implements REQ-12\"],\"keywords\":[\"trace\",\"deployed\",\"implements\",\"implemented\",\"delivered\",\"deliver\",\"shipped\",\"ship\",\"release\"],\"max_depth\":5,\"prefer_types\":[],\"weights\":{\"DECOMPOSES_INTO\":3.0,\"DEPLOYED_TO\":3.0,\"DEPLOYS\":4.0,\"IMPLEMENTS\":5.0,\"INCLUDES\":4.0,\"REFINES\":5.0,\"VERIFIES\":4.0}}},\"key_patterns\":{},\"seed_types\":[\"Requirement\",\"Decision\",\"Constraint\",\"Change\",\"Component\",\"Incident\",\"WorkItem\",\"Spec\",\"DesignElement\",\"Lesson\",\"Release\",\"TestCase\"]},\"types\":{\"edges\":{\"AFFECTS\":{\"from\":[\"Incident\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Component\"]},\"AMENDS\":{\"from\":[\"Decision\"],\"note\":\"step 2: OpenDAL RFCs cite earlier RFCs with 'updates', 'builds on', 'changes'; none says 'supersedes'\",\"properties\":{\"kind\":{\"enum\":[\"builds_on\",\"updates\",\"replaces_part\"]}},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Decision\"]},\"APPLIES_TO\":{\"from\":[\"Decision\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Component\",\"Requirement\",\"DesignElement\",\"Change\"]},\"ATTRIBUTED_TO\":{\"from\":[\"Incident\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Change\",\"WorkItem\"]},\"CITES\":{\"from\":[\"Spec\",\"Change\"],\"properties\":{\"pinned_position\":\"string\"},\"requires\":[],\"to\":[\"Decision\",\"Constraint\",\"DesignElement\",\"Lesson\",\"Requirement\"]},\"CONSTRAINS\":{\"from\":[\"Constraint\"],\"properties\":{\"scope\":\"string\"},\"requires\":[],\"to\":[\"Requirement\",\"DesignElement\",\"Component\",\"WorkItem\"]},\"DECIDED_BY\":{\"from\":[\"Decision\",\"Constraint\"],\"properties\":{},\"requires\":[],\"to\":[\"core:Entity\"]},\"DECOMPOSES_INTO\":{\"from\":[\"Spec\",\"WorkItem\"],\"properties\":{\"order\":\"int\"},\"requires\":[],\"to\":[\"WorkItem\"]},\"DEPENDS_ON\":{\"from\":[\"WorkItem\",\"Component\"],\"properties\":{\"kind\":{\"enum\":[\"blocks\",\"needs\"]}},\"requires\":[],\"to\":[\"WorkItem\",\"Component\"]},\"DEPLOYED_TO\":{\"from\":[\"Deployment\"],\"properties\":{\"environment\":\"string\"},\"requires\":[],\"to\":[\"Component\"]},\"DEPLOYS\":{\"from\":[\"Deployment\"],\"properties\":{},\"requires\":[],\"to\":[\"Change\",\"Release\"]},\"EXECUTES\":{\"from\":[\"TestRun\"],\"properties\":{},\"requires\":[],\"to\":[\"TestCase\"]},\"IMPLEMENTS\":{\"from\":[\"Change\",\"WorkItem\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"WorkItem\",\"Requirement\",\"DesignElement\"]},\"INCLUDES\":{\"from\":[\"Release\"],\"note\":\"declared by changelogs\",\"properties\":{\"section\":{\"enum\":[\"breaking\",\"added\",\"fixed\",\"docs\",\"ci\",\"other\"]}},\"requires\":[],\"to\":[\"Change\"]},\"LEARNED_FROM\":{\"from\":[\"Lesson\"],\"properties\":{},\"requires\":[],\"to\":[\"Incident\",\"Change\"]},\"OCCURRED_ON\":{\"from\":[\"Incident\"],\"note\":\"declared: CDEvents incident subject carries environment and artifactId\",\"properties\":{},\"requires\":[],\"to\":[\"Deployment\"]},\"OWNED_BY\":{\"from\":[\"Component\",\"WorkItem\",\"Request\",\"Incident\"],\"properties\":{},\"requires\":[],\"to\":[\"Team\",\"core:Entity\"]},\"RAISES\":{\"from\":[\"Incident\"],\"properties\":{},\"requires\":[],\"to\":[\"Request\"]},\"RAN_AGAINST\":{\"from\":[\"TestRun\"],\"properties\":{\"commit_sha\":\"string\"},\"requires\":[],\"to\":[\"Change\"]},\"REFINES\":{\"from\":[\"Spec\",\"Requirement\",\"DesignElement\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Request\",\"Spec\",\"Requirement\"]},\"REMEDIATES\":{\"from\":[\"Change\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Incident\"]},\"REVERTS\":{\"from\":[\"Change\"],\"note\":\"declared: 'Revert \\\"\\u2026\\\"' / 'This reverts #n' in the PR title or body\",\"properties\":{},\"requires\":[],\"to\":[\"Change\"]},\"REVIEWS\":{\"from\":[\"Review\"],\"properties\":{},\"requires\":[],\"to\":[\"Change\"]},\"TOUCHES\":{\"from\":[\"Change\"],\"note\":\"derived: a changed file falls under one of the service's path_prefixes\",\"properties\":{},\"requires\":[],\"to\":[\"Component\"]},\"VERIFIES\":{\"from\":[\"TestCase\"],\"properties\":{},\"requires\":[\"confidence\",\"method\",\"link_status\"],\"to\":[\"Requirement\",\"Spec\",\"Change\",\"WorkItem\"]}},\"extends_core_edges\":{\"CONTRADICTS\":{\"from\":[\"Decision\",\"Constraint\"],\"to\":[\"Decision\",\"Constraint\"]},\"REFERENCES\":{\"from\":[\"core:Event\"],\"note\":\"agent sessions link to the PDLC artifacts they touched (role object|result)\",\"to\":\"*\"},\"SAME_AS\":{\"from\":[\"WorkItem\",\"Component\"],\"note\":\"cross-tool identity, e.g. GitHub issue == Jira ticket\",\"to\":[\"WorkItem\",\"Component\"]},\"SUPERSEDES\":{\"from\":[\"Decision\",\"Spec\",\"DesignElement\"],\"to\":[\"Decision\",\"Spec\",\"DesignElement\"]}},\"link_policy\":{\"applies_to\":[\"REFINES\",\"IMPLEMENTS\",\"VERIFIES\",\"ATTRIBUTED_TO\",\"APPLIES_TO\",\"AMENDS\",\"AFFECTS\",\"REMEDIATES\"],\"completeness_reports\":[\"no_link\",\"proposed_only\",\"confirmed\"],\"link_status\":{\"declared_links_start_as\":\"confirmed\",\"enum\":[\"proposed\",\"confirmed\",\"rejected\"],\"inferred_links_start_as\":\"proposed\"},\"read_time_threshold\":\"per_edge_type_fitted\",\"scoring_question\":\"yes_no\",\"write_time_threshold\":\"none\"},\"nodes\":{\"Change\":{\"embed_fields\":[\"title\",\"body\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Anchored\",\"Sourced\"],\"key\":[\"repo\",\"number\"],\"lifecycle\":{\"initial\":\"open\",\"states\":[\"open\",\"reviewed\",\"merged\",\"abandoned\"],\"superseded_states\":[]},\"properties\":{\"body\":\"text\",\"change_type\":\"string\",\"files\":\"list<string>\",\"head_sha\":\"string\",\"merge_sha\":\"string\",\"number\":\"int\",\"repo\":\"string\",\"scope\":\"string\",\"ticket_exempt\":\"bool\",\"title\":\"string\"},\"text_fields\":[\"title\",\"body\"]},\"Component\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Owned\",\"Lifecycled\",\"Sourced\"],\"key\":[\"catalog_name\"],\"lifecycle\":{\"initial\":\"production\",\"states\":[\"experimental\",\"production\",\"deprecated\"],\"superseded_states\":[]},\"properties\":{\"catalog_name\":\"string\",\"kind\":{\"enum\":[\"service\",\"library_module\",\"binding\",\"website\",\"other\"]},\"path_prefixes\":\"list<string>\",\"repo\":\"string\",\"system\":\"string\",\"tier\":\"string\"},\"text_fields\":[]},\"Constraint\":{\"embed_fields\":[\"statement\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Claim\",\"Sourced\"],\"key\":[\"content_hash\"],\"lifecycle\":{\"initial\":\"active\",\"states\":[\"active\",\"relaxed\",\"retired\"],\"superseded_states\":[]},\"properties\":{\"content_hash\":\"string\",\"scope\":\"string\",\"severity\":\"string\",\"statement\":\"text\"},\"text_fields\":[\"statement\"]},\"Decision\":{\"embed_fields\":[\"statement\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Anchored\",\"Claim\",\"Sourced\"],\"key\":[\"content_hash\"],\"lifecycle\":{\"initial\":\"proposed\",\"states\":[\"proposed\",\"accepted\",\"superseded\",\"reversed\"],\"superseded_states\":[\"superseded\",\"reversed\"]},\"properties\":{\"alternatives\":\"text\",\"decided_at\":\"datetime\",\"rationale\":\"text\",\"statement\":\"text\",\"valid_from\":\"datetime\",\"valid_to\":\"datetime\"},\"text_fields\":[\"statement\",\"rationale\"]},\"Deployment\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Sourced\"],\"key\":[\"environment\",\"artifact_id\",\"started_at\"],\"lifecycle\":{\"initial\":\"started\",\"states\":[\"started\",\"succeeded\",\"failed\",\"rolled_back\"],\"superseded_states\":[]},\"properties\":{\"artifact_id\":\"string\",\"environment\":\"string\",\"repo\":\"string\",\"started_at\":\"datetime\"},\"text_fields\":[]},\"DesignElement\":{\"embed_fields\":[\"title\",\"body\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Anchored\",\"Versioned\",\"Sourced\"],\"key\":[\"doc_id\",\"section_path\"],\"lifecycle\":{\"initial\":\"draft\",\"states\":[\"draft\",\"reviewed\",\"approved\",\"superseded\"],\"superseded_states\":[\"superseded\"]},\"properties\":{\"body\":\"text\",\"doc_id\":\"string\",\"kind\":{\"enum\":[\"hld\",\"lld\"]},\"section_path\":\"string\",\"title\":\"string\"},\"text_fields\":[\"title\",\"body\"]},\"Incident\":{\"embed_fields\":[\"title\",\"summary\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Owned\",\"Sourced\"],\"key\":[\"incident_id\"],\"lifecycle\":{\"initial\":\"detected\",\"states\":[\"detected\",\"mitigated\",\"resolved\",\"postmortem_done\"],\"superseded_states\":[]},\"properties\":{\"artifact_id\":\"string\",\"environment\":\"string\",\"incident_id\":\"string\",\"severity\":\"string\",\"summary\":\"text\",\"ticket_uri\":\"string\",\"title\":\"string\"},\"text_fields\":[\"title\",\"summary\"]},\"Lesson\":{\"embed_fields\":[\"statement\"],\"indexes\":[],\"interfaces\":[\"Claim\",\"Lifecycled\",\"Sourced\"],\"key\":[\"content_hash\"],\"lifecycle\":{\"initial\":\"tentative\",\"states\":[\"tentative\",\"validated\",\"deprecated\"],\"superseded_states\":[]},\"properties\":{\"content_hash\":\"string\",\"polarity\":{\"enum\":[\"apply\",\"avoid\"]},\"statement\":\"text\",\"support_count\":\"int\"},\"text_fields\":[\"statement\"]},\"Release\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Sourced\"],\"key\":[\"repo\",\"version\"],\"note\":\"step 2: a library ships by release, not deployment; OpenDAL's changelog lists 3,129 PR links across 154 releases\",\"properties\":{\"breaking\":\"bool\",\"released_at\":\"datetime\",\"repo\":\"string\",\"version\":\"string\"},\"text_fields\":[]},\"Request\":{\"embed_fields\":[\"title\",\"description\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Owned\",\"Sourced\"],\"key\":[\"source_system\",\"external_id\"],\"lifecycle\":{\"initial\":\"new\",\"states\":[\"new\",\"triaged\",\"accepted\",\"rejected\",\"done\"],\"superseded_states\":[]},\"properties\":{\"description\":\"text\",\"external_id\":\"string\",\"priority\":\"string\",\"source_system\":\"string\",\"title\":\"string\"},\"text_fields\":[\"title\",\"description\"]},\"Requirement\":{\"embed_fields\":[\"statement\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Anchored\",\"Sourced\"],\"key\":[\"spec_id\",\"local_id\"],\"lifecycle\":{\"initial\":\"proposed\",\"states\":[\"proposed\",\"accepted\",\"implemented\",\"verified\",\"retired\"],\"superseded_states\":[]},\"properties\":{\"local_id\":\"string\",\"priority\":\"string\",\"spec_id\":\"string\",\"statement\":\"text\"},\"text_fields\":[\"statement\"]},\"Review\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Sourced\"],\"key\":[\"repo\",\"number\",\"review_id\"],\"properties\":{\"number\":\"int\",\"repo\":\"string\",\"review_id\":\"string\",\"verdict\":{\"enum\":[\"commented\",\"approved\",\"changes_requested\"]}},\"text_fields\":[]},\"Spec\":{\"embed_fields\":[\"title\",\"acceptance_criteria\"],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Anchored\",\"Versioned\",\"Sourced\"],\"key\":[\"doc_id\",\"version\"],\"lifecycle\":{\"initial\":\"draft\",\"states\":[\"draft\",\"approved\",\"superseded\"],\"superseded_states\":[\"superseded\"]},\"properties\":{\"acceptance_criteria\":\"text\",\"doc_id\":\"string\",\"scope\":\"text\",\"title\":\"string\"},\"text_fields\":[\"title\",\"acceptance_criteria\",\"scope\"]},\"Team\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Sourced\"],\"key\":[\"catalog_name\"],\"properties\":{\"catalog_name\":\"string\",\"display_name\":\"string\"},\"text_fields\":[]},\"TestCase\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Sourced\"],\"key\":[\"repo\",\"test_id\"],\"lifecycle\":{\"initial\":\"active\",\"states\":[\"active\",\"quarantined\",\"retired\"],\"superseded_states\":[]},\"properties\":{\"name\":\"string\",\"path\":\"string\",\"repo\":\"string\",\"test_id\":\"string\"},\"text_fields\":[]},\"TestRun\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Sourced\"],\"key\":[\"run_id\"],\"properties\":{\"commit_sha\":\"string\",\"finished_at\":\"datetime\",\"outcome\":{\"enum\":[\"success\",\"failure\",\"cancel\",\"error\",\"skipped\"]},\"run_id\":\"string\",\"severity\":{\"enum\":[\"low\",\"medium\",\"high\",\"critical\"]},\"test_type\":\"string\"},\"text_fields\":[]},\"WorkItem\":{\"embed_fields\":[],\"indexes\":[],\"interfaces\":[\"Lifecycled\",\"Owned\",\"Sourced\"],\"key\":[\"tracker\",\"external_key\"],\"lifecycle\":{\"initial\":\"open\",\"states\":[\"open\",\"in_progress\",\"done\",\"cancelled\"],\"superseded_states\":[]},\"properties\":{\"assignees\":\"list<string>\",\"criticality\":\"string\",\"external_key\":\"string\",\"labels\":\"list<string>\",\"milestone\":\"string\",\"priority\":\"string\",\"resolution\":\"string\",\"title\":\"string\",\"tracker\":\"string\",\"work_type\":{\"enum\":[\"epic\",\"story\",\"task\",\"bug\",\"production_change\"]}},\"text_fields\":[\"title\"]}}}}]",
+              "recorded_at": "2026-10-08T02:36:25.850448+00:00",
+              "replay_failures": [],
+              "replayed_events": 0,
+              "version": "sha256:4b77ce0dad3a98bc"
+            }
+          ]
+        ],
+        "edges": [
+          [
+            "Change",
+            "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+            "DERIVED_FROM",
+            "Event",
+            "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+            {}
+          ]
+        ],
+        "pending": [],
+        "dead_letters": []
+      },
+      "worker_lags": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retrieval": {
+        "request": {
+          "query": "trace Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "seed_node_ids": [
+            "Change:g01/20261008-cloud-g01-pr01-03-payments|8382"
+          ],
+          "intent": "trace",
+          "max_nodes": 20
+        },
+        "status": 200,
+        "body": {
+          "nodes": {
+            "Change:g01/20261008-cloud-g01-pr01-03-payments|8382": {
+              "node_id": "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+              "node_type": "Change",
+              "attributes": {
+                "body": "",
+                "files": [],
+                "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+                "node_id": "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+                "node_type": "Change",
+                "number": 8382,
+                "ontology_version": "sha256:4b77ce0dad3a98bc",
+                "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+                "source_trust": "trusted",
+                "status": "open",
+                "status_changed_at": "2026-10-08T02:31:18.531984+00:00",
+                "title": "ci(moonbit): update pinned MoonBit version",
+                "updated_at": "2026-10-08T02:31:18.531984+00:00"
+              },
+              "provenance": {
+                "event_id": "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+                "global_position": "2026-10-08T02:36:37.062287000Z/000000/cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+                "source": "spanner",
+                "occurred_at": "2026-10-08T02:31:18.531984Z",
+                "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+                "agent_id": "webhook:github",
+                "trace_id": "140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3"
+              },
+              "scores": {
+                "decay_score": 0.0,
+                "relevance_score": 1.0,
+                "importance_score": 0,
+                "ppr_score": 0.0
+              },
+              "retrieval_reason": "direct",
+              "proactive_signal": null
+            }
+          },
+          "edges": [],
+          "pagination": {
+            "cursor": null,
+            "has_more": false
+          },
+          "meta": {
+            "query_ms": 3041,
+            "nodes_returned": 1,
+            "truncated": false,
+            "inferred_intents": {
+              "trace": 1.0
+            },
+            "intent_override": "trace",
+            "seed_nodes": [
+              "Change:g01/20261008-cloud-g01-pr01-03-payments|8382"
+            ],
+            "seed_strategy": "artifact_seeds",
+            "proactive_nodes_count": 0,
+            "scoring_weights": {
+              "recency": 1.0,
+              "importance": 1.0,
+              "relevance": 1.0
+            },
+            "retrieval_channels": {},
+            "capacity": {
+              "max_nodes": 20,
+              "used_nodes": 1,
+              "max_depth": 5
+            },
+            "eval_pending": []
+          }
+        }
+      },
+      "verdict": "passed"
+    }
+  ],
+  "checks": [
+    {
+      "name": "PR01",
+      "passed": true,
+      "scenarios": []
+    }
+  ],
+  "ordering_policy": "Declared PDLC rules: delivery order governs title updates; edited does not transition lifecycle, so an older edit preserves merged status. No claim of timestamp-based property ordering.",
+  "runtime": "Single database-bound ordinary app, HMAC authenticated sources, real TCP HTTP and all five actual worker loops. Public tenant dispatcher not enabled or proved.",
+  "providers": "Unmodified LLM client and sentence-transformer embedder. PR/ticket events do not trigger session-end or domain LLM extraction. Structured artifact responses.",
+  "eval_gate": "serve_unevaluated explicitly enabled for disposable experiment; no full-pack evaluation claim",
+  "intent": {
+    "predecessor": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      12,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ],
+    "active": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      13,
+      "sha256:63dd6bc4441ed77f9482065c2cd5819b325fe645dc17b4c61d1800f0fade4501",
+      "active"
+    ],
+    "restore": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      14,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ],
+    "allowed_cleanup_keys": {
+      "Events": [
+        [
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ]
+      ],
+      "GraphNodes": [
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8383"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-billing|8382"
+        ],
+        [
+          "WorkItem",
+          "WorkItem:jira|APP-42"
+        ],
+        [
+          "OntologyState",
+          "OntologyState:active"
+        ]
+      ],
+      "GraphEdges": [
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "IMPLEMENTS",
+          "WorkItem",
+          "WorkItem:jira|APP-42"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "WorkItem",
+          "WorkItem:jira|APP-42",
+          "DERIVED_FROM",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8383",
+          "DERIVED_FROM",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8383",
+          "DERIVED_FROM",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-billing|8382",
+          "DERIVED_FROM",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ]
+      ],
+      "ConsumerGroups": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation"
+        ]
+      ],
+      "ConsumerCursors": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          15
+        ]
+      ],
+      "ConsumerDeliveries": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ]
+      ],
+      "ConsumerDeadLetters": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ]
+      ]
+    },
+    "packs": [
+      [
+        "core",
+        "1.1.0"
+      ],
+      [
+        "pdlc",
+        "1.8.0"
+      ]
+    ],
+    "processing": [
+      [
+        "core",
+        "entity.extract.v1"
+      ],
+      [
+        "core",
+        "event.enrich.v1"
+      ],
+      [
+        "core",
+        "event.project.v1"
+      ],
+      [
+        "core",
+        "event.retain.v1"
+      ],
+      [
+        "core",
+        "summary.consolidate.v1"
+      ],
+      [
+        "pdlc",
+        "pack.extract.v1"
+      ],
+      [
+        "pdlc",
+        "pack.project.v1"
+      ]
+    ],
+    "expected_change_ids": [
+      "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+      "Change:g01/20261008-cloud-g01-pr01-03-payments|8383",
+      "Change:g01/20261008-cloud-g01-pr01-03-billing|8382"
+    ],
+    "expected_work_id": "WorkItem:jira|APP-42",
+    "no_ddl": true,
+    "expected_normalized": {
+      "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd": {
+        "event": {
+          "event_id": "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-08T02:31:18.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3",
+          "payload_ref": "webhook:github:140bcfa12f4e0bd4ba29f733859108d7638e31899640ec1121dbc20d6d3105e3",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.created"
+        }
+      },
+      "f7731b70-7ce8-54e6-8869-5329eae69afe": {
+        "event": {
+          "event_id": "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "event_type": "pdlc.change.updated",
+          "occurred_at": "2026-10-08T02:31:19.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "c9718f53f37cc438188cea54373f5993562d1ce57e128e2c9d19f0de2e572538",
+          "payload_ref": "webhook:github:c9718f53f37cc438188cea54373f5993562d1ce57e128e2c9d19f0de2e572538",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version [updated]",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "cdevents_type": "dev.cdevents.change.updated"
+        }
+      },
+      "b0338641-cc8f-54a7-b45e-afee763b78d1": {
+        "event": {
+          "event_id": "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-10-08T02:31:18.531000Z",
+          "session_id": "pdlc:jira:PAY",
+          "agent_id": "webhook:jira",
+          "trace_id": "2f590d0cbf5ee3dee1019c9ba30d24535cc921ad9a9d8c476db78fa2ded68f48",
+          "payload_ref": "webhook:jira:2f590d0cbf5ee3dee1019c9ba30d24535cc921ad9a9d8c476db78fa2ded68f48",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "tracker": "jira",
+          "key": "APP-42",
+          "title": "Refund retries",
+          "work_type": "story",
+          "status": "To Do",
+          "parent_key": null,
+          "resolution": null,
+          "cdevents_type": "dev.cdevents.ticket.created"
+        }
+      },
+      "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463": {
+        "event": {
+          "event_id": "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-08T02:31:21.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "f6d94d6ad723395fae9c416255b77769581a72b4f96982df7453eab326ae4705",
+          "payload_ref": "webhook:github:f6d94d6ad723395fae9c416255b77769581a72b4f96982df7453eab326ae4705",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version [updated]",
+          "body": "Closes APP-42",
+          "merge_sha": "dddddddddddddddddddddddddddddddddddddddd",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.merged"
+        }
+      },
+      "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3": {
+        "event": {
+          "event_id": "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-08T02:31:18.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "01b5fc7eb5912262951b707eea09e640e2c7236f35a82e90a8958052344b37a0",
+          "payload_ref": "webhook:github:01b5fc7eb5912262951b707eea09e640e2c7236f35a82e90a8958052344b37a0",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+          "number": 8383,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.created"
+        }
+      },
+      "81b939bf-fae0-5557-9416-6f72d297046f": {
+        "event": {
+          "event_id": "81b939bf-fae0-5557-9416-6f72d297046f",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-08T02:31:23.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "7226815fb253f95809c3772e39f7fb6e1c309f6d2ed0548d271ce733237525cb",
+          "payload_ref": "webhook:github:7226815fb253f95809c3772e39f7fb6e1c309f6d2ed0548d271ce733237525cb",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+          "number": 8383,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "merge_sha": "dddddddddddddddddddddddddddddddddddddddd",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.merged"
+        }
+      },
+      "441dd0e1-8e25-512a-945b-9db5749d8caf": {
+        "event": {
+          "event_id": "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-08T02:31:18.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-billing",
+          "agent_id": "webhook:github",
+          "trace_id": "3e0c9d9717dc63b7c8c408eb402735595ca39939a1db33f3936b8075684c8a8c",
+          "payload_ref": "webhook:github:3e0c9d9717dc63b7c8c408eb402735595ca39939a1db33f3936b8075684c8a8c",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-billing",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.created"
+        }
+      },
+      "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08": {
+        "event": {
+          "event_id": "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "event_type": "pdlc.change.updated",
+          "occurred_at": "2026-10-08T02:31:20.531984Z",
+          "session_id": "pdlc:g01/20261008-cloud-g01-pr01-03-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "a1fc152a90d3db2e642b11d704824bd091c746154d7e948a5ad35817d52df622",
+          "payload_ref": "webhook:github:a1fc152a90d3db2e642b11d704824bd091c746154d7e948a5ad35817d52df622",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-g01-pr01-03-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version [older edit]",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "cdevents_type": "dev.cdevents.change.updated"
+        }
+      }
+    }
+  },
+  "before": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "activation": "verified",
+  "worker_loops": [
+    "projection",
+    "extraction",
+    "enrichment",
+    "pack_extraction",
+    "consolidation"
+  ],
+  "shutdown_errors": [],
+  "cleanup_intent": {
+    "freeze": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      13,
+      "sha256:63dd6bc4441ed77f9482065c2cd5819b325fe645dc17b4c61d1800f0fade4501",
+      "active"
+    ],
+    "keys": {
+      "Events": [
+        [
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ]
+      ],
+      "GraphNodes": [
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8383"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-billing|8382"
+        ],
+        [
+          "WorkItem",
+          "WorkItem:jira|APP-42"
+        ],
+        [
+          "OntologyState",
+          "OntologyState:active"
+        ]
+      ],
+      "GraphEdges": [
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "IMPLEMENTS",
+          "WorkItem",
+          "WorkItem:jira|APP-42"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "WorkItem",
+          "WorkItem:jira|APP-42",
+          "DERIVED_FROM",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8383",
+          "DERIVED_FROM",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8383",
+          "DERIVED_FROM",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-billing|8382",
+          "DERIVED_FROM",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-g01-pr01-03-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "FOLLOWS",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf",
+          "SIMILAR_TO",
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "FOLLOWS",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "Event",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08",
+          "SIMILAR_TO",
+          "Event",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ]
+      ],
+      "ConsumerGroups": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation"
+        ]
+      ],
+      "ConsumerCursors": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          15
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          0
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          1
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          2
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          3
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          4
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          5
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          6
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          7
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          8
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          9
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          10
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          11
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          12
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          13
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          14
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          15
+        ]
+      ],
+      "ConsumerDeliveries": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ]
+      ],
+      "ConsumerDeadLetters": [
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-projection",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-enrichment",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-pack_extraction",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "cb55ea6b-491c-5fc6-b23a-a916fb6e94dd"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "f7731b70-7ce8-54e6-8869-5329eae69afe"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "b0338641-cc8f-54a7-b45e-afee763b78d1"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "498af7a9-9bd2-5edb-a8d2-ca46ccb8e463"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "46ac46b2-bf2a-58b0-9d5d-1ff3e389add3"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "81b939bf-fae0-5557-9416-6f72d297046f"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "441dd0e1-8e25-512a-945b-9db5749d8caf"
+        ],
+        [
+          "g01-20261008-cloud-g01-pr01-03-consolidation",
+          "ee5d7a0a-b675-5b6c-acf0-b7c05a999f08"
+        ]
+      ]
+    },
+    "restore": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      14,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ]
+  },
+  "cleanup_counts": {
+    "Events": 1,
+    "GraphNodes": 3,
+    "GraphEdges": 1,
+    "ConsumerGroups": 5,
+    "ConsumerCursors": 80,
+    "ConsumerDeliveries": 0,
+    "ConsumerDeadLetters": 0
+  },
+  "restored_owner": [
+    [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      14,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ]
+  ],
+  "after": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+_________ test_exact_resolved_id_does_not_seed_its_repository_siblings _________
+
+    async def test_exact_resolved_id_does_not_seed_its_repository_siblings():
+        engine = await retriever()
+        response = await engine.retrieve(ArtifactQuery(
+            query="trace Change:acme/payments|7", seed_node_ids=("Change:acme/payments|7",), intent="trace"))
+>       assert {nid for nid, node in response.nodes.items() if node.node_type == "Change"} == {
+            "Change:acme/payments|7"
+        }
+E       AssertionError: assert {'Change:acme...e/payments|8'} == {'Change:acme/payments|7'}
+E         
+E         Extra items in the left set:
+E         'Change:acme/payments|8'
+E         'Change:acme/payments|70'
+E         Use -v to get more diff
+
+tests/unit/test_resolved_artifact_seeds.py:38: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 08:09:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+=========================== short test summary info ============================
+FAILED tests/unit/test_resolved_artifact_seeds.py::test_exact_resolved_id_does_not_seed_its_repository_siblings
+1 failed, 3 passed in 0.59s

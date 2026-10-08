@@ -1,6 +1,6 @@
 # G01 — Prove PR activity end to end through Engram on real Spanner
 
-Status: documented, not started. Await user selection/start instruction. Do not start G02 or unrelated feature work. Prior combined goal remains paused; its requirements are not declared complete.
+Status: eight cloud scenarios PASSED and independently reviewed; verification document prepared for stakeholder delivery. Explicitly authorized by user on 2026-10-08. Do not start G02 or unrelated feature work. Prior combined goal remains paused; its requirements are not declared complete. G01 execution is tracked here because the available goal controls cannot replace an unfinished paused goal without falsely completing it.
 
 Follow the [mandatory verification and stakeholder demonstration standard](goal-verification-standard.md). Populate [G01 verification](2026-10-08-goal-01-verification.md) with the full per-scenario trace and deliver the stakeholder walkthrough before reporting this goal delivered.
 

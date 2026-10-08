@@ -126,6 +126,52 @@ async def _post(app: FastAPI, path: str, body: bytes, headers: dict[str, str]) -
 
 
 class TestRoute:
+    @pytest.mark.parametrize(
+        "mutation", ["missing_repo", "list_action", "object_action", "missing_time", "naive_time"]
+    )
+    async def test_invalid_pr_has_no_ledger_effects(self, monkeypatch, mutation):
+        app, log = _app(monkeypatch)
+        payload = _fixture("github_pull_request_opened")
+        if mutation == "missing_repo":
+            payload.pop("repository")
+        elif mutation == "list_action":
+            payload["action"] = []
+        elif mutation == "object_action":
+            payload["action"] = {}
+        else:
+            payload["pull_request"]["created_at"] = (
+                None if mutation == "missing_time" else "2026-10-01T12:00:00"
+            )
+        body = orjson.dumps(payload)
+        response = await _post(
+            app,
+            "/v1/webhooks/github",
+            body,
+            {"X-GitHub-Event": "pull_request", "X-Hub-Signature-256": _sign(body)},
+        )
+        assert response.status_code == 422
+        assert await log.stream_length() == 0
+
+    async def test_signed_body_identity_ignores_transport_delivery(self, monkeypatch):
+        from datetime import UTC, datetime
+
+        from context_graph.api.routes.webhooks import build_events
+        from context_graph.domain.event_acceptance import request_fingerprint
+
+        body = (FIXTURES / "github_pull_request_opened.json").read_bytes()
+        translated = github.translate("pull_request", orjson.loads(body))
+        (first,) = build_events(
+            "github", "first", hashlib.sha256(body).hexdigest(), translated, datetime.now(UTC)
+        )
+        (replay,) = build_events(
+            "github",
+            "another-delivery",
+            hashlib.sha256(body).hexdigest(),
+            translated,
+            datetime.now(UTC),
+        )
+        assert request_fingerprint(*first) == request_fingerprint(*replay)
+
     async def test_signed_delivery_is_ingested_once(self, monkeypatch: pytest.MonkeyPatch) -> None:
         app, log = _app(monkeypatch)
         body = (FIXTURES / "github_pull_request_merged.json").read_bytes()
@@ -146,7 +192,7 @@ class TestRoute:
         assert document["event_type"] == "pdlc.change.merged"
         assert document["agent_id"] == "webhook:github"
         assert document["session_id"] == "pdlc:acme/payments"
-        assert document["trace_id"] == "delivery-1"
+        assert document["trace_id"] == hashlib.sha256(body).hexdigest()
         assert document["payload"]["cdevents_type"] == "dev.cdevents.change.merged"
         assert document["occurred_at"].startswith("2026-10-01T12:00:00")
 

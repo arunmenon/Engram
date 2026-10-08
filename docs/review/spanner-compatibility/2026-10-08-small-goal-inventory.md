@@ -1,8 +1,8 @@
 # Small goal inventory
 
-Status: proposed, not started. User chooses which goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
+Status: G01 authorized and its eight cloud scenarios passed; stakeholder delivery pending. All other goals remain proposed and unstarted. User chooses each goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
 
-Every goal must follow the [verification and stakeholder demonstration standard](goal-verification-standard.md), produce its own detailed verification document, and end with a stakeholder walkthrough. G01's [verification document](2026-10-08-goal-01-verification.md) is initialized with NOT RUN results.
+Every goal must follow the [verification and stakeholder demonstration standard](goal-verification-standard.md), produce its own detailed verification document, and end with a stakeholder walkthrough. G01's [verification document](2026-10-08-goal-01-verification.md) contains the recorded real-Spanner results.
 
 Owners: #34 pack integration; #42 optional memory/user within #34; #41 real-Spanner compatibility. This inventory reorganizes work and does not discard existing acceptance criteria or close issues.
 
@@ -16,7 +16,7 @@ The first three stakeholder goals are G01 PR activity (specified below), G02 PRD
 
 ## First selected goal
 
-[G01: PR activity end to end](2026-10-08-goal-01-pr-activity.md) replaces the earlier proposed goals 1–7 as the first independently selectable execution goal. It contains eight acceptance scenarios. Creating this specification does not authorize starting experiments. G02 remains proposed; do not implement or investigate it as part of G01.
+[G01: PR activity end to end](2026-10-08-goal-01-pr-activity.md) replaces the earlier proposed goals 1–7 as the first independently selectable execution goal. It contains eight acceptance scenarios. G01 was explicitly authorized on 2026-10-08. G02 remains proposed; do not implement or investigate it as part of G01.
 
 ## Priority inventory
 

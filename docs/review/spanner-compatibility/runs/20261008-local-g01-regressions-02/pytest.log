@@ -1,0 +1,25 @@
+....................................................................     [100%]
+=============================== warnings summary ===============================
+tests/unit/test_artifact_route.py: 3 warnings
+tests/unit/test_webhooks.py: 18 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body0]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:53: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid("query is empty")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body2]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:55: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body3]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:57: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body4]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+68 passed, 25 warnings in 4.60s

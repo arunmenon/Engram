@@ -249,6 +249,8 @@ class ArtifactRetriever:
         started = time.monotonic()
         excluded = query.exclude_packs
         if query.intent is not None:
+            if query.intent not in self._intents.names:
+                raise ValueError(f"Unsupported artifact intent: {query.intent}")
             intents = {query.intent: 1.0}
         else:
             intents = self._intents.classify(query.query)
@@ -321,6 +323,29 @@ class ArtifactRetriever:
         result.calls += 1
         return True
 
+    def _valid_neighbor(
+        self,
+        row: dict[str, Any],
+        refs: list[NodeRef],
+        edges: list[str],
+        direction: Direction,
+    ) -> bool:
+        if row.get("edge_type") not in edges or not self._registry.allows(
+            row.get("edge_type", ""),
+            row.get("source_label", ""),
+            row.get("target_label", ""),
+        ):
+            return False
+        if row.get("properties", {}).get("link_status", "confirmed") == "rejected":
+            return False
+        if "source_key" not in row or "target_key" not in row:
+            return False
+        source, target = self._row_ends(row)
+        far = self._ref(row.get("node_label", ""), row.get("node", {}))
+        return (direction in ("out", "both") and source in refs and far == target) or (
+            direction in ("in", "both") and target in refs and far == source
+        )
+
     async def _neighbors_all(
         self,
         refs: list[NodeRef],
@@ -343,15 +368,16 @@ class ArtifactRetriever:
             if not batch or not edges or not self._spend(result):
                 continue
             found = await self._graph.neighbors(batch, edges, direction, self._neighbor_limit)
+            valid = [row for row in found if self._valid_neighbor(row, batch, edges, direction)]
             if len(found) < self._neighbor_limit:
-                rows.extend(found)
+                rows.extend(valid)
             elif len(batch) > 1:
                 middle = len(batch) // 2
                 pending += [(batch[:middle], edges), (batch[middle:], edges)]
             elif len(edges) > 1:
                 pending += [(batch, [edge]) for edge in edges]
             else:
-                rows.extend(found)
+                rows.extend(valid)
                 if mark_truncated:
                     result.truncated = True
         return rows
@@ -432,11 +458,26 @@ class ArtifactRetriever:
         refs = list(dict.fromkeys(r for r in map(self._parse_node_id, query.seed_node_ids) if r))
         if refs and self._spend(result):
             for ref, props in (await self._graph.get_nodes(refs)).items():
-                given.append(_Found(ref, props, 1.0, 0, origin="given"))
+                if ref in refs and self._ref(ref.label, props) == ref:
+                    given.append(_Found(ref, props, 1.0, 0, origin="given"))
         given_refs = {f.ref for f in given}
 
         found: dict[NodeRef, _Found] = {}
         text = query.query
+        # A resolved composite ID already names an exact seed. Parsing its repo
+        # or path again as loose text can introduce unrelated sibling artifacts.
+        # Preserve independently mentioned references and unresolved-ID fallback.
+        resolved_literals = {
+            literal
+            for literal in query.seed_node_ids
+            if self._parse_node_id(literal) in given_refs
+        }
+        for literal in sorted(resolved_literals, key=len, reverse=True):
+            text = re.sub(
+                r"(?<![\w:|/.-])" + re.escape(literal) + r"(?![\w:|/-]|\.(?=\w))",
+                " ",
+                text,
+            )
         key_terms = list(dict.fromkeys(t.lower() for t in _KEY_TOKEN.findall(text)))
         numbers = list(dict.fromkeys(int(n) for n in _NUMBER_REF.findall(text)))
         referenced = {str(n) for n in numbers}
