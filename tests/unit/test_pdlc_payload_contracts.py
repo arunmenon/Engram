@@ -27,8 +27,8 @@ def test_catalog_exactly_covers_pack_owned_events():
     assert len(CASES) == len(owned) == 28
     assert {c["event_type"] for c in CASES} == owned
     assert CATALOG["pack_version"] == REGISTRY.pack("pdlc").version
-    assert sum(c["classification"] == "deterministic" for c in CASES) == 24
-    assert sum(c["classification"] == "missing_mapping" for c in CASES) == 4
+    assert sum(c["classification"] == "deterministic" for c in CASES) == 28
+    assert sum(c["classification"] == "missing_mapping" for c in CASES) == 0
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c["event_type"])
@@ -73,6 +73,10 @@ def test_exact_domain_identities_edges_and_provenance_plan(case):
     expected |= {("DERIVED_FROM", node, str(EVENT_ID)) for node in observed}
     assert edges == expected
     assert {s.ref.key: s.to_state for s in plan.states} == case["expected_states"]
+    for node_id, properties in case.get("expected_node_properties", {}).items():
+        node = next(n for n in plan.nodes if n.ref.key == node_id)
+        for name, value in properties.items():
+            assert node.properties[name] == value
     assert plan.rejected == []
     if case["classification"] != "deterministic":
         assert plan.empty  # This is NOT a promise of domain output or executed extraction.

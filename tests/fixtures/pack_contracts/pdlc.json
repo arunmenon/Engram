@@ -1,6 +1,6 @@
 {
   "pack": "pdlc",
-  "pack_version": "4.2.0",
+  "pack_version": "5.0.0",
   "fixture_kind": "synthetic_normalized_contract_examples_not_public_webhooks",
   "event_time": "2026-10-07T00:00:00Z",
   "cases": [
@@ -191,13 +191,13 @@
           "Change:example/payments|7"
         ]
       ],
-      "note": "Skipped is emitted by builtin adapter but has no deterministic domain rule; do not claim TestRun creation.",
+      "note": "Finished observes its explicit outcome; skipped has its own deterministic rule.",
       "cloud_execution": "not_run"
     },
     {
       "event_type": "pdlc.testcaserun.skipped",
       "source_kind": "synthetic_normalized_contract_example",
-      "classification": "missing_mapping",
+      "classification": "deterministic",
       "payload": {
         "repo": "example/payments",
         "test_id": "unit",
@@ -208,11 +208,38 @@
         "commit_sha": "abc",
         "change_number": 7
       },
-      "expected_observed_node_ids": [],
+      "expected_observed_node_ids": [
+        "TestCase:example/payments|unit",
+        "TestRun:run-1"
+      ],
       "expected_states": {},
-      "expected_domain_edges": [],
-      "note": "Skipped is emitted by builtin adapter but has no deterministic domain rule; do not claim TestRun creation.",
-      "cloud_execution": "not_run"
+      "expected_domain_edges": [
+        [
+          "EXECUTES",
+          "TestRun:run-1",
+          "TestCase:example/payments|unit"
+        ],
+        [
+          "RAN_AGAINST",
+          "TestRun:run-1",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "Skipped observes a TestRun and TestCase without a passing-verification assertion.",
+      "cloud_execution": "not_run",
+      "expected_node_properties": {
+        "TestCase:example/payments|unit": {
+          "repo": "example/payments",
+          "test_id": "unit",
+          "name": "unit"
+        },
+        "TestRun:run-1": {
+          "run_id": "run-1",
+          "outcome": "skipped",
+          "commit_sha": "abc",
+          "finished_at": "2026-10-07T00:00:00+00:00"
+        }
+      }
     },
     {
       "event_type": "pdlc.service.deployed",
@@ -252,7 +279,7 @@
     {
       "event_type": "pdlc.service.rolledback",
       "source_kind": "synthetic_normalized_contract_example",
-      "classification": "missing_mapping",
+      "classification": "deterministic",
       "payload": {
         "service": "payments",
         "environment": "prod",
@@ -260,18 +287,41 @@
         "repo": "example/payments",
         "change_numbers": [
           7
-        ]
+        ],
+        "target_started_at": "2026-10-07T00:00:00Z"
       },
-      "expected_observed_node_ids": [],
-      "expected_states": {},
-      "expected_domain_edges": [],
-      "note": "Rollback/upgrade schema is provisional normalized producer contract, not a source adapter or implemented graph operation.",
-      "cloud_execution": "not_run"
+      "expected_observed_node_ids": [
+        "DeploymentRollback:00000000-0000-0000-0000-000000000001"
+      ],
+      "expected_states": {
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00": "rolled_back"
+      },
+      "expected_domain_edges": [
+        [
+          "ROLLS_BACK",
+          "DeploymentRollback:00000000-0000-0000-0000-000000000001",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00"
+        ]
+      ],
+      "note": "Observed rollback action references an exact identity-only Deployment target; target observation provenance is absent.",
+      "cloud_execution": "not_run",
+      "expected_node_properties": {
+        "DeploymentRollback:00000000-0000-0000-0000-000000000001": {
+          "rollback_id": "00000000-0000-0000-0000-000000000001"
+        },
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00": {
+          "repo": "example/payments",
+          "service": "payments",
+          "environment": "prod",
+          "artifact_id": "def",
+          "started_at": "2026-10-07T00:00:00+00:00"
+        }
+      }
     },
     {
       "event_type": "pdlc.service.upgraded",
       "source_kind": "synthetic_normalized_contract_example",
-      "classification": "missing_mapping",
+      "classification": "deterministic",
       "payload": {
         "service": "payments",
         "environment": "prod",
@@ -281,11 +331,37 @@
           7
         ]
       },
-      "expected_observed_node_ids": [],
-      "expected_states": {},
-      "expected_domain_edges": [],
-      "note": "Rollback/upgrade schema is provisional normalized producer contract, not a source adapter or implemented graph operation.",
-      "cloud_execution": "not_run"
+      "expected_observed_node_ids": [
+        "Component:payments",
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00"
+      ],
+      "expected_states": {
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00": "succeeded"
+      },
+      "expected_domain_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00",
+          "Component:payments"
+        ],
+        [
+          "DEPLOYS",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "Producer asserts completed successful upgrade with supplied change numbers; no live-routing assertion. Later explicit merge identity matching retains existing behavior.",
+      "cloud_execution": "not_run",
+      "expected_node_properties": {
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00": {
+          "repo": "example/payments",
+          "service": "payments",
+          "environment": "prod",
+          "artifact_id": "def",
+          "started_at": "2026-10-07T00:00:00+00:00",
+          "operation": "upgrade"
+        }
+      }
     },
     {
       "event_type": "pdlc.incident.detected",
@@ -436,17 +512,26 @@
     {
       "event_type": "pdlc.request.created",
       "source_kind": "synthetic_normalized_contract_example",
-      "classification": "missing_mapping",
+      "classification": "deterministic",
       "payload": {
         "source_system": "jira",
         "external_id": "REQ-1",
         "title": "Retry payments"
       },
-      "expected_observed_node_ids": [],
+      "expected_observed_node_ids": [
+        "Request:jira|REQ-1"
+      ],
       "expected_states": {},
       "expected_domain_edges": [],
-      "note": "Required keys follow Request identity; no domain projection or builtin adapter currently implements this event.",
-      "cloud_execution": "not_run"
+      "note": "Normalized source assertion observes a scoped Request; no builtin request adapter is claimed.",
+      "cloud_execution": "not_run",
+      "expected_node_properties": {
+        "Request:jira|REQ-1": {
+          "source_system": "jira",
+          "external_id": "REQ-1",
+          "title": "Retry payments"
+        }
+      }
     },
     {
       "event_type": "pdlc.spec.approved",
