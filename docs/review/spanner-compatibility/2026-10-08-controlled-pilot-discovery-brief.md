@@ -239,3 +239,34 @@ Existing ownership: #34 pack feature umbrella; #35 composition/capability contra
 #40 PDLC journeys; #41 real-Spanner compatibility. Inspect relevant live issues and
 comments when drafting the assessment tickets. This brief creates no issue, closes
 nothing and claims no new implementation or runtime verification.
+
+## Follow-up: was memory projection removed by the refactor?
+
+Stakeholder asked whether an existing memory producer was lost and should be restored.
+The coordinating agent inspected history read-only after Astra's report; this section
+is additional source/history evidence, not a new Astra review or runtime test.
+
+Historical anchors:
+- `d49ded4e0c92eab32b822197669254b31e14aed5`: original Memory Intelligence consolidation groups session events into episode-sized lists, then writes **Summary** nodes with scope `episode` and SUMMARIZES edges. It does not instantiate EpisodeNode.
+- `797f79981a666805e21fd05b08ed0fe17f43c43e`: introduces Belief/Goal/Episode models, uniqueness constraints and merge helpers. Inspection found helper definitions but no worker/API producer callers for those three types. The ADR-0009 amendment describes the schema addition; that description is not proof of an event-to-artifact producer.
+- `b4a94d9fa9486bb847b638b56df117071559ceb4` (parent of ontology phase0 `0507231`): pre-pack graph/Neo4j adapters have merge_belief_node, merge_goal_node and merge_episode_node; source searches found no production callers. Consolidation still writes episode-scoped Summary nodes.
+- Current worker/consolidation.py retains group_events_into_episodes, create_summary_from_events(scope="episode") and write_summary_with_edges; current graph adapters retain the three memory-node merge helpers.
+- Available worker history searched for those type names and merge calls did not show a removed producer. This bounds the conclusion to the inspected repository history; it does not establish behavior in an unavailable branch or external application.
+
+Conclusion: **no evidence found that the pack refactor removed an active Belief/Goal/Episode producer**. The original agent-memory behavior included event/entity context, personalization and hierarchical summaries; these are not equivalent to materializing the later memory pack's three types. Existing low-level storage helpers are infrastructure, not a wired ingestion/worker path.
+
+Best next assessment step: explicitly map original worker responsibilities to current
+handlers and verify behavioral preservation for the requested compositions. Label
+confirmed regressions restoration work; label previously unwired memory-type producers
+new wiring. Do not build new producers under the mistaken premise that all prior
+memory behavior disappeared. A source-preserved summary path still requires execution
+verification, including evidence/retention and retry semantics.
+
+If useful memory-type output is selected, prefer a bounded producer using the existing
+worker/capability mechanism and graph ports. Episode/CONTAINS can reuse existing grouping
+and summary work if its semantics are approved; Belief and Goal require explicit
+admission/extraction, identity, lifecycle, confidence and provenance contracts. They do
+not follow automatically from a summary, preference or PDLC ticket. Prove enabled and
+disabled variants through actual Engram ingestion and retrieval on Spanner. No new worker
+service or broad rewrite is justified by this historical check. Implementation is not
+authorized by this section and remains separate from G07.
