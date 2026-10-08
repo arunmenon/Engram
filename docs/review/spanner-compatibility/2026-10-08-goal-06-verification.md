@@ -1,7 +1,8 @@
 # G06 verification and stakeholder walkthrough
 
 Status: all 50 real-Spanner checks passed in `20261008-cloud-g06-all-03`.
-Independent evidence review found no blockers. GitHub reconciliation is pending.
+Independent evidence review found no blockers; verification, recorded walkthrough
+and GitHub reconciliation are published. Stakeholder sign-off is not inferred.
 G07 is not authorized.
 
 ## What this goal demonstrates
@@ -256,4 +257,27 @@ The exact node and edge arrays are frozen in fixtures, not inferred from respons
 - [Retained G06 ownership and fingerprints](runs/20261008-cloud-g06-all-03/retained-dataset.json) and [G05 before/after protection](runs/20261008-cloud-g06-all-03/g05-protection.json).
 - [Failed first attempt](runs/20261008-cloud-g06-all-01/observations.json) and [failed second attempt](runs/20261008-cloud-g06-all-02/observations.json), including cleanup/restoration proofs.
 
-[Independent Astra evidence review](2026-10-08-astra-g06-evidence-review.md) found no blockers. GitHub reconciliation is pending; cloud success alone does not close the tickets or imply stakeholder sign-off.
+[Independent Astra evidence review](2026-10-08-astra-g06-evidence-review.md) found no blockers. Actual GitHub reconciliation is complete below. Stakeholder sign-off is not inferred.
+
+## Actual GitHub reconciliation
+
+[Machine-readable receipts](2026-10-08-g06-issue-reconciliation.json) preserve the actual comment URLs and verified before/after states. Scoped G06 tickets #51–#53 are closed; eleven broader issues received evidence updates and remain open.
+
+| Issue | Before → after | Acceptance proved / remaining scope | Actual update |
+|---|---|---|---|
+| 51 | OPEN → CLOSED | Verified scoped Incident identity, independent repository/service collision controls, latest deployment at or before occurrence, missing references, detected/reported events, typed rejections, unchanged retries/conflicts, and bidirectional deployment/incident retrieval with evidence. | [comment](https://github.com/arunmenon/Engram/issues/51#issuecomment-6062399549) |
+| 52 | OPEN → CLOSED | Verified explicit REMEDIATES with source event and pinned ledger position; merge leaves Incident detected; separate resolution and late detection preserve resolved state; early references are visible stubs with null provenance until their artifact events arrive. Unlinked PR and unrelated scope stay out. | [comment](https://github.com/arunmenon/Engram/issues/52#issuecomment-6062401245) |
+| 53 | OPEN → CLOSED | Verified tentative authored Lessons with event-derived identities separated from inferred lessons; identical text for distinct incidents preserves independent evidence; explicit revisioned Spec citations, unknown reference stubs and rejected support are checked. Original natural-language and reverse retrieval return the exact declared feedback chain. | [comment](https://github.com/arunmenon/Engram/issues/53#issuecomment-6062402992) |
+| 34 | OPEN → OPEN | PDLC G06 adds scoped incidents, explicit corrective action and tentative lesson/citation contracts through the shared engine. This is one bounded pack journey; remaining umbrella capabilities and sub-issues are not completed by it. | [comment](https://github.com/arunmenon/Engram/issues/34#issuecomment-6062404829) |
+| 35 | OPEN → OPEN | Typed Incident/remediation/Lesson/citation admission was exercised, including the generic bounded string-pattern primitive. This does not finish capability composition, unfamiliar packs or all admission contracts. | [comment](https://github.com/arunmenon/Engram/issues/35#issuecomment-6062405989) |
+| 36 | OPEN → OPEN | Merge/resolution separation, late detection preserving resolved state, independent authored assertions and pinned declaration evidence passed. Broader ordering, clear/update semantics and other lifecycle cases remain outside this goal. | [comment](https://github.com/arunmenon/Engram/issues/36#issuecomment-6062407229) |
+| 37 | OPEN → OPEN | The normalized G06 HTTP route proved unchanged identical retries, changed-content409 conflicts and typed422 rejections, with all14 full-table no-write checks. This does not establish every producer, tenant entrypoint or admission path. | [comment](https://github.com/arunmenon/Engram/issues/37#issuecomment-6062408266) |
+| 39 | OPEN → OPEN | Added 38 G06 inputs and12 exact retrieval questions with predeclared oracles, realSpanner evidence and independent review. Whole-pack/other-pack conformance remains incomplete. | [comment](https://github.com/arunmenon/Engram/issues/39#issuecomment-6062409297) |
+| 40 | OPEN → OPEN | G06 incident→explicit correctivePR→separate resolution→tentative Lesson→explicit futureSpec citation is verified. No automatic lesson validation, causal attribution or future design generation is implied. Other journey gaps remain tracked. | [comment](https://github.com/arunmenon/Engram/issues/40#issuecomment-6062410234) |
+| 41 | OPEN → OPEN | Added G06 realSpanner run20261008-cloud-g06-all-03:50checks passed. Both failed full attempts are preserved as runner/oracle errors, with safe cleanup and reruns. The original65-scenario baseline is not promoted or signed off. | [comment](https://github.com/arunmenon/Engram/issues/41#issuecomment-6062411331) |
+| 42 | OPEN → OPEN | Core+PDLC with memory/user disabled produced no memory/user artifacts in G06. This is bounded disabled-configuration evidence, not proof of every enable/disable combination, stored-data visibility or per-tenant pack selection. | [comment](https://github.com/arunmenon/Engram/issues/42#issuecomment-6062412468) |
+| 7 | OPEN → OPEN | The artifact-retrieval path excluded producer-rejected LEARNED_FROM support while retaining its stored evidence; exact rejected-lesson query passed. This does not resolve every retrieval engine/path covered by this issue. | [comment](https://github.com/arunmenon/Engram/issues/7#issuecomment-6062413660) |
+| 8 | OPEN → OPEN | Incident deployment lookup passed same-repository/different-service, different-repository/same-service, future-deployment and no-reference controls. Global lookup limits, pagination and other domain lookups remain outside G06. | [comment](https://github.com/arunmenon/Engram/issues/8#issuecomment-6062414767) |
+| 10 | OPEN → OPEN | All five ordinary workers ran; three Spec approvals logged real pack_extraction_applied with zero new items. This does not exercise generated-item provenance attachment/races, so it does not resolve this issue. | [comment](https://github.com/arunmenon/Engram/issues/10#issuecomment-6062415939) |
+
+No newly confirmed Engram runtime defect emerged from the cloud attempts; both failures were verification-harness/oracle problems and are preserved. No new feature bucket was created. The integration branch is `feature/engram-g06-incident-feedback`; all owned implementer worktrees were removed after verifying their commits were merged. G07 remains unstarted.

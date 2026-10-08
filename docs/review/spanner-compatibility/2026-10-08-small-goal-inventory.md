@@ -1,19 +1,21 @@
 # Small goal inventory
 
-## Current checkpoint — G06 authorized and running
+## Current checkpoint — G06 verified; stop before G07
 
-G01–G05 have bounded published verification records. G05's connected dataset is
-retained in `engram-compat-target` by stakeholder instruction. Its [verification
-document](2026-10-08-goal-05-verification.md) and issue receipts are published.
+G01–G06 have bounded published verification records. G05's connected dataset is
+retained in `engram-compat-target`; G06's separate dataset is retained in
+`engram-g06-target`. Both require explicit approval before deletion or reuse.
 
-G06 alone is authorized, through [tickets #51–#53](2026-10-08-goal-06-ticket-draft.md),
-using separate `engram-g06-target`. Preparation passed with G05 unchanged. The
-first full cloud attempt exposed a runner codec-comparison error and is preserved;
-the corrected full rerun `20261008-cloud-g06-all-02` is in progress. No G06
-completion or ticket closure is claimed yet. G07 and later remain unstarted and
-require explicit stakeholder selection. Older status paragraphs below are
-historical checkpoints, not current authorization. The retired broad goal stays
-paused.
+[G06 verification and recorded stakeholder walkthrough](2026-10-08-goal-06-verification.md):
+50 real-Spanner checks passed, independent evidence review found no blockers,
+and [actual issue reconciliation](2026-10-08-g06-issue-reconciliation.json) closed
+scoped #51–#53 while eleven broader issues remain open. Both failed full attempts
+are preserved with runner/oracle explanations. No whole-pack/baseline65 or
+stakeholder-sign-off claim is made. No new feature bucket was needed.
+
+G07 and later remain unstarted and require explicit stakeholder selection. Older
+status paragraphs below are historical checkpoints, not current authorization.
+The retired broad goal stays paused.
 
 ## Scope decision — disposable experiments (2026-10-08)
 
