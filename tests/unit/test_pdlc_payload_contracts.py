@@ -27,8 +27,8 @@ def test_catalog_exactly_covers_pack_owned_events():
     assert len(CASES) == len(owned) == 26
     assert {c["event_type"] for c in CASES} == owned
     assert CATALOG["pack_version"] == REGISTRY.pack("pdlc").version
-    assert sum(c["classification"] == "deterministic" for c in CASES) == 21
-    assert sum(c["classification"] == "missing_mapping" for c in CASES) == 5
+    assert sum(c["classification"] == "deterministic" for c in CASES) == 22
+    assert sum(c["classification"] == "missing_mapping" for c in CASES) == 4
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c["event_type"])

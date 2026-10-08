@@ -240,6 +240,7 @@ async def build_graph() -> MemoryGraphStore:
     await event(
         "pdlc.incident.detected",
         {
+            "repo": "acme/app",
             "incident_id": "INC-77",
             "severity": "high",
             "description": "Duplicate refunds after retry",
@@ -383,7 +384,9 @@ async def build_graph() -> MemoryGraphStore:
                 NodeRef("Decision", _decision(D4)),
             ),
             EdgeWrite("CONSTRAINS", constraint, payments, {"scope": "refunds"}),
-            EdgeWrite("LEARNED_FROM", lesson, NodeRef("Incident", "Incident:INC-77")),
+            EdgeWrite(
+                "LEARNED_FROM", lesson, NodeRef("Incident", "Incident:acme/app|payments|INC-77")
+            ),
         ]
     )
     return graph
@@ -621,9 +624,11 @@ class TestRetrievalBehaviour:
             ArtifactQuery("Anything I should know before editing refund/retry.py?")
         )
         assert response.meta.inferred_intents == {"preflight": 1.0}
-        assert {"Constraint:never-exceed", "Incident:INC-77", "Lesson:idempotency"} <= set(
-            response.nodes
-        )
+        assert {
+            "Constraint:never-exceed",
+            "Incident:acme/app|payments|INC-77",
+            "Lesson:idempotency",
+        } <= set(response.nodes)
 
     async def test_impact_follows_dependencies_inbound(
         self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
@@ -847,7 +852,9 @@ class TestReviewFindings:
         types = {n.node_type for n in response.nodes.values()}
         assert "Event" not in types
         assert all(n.retrieval_reason != "superseded" for n in response.nodes.values())
-        owners = await retriever.retrieve(ArtifactQuery("Who owns the payments service?"))
+        owners = await retriever.retrieve(
+            ArtifactQuery("Who owns the payments service?", seed_node_ids=("Component:payments",))
+        )
         assert {n.node_type for n in owners.nodes.values()} == {"Component"}
 
     async def test_a_numbered_reference_outranks_its_repo(
@@ -867,7 +874,7 @@ class TestReviewFindings:
             *(f"WorkItem:jira|PAY-{n}" for n in (300, 341, 342)),
             "Component:payments",
             "Component:ledger",
-            "Incident:INC-77",
+            "Incident:acme/app|payments|INC-77",
         )
         response = await retriever.retrieve(
             ArtifactQuery("trace", seed_node_ids=ids, intent="trace", max_depth=1)

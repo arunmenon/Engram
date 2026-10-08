@@ -331,7 +331,12 @@ class TestReleasesTestsDeployments:
 
     async def test_incident_on_the_latest_matching_deployment(self) -> None:
         h = Harness()
-        deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}
+        deploy = {
+            "repo": "acme/app",
+            "service": "payments",
+            "environment": "prod",
+            "artifact_id": "app:1.2",
+        }
         await h.ingest(
             "pdlc.service.deployed", {**deploy, "repo": "acme/app", "change_numbers": [7]}
         )
@@ -346,18 +351,31 @@ class TestReleasesTestsDeployments:
             "Deployment",
             ["acme/app", "payments", "prod", "app:1.2", (START + timedelta(minutes=2)).isoformat()],
         )
-        assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-1", second)}
-        assert h.edges("AFFECTS")[("Incident:INC-1", "Component:payments")]["link_status"] == (
-            "confirmed"
-        )
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:acme/app|payments|INC-1", second)}
+        assert h.edges("AFFECTS")[("Incident:acme/app|payments|INC-1", "Component:payments")][
+            "link_status"
+        ] == ("confirmed")
         assert h.node(second)["status"] == "succeeded"
-        await h.ingest("pdlc.incident.resolved", {"incident_id": "INC-1", "summary": "rolled back"})
-        assert h.node("Incident:INC-1")["status"] == "resolved"
+        await h.ingest(
+            "pdlc.incident.resolved",
+            {
+                "repo": "acme/app",
+                "service": "payments",
+                "incident_id": "INC-1",
+                "summary": "rolled back",
+            },
+        )
+        assert h.node("Incident:acme/app|payments|INC-1")["status"] == "resolved"
 
     async def test_the_latest_deployment_however_many_match(self) -> None:
         """Review 3.2: the lookup limit cut matches in key order before picking the latest."""
         h = Harness(lookup_limit=2)
-        deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}
+        deploy = {
+            "repo": "acme/app",
+            "service": "payments",
+            "environment": "prod",
+            "artifact_id": "app:1.2",
+        }
         # Redeployed at minutes 30, 10, 20: key order (by start time) is 10, 20, 30
         for minute in (30, 10, 20):
             await h.ingest(
@@ -380,12 +398,17 @@ class TestReleasesTestsDeployments:
                 (START + timedelta(minutes=30)).isoformat(),
             ],
         )
-        assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-2", latest)}
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:acme/app|payments|INC-2", latest)}
 
     async def test_an_incident_never_occurs_on_a_later_deployment(self) -> None:
         """Review N2: the deployment running when the incident happened, not a later one."""
         h = Harness()
-        deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}
+        deploy = {
+            "repo": "acme/app",
+            "service": "payments",
+            "environment": "prod",
+            "artifact_id": "app:1.2",
+        }
         for minute in (10, 50):  # the second deployment comes after the incident
             await h.ingest(
                 "pdlc.service.deployed",
@@ -407,14 +430,14 @@ class TestReleasesTestsDeployments:
                 (START + timedelta(minutes=10)).isoformat(),
             ],
         )
-        assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-3", running)}
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:acme/app|payments|INC-3", running)}
         # Before any deployment of the artifact: no link at all
         await h.ingest(
             "pdlc.incident.detected",
             {**deploy, "incident_id": "INC-4", "severity": "low"},
             at_minute=5,
         )
-        assert ("Incident:INC-4", running) not in h.edges("OCCURRED_ON")
+        assert ("Incident:acme/app|payments|INC-4", running) not in h.edges("OCCURRED_ON")
 
 
 class TestKnowledge:
@@ -558,7 +581,7 @@ class TestReviewFindings:
             "Deployment",
             ["acme/app", "payments", "prod", "a", (START + timedelta(minutes=3)).isoformat()],
         )
-        assert set(h.edges("OCCURRED_ON")) == {("Incident:I", latest)}
+        assert set(h.edges("OCCURRED_ON")) == {("Incident:acme/app|payments|I", latest)}
 
     async def test_prefixes_match_on_path_boundaries(self) -> None:
         h = Harness()

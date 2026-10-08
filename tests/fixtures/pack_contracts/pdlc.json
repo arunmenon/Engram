@@ -1,6 +1,6 @@
 {
   "pack": "pdlc",
-  "pack_version": "3.0.0",
+  "pack_version": "4.0.0",
   "fixture_kind": "synthetic_normalized_contract_examples_not_public_webhooks",
   "event_time": "2026-10-07T00:00:00Z",
   "cases": [
@@ -297,19 +297,20 @@
         "severity": "high",
         "description": "Elevated errors",
         "environment": "prod",
-        "artifact_id": null
+        "artifact_id": null,
+        "repo": "example/payments"
       },
       "expected_observed_node_ids": [
-        "Incident:inc-1",
+        "Incident:example/payments|payments|inc-1",
         "Component:payments"
       ],
       "expected_states": {
-        "Incident:inc-1": "detected"
+        "Incident:example/payments|payments|inc-1": "detected"
       },
       "expected_domain_edges": [
         [
           "AFFECTS",
-          "Incident:inc-1",
+          "Incident:example/payments|payments|inc-1",
           "Component:payments"
         ]
       ],
@@ -322,13 +323,15 @@
       "classification": "deterministic",
       "payload": {
         "incident_id": "inc-1",
-        "summary": "Recovered"
+        "summary": "Recovered",
+        "repo": "example/payments",
+        "service": "payments"
       },
       "expected_observed_node_ids": [
-        "Incident:inc-1"
+        "Incident:example/payments|payments|inc-1"
       ],
       "expected_states": {
-        "Incident:inc-1": "resolved"
+        "Incident:example/payments|payments|inc-1": "resolved"
       },
       "expected_domain_edges": [],
       "note": "",
@@ -337,15 +340,28 @@
     {
       "event_type": "pdlc.incident.reported",
       "source_kind": "synthetic_normalized_contract_example",
-      "classification": "missing_mapping",
+      "classification": "deterministic",
       "payload": {
         "incident_id": "inc-1",
-        "description": "Elevated errors"
+        "description": "Elevated errors",
+        "repo": "example/payments",
+        "service": "payments"
       },
-      "expected_observed_node_ids": [],
-      "expected_states": {},
-      "expected_domain_edges": [],
-      "note": "Provisional contract; source mapping and domain rule remain absent.",
+      "expected_observed_node_ids": [
+        "Incident:example/payments|payments|inc-1",
+        "Component:payments"
+      ],
+      "expected_states": {
+        "Incident:example/payments|payments|inc-1": "detected"
+      },
+      "expected_domain_edges": [
+        [
+          "AFFECTS",
+          "Incident:example/payments|payments|inc-1",
+          "Component:payments"
+        ]
+      ],
+      "note": "Normalized report maps to detected state; no native incident adapter is promised.",
       "cloud_execution": "not_run"
     },
     {

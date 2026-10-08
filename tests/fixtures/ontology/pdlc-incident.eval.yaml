@@ -1,0 +1,17 @@
+# Normalized G06 #51 producer journey in test_incident_scope.py.
+# Same artifact/environment in unrelated repositories/services must stay out.
+pack: pdlc
+min_f1: 1.0
+questions:
+  - id: incident-deployment
+    query: "Which deployment did incident INC-1 occur on?"
+    intent: incident
+    seed_node_ids: ["Incident:acme/auth|reset|INC-1"]
+    answer: {node_type: Deployment}
+    expected: ["Deployment:acme/auth|reset|prod|sha-reset|2026-10-04T10:01:00+00:00"]
+  - id: deployment-incident
+    query: "Which incident occurred on this deployment?"
+    intent: incident
+    seed_node_ids: ["Deployment:acme/auth|reset|prod|sha-reset|2026-10-04T10:01:00+00:00"]
+    answer: {node_type: Incident}
+    expected: ["Incident:acme/auth|reset|INC-1"]

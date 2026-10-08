@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 3.0.0   # 3.0.0: scoped deployment identities, failure outcomes and explicit release links.
+  version: 4.0.0   # 4.0.0: repository/service-scoped incident identities and reported projection.
+                   # 3.0.0: scoped deployment identities, failure outcomes and explicit release links.
                    # 2.1.0: explicit implementation/verification references and reviewer trace.
                    # 2.0.0: versioned planning identities, deterministic planning rules and revision approvals.
                    # 1.8.0: optional bounded payload contracts for all23 events; ingress enforcement pending.
@@ -136,9 +137,9 @@ types:
       properties: {repo: string, version: string, released_at: datetime, breaking: bool}
       note: "step 2: a library ships by release, not deployment; OpenDAL's changelog lists 3,129 PR links across 154 releases"
     Incident:
-      key: [incident_id]
+      key: [repo, service, incident_id]
       interfaces: [Lifecycled, Owned, Sourced]
-      properties: {incident_id: string, severity: string, title: string, summary: text, environment: string, artifact_id: string, ticket_uri: string}
+      properties: {repo: string, service: string, incident_id: string, severity: string, title: string, summary: text, environment: string, artifact_id: string, ticket_uri: string}
       lifecycle: {initial: detected, states: [detected, mitigated, resolved, postmortem_done]}
       text_fields: [title, summary]
       embed_fields: [title, summary]
@@ -175,7 +176,7 @@ types:
     DEPENDS_ON:      {from: [WorkItem, Component], to: [WorkItem, Component], properties: {kind: {enum: [blocks, needs]}}}
     OWNED_BY:        {from: [Component, WorkItem, Request, Incident], to: [Team, "core:Entity"]}
     AFFECTS:         {from: [Incident], to: [Component], requires: [confidence, method, link_status]}   # GitLab names the service only in the incident title
-    OCCURRED_ON:     {from: [Incident], to: [Deployment], note: "declared: CDEvents incident subject carries environment and artifactId"}
+    OCCURRED_ON:     {from: [Incident], to: [Deployment], note: "normalized producer occurrence assertion, not causality; latest deployment in repo/service/environment/artifact scope at or before incident time"}
     ATTRIBUTED_TO:   {from: [Incident], to: [Change, WorkItem], requires: [confidence, method, link_status]}   # WorkItem: planned production changes (GitLab change issues)
     AMENDS:          {from: [Decision], to: [Decision], properties: {kind: {enum: [builds_on, updates, replaces_part]}}, requires: [confidence, method, link_status], note: "step 2: OpenDAL RFCs cite earlier RFCs with 'updates', 'builds on', 'changes'; none says 'supersedes'"}
     REMEDIATES:      {from: [Change], to: [Incident], requires: [confidence, method, link_status]}   # a related merge request may be the fix or the cause
@@ -656,11 +657,15 @@ events:
       version: 1
       additional_fields: preserve
       properties:
-        incident_id:
+        repo:
           type: string
           required: true
           min_length: 1
         service:
+          type: string
+          required: true
+          min_length: 1
+        incident_id:
           type: string
           required: true
           min_length: 1
@@ -683,6 +688,14 @@ events:
       version: 1
       additional_fields: preserve
       properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        service:
+          type: string
+          required: true
+          min_length: 1
         incident_id:
           type: string
           required: true
@@ -697,11 +710,28 @@ events:
       version: 1
       additional_fields: preserve
       properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        service:
+          type: string
+          required: true
+          min_length: 1
         incident_id:
           type: string
           required: true
           min_length: 1
+        severity:
+          type: string
+          nullable: true
         description:
+          type: string
+          nullable: true
+        environment:
+          type: string
+          nullable: true
+        artifact_id:
           type: string
           nullable: true
   pdlc.ticket.created:
@@ -1246,12 +1276,20 @@ projection:
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Release, key: {repo: $.repo, version: $.release_version}}, when: $.release_version}
   - event: pdlc.incident.detected
     upsert:
-      - {type: Incident, key: {incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}
+      - {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}
       - {type: Component, key: {catalog_name: $.service}}
-    transition: {type: Incident, to: detected}
+    transition: {type: Incident, to: detected, only_from: [detected]}
     edges:
-      - {type: AFFECTS, from: {type: Incident, key: {incident_id: $.incident_id}}, to: {type: Component, key: {catalog_name: $.service}}}
-      - {type: OCCURRED_ON, from: {type: Incident, key: {incident_id: $.incident_id}}, to_latest: {type: Deployment, match: {environment: $.environment, artifact_id: $.artifact_id}}, when: $.artifact_id}
+      - {type: AFFECTS, from: {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}}, to: {type: Component, key: {catalog_name: $.service}}}
+      - {type: OCCURRED_ON, from: {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}}, to_latest: {type: Deployment, match: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id}}, when: $.artifact_id}
+  - event: pdlc.incident.reported
+    upsert:
+      - {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}
+      - {type: Component, key: {catalog_name: $.service}}
+    transition: {type: Incident, to: detected, only_from: [detected]}
+    edges:
+      - {type: AFFECTS, from: {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}}, to: {type: Component, key: {catalog_name: $.service}}}
+      - {type: OCCURRED_ON, from: {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}}, to_latest: {type: Deployment, match: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id}}, when: $.artifact_id}
   - event: pdlc.ticket.updated
     upsert:
       - {type: WorkItem, key: {tracker: $.tracker, external_key: $.key}, set: {title: $.title, work_type: $.work_type}}
@@ -1284,7 +1322,7 @@ projection:
     transition: {type: Change, to: abandoned, only_from: [open, reviewed]}
   - event: pdlc.incident.resolved
     upsert:
-      - {type: Incident, key: {incident_id: $.incident_id}, set: {summary: $.summary}}
+      - {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}, set: {summary: $.summary}}
     transition: {type: Incident, to: resolved}
   - event: pdlc.spec.approved
     upsert:
@@ -1322,6 +1360,12 @@ extraction:
 retrieval:
   seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, Deployment, TestCase, TestRun, Review, DesignApproval]
   intents:
+    incident:
+      description: "Retrieve declared incident occurrence, affected service and deployment evidence"
+      examples: ["which deployment did incident INC-1 occur on", "show incident OUTAGE-73"]
+      keywords: [incident, incidents, outage, outages]
+      weights: {OCCURRED_ON: 5, AFFECTS: 4, DEPLOYS: 3, INCLUDES: 3}
+      max_depth: 3
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
       examples: ["where is PAY-341 deployed", "trace the refund retry requirement", "what implements REQ-12"]
