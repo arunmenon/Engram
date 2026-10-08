@@ -4,6 +4,7 @@ import argparse
 import fcntl
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +34,7 @@ def main():
     parser.add_argument("--credentials", type=Path, required=True)
     parser.add_argument("--run-id", required=True)
     args = parser.parse_args()
+    os.environ.pop("SPANNER_EMULATOR_HOST", None)
     values = load_credentials(args.credentials)
     assert (values["GOOGLE_CLOUD_PROJECT"], values["SPANNER_INSTANCE_ID"]) == (
         "portiq-mvp",
