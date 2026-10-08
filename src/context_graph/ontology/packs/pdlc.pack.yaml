@@ -126,8 +126,12 @@ types:
     Deployment:
       key: [repo, service, environment, artifact_id, started_at]
       interfaces: [Lifecycled, Sourced]
-      properties: {repo: string, service: string, environment: string, artifact_id: string, started_at: datetime}
+      properties: {repo: string, service: string, environment: string, artifact_id: string, started_at: datetime, operation: {enum: [upgrade]}}
       lifecycle: {initial: started, states: [started, succeeded, failed, rolled_back]}
+    DeploymentRollback:
+      key: [rollback_id]
+      interfaces: [Sourced]
+      properties: {rollback_id: string}
     Component:
       key: [catalog_name]
       interfaces: [Owned, Lifecycled, Sourced]
@@ -166,6 +170,7 @@ types:
     EXECUTES:        {from: [TestRun], to: [TestCase]}
     RAN_AGAINST:     {from: [TestRun], to: [Change], properties: {commit_sha: string}}
     REVIEWS:         {from: [Review], to: [Change]}
+    ROLLS_BACK:      {from: [DeploymentRollback], to: [Deployment]}
     DEPLOYS:         {from: [Deployment], to: [Change, Release]}
     INCLUDES:        {from: [Release], to: [Change], properties: {section: {enum: [breaking, added, fixed, docs, ci, other]}}, note: "declared by changelogs"}
     DEPLOYED_TO:     {from: [Deployment], to: [Component], properties: {environment: string}}
@@ -509,10 +514,6 @@ events:
           type: string
           required: true
           enum:
-          - success
-          - failure
-          - cancel
-          - error
           - skipped
         name:
           type: string
@@ -615,6 +616,11 @@ events:
           type: string
           required: true
           min_length: 1
+        target_started_at:
+          type: string
+          required: true
+          # RFC3339 with a calendar-valid date and explicit UTC offset.
+          pattern: '^(?:(?:[0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]|[0-9][1-9][0-9]{2}|[1-9][0-9]{3})-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$'
         change_numbers:
           type: array
           max_length: 1000
@@ -1267,6 +1273,9 @@ events:
 # Deterministic projection: event -> node upserts -> edge upserts -> lifecycle transitions.
 # $.x reads the event payload; $event.x reads the envelope. Unknown references fail validation at pack load.
 projection:
+  - event: pdlc.request.created
+    upsert:
+      - {type: Request, key: {source_system: $.source_system, external_id: $.external_id}, set: {title: $.title, description: $.description}}
   - event: pdlc.spec.changed
     upsert:
       - {type: Spec, key: {doc_id: $.doc_id, version: $.version}, set: {title: $.title, scope: $.scope, acceptance_criteria: $.acceptance_criteria, source_uri: $.source_uri, content_hash: $.content_hash}}
@@ -1340,22 +1349,44 @@ projection:
       - {type: EXECUTES, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}}
       - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number, set: {commit_sha: $.commit_sha}}
       - {type: VERIFIES, from: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}, to_each: {type: Requirement, key: {spec_id: "$.requirements[*].spec_id", spec_version: "$.requirements[*].spec_version", local_id: "$.requirements[*].local_id"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+  - event: pdlc.testcaserun.skipped
+    upsert:
+      - {type: TestCase, key: {repo: $.repo, test_id: $.test_id}, set: {path: $.path, name: $.name}}
+      - {type: TestRun, key: {run_id: $.run_id}, set: {outcome: $.outcome, commit_sha: $.commit_sha, finished_at: $event.occurred_at}}
+    edges:
+      - {type: EXECUTES, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: TestCase, key: {repo: $.repo, test_id: $.test_id}}}
+      - {type: RAN_AGAINST, from: {type: TestRun, key: {run_id: $.run_id}}, to: {type: Change, key: {repo: $.repo, number: $.change_number}}, when: $.change_number, set: {commit_sha: $.commit_sha}}
+  - event: pdlc.service.rolledback
+    upsert:
+      - {type: DeploymentRollback, key: {rollback_id: $event.event_id}}
+    transition: {type: Deployment, to: rolled_back, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $.target_started_at}}
+    edges:
+      - {type: ROLLS_BACK, from: {type: DeploymentRollback, key: {rollback_id: $event.event_id}}, to: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $.target_started_at}}}
+
   - event: pdlc.service.deployed
     upsert:
       - {type: Component, key: {catalog_name: $.service}}
       - {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo}}
-    transition: {type: Deployment, to: succeeded}
+    transition: {type: Deployment, to: succeeded, only_from: [started, succeeded, failed]}
     edges:
       - {type: DEPLOYED_TO, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
       # A deployed commit is the merge commit of a change: link it (a change merged later is linked by its merge rule)
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Release, key: {repo: $.repo, version: $.release_version}}, when: $.release_version}
+  - event: pdlc.service.upgraded
+    upsert:
+      - {type: Component, key: {catalog_name: $.service}}
+      - {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo, operation: upgrade}}
+    transition: {type: Deployment, to: succeeded, only_from: [started, succeeded, failed]}
+    edges:
+      - {type: DEPLOYED_TO, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
   - event: pdlc.service.deployment_failed
     upsert:
       - {type: Component, key: {catalog_name: $.service}}
       - {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo}}
-    transition: {type: Deployment, to: failed}
+    transition: {type: Deployment, to: failed, only_from: [started, succeeded, failed]}
     edges:
       - {type: DEPLOYED_TO, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
@@ -1451,12 +1482,12 @@ extraction:
     AMENDS:     {description: "How a decision changes an earlier one: builds on it, updates part of it, or replaces part of it", method: inferred, link_status: proposed, scoring_question: "Does decision A change decision B? yes/no; then: builds_on, updates or replaces_part"}
     APPLIES_TO: {description: "Which service, requirement, design section or change a decision is about", method: inferred, link_status: proposed, scoring_question: "Is this decision about this item? yes/no"}
     VERIFIES:   {description: "An undeclared link from a test to the requirement it checks", method: inferred, link_status: proposed, scoring_question: "Does this test check this requirement? yes/no"}
-  never_propose: [Change, TestRun, Deployment, Incident, WorkItem, Release]
+  never_propose: [Change, TestRun, Deployment, DeploymentRollback, Incident, WorkItem, Release]
   derived_proposals:
     VERIFIES: {rule: "a test file changed in the same commit as the change", confidence: 0.3, method: co_change, link_status: proposed}   # Kafka 74%, OpenDAL 14% of commits change tests too   # these come only from tool events
 
 retrieval:
-  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, Deployment, TestCase, TestRun, Review, DesignApproval]
+  seed_types: [Request, Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, Deployment, DeploymentRollback, TestCase, TestRun, Review, DesignApproval]
   intents:
     incident:
       description: "Retrieve declared incident occurrence, affected service and deployment evidence"
@@ -1467,8 +1498,8 @@ retrieval:
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
       examples: ["where is PAY-341 deployed", "trace the refund retry requirement", "what implements REQ-12"]
-      keywords: [trace, deployed, implements, implemented, delivered, deliver, shipped, ship, release]
-      weights: {REVIEWS: 4, EXECUTES: 4, RAN_AGAINST: 4, APPROVES: 4, SUPERSEDES: 4, REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
+      keywords: [trace, rollback, rolledback, upgrade, upgraded, deployed, implements, implemented, delivered, deliver, shipped, ship, release]
+      weights: {ROLLS_BACK: 4, REVIEWS: 4, EXECUTES: 4, RAN_AGAINST: 4, APPROVES: 4, SUPERSEDES: 4, REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
       max_depth: 5
     completeness:
       description: "Find artifacts missing an expected link (requirement without test, change without review)"
@@ -1498,7 +1529,7 @@ retrieval:
     untrusted_uncorroborated: {default: exclude_from_action_context, available_via: lookup_untrusted}
     proposed_links: {default: show_with_confidence, never_counted_as: confirmed}
   core_intent_weights:            # additions to core intents when this pack is active
-    why: {IMPLEMENTS: 4, REFINES: 4, DECIDED_BY: 3, ATTRIBUTED_TO: 3, RAISES: 3, APPLIES_TO: 4, CITES: 3}
+    why: {ROLLS_BACK: 4, IMPLEMENTS: 4, REFINES: 4, DECIDED_BY: 3, ATTRIBUTED_TO: 3, RAISES: 3, APPLIES_TO: 4, CITES: 3}
     who_is: {OWNED_BY: 5, DECIDED_BY: 4}
 
 lifecycle:

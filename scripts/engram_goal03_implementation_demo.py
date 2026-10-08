@@ -426,12 +426,9 @@ async def execute(
                     for outcome in extraction_outcomes
                     if outcome.get("event_id") == eid and outcome.get("pack") == "pdlc"
                 ]
-                if (
-                    fixture["expected_status"] == 201
-                    and (
-                        request["event_type"] == "pdlc.design.section_changed"
-                        or (goal == "G06" and request["event_type"] == "pdlc.spec.approved")
-                    )
+                if fixture["expected_status"] == 201 and (
+                    request["event_type"] == "pdlc.design.section_changed"
+                    or (goal == "G06" and request["event_type"] == "pdlc.spec.approved")
                 ):
                     assert matching and all(
                         o["event"] == "pack_extraction_applied" for o in matching
@@ -800,8 +797,12 @@ def main(
     target_database="engram-compat-target",
 ):
     global RESOURCE
-    if (goal == "G06") != (target_database == "engram-g06-target"):
-        raise ValueError("G06 requires its separate reserved database")
+    for isolated_goal, reserved_database in (
+        ("G06", "engram-g06-target"),
+        ("G07", "engram-g07-target"),
+    ):
+        if (goal == isolated_goal) != (target_database == reserved_database):
+            raise ValueError(isolated_goal + " requires its separate reserved database")
     RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/" + target_database
     OLD[1] = RESOURCE
     parser = argparse.ArgumentParser(description=__doc__)
