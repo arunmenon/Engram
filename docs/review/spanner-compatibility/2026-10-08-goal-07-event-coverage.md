@@ -1,8 +1,10 @@
 # G07 specification: complete the declared PDLC event paths
 
-Status: SELECTED FOR EXECUTION by the stakeholder after scope discussion. Specification
-is published; no implementation, new tickets, Astra review, cloud execution or completion
-is claimed yet. Complete the ticket/review gates before runtime work. G08 is not started.
+Status: IMPLEMENTATION IN PROGRESS. Selected by the stakeholder. Slices A–E are
+tracked in #54–#58. Astra medium completed the preimplementation review; see
+[findings](2026-10-08-astra-g07-plan-review.md). No G07 cloud execution or completion
+is claimed. Read-only database preflight returned PermissionDenied for engram-g07-target;
+access is pending while local implementation continues. G08 is not started.
 
 ## Outcome and boundary
 
@@ -43,12 +45,14 @@ Code anchors:
 
 ## Proposed slices and acceptance scenarios
 
-Each slice is a write-to-read journey, independently demoable. These are ticket
-**drafts**, not published issues. Reuse #40 (journeys), #39 (conformance), #36
+Each slice is a write-to-read journey, independently demoable. Published tickets:
+A #54, B #55, C #56, D #57, E #58; native E dependencies point to A–D. See
+[ticket receipts](2026-10-08-g07-ticket-receipts.json). Reuse #40 (journeys), #39 (conformance), #36
 (semantics), #37 (admission), #41 (Spanner) under #34. Check existing issues and
 comments before publishing any new child. Slice E depends on A–D; A–D have no
 necessary cross-slice dependency and are proposed in the order below for visibility.
-Execute one selected slice at a time, with a checkpoint; no automatic move to G08.
+Independent local implementations may run concurrently on isolated branches.
+Cloud verification follows frozen, reviewed expectations; no automatic move to G08.
 
 ### G7-A — Retrieve a request, its approved specification and scoped decisions
 
@@ -96,15 +100,15 @@ Do not claim completeness plugin or all CI providers are covered by this slice.
 ### G7-D — Identify an exact rollback and a separate upgrade
 
 Why: both events have provisional contracts but no mapping. Their meaning must be
-settled before implementing any graph writes. The following policy is proposed,
-not a description of existing behavior:
+settled before implementing any graph writes. The following policy is the reviewed implementation target,
+not a claim of cloud-verified behavior:
 
 - D01: create succeeded deployment A and a later succeeded deployment B via Engram. A rollback names **B's exact identity**, using repo/service/environment/artifact_id plus a required `target_started_at` timestamp. That timestamp selects B; event.occurred_at is the later rollback observation. Do not choose the latest deployment by guesswork.
-- D02: mark B `rolled_back` while retaining its original artifact, start time, prior observations, DEPLOYS/DEPLOYED_TO and rollback Event evidence. A is not automatically restored or marked active: the current schema does not represent live routing. A restoration, if demonstrated, is a separate service.deployed event.
+- D02: create a DeploymentRollback action keyed by the rollback Event UUID, with its own DERIVED_FROM evidence and ROLLS_BACK edge to B. Do not attach rollback observation evidence directly to an unobserved Deployment. Then mark B `rolled_back` while retaining its original artifact, start time, prior observations, DEPLOYS/DEPLOYED_TO and rollback Event evidence. A is not automatically restored or marked active: the current schema does not represent live routing. A restoration, if demonstrated, is a separate service.deployed event.
 - D03: repeat artifact IDs at different start times and across repo/service/environment. Only the complete selected key changes. A late service.deployed observation for the same B identity must not silently undo rolled_back; pin the minimal transition guard before the final fixture.
 - D04: unknown exact rollback target uses the existing identity-only reference policy: the rollback declaration is preserved with a distinguishable reference-only target, and must not be presented as an observed successful deployment. Its original deployment event later fills it without erasing rollback evidence/state. Verify null observation provenance before fill and proper provenance after. If current generic mechanisms cannot express this honestly, report the concrete blocker before adding machinery or changing the policy.
 - D05: an upgrade is a producer assertion of a **completed successful new deployment**, keyed by its own occurred_at using existing Deployment identity, with explicit change references where supplied. Add a small declared `operation: upgrade` property if needed to distinguish it in graph/retrieval; it does not automatically retire other deployments, prove traffic moved, or imply compatibility of old data.
-- D06: missing target_started_at, naive/ill-typed target timestamp and malformed scoped identity reject before append. Upgrade with no changes has no invented DEPLOYS link; collision controls keep other services/repos separate.
+- D06: missing target_started_at, naive/ill-typed target timestamp and malformed scoped identity reject before append. Upgrade projection with no explicit changes has no DEPLOYS link. Existing later change.merged identity matching is separate declared behavior, not disabled by this slice; collision controls keep other services/repos separate.
 
 Demo questions: “Which exact deployment was rolled back?” and “What artifact was
 installed by this upgrade?” A rollback cannot be represented as a successful
