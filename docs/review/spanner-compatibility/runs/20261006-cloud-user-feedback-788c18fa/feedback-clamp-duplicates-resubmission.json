@@ -1,0 +1,88 @@
+{
+  "responses": [
+    {
+      "query_id": "bounded-feedback",
+      "global_position": "2026-10-06T14:18:24.357711000Z/000000/d0e5f2f2-bd0d-4734-b9ec-1da006038a8b",
+      "bumped": 3,
+      "decremented": 3
+    },
+    {
+      "query_id": "bounded-feedback",
+      "global_position": "2026-10-06T14:18:26.613183000Z/000000/8eb939b0-3ef5-449b-b453-cbfd582cd5b7",
+      "bumped": 3,
+      "decremented": 3
+    }
+  ],
+  "importance": [
+    10,
+    1,
+    5
+  ],
+  "audit_documents": [
+    {
+      "agent_id": "system",
+      "ended_at": null,
+      "event_id": "d0e5f2f2-bd0d-4734-b9ec-1da006038a8b",
+      "event_type": "system.feedback",
+      "global_position": "2026-10-06T14:18:24.357711000Z/000000/d0e5f2f2-bd0d-4734-b9ec-1da006038a8b",
+      "importance_hint": null,
+      "occurred_at": "2026-10-06T14:18:24.195363Z",
+      "parent_event_id": null,
+      "payload": {
+        "helpful_node_ids": [
+          "f86d0432-0093-4a7b-b28e-9ff616038629",
+          "f86d0432-0093-4a7b-b28e-9ff616038629",
+          "b8caa6de-b3ec-42e4-b158-d80f1b91e759",
+          "missing-node"
+        ],
+        "irrelevant_node_ids": [
+          "4fd0bf8b-cc0f-4147-be13-4173386f0828",
+          "4fd0bf8b-cc0f-4147-be13-4173386f0828",
+          "b8caa6de-b3ec-42e4-b158-d80f1b91e759",
+          "missing-node"
+        ],
+        "query_id": "bounded-feedback"
+      },
+      "payload_ref": "feedback:bounded-feedback",
+      "schema_version": 1,
+      "search_text": "bounded-feedback f86d0432-0093-4a7b-b28e-9ff616038629 f86d0432-0093-4a7b-b28e-9ff616038629 b8caa6de-b3ec-42e4-b158-d80f1b91e759 missing-node 4fd0bf8b-cc0f-4147-be13-4173386f0828 4fd0bf8b-cc0f-4147-be13-4173386f0828 b8caa6de-b3ec-42e4-b158-d80f1b91e759 missing-node",
+      "session_id": "user-feedback",
+      "status": null,
+      "tool_name": null,
+      "trace_id": "bounded-feedback"
+    },
+    {
+      "agent_id": "system",
+      "ended_at": null,
+      "event_id": "8eb939b0-3ef5-449b-b453-cbfd582cd5b7",
+      "event_type": "system.feedback",
+      "global_position": "2026-10-06T14:18:26.613183000Z/000000/8eb939b0-3ef5-449b-b453-cbfd582cd5b7",
+      "importance_hint": null,
+      "occurred_at": "2026-10-06T14:18:26.449320Z",
+      "parent_event_id": null,
+      "payload": {
+        "helpful_node_ids": [
+          "f86d0432-0093-4a7b-b28e-9ff616038629",
+          "f86d0432-0093-4a7b-b28e-9ff616038629",
+          "b8caa6de-b3ec-42e4-b158-d80f1b91e759",
+          "missing-node"
+        ],
+        "irrelevant_node_ids": [
+          "4fd0bf8b-cc0f-4147-be13-4173386f0828",
+          "4fd0bf8b-cc0f-4147-be13-4173386f0828",
+          "b8caa6de-b3ec-42e4-b158-d80f1b91e759",
+          "missing-node"
+        ],
+        "query_id": "bounded-feedback"
+      },
+      "payload_ref": "feedback:bounded-feedback",
+      "schema_version": 1,
+      "search_text": "bounded-feedback f86d0432-0093-4a7b-b28e-9ff616038629 f86d0432-0093-4a7b-b28e-9ff616038629 b8caa6de-b3ec-42e4-b158-d80f1b91e759 missing-node 4fd0bf8b-cc0f-4147-be13-4173386f0828 4fd0bf8b-cc0f-4147-be13-4173386f0828 b8caa6de-b3ec-42e4-b158-d80f1b91e759 missing-node",
+      "session_id": "user-feedback",
+      "status": null,
+      "tool_name": null,
+      "trace_id": "bounded-feedback"
+    }
+  ],
+  "semantics": "each duplicate ID adjusts again; overlaps apply helpful then irrelevant; clamps1..10; each request has a distinct audit"
+}

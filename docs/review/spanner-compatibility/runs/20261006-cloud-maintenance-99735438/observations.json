@@ -1,0 +1,315 @@
+{
+  "checks": [
+    {
+      "name": "full_consolidation_timer_centrality_forgetting_orphans_housekeeping",
+      "scenarios": [
+        "CONS-01",
+        "CONS-02",
+        "LIFE-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "events": [
+          {
+            "event_id": "20f7d111-b037-43df-b5bd-9a5d98514321",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-06T14:01:45.569437+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          },
+          {
+            "event_id": "0451823a-6b60-4d0a-9acf-cdcaae1251e4",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-06T14:01:45.758450+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          },
+          {
+            "event_id": "69e0ec10-8db6-4af5-9909-e2a86a6d5c73",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-06T14:01:45.865002+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          },
+          {
+            "event_id": "276516cc-fbad-43ef-b767-733060fce091",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-06T14:01:46.027340+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          },
+          {
+            "event_id": "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-04T14:01:46.133336+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          },
+          {
+            "event_id": "e12ca1af-0bc5-407c-8a7e-253f52d2e4f2",
+            "event_type": "observation.input",
+            "occurred_at": "2026-09-26T14:01:46.242883+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          },
+          {
+            "event_id": "8c146fb0-0e3b-4621-b296-6086a0f8ef6d",
+            "event_type": "observation.input",
+            "occurred_at": "2026-08-27T14:01:46.360940+00:00",
+            "session_id": "maintenance",
+            "agent_id": "compat-resume",
+            "trace_id": "maintenance",
+            "payload_ref": "compat:resume",
+            "payload": {
+              "content": "Spanner recovery evidence"
+            },
+            "importance_hint": 1
+          }
+        ],
+        "stages": [
+          {
+            "operation": "update_importance_from_centrality",
+            "result": 7,
+            "event_importance": {
+              "20f7d111-b037-43df-b5bd-9a5d98514321": 8,
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4": 8,
+              "69e0ec10-8db6-4af5-9909-e2a86a6d5c73": 6,
+              "276516cc-fbad-43ef-b767-733060fce091": 6,
+              "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e": 6,
+              "e12ca1af-0bc5-407c-8a7e-253f52d2e4f2": 6,
+              "8c146fb0-0e3b-4621-b296-6086a0f8ef6d": 6
+            }
+          },
+          {
+            "operation": "delete_edges_by_type_and_age",
+            "result": 1
+          },
+          {
+            "operation": "delete_cold_events",
+            "result": 2
+          },
+          {
+            "operation": "get_archive_event_ids",
+            "result": []
+          },
+          {
+            "operation": "delete_orphan_nodes",
+            "result": [
+              {
+                "Entity": 1,
+                "Preference": 0,
+                "Skill": 0,
+                "Workflow": 0,
+                "BehavioralPattern": 0
+              },
+              [
+                "entity:maintenance-orphan"
+              ]
+            ]
+          }
+        ],
+        "cycle_errors": [],
+        "after": {
+          "nodes": {
+            "Entity": 1,
+            "Event": 5,
+            "Summary": 6
+          },
+          "edges": [
+            [
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4",
+              "FOLLOWS",
+              "20f7d111-b037-43df-b5bd-9a5d98514321"
+            ],
+            [
+              "20f7d111-b037-43df-b5bd-9a5d98514321",
+              "REFERENCES",
+              "entity:maintenance-linked"
+            ],
+            [
+              "276516cc-fbad-43ef-b767-733060fce091",
+              "FOLLOWS",
+              "69e0ec10-8db6-4af5-9909-e2a86a6d5c73"
+            ],
+            [
+              "69e0ec10-8db6-4af5-9909-e2a86a6d5c73",
+              "FOLLOWS",
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4"
+            ],
+            [
+              "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e",
+              "FOLLOWS",
+              "276516cc-fbad-43ef-b767-733060fce091"
+            ],
+            [
+              "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e",
+              "SIMILAR_TO",
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4"
+            ],
+            [
+              "summary-compat-resume-ef388cdb4acc",
+              "SUMMARIZES",
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4"
+            ],
+            [
+              "summary-compat-resume-ef388cdb4acc",
+              "SUMMARIZES",
+              "20f7d111-b037-43df-b5bd-9a5d98514321"
+            ],
+            [
+              "summary-compat-resume-ef388cdb4acc",
+              "SUMMARIZES",
+              "276516cc-fbad-43ef-b767-733060fce091"
+            ],
+            [
+              "summary-compat-resume-ef388cdb4acc",
+              "SUMMARIZES",
+              "69e0ec10-8db6-4af5-9909-e2a86a6d5c73"
+            ],
+            [
+              "summary-compat-resume-ef388cdb4acc",
+              "SUMMARIZES",
+              "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e"
+            ],
+            [
+              "summary-maintenance-ef388cdb4acc",
+              "SUMMARIZES",
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4"
+            ],
+            [
+              "summary-maintenance-ef388cdb4acc",
+              "SUMMARIZES",
+              "20f7d111-b037-43df-b5bd-9a5d98514321"
+            ],
+            [
+              "summary-maintenance-ef388cdb4acc",
+              "SUMMARIZES",
+              "276516cc-fbad-43ef-b767-733060fce091"
+            ],
+            [
+              "summary-maintenance-ef388cdb4acc",
+              "SUMMARIZES",
+              "69e0ec10-8db6-4af5-9909-e2a86a6d5c73"
+            ],
+            [
+              "summary-maintenance-ef388cdb4acc",
+              "SUMMARIZES",
+              "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e"
+            ],
+            [
+              "summary-maintenance-ep2-3fe67e5ab2f0",
+              "SUMMARIZES",
+              "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e"
+            ],
+            [
+              "summary-maintenance-ep3-6b5a341616cf",
+              "SUMMARIZES",
+              "0451823a-6b60-4d0a-9acf-cdcaae1251e4"
+            ],
+            [
+              "summary-maintenance-ep3-6b5a341616cf",
+              "SUMMARIZES",
+              "20f7d111-b037-43df-b5bd-9a5d98514321"
+            ],
+            [
+              "summary-maintenance-ep3-6b5a341616cf",
+              "SUMMARIZES",
+              "276516cc-fbad-43ef-b767-733060fce091"
+            ],
+            [
+              "summary-maintenance-ep3-6b5a341616cf",
+              "SUMMARIZES",
+              "69e0ec10-8db6-4af5-9909-e2a86a6d5c73"
+            ]
+          ]
+        },
+        "surviving_ids": [
+          "20f7d111-b037-43df-b5bd-9a5d98514321",
+          "0451823a-6b60-4d0a-9acf-cdcaae1251e4",
+          "69e0ec10-8db6-4af5-9909-e2a86a6d5c73",
+          "276516cc-fbad-43ef-b767-733060fce091",
+          "db01f73c-a7df-4b23-9d5e-d9f3e7c9832e",
+          "entity:maintenance-linked"
+        ],
+        "documents_present": 7,
+        "consumer_pending": {},
+        "settings": {
+          "cold_min_importance": 10,
+          "cold_min_access_count": 100,
+          "threshold": 1
+        },
+        "scope": "one actual timer cycle; no model or alternate storage; observing wrappers only"
+      },
+      "seconds": 7.87
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 24
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 20
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 32
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 2
+    },
+    {
+      "table": "Events",
+      "rows": 8
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

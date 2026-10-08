@@ -1,0 +1,69 @@
+# Test-only unfamiliar pack for explicit property updates.
+pack: {name: property_lab, version: 0.1.0, requires: [core>=1.1]}
+processing: {requires: [pack.properties.v1]}
+types:
+  nodes:
+    Sample:
+      key: [facility, sample_id]
+      interfaces: [Sourced]
+      properties:
+        facility: string
+        sample_id: string
+        description: string
+        reading: int
+        names: 'list<string>'
+  edges:
+    OBSERVED: {from: [Sample], to: [Sample], properties: {label: string}}
+events:
+  property_lab.sample.updated:
+    payload_contract:
+      version: 1
+      properties:
+        facility: {type: string, required: true}
+        sample_id: {type: string, required: true}
+        description: {type: string, nullable: true}
+        reading: {type: integer, nullable: true}
+        names: {type: array, nullable: true, items: {type: string}}
+  property_lab.samples.updated:
+    payload_contract:
+      version: 1
+      properties:
+        facility: {type: string, required: true}
+        ids: {type: array, required: true, items: {type: string}}
+        rows:
+          type: array
+          required: true
+          items:
+            type: object
+            properties: {description: {type: string, nullable: true}}
+        names: {type: array, items: {type: string}}
+  property_lab.samples.linked:
+    payload_contract:
+      version: 1
+      properties:
+        facility: {type: string, required: true}
+        from_id: {type: string, required: true}
+        to_id: {type: string, required: true}
+        label: {type: string, nullable: true}
+projection:
+  - event: property_lab.sample.updated
+    upsert:
+      - type: Sample
+        key: {facility: $.facility, sample_id: $.sample_id}
+        set:
+          description: {value: $.description, on_null: clear}
+          reading: {value: $.reading}
+          names: {value: $.names, on_null: clear}
+  - event: property_lab.samples.updated
+    upsert:
+      - type: Sample
+        key: {facility: $.facility, sample_id: '$.ids[*]'}
+        set:
+          description: {value: '$.rows[*].description', select: zip, on_null: clear}
+          names: {value: $.names}
+  - event: property_lab.samples.linked
+    edges:
+      - type: OBSERVED
+        from: {type: Sample, key: {facility: $.facility, sample_id: $.from_id}}
+        to: {type: Sample, key: {facility: $.facility, sample_id: $.to_id}}
+        set: {label: {value: $.label, on_null: clear}}

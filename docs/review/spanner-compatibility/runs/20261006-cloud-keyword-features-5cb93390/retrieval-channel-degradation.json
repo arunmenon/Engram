@@ -1,0 +1,22 @@
+{
+  "status": 422,
+  "body": {
+    "detail": [
+      {
+        "type": "missing",
+        "loc": [
+          "body",
+          "agent_id"
+        ],
+        "msg": "Field required",
+        "input": {
+          "query": "Python",
+          "session_id": "keyword-a",
+          "use_hyde": true,
+          "max_nodes": 10
+        }
+      }
+    ]
+  },
+  "faults": "synthetic keyword failure and 50ms model timeout; actual graph channel retained"
+}

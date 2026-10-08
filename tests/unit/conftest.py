@@ -156,6 +156,9 @@ class StubGraphStore:
     ) -> None:
         pass
 
+    async def count_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+        return 0
+
     async def delete_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
         return 0
 

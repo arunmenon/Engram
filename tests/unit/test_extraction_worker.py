@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import orjson
 
+from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.extraction import ExtractionConsumer
 from tests.unit.redis_ports import redis_ports
@@ -23,6 +24,7 @@ from tests.unit.redis_ports import redis_ports
 def _make_settings() -> Any:
     """Create a minimal Settings-like object for ExtractionConsumer."""
     settings = MagicMock()
+    settings.ontology = OntologySettings()
     settings.redis.group_extraction = "session-extraction"
     settings.redis.global_stream = "events:__global__"
     settings.redis.block_timeout_ms = 100

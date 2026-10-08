@@ -1,0 +1,60 @@
+2026-10-06 16:37:33 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 16:37:34 [info     ] llm_client_initialized
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 16:37:34 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 16:37:36 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 16:37:36 [info     ] event_ingested                 event_id=e9aa0009-6874-4b9f-a8ab-b37abf07013b event_type=tool.execute global_position=2026-10-06T11:07:36.273487000Z/000000/e9aa0009-6874-4b9f-a8ab-b37abf07013b request_id=760019e8-b82a-4d58-ae75-f4513ee42781 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 16:37:37 [info     ] consolidation_timer_started    interval_hours=0.0003
+2026-10-06 16:37:37 [info     ] consumer_started               consumer=retention-consolidation group=consolidation stream=Events
+2026-10-06 16:37:37 [info     ] pending_drain_completed        group=consolidation
+2026-10-06 16:37:38 [info     ] consolidation_timer_fired
+2026-10-06 16:37:38 [info     ] consolidation_cycle_started    source=timer
+2026-10-06 16:37:38 [info     ] importance_recomputed_from_centrality updated_count=0
+2026-10-06 16:37:39 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-06 16:37:39 [info     ] archived_events                archive_id=2026/10/06/20261006110739-b59ef438.jsonl.gz event_count=1 partition_key=2026/10/06
+2026-10-06 16:37:40 [info     ] consumer_stopped               consumer=retention-consolidation group=consolidation
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 140, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 1251, in protect_pending
+    assert doc is not None, (
+           ^^^^^^^^^^^^^^^
+AssertionError: retention deleted document while projection delivery is pending
+
+{"name": "retention_protects_pending_historical_content", "scenarios": ["LIFE-01", "LIFE-02"], "verdict": "failed", "error_type": "AssertionError", "error": "retention deleted document while projection delivery is pending", "seconds": 3.21}
+2026-10-06 16:37:40 [info     ] consumer_started               consumer=retention-projection group=graph-projection stream=Events
+2026-10-06 16:37:40 [warning  ] event_json_not_found           entry_id=2026-10-06T11:07:36.273487000Z/000000/e9aa0009-6874-4b9f-a8ab-b37abf07013b event_id=e9aa0009-6874-4b9f-a8ab-b37abf07013b
+2026-10-06 16:37:41 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 16:37:43 [info     ] consumer_stopped               consumer=retention-projection group=graph-projection
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 140, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 1278, in missing_doc_not_acked
+    assert stats["nodes"].get("Event", 0) == 1 or counts, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: projection ACKed missing content without producing a graph event
+
+{"name": "projection_does_not_silently_ACK_expired_content", "scenarios": ["LIFE-01", "SUB-03"], "verdict": "failed", "error_type": "AssertionError", "error": "projection ACKed missing content without producing a graph event", "seconds": 4.11}
+2026-10-06 16:37:44 [info     ] app_stopped

@@ -1,0 +1,78 @@
+B023 Function definition does not bind loop variable `group`
+   --> scripts/engram_spanner_interpretation_cases.py:294:38
+    |
+292 |                     "UPDATE ConsumerDeliveries SET delivery_count = 7 "
+293 |                     "WHERE group_name = @group AND event_id = @id",
+294 |                     params={"group": group, "id": event_id},
+    |                                      ^^^^^
+295 |                     param_types={"group": param_types.STRING, "id": param_types.STRING},
+296 |                 )
+    |
+
+B023 Function definition does not bind loop variable `group`
+   --> scripts/engram_spanner_interpretation_cases.py:307:37
+    |
+305 |                 else:
+306 |                     raise AssertionError(name + " unexpectedly succeeded")
+307 |                 assert await counts(group) == {
+    |                                     ^^^^^
+308 |                     "ConsumerDeliveries": 1,
+309 |                     "ConsumerDeadLetters": 0,
+    |
+
+B023 Function definition does not bind loop variable `subscription`
+   --> scripts/engram_spanner_interpretation_cases.py:315:25
+    |
+313 |             await refuses(
+314 |                 f"terminal_{fault}_ack_refuses_after_processing_read",
+315 |                 lambda: subscription.ack(delivery.position),
+    |                         ^^^^^^^^^^^^
+316 |             )
+317 |             await refuses(
+    |
+
+B023 Function definition does not bind loop variable `delivery`
+   --> scripts/engram_spanner_interpretation_cases.py:315:42
+    |
+313 |             await refuses(
+314 |                 f"terminal_{fault}_ack_refuses_after_processing_read",
+315 |                 lambda: subscription.ack(delivery.position),
+    |                                          ^^^^^^^^
+316 |             )
+317 |             await refuses(
+    |
+
+B023 Function definition does not bind loop variable `subscription`
+   --> scripts/engram_spanner_interpretation_cases.py:319:25
+    |
+317 |             await refuses(
+318 |                 f"terminal_{fault}_dlq_refuses_after_processing_read",
+319 |                 lambda: subscription.dead_letter(delivery, 7),
+    |                         ^^^^^^^^^^^^
+320 |             )
+321 |             consumer = PackExtractionConsumer(
+    |
+
+B023 Function definition does not bind loop variable `delivery`
+   --> scripts/engram_spanner_interpretation_cases.py:319:50
+    |
+317 |             await refuses(
+318 |                 f"terminal_{fault}_dlq_refuses_after_processing_read",
+319 |                 lambda: subscription.dead_letter(delivery, 7),
+    |                                                  ^^^^^^^^
+320 |             )
+321 |             consumer = PackExtractionConsumer(
+    |
+
+B023 Function definition does not bind loop variable `consumer`
+   --> scripts/engram_spanner_interpretation_cases.py:331:88
+    |
+329 |             )
+330 |             await refuses(
+331 |                 f"terminal_{fault}_exhausted_retry_stops_pending", lambda: run_bounded(consumer)
+    |                                                                                        ^^^^^^^^
+332 |             )
+333 |             assert consumer._stopped and not provider.calls
+    |
+
+Found 7 errors.

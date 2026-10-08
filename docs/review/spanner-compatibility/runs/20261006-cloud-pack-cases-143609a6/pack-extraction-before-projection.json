@@ -1,0 +1,266 @@
+{
+  "event_id": "cfab47db-321f-4d1d-b732-c0f734f18fc4",
+  "decision": "Decision:deebfdf843b9d255d3f6a110acc655b4e782fcc676e81c31bba1eb4b1e898663",
+  "before_projection": {
+    "nodes": {
+      "Change": 2,
+      "Component": 4,
+      "Decision": 1,
+      "Deployment": 3,
+      "Event": 7,
+      "Incident": 1,
+      "Review": 1
+    },
+    "edges": [
+      [
+        "Change:acme/app|42",
+        "DERIVED_FROM",
+        "645ecbdd-1012-4b05-b182-2411964d0ac9"
+      ],
+      [
+        "Change:acme/app|7",
+        "DERIVED_FROM",
+        "54679e5d-06f2-44ef-8eea-027223514649"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "33cc4734-fd16-44cb-9dad-eb7b792eae7b"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "498f75d5-e808-49e1-ae97-19b29d748c67"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:07:51.337161+00:00",
+        "DEPLOYED_TO",
+        "Component:payments"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:07:51.337161+00:00",
+        "DERIVED_FROM",
+        "498f75d5-e808-49e1-ae97-19b29d748c67"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:17:51.337161+00:00",
+        "DEPLOYED_TO",
+        "Component:payments"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:17:51.337161+00:00",
+        "DERIVED_FROM",
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00",
+        "DEPLOYED_TO",
+        "Component:payments"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00",
+        "DERIVED_FROM",
+        "33cc4734-fd16-44cb-9dad-eb7b792eae7b"
+      ],
+      [
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b",
+        "FOLLOWS",
+        "498f75d5-e808-49e1-ae97-19b29d748c67"
+      ],
+      [
+        "498f75d5-e808-49e1-ae97-19b29d748c67",
+        "FOLLOWS",
+        "33cc4734-fd16-44cb-9dad-eb7b792eae7b"
+      ],
+      [
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4",
+        "FOLLOWS",
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b"
+      ],
+      [
+        "54679e5d-06f2-44ef-8eea-027223514649",
+        "FOLLOWS",
+        "645ecbdd-1012-4b05-b182-2411964d0ac9"
+      ],
+      [
+        "645ecbdd-1012-4b05-b182-2411964d0ac9",
+        "FOLLOWS",
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4"
+      ],
+      [
+        "eaeb0a33-c842-4509-8155-c4d372583637",
+        "FOLLOWS",
+        "54679e5d-06f2-44ef-8eea-027223514649"
+      ],
+      [
+        "Incident:INC-boundary",
+        "AFFECTS",
+        "Component:payments"
+      ],
+      [
+        "Incident:INC-boundary",
+        "DERIVED_FROM",
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4"
+      ],
+      [
+        "Incident:INC-boundary",
+        "OCCURRED_ON",
+        "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00"
+      ],
+      [
+        "Review:acme/app|7|r-proof",
+        "DERIVED_FROM",
+        "eaeb0a33-c842-4509-8155-c4d372583637"
+      ],
+      [
+        "Review:acme/app|7|r-proof",
+        "REVIEWS",
+        "Change:acme/app|7"
+      ]
+    ]
+  },
+  "after_projection": {
+    "nodes": {
+      "Change": 2,
+      "Component": 4,
+      "Decision": 1,
+      "Deployment": 3,
+      "Event": 8,
+      "Incident": 1,
+      "Review": 1
+    },
+    "edges": [
+      [
+        "Change:acme/app|42",
+        "DERIVED_FROM",
+        "645ecbdd-1012-4b05-b182-2411964d0ac9"
+      ],
+      [
+        "Change:acme/app|7",
+        "DERIVED_FROM",
+        "54679e5d-06f2-44ef-8eea-027223514649"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "33cc4734-fd16-44cb-9dad-eb7b792eae7b"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "498f75d5-e808-49e1-ae97-19b29d748c67"
+      ],
+      [
+        "Component:payments",
+        "DERIVED_FROM",
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:07:51.337161+00:00",
+        "DEPLOYED_TO",
+        "Component:payments"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:07:51.337161+00:00",
+        "DERIVED_FROM",
+        "498f75d5-e808-49e1-ae97-19b29d748c67"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:17:51.337161+00:00",
+        "DEPLOYED_TO",
+        "Component:payments"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:17:51.337161+00:00",
+        "DERIVED_FROM",
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00",
+        "DEPLOYED_TO",
+        "Component:payments"
+      ],
+      [
+        "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00",
+        "DERIVED_FROM",
+        "33cc4734-fd16-44cb-9dad-eb7b792eae7b"
+      ],
+      [
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b",
+        "FOLLOWS",
+        "498f75d5-e808-49e1-ae97-19b29d748c67"
+      ],
+      [
+        "498f75d5-e808-49e1-ae97-19b29d748c67",
+        "FOLLOWS",
+        "33cc4734-fd16-44cb-9dad-eb7b792eae7b"
+      ],
+      [
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4",
+        "FOLLOWS",
+        "358cb3c1-99d1-4c3e-b726-286ca1d8f51b"
+      ],
+      [
+        "54679e5d-06f2-44ef-8eea-027223514649",
+        "FOLLOWS",
+        "645ecbdd-1012-4b05-b182-2411964d0ac9"
+      ],
+      [
+        "645ecbdd-1012-4b05-b182-2411964d0ac9",
+        "FOLLOWS",
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4"
+      ],
+      [
+        "cfab47db-321f-4d1d-b732-c0f734f18fc4",
+        "FOLLOWS",
+        "eaeb0a33-c842-4509-8155-c4d372583637"
+      ],
+      [
+        "eaeb0a33-c842-4509-8155-c4d372583637",
+        "FOLLOWS",
+        "54679e5d-06f2-44ef-8eea-027223514649"
+      ],
+      [
+        "Incident:INC-boundary",
+        "AFFECTS",
+        "Component:payments"
+      ],
+      [
+        "Incident:INC-boundary",
+        "DERIVED_FROM",
+        "4a90966d-0972-4f85-884f-0658fc9cc1a4"
+      ],
+      [
+        "Incident:INC-boundary",
+        "OCCURRED_ON",
+        "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00"
+      ],
+      [
+        "Review:acme/app|7|r-proof",
+        "DERIVED_FROM",
+        "eaeb0a33-c842-4509-8155-c4d372583637"
+      ],
+      [
+        "Review:acme/app|7|r-proof",
+        "REVIEWS",
+        "Change:acme/app|7"
+      ]
+    ]
+  },
+  "extraction_pending": {}
+}

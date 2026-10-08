@@ -1,0 +1,46 @@
+{
+  "invalid_gzip": [
+    {
+      "status": 400,
+      "response": {
+        "detail": [
+          {
+            "message": "body is an incomplete gzip stream"
+          }
+        ]
+      }
+    },
+    {
+      "status": 400,
+      "response": {
+        "detail": [
+          {
+            "message": "body is an incomplete gzip stream"
+          }
+        ]
+      }
+    },
+    {
+      "status": 400,
+      "response": {
+        "detail": [
+          {
+            "message": "body is an incomplete gzip stream"
+          }
+        ]
+      }
+    },
+    {
+      "status": 400,
+      "response": {
+        "detail": [
+          {
+            "message": "body contains data after the gzip stream"
+          }
+        ]
+      }
+    }
+  ],
+  "valid_status": 201,
+  "ledger_delta": 1
+}

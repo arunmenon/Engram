@@ -1,0 +1,20 @@
+{
+  "status": "published_verified",
+  "issues": [
+    34,
+    37,
+    43,
+    41
+  ],
+  "reason": "gh issue comment GraphQL errors; REST POST unexpected end of JSON input. Subsequent REST GET comment checks returned no matching comments for all four issues. Do not claim updated.",
+  "body": "Atomic acceptance/API slice implemented locally (uncommitted):\n\n- Spanner append now stamps immutable acceptance atomically under current admission fence. Existing and same-chunk duplicate IDs compare producer/full request digest; changed reuse is a conflict. Equal retries preserve original receipt/position across epoch-only recovery and retained document/dedup expiry.\n- Normalized API ingestion uses immutable request-local authenticated source context; conflicts map to409/per-item errors. Bound unstamped imports/bare entries and original-field enrichment changes refuse.\n- Added explicit additive acceptance-column planner/strict handshake and receipt commit costs. No cloud DDL applied: cloud DBs need tracked upgrade before current handshake can succeed.\n- Astra low numeric-preservation finding resolved by tagging all new floats; reviewed recheck approved. Tracked rerun20261007-local-spanner-acceptance-04:151passed10integrationdeselected50warnings; selectedRuff/scopedmypy6files passed. Fullworktreetyping remains open. Prior failed attempts retained.\n\nReview/evidence: docs/review/spanner-compatibility/2026-10-07-astra-spanner-event-acceptance-review.md and linked local run directories. These are transactionfake/API tests, no realSpanner validation/signoff or issue closure. Next: reviewed recorded cloud column upgrade, realSpanner reruns, worker authoritative receipt interpretation/archive/replay. Public tenant service remains disabled.\n",
+  "evidence": "2026-10-07-astra-spanner-event-acceptance-review.md",
+  "run_id": "20261007-local-spanner-acceptance-04",
+  "comment_links": {
+    "34": "https://github.com/arunmenon/Engram/issues/34#issuecomment-6041003488",
+    "37": "https://github.com/arunmenon/Engram/issues/37#issuecomment-6041010265",
+    "43": "https://github.com/arunmenon/Engram/issues/43#issuecomment-6041010661",
+    "41": "https://github.com/arunmenon/Engram/issues/41#issuecomment-6041011087"
+  },
+  "publication_note": "Transient writeerrors resolved; all four body readbacks match saved update."
+}

@@ -1,0 +1,30 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "ING-02",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ingress-completion-197593e8/observations.json",
+      "issue_numbers": "4;5"
+    },
+    {
+      "scenario_id": "ING-05",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ingress-completion-197593e8/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "MEM-01",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-context-completion-6c14d9b2/observations.json",
+      "issue_numbers": "31;32"
+    },
+    {
+      "scenario_id": "MEM-05",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-context-completion-6c14d9b2/observations.json",
+      "issue_numbers": "24;31;32"
+    }
+  ],
+  "summary": "Representative configured ingestion count/byte boundaries and streamed imports checked; context ordering/deadline failures31/32 confirmed. No production SLO or full compatibility claim.",
+  "cleanup": "No runtime edits; next serial consolidation phase active separately. User DBs/schemas preserved. SDK session cleanup still unverified issue26."
+}

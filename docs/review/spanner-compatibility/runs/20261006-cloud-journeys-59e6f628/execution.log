@@ -1,0 +1,121 @@
+2026-10-06 15:35:41 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:35:41 [info     ] llm_client_initialized
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 15:35:41 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 15:35:41 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 15:35:41 [info     ] event_ingested                 event_id=1ceac99e-0b95-4625-a9e0-227d7222b087 event_type=tool.execute global_position=2026-10-06T10:05:41.973983000Z/000000/1ceac99e-0b95-4625-a9e0-227d7222b087 request_id=7e1a4f79-f603-4c51-9e37-9854364855b9 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:35:42 [info     ] event_ingested                 event_id=2a293e96-935d-44a6-bf64-1f46ea2a9c44 event_type=tool.execute global_position=2026-10-06T10:05:42.084927000Z/000000/2a293e96-935d-44a6-bf64-1f46ea2a9c44 request_id=705a7a9a-5353-4f82-8582-46b8ea72552f status=created
+2026-10-06 15:35:42 [info     ] event_ingested                 event_id=73a5646c-0fb5-43cd-be30-616dc3ea1c70 event_type=tool.execute global_position=2026-10-06T10:05:42.247855000Z/000000/73a5646c-0fb5-43cd-be30-616dc3ea1c70 request_id=b6823a84-1701-41b0-a3b8-45aba4b9d46f status=created
+2026-10-06 15:35:42 [info     ] event_ingested                 event_id=1ceac99e-0b95-4625-a9e0-227d7222b087 event_type=tool.execute global_position=2026-10-06T10:05:41.973983000Z/000000/1ceac99e-0b95-4625-a9e0-227d7222b087 request_id=190c3b01-7e9c-481d-bdea-a5ecf666aeb5 status=duplicate
+2026-10-06 15:35:42 [info     ] consumer_started               consumer=projection-1 group=graph-projection stream=Events
+2026-10-06 15:35:42 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 15:35:43 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T10:05:41.973983000Z/000000/1ceac99e-0b95-4625-a9e0-227d7222b087 event_id=1ceac99e-0b95-4625-a9e0-227d7222b087 session_id=session-955a140b
+2026-10-06 15:35:43 [debug    ] event_projected                edge_count=2 entry_id=2026-10-06T10:05:42.084927000Z/000000/2a293e96-935d-44a6-bf64-1f46ea2a9c44 event_id=2a293e96-935d-44a6-bf64-1f46ea2a9c44 session_id=session-955a140b
+2026-10-06 15:35:44 [debug    ] event_projected                edge_count=2 entry_id=2026-10-06T10:05:42.247855000Z/000000/73a5646c-0fb5-43cd-be30-616dc3ea1c70 event_id=73a5646c-0fb5-43cd-be30-616dc3ea1c70 session_id=session-955a140b
+2026-10-06 15:35:44 [info     ] consumer_stopped               consumer=projection-1 group=graph-projection
+2026-10-06 15:35:44 [info     ] consumer_started               consumer=enrichment-1 group=enrichment stream=Events
+2026-10-06 15:35:44 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 15:35:45 [debug    ] event_enriched                 event_id=1ceac99e-0b95-4625-a9e0-227d7222b087 importance_score=5 keywords=['tool', 'execute', 'grep']
+2026-10-06 15:35:45 [debug    ] event_enriched                 event_id=2a293e96-935d-44a6-bf64-1f46ea2a9c44 importance_score=5 keywords=['tool', 'execute', 'grep']
+2026-10-06 15:35:45 [debug    ] event_enriched                 event_id=73a5646c-0fb5-43cd-be30-616dc3ea1c70 importance_score=5 keywords=['tool', 'execute', 'grep']
+2026-10-06 15:35:46 [info     ] consumer_stopped               consumer=enrichment-1 group=enrichment
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-06 15:35:47 [warning  ] query_embedding_failed         query_length=16 request_id=2222aace-0930-4f2a-8faa-c4f929842681
+2026-10-06 15:35:48 [warning  ] query_embedding_failed         query_length=36 request_id=df7c6422-da93-4e0e-beaf-5147f8e45e4d
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:35:48 [info     ] app_stopped
+{"name": "agent_memory_API_worker_journey", "scenarios": ["APP-01", "ING-01", "PROJ-01", "ENR-01", "MEM-01", "MEM-02", "MEM-03"], "verdict": "passed", "observation": {"event_count": 3, "ledger_projection_enrichment_context_lineage_subgraph_health": "asserted", "process_model": "ASGI and worker loops in one process; separate-process acceptance still required"}, "seconds": 14.56}
+2026-10-06 15:35:55 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:35:55 [info     ] llm_client_initialized
+2026-10-06 15:35:55 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 15:35:55 [info     ] webhook_ingested               delivery_id=delivery-0 event_types=['pdlc.change.created'] request_id=9166b7fc-c21f-4039-bf50-f829c9b52004 source=github
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:35:55 [info     ] webhook_ingested               delivery_id=delivery-1 event_types=['pdlc.testcaserun.finished'] request_id=8dd403e5-deb7-4cc0-87a5-fb299978a1ea source=github
+2026-10-06 15:35:55 [info     ] webhook_ingested               delivery_id=delivery-2 event_types=['pdlc.change.reviewed'] request_id=dc09f942-59bd-41cc-8a81-5be020556f38 source=github
+2026-10-06 15:35:55 [info     ] webhook_ingested               delivery_id=delivery-3 event_types=['pdlc.change.merged'] request_id=78582a33-033e-43ae-9d3c-f4432184186f source=github
+2026-10-06 15:35:56 [info     ] webhook_ingested               delivery_id=delivery-4 event_types=['pdlc.ticket.created'] request_id=4e93e372-2320-4181-a53a-db1d02b05304 source=jira
+2026-10-06 15:35:56 [info     ] webhook_ingested               delivery_id=delivery-5 event_types=['pdlc.release.published'] request_id=37b04640-2401-45cb-92b3-4648061dfc01 source=github
+2026-10-06 15:35:56 [info     ] webhook_ingested               delivery_id=delivery-6 event_types=['pdlc.service.deployed'] request_id=974d1a53-5b2e-48be-901d-734d5d06d9c6 source=github
+2026-10-06 15:35:56 [info     ] webhook_ingested               delivery_id=delivery-7 event_types=['pdlc.ticket.closed'] request_id=c2da4d32-8a7a-4328-8e94-4d56230fb55e source=jira
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await handler(conn, exc)  # type: ignore[arg-type]
+2026-10-06 15:35:56 [info     ] consumer_started               consumer=projection-1 group=graph-projection stream=Events
+2026-10-06 15:35:57 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 15:35:57 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T10:05:55.602303000Z/000000/626140ea-7de7-5ee9-8e91-6e925ba934c6 event_id=626140ea-7de7-5ee9-8e91-6e925ba934c6 session_id=pdlc:acme/payments
+2026-10-06 15:35:57 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 15:35:57 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:05:55.685631000Z/000000/11737721-efde-577a-a759-0cffa38d45d3 event_id=11737721-efde-577a-a759-0cffa38d45d3 session_id=pdlc:acme/payments
+2026-10-06 15:35:58 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=0
+2026-10-06 15:35:58 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:05:55.841311000Z/000000/65b7646c-016c-5708-9223-566d9ee6ea66 event_id=65b7646c-016c-5708-9223-566d9ee6ea66 session_id=pdlc:acme/payments
+2026-10-06 15:35:59 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 15:35:59 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:05:55.954351000Z/000000/7e1b7cc4-9d84-52f6-82fb-857770db49ab event_id=7e1b7cc4-9d84-52f6-82fb-857770db49ab session_id=pdlc:acme/payments
+2026-10-06 15:36:00 [debug    ] pack_plans_applied             edges=2 events=1 nodes=7 states=1
+2026-10-06 15:36:00 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T10:05:56.041471000Z/000000/450a7a46-2f84-5cfc-b0db-a0c939e8ea7c event_id=450a7a46-2f84-5cfc-b0db-a0c939e8ea7c session_id=pdlc:jira:PAY
+2026-10-06 15:36:01 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 15:36:01 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:05:56.124127000Z/000000/cbb029ae-5d84-5d23-8b7a-486dcb9a294b event_id=cbb029ae-5d84-5d23-8b7a-486dcb9a294b session_id=pdlc:acme/payments
+2026-10-06 15:36:01 [debug    ] pack_plans_applied             edges=3 events=1 nodes=4 states=0
+2026-10-06 15:36:01 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:05:56.239471000Z/000000/04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 event_id=04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 session_id=pdlc:acme/payments
+2026-10-06 15:36:02 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=1
+2026-10-06 15:36:02 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:05:56.415343000Z/000000/92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c event_id=92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c session_id=pdlc:jira:PAY
+2026-10-06 15:36:03 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 15:36:03 [info     ] consumer_stopped               consumer=projection-1 group=graph-projection
+2026-10-06 15:36:04 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+/Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+2026-10-06 15:36:18 [info     ] event_ingested                 event_id=211e9859-b8bf-48b3-984e-cd00f7a918be event_type=observation.input global_position=2026-10-06T10:06:18.256015000Z/000000/211e9859-b8bf-48b3-984e-cd00f7a918be request_id=7cb02cdc-f502-4ac5-9af4-08b7d86db3cd status=created
+2026-10-06 15:36:19 [debug    ] pack_plans_applied             edges=2 events=1 nodes=1 states=0
+2026-10-06 15:36:19 [info     ] pack_extraction_applied        edges_written=2 event_id=211e9859-b8bf-48b3-984e-cd00f7a918be links=1 nodes=1 pack=pdlc rejected=[]
+2026-10-06 15:36:19 [info     ] app_stopped
+{"name": "signed_PDLC_API_projection_artifact_extraction", "scenarios": ["APP-02", "HOOK-01", "HOOK-02", "ART-01", "PEXT-01", "PEXT-02", "ONT-01"], "verdict": "passed", "observation": {"signed_deliveries": 8, "projection_gate_questions_pack_extraction": "asserted", "blue_green": "not exercised; no replacement memory graph"}, "seconds": 30.58}
+2026-10-06 15:36:24 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:36:24 [info     ] llm_client_initialized
+2026-10-06 15:36:24 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'crm@1.0.0'] ontology_version=sha256:163ac0d6e903ef6c redis_host=localhost
+2026-10-06 15:36:25 [info     ] batch_ingested                 accepted=11 rejected=0 request_id=f70c12a4-659d-481e-bd72-94aedcaf9b81 store_failures=0 total=11
+2026-10-06 15:36:25 [info     ] ontology_change                eval_required=['crm'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-06 15:36:25 [info     ] consumer_started               consumer=compat group=graph-projection stream=Events
+2026-10-06 15:36:25 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 15:36:26 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T10:06:25.090111000Z/000000/08753ad5-36fd-4bee-9e01-2207c011cb66 event_id=08753ad5-36fd-4bee-9e01-2207c011cb66 session_id=crm:import
+2026-10-06 15:36:26 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 15:36:26 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000001/9999852e-72b5-4fef-a6e7-11f199b070f1 event_id=9999852e-72b5-4fef-a6e7-11f199b070f1 session_id=crm:import
+2026-10-06 15:36:27 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 15:36:27 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000002/e4b066a7-147a-446d-8921-c04fa3551e3b event_id=e4b066a7-147a-446d-8921-c04fa3551e3b session_id=crm:import
+2026-10-06 15:36:27 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 15:36:28 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000003/8a8d494e-0f8e-4a33-afe0-b1e18f2ed15f event_id=8a8d494e-0f8e-4a33-afe0-b1e18f2ed15f session_id=crm:import
+2026-10-06 15:36:28 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 15:36:28 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000004/d7851665-33fe-45d6-9c91-94775f8a91a4 event_id=d7851665-33fe-45d6-9c91-94775f8a91a4 session_id=crm:import
+2026-10-06 15:36:29 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 15:36:29 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000005/5c8a07b9-64fd-452c-bf26-58740cc5fa64 event_id=5c8a07b9-64fd-452c-bf26-58740cc5fa64 session_id=crm:import
+2026-10-06 15:36:30 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 15:36:30 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000006/b8a765e7-f2b3-4bf1-b764-514f5c2ae889 event_id=b8a765e7-f2b3-4bf1-b764-514f5c2ae889 session_id=crm:import
+2026-10-06 15:36:30 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 15:36:30 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000007/72e29c74-6bf2-4750-83ef-1698ec5594ae event_id=72e29c74-6bf2-4750-83ef-1698ec5594ae session_id=crm:import
+2026-10-06 15:36:31 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 15:36:31 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000008/4002bb27-c0d3-427a-97d7-5f9e3d25a8a2 event_id=4002bb27-c0d3-427a-97d7-5f9e3d25a8a2 session_id=crm:import
+2026-10-06 15:36:32 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 15:36:32 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000009/e23b2178-a77d-42c8-94fa-b29e8f7a5e6c event_id=e23b2178-a77d-42c8-94fa-b29e8f7a5e6c session_id=crm:import
+2026-10-06 15:36:32 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 15:36:33 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:06:25.090111000Z/000010/49f21fd8-3e3f-4faa-be50-1db57c131e4d event_id=49f21fd8-3e3f-4faa-be50-1db57c131e4d session_id=crm:import
+2026-10-06 15:36:33 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 15:36:33 [info     ] consumer_stopped               consumer=compat group=graph-projection
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:36:39 [info     ] app_stopped
+{"name": "CRM_API_projection_gate_retrieval", "scenarios": ["APP-03", "ING-02", "PROJ-02", "ART-02", "ART-05"], "verdict": "passed", "observation": {"ingested": 11, "lifecycle_graph_eval_and_pipeline_coverage_questions": "asserted"}, "seconds": 19.81}

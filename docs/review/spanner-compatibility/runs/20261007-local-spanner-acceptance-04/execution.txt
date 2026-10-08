@@ -1,0 +1,35 @@
+........................................................................ [ 47%]
+........................................................................ [ 95%]
+.......                                                                  [100%]
+=============================== warnings summary ===============================
+tests/unit/test_spanner_event_acceptance.py::test_authenticated_http_path_stamps_receipt_and_reports_conflict
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_spanner_event_acceptance.py: 1 warning
+tests/unit/test_api_events.py: 16 warnings
+tests/unit/test_api_ingest.py: 6 warnings
+tests/unit/test_event_input_contract.py: 20 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_self_referential_parent
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_ended_at_before_occurred_at
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+tests/unit/test_api_ingest.py::TestBodies::test_a_body_that_is_not_an_object_is_a_client_error
+tests/unit/test_api_ingest.py::TestBodies::test_unknown_encodings_are_refused
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:180: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestBodies::test_size_is_bounded_before_and_after_decompression
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:251: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestEventQuota::test_batches_are_charged_per_event
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:272: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    if checked.events and (limited := _quota_exceeded(request, len(checked.events))) is not None:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+151 passed, 10 deselected, 50 warnings in 2.92s

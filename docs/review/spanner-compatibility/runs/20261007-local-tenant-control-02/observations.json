@@ -1,0 +1,13 @@
+{
+  "checks": [
+    {
+      "name": "store_mutation_fences_and_regression",
+      "passed": false,
+      "scenarios": [],
+      "tests_passed": 115,
+      "tests_failed": 1,
+      "tests_skipped": 10,
+      "finding": "graph clear uses partitioned DML outside transaction fence; recording test failed before any cloud calls"
+    }
+  ]
+}

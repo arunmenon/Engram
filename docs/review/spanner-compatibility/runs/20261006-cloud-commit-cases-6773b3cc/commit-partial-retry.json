@@ -1,0 +1,177 @@
+{
+  "budget": {
+    "mutations": 66,
+    "bytes": 2048
+  },
+  "attempted_chunk_sizes": [
+    2,
+    2,
+    2
+  ],
+  "first_status": 201,
+  "first_response": {
+    "accepted": 4,
+    "rejected": 7,
+    "results": [
+      {
+        "event_id": "07914226-06ca-4f2a-baee-d14283256025",
+        "global_position": "2026-10-06T14:02:44.008223000Z/000000/07914226-06ca-4f2a-baee-d14283256025",
+        "status": "created"
+      },
+      {
+        "event_id": "879c854f-a975-4f3a-a398-06b5a44702fe",
+        "global_position": "2026-10-06T14:02:44.008223000Z/000001/879c854f-a975-4f3a-a398-06b5a44702fe",
+        "status": "created"
+      },
+      {
+        "event_id": "93c9ffcf-d0f7-4503-bdfd-1c75f043661a",
+        "global_position": "2026-10-06T14:02:44.232671000Z/000000/93c9ffcf-d0f7-4503-bdfd-1c75f043661a",
+        "status": "created"
+      },
+      {
+        "event_id": "9dc51d5e-835b-4a93-9c43-696e6926c923",
+        "global_position": "2026-10-06T14:02:44.232671000Z/000001/9dc51d5e-835b-4a93-9c43-696e6926c923",
+        "status": "created"
+      }
+    ],
+    "errors": [
+      {
+        "index": 4,
+        "event_id": "2bab4500-eb86-4b04-b2ba-45cd8f758ac1",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      },
+      {
+        "index": 5,
+        "event_id": "519faae8-1646-426c-99e2-6971a0601a24",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      },
+      {
+        "index": 6,
+        "event_id": "49aea0bc-8f82-45a6-bec9-5105b428b067",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      },
+      {
+        "index": 7,
+        "event_id": "88666b36-5bbe-4968-bd76-f5c82226f964",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      },
+      {
+        "index": 8,
+        "event_id": "093ccb5c-932d-4031-b83b-a699caa0a4e1",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      },
+      {
+        "index": 9,
+        "event_id": "e2397afb-590d-438c-9f2d-c1126c864174",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      },
+      {
+        "index": 10,
+        "event_id": "1f92fe9f-b9e9-4c7e-8adc-dfa65697cace",
+        "errors": [
+          {
+            "field": "store",
+            "message": "not written: synthetic third commit chunk unavailable"
+          }
+        ]
+      }
+    ]
+  },
+  "first_ledger_length": 5,
+  "retry_status": 201,
+  "retry": {
+    "accepted": 11,
+    "rejected": 0,
+    "results": [
+      {
+        "event_id": "07914226-06ca-4f2a-baee-d14283256025",
+        "global_position": "2026-10-06T14:02:44.008223000Z/000000/07914226-06ca-4f2a-baee-d14283256025",
+        "status": "duplicate"
+      },
+      {
+        "event_id": "879c854f-a975-4f3a-a398-06b5a44702fe",
+        "global_position": "2026-10-06T14:02:44.008223000Z/000001/879c854f-a975-4f3a-a398-06b5a44702fe",
+        "status": "duplicate"
+      },
+      {
+        "event_id": "93c9ffcf-d0f7-4503-bdfd-1c75f043661a",
+        "global_position": "2026-10-06T14:02:44.232671000Z/000000/93c9ffcf-d0f7-4503-bdfd-1c75f043661a",
+        "status": "duplicate"
+      },
+      {
+        "event_id": "9dc51d5e-835b-4a93-9c43-696e6926c923",
+        "global_position": "2026-10-06T14:02:44.232671000Z/000001/9dc51d5e-835b-4a93-9c43-696e6926c923",
+        "status": "duplicate"
+      },
+      {
+        "event_id": "2bab4500-eb86-4b04-b2ba-45cd8f758ac1",
+        "global_position": "2026-10-06T14:02:44.957903000Z/000000/2bab4500-eb86-4b04-b2ba-45cd8f758ac1",
+        "status": "created"
+      },
+      {
+        "event_id": "519faae8-1646-426c-99e2-6971a0601a24",
+        "global_position": "2026-10-06T14:02:44.957903000Z/000001/519faae8-1646-426c-99e2-6971a0601a24",
+        "status": "created"
+      },
+      {
+        "event_id": "49aea0bc-8f82-45a6-bec9-5105b428b067",
+        "global_position": "2026-10-06T14:02:45.140447000Z/000000/49aea0bc-8f82-45a6-bec9-5105b428b067",
+        "status": "created"
+      },
+      {
+        "event_id": "88666b36-5bbe-4968-bd76-f5c82226f964",
+        "global_position": "2026-10-06T14:02:45.140447000Z/000001/88666b36-5bbe-4968-bd76-f5c82226f964",
+        "status": "created"
+      },
+      {
+        "event_id": "093ccb5c-932d-4031-b83b-a699caa0a4e1",
+        "global_position": "2026-10-06T14:02:45.372255000Z/000000/093ccb5c-932d-4031-b83b-a699caa0a4e1",
+        "status": "created"
+      },
+      {
+        "event_id": "e2397afb-590d-438c-9f2d-c1126c864174",
+        "global_position": "2026-10-06T14:02:45.372255000Z/000001/e2397afb-590d-438c-9f2d-c1126c864174",
+        "status": "created"
+      },
+      {
+        "event_id": "1f92fe9f-b9e9-4c7e-8adc-dfa65697cace",
+        "global_position": "2026-10-06T14:02:45.549087000Z/000000/1f92fe9f-b9e9-4c7e-8adc-dfa65697cace",
+        "status": "created"
+      }
+    ],
+    "errors": []
+  },
+  "final_length": 12,
+  "documents": 11,
+  "fault": "synthetic failure before third real commit; prior two real commits retained"
+}

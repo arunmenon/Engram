@@ -37,6 +37,7 @@ from uuid import uuid4
 import orjson
 import structlog
 
+from context_graph.domain.pack_removals import validate_edge_removals, validate_node_removals
 from context_graph.ports.errors import InvalidRequestError
 from context_graph.ports.graph_reads import NEIGHBOR_ROW_KEYS
 
@@ -268,6 +269,27 @@ class GraphOperations:
     @property
     def reads(self) -> GraphOperationReads:
         return self._reads
+
+    async def read_keyed_nodes(self, keys: list[NodeKey]) -> dict[NodeKey, dict[str, Any]]:
+        """Complete primitive read for composed views, retaining backend error translation."""
+        return await self._get_nodes(keys)
+
+    async def read_label_nodes(
+        self, label: str, where: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
+        return await self._find_nodes(label, where)
+
+    async def read_matching_edges(
+        self,
+        *,
+        sources: list[NodeKey] | None = None,
+        targets: list[NodeKey] | None = None,
+        edge_type: str | None = None,
+    ) -> list[EdgeRow]:
+        return await self._edges(sources=sources, targets=targets, edge_type=edge_type)
+
+    async def record_event_access(self, event_ids: list[str], accessed_at: str) -> None:
+        await self.reads.record_access(event_ids, accessed_at)
 
     async def _node(self, key: NodeKey) -> dict[str, Any] | None:
         return (await self._get_nodes([key])).get(key)
@@ -632,17 +654,20 @@ class GraphOperations:
         return changed
 
     async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
+        validate_node_removals(writes)
         if not writes:
             return
         items = []
         for write in writes:
             updates = stored_values(write.properties)
+            updates.update(dict.fromkeys(write.remove_properties))
             updates[write.ref.key_property] = write.ref.key
             items.append((self._ref_key(write.ref), updates, stored_values(write.defaults)))
         await self._merge_nodes(items)
 
     async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
         """Writes whose endpoints both exist; each write counts, repeated or not."""
+        validate_edge_removals(writes)
         if not writes:
             return 0
         ends = {self._ref_key(w.source) for w in writes} | {self._ref_key(w.target) for w in writes}
@@ -650,7 +675,7 @@ class GraphOperations:
         items = [
             (
                 (self._ref_key(w.source), w.edge_type, self._ref_key(w.target)),
-                stored_values(w.properties),
+                {**stored_values(w.properties), **dict.fromkeys(w.remove_properties)},
             )
             for w in writes
             if self._ref_key(w.source) in existing and self._ref_key(w.target) in existing
@@ -892,7 +917,9 @@ class GraphOperations:
     def _cutoff_iso(hours: int) -> str:
         return (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
-    async def delete_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+    async def _similar_edges_for_pruning(
+        self, min_score: float, max_age_hours: int
+    ) -> list[EdgeKey]:
         cutoff = self._cutoff_iso(max_age_hours)
         rows = await self._edges(edge_type="SIMILAR_TO")
         low = [
@@ -909,6 +936,13 @@ class GraphOperations:
             for key, _props in low
             if key[0] in sources and str(sources[key[0]].get("occurred_at", "")) < cutoff
         ]
+        return doomed
+
+    async def count_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+        return len(await self._similar_edges_for_pruning(min_score, max_age_hours))
+
+    async def delete_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+        doomed = await self._similar_edges_for_pruning(min_score, max_age_hours)
         if doomed:
             await self._delete_edges(doomed)
         return len(doomed)
@@ -1387,7 +1421,11 @@ class GraphOperationReads:
 
         if strategy == "causal_roots":
             caused = (
-                Counter(key[2] for key, _p in await ops._edges(targets=keys, edge_type="CAUSED_BY"))
+                Counter(
+                    key[2]
+                    for key, _p in await ops._edges(targets=keys, edge_type="CAUSED_BY")
+                    if key[0][0] == key[2][0] == "Event"
+                )
                 if keys
                 else Counter()
             )
@@ -1401,7 +1439,9 @@ class GraphOperationReads:
         if strategy == "entity_hubs":
             refs = (
                 Counter(
-                    key[0] for key, _p in await ops._edges(sources=keys, edge_type="REFERENCES")
+                    key[0]
+                    for key, _p in await ops._edges(sources=keys, edge_type="REFERENCES")
+                    if key[2][0] == "Entity"
                 )
                 if keys
                 else Counter()
@@ -1440,9 +1480,11 @@ class GraphOperationReads:
             similar: Counter[NodeKey] = Counter()
             if keys:
                 for key, _p in await ops._edges(sources=keys, edge_type="SIMILAR_TO"):
-                    similar[key[0]] += 1
+                    if key[2][0] == "Event":
+                        similar[key[0]] += 1
                 for key, _p in await ops._edges(targets=keys, edge_type="SIMILAR_TO"):
-                    similar[key[2]] += 1
+                    if key[0][0] == "Event":
+                        similar[key[2]] += 1
             return ranked([(float(similar[("Event", p["event_id"])]), p) for p in events])
         if strategy == "workflow_pattern":
             matching = [
@@ -1468,7 +1510,7 @@ class GraphOperationReads:
             return []
         entities: list[NodeKey] = []
         for key, _p in await ops._edges(sources=keys, edge_type="REFERENCES"):
-            if key[2] not in entities:
+            if key[2][0] == "Entity" and key[2] not in entities:
                 entities.append(key[2])
         if not entities:
             return []
@@ -1477,7 +1519,9 @@ class GraphOperationReads:
         rows = [
             events[key[0]]
             for key, _p in references
-            if key[0] in events and events[key[0]].get("session_id") != session_id
+            if key[0][0] == "Event"
+            and key[0] in events
+            and events[key[0]].get("session_id") != session_id
         ]
         return [dict(r) for r in newest_first(rows)[:limit]]
 
@@ -1488,6 +1532,9 @@ class GraphOperationReads:
         seeds = [("Event", eid) for eid in event_ids]
         existing = await ops._get_nodes(seeds)
         outgoing = await ops._edges(sources=[s for s in seeds if s in existing]) if existing else []
+        # GraphReads exposes Event/Entity/Summary identities only. Domain
+        # artifacts are served through PackGraph, not this event-only port.
+        outgoing = [row for row in outgoing if row[0][2][0] in {"Event", "Entity", "Summary"}]
         targets = await ops._get_nodes(sorted({key[2] for key, _p in outgoing}))
         by_seed: dict[NodeKey, list[tuple[EdgeKey, dict[str, Any]]]] = {}
         for key, props in outgoing:
@@ -1584,6 +1631,8 @@ class GraphOperationReads:
             outgoing = await ops._edges(sources=tips, edge_type="CAUSED_BY")
             by_source: dict[NodeKey, list[EdgeRow]] = {}
             for row in outgoing:
+                if row[0][2][0] != "Event":
+                    continue
                 by_source.setdefault(row[0][0], []).append(row)
             next_frontier: list[list[EdgeRow]] = []
             for path in frontier:

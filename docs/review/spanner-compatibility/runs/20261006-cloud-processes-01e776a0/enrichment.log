@@ -1,0 +1,14 @@
+2026-10-06 15:46:26 [info     ] worker_starting                consumer=enrichment neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 15:46:27 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-06 15:46:27 [info     ] worker_running                 consumer=enrichment
+2026-10-06 15:46:28 [info     ] consumer_started               consumer=enrichment-1 group=enrichment stream=Events
+2026-10-06 15:46:28 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 15:46:34 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7476.61it/s]
+2026-10-06 15:46:38 [info     ] shutdown_signal_received       consumer=enrichment
+2026-10-06 15:46:41 [info     ] consumer_stopped               consumer=enrichment-1 group=enrichment
+2026-10-06 15:46:41 [info     ] worker_shutting_down           consumer=enrichment
+2026-10-06 15:46:41 [info     ] worker_stopped                 consumer=enrichment
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

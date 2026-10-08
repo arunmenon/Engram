@@ -1,0 +1,341 @@
+{
+  "checks": [
+    {
+      "name": "configured_batch_empty_max_over_max_mixed_indices_and_conflicts",
+      "scenarios": [
+        "ING-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "configured_max_events": 3,
+        "empty_status": 422,
+        "over_max_status": 422,
+        "max_status": 201,
+        "max": {
+          "accepted": 3,
+          "rejected": 0,
+          "results": [
+            {
+              "event_id": "9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+              "global_position": "2026-10-06T16:24:31.636863000Z/000000/9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+              "status": "created"
+            },
+            {
+              "event_id": "9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+              "global_position": "2026-10-06T16:24:31.636863000Z/000000/9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+              "status": "duplicate"
+            },
+            {
+              "event_id": "289fea9b-34fc-4a5d-8794-d9765d2f58a1",
+              "global_position": "2026-10-06T16:24:31.636863000Z/000001/289fea9b-34fc-4a5d-8794-d9765d2f58a1",
+              "status": "created"
+            }
+          ],
+          "errors": []
+        },
+        "mixed": {
+          "accepted": 1,
+          "rejected": 2,
+          "results": [
+            {
+              "event_id": "58387e97-fb20-45ab-ac35-a2e7b0f30a8b",
+              "global_position": "2026-10-06T16:24:31.843775000Z/000000/58387e97-fb20-45ab-ac35-a2e7b0f30a8b",
+              "status": "created"
+            }
+          ],
+          "errors": [
+            {
+              "index": 1,
+              "event_id": "6aaf7c19-793c-43a6-99ee-64781ad59e68",
+              "errors": [
+                {
+                  "field": "agent_id",
+                  "message": "Field required"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "event_id": "not-a-uuid",
+              "errors": [
+                {
+                  "field": "event_id",
+                  "message": "Input should be a valid UUID, invalid character: found `n` at 1"
+                }
+              ]
+            }
+          ]
+        },
+        "first_payload_preserved": true,
+        "ledger_delta": 3
+      },
+      "seconds": 0.92
+    },
+    {
+      "name": "batch_rejects_missing_pack_key_before_append",
+      "scenarios": [
+        "ING-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "batch accepts pack payload without required repo (#4)",
+      "seconds": 0.33
+    },
+    {
+      "name": "historical_import_malformed_line_exact_limit_and_occurrence_ties",
+      "scenarios": [
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "configured_max": 6,
+        "response_status": 200,
+        "outcomes": [
+          {
+            "index": 1,
+            "event_id": null,
+            "errors": [
+              {
+                "field": "",
+                "message": "line is not valid JSON: invalid literal, expected 'null': line 1 column 1 (char 0)"
+              }
+            ],
+            "status": "rejected"
+          },
+          {
+            "index": 2,
+            "event_id": "b900d322-d66f-4676-9757-3bc6db89a6d7",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:32.676255000Z/000000/b900d322-d66f-4676-9757-3bc6db89a6d7"
+          },
+          {
+            "index": 3,
+            "event_id": "315b5969-f82c-4a7e-8be5-05f233302d6e",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:32.676255000Z/000001/315b5969-f82c-4a7e-8be5-05f233302d6e"
+          },
+          {
+            "index": 4,
+            "event_id": "6877e382-9f8b-438c-864f-3c81799fc749",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:32.860383000Z/000000/6877e382-9f8b-438c-864f-3c81799fc749"
+          },
+          {
+            "index": 0,
+            "event_id": "c3797777-a41b-40ec-82ba-2c2cece47010",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:32.860383000Z/000001/c3797777-a41b-40ec-82ba-2c2cece47010"
+          },
+          {
+            "index": 5,
+            "event_id": "c3797777-a41b-40ec-82ba-2c2cece47010",
+            "status": "duplicate",
+            "global_position": "2026-10-06T16:24:32.860383000Z/000001/c3797777-a41b-40ec-82ba-2c2cece47010"
+          },
+          {
+            "summary": {
+              "received": 6,
+              "order": "occurred_at",
+              "created": 4,
+              "duplicate": 1,
+              "rejected": 1,
+              "failed": 0
+            }
+          }
+        ],
+        "empty_status": 422,
+        "over_max_status": 413,
+        "over_limit_wrote_rows": 0
+      },
+      "seconds": 0.92
+    },
+    {
+      "name": "streamed_import_committed_prefix_failure_stops_and_safe_retry",
+      "scenarios": [
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "first_status": 200,
+        "first": [
+          {
+            "index": 0,
+            "event_id": "0d1d573e-f01c-4d00-bb8a-f2948e92b158",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:33.603295000Z/000000/0d1d573e-f01c-4d00-bb8a-f2948e92b158"
+          },
+          {
+            "index": 1,
+            "event_id": "91c502cc-c987-4803-a13d-a0333d8a4407",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:33.603295000Z/000001/91c502cc-c987-4803-a13d-a0333d8a4407"
+          },
+          {
+            "index": 2,
+            "event_id": "4f106478-d3da-4188-bbb3-bd07312d7456",
+            "status": "failed",
+            "error": "the store failed: synthetic second import store-call failure"
+          },
+          {
+            "index": 3,
+            "event_id": "6a0ffc63-2f28-45cd-8af2-44acda929a83",
+            "status": "failed",
+            "error": "the store failed: synthetic second import store-call failure"
+          },
+          {
+            "index": 4,
+            "event_id": "3e736863-3fe9-4405-bb6c-ab2e4547986c",
+            "status": "failed",
+            "error": "the store failed: synthetic second import store-call failure"
+          },
+          {
+            "summary": {
+              "received": 5,
+              "order": "input",
+              "created": 2,
+              "duplicate": 0,
+              "rejected": 0,
+              "failed": 3
+            }
+          }
+        ],
+        "retry_status": 200,
+        "retry": [
+          {
+            "index": 0,
+            "event_id": "0d1d573e-f01c-4d00-bb8a-f2948e92b158",
+            "status": "duplicate",
+            "global_position": "2026-10-06T16:24:33.603295000Z/000000/0d1d573e-f01c-4d00-bb8a-f2948e92b158"
+          },
+          {
+            "index": 1,
+            "event_id": "91c502cc-c987-4803-a13d-a0333d8a4407",
+            "status": "duplicate",
+            "global_position": "2026-10-06T16:24:33.603295000Z/000001/91c502cc-c987-4803-a13d-a0333d8a4407"
+          },
+          {
+            "index": 2,
+            "event_id": "4f106478-d3da-4188-bbb3-bd07312d7456",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:33.977727000Z/000000/4f106478-d3da-4188-bbb3-bd07312d7456"
+          },
+          {
+            "index": 3,
+            "event_id": "6a0ffc63-2f28-45cd-8af2-44acda929a83",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:33.977727000Z/000001/6a0ffc63-2f28-45cd-8af2-44acda929a83"
+          },
+          {
+            "index": 4,
+            "event_id": "3e736863-3fe9-4405-bb6c-ab2e4547986c",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:34.240991000Z/000000/3e736863-3fe9-4405-bb6c-ab2e4547986c"
+          },
+          {
+            "summary": {
+              "received": 5,
+              "order": "input",
+              "created": 3,
+              "duplicate": 2,
+              "rejected": 0,
+              "failed": 0
+            }
+          }
+        ],
+        "store_calls_before_stop": 2,
+        "fault": "synthetic second store call; first real Spanner commit retained"
+      },
+      "seconds": 0.96
+    },
+    {
+      "name": "explicit_input_import_preserves_input_not_occurrence_order",
+      "scenarios": [
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "status": 200,
+        "lines": [
+          {
+            "index": 0,
+            "event_id": "e191500b-ed25-44c6-a704-ab2572759f33",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:34.543727000Z/000000/e191500b-ed25-44c6-a704-ab2572759f33"
+          },
+          {
+            "index": 1,
+            "event_id": "3ce7e099-9787-4939-9d39-b9a4f60f0cee",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:34.543727000Z/000001/3ce7e099-9787-4939-9d39-b9a4f60f0cee"
+          },
+          {
+            "index": 2,
+            "event_id": "6771dde8-88fc-4405-b800-355d381efe22",
+            "status": "created",
+            "global_position": "2026-10-06T16:24:34.746495000Z/000000/6771dde8-88fc-4405-b800-355d381efe22"
+          },
+          {
+            "summary": {
+              "received": 3,
+              "order": "input",
+              "created": 3,
+              "duplicate": 0,
+              "rejected": 0,
+              "failed": 0
+            }
+          }
+        ]
+      },
+      "seconds": 0.41
+    },
+    {
+      "name": "encoded_and_decoded_payload_size_limits_prevent_append",
+      "scenarios": [
+        "OPS-02",
+        "ING-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "plain": 413,
+        "compressed": 413,
+        "decoded_bytes": 3279,
+        "compressed_bytes": 216,
+        "ledger_delta": 0
+      },
+      "seconds": 0.22
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 17
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

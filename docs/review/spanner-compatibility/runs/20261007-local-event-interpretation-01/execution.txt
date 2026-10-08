@@ -1,0 +1,49 @@
+........................................................................ [ 25%]
+........................................................................ [ 51%]
+................................................F....................... [ 77%]
+...............................................................          [100%]
+=================================== FAILURES ===================================
+___ TestReviewFindings.test_deliveries_naming_another_event_type_are_skipped ___
+
+self = <tests.unit.test_pack_extraction.TestReviewFindings object at 0x106f0caa0>
+
+    async def test_deliveries_naming_another_event_type_are_skipped(self) -> None:
+        model = ScriptedModel()
+        consumer, log, graph = await _consumer(model)
+        position = await _ingest(log, graph, {"body": "We decided things."})
+        (entry,) = await log.read_after(None, 10)
+        fields = {"event_id": entry.event_id, "event_type": "pdlc.change.merged"}
+>       await consumer.process_message(position, fields)
+
+tests/unit/test_pack_extraction.py:436: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/worker/pack_extraction.py:116: in process_message
+    await self._extract(profile, event, document)
+src/context_graph/worker/pack_extraction.py:125: in _extract
+    answer = await self._model.generate_text(profile.prompt(text, known))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tests.unit.test_pack_extraction.ScriptedModel object at 0x150d07980>
+prompt = 'You extract pdlc knowledge from the text at the end.\nPropose only what the text states or clearly implies. Do not in...": "pdlc extraction", "type": "object"}\n\nKnown items:\n<<<\n- none\n>>>\n\nText:\n<<<\nbody: We decided things.\n>>>'
+
+    async def generate_text(self, prompt: str) -> str | None:
+        self.prompts.append(prompt)
+>       return self.answers.pop(0)
+               ^^^^^^^^^^^^^^^^^^^
+E       IndexError: pop from empty list
+
+tests/unit/test_pack_extraction.py:292: IndexError
+=============================== warnings summary ===============================
+tests/unit/test_spanner_event_acceptance.py::test_authenticated_http_path_stamps_receipt_and_reports_conflict
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_spanner_event_acceptance.py::test_authenticated_http_path_stamps_receipt_and_reports_conflict
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_pack_extraction.py::TestReviewFindings::test_deliveries_naming_another_event_type_are_skipped
+1 failed, 278 passed, 2 warnings in 5.43s

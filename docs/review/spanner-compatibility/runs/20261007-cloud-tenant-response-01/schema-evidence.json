@@ -1,0 +1,249 @@
+{
+  "before_rows": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "before_ddl": [
+    "CREATE TABLE ConsumerCursors (\n  group_name STRING(MAX) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n  event_id STRING(64) NOT NULL,\n) PRIMARY KEY(group_name, shard)",
+    "CREATE TABLE ConsumerDeadLetters (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  dead_lettered_at TIMESTAMP NOT NULL,\n  fields JSON NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE TABLE ConsumerDeliveries (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  consumer STRING(MAX) NOT NULL,\n  delivery_count INT64 NOT NULL,\n  last_delivered_at TIMESTAMP NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries(group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerGroups (\n  group_name STRING(MAX) NOT NULL,\n  created_at TIMESTAMP NOT NULL,\n) PRIMARY KEY(group_name)",
+    "CREATE TABLE Events (\n  event_id STRING(64) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL OPTIONS (\n    allow_commit_timestamp = true\n  ),\n  batch_index INT64 NOT NULL,\n  session_id STRING(MAX) NOT NULL,\n  occurred_at_ms INT64 NOT NULL,\n  session_tag STRING(MAX),\n  agent_tag STRING(MAX),\n  trace_tag STRING(MAX),\n  event_type_tag STRING(MAX),\n  tool_name_tag STRING(MAX),\n  document JSON,\n  legacy_position STRING(MAX),\n  in_log BOOL NOT NULL,\n  in_session_index BOOL NOT NULL,\n  dedup_active BOOL NOT NULL,\n  summary STRING(MAX),\n  keywords STRING(MAX),\n  search_text STRING(MAX),\n  summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n  keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n  search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n  text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])) HIDDEN,\n) PRIMARY KEY(event_id)",
+    "CREATE INDEX EventsBySession ON Events(session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events(session_tag, occurred_at_ms)",
+    "CREATE INDEX EventsByShardPosition ON Events(shard, commit_ts, batch_index)",
+    "CREATE SEARCH INDEX EventsText ON Events(text_tokens) STORING (session_tag)",
+    "CREATE TABLE GraphEdges (\n  src_label STRING(64) NOT NULL,\n  src_id STRING(MAX) NOT NULL,\n  edge_type STRING(64) NOT NULL,\n  dst_label STRING(64) NOT NULL,\n  dst_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n) PRIMARY KEY(src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges(dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges(edge_type) STORING (props)",
+    "CREATE TABLE GraphNodes (\n  label STRING(64) NOT NULL,\n  node_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n  session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n  embedding ARRAY<FLOAT64>(vector_length=>384),\n  entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN,\n) PRIMARY KEY(label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes(label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes(embedding) WHERE embedding IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE TABLE TenantControl (\n  control_id STRING(16) NOT NULL,\n  tenant_id STRING(128) NOT NULL,\n  database_resource STRING(MAX) NOT NULL,\n  binding_id STRING(128) NOT NULL,\n  epoch INT64 NOT NULL,\n  bundle_digest STRING(80) NOT NULL,\n  serving_state STRING(16) NOT NULL,\n) PRIMARY KEY(control_id)",
+    "CREATE PROPERTY GRAPH EngramGraph\n  NODE TABLES(\n    GraphNodes\n      KEY(label, node_id)\n      LABEL GraphNodes PROPERTIES(\n        embedding,\n        label,\n        node_id,\n        props,\n        session_id)\n      DYNAMIC LABEL (label)\n      DYNAMIC PROPERTIES (props)\n  )\n  EDGE TABLES(\n    GraphEdges\n      KEY(src_label, src_id, edge_type, dst_label, dst_id)\n      SOURCE KEY(src_id, src_label) REFERENCES GraphNodes(node_id, label)\n      DESTINATION KEY(dst_id, dst_label) REFERENCES GraphNodes(node_id, label)\n      LABEL GraphEdges PROPERTIES(\n        dst_id,\n        dst_label,\n        edge_type,\n        props,\n        src_id,\n        src_label)\n      DYNAMIC LABEL (edge_type)\n      DYNAMIC PROPERTIES (props)\n  )"
+  ],
+  "control_table_present_before": true,
+  "response_intent": {
+    "owner": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      3,
+      "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+      "active"
+    ],
+    "public_activation": false,
+    "requests": "Private authenticated-scope fixture routes; core-only; real control snapshots",
+    "providers": "ScriptedLLM, disabled embedding constructor; no model inference",
+    "control_changes": "test-only freeze then monotonic epoch recovery; no application writes"
+  },
+  "response_checks": [
+    "existing_control_schema_handshake",
+    "actual_bound_api_cached_response_authorized",
+    "actual_bound_api_empty_response_authorized",
+    "unfinished_cursor_and_import_paths_refused_before_effects",
+    "freeze_after_handler_discards_entire_response_before_success_start",
+    "frozen_runtime_refused_before_handler",
+    "renewed_epoch_bound_api_recovers_after_freeze",
+    "all_owned_child_lifespans_closed"
+  ],
+  "response_transition_intent": {
+    "expected": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      3,
+      "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+      "frozen"
+    ],
+    "state": "active",
+    "advance": true
+  },
+  "response_control_current": [
+    "compat-control",
+    "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+    "compat-control-binding",
+    4,
+    "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+    "active"
+  ],
+  "response_recovered_owner": [
+    "compat-control",
+    "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+    "compat-control-binding",
+    4,
+    "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+    "active"
+  ],
+  "response_observations": [
+    [
+      {
+        "type": "http.response.start",
+        "status": 200,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": true
+      }
+    ],
+    [
+      {
+        "type": "http.response.start",
+        "status": 200,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": false
+      }
+    ],
+    [
+      {
+        "type": "http.response.start",
+        "status": 400,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": false
+      }
+    ],
+    [
+      {
+        "type": "http.response.start",
+        "status": 503,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": false
+      }
+    ],
+    [
+      {
+        "type": "http.response.start",
+        "status": 503,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": false
+      }
+    ],
+    [
+      {
+        "type": "http.response.start",
+        "status": 503,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": false
+      }
+    ],
+    [
+      {
+        "type": "http.response.start",
+        "status": 200,
+        "contains_fixture": false
+      },
+      {
+        "type": "http.response.body",
+        "status": null,
+        "contains_fixture": true
+      }
+    ]
+  ],
+  "response_handler_calls": [
+    "cached",
+    "empty",
+    "freeze",
+    "cached"
+  ],
+  "after_ddl": [
+    "CREATE TABLE ConsumerCursors (\n  group_name STRING(MAX) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n  event_id STRING(64) NOT NULL,\n) PRIMARY KEY(group_name, shard)",
+    "CREATE TABLE ConsumerDeadLetters (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  dead_lettered_at TIMESTAMP NOT NULL,\n  fields JSON NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE TABLE ConsumerDeliveries (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  consumer STRING(MAX) NOT NULL,\n  delivery_count INT64 NOT NULL,\n  last_delivered_at TIMESTAMP NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries(group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerGroups (\n  group_name STRING(MAX) NOT NULL,\n  created_at TIMESTAMP NOT NULL,\n) PRIMARY KEY(group_name)",
+    "CREATE TABLE Events (\n  event_id STRING(64) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL OPTIONS (\n    allow_commit_timestamp = true\n  ),\n  batch_index INT64 NOT NULL,\n  session_id STRING(MAX) NOT NULL,\n  occurred_at_ms INT64 NOT NULL,\n  session_tag STRING(MAX),\n  agent_tag STRING(MAX),\n  trace_tag STRING(MAX),\n  event_type_tag STRING(MAX),\n  tool_name_tag STRING(MAX),\n  document JSON,\n  legacy_position STRING(MAX),\n  in_log BOOL NOT NULL,\n  in_session_index BOOL NOT NULL,\n  dedup_active BOOL NOT NULL,\n  summary STRING(MAX),\n  keywords STRING(MAX),\n  search_text STRING(MAX),\n  summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n  keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n  search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n  text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])) HIDDEN,\n) PRIMARY KEY(event_id)",
+    "CREATE INDEX EventsBySession ON Events(session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events(session_tag, occurred_at_ms)",
+    "CREATE INDEX EventsByShardPosition ON Events(shard, commit_ts, batch_index)",
+    "CREATE SEARCH INDEX EventsText ON Events(text_tokens) STORING (session_tag)",
+    "CREATE TABLE GraphEdges (\n  src_label STRING(64) NOT NULL,\n  src_id STRING(MAX) NOT NULL,\n  edge_type STRING(64) NOT NULL,\n  dst_label STRING(64) NOT NULL,\n  dst_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n) PRIMARY KEY(src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges(dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges(edge_type) STORING (props)",
+    "CREATE TABLE GraphNodes (\n  label STRING(64) NOT NULL,\n  node_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n  session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n  embedding ARRAY<FLOAT64>(vector_length=>384),\n  entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN,\n) PRIMARY KEY(label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes(label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes(embedding) WHERE embedding IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE TABLE TenantControl (\n  control_id STRING(16) NOT NULL,\n  tenant_id STRING(128) NOT NULL,\n  database_resource STRING(MAX) NOT NULL,\n  binding_id STRING(128) NOT NULL,\n  epoch INT64 NOT NULL,\n  bundle_digest STRING(80) NOT NULL,\n  serving_state STRING(16) NOT NULL,\n) PRIMARY KEY(control_id)",
+    "CREATE PROPERTY GRAPH EngramGraph\n  NODE TABLES(\n    GraphNodes\n      KEY(label, node_id)\n      LABEL GraphNodes PROPERTIES(\n        embedding,\n        label,\n        node_id,\n        props,\n        session_id)\n      DYNAMIC LABEL (label)\n      DYNAMIC PROPERTIES (props)\n  )\n  EDGE TABLES(\n    GraphEdges\n      KEY(src_label, src_id, edge_type, dst_label, dst_id)\n      SOURCE KEY(src_id, src_label) REFERENCES GraphNodes(node_id, label)\n      DESTINATION KEY(dst_id, dst_label) REFERENCES GraphNodes(node_id, label)\n      LABEL GraphEdges PROPERTIES(\n        dst_id,\n        dst_label,\n        edge_type,\n        props,\n        src_id,\n        src_label)\n      DYNAMIC LABEL (edge_type)\n      DYNAMIC PROPERTIES (props)\n  )"
+  ],
+  "after_rows": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

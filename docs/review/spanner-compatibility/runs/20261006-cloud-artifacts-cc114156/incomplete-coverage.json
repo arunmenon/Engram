@@ -1,0 +1,62 @@
+{
+  "nodes": {
+    "Account:acme": {
+      "node_id": "Account:acme",
+      "node_type": "Account",
+      "attributes": {
+        "account_id": "acme",
+        "industry": "retail",
+        "name": "Acme",
+        "node_id": "Account:acme",
+        "node_type": "Account",
+        "ontology_version": "sha256:163ac0d6e903ef6c",
+        "source_trust": "trusted",
+        "updated_at": "2026-10-05T09:00:00+00:00"
+      },
+      "provenance": null,
+      "scores": {
+        "decay_score": 0.0,
+        "relevance_score": 1.0,
+        "importance_score": 0,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "no_link",
+      "proactive_signal": null
+    }
+  },
+  "edges": [],
+  "pagination": {
+    "cursor": null,
+    "has_more": false
+  },
+  "meta": {
+    "query_ms": 110,
+    "nodes_returned": 1,
+    "truncated": true,
+    "inferred_intents": {
+      "coverage": 1.0
+    },
+    "intent_override": "coverage",
+    "seed_nodes": [
+      "Account:acme"
+    ],
+    "seed_strategy": "artifact_seeds",
+    "proactive_nodes_count": 0,
+    "scoring_weights": {
+      "recency": 1.0,
+      "importance": 1.0,
+      "relevance": 1.0
+    },
+    "retrieval_channels": {
+      "completeness.BELONGS_TO.no_link": 1,
+      "completeness.BELONGS_TO.proposed_only": 0,
+      "completeness.BELONGS_TO.confirmed": 0
+    },
+    "capacity": {
+      "max_nodes": 100,
+      "used_nodes": 1,
+      "max_depth": 3
+    },
+    "eval_pending": []
+  }
+}

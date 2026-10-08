@@ -1,0 +1,64 @@
+............F........................................................... [ 44%]
+........................................................................ [ 89%]
+.................                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_budget_is_shared_across_subscriber_rules _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107c56450>
+
+    def test_budget_is_shared_across_subscriber_rules(monkeypatch):
+        base = registry()
+        subscriber = Pack.model_validate(
+            {
+                "pack": {"name": "observer", "version": "0.1.0", "requires": ["expansion>=0.1"]},
+                "projection": [
+                    {
+                        "event": "expansion.recorded",
+                        "upsert": [
+                            {
+                                "type": "expansion:ExpansionRecord",
+                                "key": {"group": "extra", "item": "record"},
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+>       schema = OntologyRegistry([*base.packs, subscriber])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x107096d20>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - observer: projection rule for undeclared event 'expansion.recorded'
+
+src/context_graph/domain/ontology.py:652: OntologyError
+=========================== short test summary info ============================
+FAILED tests/unit/test_projection_expansion.py::test_budget_is_shared_across_subscriber_rules
+1 failed, 160 passed in 5.62s

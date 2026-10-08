@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "name": "startup_dimension_mismatch",
+      "scenarios": [
+        "BOOT-03",
+        "OPS-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "dimension_mismatch was accepted and served healthy",
+      "seconds": 10.27
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

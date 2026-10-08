@@ -1,0 +1,28 @@
+{
+  "kind": "local_spanner_atomic_acceptance_adapter",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    37,
+    43,
+    41
+  ],
+  "scope": "Transaction-fake stamp/duplicate/conflict/fencing/retention/immutability; explicit additiveDDL planner; API context and worker interpretation not yet wired.",
+  "source_sha256": {
+    "src/context_graph/adapters/spanner/log.py": "b5096ff07863194c33af41eedcf8c19d643c0da3dc7ba96cf7347a6bd3a7ca03",
+    "src/context_graph/adapters/spanner/schema.py": "e93d6ef5873088884a4806c74bbc7ae2349ff96fadf281d3f292af27f894bf93",
+    "src/context_graph/adapters/spanner/event_acceptance.py": "cb03180047da193abf9c10e839117c44ebc903f96c5cc575cbbc054fa9155e76",
+    "src/context_graph/adapters/spanner/commits.py": "370647417c9ee597a6bd76146383e877b0c1f10980504e40d95ef6851e5fa158",
+    "src/context_graph/adapters/spanner/entity_index.py": "4cf1dd501257a57e4d3262bfacc1f69cd566f9f50c014854e7dce40b0d5330aa",
+    "src/context_graph/adapters/registry.py": "53437ab947227d5fcd73c91dc00d876db2b42fd1904a6f5bee9b7b7312be1ba6",
+    "src/context_graph/ports/event_store.py": "96a844321d2ed5495221190e7e2c1c3a1a0804a8fa84940da9940390a3d71873",
+    "src/context_graph/domain/event_acceptance.py": "f51d3a4d3e1e54727461e6769ad01f134211f4c3a0e257821b14f682b0eb2eaf",
+    "tests/unit/test_spanner_event_acceptance.py": "ca13026cc5c5930c113e178054b098623f6ee8e95356f710cb19d04f2990dba5"
+  },
+  "command": "pytest -q tests/unit/test_spanner_event_acceptance.py tests/unit/test_spanner_schema_handshake.py tests/unit/test_spanner_entity_index.py tests/unit/test_spanner_commits.py -m not integration",
+  "additional_checks": [
+    "ruff selectedfiles",
+    "scoped mypy with follow-imports=silent"
+  ],
+  "run_id": "20261007-local-spanner-acceptance-01"
+}

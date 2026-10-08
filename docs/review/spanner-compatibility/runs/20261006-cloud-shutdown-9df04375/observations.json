@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "name": "API_lifecycle_releases_owned_Spanner_session_manager",
+      "scenarios": [
+        "BOOT-01"
+      ],
+      "verdict": "failed",
+      "error_type": "HarnessError",
+      "error": "Unavailable health/detailed route asserted200; manual SDK.close blocked on600s maintenance polling. Harness killed; no product closure claim."
+    }
+  ],
+  "cleanup": {
+    "owned_harness_pid": 96245,
+    "signal": "SIGTERM",
+    "database_schema_preserved": true,
+    "SDK_remote_session_deletion": "not verified; original close waiting before delete"
+  }
+}

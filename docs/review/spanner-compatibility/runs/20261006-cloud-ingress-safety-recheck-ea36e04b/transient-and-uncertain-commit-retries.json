@@ -1,0 +1,102 @@
+[
+  {
+    "route": "/v1/events",
+    "uncertain_commit": false,
+    "failure_status": 503,
+    "failure": {
+      "detail": "Storage temporarily unavailable",
+      "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+    },
+    "retry_after": "1",
+    "documents_before_retry": 0,
+    "retry_status": 201,
+    "retry": {
+      "event_id": "e748d98e-61f7-4145-9d2a-d9bac9c0ffc4",
+      "global_position": "2026-10-06T17:15:59.743023000Z/000000/e748d98e-61f7-4145-9d2a-d9bac9c0ffc4",
+      "status": "created"
+    },
+    "final_documents": 1,
+    "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+  },
+  {
+    "route": "/v1/events",
+    "uncertain_commit": true,
+    "failure_status": 503,
+    "failure": {
+      "detail": "Storage temporarily unavailable",
+      "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+    },
+    "retry_after": "1",
+    "documents_before_retry": 1,
+    "retry_status": 201,
+    "retry": {
+      "event_id": "b2f49437-c24e-4871-a5ca-8ca381790205",
+      "global_position": "2026-10-06T17:16:00.082175000Z/000000/b2f49437-c24e-4871-a5ca-8ca381790205",
+      "status": "duplicate"
+    },
+    "final_documents": 1,
+    "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+  },
+  {
+    "route": "/v1/events/batch",
+    "uncertain_commit": false,
+    "failure_status": 503,
+    "failure": {
+      "detail": "Storage temporarily unavailable",
+      "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+    },
+    "retry_after": "1",
+    "documents_before_retry": 0,
+    "retry_status": 201,
+    "retry": {
+      "accepted": 2,
+      "rejected": 0,
+      "results": [
+        {
+          "event_id": "c7b2bd86-16e0-444f-80a9-0545c812a456",
+          "global_position": "2026-10-06T17:16:00.788271000Z/000000/c7b2bd86-16e0-444f-80a9-0545c812a456",
+          "status": "created"
+        },
+        {
+          "event_id": "b10128db-ac25-4820-a737-f344557f7ae1",
+          "global_position": "2026-10-06T17:16:00.788271000Z/000001/b10128db-ac25-4820-a737-f344557f7ae1",
+          "status": "created"
+        }
+      ],
+      "errors": []
+    },
+    "final_documents": 2,
+    "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+  },
+  {
+    "route": "/v1/events/batch",
+    "uncertain_commit": true,
+    "failure_status": 503,
+    "failure": {
+      "detail": "Storage temporarily unavailable",
+      "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+    },
+    "retry_after": "1",
+    "documents_before_retry": 2,
+    "retry_status": 201,
+    "retry": {
+      "accepted": 2,
+      "rejected": 0,
+      "results": [
+        {
+          "event_id": "4c175721-2a24-4c29-84ac-fab6b2ecdb8e",
+          "global_position": "2026-10-06T17:16:01.123151000Z/000000/4c175721-2a24-4c29-84ac-fab6b2ecdb8e",
+          "status": "duplicate"
+        },
+        {
+          "event_id": "e6f958b2-a93d-4618-986b-d32e3cb40650",
+          "global_position": "2026-10-06T17:16:01.123151000Z/000001/e6f958b2-a93d-4618-986b-d32e3cb40650",
+          "status": "duplicate"
+        }
+      ],
+      "errors": []
+    },
+    "final_documents": 2,
+    "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+  }
+]

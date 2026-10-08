@@ -1,0 +1,131 @@
+{
+  "checks": [
+    {
+      "name": "entity_user_extraction_read_export",
+      "scenarios": [
+        "EXT-01",
+        "EXT-02",
+        "USER-01",
+        "APP-01"
+      ],
+      "verdict": "failed",
+      "error_type": "TimeoutError",
+      "error": "worker drain deadline",
+      "seconds": 62.78
+    },
+    {
+      "name": "feedback_audit_and_missing_node_resubmission",
+      "scenarios": [
+        "FB-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "responses": [
+          {
+            "query_id": "compat-feedback",
+            "global_position": "2026-10-06T10:10:45.514943000Z/000000/2d477c6e-0136-4d38-bc6a-1a93c4ac4c83",
+            "bumped": 1,
+            "decremented": 1
+          },
+          {
+            "query_id": "compat-feedback",
+            "global_position": "2026-10-06T10:10:46.033231000Z/000000/cce14dbd-e146-4511-861f-829edb783cd1",
+            "bumped": 1,
+            "decremented": 1
+          }
+        ],
+        "resubmission": "two audit events, two adjustments; not idempotent"
+      },
+      "seconds": 1.09
+    },
+    {
+      "name": "admin_and_timer_consolidation",
+      "scenarios": [
+        "CONS-01",
+        "CONS-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "admin": {
+          "sessions_processed": 1,
+          "summaries_created": 1,
+          "events_processed": 2
+        },
+        "graph": {
+          "nodes": {
+            "Event": 4,
+            "Entity": 3,
+            "Summary": 4,
+            "UserProfile": 2,
+            "Preference": 2,
+            "Skill": 1,
+            "Workflow": 0,
+            "BehavioralPattern": 0
+          },
+          "edges": {
+            "FOLLOWS": 2,
+            "CAUSED_BY": 0,
+            "SIMILAR_TO": 0,
+            "REFERENCES": 2,
+            "SUMMARIZES": 8,
+            "SAME_AS": 0,
+            "RELATED_TO": 0
+          },
+          "total_nodes": 16,
+          "total_edges": 12
+        },
+        "timer": "session and agent summaries observed; cycle error log checked separately"
+      },
+      "seconds": 3.62
+    },
+    {
+      "name": "user_delete_shared_resource_preservation",
+      "scenarios": [
+        "USER-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "deletion": {
+          "deleted_count": 1,
+          "status": "erased"
+        },
+        "other_user_shared_skill_entity_and_ledger": "preserved",
+        "user_entity": "redacted tombstone per implementation"
+      },
+      "seconds": 1.21
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 8
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

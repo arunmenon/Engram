@@ -1,0 +1,215 @@
+{
+  "session": "context-distinct",
+  "pages": [
+    {
+      "nodes": {
+        "d847da64-cc4c-4ccd-99a4-afd743d888dc": {
+          "node_id": "d847da64-cc4c-4ccd-99a4-afd743d888dc",
+          "node_type": "Event",
+          "attributes": {
+            "access_count": 0,
+            "event_type": "observation.input",
+            "keywords": [],
+            "occurred_at": "2026-10-06T16:19:57.256573+00:00"
+          },
+          "provenance": {
+            "event_id": "d847da64-cc4c-4ccd-99a4-afd743d888dc",
+            "global_position": "2026-10-06T16:24:53.737071000Z/000004/d847da64-cc4c-4ccd-99a4-afd743d888dc",
+            "source": "spanner",
+            "occurred_at": "2026-10-06T16:19:57.256573Z",
+            "session_id": "context-distinct",
+            "agent_id": "compat-resume",
+            "trace_id": "context-distinct"
+          },
+          "scores": {
+            "decay_score": 0.571284,
+            "relevance_score": 0.5,
+            "importance_score": 5,
+            "ppr_score": 0.0
+          },
+          "retrieval_reason": "direct",
+          "proactive_signal": null
+        },
+        "8c6e51d8-0572-480a-ade9-1c5b1c246a79": {
+          "node_id": "8c6e51d8-0572-480a-ade9-1c5b1c246a79",
+          "node_type": "Event",
+          "attributes": {
+            "access_count": 0,
+            "event_type": "observation.input",
+            "keywords": [],
+            "occurred_at": "2026-10-06T16:19:56.256573+00:00"
+          },
+          "provenance": {
+            "event_id": "8c6e51d8-0572-480a-ade9-1c5b1c246a79",
+            "global_position": "2026-10-06T16:24:53.737071000Z/000003/8c6e51d8-0572-480a-ade9-1c5b1c246a79",
+            "source": "spanner",
+            "occurred_at": "2026-10-06T16:19:56.256573Z",
+            "session_id": "context-distinct",
+            "agent_id": "compat-resume",
+            "trace_id": "context-distinct"
+          },
+          "scores": {
+            "decay_score": 0.571283,
+            "relevance_score": 0.5,
+            "importance_score": 5,
+            "ppr_score": 0.0
+          },
+          "retrieval_reason": "direct",
+          "proactive_signal": null
+        }
+      },
+      "edges": [
+        {
+          "source": "d847da64-cc4c-4ccd-99a4-afd743d888dc",
+          "target": "8c6e51d8-0572-480a-ade9-1c5b1c246a79",
+          "edge_type": "FOLLOWS",
+          "properties": {
+            "delta_ms": 1000,
+            "session_id": "context-distinct"
+          }
+        }
+      ],
+      "pagination": {
+        "cursor": "MjAyNi0xMC0wNlQxNjoxOTo1Ni4yNTY1NzMrMDA6MDB8OGM2ZTUxZDgtMDU3Mi00ODBhLWFkZTktMWM1YjFjMjQ2YTc5",
+        "has_more": true
+      },
+      "meta": {
+        "query_ms": 517,
+        "nodes_returned": 2,
+        "truncated": true,
+        "inferred_intents": {},
+        "intent_override": null,
+        "seed_nodes": [],
+        "seed_strategy": null,
+        "proactive_nodes_count": 0,
+        "scoring_weights": {
+          "recency": 1.0,
+          "importance": 1.0,
+          "relevance": 1.0
+        },
+        "retrieval_channels": {},
+        "capacity": {
+          "max_nodes": 2,
+          "used_nodes": 2,
+          "max_depth": 3
+        },
+        "eval_pending": []
+      }
+    },
+    {
+      "nodes": {
+        "d847da64-cc4c-4ccd-99a4-afd743d888dc": {
+          "node_id": "d847da64-cc4c-4ccd-99a4-afd743d888dc",
+          "node_type": "Event",
+          "attributes": {
+            "access_count": 1,
+            "event_type": "observation.input",
+            "keywords": [],
+            "last_accessed_at": "2026-10-06T16:25:04.197496+00:00",
+            "occurred_at": "2026-10-06T16:19:57.256573+00:00"
+          },
+          "provenance": {
+            "event_id": "d847da64-cc4c-4ccd-99a4-afd743d888dc",
+            "global_position": "2026-10-06T16:24:53.737071000Z/000004/d847da64-cc4c-4ccd-99a4-afd743d888dc",
+            "source": "spanner",
+            "occurred_at": "2026-10-06T16:19:57.256573Z",
+            "session_id": "context-distinct",
+            "agent_id": "compat-resume",
+            "trace_id": "context-distinct"
+          },
+          "scores": {
+            "decay_score": 0.58133,
+            "relevance_score": 0.5,
+            "importance_score": 5,
+            "ppr_score": 0.0
+          },
+          "retrieval_reason": "direct",
+          "proactive_signal": null
+        }
+      },
+      "edges": [],
+      "pagination": {
+        "cursor": null,
+        "has_more": false
+      },
+      "meta": {
+        "query_ms": 534,
+        "nodes_returned": 1,
+        "truncated": false,
+        "inferred_intents": {},
+        "intent_override": null,
+        "seed_nodes": [],
+        "seed_strategy": null,
+        "proactive_nodes_count": 0,
+        "scoring_weights": {
+          "recency": 1.0,
+          "importance": 1.0,
+          "relevance": 1.0
+        },
+        "retrieval_channels": {},
+        "capacity": {
+          "max_nodes": 2,
+          "used_nodes": 1,
+          "max_depth": 3
+        },
+        "eval_pending": []
+      }
+    }
+  ],
+  "seen": [
+    "d847da64-cc4c-4ccd-99a4-afd743d888dc",
+    "8c6e51d8-0572-480a-ade9-1c5b1c246a79"
+  ],
+  "expected_ids": [
+    "826f2502-30f3-4c74-b810-b948ff9eba0a",
+    "7c1fb0e6-0225-4d05-bba3-fe0830f57490",
+    "0f20da6d-6533-4f9d-ac37-b793115a6aa9",
+    "8c6e51d8-0572-480a-ade9-1c5b1c246a79",
+    "d847da64-cc4c-4ccd-99a4-afd743d888dc"
+  ],
+  "repeated": true,
+  "before_counts": {
+    "826f2502-30f3-4c74-b810-b948ff9eba0a": 0,
+    "7c1fb0e6-0225-4d05-bba3-fe0830f57490": 0,
+    "0f20da6d-6533-4f9d-ac37-b793115a6aa9": 0,
+    "8c6e51d8-0572-480a-ade9-1c5b1c246a79": 0,
+    "d847da64-cc4c-4ccd-99a4-afd743d888dc": 0
+  },
+  "after_counts": {
+    "826f2502-30f3-4c74-b810-b948ff9eba0a": 0,
+    "7c1fb0e6-0225-4d05-bba3-fe0830f57490": 0,
+    "0f20da6d-6533-4f9d-ac37-b793115a6aa9": 0,
+    "8c6e51d8-0572-480a-ade9-1c5b1c246a79": 1,
+    "d847da64-cc4c-4ccd-99a4-afd743d888dc": 2
+  },
+  "missing_response": {
+    "nodes": {},
+    "edges": [],
+    "pagination": {
+      "cursor": null,
+      "has_more": false
+    },
+    "meta": {
+      "query_ms": 79,
+      "nodes_returned": 0,
+      "truncated": false,
+      "inferred_intents": {},
+      "intent_override": null,
+      "seed_nodes": [],
+      "seed_strategy": null,
+      "proactive_nodes_count": 0,
+      "scoring_weights": {
+        "recency": 1.0,
+        "importance": 1.0,
+        "relevance": 1.0
+      },
+      "retrieval_channels": {},
+      "capacity": {
+        "max_nodes": 100,
+        "used_nodes": 0,
+        "max_depth": 3
+      },
+      "eval_pending": []
+    }
+  }
+}

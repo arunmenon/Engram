@@ -1,9 +1,9 @@
 {
-  "at": "2026-10-07T06:27:29.424820+00:00",
+  "at": "2026-10-07T10:08:41.355536+00:00",
   "pack": "pdlc",
-  "pack_version": "1.7.0",
+  "pack_version": "1.8.0",
   "pack_file": "src/context_graph/ontology/packs/pdlc.pack.yaml",
-  "pack_sha256": "42d3c1d9691a915d647d9be3f7b29b11ac32cc36c30b175c0cb71e37b3c81892",
+  "pack_sha256": "c80eb0c32ced14ebe38c1b9329b45a291a6911cb0625c5fe619a92332701b459",
   "owned_event_count": 23,
   "with_deterministic_projection": 16,
   "without_deterministic_projection": [
@@ -25,6 +25,15 @@
     "core:observation.input"
   ],
   "inventory_scope": "All current PDLC event declarations and rule usage; source module AST literal association, not complete producer contract validation. Generic/import producers and per-event fixture behavior still to verify.",
-  "contracts_implemented": false,
-  "all_event_schema_and_fixture_acceptance_complete": false
+  "contracts_implemented": true,
+  "all_event_schema_and_fixture_acceptance_complete": false,
+  "contract_status": "all23_optional_contracts_declared;ingress_enforcement_pending",
+  "contract_fixture": "tests/fixtures/pack_contracts/pdlc.json",
+  "behavior_counts": {
+    "deterministic": 16,
+    "extraction_only": 1,
+    "missing_mapping": 6
+  },
+  "coverage_note": "Local type/required-field and pure plan identities/states/edges; full graph properties/evidence/retrieval and cloud acceptance pending",
+  "ingress_contract_enforcement": false
 }

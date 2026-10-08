@@ -194,7 +194,8 @@ class TestMetricsLabelCardinality:
         unique_id = "cardinality-test-sess-xyz"
         resolved_path = f"/v1/context/{unique_id}"
 
-        test_client.get(resolved_path)
+        response = test_client.get(resolved_path)
+        assert response.status_code == 200, response.text
 
         # The resolved path should NOT appear as a metric label
         resolved_value = REGISTRY.get_sample_value(

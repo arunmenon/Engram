@@ -1,0 +1,326 @@
+{
+  "checks": [
+    {
+      "name": "consolidation_threshold_manual_trigger_episodes_repeated_ids_and_evidence",
+      "scenarios": [
+        "CONS-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "below": {
+          "nodes": {
+            "Event": 3
+          },
+          "edges": [
+            [
+              "16a15669-a409-4acc-9b31-f8f628d175e1",
+              "FOLLOWS",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "84a12f17-3de8-4804-9826-881a6972f9cf",
+              "FOLLOWS",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ]
+          ]
+        },
+        "first": {
+          "nodes": {
+            "Event": 4,
+            "Summary": 4
+          },
+          "edges": [
+            [
+              "16a15669-a409-4acc-9b31-f8f628d175e1",
+              "FOLLOWS",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "84a12f17-3de8-4804-9826-881a6972f9cf",
+              "FOLLOWS",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "d7e4d26f-c738-40e5-8181-65569731164c",
+              "FOLLOWS",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "d7e4d26f-c738-40e5-8181-65569731164c"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "d7e4d26f-c738-40e5-8181-65569731164c"
+            ],
+            [
+              "summary-cons-completion-ep0-3ac6d26b654d",
+              "SUMMARIZES",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "summary-cons-completion-ep0-3ac6d26b654d",
+              "SUMMARIZES",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "summary-cons-completion-ep1-c2de02fb6798",
+              "SUMMARIZES",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-cons-completion-ep1-c2de02fb6798",
+              "SUMMARIZES",
+              "d7e4d26f-c738-40e5-8181-65569731164c"
+            ]
+          ]
+        },
+        "second": {
+          "nodes": {
+            "Event": 4,
+            "Summary": 4
+          },
+          "edges": [
+            [
+              "16a15669-a409-4acc-9b31-f8f628d175e1",
+              "FOLLOWS",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "84a12f17-3de8-4804-9826-881a6972f9cf",
+              "FOLLOWS",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "d7e4d26f-c738-40e5-8181-65569731164c",
+              "FOLLOWS",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "summary-compat-resume-52eefb2bf77b",
+              "SUMMARIZES",
+              "d7e4d26f-c738-40e5-8181-65569731164c"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "summary-cons-completion-52eefb2bf77b",
+              "SUMMARIZES",
+              "d7e4d26f-c738-40e5-8181-65569731164c"
+            ],
+            [
+              "summary-cons-completion-ep0-3ac6d26b654d",
+              "SUMMARIZES",
+              "28d8e2ec-66d7-4e27-829d-56a442579049"
+            ],
+            [
+              "summary-cons-completion-ep0-3ac6d26b654d",
+              "SUMMARIZES",
+              "84a12f17-3de8-4804-9826-881a6972f9cf"
+            ],
+            [
+              "summary-cons-completion-ep1-c2de02fb6798",
+              "SUMMARIZES",
+              "16a15669-a409-4acc-9b31-f8f628d175e1"
+            ],
+            [
+              "summary-cons-completion-ep1-c2de02fb6798",
+              "SUMMARIZES",
+              "d7e4d26f-c738-40e5-8181-65569731164c"
+            ]
+          ]
+        },
+        "summary_evidence_edges": [
+          [
+            "summary-compat-resume-52eefb2bf77b",
+            "SUMMARIZES",
+            "16a15669-a409-4acc-9b31-f8f628d175e1"
+          ],
+          [
+            "summary-compat-resume-52eefb2bf77b",
+            "SUMMARIZES",
+            "28d8e2ec-66d7-4e27-829d-56a442579049"
+          ],
+          [
+            "summary-compat-resume-52eefb2bf77b",
+            "SUMMARIZES",
+            "84a12f17-3de8-4804-9826-881a6972f9cf"
+          ],
+          [
+            "summary-compat-resume-52eefb2bf77b",
+            "SUMMARIZES",
+            "d7e4d26f-c738-40e5-8181-65569731164c"
+          ],
+          [
+            "summary-cons-completion-52eefb2bf77b",
+            "SUMMARIZES",
+            "16a15669-a409-4acc-9b31-f8f628d175e1"
+          ],
+          [
+            "summary-cons-completion-52eefb2bf77b",
+            "SUMMARIZES",
+            "28d8e2ec-66d7-4e27-829d-56a442579049"
+          ],
+          [
+            "summary-cons-completion-52eefb2bf77b",
+            "SUMMARIZES",
+            "84a12f17-3de8-4804-9826-881a6972f9cf"
+          ],
+          [
+            "summary-cons-completion-52eefb2bf77b",
+            "SUMMARIZES",
+            "d7e4d26f-c738-40e5-8181-65569731164c"
+          ],
+          [
+            "summary-cons-completion-ep0-3ac6d26b654d",
+            "SUMMARIZES",
+            "28d8e2ec-66d7-4e27-829d-56a442579049"
+          ],
+          [
+            "summary-cons-completion-ep0-3ac6d26b654d",
+            "SUMMARIZES",
+            "84a12f17-3de8-4804-9826-881a6972f9cf"
+          ],
+          [
+            "summary-cons-completion-ep1-c2de02fb6798",
+            "SUMMARIZES",
+            "16a15669-a409-4acc-9b31-f8f628d175e1"
+          ],
+          [
+            "summary-cons-completion-ep1-c2de02fb6798",
+            "SUMMARIZES",
+            "d7e4d26f-c738-40e5-8181-65569731164c"
+          ]
+        ],
+        "trigger": "actual public process_message; timer already separately covered"
+      },
+      "seconds": 14.79
+    },
+    {
+      "name": "consolidation_same_worker_overlap_guard",
+      "scenarios": [
+        "CONS-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "actual_cycles": 1,
+        "locked_after": false,
+        "scope": "one worker lock; no distributed lock guarantee"
+      },
+      "seconds": 5.22
+    },
+    {
+      "name": "consolidation_provider_failure_releases_lock_and_next_cycle_recovers",
+      "scenarios": [
+        "CONS-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "provider_calls": 1,
+        "writes_during_failure": [],
+        "writes_next_cycle": [
+          "summary-cons-completion-ep0-3ac6d26b654d",
+          "summary-cons-completion-ep1-c2de02fb6798",
+          "summary-cons-completion-52eefb2bf77b",
+          "summary-compat-resume-52eefb2bf77b"
+        ],
+        "lock_released_after_failure": true,
+        "scope": "failure is logged, no provider fallback; later actual cycle recovers; no new delivery-retry guarantee"
+      },
+      "seconds": 5.25
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 8
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 10
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 10
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -1,0 +1,15 @@
+{
+  "kind": "local_tenant_control_primitive",
+  "issues": [
+    34,
+    43
+  ],
+  "scope": "Protected ownership bootstrap and transaction-local fence; not yet wired into stores; no cloud calls or scenario closure",
+  "source_sha256": {
+    "src/context_graph/adapters/spanner/tenant_control.py": "b070e03151d4e8d8fe1e79a0f5b71acc25b3c996da28560f5fbfe0024032f430",
+    "tests/unit/test_spanner_tenant_control.py": "8a351cb2df7f30ca1d74e71d91d8f3490047704d53a30c2508bbb3fccc94241c"
+  },
+  "command": "pytest -q tests/unit/test_spanner_tenant_control.py",
+  "cloud_calls": false,
+  "run_id": "20261007-local-tenant-control-01"
+}

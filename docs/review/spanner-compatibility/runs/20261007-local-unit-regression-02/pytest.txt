@@ -1,0 +1,52 @@
+.............................F                                           [100%]
+=================================== FAILURES ===================================
+______ TestMetricsLabelCardinality.test_dynamic_route_uses_template_label ______
+
+self = <tests.unit.test_metrics.TestMetricsLabelCardinality object at 0x10a1abd40>
+test_client = <starlette.testclient.TestClient object at 0x128322900>
+
+    def test_dynamic_route_uses_template_label(self, test_client: TestClient) -> None:
+        """Hit /v1/context/{session_id} with a unique ID and verify the
+        Prometheus label uses the template path, not the resolved one."""
+        unique_id = "cardinality-test-sess-xyz"
+        resolved_path = f"/v1/context/{unique_id}"
+    
+        response = test_client.get(resolved_path)
+        assert response.status_code == 200, response.text
+    
+        # The resolved path should NOT appear as a metric label
+        resolved_value = REGISTRY.get_sample_value(
+            "engram_http_requests_total",
+            {"method": "GET", "endpoint": resolved_path, "status": "200"},
+        )
+        assert resolved_value is None or resolved_value == 0.0
+    
+        # The template path should be used instead
+        template_value = REGISTRY.get_sample_value(
+            "engram_http_requests_total",
+            {"method": "GET", "endpoint": "/v1/context/{session_id}", "status": "200"},
+        )
+>       assert template_value is not None and template_value >= 1.0
+E       assert (None is not None)
+
+tests/unit/test_metrics.py:212: AssertionError
+=============================== warnings summary ===============================
+tests/unit/test_metrics.py:18
+  /Users/arunmenon/projects/Engram/tests/unit/test_metrics.py:18: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+tests/unit/test_api_import.py::test_imports_are_bounded
+tests/unit/test_metrics.py::TestRequestIDMiddleware::test_generates_request_id_when_missing
+tests/unit/test_metrics.py::TestRequestIDMiddleware::test_passes_through_existing_request_id
+tests/unit/test_metrics.py::TestRequestIDMiddleware::test_request_time_header_still_present
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_metrics.py::TestMetricsLabelCardinality::test_dynamic_route_uses_template_label
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_metrics.py::TestMetricsLabelCardinality::test_dynamic_route_uses_template_label
+1 failed, 29 passed, 6 warnings in 3.94s

@@ -1,0 +1,687 @@
+{
+  "pdlc_default": {
+    "bundle_identity": "sha256:8eeed6d8c7bff1e1cf20adab575f90e3e26a5e9990c23c5277d4695b3db3b52f",
+    "core_open_namespaces": [],
+    "events": [
+      {
+        "event_type": "agent.create",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "agent.invoke",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.chat",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.completion",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.embed",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.generate",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "observation.input",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ],
+          [
+            "pdlc",
+            "pack.extract.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "observation.output",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.change.abandoned",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.change.committed",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.change.created",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.change.merged",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.change.reviewed",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.change.updated",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.decision.recorded",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.design.section_changed",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.extract.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.incident.detected",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.incident.reported",
+        "owner": "pdlc",
+        "handling": "unsupported",
+        "contract_declared": true,
+        "consumers": [],
+        "unavailable_reason": "event_unsupported"
+      },
+      {
+        "event_type": "pdlc.incident.resolved",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.release.published",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.request.created",
+        "owner": "pdlc",
+        "handling": "unsupported",
+        "contract_declared": true,
+        "consumers": [],
+        "unavailable_reason": "event_unsupported"
+      },
+      {
+        "event_type": "pdlc.requirement.changed",
+        "owner": "pdlc",
+        "handling": "unsupported",
+        "contract_declared": true,
+        "consumers": [],
+        "unavailable_reason": "event_unsupported"
+      },
+      {
+        "event_type": "pdlc.service.deployed",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.service.rolledback",
+        "owner": "pdlc",
+        "handling": "unsupported",
+        "contract_declared": true,
+        "consumers": [],
+        "unavailable_reason": "event_unsupported"
+      },
+      {
+        "event_type": "pdlc.service.upgraded",
+        "owner": "pdlc",
+        "handling": "unsupported",
+        "contract_declared": true,
+        "consumers": [],
+        "unavailable_reason": "event_unsupported"
+      },
+      {
+        "event_type": "pdlc.spec.approved",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.extract.v1"
+          ],
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.testcaserun.finished",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.testcaserun.skipped",
+        "owner": "pdlc",
+        "handling": "unsupported",
+        "contract_declared": true,
+        "consumers": [],
+        "unavailable_reason": "event_unsupported"
+      },
+      {
+        "event_type": "pdlc.ticket.closed",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.ticket.created",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "pdlc.ticket.updated",
+        "owner": "pdlc",
+        "handling": "processed",
+        "contract_declared": true,
+        "consumers": [
+          [
+            "pdlc",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "system.session_end",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "system.session_start",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "tool.execute",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "user.preference.revoked",
+        "owner": "user",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "user.preference.stated",
+        "owner": "user",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "user.profile.updated",
+        "owner": "user",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "user.skill.declared",
+        "owner": "user",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [],
+        "unavailable_reason": "payload_contract_missing"
+      }
+    ]
+  },
+  "crm_core": {
+    "bundle_identity": "sha256:ea22a25a4d0e28e134d4679b78bb0d3dd5fa6cc04b77a2d5582142150c724077",
+    "core_open_namespaces": [],
+    "events": [
+      {
+        "event_type": "agent.create",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "agent.invoke",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "crm.account.created",
+        "owner": "crm",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "crm",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "crm.contact.added",
+        "owner": "crm",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "crm",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "crm.deal.created",
+        "owner": "crm",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "crm",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "crm.deal.lost",
+        "owner": "crm",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "crm",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "crm.deal.replaced",
+        "owner": "crm",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "crm",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "crm.deal.won",
+        "owner": "crm",
+        "handling": "unsupported",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "crm",
+            "pack.project.v1"
+          ]
+        ],
+        "unavailable_reason": "payload_contract_missing"
+      },
+      {
+        "event_type": "llm.chat",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.completion",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.embed",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "llm.generate",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "observation.input",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "observation.output",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "system.session_end",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "system.session_start",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "event_type": "tool.execute",
+        "owner": "core",
+        "handling": "processed",
+        "contract_declared": false,
+        "consumers": [
+          [
+            "core",
+            "event.project.v1"
+          ]
+        ],
+        "unavailable_reason": null
+      }
+    ]
+  }
+}

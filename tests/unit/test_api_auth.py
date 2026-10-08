@@ -35,6 +35,9 @@ def auth_test_client() -> TestClient:
     settings.auth.api_key = "test-api-key"
     settings.auth.admin_key = "test-admin-key"
     app.state.settings = settings
+    from context_graph.ontology.runtime import configured_bundle
+
+    app.state.bundle = configured_bundle(settings.ontology)
 
     # Stub stores
     from tests.unit.conftest import InMemoryEventStore, StubGraphStore
@@ -83,6 +86,22 @@ class TestApiKeyAuth:
             headers={"Authorization": "Basic dXNlcjpwYXNz"},
         )
         assert resp.status_code == 401
+
+
+@pytest.mark.parametrize(
+    "method,path", [("get", "/v1/users/u1/data-export"), ("delete", "/v1/users/u1")]
+)
+def test_disabled_user_privacy_operations_still_require_admin(auth_test_client, method, path):
+    from context_graph.ontology.runtime import configured_bundle
+    from context_graph.settings import OntologySettings
+
+    auth_test_client.app.state.bundle = configured_bundle(
+        OntologySettings(packs=[], builtin_packs=[])
+    )
+    request = getattr(auth_test_client, method)
+    assert request(path).status_code == 401
+    assert request(path, headers={"Authorization": "Bearer test-api-key"}).status_code == 401
+    assert request(path, headers={"Authorization": "Bearer test-admin-key"}).status_code == 200
 
 
 class TestAdminKeyAuth:

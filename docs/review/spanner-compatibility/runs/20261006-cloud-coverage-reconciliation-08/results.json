@@ -1,0 +1,60 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "PEXT-01",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pack-completion-06299088/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "ART-05",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-evaluation-completion-97ec1d55/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "ONT-01",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-evaluation-completion-97ec1d55/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "LIFE-02",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-archive-restore-4eb8c0ac/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "LIFE-03",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-retention-completion-3dbff638/observations.json",
+      "issue_numbers": "33"
+    },
+    {
+      "scenario_id": "CONS-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-consolidation-completion-59bb437b/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "CONS-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-retention-completion-3dbff638/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "EXT-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-extraction-completion-1ba7b6cd/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "OPS-05",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-workload-completion-660c44b3/observations.json",
+      "issue_numbers": ""
+    }
+  ],
+  "summary": "Four more declared scenario rows closed; admin warm/cold pruning fails33. Scoped successful worker/archive/model/latency evidence retained without implying all corner cases passed.",
+  "cleanup": "All serial phase processes/owned loops exited. Source/target DBs and schemas remain; no runtime source changes, commits or pushes. SDK remote session cleanup remains unverified26."
+}

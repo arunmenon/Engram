@@ -1,0 +1,422 @@
+2026-10-06 16:51:51 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 16:51:51 [info     ] llm_client_initialized
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 16:51:51 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 16:51:51 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 16:51:52 [info     ] webhook_ingested               delivery_id=delivery-0 event_types=['pdlc.change.created'] request_id=f5331a9f-8c30-4096-9f41-f8df829e8871 source=github
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 16:51:52 [info     ] webhook_ingested               delivery_id=delivery-1 event_types=['pdlc.testcaserun.finished'] request_id=2a0c616d-543e-4f90-8f35-76eea4458a2c source=github
+2026-10-06 16:51:52 [info     ] webhook_ingested               delivery_id=delivery-2 event_types=['pdlc.change.reviewed'] request_id=49e59596-d104-43c4-a6ac-ecb100590aec source=github
+2026-10-06 16:51:52 [info     ] webhook_ingested               delivery_id=delivery-3 event_types=['pdlc.change.merged'] request_id=f9c0917c-9c68-480e-b41c-ee37cc48c444 source=github
+2026-10-06 16:51:52 [info     ] webhook_ingested               delivery_id=delivery-4 event_types=['pdlc.ticket.created'] request_id=d34767f8-1c56-4faa-9305-a5c60cbc16bd source=jira
+2026-10-06 16:51:53 [info     ] webhook_ingested               delivery_id=delivery-5 event_types=['pdlc.release.published'] request_id=5f5d31e0-3e12-4544-b35c-086ee3c71c0a source=github
+2026-10-06 16:51:53 [info     ] webhook_ingested               delivery_id=delivery-6 event_types=['pdlc.service.deployed'] request_id=ed24b805-8919-4378-a477-502244916560 source=github
+2026-10-06 16:51:53 [info     ] webhook_ingested               delivery_id=delivery-7 event_types=['pdlc.ticket.closed'] request_id=3f45fb99-be1c-4947-9e28-3ae13376d0b1 source=jira
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await handler(conn, exc)  # type: ignore[arg-type]
+2026-10-06 16:51:53 [info     ] consumer_started               consumer=projection-1 group=graph-projection stream=Events
+2026-10-06 16:51:54 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 16:51:54 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:21:52.086111000Z/000000/626140ea-7de7-5ee9-8e91-6e925ba934c6 event_id=626140ea-7de7-5ee9-8e91-6e925ba934c6 session_id=pdlc:acme/payments
+2026-10-06 16:51:55 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 16:51:55 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:52.268159000Z/000000/11737721-efde-577a-a759-0cffa38d45d3 event_id=11737721-efde-577a-a759-0cffa38d45d3 session_id=pdlc:acme/payments
+2026-10-06 16:51:56 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=0
+2026-10-06 16:51:57 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:52.492751000Z/000000/65b7646c-016c-5708-9223-566d9ee6ea66 event_id=65b7646c-016c-5708-9223-566d9ee6ea66 session_id=pdlc:acme/payments
+2026-10-06 16:51:58 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 16:51:58 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:52.665999000Z/000000/7e1b7cc4-9d84-52f6-82fb-857770db49ab event_id=7e1b7cc4-9d84-52f6-82fb-857770db49ab session_id=pdlc:acme/payments
+2026-10-06 16:52:00 [debug    ] pack_plans_applied             edges=2 events=1 nodes=7 states=1
+2026-10-06 16:52:00 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:21:52.838479000Z/000000/450a7a46-2f84-5cfc-b0db-a0c939e8ea7c event_id=450a7a46-2f84-5cfc-b0db-a0c939e8ea7c session_id=pdlc:jira:PAY
+2026-10-06 16:52:01 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 16:52:01 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:53.094751000Z/000000/cbb029ae-5d84-5d23-8b7a-486dcb9a294b event_id=cbb029ae-5d84-5d23-8b7a-486dcb9a294b session_id=pdlc:acme/payments
+2026-10-06 16:52:02 [debug    ] pack_plans_applied             edges=3 events=1 nodes=4 states=0
+2026-10-06 16:52:02 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:53.265967000Z/000000/04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 event_id=04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 session_id=pdlc:acme/payments
+2026-10-06 16:52:04 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=1
+2026-10-06 16:52:04 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:53.434319000Z/000000/92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c event_id=92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c session_id=pdlc:jira:PAY
+2026-10-06 16:52:05 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 16:52:06 [info     ] consumer_stopped               consumer=projection-1 group=graph-projection
+2026-10-06 16:52:08 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+/Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+2026-10-06 16:52:32 [info     ] event_ingested                 event_id=07fbf63a-a1d9-4df8-8eb2-8c9e002c2fdc event_type=observation.input global_position=2026-10-06T11:22:32.427663000Z/000000/07fbf63a-a1d9-4df8-8eb2-8c9e002c2fdc request_id=b48c99df-a785-44a3-af5e-c4a2c892c8f2 status=created
+2026-10-06 16:52:34 [debug    ] pack_plans_applied             edges=2 events=1 nodes=1 states=0
+2026-10-06 16:52:34 [info     ] pack_extraction_applied        edges_written=2 event_id=07fbf63a-a1d9-4df8-8eb2-8c9e002c2fdc links=1 nodes=1 pack=pdlc rejected=[]
+2026-10-06 16:52:34 [info     ] app_stopped
+{"name": "PDLC_signed_webhook_full_fixture_evaluation", "scenarios": ["APP-02", "ART-01", "ONT-01", "PEXT-01", "PEXT-02"], "verdict": "passed", "observation": {"signed_deliveries": 8, "evaluation": [{"pack": "pdlc", "passed": true, "mean_f1": 1.0, "min_f1": 0.95, "problem": null, "questions": [{"id": "deployed-where", "f1": 1.0, "found": ["Deployment:production|def456|2026-10-02T09:00:00+00:00"], "expected": ["Deployment:production|def456|2026-10-02T09:00:00+00:00"]}, {"id": "implemented-by", "f1": 1.0, "found": ["Change:acme/payments|7"], "expected": ["Change:acme/payments|7"]}, {"id": "pr-implements", "f1": 1.0, "found": ["WorkItem:jira|PAY-341"], "expected": ["WorkItem:jira|PAY-341"]}, {"id": "release-contents", "f1": 1.0, "found": ["Change:acme/payments|7", "Change:acme/payments|8"], "expected": ["Change:acme/payments|7", "Change:acme/payments|8"]}, {"id": "runs-against-pr", "f1": 1.0, "found": ["TestRun:555"], "expected": ["TestRun:555"]}, {"id": "untested-tickets", "f1": 1.0, "found": ["WorkItem:jira|PAY-300", "WorkItem:jira|PAY-341"], "expected": ["WorkItem:jira|PAY-300", "WorkItem:jira|PAY-341"]}, {"id": "untested-under-epic", "f1": 1.0, "found": ["WorkItem:jira|PAY-341"], "expected": ["WorkItem:jira|PAY-341"]}, {"id": "unreviewed-prs", "f1": 1.0, "found": ["Change:acme/payments|8"], "expected": ["Change:acme/payments|8"]}, {"id": "changes-without-ticket", "f1": 1.0, "found": ["Change:acme/payments|8"], "expected": ["Change:acme/payments|8"]}, {"id": "merged-untested", "f1": 1.0, "found": ["Change:acme/payments|7"], "expected": ["Change:acme/payments|7"]}, {"id": "before-editing-pr", "f1": 1.0, "found": ["TestRun:555"], "expected": ["TestRun:555"]}]}], "artifact_questions_and_pack_extraction": "passed"}, "seconds": 59.85}
+2026-10-06 16:53:04 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:21:52.086111000Z/000000/626140ea-7de7-5ee9-8e91-6e925ba934c6 event_id=626140ea-7de7-5ee9-8e91-6e925ba934c6 session_id=pdlc:acme/payments
+2026-10-06 16:53:05 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 16:53:05 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:52.268159000Z/000000/11737721-efde-577a-a759-0cffa38d45d3 event_id=11737721-efde-577a-a759-0cffa38d45d3 session_id=pdlc:acme/payments
+2026-10-06 16:53:07 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=0
+2026-10-06 16:53:07 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:52.492751000Z/000000/65b7646c-016c-5708-9223-566d9ee6ea66 event_id=65b7646c-016c-5708-9223-566d9ee6ea66 session_id=pdlc:acme/payments
+2026-10-06 16:53:08 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 16:53:08 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:52.665999000Z/000000/7e1b7cc4-9d84-52f6-82fb-857770db49ab event_id=7e1b7cc4-9d84-52f6-82fb-857770db49ab session_id=pdlc:acme/payments
+2026-10-06 16:53:10 [debug    ] pack_plans_applied             edges=2 events=1 nodes=7 states=1
+2026-10-06 16:53:10 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:21:52.838479000Z/000000/450a7a46-2f84-5cfc-b0db-a0c939e8ea7c event_id=450a7a46-2f84-5cfc-b0db-a0c939e8ea7c session_id=pdlc:jira:PAY
+2026-10-06 16:53:11 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 16:53:11 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:53.094751000Z/000000/cbb029ae-5d84-5d23-8b7a-486dcb9a294b event_id=cbb029ae-5d84-5d23-8b7a-486dcb9a294b session_id=pdlc:acme/payments
+2026-10-06 16:53:12 [debug    ] pack_plans_applied             edges=3 events=1 nodes=4 states=0
+2026-10-06 16:53:12 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:53.265967000Z/000000/04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 event_id=04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 session_id=pdlc:acme/payments
+2026-10-06 16:53:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=1
+2026-10-06 16:53:14 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:21:53.434319000Z/000000/92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c event_id=92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c session_id=pdlc:jira:PAY
+2026-10-06 16:53:15 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 16:53:16 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:22:32.427663000Z/000000/07fbf63a-a1d9-4df8-8eb2-8c9e002c2fdc event_id=07fbf63a-a1d9-4df8-8eb2-8c9e002c2fdc session_id=design-review
+2026-10-06 16:53:16 [info     ] ontology_rebuild_projected     dead_lettered=0 events=9
+{
+  "version": "sha256:3a7c761cd2848649",
+  "passed": true,
+  "events": 9,
+  "missing_documents": 0,
+  "dead_lettered": [],
+  "gate_skipped": false,
+  "gate": [
+    {
+      "pack": "pdlc",
+      "passed": true,
+      "mean_f1": 1.0,
+      "min_f1": 0.95,
+      "problem": null,
+      "questions": [
+        {
+          "id": "deployed-where",
+          "f1": 1.0,
+          "found": [
+            "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+          ],
+          "expected": [
+            "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+          ]
+        },
+        {
+          "id": "implemented-by",
+          "f1": 1.0,
+          "found": [
+            "Change:acme/payments|7"
+          ],
+          "expected": [
+            "Change:acme/payments|7"
+          ]
+        },
+        {
+          "id": "pr-implements",
+          "f1": 1.0,
+          "found": [
+            "WorkItem:jira|PAY-341"
+          ],
+          "expected": [
+            "WorkItem:jira|PAY-341"
+          ]
+        },
+        {
+          "id": "release-contents",
+          "f1": 1.0,
+          "found": [
+            "Change:acme/payments|7",
+            "Change:acme/payments|8"
+          ],
+          "expected": [
+            "Change:acme/payments|7",
+            "Change:acme/payments|8"
+          ]
+        },
+        {
+          "id": "runs-against-pr",
+          "f1": 1.0,
+          "found": [
+            "TestRun:555"
+          ],
+          "expected": [
+            "TestRun:555"
+          ]
+        },
+        {
+          "id": "untested-tickets",
+          "f1": 1.0,
+          "found": [
+            "WorkItem:jira|PAY-300",
+            "WorkItem:jira|PAY-341"
+          ],
+          "expected": [
+            "WorkItem:jira|PAY-300",
+            "WorkItem:jira|PAY-341"
+          ]
+        },
+        {
+          "id": "untested-under-epic",
+          "f1": 1.0,
+          "found": [
+            "WorkItem:jira|PAY-341"
+          ],
+          "expected": [
+            "WorkItem:jira|PAY-341"
+          ]
+        },
+        {
+          "id": "unreviewed-prs",
+          "f1": 1.0,
+          "found": [
+            "Change:acme/payments|8"
+          ],
+          "expected": [
+            "Change:acme/payments|8"
+          ]
+        },
+        {
+          "id": "changes-without-ticket",
+          "f1": 1.0,
+          "found": [
+            "Change:acme/payments|8"
+          ],
+          "expected": [
+            "Change:acme/payments|8"
+          ]
+        },
+        {
+          "id": "merged-untested",
+          "f1": 1.0,
+          "found": [
+            "Change:acme/payments|7"
+          ],
+          "expected": [
+            "Change:acme/payments|7"
+          ]
+        },
+        {
+          "id": "before-editing-pr",
+          "f1": 1.0,
+          "found": [
+            "TestRun:555"
+          ],
+          "expected": [
+            "TestRun:555"
+          ]
+        }
+      ]
+    }
+  ]
+}
+{"name": "PDLC_real_target_rebuild_evaluation", "scenarios": ["ONT-03", "APP-02", "ART-01"], "verdict": "passed", "observation": {"target": "engram-compat-target", "exit_code": 0, "evaluation": [{"pack": "pdlc", "passed": true, "mean_f1": 1.0, "min_f1": 0.95, "problem": null, "questions": [{"id": "deployed-where", "f1": 1.0, "found": ["Deployment:production|def456|2026-10-02T09:00:00+00:00"], "expected": ["Deployment:production|def456|2026-10-02T09:00:00+00:00"]}, {"id": "implemented-by", "f1": 1.0, "found": ["Change:acme/payments|7"], "expected": ["Change:acme/payments|7"]}, {"id": "pr-implements", "f1": 1.0, "found": ["WorkItem:jira|PAY-341"], "expected": ["WorkItem:jira|PAY-341"]}, {"id": "release-contents", "f1": 1.0, "found": ["Change:acme/payments|7", "Change:acme/payments|8"], "expected": ["Change:acme/payments|7", "Change:acme/payments|8"]}, {"id": "runs-against-pr", "f1": 1.0, "found": ["TestRun:555"], "expected": ["TestRun:555"]}, {"id": "untested-tickets", "f1": 1.0, "found": ["WorkItem:jira|PAY-300", "WorkItem:jira|PAY-341"], "expected": ["WorkItem:jira|PAY-300", "WorkItem:jira|PAY-341"]}, {"id": "untested-under-epic", "f1": 1.0, "found": ["WorkItem:jira|PAY-341"], "expected": ["WorkItem:jira|PAY-341"]}, {"id": "unreviewed-prs", "f1": 1.0, "found": ["Change:acme/payments|8"], "expected": ["Change:acme/payments|8"]}, {"id": "changes-without-ticket", "f1": 1.0, "found": ["Change:acme/payments|8"], "expected": ["Change:acme/payments|8"]}, {"id": "merged-untested", "f1": 1.0, "found": ["Change:acme/payments|7"], "expected": ["Change:acme/payments|7"]}, {"id": "before-editing-pr", "f1": 1.0, "found": ["TestRun:555"], "expected": ["TestRun:555"]}]}]}, "seconds": 66.47}
+2026-10-06 16:54:05 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 16:54:05 [info     ] llm_client_initialized
+2026-10-06 16:54:06 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 16:54:07 [info     ] webhook_ingested               delivery_id=opendal-pr-7869 event_types=['pdlc.change.merged'] request_id=4954c7c9-162f-4308-b547-c07d556cd9e6 source=github
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 16:54:07 [info     ] webhook_ingested               delivery_id=opendal-pr-7872 event_types=['pdlc.change.merged'] request_id=24a96e53-a120-433c-953c-88080f7e9333 source=github
+2026-10-06 16:54:07 [info     ] webhook_ingested               delivery_id=opendal-pr-7878 event_types=['pdlc.change.merged'] request_id=2df25378-a649-499e-aefb-faae2b7c2793 source=github
+2026-10-06 16:54:07 [info     ] webhook_ingested               delivery_id=opendal-pr-7879 event_types=['pdlc.change.merged'] request_id=976771b7-80dc-4dfc-bf81-95f00449df3a source=github
+2026-10-06 16:54:07 [info     ] webhook_ingested               delivery_id=opendal-pr-7880 event_types=['pdlc.change.merged'] request_id=ec9a5918-36d1-4705-a706-d4aef41abc09 source=github
+2026-10-06 16:54:08 [info     ] webhook_ingested               delivery_id=opendal-pr-7386 event_types=['pdlc.change.merged'] request_id=c0dd29eb-57aa-49ec-8a90-2d75f04286c5 source=github
+2026-10-06 16:54:08 [info     ] webhook_ingested               delivery_id=opendal-pr-7876 event_types=['pdlc.change.merged'] request_id=8969a47d-a10e-4c8b-a018-11e2d1cb6e45 source=github
+2026-10-06 16:54:08 [info     ] webhook_ingested               delivery_id=opendal-pr-7886 event_types=['pdlc.change.merged'] request_id=f72b2dac-d7ae-432e-8885-6dac55dde5ee source=github
+2026-10-06 16:54:08 [info     ] webhook_ingested               delivery_id=opendal-pr-7891 event_types=['pdlc.change.merged'] request_id=1dc3491b-4037-4c5a-abbc-f7e0566f5366 source=github
+2026-10-06 16:54:09 [info     ] webhook_ingested               delivery_id=opendal-pr-7895 event_types=['pdlc.change.merged'] request_id=1aacb3b5-fa66-4330-90c6-34de44a07a1c source=github
+2026-10-06 16:54:09 [info     ] webhook_ingested               delivery_id=opendal-pr-7892 event_types=['pdlc.change.merged'] request_id=e5ef078a-689f-47a8-bd3d-1ddb8816b92c source=github
+2026-10-06 16:54:09 [info     ] webhook_ingested               delivery_id=opendal-pr-7893 event_types=['pdlc.change.merged'] request_id=10338220-f78a-419b-8fbf-147923626ab3 source=github
+2026-10-06 16:54:09 [info     ] webhook_ingested               delivery_id=opendal-pr-7901 event_types=['pdlc.change.merged'] request_id=d710fa33-ffd0-4af1-bfad-2788e5afefe2 source=github
+2026-10-06 16:54:09 [info     ] webhook_ingested               delivery_id=opendal-pr-7902 event_types=['pdlc.change.merged'] request_id=18cf7b07-76f2-4e16-920a-b47463b385dc source=github
+2026-10-06 16:54:10 [info     ] webhook_ingested               delivery_id=opendal-pr-7900 event_types=['pdlc.change.merged'] request_id=c9689f3f-1a94-4b7e-ae7f-522c86533602 source=github
+2026-10-06 16:54:10 [info     ] webhook_ingested               delivery_id=opendal-pr-7856 event_types=['pdlc.change.merged'] request_id=a103fca0-e706-4937-b8cf-635b75a3f004 source=github
+2026-10-06 16:54:10 [info     ] webhook_ingested               delivery_id=opendal-pr-7903 event_types=['pdlc.change.merged'] request_id=2f7c4df8-d5bc-4370-a08d-2ac088dde76a source=github
+2026-10-06 16:54:10 [info     ] webhook_ingested               delivery_id=opendal-pr-7908 event_types=['pdlc.change.merged'] request_id=a3dd9201-4779-4747-b5d5-d7a18bececc4 source=github
+2026-10-06 16:54:10 [info     ] webhook_ingested               delivery_id=opendal-pr-7907 event_types=['pdlc.change.merged'] request_id=27e5fd03-d9b2-41fd-ac2c-0c01cee7507b source=github
+2026-10-06 16:54:11 [info     ] webhook_ingested               delivery_id=opendal-pr-7884 event_types=['pdlc.change.merged'] request_id=347bf954-296e-469d-915c-e93f18de32ee source=github
+2026-10-06 16:54:11 [info     ] webhook_ingested               delivery_id=opendal-pr-7914 event_types=['pdlc.change.merged'] request_id=a1adb7fc-06e4-49e5-99fa-d503c90d2a28 source=github
+2026-10-06 16:54:11 [info     ] webhook_ingested               delivery_id=opendal-pr-7732 event_types=['pdlc.change.merged'] request_id=28ff2d7c-3209-44ed-bb37-339600569b05 source=github
+2026-10-06 16:54:11 [info     ] webhook_ingested               delivery_id=opendal-pr-7910 event_types=['pdlc.change.merged'] request_id=6acbc662-3b27-4b9f-b679-040ad392ea1d source=github
+2026-10-06 16:54:11 [info     ] webhook_ingested               delivery_id=opendal-pr-7911 event_types=['pdlc.change.merged'] request_id=67e58c51-8482-48fc-bec2-89d08b18cd1c source=github
+2026-10-06 16:54:11 [info     ] webhook_ingested               delivery_id=opendal-pr-7917 event_types=['pdlc.change.merged'] request_id=900eb7d4-b5f5-41df-a2a1-9e4b7cf56f83 source=github
+2026-10-06 16:54:12 [info     ] webhook_ingested               delivery_id=opendal-pr-7906 event_types=['pdlc.change.merged'] request_id=e0508b5a-2ab5-4c65-9819-8a4746161962 source=github
+2026-10-06 16:54:12 [info     ] webhook_ingested               delivery_id=opendal-pr-7924 event_types=['pdlc.change.merged'] request_id=6861e558-4c63-4372-8dc3-4cc6255fc468 source=github
+2026-10-06 16:54:12 [info     ] webhook_ingested               delivery_id=opendal-pr-7925 event_types=['pdlc.change.merged'] request_id=feda5fab-2521-4995-bccc-452a028c7e10 source=github
+2026-10-06 16:54:12 [info     ] webhook_ingested               delivery_id=opendal-pr-7915 event_types=['pdlc.change.merged'] request_id=9c2107af-8b07-45f3-9e50-5e589b8c830b source=github
+2026-10-06 16:54:12 [info     ] webhook_ingested               delivery_id=opendal-pr-7874 event_types=['pdlc.change.merged'] request_id=7ffdfd04-c23c-4b70-8e24-6c657e75d062 source=github
+2026-10-06 16:54:13 [info     ] webhook_ingested               delivery_id=opendal-pr-7929 event_types=['pdlc.change.merged'] request_id=5e547bd3-70f4-4fd7-83fd-ffe69225e59e source=github
+2026-10-06 16:54:13 [info     ] webhook_ingested               delivery_id=opendal-pr-7930 event_types=['pdlc.change.merged'] request_id=37cf2ca6-fe24-42f6-9182-c596f322922f source=github
+2026-10-06 16:54:13 [info     ] webhook_ingested               delivery_id=opendal-pr-7931 event_types=['pdlc.change.merged'] request_id=44db1274-38f3-45cf-899b-dc56d09670c7 source=github
+2026-10-06 16:54:13 [info     ] webhook_ingested               delivery_id=opendal-pr-7934 event_types=['pdlc.change.merged'] request_id=7c339b43-08a8-45e5-9d13-515ae04a875a source=github
+2026-10-06 16:54:13 [info     ] webhook_ingested               delivery_id=opendal-pr-7935 event_types=['pdlc.change.merged'] request_id=e839342c-9090-4bc9-a578-38275e0126c4 source=github
+2026-10-06 16:54:14 [info     ] webhook_ingested               delivery_id=opendal-pr-7936 event_types=['pdlc.change.merged'] request_id=d6aaf5da-02fd-43d5-b2a7-f32f5ae8fc7b source=github
+2026-10-06 16:54:14 [info     ] webhook_ingested               delivery_id=opendal-pr-7932 event_types=['pdlc.change.merged'] request_id=b6da26d6-88c3-4bcc-a76e-8894df4634ef source=github
+2026-10-06 16:54:14 [info     ] webhook_ingested               delivery_id=opendal-pr-7937 event_types=['pdlc.change.merged'] request_id=f1c510f9-2686-4836-ab8a-a6f206565af7 source=github
+2026-10-06 16:54:14 [info     ] webhook_ingested               delivery_id=opendal-pr-7927 event_types=['pdlc.change.merged'] request_id=840d29ed-f2ee-4dd0-8dda-8216bd2cc44e source=github
+2026-10-06 16:54:14 [info     ] webhook_ingested               delivery_id=opendal-pr-7941 event_types=['pdlc.change.merged'] request_id=150c4dbe-455e-41dd-8e3b-6f0320d9379c source=github
+2026-10-06 16:54:14 [info     ] webhook_ingested               delivery_id=opendal-pr-7940 event_types=['pdlc.change.merged'] request_id=50da954c-3e0d-45d1-b29e-f28786d52535 source=github
+2026-10-06 16:54:15 [info     ] webhook_ingested               delivery_id=opendal-pr-7943 event_types=['pdlc.change.merged'] request_id=b0921fe7-35c6-48d2-9b10-cfd38bd3758b source=github
+2026-10-06 16:54:15 [info     ] webhook_ingested               delivery_id=opendal-pr-7946 event_types=['pdlc.change.merged'] request_id=d0b5d21b-83a0-4baf-a071-e5aed8382b27 source=github
+2026-10-06 16:54:15 [info     ] webhook_ingested               delivery_id=opendal-pr-7933 event_types=['pdlc.change.merged'] request_id=31211146-aaf3-4cfe-8fc2-81b62231caa2 source=github
+2026-10-06 16:54:15 [info     ] webhook_ingested               delivery_id=opendal-pr-7950 event_types=['pdlc.change.merged'] request_id=93e2b6fa-4183-41c2-8147-32a6a64a85d2 source=github
+2026-10-06 16:54:16 [info     ] webhook_ingested               delivery_id=opendal-pr-7951 event_types=['pdlc.change.merged'] request_id=6434b570-80fa-41a5-b231-b9ea357c2e04 source=github
+2026-10-06 16:54:16 [info     ] webhook_ingested               delivery_id=opendal-pr-7953 event_types=['pdlc.change.merged'] request_id=7ffa6bf0-ead5-465d-ba15-b266836230e9 source=github
+2026-10-06 16:54:16 [info     ] webhook_ingested               delivery_id=opendal-pr-7958 event_types=['pdlc.change.merged'] request_id=d569a5bb-2053-480a-be03-0cc9f14e2ca6 source=github
+2026-10-06 16:54:16 [info     ] webhook_ingested               delivery_id=opendal-pr-7947 event_types=['pdlc.change.merged'] request_id=75e60b0c-82db-41e0-8714-fdf01c1b7c20 source=github
+2026-10-06 16:54:16 [info     ] webhook_ingested               delivery_id=opendal-pr-7961 event_types=['pdlc.change.merged'] request_id=e9c02ba5-f7df-48c7-a3f6-73156e21882c source=github
+2026-10-06 16:54:16 [info     ] webhook_ingested               delivery_id=opendal-pr-7882 event_types=['pdlc.change.merged'] request_id=acda3075-ab06-4995-91fd-0b18419744a3 source=github
+2026-10-06 16:54:17 [info     ] webhook_ingested               delivery_id=opendal-pr-7960 event_types=['pdlc.change.merged'] request_id=958c405a-58b3-4755-bb53-1bda562b86b1 source=github
+2026-10-06 16:54:17 [info     ] webhook_ingested               delivery_id=opendal-pr-7956 event_types=['pdlc.change.merged'] request_id=272187c0-409b-4e16-9189-7573ff13ca76 source=github
+2026-10-06 16:54:17 [info     ] webhook_ingested               delivery_id=opendal-pr-7959 event_types=['pdlc.change.merged'] request_id=50e61363-bc02-4665-9ffd-46b1dc926523 source=github
+2026-10-06 16:54:17 [info     ] webhook_ingested               delivery_id=opendal-pr-7955 event_types=['pdlc.change.merged'] request_id=48cb0c05-c7a5-4b89-94db-6a7e96ca7a0b source=github
+2026-10-06 16:54:17 [info     ] webhook_ingested               delivery_id=opendal-pr-7963 event_types=['pdlc.change.merged'] request_id=7744efe4-0175-4feb-94be-473cc9e8ea59 source=github
+2026-10-06 16:54:18 [info     ] webhook_ingested               delivery_id=opendal-pr-7964 event_types=['pdlc.change.merged'] request_id=554261f7-182a-4663-912e-524da1c859a0 source=github
+2026-10-06 16:54:18 [info     ] webhook_ingested               delivery_id=opendal-pr-7965 event_types=['pdlc.change.merged'] request_id=97c335e0-123c-4e37-a9fe-14831c123dab source=github
+2026-10-06 16:54:18 [info     ] webhook_ingested               delivery_id=opendal-pr-7970 event_types=['pdlc.change.merged'] request_id=3062a7c7-6fb5-4a2d-9f7b-b12e4628eb51 source=github
+2026-10-06 16:54:18 [info     ] webhook_ingested               delivery_id=opendal-pr-7969 event_types=['pdlc.change.merged'] request_id=ef564a45-4f83-4063-92e6-cac505f6df60 source=github
+2026-10-06 16:54:18 [info     ] webhook_ingested               delivery_id=opendal-pr-7962 event_types=['pdlc.change.merged'] request_id=f440440b-4d71-40e7-8ac2-eff8f3d4bc4a source=github
+2026-10-06 16:54:19 [info     ] webhook_ingested               delivery_id=opendal-pr-7971 event_types=['pdlc.change.merged'] request_id=f826616d-4d8d-466a-aed8-89a793e96cd7 source=github
+2026-10-06 16:54:19 [info     ] webhook_ingested               delivery_id=opendal-pr-7972 event_types=['pdlc.change.merged'] request_id=7c94580b-b7a4-4487-8a2e-e2e9695a4b5a source=github
+2026-10-06 16:54:19 [info     ] webhook_ingested               delivery_id=opendal-pr-7974 event_types=['pdlc.change.merged'] request_id=34560180-1487-40db-936b-31613f03f218 source=github
+2026-10-06 16:54:19 [info     ] webhook_ingested               delivery_id=opendal-release-v0.58.1 event_types=['pdlc.release.published'] request_id=92073b20-9338-4080-80c8-882a37e19cc3 source=github
+2026-10-06 16:54:19 [info     ] webhook_ingested               delivery_id=opendal-pr-7978 event_types=['pdlc.change.merged'] request_id=cf3b6455-4bb5-491e-bc77-1139ae3ee358 source=github
+2026-10-06 16:54:19 [info     ] webhook_ingested               delivery_id=opendal-pr-7981 event_types=['pdlc.change.merged'] request_id=0b7afa5e-2da8-43bd-9efe-699479a0afe8 source=github
+2026-10-06 16:54:20 [info     ] webhook_ingested               delivery_id=opendal-pr-7984 event_types=['pdlc.change.merged'] request_id=7d936416-5d8f-42a2-a028-83e49af2c7ab source=github
+2026-10-06 16:54:20 [info     ] webhook_ingested               delivery_id=opendal-pr-7986 event_types=['pdlc.change.merged'] request_id=0ee442e4-02f7-4977-b383-2ad6aff5f479 source=github
+2026-10-06 16:54:20 [info     ] webhook_ingested               delivery_id=opendal-pr-7982 event_types=['pdlc.change.merged'] request_id=fa49fd86-bc24-482f-9d14-a5665e3458d9 source=github
+2026-10-06 16:54:20 [info     ] webhook_ingested               delivery_id=opendal-pr-7988 event_types=['pdlc.change.merged'] request_id=9703fc2f-7412-4db1-90b4-22c024fdfda7 source=github
+2026-10-06 16:54:20 [info     ] webhook_ingested               delivery_id=opendal-pr-7993 event_types=['pdlc.change.merged'] request_id=b84073aa-f580-4560-8a91-e23df7a60aec source=github
+2026-10-06 16:54:20 [info     ] webhook_ingested               delivery_id=opendal-pr-7995 event_types=['pdlc.change.merged'] request_id=6c3d75cc-c557-4dcd-9ad2-dc9097272791 source=github
+2026-10-06 16:54:21 [info     ] webhook_ingested               delivery_id=opendal-pr-7994 event_types=['pdlc.change.merged'] request_id=01582c8a-002f-40bd-922a-d974a6d416ac source=github
+2026-10-06 16:54:21 [info     ] webhook_ingested               delivery_id=opendal-pr-7992 event_types=['pdlc.change.merged'] request_id=a304e0b5-bf44-4c90-935f-70f4b3f389d2 source=github
+2026-10-06 16:54:21 [info     ] webhook_ingested               delivery_id=opendal-pr-7989 event_types=['pdlc.change.merged'] request_id=cb45f9c4-39dc-4e23-9220-259b559236c5 source=github
+2026-10-06 16:54:21 [info     ] webhook_ingested               delivery_id=opendal-pr-7996 event_types=['pdlc.change.merged'] request_id=3902e334-9e66-4ca0-ac49-50bced7d431a source=github
+2026-10-06 16:54:21 [info     ] webhook_ingested               delivery_id=opendal-pr-7997 event_types=['pdlc.change.merged'] request_id=6c3dbb0e-8689-4a28-a613-cd350bd8cdb4 source=github
+2026-10-06 16:54:22 [info     ] webhook_ingested               delivery_id=opendal-pr-7948 event_types=['pdlc.change.merged'] request_id=ac2aac3d-7085-438f-b91e-561e3f03f9fd source=github
+2026-10-06 16:54:22 [info     ] webhook_ingested               delivery_id=opendal-pr-7998 event_types=['pdlc.change.merged'] request_id=bde4f8b6-72ef-4996-87bc-66b5a6a9d8f0 source=github
+2026-10-06 16:54:22 [info     ] webhook_ingested               delivery_id=opendal-pr-8002 event_types=['pdlc.change.merged'] request_id=0f04cd0c-0609-4e43-9c4a-d5b3690280d6 source=github
+2026-10-06 16:54:22 [info     ] webhook_ingested               delivery_id=opendal-pr-8004 event_types=['pdlc.change.merged'] request_id=0c793459-8780-4039-9b74-efebecd02e53 source=github
+2026-10-06 16:54:22 [info     ] webhook_ingested               delivery_id=opendal-pr-8015 event_types=['pdlc.change.merged'] request_id=c44aa2e7-79a3-4cd0-b9fb-754bcad35bcd source=github
+2026-10-06 16:54:22 [info     ] webhook_ingested               delivery_id=opendal-pr-8016 event_types=['pdlc.change.merged'] request_id=0661eb88-18de-4a45-b250-f056dd105dae source=github
+2026-10-06 16:54:23 [info     ] webhook_ingested               delivery_id=opendal-pr-8006 event_types=['pdlc.change.merged'] request_id=877115fc-029b-4537-8192-2b27e137469d source=github
+2026-10-06 16:54:23 [info     ] webhook_ingested               delivery_id=opendal-pr-8018 event_types=['pdlc.change.merged'] request_id=9c3838ca-8bea-4a33-9726-506e3690de51 source=github
+2026-10-06 16:54:23 [info     ] webhook_ingested               delivery_id=opendal-pr-8019 event_types=['pdlc.change.merged'] request_id=bd1eeda3-2f46-44d9-8354-1e9647d0432d source=github
+2026-10-06 16:54:23 [info     ] webhook_ingested               delivery_id=opendal-pr-8012 event_types=['pdlc.change.merged'] request_id=9fbfc1d1-3fec-4f76-8cc0-da151f0ac99d source=github
+2026-10-06 16:54:23 [info     ] webhook_ingested               delivery_id=opendal-pr-7983 event_types=['pdlc.change.merged'] request_id=0830c2e6-1f57-48ca-8861-ce19146c1b2a source=github
+2026-10-06 16:54:23 [info     ] webhook_ingested               delivery_id=opendal-pr-8020 event_types=['pdlc.change.merged'] request_id=60bb95ea-b2ac-4be6-9a40-918c1cfbcac2 source=github
+2026-10-06 16:54:24 [info     ] webhook_ingested               delivery_id=opendal-pr-8031 event_types=['pdlc.change.merged'] request_id=2e3c9dd1-08d5-40a3-a56c-daba53690406 source=github
+2026-10-06 16:54:24 [info     ] webhook_ingested               delivery_id=opendal-pr-8034 event_types=['pdlc.change.merged'] request_id=b850ee5f-ebf1-4519-b218-5a23168c4845 source=github
+2026-10-06 16:54:24 [info     ] webhook_ingested               delivery_id=opendal-pr-8035 event_types=['pdlc.change.merged'] request_id=3ea9285b-220d-41a8-90fe-14f16e48a8d0 source=github
+2026-10-06 16:54:24 [info     ] webhook_ingested               delivery_id=opendal-pr-7949 event_types=['pdlc.change.merged'] request_id=ee8bba95-699f-4bf1-a3a4-651e1518beb7 source=github
+2026-10-06 16:54:24 [info     ] webhook_ingested               delivery_id=opendal-pr-8028 event_types=['pdlc.change.merged'] request_id=15647609-679f-4cec-b50f-e408d75c6e1e source=github
+2026-10-06 16:54:24 [info     ] webhook_ingested               delivery_id=opendal-pr-8041 event_types=['pdlc.change.merged'] request_id=4141829c-e8e7-4ea0-bb65-baba0f621f39 source=github
+2026-10-06 16:54:25 [info     ] webhook_ingested               delivery_id=opendal-pr-8017 event_types=['pdlc.change.merged'] request_id=4b263523-5221-45b4-94c3-0626e59ca100 source=github
+2026-10-06 16:54:25 [info     ] webhook_ingested               delivery_id=opendal-pr-8045 event_types=['pdlc.change.merged'] request_id=4cf96799-1a15-46d9-9651-af138c769d20 source=github
+2026-10-06 16:54:25 [info     ] webhook_ingested               delivery_id=opendal-pr-8027 event_types=['pdlc.change.merged'] request_id=fc5615af-7047-4342-9d56-3a1b623d8d22 source=github
+2026-10-06 16:54:25 [info     ] webhook_ingested               delivery_id=opendal-pr-8047 event_types=['pdlc.change.merged'] request_id=b07e65cc-59b5-4304-aee7-ba11d4637dc8 source=github
+2026-10-06 16:54:25 [info     ] webhook_ingested               delivery_id=opendal-pr-8051 event_types=['pdlc.change.merged'] request_id=9dafea24-3a58-43f1-a832-e4671b72ba82 source=github
+2026-10-06 16:54:26 [info     ] webhook_ingested               delivery_id=opendal-pr-8060 event_types=['pdlc.change.merged'] request_id=953baaea-b8a2-4db9-9540-13b0ccef4af1 source=github
+2026-10-06 16:54:26 [info     ] webhook_ingested               delivery_id=opendal-pr-8061 event_types=['pdlc.change.merged'] request_id=3a9c5736-c024-461e-a3c9-287492aaa5df source=github
+2026-10-06 16:54:26 [info     ] webhook_ingested               delivery_id=opendal-pr-8065 event_types=['pdlc.change.merged'] request_id=35d5df5a-d5d6-41ab-bc46-151f91c7ad56 source=github
+2026-10-06 16:54:26 [info     ] webhook_ingested               delivery_id=opendal-pr-8064 event_types=['pdlc.change.merged'] request_id=f119c369-05f4-4a51-9ff8-2897c4513585 source=github
+2026-10-06 16:54:26 [info     ] webhook_ingested               delivery_id=opendal-pr-8062 event_types=['pdlc.change.merged'] request_id=2201010e-7db9-4214-9336-5bd0f7fc819c source=github
+2026-10-06 16:54:27 [info     ] webhook_ingested               delivery_id=opendal-pr-8066 event_types=['pdlc.change.merged'] request_id=e41ee4ee-3ebe-4150-a695-b4235a8715a3 source=github
+2026-10-06 16:54:27 [info     ] webhook_ingested               delivery_id=opendal-pr-8044 event_types=['pdlc.change.merged'] request_id=69939cac-9946-4eee-89ce-4dc87d88ecbb source=github
+2026-10-06 16:54:27 [info     ] webhook_ingested               delivery_id=opendal-pr-8050 event_types=['pdlc.change.merged'] request_id=e34cc2c9-91c0-4aea-824a-e6ec06ecbb68 source=github
+2026-10-06 16:54:27 [info     ] webhook_ingested               delivery_id=opendal-pr-8048 event_types=['pdlc.change.merged'] request_id=c1d2abba-37a4-43ba-9626-244c20b3c91a source=github
+2026-10-06 16:54:27 [info     ] webhook_ingested               delivery_id=opendal-pr-8043 event_types=['pdlc.change.merged'] request_id=465ff2f6-ea8c-4bbb-8100-cfe9bbc60f86 source=github
+2026-10-06 16:54:28 [info     ] webhook_ingested               delivery_id=opendal-pr-8055 event_types=['pdlc.change.merged'] request_id=0b976542-5296-4603-9157-2dfff6685302 source=github
+2026-10-06 16:54:28 [info     ] webhook_ingested               delivery_id=opendal-pr-8073 event_types=['pdlc.change.merged'] request_id=201b8197-0175-44c3-9d27-b99f91ff14e1 source=github
+2026-10-06 16:54:28 [info     ] webhook_ingested               delivery_id=opendal-pr-8075 event_types=['pdlc.change.merged'] request_id=6deb09a4-f728-4c44-a048-c2e4e5d20ce0 source=github
+2026-10-06 16:54:28 [info     ] webhook_ingested               delivery_id=opendal-pr-8076 event_types=['pdlc.change.merged'] request_id=fe6bdf24-7371-4d29-b437-b01a45ef8473 source=github
+2026-10-06 16:54:28 [info     ] webhook_ingested               delivery_id=opendal-pr-8074 event_types=['pdlc.change.merged'] request_id=9df1cb20-19d9-4e5a-b52f-abbe89bd46a3 source=github
+2026-10-06 16:54:28 [info     ] webhook_ingested               delivery_id=opendal-pr-8077 event_types=['pdlc.change.merged'] request_id=6f8ce365-6466-49bd-acf0-1788f7e8930f source=github
+2026-10-06 16:54:29 [info     ] webhook_ingested               delivery_id=opendal-pr-8069 event_types=['pdlc.change.merged'] request_id=2ad3be7b-e6d2-438f-93d3-3836a85166b4 source=github
+2026-10-06 16:54:29 [info     ] webhook_ingested               delivery_id=opendal-pr-8068 event_types=['pdlc.change.merged'] request_id=30f375ec-2ed4-491d-8214-1080e1c400ca source=github
+2026-10-06 16:54:29 [info     ] webhook_ingested               delivery_id=opendal-pr-8071 event_types=['pdlc.change.merged'] request_id=0ffa97b0-b8b3-4b70-b39f-5e2b1a036237 source=github
+2026-10-06 16:54:29 [info     ] webhook_ingested               delivery_id=opendal-pr-8070 event_types=['pdlc.change.merged'] request_id=88edf573-f29a-47b0-8c51-b2d28c9eed52 source=github
+2026-10-06 16:54:29 [info     ] webhook_ingested               delivery_id=opendal-pr-8079 event_types=['pdlc.change.merged'] request_id=9c750de9-d102-4e16-bd2a-69fa0026e932 source=github
+2026-10-06 16:54:30 [info     ] webhook_ingested               delivery_id=opendal-pr-8072 event_types=['pdlc.change.merged'] request_id=8e610cf9-8071-44ab-839f-33b76d591b86 source=github
+2026-10-06 16:54:30 [info     ] webhook_ingested               delivery_id=opendal-pr-8088 event_types=['pdlc.change.merged'] request_id=837b7eba-574b-42c2-ba1b-904d86dffde3 source=github
+2026-10-06 16:54:30 [info     ] webhook_ingested               delivery_id=opendal-pr-8084 event_types=['pdlc.change.merged'] request_id=5f4f1f87-0585-4938-ae85-77a31fe02ddc source=github
+2026-10-06 16:54:30 [info     ] webhook_ingested               delivery_id=opendal-pr-8083 event_types=['pdlc.change.merged'] request_id=5878b171-c281-449a-9a98-af1d6581663b source=github
+2026-10-06 16:54:30 [info     ] webhook_ingested               delivery_id=opendal-pr-8082 event_types=['pdlc.change.merged'] request_id=a61c4f74-2cfe-40a1-aa53-e1ddeaa19b00 source=github
+2026-10-06 16:54:30 [info     ] webhook_ingested               delivery_id=opendal-pr-8085 event_types=['pdlc.change.merged'] request_id=0a28288e-6623-4b19-9b17-785d4ebffd30 source=github
+2026-10-06 16:54:31 [info     ] webhook_ingested               delivery_id=opendal-pr-8081 event_types=['pdlc.change.merged'] request_id=8e8fc8a6-4ab7-4795-857e-00f41e6f37e2 source=github
+2026-10-06 16:54:31 [info     ] webhook_ingested               delivery_id=opendal-pr-8086 event_types=['pdlc.change.merged'] request_id=62b588af-cdc7-42e8-a73b-cf2aa27ae62f source=github
+2026-10-06 16:54:31 [info     ] webhook_ingested               delivery_id=opendal-pr-8080 event_types=['pdlc.change.merged'] request_id=58a376a0-26be-432b-a4c9-1514cf564a1a source=github
+2026-10-06 16:54:31 [info     ] webhook_ingested               delivery_id=opendal-pr-8094 event_types=['pdlc.change.merged'] request_id=dddcbe25-1b6d-4299-8307-189dee841651 source=github
+2026-10-06 16:54:31 [info     ] webhook_ingested               delivery_id=opendal-pr-8095 event_types=['pdlc.change.merged'] request_id=e6bb858c-5438-4128-b748-3ca585b99a6f source=github
+2026-10-06 16:54:31 [info     ] webhook_ingested               delivery_id=opendal-pr-8097 event_types=['pdlc.change.merged'] request_id=6dffdcdf-4ee5-4c26-baa8-828d13705ec2 source=github
+2026-10-06 16:54:32 [info     ] webhook_ingested               delivery_id=opendal-release-v0.58.2 event_types=['pdlc.release.published'] request_id=d13ef34c-6880-479c-8ff6-5b7cb4486052 source=github
+2026-10-06 16:54:32 [info     ] webhook_ingested               delivery_id=opendal-pr-8098 event_types=['pdlc.change.merged'] request_id=1513a39d-2d0a-44d0-9475-e9acfa73bcf9 source=github
+2026-10-06 16:54:32 [info     ] webhook_ingested               delivery_id=opendal-pr-8099 event_types=['pdlc.change.merged'] request_id=7342d604-d2bd-44e3-955f-c4268a2eefea source=github
+2026-10-06 16:54:32 [info     ] webhook_ingested               delivery_id=opendal-pr-8121 event_types=['pdlc.change.merged'] request_id=59ce3961-8e33-4b07-9fc4-abc8be649fff source=github
+2026-10-06 16:54:32 [info     ] webhook_ingested               delivery_id=opendal-pr-8126 event_types=['pdlc.change.merged'] request_id=7b4e354b-04f7-4a0a-b887-baf0206fec39 source=github
+2026-10-06 16:54:33 [info     ] webhook_ingested               delivery_id=opendal-pr-8123 event_types=['pdlc.change.merged'] request_id=511f62cb-283c-4e4d-a4f8-d6674879691f source=github
+2026-10-06 16:54:33 [info     ] webhook_ingested               delivery_id=opendal-pr-8113 event_types=['pdlc.change.merged'] request_id=aaf734d0-3a34-4abb-bee8-5d71fedb3fb5 source=github
+2026-10-06 16:54:33 [info     ] webhook_ingested               delivery_id=opendal-pr-8108 event_types=['pdlc.change.merged'] request_id=cb737ef7-cd15-4a0d-b7d0-16dd06442c9d source=github
+2026-10-06 16:54:33 [info     ] webhook_ingested               delivery_id=opendal-pr-8131 event_types=['pdlc.change.merged'] request_id=aa6ac9d7-7a1f-49ad-a106-4d5de310d45e source=github
+2026-10-06 16:54:33 [info     ] webhook_ingested               delivery_id=opendal-pr-8129 event_types=['pdlc.change.merged'] request_id=d5b89346-7680-4dec-9a8a-6e03933ef18f source=github
+2026-10-06 16:54:33 [info     ] webhook_ingested               delivery_id=opendal-pr-8109 event_types=['pdlc.change.merged'] request_id=1db63f9a-647b-4990-bfd1-98646444368c source=github
+2026-10-06 16:54:34 [info     ] webhook_ingested               delivery_id=opendal-pr-7607 event_types=['pdlc.change.merged'] request_id=f31fe72e-dace-411c-ab7a-b9ac6000890a source=github
+2026-10-06 16:54:34 [info     ] webhook_ingested               delivery_id=opendal-pr-8137 event_types=['pdlc.change.merged'] request_id=bed51f67-1585-4aee-bf53-20dc5677f36e source=github
+2026-10-06 16:54:34 [info     ] webhook_ingested               delivery_id=opendal-pr-8135 event_types=['pdlc.change.merged'] request_id=1ab76bf7-74e6-4a85-a8ef-eb1c1affb2d5 source=github
+2026-10-06 16:54:34 [info     ] webhook_ingested               delivery_id=opendal-pr-8148 event_types=['pdlc.change.merged'] request_id=724dd5be-6d46-411e-b855-1ad4d739e8ef source=github
+2026-10-06 16:54:34 [info     ] webhook_ingested               delivery_id=opendal-pr-8150 event_types=['pdlc.change.merged'] request_id=ec8baac5-f182-4ec2-805e-49da87faa168 source=github
+2026-10-06 16:54:34 [info     ] webhook_ingested               delivery_id=opendal-pr-8147 event_types=['pdlc.change.merged'] request_id=bde61624-fdf7-4539-9474-ccf1f31abca1 source=github
+2026-10-06 16:54:35 [info     ] webhook_ingested               delivery_id=opendal-pr-8145 event_types=['pdlc.change.merged'] request_id=80c8531d-aec0-44ab-91b0-a434c359be76 source=github
+2026-10-06 16:54:35 [info     ] webhook_ingested               delivery_id=opendal-pr-8146 event_types=['pdlc.change.merged'] request_id=2ac226ae-2c6f-4719-a930-0b8923589949 source=github
+2026-10-06 16:54:35 [info     ] webhook_ingested               delivery_id=opendal-pr-8139 event_types=['pdlc.change.merged'] request_id=5d2b80d4-9ed4-4c7b-97d8-e38ea8b43eb7 source=github
+2026-10-06 16:54:35 [info     ] webhook_ingested               delivery_id=opendal-pr-8152 event_types=['pdlc.change.merged'] request_id=a8090993-54e1-4436-8383-194fd2396f97 source=github
+2026-10-06 16:54:35 [info     ] webhook_ingested               delivery_id=opendal-pr-8143 event_types=['pdlc.change.merged'] request_id=cd7439c8-0c71-41e1-be9b-ca011d22a54a source=github
+2026-10-06 16:54:36 [info     ] webhook_ingested               delivery_id=opendal-pr-8142 event_types=['pdlc.change.merged'] request_id=836e4b30-2fa5-48b5-bfc4-5e7ef920cb04 source=github
+2026-10-06 16:54:36 [info     ] webhook_ingested               delivery_id=opendal-pr-8136 event_types=['pdlc.change.merged'] request_id=244d8d14-6ffd-4ad5-9828-1b1c7338f82a source=github
+2026-10-06 16:54:36 [info     ] webhook_ingested               delivery_id=opendal-pr-7945 event_types=['pdlc.change.merged'] request_id=daca2d88-5be4-40c1-be22-d819bf15ff65 source=github
+2026-10-06 16:54:36 [info     ] webhook_ingested               delivery_id=opendal-pr-8155 event_types=['pdlc.change.merged'] request_id=209c0443-2139-4586-a954-edc10e0efd1a source=github
+2026-10-06 16:54:36 [info     ] webhook_ingested               delivery_id=opendal-pr-8106 event_types=['pdlc.change.merged'] request_id=ba58ecb3-57bd-4dfe-8168-6ccfa5d843c7 source=github
+2026-10-06 16:54:37 [info     ] webhook_ingested               delivery_id=opendal-pr-8030 event_types=['pdlc.change.merged'] request_id=96531909-b20f-41ae-a303-9de204517204 source=github
+2026-10-06 16:54:37 [info     ] webhook_ingested               delivery_id=opendal-pr-8154 event_types=['pdlc.change.merged'] request_id=4472e447-25ef-4d73-9592-0c005ed0e402 source=github
+2026-10-06 16:54:37 [info     ] webhook_ingested               delivery_id=opendal-pr-8103 event_types=['pdlc.change.merged'] request_id=d6263bcb-b453-4aa9-b416-e5b0d8654ebf source=github
+2026-10-06 16:54:37 [info     ] webhook_ingested               delivery_id=opendal-pr-8102 event_types=['pdlc.change.merged'] request_id=1da25e07-d305-4446-bae5-0d72a42079db source=github
+2026-10-06 16:54:37 [info     ] webhook_ingested               delivery_id=opendal-pr-8156 event_types=['pdlc.change.merged'] request_id=11999cc0-088e-4527-8997-df21b5126b93 source=github
+2026-10-06 16:54:38 [info     ] webhook_ingested               delivery_id=opendal-pr-8140 event_types=['pdlc.change.merged'] request_id=e81d6cd2-2575-45bf-bead-0bfda5b35239 source=github
+2026-10-06 16:54:38 [info     ] webhook_ingested               delivery_id=opendal-pr-8160 event_types=['pdlc.change.merged'] request_id=da384b74-cc54-43b5-bc0e-66fdd665a721 source=github
+2026-10-06 16:54:38 [info     ] webhook_ingested               delivery_id=opendal-pr-8162 event_types=['pdlc.change.merged'] request_id=f224ee19-39ec-4395-860a-7a41fbc6c61f source=github
+2026-10-06 16:54:38 [info     ] webhook_ingested               delivery_id=opendal-pr-8163 event_types=['pdlc.change.merged'] request_id=5fe7dbc6-246e-4cab-8291-0fb0e988a784 source=github
+2026-10-06 16:54:38 [info     ] webhook_ingested               delivery_id=opendal-pr-8119 event_types=['pdlc.change.merged'] request_id=aac5e8d1-3726-460a-a1de-847505961bc9 source=github
+2026-10-06 16:54:39 [info     ] webhook_ingested               delivery_id=opendal-pr-8166 event_types=['pdlc.change.merged'] request_id=bd3bfea2-5e9d-400a-b25e-053572c763c2 source=github
+2026-10-06 16:54:39 [info     ] webhook_ingested               delivery_id=opendal-pr-8169 event_types=['pdlc.change.merged'] request_id=729631b7-45a6-455d-a468-84f7aabaa3f6 source=github
+2026-10-06 16:54:39 [info     ] webhook_ingested               delivery_id=opendal-pr-8171 event_types=['pdlc.change.merged'] request_id=c461afea-7df7-4b63-bfb7-fc27e6a777f2 source=github
+2026-10-06 16:54:39 [info     ] webhook_ingested               delivery_id=opendal-pr-8175 event_types=['pdlc.change.merged'] request_id=ceb17119-9d27-4995-89a0-7d267fca9dce source=github
+2026-10-06 16:54:39 [info     ] webhook_ingested               delivery_id=opendal-pr-8172 event_types=['pdlc.change.merged'] request_id=166b88ca-8e70-4538-95c2-759210bd8ebf source=github
+2026-10-06 16:54:40 [info     ] webhook_ingested               delivery_id=opendal-pr-8174 event_types=['pdlc.change.merged'] request_id=fd5fe567-96f7-4c80-b0ed-3b01544298c8 source=github
+2026-10-06 16:54:40 [info     ] webhook_ingested               delivery_id=opendal-pr-8179 event_types=['pdlc.change.merged'] request_id=ec74f7a3-68db-4eec-b83f-343d8c79cda6 source=github
+2026-10-06 16:54:40 [info     ] webhook_ingested               delivery_id=opendal-pr-8180 event_types=['pdlc.change.merged'] request_id=27af43f9-1176-41bf-9e0c-93333ef0929b source=github
+2026-10-06 16:54:40 [info     ] webhook_ingested               delivery_id=opendal-pr-8153 event_types=['pdlc.change.merged'] request_id=3ab57e00-f5f8-4ee6-bed2-607cb3b91a65 source=github
+2026-10-06 16:54:41 [info     ] webhook_ingested               delivery_id=opendal-pr-8185 event_types=['pdlc.change.merged'] request_id=533b5420-ab40-4cf1-b904-0a9b74a893c3 source=github
+2026-10-06 16:54:41 [info     ] webhook_ingested               delivery_id=opendal-pr-8183 event_types=['pdlc.change.merged'] request_id=90c47620-d0ae-468e-a945-c1653ee14308 source=github
+2026-10-06 16:54:41 [info     ] webhook_ingested               delivery_id=opendal-pr-8184 event_types=['pdlc.change.merged'] request_id=af4cdb0f-065a-4ea4-bce2-0d2794f5f26c source=github
+2026-10-06 16:54:41 [info     ] webhook_ingested               delivery_id=opendal-pr-8186 event_types=['pdlc.change.merged'] request_id=125e45df-0c6b-4a9f-a68c-7ca0a20ae3bf source=github
+2026-10-06 16:54:41 [info     ] webhook_ingested               delivery_id=opendal-pr-8189 event_types=['pdlc.change.merged'] request_id=df434072-e5a7-48de-b536-fec02d12b4f4 source=github
+2026-10-06 16:54:42 [info     ] webhook_ingested               delivery_id=opendal-pr-8190 event_types=['pdlc.change.merged'] request_id=c7b90294-8a85-4ef4-bde1-86d31af63a69 source=github
+2026-10-06 16:54:42 [info     ] webhook_ingested               delivery_id=opendal-pr-8188 event_types=['pdlc.change.merged'] request_id=2663e8a2-1bba-4eb5-9a7b-1c5d15f75a11 source=github
+2026-10-06 16:54:42 [info     ] webhook_ingested               delivery_id=opendal-pr-8181 event_types=['pdlc.change.merged'] request_id=e91a51ed-45fc-492e-b35c-9235d6a78e25 source=github
+2026-10-06 16:54:42 [info     ] webhook_ingested               delivery_id=opendal-pr-8194 event_types=['pdlc.change.merged'] request_id=80869737-831e-4080-99fe-9106d08c725f source=github
+2026-10-06 16:54:42 [info     ] webhook_ingested               delivery_id=opendal-pr-8196 event_types=['pdlc.change.merged'] request_id=bb39fe3e-562e-4829-a83d-b7acb01b69de source=github
+2026-10-06 16:54:43 [info     ] webhook_ingested               delivery_id=opendal-pr-8191 event_types=['pdlc.change.merged'] request_id=d596b068-fe19-42d4-9f33-e82f319806e7 source=github
+2026-10-06 16:54:43 [info     ] webhook_ingested               delivery_id=opendal-pr-8197 event_types=['pdlc.change.merged'] request_id=6027c62f-b5f1-403e-8114-e7a59b55b088 source=github
+2026-10-06 16:54:43 [info     ] webhook_ingested               delivery_id=opendal-pr-8199 event_types=['pdlc.change.merged'] request_id=d891d267-65a9-4c9e-8588-36d55e7c63f6 source=github
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py:197: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await self.dispatch_func(request, call_next)
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 151, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 1959, in large_corpus
+    content=body,
+       ^^^^^^^^^^^
+AssertionError: {"detail":"Rate limit exceeded","retry_after":0.3}
+
+{"name": "PDLC_OpenDAL_signed_ingestion_projection_evaluation", "scenarios": ["APP-02", "ART-01", "HOOK-01"], "verdict": "failed", "error_type": "AssertionError", "error": "{\"detail\":\"Rate limit exceeded\",\"retry_after\":0.3}", "seconds": 36.69}
+2026-10-06 16:54:43 [info     ] app_stopped

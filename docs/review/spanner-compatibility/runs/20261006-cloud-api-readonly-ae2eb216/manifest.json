@@ -1,0 +1,31 @@
+{
+  "kind": "real_api_readonly_smoke",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "backend": "real_spanner",
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram"
+  },
+  "auth": "test-only explicit token SDK bootstrap; temporary localhost API/admin key",
+  "entry_point": "uvicorn context_graph.api.app:create_app factory; normal app lifespan and routes",
+  "all_storage_ports": "spanner",
+  "read_only": true,
+  "max_seconds": 90,
+  "resource_changes": [],
+  "model_mode": "no provider invoked; empty-session queries only",
+  "harness_sha256": "2bcaf5fd84c74d62f73c0d8b7babc3a02e4c98ac6e5c9b14046171f5ad68638e",
+  "scenario_ids": [
+    "BOOT-01",
+    "OPS-01",
+    "MEM-01",
+    "MEM-02",
+    "MEM-03",
+    "ONT-01"
+  ],
+  "scope": "read-only subset; not full scenario acceptance",
+  "run_id": "20261006-cloud-api-readonly-ae2eb216",
+  "harness_source": "harness.py",
+  "bootstrap_source": "token-bootstrap.py",
+  "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 LITELLM_LOCAL_MODEL_COST_MAP=true GRPC_VERBOSITY=ERROR /private/tmp/engram-ontology-review-venv/bin/python /private/tmp/engram-cloud-api-readonly.py"
+}

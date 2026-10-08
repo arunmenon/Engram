@@ -1,0 +1,22 @@
+{
+  "kind": "read_only_cloud_preflight",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "backend": "real_spanner",
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram"
+  },
+  "auth": "explicit token SDK credential bootstrap; unmodified production ADC not tested",
+  "scenario_ids": [
+    "BOOT-02",
+    "BOOT-03"
+  ],
+  "read_only": true,
+  "max_seconds": 90,
+  "resource_changes": [],
+  "packs": "not loaded; open_stores only",
+  "model_mode": "none",
+  "configuration": "all five storage ports spanner; emulator unset; creation disabled",
+  "run_id": "20261006-cloud-preflight-9c6120b9"
+}

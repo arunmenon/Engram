@@ -1,0 +1,31 @@
+{
+  "status": "in_progress",
+  "source_review": "2026-10-07-astra-retrieval-composition-design-review.md",
+  "new_spanner_defect": 44,
+  "classification": "Engram Spanner adapter, not Spanner service",
+  "executed_cloud_failure": false,
+  "pending": [
+    "Entity ANN migration, differential queries, API/five-worker process journey and bounded coexistence writes verified; publication pending before #44 closure",
+    "Neo4j pre-limit scoped query implementation (no runner planned)",
+    "Complete typed mixed Atlas output identity/collision handling (#25)",
+    "Historical ownership/version interpretation and tenant binding (#35/#43)",
+    "Full retrieval/composition/tenant real-Spanner differential acceptance beyond the Entity ANN component"
+  ],
+  "implemented_locally": [
+    "Immutable Memory/Spanner scoped primitive views before counting/limits",
+    "Canonical node identity and dangling endpoint checks",
+    "Inactive/rejected artifact neighbor, direction and identity checks",
+    "Unavailable explicit event intent refused before provider calls",
+    "Typed vector Entity resolution to referencing Event seeds",
+    "Validated neighbor label selects identity even with stale cross-type properties"
+  ],
+  "limitations": "Only Entity ANN component and typed evidence seeding have scoped cloud acceptance. Historical Events remain core; past semantic influence in summaries/properties is not erased. Original stores remain for writes/privacy. No full retrieval or compatibility sign-off.",
+  "local_run": "runs/20261007-local-composed-reads-05",
+  "local_result": "98 passed, 15 warnings",
+  "implementation_review": "2026-10-07-astra-composed-reads-review.md",
+  "review_verdict": "approve scoped composed primitive-read slice",
+  "ann_design_review": "2026-10-07-astra-entity-ann-design-review.md",
+  "ann_design_verdict": "Runtime and durable migration reviewed; real migration and six native-query fixture checks passed. Full-process restart and bulk-commit acceptance pending.",
+  "entity_ann_progress": "entity-ann-progress.json",
+  "ann_cloud_run": "runs/20261007-cloud-entity-ann-verify-01"
+}

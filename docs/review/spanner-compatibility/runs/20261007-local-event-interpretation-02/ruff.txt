@@ -1,0 +1,12 @@
+E501 Line too long (103 > 100)
+   --> tests/unit/test_spanner_event_interpretation.py:161:101
+    |
+159 |     else:
+160 |         consumer = PackExtractionConsumer(
+161 |             port, ledger, graph, [] if kind == "no_profiles" else [profile], projector, model, settings
+    |                                                                                                     ^^^
+162 |         )
+163 |     with pytest.raises(RuntimeFencedError):
+    |
+
+Found 1 error.

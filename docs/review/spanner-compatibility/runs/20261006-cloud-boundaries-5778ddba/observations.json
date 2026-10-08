@@ -1,0 +1,162 @@
+{
+  "checks": [
+    {
+      "name": "valid_ingest_duplicate_JSON_roundtrip",
+      "scenarios": [
+        "ING-01",
+        "ING-04",
+        "LED-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "created": true,
+        "duplicate": true,
+        "lossless_nested_float": true
+      },
+      "seconds": 0.27
+    },
+    {
+      "name": "pack_payload_missing_key_rejected",
+      "scenarios": [
+        "ING-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "missing pack key accepted HTTP201",
+      "seconds": 0.17
+    },
+    {
+      "name": "mixed_timezone_controlled_error",
+      "scenarios": [
+        "ING-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "mixed timezone response HTTP500",
+      "seconds": 0.01
+    },
+    {
+      "name": "truncated_gzip_rejected",
+      "scenarios": [
+        "ING-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "truncated gzip HTTP201",
+      "seconds": 0.08
+    },
+    {
+      "name": "batch_mixed_outcomes_and_boundaries",
+      "scenarios": [
+        "ING-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "mixed_created_duplicate_rejected": true,
+        "empty_and_max_plus_one": true
+      },
+      "seconds": 0.09
+    },
+    {
+      "name": "historical_import_order_invalid_line_retry",
+      "scenarios": [
+        "ING-05",
+        "LED-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "gzip_NDJSON_order_invalid_line_retry": true
+      },
+      "seconds": 0.22
+    },
+    {
+      "name": "namespace_and_webhook_identity_guards",
+      "scenarios": [
+        "ING-01",
+        "OPS-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "namespace_and_reserved_identity": "rejected"
+      },
+      "seconds": 0.01
+    },
+    {
+      "name": "webhook_future_envelope_rejected",
+      "scenarios": [
+        "HOOK-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "future webhook HTTP202",
+      "seconds": 0.17
+    },
+    {
+      "name": "webhook_nested_shape_controlled_error",
+      "scenarios": [
+        "HOOK-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "malformed webhook HTTP500",
+      "seconds": 0.0
+    },
+    {
+      "name": "webhook_signature_guard",
+      "scenarios": [
+        "HOOK-03",
+        "OPS-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "unsigned": "rejected"
+      },
+      "seconds": 0.0
+    },
+    {
+      "name": "observability_routes",
+      "scenarios": [
+        "OPS-01",
+        "ONT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "health_detailed_stats_ontology": "HTTP200"
+      },
+      "seconds": 1.74
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 28
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 21
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 11
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

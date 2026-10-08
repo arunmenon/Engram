@@ -1,0 +1,271 @@
+{
+  "checks": [
+    {
+      "name": "two_API_instances_bounded_context_workload_and_backlog_drain",
+      "scenarios": [
+        "OPS-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "events": 24,
+        "sessions": 3,
+        "API_instances": 2,
+        "same_OS_process": true,
+        "max_concurrent_requests": 2,
+        "batch_to_projection_drain_seconds": 21.374875208362937,
+        "warm_context_seconds": {
+          "p50": 0.6451124581508338,
+          "p95": 0.9430169625440611,
+          "p99": 0.9588862510491163
+        },
+        "samples": [
+          {
+            "API_instance": "b",
+            "session": "load-1",
+            "phase": "first_context_call",
+            "seconds": 0.6527630421333015,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-0",
+            "phase": "first_context_call",
+            "seconds": 0.6556524997577071,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6401740410365164,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.645089500118047,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.7971049170009792,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.8685673750005662,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6994284158572555,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.7991721252910793,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.605554583016783,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6117706671357155,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.9561551250517368,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.9597020419314504,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.6451982078142464,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6451354161836207,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.5909381657838821,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6113366656936705,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.5791624998673797,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.6131422496400774,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.6549782906658947,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6544323340058327,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.6205900418572128,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6213485421612859,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.6066417922265828,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-1",
+            "phase": "warm",
+            "seconds": 0.6127690407447517,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "b",
+            "session": "load-0",
+            "phase": "warm",
+            "seconds": 0.6523687923327088,
+            "status": 200,
+            "nodes": 8
+          },
+          {
+            "API_instance": "a",
+            "session": "load-2",
+            "phase": "warm",
+            "seconds": 0.6789086670614779,
+            "status": 200,
+            "nodes": 8
+          }
+        ],
+        "projection_lag": 0,
+        "projection_pending": {},
+        "scope": "actual independent SDK-backed app lifespans, no network proxy; first call vs warm, not a restarted server cold-start benchmark; no SLO claimed"
+      },
+      "seconds": 30.65
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 0
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

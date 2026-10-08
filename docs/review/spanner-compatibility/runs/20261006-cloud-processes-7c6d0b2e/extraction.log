@@ -1,0 +1,31 @@
+2026-10-06 15:41:44 [info     ] worker_starting                consumer=extraction neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 15:41:46 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:41:46 [info     ] worker_running                 consumer=extraction
+2026-10-06 15:41:46 [info     ] consumer_started               consumer=extraction-1 group=session-extraction stream=Events
+2026-10-06 15:41:46 [info     ] pending_drain_completed        group=session-extraction
+2026-10-06 15:41:47 [info     ] extraction_triggered           agent_id=compat-process entry_id=2026-10-06T10:11:38.949471000Z/000000/35750263-a2f5-42ae-8c68-4b4bd843f410 session_id=compat-process
+2026-10-06 15:41:49 [info     ] extraction_wrote_user_profile  persona_name='Process User' persona_role=None session_id=compat-process user_entity_id=user:compat-process
+2026-10-06 15:41:49 [error    ] message_processing_failed      consumer=extraction-1 entry_id=2026-10-06T10:11:38.949471000Z/000000/35750263-a2f5-42ae-8c68-4b4bd843f410 group=session-extraction
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/consumer.py", line 272, in run
+    await self.process_message(entry_id, delivery.fields)
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 158, in process_message
+    await self._write_extraction_results(session_id, agent_id, result, source_event_ids)
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 281, in _write_extraction_results
+    resolution, _semantic_matches = await self._resolve_semantic(
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 439, in _resolve_semantic
+    query_vec = await self._embedding_service.embed_text(entity_name)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/embedding/service.py", line 58, in embed_text
+    model = self._ensure_model()
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/embedding/service.py", line 45, in _ensure_model
+    from sentence_transformers import SentenceTransformer
+ModuleNotFoundError: No module named 'sentence_transformers'
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-06 15:42:50 [info     ] shutdown_signal_received       consumer=extraction
+2026-10-06 15:42:50 [info     ] consumer_stopped               consumer=extraction-1 group=session-extraction
+2026-10-06 15:42:50 [info     ] worker_shutting_down           consumer=extraction
+2026-10-06 15:42:50 [info     ] worker_stopped                 consumer=extraction
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

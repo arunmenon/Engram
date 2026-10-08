@@ -1,0 +1,135 @@
+.FF..................................................................... [ 80%]
+..................                                                       [100%]
+=================================== FAILURES ===================================
+_ test_consumer_drops_unsolicited_user_results_but_writes_core_entities[builtins0] _
+
+builtins = []
+
+    @pytest.mark.parametrize("builtins", [[], ["memory"]])
+    async def test_consumer_drops_unsolicited_user_results_but_writes_core_entities(builtins):
+        graph, user = AsyncMock(), AsyncMock()
+        graph.get_entities.return_value = []
+        settings = Settings(ontology=OntologySettings(packs=["pdlc"], builtin_packs=builtins))
+        consumer = ExtractionConsumer(
+            subscription=AsyncMock(),
+            event_log=AsyncMock(),
+            llm_client=AsyncMock(),
+            settings=settings,
+            graph_store=graph,
+            user_store=user,
+        )
+        await consumer._write_extraction_results(
+            "session",
+            "agent",
+            {
+                "entities": [{"name": "Python", "entity_type": "tool"}],
+                "persona": {"name": "Unwanted"},
+                "preferences": [{"key": "unwanted"}],
+                "skills": [{"name": "unwanted"}],
+                "interests": [{"entity_name": "unwanted"}],
+            },
+            ["event"],
+        )
+>       graph.merge_typed_node.assert_awaited_once()
+
+tests/unit/test_extraction_pack_boundary.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock name='mock.merge_typed_node' id='4367420112'>
+
+    def assert_awaited_once(self):
+        """
+        Assert that the mock was awaited exactly once.
+        """
+        if not self.await_count == 1:
+            msg = (f"Expected {self._mock_name or 'mock'} to have been awaited once."
+                   f" Awaited {self.await_count} times.")
+>           raise AssertionError(msg)
+E           AssertionError: Expected merge_typed_node to have been awaited once. Awaited 0 times.
+
+/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:2325: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-07 17:52:37 [debug    ] entity_created                 entity_id=entity:Python name=Python
+2026-10-07 17:52:37 [info     ] extraction_results_written     session_id=session user_entity_id=user:agent
+_ test_consumer_drops_unsolicited_user_results_but_writes_core_entities[builtins1] _
+
+builtins = ['memory']
+
+    @pytest.mark.parametrize("builtins", [[], ["memory"]])
+    async def test_consumer_drops_unsolicited_user_results_but_writes_core_entities(builtins):
+        graph, user = AsyncMock(), AsyncMock()
+        graph.get_entities.return_value = []
+        settings = Settings(ontology=OntologySettings(packs=["pdlc"], builtin_packs=builtins))
+        consumer = ExtractionConsumer(
+            subscription=AsyncMock(),
+            event_log=AsyncMock(),
+            llm_client=AsyncMock(),
+            settings=settings,
+            graph_store=graph,
+            user_store=user,
+        )
+        await consumer._write_extraction_results(
+            "session",
+            "agent",
+            {
+                "entities": [{"name": "Python", "entity_type": "tool"}],
+                "persona": {"name": "Unwanted"},
+                "preferences": [{"key": "unwanted"}],
+                "skills": [{"name": "unwanted"}],
+                "interests": [{"entity_name": "unwanted"}],
+            },
+            ["event"],
+        )
+>       graph.merge_typed_node.assert_awaited_once()
+
+tests/unit/test_extraction_pack_boundary.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock name='mock.merge_typed_node' id='4367558576'>
+
+    def assert_awaited_once(self):
+        """
+        Assert that the mock was awaited exactly once.
+        """
+        if not self.await_count == 1:
+            msg = (f"Expected {self._mock_name or 'mock'} to have been awaited once."
+                   f" Awaited {self.await_count} times.")
+>           raise AssertionError(msg)
+E           AssertionError: Expected merge_typed_node to have been awaited once. Awaited 0 times.
+
+/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:2325: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 17:52:37 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-07 17:52:37 [debug    ] entity_created                 entity_id=entity:Python name=Python
+2026-10-07 17:52:37 [info     ] extraction_results_written     session_id=session user_entity_id=user:agent
+=========================== short test summary info ============================
+FAILED tests/unit/test_extraction_pack_boundary.py::test_consumer_drops_unsolicited_user_results_but_writes_core_entities[builtins0]
+FAILED tests/unit/test_extraction_pack_boundary.py::test_consumer_drops_unsolicited_user_results_but_writes_core_entities[builtins1]
+2 failed, 88 passed in 12.13s

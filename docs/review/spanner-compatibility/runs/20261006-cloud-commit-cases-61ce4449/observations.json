@@ -1,0 +1,299 @@
+{
+  "checks": [
+    {
+      "name": "simultaneous_duplicate_different_payload_first_write_wins",
+      "scenarios": [
+        "ING-01",
+        "LED-02",
+        "SUB-04"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "statuses": [
+          201,
+          201,
+          201,
+          201,
+          201,
+          201
+        ],
+        "responses": [
+          {
+            "event_id": "d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "global_position": "2026-10-06T14:03:24.481135000Z/000000/d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "status": "duplicate"
+          },
+          {
+            "event_id": "d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "global_position": "2026-10-06T14:03:24.481135000Z/000000/d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "status": "duplicate"
+          },
+          {
+            "event_id": "d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "global_position": "2026-10-06T14:03:24.481135000Z/000000/d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "status": "created"
+          },
+          {
+            "event_id": "d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "global_position": "2026-10-06T14:03:24.481135000Z/000000/d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "status": "duplicate"
+          },
+          {
+            "event_id": "d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "global_position": "2026-10-06T14:03:24.481135000Z/000000/d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "status": "duplicate"
+          },
+          {
+            "event_id": "d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "global_position": "2026-10-06T14:03:24.481135000Z/000000/d6320597-5dc8-42f6-8eae-4b6797ff7e19",
+            "status": "duplicate"
+          }
+        ],
+        "stored_payload": {
+          "content": "winner candidate 2"
+        }
+      },
+      "seconds": 1.22
+    },
+    {
+      "name": "exact_two_row_commit_budget_partial_failure_retry",
+      "scenarios": [
+        "ING-02",
+        "OPS-04",
+        "LED-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "budget": {
+          "mutations": 66,
+          "bytes": 2048
+        },
+        "attempted_chunk_sizes": [
+          2,
+          2,
+          2
+        ],
+        "first_status": 201,
+        "first_response": {
+          "accepted": 4,
+          "rejected": 7,
+          "results": [
+            {
+              "event_id": "a8418f6b-75e5-4da5-b4a5-50ef6e517d5d",
+              "global_position": "2026-10-06T14:03:25.124511000Z/000000/a8418f6b-75e5-4da5-b4a5-50ef6e517d5d",
+              "status": "created"
+            },
+            {
+              "event_id": "273f2b46-ac69-491f-b709-dc832a1a65f4",
+              "global_position": "2026-10-06T14:03:25.124511000Z/000001/273f2b46-ac69-491f-b709-dc832a1a65f4",
+              "status": "created"
+            },
+            {
+              "event_id": "431d0829-4d0b-43b9-aab4-81af9756204e",
+              "global_position": "2026-10-06T14:03:25.297519000Z/000000/431d0829-4d0b-43b9-aab4-81af9756204e",
+              "status": "created"
+            },
+            {
+              "event_id": "881e1f31-7d62-4e65-a1f4-c889b3acead9",
+              "global_position": "2026-10-06T14:03:25.297519000Z/000001/881e1f31-7d62-4e65-a1f4-c889b3acead9",
+              "status": "created"
+            }
+          ],
+          "errors": [
+            {
+              "index": 4,
+              "event_id": "eee07833-2029-482c-bd6c-b3233e0430a8",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "event_id": "81de2791-c907-462c-af12-c4ee1daa9e6c",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            },
+            {
+              "index": 6,
+              "event_id": "f0e60e35-ff29-4f69-a396-3fdc8b61207e",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            },
+            {
+              "index": 7,
+              "event_id": "3368cfaf-bea7-4464-9890-b4b67c752336",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            },
+            {
+              "index": 8,
+              "event_id": "15d6f213-bad7-4b34-8ba7-9e61700ab222",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "event_id": "c13b0ee6-ce57-4ada-9025-ef9f7b807d92",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            },
+            {
+              "index": 10,
+              "event_id": "efc0c627-b19a-4fb8-88b6-49440ba3f2fd",
+              "errors": [
+                {
+                  "field": "store",
+                  "message": "not written: synthetic third commit chunk unavailable"
+                }
+              ]
+            }
+          ]
+        },
+        "first_ledger_length": 5,
+        "retry_status": 201,
+        "retry": {
+          "accepted": 11,
+          "rejected": 0,
+          "results": [
+            {
+              "event_id": "a8418f6b-75e5-4da5-b4a5-50ef6e517d5d",
+              "global_position": "2026-10-06T14:03:25.124511000Z/000000/a8418f6b-75e5-4da5-b4a5-50ef6e517d5d",
+              "status": "duplicate"
+            },
+            {
+              "event_id": "273f2b46-ac69-491f-b709-dc832a1a65f4",
+              "global_position": "2026-10-06T14:03:25.124511000Z/000001/273f2b46-ac69-491f-b709-dc832a1a65f4",
+              "status": "duplicate"
+            },
+            {
+              "event_id": "431d0829-4d0b-43b9-aab4-81af9756204e",
+              "global_position": "2026-10-06T14:03:25.297519000Z/000000/431d0829-4d0b-43b9-aab4-81af9756204e",
+              "status": "duplicate"
+            },
+            {
+              "event_id": "881e1f31-7d62-4e65-a1f4-c889b3acead9",
+              "global_position": "2026-10-06T14:03:25.297519000Z/000001/881e1f31-7d62-4e65-a1f4-c889b3acead9",
+              "status": "duplicate"
+            },
+            {
+              "event_id": "eee07833-2029-482c-bd6c-b3233e0430a8",
+              "global_position": "2026-10-06T14:03:25.975919000Z/000000/eee07833-2029-482c-bd6c-b3233e0430a8",
+              "status": "created"
+            },
+            {
+              "event_id": "81de2791-c907-462c-af12-c4ee1daa9e6c",
+              "global_position": "2026-10-06T14:03:25.975919000Z/000001/81de2791-c907-462c-af12-c4ee1daa9e6c",
+              "status": "created"
+            },
+            {
+              "event_id": "f0e60e35-ff29-4f69-a396-3fdc8b61207e",
+              "global_position": "2026-10-06T14:03:26.170479000Z/000000/f0e60e35-ff29-4f69-a396-3fdc8b61207e",
+              "status": "created"
+            },
+            {
+              "event_id": "3368cfaf-bea7-4464-9890-b4b67c752336",
+              "global_position": "2026-10-06T14:03:26.170479000Z/000001/3368cfaf-bea7-4464-9890-b4b67c752336",
+              "status": "created"
+            },
+            {
+              "event_id": "15d6f213-bad7-4b34-8ba7-9e61700ab222",
+              "global_position": "2026-10-06T14:03:26.334287000Z/000000/15d6f213-bad7-4b34-8ba7-9e61700ab222",
+              "status": "created"
+            },
+            {
+              "event_id": "c13b0ee6-ce57-4ada-9025-ef9f7b807d92",
+              "global_position": "2026-10-06T14:03:26.334287000Z/000001/c13b0ee6-ce57-4ada-9025-ef9f7b807d92",
+              "status": "created"
+            },
+            {
+              "event_id": "efc0c627-b19a-4fb8-88b6-49440ba3f2fd",
+              "global_position": "2026-10-06T14:03:26.496303000Z/000000/efc0c627-b19a-4fb8-88b6-49440ba3f2fd",
+              "status": "created"
+            }
+          ],
+          "errors": []
+        },
+        "final_length": 12,
+        "documents": 11,
+        "fault": "synthetic failure before third real commit; prior two real commits retained"
+      },
+      "seconds": 1.81
+    },
+    {
+      "name": "single_over_configured_byte_budget_delegated_to_service",
+      "scenarios": [
+        "OPS-04"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "configured_budget_bytes": 2048,
+        "payload_bytes": 3815,
+        "status": 201,
+        "response": {
+          "event_id": "75e1ccda-38e4-41fb-9b67-43b15c6e4812",
+          "global_position": "2026-10-06T14:03:26.867743000Z/000000/75e1ccda-38e4-41fb-9b67-43b15c6e4812",
+          "status": "created"
+        },
+        "document_preserved": true,
+        "contract": "an item exceeding configured estimate is delegated to Spanner in a single transaction; not a hard API ceiling"
+      },
+      "seconds": 0.26
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 13
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

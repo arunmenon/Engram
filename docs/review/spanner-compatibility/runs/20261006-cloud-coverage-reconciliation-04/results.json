@@ -1,0 +1,124 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "BOOT-01",
+      "status": "failed",
+      "issue_numbers": "26",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-shutdown-71530641/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "BOOT-03",
+      "status": "failed",
+      "issue_numbers": "23",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-schema-fd247214/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "LED-01",
+      "status": "failed",
+      "issue_numbers": "27",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-json-22af9759/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "SUB-02",
+      "status": "failed",
+      "issue_numbers": "14",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-recovery-dd24b1e3/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "SUB-04",
+      "status": "failed",
+      "issue_numbers": "18",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-concurrency-daf16e16/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "PROJ-01",
+      "status": "failed",
+      "issue_numbers": "18",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-concurrency-daf16e16/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "MEM-02",
+      "status": "failed",
+      "issue_numbers": "24",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "MEM-05",
+      "status": "failed",
+      "issue_numbers": "24",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "MEM-03",
+      "status": "failed",
+      "issue_numbers": "25",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-vector-9f8fc3ca/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "ONT-02",
+      "status": "failed",
+      "issue_numbers": "11",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-upgrades-bdcddac8/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "ONT-03",
+      "status": "failed",
+      "issue_numbers": "12",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-upgrades-bdcddac8/observations.json",
+      "note": "Verified required assertion failure; remaining corner cases are not implied executed."
+    },
+    {
+      "scenario_id": "APP-03",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-combined-d3dac25e/observations.json",
+      "note": "Required row assertions verified within scoped fixtures; does not imply adjacent negative/fault rows or overall sign-off. Native ANN uses four known384-d vectors plus prior process-embedded Entity proof."
+    },
+    {
+      "scenario_id": "APP-04",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-combined-d3dac25e/observations.json",
+      "note": "Required row assertions verified within scoped fixtures; does not imply adjacent negative/fault rows or overall sign-off. Native ANN uses four known384-d vectors plus prior process-embedded Entity proof."
+    },
+    {
+      "scenario_id": "SEARCH-02",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json",
+      "note": "Required row assertions verified within scoped fixtures; does not imply adjacent negative/fault rows or overall sign-off. Native ANN uses four known384-d vectors plus prior process-embedded Entity proof."
+    },
+    {
+      "scenario_id": "ART-05",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-combined-d3dac25e/observations.json",
+      "note": "Partial additional checks verified; full row remains open. FB-02 captures non-atomic retry semantics, not a claim of atomic/idempotent feedback."
+    },
+    {
+      "scenario_id": "MEM-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json",
+      "note": "Partial additional checks verified; full row remains open. FB-02 captures non-atomic retry semantics, not a claim of atomic/idempotent feedback."
+    },
+    {
+      "scenario_id": "FB-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-endpoints-fa84c6f7/observations.json",
+      "note": "Partial additional checks verified; full row remains open. FB-02 captures non-atomic retry semantics, not a claim of atomic/idempotent feedback."
+    },
+    {
+      "scenario_id": "BOOT-02",
+      "status": "blocked",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-startup-a9067dfe/observations.json",
+      "note": "Invalid token rejected; ordinary ADC prerequisite absent. Earlier real expiry preserved. No grant/key/ADC changes."
+    }
+  ],
+  "summary": "Resume results reconciled; product defects and harness corrections kept separate; no compatibility sign-off."
+}

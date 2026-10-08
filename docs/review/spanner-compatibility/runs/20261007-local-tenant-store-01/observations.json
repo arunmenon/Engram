@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {
+      "name": "tenant_binding_store_handshake_and_cleanup",
+      "passed": true,
+      "scenarios": [],
+      "tests_passed": 99,
+      "warnings": 1
+    }
+  ],
+  "runtime_source_unchanged_during_run": true,
+  "limitations": [
+    "Recording-port schema and ownership checks only",
+    "No protected schema install or real Spanner handshake yet",
+    "Production tenant factory still disabled; reads/envelopes/API-worker binding handoff pending"
+  ]
+}

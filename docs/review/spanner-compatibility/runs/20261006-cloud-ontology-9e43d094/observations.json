@@ -1,0 +1,48 @@
+{
+  "checks": [
+    {
+      "name": "owned_rebuild_database_access_or_provisioning",
+      "scenarios": [
+        "ONT-03",
+        "ONT-04"
+      ],
+      "verdict": "blocked",
+      "error_type": "PermissionDenied",
+      "error": "403 Operation denied by [IAM permission 'spanner.sessions.create' on resource '//spanner.googleapis.com/projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target']., request_id = 1.15790466739679533521.2.2.1.1 [reason: \"IAM_PERMISSION_DENIED\"\ndomain: \"iam.googleapis.com\"\nmetadata {\n  key: \"resource\"\n  value: \"projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target\"\n}\nmetadata {\n  key: \"permission\"\n  value: \"spanner.sessions.create\"\n}\n]",
+      "seconds": 0
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 28
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 21
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 11
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -1,0 +1,59 @@
+{
+  "checks": [
+    {
+      "name": "retention_protects_pending_historical_content",
+      "scenarios": [
+        "LIFE-01",
+        "LIFE-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "retention deleted document while projection delivery is pending",
+      "seconds": 3.21
+    },
+    {
+      "name": "projection_does_not_silently_ACK_expired_content",
+      "scenarios": [
+        "LIFE-01",
+        "SUB-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "projection ACKed missing content without producing a graph event",
+      "seconds": 4.11
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 74
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 75
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 128
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

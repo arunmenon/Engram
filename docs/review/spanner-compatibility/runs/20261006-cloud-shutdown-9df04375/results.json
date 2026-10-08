@@ -1,0 +1,11 @@
+{
+  "scenarios": [],
+  "summary": "Retained invalid-route harness attempt; bounded termination of SDK cleanup wait",
+  "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-shutdown-9df04375/observations.json",
+  "cleanup": {
+    "owned_harness_pid": 96245,
+    "signal": "SIGTERM",
+    "database_schema_preserved": true,
+    "SDK_remote_session_deletion": "not verified; original close waiting before delete"
+  }
+}

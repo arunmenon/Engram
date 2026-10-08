@@ -1,0 +1,166 @@
+{
+  "checks": [
+    {
+      "name": "pack_invalid_model_JSON_acknowledged_without_proposal",
+      "scenarios": [
+        "PEXT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "event_id": "cf241f26-3c3d-4077-9a11-230132e6a823",
+        "before": {
+          "nodes": {},
+          "edges": []
+        },
+        "after": {
+          "nodes": {
+            "Event": 1
+          },
+          "edges": []
+        },
+        "contract": "invalid model JSON acknowledged with no proposed node"
+      },
+      "seconds": 5.05
+    },
+    {
+      "name": "pack_bounded_proposal_confidence_trust_and_unknown_link",
+      "scenarios": [
+        "PEXT-01",
+        "PEXT-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "event_id": "4b3a143d-6e56-44d9-9cc6-0857a483ab2a",
+        "nodes": {
+          "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4": {
+            "confidence": 0.8,
+            "content_hash": "a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+            "method": "extracted",
+            "node_id": "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+            "node_type": "Decision",
+            "ontology_version": "sha256:3a7c761cd2848649",
+            "source_trust": "untrusted",
+            "statement": "bounded-policy-marker decision one",
+            "status": "proposed",
+            "status_changed_at": "2026-10-06T14:04:39.609419+00:00",
+            "updated_at": "2026-10-06T14:04:39.609419+00:00"
+          }
+        },
+        "graph": {
+          "nodes": {
+            "Decision": 1,
+            "Event": 2
+          },
+          "edges": [
+            [
+              "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+              "DERIVED_FROM",
+              "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"
+            ],
+            [
+              "4b3a143d-6e56-44d9-9cc6-0857a483ab2a",
+              "FOLLOWS",
+              "cf241f26-3c3d-4077-9a11-230132e6a823"
+            ]
+          ]
+        },
+        "bounds": {
+          "nodes": 1,
+          "links": 1
+        },
+        "expected_trust": "untrusted",
+        "expected_confidence": 0.8
+      },
+      "seconds": 6.18
+    },
+    {
+      "name": "pack_proposal_preserves_existing_authoritative_properties",
+      "scenarios": [
+        "PEXT-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "expected": {
+          "statement": "human-authored-policy-marker decision",
+          "rationale": "Reviewed by a human",
+          "status": "accepted",
+          "confidence": 1.0,
+          "source_trust": "trusted"
+        },
+        "actual": {
+          "confidence": 1.0,
+          "content_hash": "99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7",
+          "node_id": "Decision:99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7",
+          "node_type": "Decision",
+          "rationale": "Reviewed by a human",
+          "source_trust": "trusted",
+          "statement": "human-authored-policy-marker decision",
+          "status": "accepted"
+        },
+        "event_id": "683cb336-1c54-491f-b441-1b62eee1c70e",
+        "graph": {
+          "nodes": {
+            "Decision": 2,
+            "Event": 3
+          },
+          "edges": [
+            [
+              "Decision:99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7",
+              "DERIVED_FROM",
+              "683cb336-1c54-491f-b441-1b62eee1c70e"
+            ],
+            [
+              "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+              "DERIVED_FROM",
+              "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"
+            ],
+            [
+              "4b3a143d-6e56-44d9-9cc6-0857a483ab2a",
+              "FOLLOWS",
+              "cf241f26-3c3d-4077-9a11-230132e6a823"
+            ],
+            [
+              "683cb336-1c54-491f-b441-1b62eee1c70e",
+              "FOLLOWS",
+              "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"
+            ]
+          ]
+        }
+      },
+      "seconds": 5.95
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 13
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

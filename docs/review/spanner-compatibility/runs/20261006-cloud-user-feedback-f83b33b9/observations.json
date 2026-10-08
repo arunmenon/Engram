@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "name": "phase_setup",
+      "scenarios": [
+        "BOOT-02",
+        "BOOT-03"
+      ],
+      "verdict": "blocked",
+      "error_type": "ImportError",
+      "error": "cannot import name 'EventQuery' from 'context_graph.ports.event_log' (/Users/arunmenon/projects/Engram/src/context_graph/ports/event_log.py)",
+      "seconds": 0
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

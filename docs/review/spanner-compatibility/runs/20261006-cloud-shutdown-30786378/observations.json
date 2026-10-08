@@ -1,0 +1,33 @@
+{
+  "checks": [
+    {
+      "name": "API_lifecycle_releases_owned_Spanner_session_manager",
+      "scenarios": [
+        "BOOT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "registered_closers": 1,
+        "database_close_calls_after_app_shutdown": 1,
+        "test_only_SDK_cleanup_poll_override": false,
+        "runtime_SDK_poll_seconds": 1.0,
+        "remote_multiplexed_session_deletion": "not asserted; SDK intentionally skips deletion",
+        "backends": {
+          "event_log": "spanner",
+          "subscription": "spanner",
+          "graph": "spanner",
+          "keyword_index": "spanner",
+          "vector_index": "spanner",
+          "archive": "fs"
+        },
+        "SDK_session_retained": false,
+        "SDK_background_thread_alive": false
+      },
+      "seconds": 3.15
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

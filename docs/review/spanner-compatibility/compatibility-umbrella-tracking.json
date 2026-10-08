@@ -1,0 +1,26 @@
+{
+  "updated_at": "2026-10-07T10:42:21.760716+00:00",
+  "umbrella": {
+    "number": 41,
+    "url": "https://github.com/arunmenon/Engram/issues/41",
+    "title": "Track Engram \u2192 Spanner compatibility execution and sign-off",
+    "state": "OPEN"
+  },
+  "feature_issue": 34,
+  "baseline_counts": {
+    "failed": 36,
+    "blocked": 2,
+    "passed": 14,
+    "not_run": 13
+  },
+  "verification": {
+    "scenario_checklist_rows": 65,
+    "checked_passed_rows": 14,
+    "every_baseline_id_exactly_once": true
+  },
+  "evidence_limitation": "Raw run artifacts remain local and unpublished; immutable aggregate baseline links are in the issue.",
+  "combined_goal": {
+    "status": "draft_pending_user_review_not_activated",
+    "objective": "Complete reusable ontology-pack integration feature #34 and its agreed sub-issues, including #40 PDLC journey coverage, and establish Engram-to-Spanner compatibility under #41. Implement slice by slice using pack-independent engine mechanisms; validate the complete declared PDLC event inventory, CRM and an unfamiliar pack with explicit artifact, relationship, history, evidence and retrieval expectations. Execute all 65 baseline Spanner scenarios plus versioned feature acceptance extensions through Engram on real Spanner, resolve confirmed defects, complete partial coverage and credential/app blockers, publish redacted run evidence, obtain independent review and reconcile issue/matrix/ledger statuses. Completion requires all in-scope acceptance assertions to pass; blocked, partial, local-only or silently excluded cases cannot count as success. Preserve databases/schema, exclude Redis/Neo4j runners and cross-backend migration, and keep automatic adapter generation outside this goal."
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "checks": [
+    {
+      "name": "auth_missing_user_and_metrics",
+      "scenarios": [
+        "OPS-01",
+        "OPS-02",
+        "USER-01",
+        "USER-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "API_admin_import_user_separation": "asserted",
+        "missing_user": "404 profile; empty lists/export; zero-delete",
+        "metrics": "Prometheus HTTP200"
+      },
+      "seconds": 1.31
+    },
+    {
+      "name": "cold_archive_prune_dry_live_counts_edges_ledger",
+      "scenarios": [
+        "LIFE-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "dry": {
+          "pruned_edges": 0,
+          "pruned_nodes": 2,
+          "dry_run": true,
+          "details": [
+            {
+              "action": "delete_cold_events",
+              "event_ids": [
+                "36133663-b329-4ac5-a919-a3961a36bdac",
+                "3a39461e-45eb-4182-88da-35d5b7acd035"
+              ]
+            }
+          ],
+          "truncated": false
+        },
+        "live": {
+          "pruned_edges": 0,
+          "pruned_nodes": 2,
+          "dry_run": false,
+          "details": [
+            {
+              "action": "delete_cold_events",
+              "event_ids": [
+                "36133663-b329-4ac5-a919-a3961a36bdac",
+                "3a39461e-45eb-4182-88da-35d5b7acd035"
+              ]
+            }
+          ],
+          "truncated": false
+        },
+        "before": {
+          "nodes": {
+            "Event": 3,
+            "Entity": 0,
+            "Summary": 0,
+            "UserProfile": 0,
+            "Preference": 0,
+            "Skill": 0,
+            "Workflow": 0,
+            "BehavioralPattern": 0
+          },
+          "edges": {
+            "FOLLOWS": 2,
+            "CAUSED_BY": 2,
+            "SIMILAR_TO": 0,
+            "REFERENCES": 0,
+            "SUMMARIZES": 0,
+            "SAME_AS": 0,
+            "RELATED_TO": 0
+          },
+          "total_nodes": 3,
+          "total_edges": 4
+        },
+        "after": {
+          "nodes": {
+            "Event": 1,
+            "Entity": 0,
+            "Summary": 0,
+            "UserProfile": 0,
+            "Preference": 0,
+            "Skill": 0,
+            "Workflow": 0,
+            "BehavioralPattern": 0
+          },
+          "edges": {
+            "FOLLOWS": 0,
+            "CAUSED_BY": 0,
+            "SIMILAR_TO": 0,
+            "REFERENCES": 0,
+            "SUMMARIZES": 0,
+            "SAME_AS": 0,
+            "RELATED_TO": 0
+          },
+          "total_nodes": 1,
+          "total_edges": 0
+        },
+        "ledger_documents_preserved": 3
+      },
+      "seconds": 9.77
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 0
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

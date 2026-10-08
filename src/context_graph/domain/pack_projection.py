@@ -24,11 +24,14 @@ Conventions:
 - values missing from the event are not written; a key with a missing
   value produces no node;
 - a list-valued key expression fans out: one node per element, zipped
-  with other key lists and broadcasting scalars; a property list of the
+  with equally sized key lists and broadcasting scalars; unequal key
+  lengths refuse the whole event plan. A property list of the
   same length is zipped with it (by original position, so a skipped
   element does not shift the others); an edge between two fanned ends of
   the same length pairs them, otherwise it joins every source to every
-  target;
+  target. Deterministic plans are limited to 10,000 operations per event,
+  across all subscriber rules, including stubs and evidence. Lookup-resolved
+  edges are not covered by this planning limit;
 - required link fields a rule does not set get the declared-link defaults.
 
 Pure Python; no framework or storage imports.
@@ -40,10 +43,19 @@ import math
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
-from context_graph.domain.ontology import PROVENANCE_EDGE, EnumSpec, NodeRef, transition_key
+from context_graph.domain.event_acceptance import EventInterpretationError
+from context_graph.domain.ontology import (
+    PROVENANCE_EDGE,
+    EnumSpec,
+    NodeRef,
+    PropertyUpdateDef,
+    transition_key,
+)
 from context_graph.domain.pack_expressions import Scope, compile_value, evaluate, is_expression
+from context_graph.domain.pack_properties import PropertyUpdateError, property_action
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
 from context_graph.ports.pack_graph import NodeRef as GraphRef
 
@@ -54,13 +66,29 @@ if TYPE_CHECKING:
         NodeType,
         OntologyRegistry,
         ProjectionRule,
+        PropertyRuleValue,
         PropertySpec,
         RuleValue,
     )
+    from context_graph.domain.source_trust import SourceTrustPolicy, VerifiedSourceProvenance
 
 
 # Integers are stored as 64-bit (Neo4j and Spanner INT64)
 INT64_MIN, INT64_MAX = -(2**63), 2**63 - 1
+MAX_PROJECTION_OPERATIONS = 10_000
+
+
+class ProjectionExpansionError(ValueError):
+    """Deterministic whole-plan refusal, containing no event payload values."""
+
+    def __init__(self, reason: Literal["unequal_key_lengths", "plan_limit_exceeded"]) -> None:
+        self.reason = reason
+        super().__init__(f"Projection expansion refused: {reason}")
+
+
+def _check_expansion_count(count: int) -> None:
+    if count > MAX_PROJECTION_OPERATIONS:
+        raise ProjectionExpansionError("plan_limit_exceeded")
 
 
 # Fields that order matches for ``to_latest``: the first the target type declares
@@ -98,6 +126,7 @@ class EdgeLookup:
     properties: dict[str, Any] = field(default_factory=dict)
     # The matched nodes are the edge's sources (``from: {match: ...}``)
     reverse: bool = False
+    remove_properties: tuple[str, ...] = ()
 
 
 @dataclass
@@ -113,6 +142,12 @@ class ProjectionPlan:
     @property
     def empty(self) -> bool:
         return not (self.nodes or self.states or self.edges or self.lookups)
+
+    def check_capacity(self, additional: int = 0) -> None:
+        """Count planned operations, not unique identities or lookup results."""
+        _check_expansion_count(
+            len(self.nodes) + len(self.states) + len(self.edges) + len(self.lookups) + additional
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -232,7 +267,10 @@ def _fan_out(values: dict[str, Any]) -> tuple[list[dict[str, Any]], bool]:
     lengths = {len(v) for v in values.values() if isinstance(v, list)}
     if not lengths:
         return [values], False
-    count = min(lengths)
+    if len(lengths) != 1:
+        raise ProjectionExpansionError("unequal_key_lengths")
+    count = next(iter(lengths))
+    _check_expansion_count(count)
     rows = [
         {k: (v[i] if isinstance(v, list) else v) for k, v in values.items()} for i in range(count)
     ]
@@ -265,9 +303,18 @@ class _Keyed:
 class PackProjector:
     """Plans graph writes for events from the projection rules of the active packs."""
 
-    def __init__(self, registry: OntologyRegistry, trusted_sources: frozenset[str]) -> None:
+    def __init__(
+        self,
+        registry: OntologyRegistry,
+        trusted_sources: frozenset[str],
+        *,
+        source_policy: SourceTrustPolicy | None = None,
+    ) -> None:
+        if source_policy is not None and registry.version != source_policy.ontology_version:
+            raise RuntimeFencedError("Source policy differs from projection schema")
         self._registry = registry
         self._trusted = trusted_sources
+        self._source_policy = source_policy
         # Rule values parsed once (validated when the registry was built)
         self._compiled: dict[str, Any] = {}
 
@@ -286,7 +333,31 @@ class PackProjector:
             tree = self._compiled[value] = compile_value(value)
         return evaluate(tree, scope)
 
-    def plan(self, event: Event, document: dict[str, Any]) -> ProjectionPlan:
+    @property
+    def requires_provenance(self) -> bool:
+        return self._source_policy is not None
+
+    def source_trusted(
+        self,
+        event: Event,
+        document: dict[str, Any],
+        provenance: VerifiedSourceProvenance | None = None,
+    ) -> bool:
+        if self._source_policy is None:
+            return event.agent_id in self._trusted
+        try:
+            return self._source_policy.trusted(event, document, provenance)
+        except (EventInterpretationError, ValueError, TypeError) as exc:
+            raise RuntimeFencedError("Authenticated event source is unavailable") from exc
+
+    def plan(
+        self,
+        event: Event,
+        document: dict[str, Any],
+        *,
+        provenance: VerifiedSourceProvenance | None = None,
+    ) -> ProjectionPlan:
+        trusted = self.source_trusted(event, document, provenance)
         plan = ProjectionPlan()
         rules = self._registry.rules_for(event.event_type)
         if not rules:
@@ -298,10 +369,11 @@ class PackProjector:
             scope=Scope(payload if isinstance(payload, dict) else {}, envelope),
             event_ref=GraphRef("Event", str(event.event_id), "event_id"),
             occurred_at=_datetime(event.occurred_at) or "",
-            trust="trusted" if event.agent_id in self._trusted else "untrusted",
+            trust="trusted" if trusted else "untrusted",
         )
         for _pack, rule in rules:
             self._plan_rule(rule, context, plan)
+            plan.check_capacity()
         return plan
 
     # -- rule parts --------------------------------------------------------------------
@@ -332,12 +404,44 @@ class PackProjector:
         return refs
 
     def _properties(
-        self, node_type: NodeType, values: dict[str, RuleValue], scope: Scope, keyed: _Keyed
-    ) -> dict[str, Any]:
-        return {
-            name: coerce(keyed.pick(self._eval(expr, scope)), node_type.properties.get(name))
-            for name, expr in values.items()
-        }
+        self, node_type: NodeType, values: dict[str, PropertyRuleValue], scope: Scope, keyed: _Keyed
+    ) -> tuple[dict[str, Any], tuple[str, ...]]:
+        props: dict[str, Any] = {}
+        removals: list[str] = []
+        for name, expr in values.items():
+            if isinstance(expr, PropertyUpdateDef):
+                action, value = self._strict_property(
+                    expr, scope, node_type.properties.get(name), name, keyed
+                )
+                if action == "set":
+                    props[name] = value
+                elif action == "clear":
+                    removals.append(name)
+            else:
+                props[name] = coerce(
+                    keyed.pick(self._eval(expr, scope)), node_type.properties.get(name)
+                )
+        return props, tuple(removals)
+
+    @staticmethod
+    def _strict_property(
+        definition: PropertyUpdateDef,
+        scope: Scope,
+        spec: PropertySpec | None,
+        name: str,
+        keyed: _Keyed | None,
+    ) -> tuple[Literal["set", "preserve", "clear"], Any]:
+        try:
+            return property_action(
+                definition,
+                scope,
+                spec,
+                fanned=keyed.fanned if keyed is not None else False,
+                index=keyed.index if keyed is not None else 0,
+                count=keyed.count if keyed is not None else 1,
+            )
+        except PropertyUpdateError as exc:
+            raise PropertyUpdateError(exc.reason, name) from exc
 
     def _system(self, node_type: NodeType, context: _Context) -> dict[str, Any]:
         props: dict[str, Any] = {
@@ -370,7 +474,9 @@ class PackProjector:
         for upsert in rule.upsert:
             node_type = self._node_type(upsert.type)
             for keyed in self._keyed_refs(node_type, upsert.key, scope):
-                props = self._properties(node_type, upsert.set, scope, keyed)
+                props, removals = self._properties(node_type, upsert.set, scope, keyed)
+                evidence = self._registry.allows(PROVENANCE_EDGE, node_type.name, "Event")
+                plan.check_capacity(1 + int(evidence))
                 plan.nodes.append(
                     NodeWrite(
                         keyed.ref,
@@ -381,9 +487,10 @@ class PackProjector:
                             "updated_at": context.occurred_at,
                         },
                         self._defaults(node_type, context),
+                        remove_properties=removals,
                     )
                 )
-                if self._registry.allows(PROVENANCE_EDGE, node_type.name, "Event"):
+                if evidence:
                     plan.edges.append(EdgeWrite(PROVENANCE_EDGE, keyed.ref, context.event_ref))
         if rule.transition is not None:
             self._plan_transition(rule, context, plan)
@@ -406,6 +513,7 @@ class PackProjector:
         if lifecycle is None or key is None or state not in lifecycle.states:
             return
         for keyed in self._keyed_refs(node_type, key, context.scope):
+            plan.check_capacity(1)
             plan.states.append(
                 StateChange(keyed.ref, str(state), context.occurred_at, tuple(transition.only_from))
             )
@@ -415,6 +523,7 @@ class PackProjector:
         if ref.node_id is not None:
             value = self._eval(ref.node_id, context.scope)
             values = value if isinstance(value, list) else [value]
+            _check_expansion_count(len(values))
             found = []
             for index, node_id in enumerate(values):
                 parsed = parse_node_id(self._registry, node_id)
@@ -432,22 +541,43 @@ class PackProjector:
         for keyed in refs:
             stub = self._stub(node_type, keyed.ref, keyed.key_props, context)
             if stub is not None:
+                plan.check_capacity(1)
                 plan.nodes.append(stub)
         return refs
 
     def _edge_properties(
-        self, edge_rule: EdgeRuleDef, scope: Scope, keyed: _Keyed | None
-    ) -> dict[str, Any]:
+        self,
+        edge_rule: EdgeRuleDef,
+        scope: Scope,
+        keyed: _Keyed | None,
+        *,
+        strict_keyed: _Keyed | None = None,
+    ) -> tuple[dict[str, Any], tuple[str, ...]]:
         edge = self._registry.edge_type(edge_rule.type)
         props: dict[str, Any] = dict(edge.link_defaults)
+        removals: list[str] = []
         for name, expr in edge_rule.set.items():
-            value = self._eval(expr, scope)
-            if keyed is not None:
-                value = keyed.pick(value)
-            value = coerce(value, edge.properties.get(name))
-            if value is not None:
-                props[name] = value
-        return props
+            if isinstance(expr, PropertyUpdateDef):
+                action, value = self._strict_property(
+                    expr,
+                    scope,
+                    edge.properties.get(name),
+                    name,
+                    strict_keyed if strict_keyed is not None else keyed,
+                )
+                if action == "set":
+                    props[name] = value
+                elif action == "clear":
+                    props.pop(name, None)
+                    removals.append(name)
+            else:
+                value = self._eval(expr, scope)
+                if keyed is not None:
+                    value = keyed.pick(value)
+                value = coerce(value, edge.properties.get(name))
+                if value is not None:
+                    props[name] = value
+        return props, tuple(removals)
 
     def _plan_edge(self, edge_rule: EdgeRuleDef, context: _Context, plan: ProjectionPlan) -> None:
         scope = context.scope
@@ -472,20 +602,29 @@ class PackProjector:
             and targets[0].fanned
             and sources[0].count == targets[0].count
         )
-        pairs = (
-            [(s, t) for s in sources for t in targets if s.index == t.index]
-            if zipped
-            else [(s, t) for s in sources for t in targets]
-        )
+        if zipped:
+            # Keep original positions when an invalid key was skipped, without
+            # scanning the Cartesian product just to find equal positions.
+            by_index = {target_ref.index: target_ref for target_ref in targets}
+            pair_count = sum(source.index in by_index for source in sources)
+            plan.check_capacity(pair_count)
+            pairs = (
+                (source, by_index[source.index]) for source in sources if source.index in by_index
+            )
+        else:
+            plan.check_capacity(len(sources) * len(targets))
+            pairs = ((source, target_ref) for source in sources for target_ref in targets)
         for source, target_ref in pairs:
             if not self._registry.allows(edge_rule.type, source.type_name, target_ref.type_name):
                 continue
             keyed = target_ref if target_ref.fanned else source
-            props = {
-                **self._edge_properties(edge_rule, scope, keyed),
-                "source_trust": context.trust,
-            }
-            plan.edges.append(EdgeWrite(edge_rule.type, source.ref, target_ref.ref, props))
+            props, removals = self._edge_properties(edge_rule, scope, keyed)
+            props["source_trust"] = context.trust
+            plan.edges.append(
+                EdgeWrite(
+                    edge_rule.type, source.ref, target_ref.ref, props, remove_properties=removals
+                )
+            )
 
     def _plan_lookup(
         self,
@@ -506,21 +645,23 @@ class PackProjector:
         for name, expr in (matched.match or matched.match_any_prefix or {}).items():
             value = self._eval(expr, context.scope)
             if matched.match_any_prefix is not None and isinstance(value, list):
+                _check_expansion_count(len(value))
                 prefix_field, prefixes = name, tuple(str(v) for v in value if v is not None)
                 continue
             value = coerce(value, node_type.properties.get(name))
             if value is None:
                 return  # a match on a missing value finds nothing
             equals[name] = value
-        props = {
-            **self._edge_properties(edge_rule, context.scope, None),
-            "source_trust": context.trust,
-        }
         latest = edge_rule.to_latest is not None
         for end in known:
             ends = (node_type.name, end.type_name) if reverse else (end.type_name, node_type.name)
             if not self._registry.allows(edge_rule.type, *ends):
                 continue
+            props, removals = self._edge_properties(
+                edge_rule, context.scope, None, strict_keyed=end
+            )
+            props["source_trust"] = context.trust
+            plan.check_capacity(1)
             plan.lookups.append(
                 EdgeLookup(
                     edge_type=edge_rule.type,
@@ -535,6 +676,7 @@ class PackProjector:
                     not_after=(context.occurred_at or None) if latest else None,
                     properties=props,
                     reverse=reverse,
+                    remove_properties=removals,
                 )
             )
 

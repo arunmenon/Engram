@@ -1,0 +1,380 @@
+{
+  "checks": [
+    {
+      "name": "context-ties_pagination_access_and_missing",
+      "scenarios": [
+        "MEM-01",
+        "MEM-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "session": "context-ties",
+        "pages": [
+          {
+            "nodes": {
+              "26d87784-e4cc-4be5-9cdd-dd2040598294": {
+                "node_id": "26d87784-e4cc-4be5-9cdd-dd2040598294",
+                "node_type": "Event",
+                "attributes": {
+                  "access_count": 0,
+                  "event_type": "observation.input",
+                  "keywords": [],
+                  "occurred_at": "2026-10-06T16:19:53.256573+00:00"
+                },
+                "provenance": {
+                  "event_id": "26d87784-e4cc-4be5-9cdd-dd2040598294",
+                  "global_position": "2026-10-06T16:24:53.557695000Z/000003/26d87784-e4cc-4be5-9cdd-dd2040598294",
+                  "source": "spanner",
+                  "occurred_at": "2026-10-06T16:19:53.256573Z",
+                  "session_id": "context-ties",
+                  "agent_id": "compat-resume",
+                  "trace_id": "context-ties"
+                },
+                "scores": {
+                  "decay_score": 0.571283,
+                  "relevance_score": 0.5,
+                  "importance_score": 5,
+                  "ppr_score": 0.0
+                },
+                "retrieval_reason": "direct",
+                "proactive_signal": null
+              },
+              "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4": {
+                "node_id": "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4",
+                "node_type": "Event",
+                "attributes": {
+                  "access_count": 0,
+                  "event_type": "observation.input",
+                  "keywords": [],
+                  "occurred_at": "2026-10-06T16:19:53.256573+00:00"
+                },
+                "provenance": {
+                  "event_id": "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4",
+                  "global_position": "2026-10-06T16:24:53.557695000Z/000004/3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4",
+                  "source": "spanner",
+                  "occurred_at": "2026-10-06T16:19:53.256573Z",
+                  "session_id": "context-ties",
+                  "agent_id": "compat-resume",
+                  "trace_id": "context-ties"
+                },
+                "scores": {
+                  "decay_score": 0.571283,
+                  "relevance_score": 0.5,
+                  "importance_score": 5,
+                  "ppr_score": 0.0
+                },
+                "retrieval_reason": "direct",
+                "proactive_signal": null
+              }
+            },
+            "edges": [
+              {
+                "source": "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4",
+                "target": "26d87784-e4cc-4be5-9cdd-dd2040598294",
+                "edge_type": "FOLLOWS",
+                "properties": {
+                  "delta_ms": 0,
+                  "session_id": "context-ties"
+                }
+              }
+            ],
+            "pagination": {
+              "cursor": "MjAyNi0xMC0wNlQxNjoxOTo1My4yNTY1NzMrMDA6MDB8M2Q0YTZlZTctMGE0NC00M2U4LWI1ZmItOTJjMzcxZmVlMWU0",
+              "has_more": true
+            },
+            "meta": {
+              "query_ms": 576,
+              "nodes_returned": 2,
+              "truncated": true,
+              "inferred_intents": {},
+              "intent_override": null,
+              "seed_nodes": [],
+              "seed_strategy": null,
+              "proactive_nodes_count": 0,
+              "scoring_weights": {
+                "recency": 1.0,
+                "importance": 1.0,
+                "relevance": 1.0
+              },
+              "retrieval_channels": {},
+              "capacity": {
+                "max_nodes": 2,
+                "used_nodes": 2,
+                "max_depth": 3
+              },
+              "eval_pending": []
+            }
+          },
+          {
+            "nodes": {
+              "691edbff-baa9-4918-a549-95ed2056dadb": {
+                "node_id": "691edbff-baa9-4918-a549-95ed2056dadb",
+                "node_type": "Event",
+                "attributes": {
+                  "access_count": 0,
+                  "event_type": "observation.input",
+                  "keywords": [],
+                  "occurred_at": "2026-10-06T16:19:53.256573+00:00"
+                },
+                "provenance": {
+                  "event_id": "691edbff-baa9-4918-a549-95ed2056dadb",
+                  "global_position": "2026-10-06T16:24:53.557695000Z/000002/691edbff-baa9-4918-a549-95ed2056dadb",
+                  "source": "spanner",
+                  "occurred_at": "2026-10-06T16:19:53.256573Z",
+                  "session_id": "context-ties",
+                  "agent_id": "compat-resume",
+                  "trace_id": "context-ties"
+                },
+                "scores": {
+                  "decay_score": 0.571282,
+                  "relevance_score": 0.5,
+                  "importance_score": 5,
+                  "ppr_score": 0.0
+                },
+                "retrieval_reason": "direct",
+                "proactive_signal": null
+              },
+              "9e728d21-b727-4134-823d-14bebffe8b13": {
+                "node_id": "9e728d21-b727-4134-823d-14bebffe8b13",
+                "node_type": "Event",
+                "attributes": {
+                  "access_count": 0,
+                  "event_type": "observation.input",
+                  "keywords": [],
+                  "occurred_at": "2026-10-06T16:19:53.256573+00:00"
+                },
+                "provenance": {
+                  "event_id": "9e728d21-b727-4134-823d-14bebffe8b13",
+                  "global_position": "2026-10-06T16:24:53.557695000Z/000001/9e728d21-b727-4134-823d-14bebffe8b13",
+                  "source": "spanner",
+                  "occurred_at": "2026-10-06T16:19:53.256573Z",
+                  "session_id": "context-ties",
+                  "agent_id": "compat-resume",
+                  "trace_id": "context-ties"
+                },
+                "scores": {
+                  "decay_score": 0.571282,
+                  "relevance_score": 0.5,
+                  "importance_score": 5,
+                  "ppr_score": 0.0
+                },
+                "retrieval_reason": "direct",
+                "proactive_signal": null
+              }
+            },
+            "edges": [
+              {
+                "source": "691edbff-baa9-4918-a549-95ed2056dadb",
+                "target": "9e728d21-b727-4134-823d-14bebffe8b13",
+                "edge_type": "FOLLOWS",
+                "properties": {
+                  "delta_ms": 0,
+                  "session_id": "context-ties"
+                }
+              }
+            ],
+            "pagination": {
+              "cursor": "MjAyNi0xMC0wNlQxNjoxOTo1My4yNTY1NzMrMDA6MDB8OWU3MjhkMjEtYjcyNy00MTM0LTgyM2QtMTRiZWJmZmU4YjEz",
+              "has_more": true
+            },
+            "meta": {
+              "query_ms": 508,
+              "nodes_returned": 2,
+              "truncated": true,
+              "inferred_intents": {},
+              "intent_override": null,
+              "seed_nodes": [],
+              "seed_strategy": null,
+              "proactive_nodes_count": 0,
+              "scoring_weights": {
+                "recency": 1.0,
+                "importance": 1.0,
+                "relevance": 1.0
+              },
+              "retrieval_channels": {},
+              "capacity": {
+                "max_nodes": 2,
+                "used_nodes": 2,
+                "max_depth": 3
+              },
+              "eval_pending": []
+            }
+          },
+          {
+            "nodes": {
+              "b3a200e5-93a1-4b3f-8357-4c89b4a1a475": {
+                "node_id": "b3a200e5-93a1-4b3f-8357-4c89b4a1a475",
+                "node_type": "Event",
+                "attributes": {
+                  "access_count": 0,
+                  "event_type": "observation.input",
+                  "keywords": [],
+                  "occurred_at": "2026-10-06T16:19:53.256573+00:00"
+                },
+                "provenance": {
+                  "event_id": "b3a200e5-93a1-4b3f-8357-4c89b4a1a475",
+                  "global_position": "2026-10-06T16:24:53.557695000Z/000000/b3a200e5-93a1-4b3f-8357-4c89b4a1a475",
+                  "source": "spanner",
+                  "occurred_at": "2026-10-06T16:19:53.256573Z",
+                  "session_id": "context-ties",
+                  "agent_id": "compat-resume",
+                  "trace_id": "context-ties"
+                },
+                "scores": {
+                  "decay_score": 0.571282,
+                  "relevance_score": 0.5,
+                  "importance_score": 5,
+                  "ppr_score": 0.0
+                },
+                "retrieval_reason": "direct",
+                "proactive_signal": null
+              }
+            },
+            "edges": [],
+            "pagination": {
+              "cursor": null,
+              "has_more": false
+            },
+            "meta": {
+              "query_ms": 513,
+              "nodes_returned": 1,
+              "truncated": false,
+              "inferred_intents": {},
+              "intent_override": null,
+              "seed_nodes": [],
+              "seed_strategy": null,
+              "proactive_nodes_count": 0,
+              "scoring_weights": {
+                "recency": 1.0,
+                "importance": 1.0,
+                "relevance": 1.0
+              },
+              "retrieval_channels": {},
+              "capacity": {
+                "max_nodes": 2,
+                "used_nodes": 1,
+                "max_depth": 3
+              },
+              "eval_pending": []
+            }
+          }
+        ],
+        "seen": [
+          "26d87784-e4cc-4be5-9cdd-dd2040598294",
+          "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4",
+          "691edbff-baa9-4918-a549-95ed2056dadb",
+          "9e728d21-b727-4134-823d-14bebffe8b13",
+          "b3a200e5-93a1-4b3f-8357-4c89b4a1a475"
+        ],
+        "expected_ids": [
+          "b3a200e5-93a1-4b3f-8357-4c89b4a1a475",
+          "9e728d21-b727-4134-823d-14bebffe8b13",
+          "691edbff-baa9-4918-a549-95ed2056dadb",
+          "26d87784-e4cc-4be5-9cdd-dd2040598294",
+          "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4"
+        ],
+        "repeated": false,
+        "before_counts": {
+          "b3a200e5-93a1-4b3f-8357-4c89b4a1a475": 0,
+          "9e728d21-b727-4134-823d-14bebffe8b13": 0,
+          "691edbff-baa9-4918-a549-95ed2056dadb": 0,
+          "26d87784-e4cc-4be5-9cdd-dd2040598294": 0,
+          "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4": 0
+        },
+        "after_counts": {
+          "b3a200e5-93a1-4b3f-8357-4c89b4a1a475": 1,
+          "9e728d21-b727-4134-823d-14bebffe8b13": 1,
+          "691edbff-baa9-4918-a549-95ed2056dadb": 1,
+          "26d87784-e4cc-4be5-9cdd-dd2040598294": 1,
+          "3d4a6ee7-0a44-43e8-b5fb-92c371fee1e4": 1
+        },
+        "missing_response": {
+          "nodes": {},
+          "edges": [],
+          "pagination": {
+            "cursor": null,
+            "has_more": false
+          },
+          "meta": {
+            "query_ms": 80,
+            "nodes_returned": 0,
+            "truncated": false,
+            "inferred_intents": {},
+            "intent_override": null,
+            "seed_nodes": [],
+            "seed_strategy": null,
+            "proactive_nodes_count": 0,
+            "scoring_weights": {
+              "recency": 1.0,
+              "importance": 1.0,
+              "relevance": 1.0
+            },
+            "retrieval_channels": {},
+            "capacity": {
+              "max_nodes": 100,
+              "used_nodes": 0,
+              "max_depth": 3
+            },
+            "eval_pending": []
+          }
+        }
+      },
+      "seconds": 1.93
+    },
+    {
+      "name": "context-distinct_pagination_access_and_missing",
+      "scenarios": [
+        "MEM-01",
+        "MEM-05"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "context cursor duplicates/omits events across occurrence times",
+      "seconds": 1.31
+    },
+    {
+      "name": "context_enforces_graph_read_time_budget",
+      "scenarios": [
+        "MEM-01",
+        "MEM-05"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "context forwards timeout_s to a port that ignores it; native reads exceed the budget",
+      "seconds": 0.7
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 16
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

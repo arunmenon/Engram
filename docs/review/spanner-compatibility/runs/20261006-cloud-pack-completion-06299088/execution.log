@@ -1,0 +1,34 @@
+2026-10-06 22:04:39 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 22:04:39 [info     ] llm_client_initialized
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 22:04:39 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 22:04:40 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 22:04:40 [info     ] consumer_started               consumer=pack-output-boundaries group=pack-extraction stream=Events
+2026-10-06 22:04:40 [info     ] event_ingested                 event_id=e699ebb7-efde-41a1-82b2-67f58ddb7622 event_type=observation.input global_position=2026-10-06T16:34:40.590527000Z/000000/e699ebb7-efde-41a1-82b2-67f58ddb7622 request_id=c9dd2a09-9796-4d2c-9f3a-1fddd9f0fd77 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 22:04:40 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 22:04:41 [info     ] pack_extraction_applied        edges_written=0 event_id=e699ebb7-efde-41a1-82b2-67f58ddb7622 links=0 nodes=0 pack=pdlc rejected=['answer is not a JSON object']
+{"name": "pack_list-answer_refused_without_writes_ACK", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"answer_shape": "list-answer", "model_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}}, "seconds": 1.34}
+2026-10-06 22:04:41 [info     ] event_ingested                 event_id=ab7b69e5-7902-4df1-ba0e-1002e2a51312 event_type=observation.input global_position=2026-10-06T16:34:41.874239000Z/000000/ab7b69e5-7902-4df1-ba0e-1002e2a51312 request_id=2fb6198a-4917-4b84-abf2-0dd135657ee0 status=created
+2026-10-06 22:04:42 [info     ] pack_extraction_applied        edges_written=0 event_id=ab7b69e5-7902-4df1-ba0e-1002e2a51312 links=0 nodes=0 pack=pdlc rejected=['nodes is not a list', 'links is not a list']
+{"name": "pack_nonlist-nodes_refused_without_writes_ACK", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"answer_shape": "nonlist-nodes", "model_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}}, "seconds": 1.05}
+2026-10-06 22:04:42 [info     ] event_ingested                 event_id=6397d5eb-9c1a-48f4-981c-9770865f02e8 event_type=observation.input global_position=2026-10-06T16:34:42.965039000Z/000000/6397d5eb-9c1a-48f4-981c-9770865f02e8 request_id=63c3fda5-ded3-44a2-93cc-754b4b03e56a status=created
+2026-10-06 22:04:43 [info     ] pack_extraction_applied        edges_written=0 event_id=6397d5eb-9c1a-48f4-981c-9770865f02e8 links=0 nodes=0 pack=pdlc rejected=['nodes[0]: statement has the wrong type', 'nodes[1]: confidence must be a number from 0 to 1', "nodes[2]: type 'Change' may not be proposed", 'nodes[3]: missing statement', "links[0]: link type 'SAME_AS' may not be proposed"]
+{"name": "pack_invalid-fields_refused_without_writes_ACK", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"answer_shape": "invalid-fields", "model_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}}, "seconds": 1.05}
+2026-10-06 22:04:43 [info     ] consumer_stopped               consumer=pack-output-boundaries group=pack-extraction
+2026-10-06 22:04:44 [info     ] event_ingested                 event_id=297957ec-32fd-4b04-be9f-c2dc90907121 event_type=observation.input global_position=2026-10-06T16:34:44.029551000Z/000000/297957ec-32fd-4b04-be9f-c2dc90907121 request_id=cf05928f-ca49-4d1c-bb08-d885d74b213d status=created
+{"name": "pack_no_model_answer_raises_for_retry_without_writes", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"error_type": "ModelUnavailableError", "before": {"nodes": {}, "edges": []}, "graph": {"nodes": {}, "edges": []}, "scope": "actual stored event public process_message rejects no-answer; full delivery live retry remains failed #14"}, "seconds": 0.7}
+2026-10-06 22:04:44 [info     ] app_stopped

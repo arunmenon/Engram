@@ -1,0 +1,33 @@
+{
+  "updated_at": "2026-10-07T10:12:09.535442+00:00",
+  "slice": 1,
+  "status": "in_progress",
+  "completed_piece": "optional23-event PDLC contracts; scalar enum/numeric bounds; owning-contract expression-path checks;23 synthetic pure-plan fixtures and source compatibility checks; unfamiliar lab fixture",
+  "issues": [
+    4,
+    34,
+    39
+  ],
+  "run": "20261007-local-pdlc-contract-catalog-01",
+  "tests_passed": 305,
+  "new_tests": 26,
+  "regression_tests": 96,
+  "ruff": "passed",
+  "independent_review": "astra_low_acceptable_bounded_prototype;full_slice_exit_open",
+  "cloud_execution": false,
+  "runtime_commit": "not_committed",
+  "remaining": [
+    "projection expression result types/cardinality and conditional semantic constraints",
+    "full artifact property/evidence/retrieval oracles and six missing mappings",
+    "common CRM/lab fixture runner",
+    "capability/revision/duplicate/order decisions",
+    "shared ingress enforcement in slice2"
+  ],
+  "tests_skipped": 2,
+  "skip_note": "Existing toy end-to-end Spanner/Neo4j integration cases skipped; future local commands explicitly exclude integration. No service runner started or cloud Spanner evidence.",
+  "pack_version": "1.8.0",
+  "review_report": "docs/review/spanner-compatibility/2026-10-07-astra-slice1-contract-review.md",
+  "review_tests_passed": 93,
+  "followup_tests_passed": 97,
+  "followup_note": "After review added2 Jira and2 external-owner regression cases; passing locally, not independently re-reviewed. Review findings on full property/evidence oracles and common CRM runner remain open."
+}

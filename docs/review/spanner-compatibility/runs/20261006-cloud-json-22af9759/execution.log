@@ -1,0 +1,48 @@
+2026-10-06 19:23:11 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:23:11 [info     ] llm_client_initialized
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:23:11 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:23:13 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:23:13 [info     ] event_ingested                 event_id=d8942bb2-7447-49bf-8901-e4c7cac52466 event_type=observation.input global_position=2026-10-06T13:53:13.476271000Z/000000/d8942bb2-7447-49bf-8901-e4c7cac52466 request_id=2806ec55-877f-47a9-8ae2-b0c14824a1f0 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 168, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_remaining.py", line 857, in scenario
+    assert stored["payload"]==row["payload"], "Spanner float marker changes an ordinary JSON object into a number"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Spanner float marker changes an ordinary JSON object into a number
+
+{"name": "JSON_literal_float_marker_numeric_tag", "scenarios": ["LED-01"], "verdict": "failed", "error_type": "AssertionError", "error": "Spanner float marker changes an ordinary JSON object into a number", "seconds": 0.24}
+2026-10-06 19:23:13 [info     ] event_ingested                 event_id=58d75e71-7541-4100-8d48-f3c2e56ae1be event_type=observation.input global_position=2026-10-06T13:53:13.642559000Z/000000/58d75e71-7541-4100-8d48-f3c2e56ae1be request_id=6fa9e688-4a4f-4be2-a09d-70e263b0be54 status=created
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 168, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_remaining.py", line 856, in scenario
+    assert error is None, "accepted ordinary JSON marker makes the ledger document unreadable"
+           ^^^^^^^^^^^^^
+AssertionError: accepted ordinary JSON marker makes the ledger document unreadable
+
+{"name": "JSON_literal_float_marker_text_tag", "scenarios": ["LED-01"], "verdict": "failed", "error_type": "AssertionError", "error": "accepted ordinary JSON marker makes the ledger document unreadable", "seconds": 0.23}
+2026-10-06 19:23:13 [info     ] app_stopped

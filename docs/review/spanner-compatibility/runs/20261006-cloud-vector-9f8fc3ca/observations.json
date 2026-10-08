@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "name": "HTTP_vector_only_existing_session_with_reference_evidence",
+      "scenarios": [
+        "MEM-03",
+        "SEARCH-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "native ANN entity hits and reference evidence are discarded by vector-only API retrieval",
+      "seconds": 0.71
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

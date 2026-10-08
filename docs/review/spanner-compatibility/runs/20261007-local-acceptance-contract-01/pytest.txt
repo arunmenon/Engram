@@ -1,0 +1,455 @@
+.................................................................FFFFFFF [ 41%]
+FFF..................................................................... [ 82%]
+.....................F........                                           [100%]
+=================================== FAILURES ===================================
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-acceptance-value0] _
+
+test_client = <starlette.testclient.TestClient object at 0x1054340e0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x105413d70>
+field = 'acceptance', value = {'tenant_id': 'foreign'}, route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-tenant_id-foreign] _
+
+test_client = <starlette.testclient.TestClient object at 0x105434ef0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x10556a600>
+field = 'tenant_id', value = 'foreign', route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-source_id-claimed] _
+
+test_client = <starlette.testclient.TestClient object at 0x10556b410>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x10556b5c0>
+field = 'source_id', value = 'claimed', route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-binding_id-claimed] _
+
+test_client = <starlette.testclient.TestClient object at 0x105434cb0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x1055086b0>
+field = 'binding_id', value = 'claimed', route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-bundle_digest-claimed] _
+
+test_client = <starlette.testclient.TestClient object at 0x1054347d0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x1053f99d0>
+field = 'bundle_digest', value = 'claimed', route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-accepted_epoch-9] _
+
+test_client = <starlette.testclient.TestClient object at 0x105552de0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x105552ae0>
+field = 'accepted_epoch', value = 9, route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-global_position-supplied] _
+
+test_client = <starlette.testclient.TestClient object at 0x105552cf0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x1055b11f0>
+field = 'global_position', value = 'supplied', route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-payload-value7] _
+
+test_client = <starlette.testclient.TestClient object at 0x1055524e0>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x10405f890>
+field = 'payload', value = [], route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-payload-False] _
+
+test_client = <starlette.testclient.TestClient object at 0x105412d80>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x1054120c0>
+field = 'payload', value = False, route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+_ test_every_normalized_http_ingress_refuses_before_any_write[import-payload-lost text] _
+
+test_client = <starlette.testclient.TestClient object at 0x105601070>
+in_memory_event_store = <tests.unit.conftest.InMemoryEventStore object at 0x10556a780>
+field = 'payload', value = 'lost text', route = 'import'
+
+    @pytest.mark.parametrize(
+        "field,value",
+        [
+            ("acceptance", {"tenant_id": "foreign"}),
+            ("tenant_id", "foreign"),
+            ("source_id", "claimed"),
+            ("binding_id", "claimed"),
+            ("bundle_digest", "claimed"),
+            ("accepted_epoch", 9),
+            ("global_position", "supplied"),
+            ("payload", []),
+            ("payload", False),
+            ("payload", "lost text"),
+        ],
+    )
+    @pytest.mark.parametrize("route", ["single", "batch", "import"])
+    def test_every_normalized_http_ingress_refuses_before_any_write(
+        test_client, in_memory_event_store, field, value, route
+    ):
+        raw = {**event().model_dump(mode="json"), field: value}
+        if route == "single":
+            response = test_client.post("/v1/events", json=raw)
+            assert response.status_code == 422
+        elif route == "batch":
+            response = test_client.post("/v1/events/batch", json={"events": [raw]})
+            assert response.json()["accepted"] == 0
+        else:
+            response = test_client.post("/v1/events/import", content=json.dumps(raw) + "\n")
+>           assert '"status":"rejected"' in response.text
+E           assert '"status":"rejected"' in '{"detail":"Not Found"}'
+E            +  where '{"detail":"Not Found"}' = <Response [404 Not Found]>.text
+
+tests/unit/test_event_input_contract.py:39: AssertionError
+__________ TestIngestEvent.test_ingest_with_non_dict_payload_ignored ___________
+
+self = <tests.unit.test_api_events.TestIngestEvent object at 0x1050daea0>
+test_client = <starlette.testclient.TestClient object at 0x126d885c0>
+
+    def test_ingest_with_non_dict_payload_ignored(self, test_client: TestClient) -> None:
+        """POST with non-dict payload value silently ignores it (201)."""
+        data = _make_event_payload(payload="just a string")
+        response = test_client.post("/v1/events", json=data)
+>       assert response.status_code == 201
+E       assert 422 == 201
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests/unit/test_api_events.py:112: AssertionError
+=============================== warnings summary ===============================
+tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[single-acceptance-value0]
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_event_input_contract.py: 20 warnings
+tests/unit/test_api_ingest.py: 6 warnings
+tests/unit/test_api_events.py: 16 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_tenant_responses.py::test_real_bound_fastapi_middleware_chunks_are_materialized_then_authorized
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+tests/unit/test_api_ingest.py::TestBodies::test_a_body_that_is_not_an_object_is_a_client_error
+tests/unit/test_api_ingest.py::TestBodies::test_unknown_encodings_are_refused
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:179: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestBodies::test_size_is_bounded_before_and_after_decompression
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:246: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestEventQuota::test_batches_are_charged_per_event
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:267: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    if checked.events and (limited := _quota_exceeded(request, len(checked.events))) is not None:
+
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_self_referential_parent
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_ended_at_before_occurred_at
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-acceptance-value0]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-tenant_id-foreign]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-source_id-claimed]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-binding_id-claimed]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-bundle_digest-claimed]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-accepted_epoch-9]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-global_position-supplied]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-payload-value7]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-payload-False]
+FAILED tests/unit/test_event_input_contract.py::test_every_normalized_http_ingress_refuses_before_any_write[import-payload-lost text]
+FAILED tests/unit/test_api_events.py::TestIngestEvent::test_ingest_with_non_dict_payload_ignored
+11 failed, 163 passed, 50 warnings in 11.18s

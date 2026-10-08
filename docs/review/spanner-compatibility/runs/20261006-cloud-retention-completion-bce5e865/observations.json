@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "name": "warm_API_dry_and_live_counts_follow_actual_edge_scores",
+      "scenarios": [
+        "LIFE-03"
+      ],
+      "verdict": "failed",
+      "error_type": "TypeError",
+      "error": "'<' not supported between instances of 'NoneType' and 'float'",
+      "seconds": 4.57
+    },
+    {
+      "name": "actual_worker_nonzero_archive_graph_deletion_then_API_cold_dry_live",
+      "scenarios": [
+        "LIFE-03",
+        "CONS-02"
+      ],
+      "verdict": "failed",
+      "error_type": "TypeError",
+      "error": "'<' not supported between instances of 'NoneType' and 'float'",
+      "seconds": 5.53
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 4
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

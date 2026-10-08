@@ -1,0 +1,54 @@
+2026-10-06 19:34:32 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:34:32 [info     ] llm_client_initialized
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:34:32 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:34:34 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:34:35 [info     ] event_ingested                 event_id=cf241f26-3c3d-4077-9a11-230132e6a823 event_type=observation.input global_position=2026-10-06T14:04:35.014879000Z/000000/cf241f26-3c3d-4077-9a11-230132e6a823 request_id=03d462cc-d2c3-4b64-ada2-c975e04f2093 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:34:35 [info     ] consumer_started               consumer=policy-projection group=graph-projection stream=Events
+2026-10-06 19:34:35 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:34:36 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:04:35.014879000Z/000000/cf241f26-3c3d-4077-9a11-230132e6a823 event_id=cf241f26-3c3d-4077-9a11-230132e6a823 session_id=pack-policy
+2026-10-06 19:34:37 [info     ] consumer_stopped               consumer=policy-projection group=graph-projection
+2026-10-06 19:34:37 [info     ] consumer_started               consumer=policy-extraction group=pack-extraction stream=Events
+2026-10-06 19:34:37 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 19:34:38 [warning  ] pack_extraction_answer_invalid error='no JSON object in the answer' event_id=cf241f26-3c3d-4077-9a11-230132e6a823 pack=pdlc
+2026-10-06 19:34:39 [info     ] consumer_stopped               consumer=policy-extraction group=pack-extraction
+{"name": "pack_invalid_model_JSON_acknowledged_without_proposal", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"event_id": "cf241f26-3c3d-4077-9a11-230132e6a823", "before": {"nodes": {}, "edges": []}, "after": {"nodes": {"Event": 1}, "edges": []}, "contract": "invalid model JSON acknowledged with no proposed node"}, "seconds": 5.05}
+2026-10-06 19:34:39 [info     ] event_ingested                 event_id=4b3a143d-6e56-44d9-9cc6-0857a483ab2a event_type=observation.input global_position=2026-10-06T14:04:39.761919000Z/000000/4b3a143d-6e56-44d9-9cc6-0857a483ab2a request_id=3cbe71e2-7572-478b-9135-aff130e488f3 status=created
+2026-10-06 19:34:40 [info     ] consumer_started               consumer=policy-projection group=graph-projection stream=Events
+2026-10-06 19:34:40 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:34:41 [debug    ] previous_event_from_ledger     event_id=4b3a143d-6e56-44d9-9cc6-0857a483ab2a previous_event_id=cf241f26-3c3d-4077-9a11-230132e6a823 session_id=pack-policy
+2026-10-06 19:34:41 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T14:04:39.761919000Z/000000/4b3a143d-6e56-44d9-9cc6-0857a483ab2a event_id=4b3a143d-6e56-44d9-9cc6-0857a483ab2a session_id=pack-policy
+2026-10-06 19:34:42 [info     ] consumer_stopped               consumer=policy-projection group=graph-projection
+2026-10-06 19:34:42 [info     ] consumer_started               consumer=policy-extraction group=pack-extraction stream=Events
+2026-10-06 19:34:43 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 19:34:44 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 19:34:44 [info     ] pack_extraction_applied        edges_written=1 event_id=4b3a143d-6e56-44d9-9cc6-0857a483ab2a links=0 nodes=1 pack=pdlc rejected=['nodes[1]: over the limit of 1', "links[0]: to 'missing-target' is not a proposed ref or known id"]
+2026-10-06 19:34:45 [info     ] consumer_stopped               consumer=policy-extraction group=pack-extraction
+{"name": "pack_bounded_proposal_confidence_trust_and_unknown_link", "scenarios": ["PEXT-01", "PEXT-02"], "verdict": "passed", "observation": {"event_id": "4b3a143d-6e56-44d9-9cc6-0857a483ab2a", "nodes": {"Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4": {"confidence": 0.8, "content_hash": "a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4", "method": "extracted", "node_id": "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4", "node_type": "Decision", "ontology_version": "sha256:3a7c761cd2848649", "source_trust": "untrusted", "statement": "bounded-policy-marker decision one", "status": "proposed", "status_changed_at": "2026-10-06T14:04:39.609419+00:00", "updated_at": "2026-10-06T14:04:39.609419+00:00"}}, "graph": {"nodes": {"Decision": 1, "Event": 2}, "edges": [["Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4", "DERIVED_FROM", "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"], ["4b3a143d-6e56-44d9-9cc6-0857a483ab2a", "FOLLOWS", "cf241f26-3c3d-4077-9a11-230132e6a823"]]}, "bounds": {"nodes": 1, "links": 1}, "expected_trust": "untrusted", "expected_confidence": 0.8}, "seconds": 6.18}
+2026-10-06 19:34:46 [info     ] event_ingested                 event_id=683cb336-1c54-491f-b441-1b62eee1c70e event_type=observation.input global_position=2026-10-06T14:04:46.115743000Z/000000/683cb336-1c54-491f-b441-1b62eee1c70e request_id=d462ed57-0cf4-4902-87f0-0bf47ec6f281 status=created
+2026-10-06 19:34:46 [info     ] consumer_started               consumer=policy-projection group=graph-projection stream=Events
+2026-10-06 19:34:47 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:34:47 [debug    ] previous_event_from_ledger     event_id=683cb336-1c54-491f-b441-1b62eee1c70e previous_event_id=4b3a143d-6e56-44d9-9cc6-0857a483ab2a session_id=pack-policy
+2026-10-06 19:34:47 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T14:04:46.115743000Z/000000/683cb336-1c54-491f-b441-1b62eee1c70e event_id=683cb336-1c54-491f-b441-1b62eee1c70e session_id=pack-policy
+2026-10-06 19:34:48 [info     ] consumer_stopped               consumer=policy-projection group=graph-projection
+2026-10-06 19:34:49 [info     ] consumer_started               consumer=policy-extraction group=pack-extraction stream=Events
+2026-10-06 19:34:49 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 19:34:51 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 19:34:51 [info     ] pack_extraction_applied        edges_written=1 event_id=683cb336-1c54-491f-b441-1b62eee1c70e links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-06 19:34:51 [info     ] consumer_stopped               consumer=policy-extraction group=pack-extraction
+{"name": "pack_proposal_preserves_existing_authoritative_properties", "scenarios": ["PEXT-02"], "verdict": "passed", "observation": {"expected": {"statement": "human-authored-policy-marker decision", "rationale": "Reviewed by a human", "status": "accepted", "confidence": 1.0, "source_trust": "trusted"}, "actual": {"confidence": 1.0, "content_hash": "99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7", "node_id": "Decision:99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7", "node_type": "Decision", "rationale": "Reviewed by a human", "source_trust": "trusted", "statement": "human-authored-policy-marker decision", "status": "accepted"}, "event_id": "683cb336-1c54-491f-b441-1b62eee1c70e", "graph": {"nodes": {"Decision": 2, "Event": 3}, "edges": [["Decision:99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7", "DERIVED_FROM", "683cb336-1c54-491f-b441-1b62eee1c70e"], ["Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4", "DERIVED_FROM", "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"], ["4b3a143d-6e56-44d9-9cc6-0857a483ab2a", "FOLLOWS", "cf241f26-3c3d-4077-9a11-230132e6a823"], ["683cb336-1c54-491f-b441-1b62eee1c70e", "FOLLOWS", "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"]]}}, "seconds": 5.95}
+2026-10-06 19:34:51 [info     ] app_stopped

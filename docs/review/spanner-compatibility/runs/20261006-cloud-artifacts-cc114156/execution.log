@@ -1,0 +1,62 @@
+2026-10-06 16:42:18 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 16:42:18 [info     ] llm_client_initialized
+2026-10-06 16:42:21 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'crm@1.0.0'] ontology_version=sha256:163ac0d6e903ef6c redis_host=localhost
+2026-10-06 16:42:21 [info     ] batch_ingested                 accepted=11 rejected=0 request_id=9dfeee71-ed6b-44f5-867b-45c5638ee4b2 store_failures=0 total=11
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 16:42:21 [info     ] ontology_change                eval_required=['crm'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-06 16:42:22 [info     ] consumer_started               consumer=artifact-projection group=graph-projection stream=Events
+2026-10-06 16:42:22 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 16:42:23 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:12:21.283119000Z/000000/2b58c49b-d6db-4b29-8429-b404fa28f1fb event_id=2b58c49b-d6db-4b29-8429-b404fa28f1fb session_id=crm:import
+2026-10-06 16:42:24 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 16:42:24 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000001/d61dad02-f519-42d8-86e0-c2e9a4adbe58 event_id=d61dad02-f519-42d8-86e0-c2e9a4adbe58 session_id=crm:import
+2026-10-06 16:42:26 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 16:42:26 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000002/4d2342b8-5e3f-477c-b3c4-0c1d3b4f4c7c event_id=4d2342b8-5e3f-477c-b3c4-0c1d3b4f4c7c session_id=crm:import
+2026-10-06 16:42:28 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 16:42:28 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000003/a3758dbb-aae5-4e88-bd22-3ea84a84849c event_id=a3758dbb-aae5-4e88-bd22-3ea84a84849c session_id=crm:import
+2026-10-06 16:42:30 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 16:42:30 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000004/fcf236e2-e966-443c-9a2b-515aa21113d3 event_id=fcf236e2-e966-443c-9a2b-515aa21113d3 session_id=crm:import
+2026-10-06 16:42:31 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 16:42:32 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000005/6029cbbe-3cf5-48c1-b6eb-f115e101f9a4 event_id=6029cbbe-3cf5-48c1-b6eb-f115e101f9a4 session_id=crm:import
+2026-10-06 16:42:33 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 16:42:34 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000006/49c627b0-ce91-4b87-86d9-48d1614e3820 event_id=49c627b0-ce91-4b87-86d9-48d1614e3820 session_id=crm:import
+2026-10-06 16:42:35 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 16:42:35 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000007/d537d101-30e4-4dea-a868-ddf50f692412 event_id=d537d101-30e4-4dea-a868-ddf50f692412 session_id=crm:import
+2026-10-06 16:42:37 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 16:42:37 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000008/925dc9b3-1422-4b6f-8c2b-83df32db8a3f event_id=925dc9b3-1422-4b6f-8c2b-83df32db8a3f session_id=crm:import
+2026-10-06 16:42:39 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 16:42:39 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000009/9a67a112-e6eb-4c08-a6b5-b01b39db2639 event_id=9a67a112-e6eb-4c08-a6b5-b01b39db2639 session_id=crm:import
+2026-10-06 16:42:41 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 16:42:41 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T11:12:21.283119000Z/000010/91a8161c-ccf6-4a7d-a728-facba449a7d5 event_id=91a8161c-ccf6-4a7d-a728-facba449a7d5 session_id=crm:import
+2026-10-06 16:42:43 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-06 16:42:43 [info     ] consumer_stopped               consumer=artifact-projection group=graph-projection
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+{"name": "artifact_baseline_real_ingest_projection_gate", "scenarios": ["APP-03", "ART-02", "ART-05"], "verdict": "passed", "observation": {"CRM_competencies": "passed before rejection/budget injection"}, "seconds": 4.18}
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 141, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 1664, in completeness
+    assert reasons.get("Account:acme") != "no_link", (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: truncated coverage returns Acme as no_link although confirmed deals exist
+
+{"name": "incomplete_reads_do_not_claim_absence", "scenarios": ["ART-04"], "verdict": "failed", "error_type": "AssertionError", "error": "truncated coverage returns Acme as no_link although confirmed deals exist", "seconds": 0.27}
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 141, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 1694, in rejection
+    assert not any(
+           ^^^^^^^^
+AssertionError: artifact answer includes rejected relationship as evidence
+
+{"name": "rejected_link_not_traversed_or_cited", "scenarios": ["ART-03"], "verdict": "failed", "error_type": "AssertionError", "error": "artifact answer includes rejected relationship as evidence", "seconds": 2.49}
+2026-10-06 16:42:59 [info     ] app_stopped

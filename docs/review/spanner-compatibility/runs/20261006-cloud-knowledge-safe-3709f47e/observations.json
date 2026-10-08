@@ -1,0 +1,411 @@
+{
+  "checks": [
+    {
+      "name": "entity_user_extraction_read_export",
+      "scenarios": [
+        "EXT-01",
+        "EXT-02",
+        "USER-01",
+        "APP-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "user_routes": {
+          "compat-a/profile": {
+            "created_at": "2026-10-06T14:05:32.865098+00:00",
+            "display_name": "compat-a (engineer)",
+            "profile_id": "profile:user:compat-a",
+            "technical_level": "advanced",
+            "updated_at": "2026-10-06T14:05:32.865098+00:00",
+            "user_id": "user:compat-a"
+          },
+          "compat-a/preferences": [
+            {
+              "category": "domain",
+              "confidence": 0.5,
+              "first_observed_at": "2026-10-06T14:05:34.760219+00:00",
+              "key": "database",
+              "last_confirmed_at": "2026-10-06T14:05:34.760219+00:00",
+              "observation_count": 1,
+              "polarity": "positive",
+              "preference_id": "pref:compat-a",
+              "scope": "global",
+              "source": "inferred",
+              "strength": 0.5
+            }
+          ],
+          "compat-a/skills": [
+            {
+              "category": "domain_knowledge",
+              "created_at": "2026-10-06T14:05:36.760596+00:00",
+              "name": "Python",
+              "skill_id": "skill:shared-python"
+            }
+          ],
+          "compat-a/patterns": [],
+          "compat-a/interests": [],
+          "compat-a/data-export": {
+            "user_id": "user:compat-a",
+            "profile": {
+              "created_at": "2026-10-06T14:05:32.865098+00:00",
+              "display_name": "compat-a (engineer)",
+              "profile_id": "profile:user:compat-a",
+              "technical_level": "advanced",
+              "updated_at": "2026-10-06T14:05:32.865098+00:00",
+              "user_id": "user:compat-a"
+            },
+            "preferences": [
+              {
+                "category": "domain",
+                "confidence": 0.5,
+                "first_observed_at": "2026-10-06T14:05:34.760219+00:00",
+                "key": "database",
+                "last_confirmed_at": "2026-10-06T14:05:34.760219+00:00",
+                "observation_count": 1,
+                "polarity": "positive",
+                "preference_id": "pref:compat-a",
+                "scope": "global",
+                "source": "inferred",
+                "strength": 0.5
+              }
+            ],
+            "skills": [
+              {
+                "category": "domain_knowledge",
+                "created_at": "2026-10-06T14:05:36.760596+00:00",
+                "name": "Python",
+                "skill_id": "skill:shared-python"
+              }
+            ],
+            "patterns": [],
+            "interests": [],
+            "provenance_chains": [
+              {
+                "source_id": "pref:compat-a",
+                "source_type": "Preference",
+                "event_id": "4652860c-dec1-4965-a0ba-1b2db43c688d",
+                "method": "llm_extraction",
+                "session_id": "compat-a",
+                "extracted_at": "2026-10-06T14:05:34.760219+00:00"
+              },
+              {
+                "source_id": "pref:compat-a",
+                "source_type": "Preference",
+                "event_id": "82776111-8831-4421-8d86-3d7a08c9f44f",
+                "method": "llm_extraction",
+                "session_id": "compat-a",
+                "extracted_at": "2026-10-06T14:05:34.760219+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "4652860c-dec1-4965-a0ba-1b2db43c688d",
+                "method": "llm_extraction",
+                "session_id": "compat-a",
+                "extracted_at": "2026-10-06T14:05:36.760596+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "82776111-8831-4421-8d86-3d7a08c9f44f",
+                "method": "llm_extraction",
+                "session_id": "compat-a",
+                "extracted_at": "2026-10-06T14:05:36.760596+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "b01210e7-d2f4-4408-b9fc-6478c92016f8",
+                "method": "llm_extraction",
+                "session_id": "compat-b",
+                "extracted_at": "2026-10-06T14:05:42.413861+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "c896b565-7999-42e8-ac0a-df0ad0483b2f",
+                "method": "llm_extraction",
+                "session_id": "compat-b",
+                "extracted_at": "2026-10-06T14:05:42.413861+00:00"
+              }
+            ]
+          },
+          "compat-b/profile": {
+            "created_at": "2026-10-06T14:05:39.052996+00:00",
+            "display_name": "compat-b (engineer)",
+            "profile_id": "profile:user:compat-b",
+            "technical_level": "advanced",
+            "updated_at": "2026-10-06T14:05:39.052996+00:00",
+            "user_id": "user:compat-b"
+          },
+          "compat-b/preferences": [
+            {
+              "category": "domain",
+              "confidence": 0.5,
+              "first_observed_at": "2026-10-06T14:05:40.519477+00:00",
+              "key": "database",
+              "last_confirmed_at": "2026-10-06T14:05:40.519477+00:00",
+              "observation_count": 1,
+              "polarity": "positive",
+              "preference_id": "pref:compat-b",
+              "scope": "global",
+              "source": "inferred",
+              "strength": 0.5
+            }
+          ],
+          "compat-b/skills": [
+            {
+              "category": "domain_knowledge",
+              "created_at": "2026-10-06T14:05:36.760596+00:00",
+              "name": "Python",
+              "skill_id": "skill:shared-python"
+            }
+          ],
+          "compat-b/patterns": [],
+          "compat-b/interests": [],
+          "compat-b/data-export": {
+            "user_id": "user:compat-b",
+            "profile": {
+              "created_at": "2026-10-06T14:05:39.052996+00:00",
+              "display_name": "compat-b (engineer)",
+              "profile_id": "profile:user:compat-b",
+              "technical_level": "advanced",
+              "updated_at": "2026-10-06T14:05:39.052996+00:00",
+              "user_id": "user:compat-b"
+            },
+            "preferences": [
+              {
+                "category": "domain",
+                "confidence": 0.5,
+                "first_observed_at": "2026-10-06T14:05:40.519477+00:00",
+                "key": "database",
+                "last_confirmed_at": "2026-10-06T14:05:40.519477+00:00",
+                "observation_count": 1,
+                "polarity": "positive",
+                "preference_id": "pref:compat-b",
+                "scope": "global",
+                "source": "inferred",
+                "strength": 0.5
+              }
+            ],
+            "skills": [
+              {
+                "category": "domain_knowledge",
+                "created_at": "2026-10-06T14:05:36.760596+00:00",
+                "name": "Python",
+                "skill_id": "skill:shared-python"
+              }
+            ],
+            "patterns": [],
+            "interests": [],
+            "provenance_chains": [
+              {
+                "source_id": "pref:compat-b",
+                "source_type": "Preference",
+                "event_id": "b01210e7-d2f4-4408-b9fc-6478c92016f8",
+                "method": "llm_extraction",
+                "session_id": "compat-b",
+                "extracted_at": "2026-10-06T14:05:40.519477+00:00"
+              },
+              {
+                "source_id": "pref:compat-b",
+                "source_type": "Preference",
+                "event_id": "c896b565-7999-42e8-ac0a-df0ad0483b2f",
+                "method": "llm_extraction",
+                "session_id": "compat-b",
+                "extracted_at": "2026-10-06T14:05:40.519477+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "4652860c-dec1-4965-a0ba-1b2db43c688d",
+                "method": "llm_extraction",
+                "session_id": "compat-a",
+                "extracted_at": "2026-10-06T14:05:36.760596+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "82776111-8831-4421-8d86-3d7a08c9f44f",
+                "method": "llm_extraction",
+                "session_id": "compat-a",
+                "extracted_at": "2026-10-06T14:05:36.760596+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "b01210e7-d2f4-4408-b9fc-6478c92016f8",
+                "method": "llm_extraction",
+                "session_id": "compat-b",
+                "extracted_at": "2026-10-06T14:05:42.413861+00:00"
+              },
+              {
+                "source_id": "skill:shared-python",
+                "source_type": "Skill",
+                "event_id": "c896b565-7999-42e8-ac0a-df0ad0483b2f",
+                "method": "llm_extraction",
+                "session_id": "compat-b",
+                "extracted_at": "2026-10-06T14:05:42.413861+00:00"
+              }
+            ]
+          }
+        },
+        "entity": {
+          "entity": {
+            "embedding": [],
+            "entity_id": "entity:Spanner",
+            "entity_type": "technology",
+            "first_seen": "2026-10-06T14:05:32.865030+00:00",
+            "last_seen": "2026-10-06T14:05:40.519477+00:00",
+            "mention_count": 1,
+            "name": "Spanner"
+          },
+          "connected_events": [
+            {
+              "access_count": 0,
+              "agent_id": "compat-a",
+              "event_id": "82776111-8831-4421-8d86-3d7a08c9f44f",
+              "event_type": "system.session_end",
+              "global_position": "2026-10-06T14:05:25.548271000Z/000000/82776111-8831-4421-8d86-3d7a08c9f44f",
+              "keywords": [],
+              "occurred_at": "2026-10-06T14:05:25.359144+00:00",
+              "session_id": "compat-a",
+              "trace_id": "compat-a",
+              "ref_props": {}
+            },
+            {
+              "access_count": 0,
+              "agent_id": "compat-a",
+              "event_id": "4652860c-dec1-4965-a0ba-1b2db43c688d",
+              "event_type": "tool.execute",
+              "global_position": "2026-10-06T14:05:25.323023000Z/000000/4652860c-dec1-4965-a0ba-1b2db43c688d",
+              "keywords": [],
+              "occurred_at": "2026-10-06T14:05:25.005197+00:00",
+              "session_id": "compat-a",
+              "trace_id": "compat-a",
+              "ref_props": {}
+            }
+          ]
+        },
+        "provider": "scripted; embedding disabled in this extraction case",
+        "interest_creation_included": false,
+        "scope": "interest write/evidence remains failed under #20 when omitted"
+      },
+      "seconds": 23.7
+    },
+    {
+      "name": "feedback_audit_and_missing_node_resubmission",
+      "scenarios": [
+        "FB-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "responses": [
+          {
+            "query_id": "compat-feedback",
+            "global_position": "2026-10-06T14:05:49.000703000Z/000000/b1268f1f-3fa4-40f8-912f-cd4a6cc67fdb",
+            "bumped": 1,
+            "decremented": 1
+          },
+          {
+            "query_id": "compat-feedback",
+            "global_position": "2026-10-06T14:05:50.058959000Z/000000/bb9b8d93-8413-41cb-b32a-c02433af4887",
+            "bumped": 1,
+            "decremented": 1
+          }
+        ],
+        "resubmission": "two audit events, two adjustments; not idempotent"
+      },
+      "seconds": 2.43
+    },
+    {
+      "name": "admin_and_timer_consolidation",
+      "scenarios": [
+        "CONS-01",
+        "CONS-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "admin": {
+          "sessions_processed": 1,
+          "summaries_created": 1,
+          "events_processed": 2
+        },
+        "graph": {
+          "nodes": {
+            "Event": 4,
+            "Entity": 3,
+            "Summary": 4,
+            "UserProfile": 2,
+            "Preference": 2,
+            "Skill": 1,
+            "Workflow": 0,
+            "BehavioralPattern": 0
+          },
+          "edges": {
+            "FOLLOWS": 2,
+            "CAUSED_BY": 0,
+            "SIMILAR_TO": 0,
+            "REFERENCES": 2,
+            "SUMMARIZES": 8,
+            "SAME_AS": 0,
+            "RELATED_TO": 0
+          },
+          "total_nodes": 16,
+          "total_edges": 12
+        },
+        "timer": "session and agent summaries observed; cycle error log checked separately"
+      },
+      "seconds": 9.02
+    },
+    {
+      "name": "user_delete_shared_resource_preservation",
+      "scenarios": [
+        "USER-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "deletion": {
+          "deleted_count": 1,
+          "status": "erased"
+        },
+        "other_user_shared_skill_entity_and_ledger": "preserved",
+        "user_entity": "redacted tombstone per implementation"
+      },
+      "seconds": 3.01
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 4
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 5
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 32
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 2
+    },
+    {
+      "table": "Events",
+      "rows": 3
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

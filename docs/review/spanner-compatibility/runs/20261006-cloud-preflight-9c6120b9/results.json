@@ -1,0 +1,17 @@
+{
+  "summary": "Read-only Engram open_stores preflight; no cloud acceptance journey yet",
+  "cleanup": "no resources created or data modified",
+  "scenarios": [
+    {
+      "scenario_id": "BOOT-02",
+      "status": "blocked",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-preflight-9c6120b9/observations.json"
+    },
+    {
+      "scenario_id": "BOOT-03",
+      "status": "blocked",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-preflight-9c6120b9/observations.json"
+    }
+  ],
+  "remaining": "normal ADC, negative auth/schema cases, disposable test database ownership, executable full-flow harness"
+}

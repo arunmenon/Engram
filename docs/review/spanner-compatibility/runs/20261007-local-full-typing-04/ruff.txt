@@ -1,0 +1,20 @@
+TC006 [*] Add quotes to type expression in `typing.cast()`
+   --> src/context_graph/adapters/redis/trimmer.py:199:33
+    |
+197 |                 entry_id = entry_id.decode()
+198 |             # XREVRANGE entries always carry IDs; client stubs also cover missing IDs.
+199 |             entry_ms = int(cast(str, entry_id).split("-")[0])
+    |                                 ^^^
+200 |
+201 |             if entry_ms < cutoff_ms:
+    |
+help: Add quotes
+    |
+198 |             # XREVRANGE entries always carry IDs; client stubs also cover missing IDs.
+    -             entry_ms = int(cast(str, entry_id).split("-")[0])
+199 +             entry_ms = int(cast("str", entry_id).split("-")[0])
+200 |
+    |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

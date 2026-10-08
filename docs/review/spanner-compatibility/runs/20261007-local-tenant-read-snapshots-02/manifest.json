@@ -1,0 +1,28 @@
+{
+  "kind": "local_tenant_snapshot_reads",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    43,
+    41
+  ],
+  "scope": "Seven actual Spanner snapshot helpers verify control before application reads; API default read vs worker processing drain; no API response guard claim; RuntimeFencedError propagation through retrieval gather/channels,health,evaluation,admin/import/replay fallback; draining worker startup",
+  "source_sha256": {
+    "src/context_graph/adapters/spanner/tenant_control.py": "d594917f50a43fce597548c344f14fdc25b0848ee5789bcefe17f21b093995cf",
+    "src/context_graph/adapters/spanner/graph.py": "d0a669d24442488956ff9a8becb46fa82f9afafadf10536304122ab6f2a4f001",
+    "src/context_graph/adapters/spanner/log.py": "8f863582b07a91901b5ab7293d1c10b5220caabc4f5a5ed5643bd88584773ccb",
+    "src/context_graph/adapters/spanner/subscription.py": "ae22cf0d349e95d2c5727e9bb62fcbf84970474a0ddfde094e88462584e2af2c",
+    "src/context_graph/adapters/registry.py": "7c231eb529c7489355662449a0b61171bc653e901d5561a0c8eb9671a22bf46e",
+    "src/context_graph/worker/__main__.py": "483a77f54eb2a045e75300036da3f63b067851b67bcaf75f10782f4ba491b5da",
+    "tests/unit/test_spanner_tenant_reads.py": "979f6b57721ce992406133a4e2b725f30e14599b481ab88d1b6196dc952cbe71",
+    "src/context_graph/retrieval/engine.py": "29aa580cbf0af7955f4e8ea03a47a001e6c6acd126b6007b1c61f34ef9a07795",
+    "src/context_graph/ontology/versioning.py": "5d3ec8cd354ff5bcd3092018ca864e2d47102aad76c260d5095909595268470e",
+    "src/context_graph/ontology/rebuild.py": "fe5f54e64667c07ea929669da9dd480761577bb28cc9ee0e89e8df66d776feed",
+    "src/context_graph/api/routes/admin.py": "daafbe036a07f363bcfa325959936912babbc99d4a15f37f055ee686a7703e2a",
+    "src/context_graph/api/routes/events.py": "7694622bde7a0da000cdf70620cf01c096f236ff46c5d5d77c51b7a0a27d4d3b",
+    "tests/unit/test_runtime_tenant_binding.py": "cb5adb5c6eab1453b726a4f2a932aca987a3e181310f06d8f0878885891603e7",
+    "tests/unit/test_tenant_store_binding.py": "ddb8b29176c6771c31f5636a9c61cbf43a513203a2362637c980d40d7ef40e55"
+  },
+  "command": "pytest -q tests/unit/test_spanner_tenant_reads.py tests/unit/test_spanner_tenant_control.py tests/unit/test_tenant_store_binding.py tests/unit/test_runtime_tenant_binding.py tests/unit/test_explicit_runtime_settings.py tests/unit/test_worker_fences.py tests/unit/test_retrieval_engine.py tests/unit/test_api_admin.py tests/unit/test_api_ingest.py tests/unit/test_api_events.py tests/unit/test_pack_versioning.py tests/unit/test_ontology_cli.py",
+  "run_id": "20261007-local-tenant-read-snapshots-02"
+}

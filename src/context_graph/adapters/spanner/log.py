@@ -25,11 +25,12 @@ Source: ADR-0004, ADR-0010, ADR-0014, ADR-0019
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
-import math
 import zlib
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import orjson
 import structlog
@@ -37,15 +38,29 @@ import structlog
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.spanner.commits import CommitBudget, event_row_cost
 from context_graph.adapters.spanner.errors import translate_spanner_error
+from context_graph.adapters.spanner.tenant_control import tenant_snapshot
+from context_graph.domain.event_acceptance import (
+    AdmissionContext,
+    EventAcceptance,
+    EventInterpretation,
+    EventInterpretationError,
+    stamp_acceptance,
+    validate_accepted_document,
+)
 from context_graph.domain.keyword_search import event_search_text, query_terms
 from context_graph.domain.models import Event
+from context_graph.domain.pack_admission import compile_admission_policy
+from context_graph.domain.source_trust import AcceptedRecord, VerifiedSourceProvenance
+from context_graph.ports.errors import ConflictError, InvalidRequestError, RuntimeFencedError
 from context_graph.ports.event_log import ImportedEvent, LogEntry
 from context_graph.ports.event_store import AppendOutcome
 from context_graph.settings import KeywordSearchSettings
 
 if TYPE_CHECKING:
+    from context_graph.adapters.spanner.tenant_control import TenantFence
     from context_graph.domain.models import EventQuery
     from context_graph.ports.archive import ArchiveStore
+    from context_graph.tenancy import TenantBinding
 
 log = structlog.get_logger(__name__)
 
@@ -69,7 +84,11 @@ EVENT_COLUMNS = [
     "keywords",
     "legacy_position",
     "search_text",
+    "acceptance",
 ]
+
+LedgerEntry = tuple[str, str, dict[str, Any] | None, int, EventAcceptance | None]
+
 
 # Columns that rebuild a position
 POSITION_COLUMNS = "commit_ts, batch_index, event_id"
@@ -116,7 +135,7 @@ def event_id_of(position: str) -> str:
     return position.rsplit("/", 1)[-1]
 
 
-# Spanner JSON cells hold non-integral floats as {"$float": "<repr>"}.
+# New Spanner JSON cells hold every float as {"$float": "<repr>"}.
 #
 # Real Spanner refuses some JSON numbers as "cannot round-trip through string
 # representation": about 1 in 1,000 ordinary decimals (-0.707176497086,
@@ -124,18 +143,22 @@ def event_id_of(position: str) -> str:
 # emulator accepts them all (trial of 2026-10-05,
 # docs/review/2026-10-05-spanner-trial-results.md). A refused number fails
 # the whole write: an event whose payload holds one, or a node with an
-# embedding in its properties. So floats never reach Spanner as JSON
-# numbers; integers, and floats with an integral value, do.
+# embedding in its properties. Native JSON also normalizes integral floats
+# and negative zero, which must remain distinct for json-v1 request identity.
+# Tag every float; the decoder still reads legacy native numbers unchanged.
 FLOAT_TAG = "$float"
-_EXACT_INTEGER = 2**53
+OBJECT_TAG = "$engram_object"
 
 
 def _encode_floats(value: Any) -> Any:
     if isinstance(value, float):
-        if math.isfinite(value) and value.is_integer() and abs(value) <= _EXACT_INTEGER:
-            return value
         return {FLOAT_TAG: repr(value)}
     if isinstance(value, dict):
+        # A user object can look exactly like either codec marker. Store its
+        # entries as pairs so object_hook sees the escape before the literal
+        # marker, and does not decode the returned user object a second time.
+        if len(value) == 1 and next(iter(value)) in (FLOAT_TAG, OBJECT_TAG):
+            return {OBJECT_TAG: [[key, _encode_floats(item)] for key, item in value.items()]}
         return {key: _encode_floats(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_encode_floats(item) for item in value]
@@ -143,8 +166,20 @@ def _encode_floats(value: Any) -> Any:
 
 
 def _decode_float(obj: dict[str, Any]) -> Any:
+    if len(obj) == 1 and isinstance(obj.get(OBJECT_TAG), list):
+        entries = obj[OBJECT_TAG]
+        if all(
+            isinstance(pair, list) and len(pair) == 2 and isinstance(pair[0], str)
+            for pair in entries
+        ) and len({pair[0] for pair in entries}) == len(entries):
+            return dict(entries)
     if len(obj) == 1 and isinstance(obj.get(FLOAT_TAG), str):
-        return float(obj[FLOAT_TAG])
+        try:
+            return float(obj[FLOAT_TAG])
+        except ValueError:
+            # Older cells could contain literal nonnumeric markers. Numeric
+            # legacy markers remain floats: their original intent is ambiguous.
+            return obj
     return obj
 
 
@@ -202,12 +237,41 @@ class SpannerEventLog:
         keyword: KeywordSearchSettings | None = None,
         commit_budget: CommitBudget | None = None,
         retention_batch_rows: int = 1_000,
+        tenant_fence: TenantFence | None = None,
+        tenant_read_operation: str = "read",
+        tenant_engine_revision: str | None = None,
+        tenant_binding: TenantBinding | None = None,
     ) -> None:
         self._database = database
+        self._tenant_fence = tenant_fence
+        self._tenant_engine_revision = tenant_engine_revision
+        self._admission_policy = None
+        if tenant_binding is not None:
+            from context_graph.adapters.spanner.tenant_control import TenantFence
+
+            # Recompute the digest to detect mutation of nested registry values.
+            checked_binding = replace(tenant_binding)
+            if (
+                tenant_fence != TenantFence.from_binding(checked_binding)
+                or tenant_engine_revision != checked_binding.engine_revision
+            ):
+                raise RuntimeFencedError("Admission binding differs from ledger authority")
+            self._admission_policy = compile_admission_policy(checked_binding.bundle)
+        if tenant_read_operation not in ("read", "processing"):
+            raise ValueError("Unknown tenant read operation")
+        self._tenant_read_operation: Literal["read", "processing"] = (
+            "read" if tenant_read_operation == "read" else "processing"
+        )
+        if tenant_fence is not None:
+            tenant_fence.check_database(database)
         self._shards = shards
         self._keyword = keyword or KeywordSearchSettings()
         self._budget = commit_budget or CommitBudget()
         self._retention_rows = retention_batch_rows
+
+    @property
+    def requires_source_provenance(self) -> bool:
+        return self._tenant_fence is not None
 
     @property
     def database(self) -> Any:
@@ -221,11 +285,20 @@ class SpannerEventLog:
     async def _run(self, fn: Any, *args: Any) -> Any:
         return await asyncio.to_thread(fn, *args)
 
+    def _transact_sync(self, fn: Any, *, admission: bool = False) -> Any:
+        if self._tenant_fence is not None:
+            return self._tenant_fence.run(
+                self._database, fn, operation="admission" if admission else "processing"
+            )
+        return self._database.run_in_transaction(fn)
+
     async def _query(
         self, sql: str, params: dict[str, Any] | None = None, types: dict[str, Any] | None = None
     ) -> list[list[Any]]:
         def query() -> list[list[Any]]:
-            with self._database.snapshot() as snapshot:
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
                 return [
                     list(row) for row in snapshot.execute_sql(sql, params=params, param_types=types)
                 ]
@@ -241,6 +314,8 @@ class SpannerEventLog:
     async def health_ping(self) -> bool:
         try:
             await self._query("SELECT 1")
+        except RuntimeFencedError:
+            raise
         except Exception:  # noqa: BLE001
             return False
         return True
@@ -261,6 +336,7 @@ class SpannerEventLog:
         batch_index: int,
         document: dict[str, Any] | None,
         occurred_at_ms: int,
+        acceptance: EventAcceptance | None = None,
     ) -> list[Any]:
         from google.cloud import spanner
 
@@ -285,20 +361,25 @@ class SpannerEventLog:
             _text(doc.get("keywords")),
             doc.get("legacy_position"),
             _text(doc.get("search_text")),
+            json_param(acceptance.model_dump()) if acceptance is not None else None,
         ]
 
-    def _append_entries_sync(
-        self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
-    ) -> list[str]:
+    def _append_entries_sync(self, entries: list[LedgerEntry]) -> list[str]:
         """Append (event_id, session_id, document, occurred_at_ms); raise if any chunk fails."""
         positions = []
-        for chunk in self._budget.chunks(entries, lambda entry: event_row_cost(entry[2])):
-            positions += [outcome.position or "" for outcome in self._append_chunk_sync(chunk)]
+        for chunk in self._budget.chunks(
+            entries,
+            lambda entry: event_row_cost(entry[2], entry[4].model_dump() if entry[4] else None),
+        ):
+            outcomes = self._append_chunk_sync(chunk)
+            if any(outcome.status == "conflict" for outcome in outcomes):
+                raise ConflictError("Event ID conflicts with its original acceptance")
+            if rejected := next((item for item in outcomes if item.status == "rejected"), None):
+                raise InvalidRequestError(rejected.error or "Event admission rejected")
+            positions += [outcome.position or "" for outcome in outcomes]
         return positions
 
-    def _append_outcomes_sync(
-        self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
-    ) -> list[AppendOutcome]:
+    def _append_outcomes_sync(self, entries: list[LedgerEntry]) -> list[AppendOutcome]:
         """Append in commit-sized chunks, in order; each entry's outcome.
 
         Each chunk is one transaction, written whole or not at all. When the
@@ -307,10 +388,15 @@ class SpannerEventLog:
         from the failed chunk on is ``failed``: sending them again is safe.
         """
         outcomes: list[AppendOutcome] = []
-        chunks = self._budget.chunks(entries, lambda entry: event_row_cost(entry[2]))
+        chunks = self._budget.chunks(
+            entries,
+            lambda entry: event_row_cost(entry[2], entry[4].model_dump() if entry[4] else None),
+        )
         for number, chunk in enumerate(chunks):
             try:
                 outcomes += self._append_chunk_sync(chunk)
+            except RuntimeFencedError:
+                raise
             except Exception as exc:
                 if number == 0:
                     raise
@@ -321,50 +407,102 @@ class SpannerEventLog:
                 )
         return outcomes
 
-    def _append_chunk_sync(
-        self, entries: list[tuple[str, str, dict[str, Any] | None, int]]
-    ) -> list[AppendOutcome]:
-        """Append in one transaction; each entry's outcome (created or duplicate)."""
+    def _append_chunk_sync(self, entries: list[LedgerEntry]) -> list[AppendOutcome]:
+        """Atomically write eligible new rows; preserve each input's outcome."""
         from google.cloud.spanner_v1 import KeySet
 
         holder: dict[str, Any] = {}
 
-        def work(transaction: Any) -> list[tuple[str, int, bool] | str]:
+        def work(transaction: Any) -> list[tuple[str, int, bool] | str | AppendOutcome]:
             holder["transaction"] = transaction
-            ids = sorted({event_id for event_id, _s, _d, _o in entries})
-            existing: dict[str, str] = {}
-            for row in transaction.read(
-                "Events",
-                ["event_id", "commit_ts", "batch_index", "dedup_active"],
-                KeySet(keys=[[event_id] for event_id in ids]),
-            ):
-                event_id, commit_ts, batch_index, dedup_active = row
-                if dedup_active:
-                    existing[event_id] = format_position(commit_ts, batch_index, event_id)
-            # An existing position (duplicate), or (event_id, batch_index, created)
-            results: list[tuple[str, int, bool] | str] = []
-            written: dict[str, int] = {}
+            ids = sorted({entry[0] for entry in entries})
+            existing: dict[str, tuple[str, EventAcceptance | None]] = {}
+            columns = ["event_id", "commit_ts", "batch_index", "dedup_active", "acceptance"]
+            for row in transaction.read("Events", columns, KeySet(keys=[[eid] for eid in ids])):
+                event_id, commit_ts, batch_index, dedup_active, raw = row
+                if self._tenant_fence is not None:
+                    try:
+                        accepted = EventAcceptance.model_validate(json_value(raw))
+                    except ValueError as exc:
+                        raise RuntimeFencedError(
+                            "Existing event acceptance is missing or invalid"
+                        ) from exc
+                    # Existing identity survives document/dedup expiry until physical purge.
+                    existing[event_id] = (
+                        format_position(commit_ts, batch_index, event_id),
+                        accepted,
+                    )
+                elif dedup_active:
+                    existing[event_id] = (format_position(commit_ts, batch_index, event_id), None)
+            results: list[tuple[str, int, bool] | str | AppendOutcome] = []
+            written: dict[str, tuple[int, EventAcceptance | None]] = {}
             rows = []
-            for event_id, session_id, document, occurred_at_ms in entries:
-                if event_id in existing:
-                    results.append(existing[event_id])
-                elif event_id in written:
-                    results.append((event_id, written[event_id], False))
+            for event_id, session_id, document, occurred_at_ms, acceptance in entries:
+                previous = existing.get(event_id)
+                pending = written.get(event_id)
+                original = previous[1] if previous else pending[1] if pending else None
+                if self._tenant_fence is not None and (previous or pending):
+                    if original is None or acceptance is None:
+                        raise RuntimeFencedError("Bound append requires immutable acceptance")
+                    if (original.tenant_id, original.database_resource, original.binding_id) != (
+                        acceptance.tenant_id,
+                        acceptance.database_resource,
+                        acceptance.binding_id,
+                    ):
+                        raise RuntimeFencedError("Existing acceptance belongs to another binding")
+                    if (original.source_id, original.request_digest) != (
+                        acceptance.source_id,
+                        acceptance.request_digest,
+                    ):
+                        results.append(
+                            AppendOutcome(
+                                "conflict", error="Event ID conflicts with its original acceptance"
+                            )
+                        )
+                        continue
+                    if original.accepted_epoch > acceptance.accepted_epoch:
+                        raise RuntimeFencedError(
+                            "Existing acceptance is newer than current authority"
+                        )
+                if previous:
+                    results.append(previous[0])
+                elif pending:
+                    results.append((event_id, pending[0], False))
                 else:
+                    if self._tenant_fence is not None:
+                        if self._admission_policy is None or document is None:
+                            raise RuntimeFencedError("Bound event admission policy is unavailable")
+                        decision = self._admission_policy.decide(
+                            document["event_type"], document.get("payload")
+                        )
+                        if not decision.allowed:
+                            results.append(
+                                AppendOutcome(
+                                    "rejected",
+                                    error="Event does not satisfy its active pack contract",
+                                    reason=decision.reason,
+                                    problems=decision.problems,
+                                )
+                            )
+                            continue
                     batch_index = len(written)
-                    written[event_id] = batch_index
+                    written[event_id] = (batch_index, acceptance)
                     rows.append(
-                        self._row(event_id, session_id, batch_index, document, occurred_at_ms)
+                        self._row(
+                            event_id, session_id, batch_index, document, occurred_at_ms, acceptance
+                        )
                     )
                     results.append((event_id, batch_index, True))
             if rows:
                 transaction.insert_or_update("Events", EVENT_COLUMNS, rows)
             return results
 
-        results = self._database.run_in_transaction(work)
+        results = self._transact_sync(work, admission=True)
         commit_ts = holder["transaction"].committed
         return [
-            AppendOutcome("duplicate", item)
+            item
+            if isinstance(item, AppendOutcome)
+            else AppendOutcome("duplicate", item)
             if isinstance(item, str)
             else AppendOutcome(
                 "created" if item[2] else "duplicate",
@@ -372,6 +510,34 @@ class SpannerEventLog:
             )
             for item in results
         ]
+
+    def _acceptance(
+        self, context: AdmissionContext | None, event: Event, payload: dict[str, Any] | None
+    ) -> EventAcceptance | None:
+        if self._tenant_fence is None:
+            if context is not None:
+                raise RuntimeFencedError("Unbound ledger cannot accept tenant authority")
+            return None
+        fence = self._tenant_fence
+        if context is None or (
+            context.tenant_id,
+            context.database_resource,
+            context.binding_id,
+            context.accepted_epoch,
+            context.bundle_digest,
+            context.engine_revision,
+        ) != (
+            fence.tenant_id,
+            fence.database_resource,
+            fence.binding_id,
+            fence.epoch,
+            fence.bundle_digest,
+            self._tenant_engine_revision,
+        ):
+            raise RuntimeFencedError("Authenticated admission authority does not match ledger")
+        if self._admission_policy is None:
+            raise RuntimeFencedError("Bound event admission policy is unavailable")
+        return stamp_acceptance(context, event, payload)
 
     def _document(self, event: Event, payload: dict[str, Any] | None) -> dict[str, Any]:
         document: dict[str, Any] = orjson.loads(event.model_dump_json())
@@ -382,28 +548,53 @@ class SpannerEventLog:
             document["search_text"] = search_text
         return document
 
-    async def append(self, event: Event, payload: dict[str, Any] | None = None) -> str:
-        positions = await self.append_batch([event], [payload])
+    async def append(
+        self,
+        event: Event,
+        payload: dict[str, Any] | None = None,
+        *,
+        admission_context: AdmissionContext | None = None,
+    ) -> str:
+        positions = await self.append_batch([event], [payload], admission_context=admission_context)
         return positions[0]
+
+    def admission_writer(self, context: AdmissionContext) -> _AdmittedEventWriter:
+        if self._admission_policy is None:
+            raise RuntimeFencedError("Bound event admission policy is unavailable")
+        return _AdmittedEventWriter(self, context)
+
+    def _entry(
+        self, event: Event, payload: dict[str, Any] | None, context: AdmissionContext | None
+    ) -> LedgerEntry:
+        # Freeze caller-owned values before crossing into the transaction thread.
+        frozen_event = event.model_copy(deep=True)
+        frozen_payload = copy.deepcopy(payload)
+        acceptance = self._acceptance(context, frozen_event, frozen_payload)
+        return (
+            str(frozen_event.event_id),
+            frozen_event.session_id,
+            self._document(frozen_event, frozen_payload),
+            _epoch_ms(frozen_event.occurred_at),
+            acceptance,
+        )
 
     async def append_batch(
         self,
         events: list[Event],
         payloads: list[dict[str, Any] | None] | None = None,
+        *,
+        admission_context: AdmissionContext | None = None,
     ) -> list[str]:
-        if not events:
-            return []
-        entries = []
-        for idx, event in enumerate(events):
-            payload = payloads[idx] if payloads and idx < len(payloads) else None
-            entries.append(
-                (
-                    str(event.event_id),
-                    event.session_id,
-                    self._document(event, payload),
-                    _epoch_ms(event.occurred_at),
-                )
+        if payloads is not None and len(payloads) != len(events):
+            raise InvalidRequestError("Event and payload counts must match")
+        entries = [
+            self._entry(
+                event,
+                payloads[idx] if payloads and idx < len(payloads) else None,
+                admission_context,
             )
+            for idx, event in enumerate(events)
+        ]
         positions: list[str] = await self._run(self._append_entries_sync, entries)
         return positions
 
@@ -411,16 +602,17 @@ class SpannerEventLog:
         self,
         events: list[Event],
         payloads: list[dict[str, Any] | None] | None = None,
+        *,
+        admission_context: AdmissionContext | None = None,
     ) -> list[AppendOutcome]:
-        """Commit-sized transactions, in order (see ``_append_outcomes_sync``)."""
-        if not events:
-            return []
+        """Fenced chunks with per-event admission, identity and storage outcomes."""
+        if payloads is not None and len(payloads) != len(events):
+            raise InvalidRequestError("Event and payload counts must match")
         entries = [
-            (
-                str(event.event_id),
-                event.session_id,
-                self._document(event, payloads[idx] if payloads and idx < len(payloads) else None),
-                _epoch_ms(event.occurred_at),
+            self._entry(
+                event,
+                payloads[idx] if payloads and idx < len(payloads) else None,
+                admission_context,
             )
             for idx, event in enumerate(events)
         ]
@@ -437,6 +629,8 @@ class SpannerEventLog:
         stay written, which the mirror's checkpoint (``last_legacy_position``)
         picks up from.
         """
+        if self._tenant_fence is not None:
+            raise RuntimeFencedError("Bound restore requires an explicit trusted-import contract")
         if not events:
             return []
         entries = []
@@ -451,6 +645,7 @@ class SpannerEventLog:
                     str(document["session_id"]),
                     document,
                     _epoch_ms(occurred_at),
+                    None,
                 )
             )
         positions: list[str] = await self._run(self._append_entries_sync, entries)
@@ -479,7 +674,8 @@ class SpannerEventLog:
             params.update(after_params)
             types.update(after_types)
         rows = await self._query(
-            f"SELECT document, {POSITION_COLUMNS} FROM Events WHERE {' AND '.join(where)} "
+            f"SELECT document, {POSITION_COLUMNS}, acceptance FROM Events "
+            f"WHERE {' AND '.join(where)} "
             f"ORDER BY {POSITION_COLUMNS} LIMIT @limit",
             params,
             types,
@@ -488,24 +684,63 @@ class SpannerEventLog:
             LogEntry(
                 position=format_position(ts, batch, eid),
                 event_id=eid,
-                document=self._public(doc, ts, batch, eid),
+                document=self._public(doc, ts, batch, eid, acceptance),
+                provenance=(
+                    VerifiedSourceProvenance(
+                        eid, EventAcceptance.model_validate(json_value(acceptance))
+                    )
+                    if self._tenant_fence is not None
+                    else None
+                ),
             )
-            for doc, ts, batch, eid in rows
+            for doc, ts, batch, eid, acceptance in rows
         ]
 
     async def append_entry(self, event_id: str, session_id: str) -> str:
         """Append a bare log entry with no document (test support for subscriptions)."""
+        if self._tenant_fence is not None:
+            raise RuntimeFencedError("Bound ledger refuses bare unstamped entries")
         positions: list[str] = await self._run(
             self._append_entries_sync,
-            [(event_id, session_id, None, _epoch_ms(datetime.now(UTC)))],
+            [(event_id, session_id, None, _epoch_ms(datetime.now(UTC)), None)],
         )
         return positions[0]
 
     # -- reads --------------------------------------------------------------
 
-    @staticmethod
-    def _public(document: Any, commit_ts: datetime, batch_index: int, event_id: str) -> Any:
+    def _validated_document(self, document: Any, event_id: str, acceptance: Any) -> Any:
         doc = json_value(document)
+        if self._tenant_fence is None:
+            return doc
+        fence = self._tenant_fence
+        if self._tenant_engine_revision is None:
+            raise RuntimeFencedError("Bound ledger interpretation is not configured")
+        authority = EventInterpretation(
+            fence.tenant_id,
+            fence.database_resource,
+            fence.binding_id,
+            fence.epoch,
+            fence.bundle_digest,
+            self._tenant_engine_revision,
+        )
+        try:
+            _event, receipt = validate_accepted_document(
+                authority, event_id, doc, json_value(acceptance)
+            )
+        except (EventInterpretationError, ValueError, TypeError) as exc:
+            raise RuntimeFencedError("Accepted event interpretation is unavailable") from exc
+        doc["acceptance"] = receipt.model_dump()
+        return doc
+
+    def _public(
+        self,
+        document: Any,
+        commit_ts: datetime,
+        batch_index: int,
+        event_id: str,
+        acceptance: Any = None,
+    ) -> Any:
+        doc = self._validated_document(document, event_id, acceptance)
         if doc is None:
             return None
         doc["global_position"] = format_position(commit_ts, batch_index, event_id)
@@ -519,18 +754,60 @@ class SpannerEventLog:
 
         def read() -> dict[str, dict[str, Any]]:
             out = {}
-            with self._database.snapshot() as snapshot:
-                for event_id, document, commit_ts, batch_index in snapshot.read(
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
+                for event_id, document, commit_ts, batch_index, acceptance in snapshot.read(
                     "Events",
-                    ["event_id", "document", "commit_ts", "batch_index"],
+                    ["event_id", "document", "commit_ts", "batch_index", "acceptance"],
                     KeySet(keys=[[eid] for eid in sorted(set(event_ids))]),
                 ):
-                    doc = self._public(document, commit_ts, batch_index, event_id)
+                    doc = self._public(document, commit_ts, batch_index, event_id, acceptance)
                     if doc is not None:
                         out[event_id] = doc
+            if (
+                self._tenant_fence is not None
+                and self._tenant_read_operation == "processing"
+                and set(event_ids) - out.keys()
+            ):
+                raise RuntimeFencedError("Accepted processing input is missing from ledger")
             return out
 
         result: dict[str, dict[str, Any]] = await self._run(read)
+        return result
+
+    async def get_accepted_records(self, event_ids: list[str]) -> list[AcceptedRecord]:
+        """Read content and provenance together from authoritative fenced storage."""
+        from google.cloud.spanner_v1 import KeySet
+
+        if self._tenant_fence is None:
+            raise RuntimeFencedError("Authenticated records require a bound ledger")
+        if not event_ids:
+            return []
+
+        def read() -> list[AcceptedRecord]:
+            found = {}
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation="processing"
+            ) as snapshot:
+                for event_id, document, ts, batch, acceptance in snapshot.read(
+                    "Events",
+                    ["event_id", "document", "commit_ts", "batch_index", "acceptance"],
+                    KeySet(keys=[[eid] for eid in sorted(set(event_ids))]),
+                ):
+                    doc = self._public(document, ts, batch, event_id, acceptance)
+                    if doc is not None:
+                        found[event_id] = AcceptedRecord(
+                            doc,
+                            VerifiedSourceProvenance(
+                                event_id, EventAcceptance.model_validate(json_value(acceptance))
+                            ),
+                        )
+            if set(event_ids) - found.keys():
+                raise RuntimeFencedError("Accepted processing input is missing from ledger")
+            return [found[event_id] for event_id in event_ids]
+
+        result: list[AcceptedRecord] = await self._run(read)
         return result
 
     async def get_documents(self, event_ids: list[str]) -> list[dict[str, Any] | None]:
@@ -586,14 +863,14 @@ class SpannerEventLog:
         params = {**params, "limit": limit, "offset": offset}
         types = {**types, "limit": param_types.INT64, "offset": param_types.INT64}
         rows = await self._query(
-            f"SELECT document, {POSITION_COLUMNS} FROM Events WHERE {clauses} "
+            f"SELECT document, {POSITION_COLUMNS}, acceptance FROM Events WHERE {clauses} "
             f"ORDER BY occurred_at_ms, {POSITION_COLUMNS} LIMIT @limit OFFSET @offset",
             params,
             types,
         )
         return [
-            Event.model_validate(self._public(doc, ts, batch, eid), strict=False)
-            for doc, ts, batch, eid in rows
+            Event.model_validate(self._public(doc, ts, batch, eid, acceptance), strict=False)
+            for doc, ts, batch, eid, acceptance in rows
         ]
 
     async def get_by_session(
@@ -669,15 +946,18 @@ class SpannerEventLog:
             params["session"] = session_id.lower()
             types["session"] = param_types.STRING
         rows = await self._query(
-            f"SELECT document, {POSITION_COLUMNS}, SCORE(text_tokens, @q) AS relevance "
+            f"SELECT document, {POSITION_COLUMNS}, SCORE(text_tokens, @q) AS relevance, acceptance "
             f"FROM Events WHERE {' AND '.join(where)} "
             f"ORDER BY relevance DESC, {POSITION_COLUMNS} LIMIT @limit",
             params,
             types,
         )
         return [
-            (Event.model_validate(self._public(doc, ts, batch, eid), strict=False), float(score))
-            for doc, ts, batch, eid, score in rows
+            (
+                Event.model_validate(self._public(doc, ts, batch, eid, acceptance), strict=False),
+                float(score),
+            )
+            for doc, ts, batch, eid, score, acceptance in rows
         ]
 
     async def search_bm25(
@@ -699,7 +979,7 @@ class SpannerEventLog:
                 for sql, params, types in statements
             ]
 
-        counts: list[int] = await self._run(self._database.run_in_transaction, work)
+        counts: list[int] = await self._run(self._transact_sync, work)
         return counts
 
     async def _update_in_batches(
@@ -738,7 +1018,7 @@ class SpannerEventLog:
 
         total = 0
         while True:
-            batch: tuple[int, int] = await self._run(self._database.run_in_transaction, work)
+            batch: tuple[int, int] = await self._run(self._transact_sync, work)
             selected, changed = batch
             total += changed
             if selected < self._retention_rows:
@@ -787,21 +1067,24 @@ class SpannerEventLog:
         archived = deleted = 0
         while True:
             rows = await self._query(
-                f"SELECT document, {POSITION_COLUMNS}, occurred_at_ms FROM Events "
+                f"SELECT document, {POSITION_COLUMNS}, occurred_at_ms, acceptance FROM Events "
                 "WHERE document IS NOT NULL AND occurred_at_ms < @cutoff LIMIT @rows",
                 {"cutoff": cutoff_ms, "rows": self._retention_rows},
                 {"cutoff": param_types.INT64, "rows": param_types.INT64},
             )
             if not rows:
                 break
-            if archive_store is not None:
-                documents = []
-                for doc, ts, batch, eid, occurred_ms in rows:
-                    public = self._public(doc, ts, batch, eid)
+            documents = []
+            for doc, ts, batch, eid, occurred_ms, acceptance in rows:
+                public = self._public(doc, ts, batch, eid, acceptance)
+                if public is not None:
                     public["occurred_at_epoch_ms"] = occurred_ms
                     documents.append(public)
+            if archive_store is not None:
                 try:
                     await archive_store.archive_events(documents, partition_key)
+                except RuntimeFencedError:
+                    raise
                 except Exception:
                     log.exception("archive_failed_skipping_delete", event_count=len(documents))
                     break
@@ -811,7 +1094,7 @@ class SpannerEventLog:
                     (
                         "UPDATE Events SET document = NULL "
                         "WHERE event_id IN UNNEST(@ids) AND document IS NOT NULL",
-                        {"ids": [eid for _doc, _ts, _batch, eid, _ms in rows]},
+                        {"ids": [eid for _doc, _ts, _batch, eid, _ms, _acceptance in rows]},
                         {"ids": param_types.Array(param_types.STRING)},
                     )
                 ]
@@ -872,9 +1155,15 @@ class SpannerEventLog:
         """Add fields to a stored document; ``summary``/``keywords`` are indexed for search."""
         from google.cloud.spanner_v1 import KeySet
 
+        if self._tenant_fence is not None and fields.keys() - {"summary", "keywords"}:
+            raise InvalidRequestError("Bound enrichment can update only summary and keywords")
+
         def work(transaction: Any) -> None:
-            (row,) = list(transaction.read("Events", ["document"], KeySet(keys=[[event_id]])))
-            document = json_value(row[0]) or {}
+            (row,) = list(
+                transaction.read("Events", ["document", "acceptance"], KeySet(keys=[[event_id]]))
+            )
+            document = self._validated_document(row[0], event_id, row[1]) or {}
+            document.pop("acceptance", None)
             document.update(fields)
             transaction.update(
                 "Events",
@@ -889,4 +1178,30 @@ class SpannerEventLog:
                 ],
             )
 
-        await self._run(self._database.run_in_transaction, work)
+        await self._run(self._transact_sync, work)
+
+
+@dataclass(frozen=True)
+class _AdmittedEventWriter:
+    """One request's immutable source context; never changes a shared store."""
+
+    store: SpannerEventLog
+    context: AdmissionContext
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.store, name)
+
+    async def append(self, event: Event, payload: dict[str, Any] | None = None) -> str:
+        return await self.store.append(event, payload, admission_context=self.context)
+
+    async def append_batch(
+        self, events: list[Event], payloads: list[dict[str, Any] | None] | None = None
+    ) -> list[str]:
+        return await self.store.append_batch(events, payloads, admission_context=self.context)
+
+    async def append_batch_outcomes(
+        self, events: list[Event], payloads: list[dict[str, Any] | None] | None = None
+    ) -> list[AppendOutcome]:
+        return await self.store.append_batch_outcomes(
+            events, payloads, admission_context=self.context
+        )

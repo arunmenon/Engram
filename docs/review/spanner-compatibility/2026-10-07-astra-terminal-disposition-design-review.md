@@ -1,0 +1,41 @@
+# Bound terminal delivery disposition
+
+2026-10-07. Source-only review; no runtime edits, tests or cloud calls. Scope is the ACK/DLQ authority gap after accepted-document validation, not general queue redesign.
+
+## Verdict
+
+**Validate accepted content inside SpannerSubscription's terminal-disposition transaction.** A BaseConsumer preflight hook alone is insufficient: retention, document mutation, epoch changes or delivery reassignment can occur after preflight. Keep BaseConsumer backend-neutral and preserve `Subscription.ack(*positions)` / `dead_letter(delivery,count)` signatures. Strengthen their documented bound-backend contract; no new framework is needed.
+
+Current `_drain_pending` calls dead_letter when the reported retry count is exhausted, before `process_message`. Consequently, SpannerEventLog's new `_validated_document` is bypassed. `SpannerSubscription.ack` currently deletes by group/event ID, while `dead_letter` inserts arbitrary delivery fields then deletes pending. Their existing `_transact` validates current TenantControl authority but does not establish authority over the accepted event or its current content.
+
+## Minimal adapter contract
+
+1. Pass `tenant_engine_revision` to SpannerSubscription from `_open_spanner_log` alongside its existing fence. It already reaches SpannerEventLog but not subscriptions. Reject construction of a bound subscription without a complete immutable interpretation authority. Reuse a small shared domain authority value if needed; do not import private `_LedgerInterpretation` from the log adapter or duplicate the fingerprint algorithm.
+2. Add a private synchronous transaction helper for terminal dispositions. After `_transact` checks TenantControl for `operation="processing"`, read the relevant ConsumerDeliveries row(s) and Events rows in that **same read-write transaction**. Read document, acceptance, commit_ts and batch_index; validate receipt/content with `validate_accepted_document` before any terminal mutations. Convert EventInterpretationError to RuntimeFencedError consistently with bound ledger reads. Spanner retry must rerun both control and event validation.
+3. Match requested full position to the stored delivery and ledger position, not only `event_id_of(position)`. Require the pending row to belong to this subscription's group/current consumer. For DLQ, reject conflicting `delivery.fields.event_id` and construct authoritative fields from the validated row. Current `**delivery.fields` follows metadata and can overwrite it; reverse that trust relationship or explicitly whitelist transport fields.
+4. Only after all validations may ACK delete pending, or DLQ atomically insert the dead-letter row and delete pending. DLQ should record original position plus accepted envelope/digest and current disposition authority sufficient for recovery/audit. Never rewrite the Events row or acceptance. Delivery counts are retry policy evidence, not proof of interpretation authority.
+
+The receipt's accepted epoch may be older than the current epoch when binding/digest/engine remain compatible, as the current validator already permits. Future accepted epochs, foreign bindings and changed contracts refuse. Current TenantControl must still authorize the worker; a valid old receipt cannot revive a stale runtime. Identical accepted duplicate events keep their original receipt and position and require no new enqueue/disposition special case.
+
+## Missing rows, races and idempotence
+
+- A **pending delivery with a missing/null/unavailable document or acceptance** refuses both ACK and DLQ and remains pending. A consumer returning early on missing content must not turn that into successful ACK. Zero-data or retry-exhausted status does not authorize destruction. Recovery requires restoring valid content or an explicitly separate operator disposition policy; do not auto-label unavailable evidence as a poison event.
+- If validation succeeds during processing but semantic content changes before terminal disposition, the recomputed receipt fingerprint fails in the terminal transaction. Enrichment-only fields excluded by the canonical request fingerprint remain compatible. If retention wins first and nulls the document, disposition refuses; if disposition commits first, subsequent retention does not invalidate the completed decision. Transaction conflicts/retries must preserve this ordering.
+- An epoch/freeze change racing ACK/DLQ conflicts with its TenantControl read or causes revalidation refusal. Draining permits valid processing disposition; frozen does not.
+- Define repeated ACK with **no pending row** as an idempotent no-op after current control validation; it performs no destructive action and need not resurrect/read purged content. A present pending row always requires full validation. Repeated DLQ with no pending row may be a no-op only when an existing dead-letter row matches the requested original position/disposition identity; otherwise refuse rather than creating a DLQ from caller-supplied fields.
+- Batch ACK validates every present pending event before deletion and is all-or-nothing within its existing transaction. If bounds require chunking, document chunk-level atomicity; never silently ACK valid siblings while reporting the whole batch refused. Deduplicate repeated positions, reject contradictory positions for the same event, and preserve pending on failure.
+- Consumer-name ownership checking prevents obvious old-owner ACK after reassignment. Existing signatures contain no claim-generation token, so they cannot distinguish two processes using the same consumer name after reclaim. Do not claim a stronger lease guarantee from this slice. A future claim token can strengthen that separately; this repair closes accepted-contract/content authority regardless of retry exhaustion.
+
+## BaseConsumer and processing boundary
+
+The adapter check closes both early retry-exhaustion DLQ and normal/deferred ACK paths. A worker preflight may give earlier diagnostics but is redundant as an authorization boundary. Ensure RuntimeFencedError from the early DLQ branch has the same explicit stop-and-propagate behavior as the process/ACK branch; the current retry-exhaustion call is outside that try block. Do not increment dead-letter metrics until successful disposition, increment retry failures for control errors, or proceed to later deliveries after control refusal. Existing unbound adapters retain their behavior.
+
+This does not make prior graph writes atomic with ACK. If an event was legitimately processed, then its content is corrupted before ACK, derived writes may already exist while its delivery remains pending. Existing immutable admission/update restrictions plus idempotent derived writes are still required. The proposed terminal check prevents losing evidence through an unauthorized terminal action; it does not roll back earlier work or repair historical corruption.
+
+## Focused tests
+
+Use transaction-aware fakes to prove control and receipt/content checks execute inside the transaction callback, repeat on retry, and precede mutations. Exhausted pending deliveries with malformed, foreign, future-epoch, changed-contract, mismatched-fingerprint or missing content must leave pending/DLQ untouched and stop the consumer without calling process_message. Test normal ACK and deferred batch ACK with the same failures, including one bad member.
+
+Test valid exact-contract old-epoch acceptance under current active/draining authority, frozen/stale refusal, canonical-equivalent content, enrichment-only updates, original duplicate receipts, incorrect position/event fields, reassigned consumer, repeated ACK, repeated matching/mismatching DLQ and metadata-override attempts. Race semantic document mutation, retention and TenantControl transition between processing and terminal call, and force a transaction retry observing the new state. Assert exact pending/DLQ/Event rows and metrics, not only exceptions.
+
+This is the smallest complete next slice: subscription interpretation wiring, one transaction-local terminal validator, bounded idempotence/position rules, and early-DLQ control-error propagation. Real Spanner race acceptance remains separate; no cloud behavior was established by this review.

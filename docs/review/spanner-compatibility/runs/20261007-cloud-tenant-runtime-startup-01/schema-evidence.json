@@ -1,0 +1,161 @@
+{
+  "before_rows": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "before_ddl": [
+    "CREATE TABLE ConsumerCursors (\n  group_name STRING(MAX) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n  event_id STRING(64) NOT NULL,\n) PRIMARY KEY(group_name, shard)",
+    "CREATE TABLE ConsumerDeadLetters (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  dead_lettered_at TIMESTAMP NOT NULL,\n  fields JSON NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE TABLE ConsumerDeliveries (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  consumer STRING(MAX) NOT NULL,\n  delivery_count INT64 NOT NULL,\n  last_delivered_at TIMESTAMP NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries(group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerGroups (\n  group_name STRING(MAX) NOT NULL,\n  created_at TIMESTAMP NOT NULL,\n) PRIMARY KEY(group_name)",
+    "CREATE TABLE Events (\n  event_id STRING(64) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL OPTIONS (\n    allow_commit_timestamp = true\n  ),\n  batch_index INT64 NOT NULL,\n  session_id STRING(MAX) NOT NULL,\n  occurred_at_ms INT64 NOT NULL,\n  session_tag STRING(MAX),\n  agent_tag STRING(MAX),\n  trace_tag STRING(MAX),\n  event_type_tag STRING(MAX),\n  tool_name_tag STRING(MAX),\n  document JSON,\n  legacy_position STRING(MAX),\n  in_log BOOL NOT NULL,\n  in_session_index BOOL NOT NULL,\n  dedup_active BOOL NOT NULL,\n  summary STRING(MAX),\n  keywords STRING(MAX),\n  search_text STRING(MAX),\n  summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n  keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n  search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n  text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])) HIDDEN,\n) PRIMARY KEY(event_id)",
+    "CREATE INDEX EventsBySession ON Events(session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events(session_tag, occurred_at_ms)",
+    "CREATE INDEX EventsByShardPosition ON Events(shard, commit_ts, batch_index)",
+    "CREATE SEARCH INDEX EventsText ON Events(text_tokens) STORING (session_tag)",
+    "CREATE TABLE GraphEdges (\n  src_label STRING(64) NOT NULL,\n  src_id STRING(MAX) NOT NULL,\n  edge_type STRING(64) NOT NULL,\n  dst_label STRING(64) NOT NULL,\n  dst_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n) PRIMARY KEY(src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges(dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges(edge_type) STORING (props)",
+    "CREATE TABLE GraphNodes (\n  label STRING(64) NOT NULL,\n  node_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n  session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n  embedding ARRAY<FLOAT64>(vector_length=>384),\n  entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN,\n) PRIMARY KEY(label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes(label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes(embedding) WHERE embedding IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE TABLE TenantControl (\n  control_id STRING(16) NOT NULL,\n  tenant_id STRING(128) NOT NULL,\n  database_resource STRING(MAX) NOT NULL,\n  binding_id STRING(128) NOT NULL,\n  epoch INT64 NOT NULL,\n  bundle_digest STRING(80) NOT NULL,\n  serving_state STRING(16) NOT NULL,\n) PRIMARY KEY(control_id)",
+    "CREATE PROPERTY GRAPH EngramGraph\n  NODE TABLES(\n    GraphNodes\n      KEY(label, node_id)\n      LABEL GraphNodes PROPERTIES(\n        embedding,\n        label,\n        node_id,\n        props,\n        session_id)\n      DYNAMIC LABEL (label)\n      DYNAMIC PROPERTIES (props)\n  )\n  EDGE TABLES(\n    GraphEdges\n      KEY(src_label, src_id, edge_type, dst_label, dst_id)\n      SOURCE KEY(src_id, src_label) REFERENCES GraphNodes(node_id, label)\n      DESTINATION KEY(dst_id, dst_label) REFERENCES GraphNodes(node_id, label)\n      LABEL GraphEdges PROPERTIES(\n        dst_id,\n        dst_label,\n        edge_type,\n        props,\n        src_id,\n        src_label)\n      DYNAMIC LABEL (edge_type)\n      DYNAMIC PROPERTIES (props)\n  )"
+  ],
+  "control_table_present_before": true,
+  "runtime_intent": {
+    "owner": [
+      [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        2,
+        "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+        "active"
+      ]
+    ],
+    "metadata_key": [
+      "OntologyState",
+      "OntologyState:active"
+    ],
+    "cleanup_only_new_metadata": true,
+    "public_activation": false,
+    "providers": "Scripted LLM; embedding constructor disabled; startup only",
+    "worker_loops": false,
+    "requests": false
+  },
+  "runtime_checks": [
+    "existing_control_schema_handshake",
+    "private_api_lifespan_exact_database_bundle_and_fence",
+    "private_api_lifespan_closed",
+    "projection_factory_exact_database_bundle_and_fence",
+    "projection_metadata_exact_pinned_pack_version",
+    "projection_stores_closed",
+    "extraction_factory_exact_database_bundle_and_fence",
+    "extraction_stores_closed",
+    "enrichment_factory_exact_database_bundle_and_fence",
+    "enrichment_stores_closed",
+    "consolidation_factory_exact_database_bundle_and_fence",
+    "consolidation_stores_closed",
+    "pack_extraction_factory_exact_database_bundle_and_fence",
+    "pack_extraction_stores_closed"
+  ],
+  "projection_metadata": {
+    "applied": "initial",
+    "eval_pending": [],
+    "node_id": "OntologyState:active",
+    "node_type": "OntologyState",
+    "packs": [
+      "core@1.1.0"
+    ],
+    "packs_json": "[{\"events\":{\"agent.create\":{\"aliases\":{\"otel\":\"create_agent\"}},\"agent.invoke\":{\"aliases\":{\"otel\":\"invoke_agent\"}},\"llm.chat\":{\"aliases\":{\"otel\":\"chat\"}},\"llm.completion\":{\"aliases\":{\"otel\":\"text_completion\"}},\"llm.embed\":{\"aliases\":{\"otel\":\"embeddings\"}},\"llm.generate\":{\"aliases\":{\"otel\":\"generate_content\"}},\"observation.input\":{\"aliases\":{}},\"observation.output\":{\"aliases\":{}},\"system.session_end\":{\"aliases\":{}},\"system.session_start\":{\"aliases\":{}},\"tool.execute\":{\"aliases\":{\"otel\":\"execute_tool\"}}},\"extraction\":{\"derived_proposals\":{},\"never_propose\":[],\"propose\":{},\"sources\":[]},\"interfaces\":{\"Anchored\":{\"edges\":[],\"properties\":{\"anchor_path\":\"string\",\"content_hash\":\"string\",\"source_uri\":\"string\"}},\"Claim\":{\"edges\":[],\"note\":\"a belief, not a fact; never auto-promoted to declared\",\"properties\":{\"confidence\":\"float\",\"method\":\"string\"}},\"Lifecycled\":{\"edges\":[],\"properties\":{\"status\":\"string\",\"status_changed_at\":\"datetime\"}},\"Sourced\":{\"edges\":[],\"note\":\"set from the emitting source's allowlist entry, never from content (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)\",\"properties\":{\"source_trust\":{\"enum\":[\"trusted\",\"untrusted\"]}}},\"Versioned\":{\"edges\":[],\"properties\":{\"version\":\"string\"}}},\"lifecycle\":{\"decay\":{},\"terminal_states_reduce_importance\":[]},\"mappings\":{\"prov\":{\"CAUSED_BY\":\"prov:wasInformedBy\",\"DERIVED_FROM\":\"prov:wasDerivedFrom\",\"Entity\":\"prov:Entity\",\"Event\":\"prov:Activity\",\"SUPERSEDES\":\"prov:wasRevisionOf\",\"Summary\":\"prov:Entity\"}},\"pack\":{\"description\":\"Agent and tool events, entities, summaries and their links, and the interfaces domain packs share.\",\"name\":\"core\",\"owner\":\"engram\",\"requires\":[],\"version\":\"1.1.0\"},\"projection\":[],\"retrieval\":{\"admission\":{},\"core_intent_weights\":{},\"fallback_intent\":\"general\",\"intents\":{\"general\":{\"description\":\"No specific intent\",\"direction\":\"both\",\"examples\":[],\"keywords\":[],\"prefer_types\":[],\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":2.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"how_does\":{\"description\":\"How a process or workflow runs\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"how\",\"process\",\"method\",\"approach\",\"workflow\",\"steps\"],\"prefer_types\":[],\"seed_strategy\":\"workflow_pattern\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":3.0,\"REFERENCES\":2.0,\"RELATED_TO\":2.0,\"SAME_AS\":1.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"related\":{\"description\":\"Similar or associated events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"similar\",\"related\",\"like\",\"compare\",\"associated\"],\"prefer_types\":[],\"seed_strategy\":\"similar_cluster\",\"weights\":{\"CAUSED_BY\":1.5,\"FOLLOWS\":0.5,\"REFERENCES\":2.0,\"SIMILAR_TO\":5.0,\"SUMMARIZES\":1.5}},\"what\":{\"description\":\"What something is or what happened\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"what\",\"describe\",\"explain\",\"definition\",\"meaning\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":1.0,\"REFERENCES\":5.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"when\":{\"description\":\"Order and timing of events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"when\",\"timeline\",\"before\",\"after\",\"sequence\",\"order\",\"time\"],\"prefer_types\":[],\"seed_strategy\":\"temporal_anchors\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":5.0,\"REFERENCES\":1.0,\"SIMILAR_TO\":0.5,\"SUMMARIZES\":0.5}},\"who_is\":{\"description\":\"Who a person, agent or team is\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"who\",\"person\",\"user\",\"team\",\"member\",\"author\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":0.5,\"REFERENCES\":3.0,\"RELATED_TO\":3.0,\"SAME_AS\":4.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"why\":{\"description\":\"Causes and reasons behind an event\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"why\",\"because\",\"caused\",\"reason\",\"root cause\",\"due to\"],\"prefer_types\":[],\"seed_strategy\":\"causal_roots\",\"weights\":{\"CAUSED_BY\":5.0,\"FOLLOWS\":1.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":1.5,\"SUMMARIZES\":1.0}}},\"key_patterns\":{},\"seed_types\":[\"Event\",\"Entity\"]},\"types\":{\"edges\":{\"CAUSED_BY\":{\"from\":[\"Event\"],\"properties\":{\"mechanism\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"CONTRADICTS\":{\"from\":[],\"note\":\"two claims cannot both hold\",\"properties\":{},\"requires\":[],\"to\":[]},\"DERIVED_FROM\":{\"from\":[],\"note\":\"provenance: a derived node links to the events it came from\",\"properties\":{\"evidence_quote\":\"text\",\"extracted_at\":\"datetime\",\"method\":\"string\",\"model_id\":\"string\",\"prompt_version\":\"string\",\"session_id\":\"string\",\"source_turn_index\":\"int\"},\"requires\":[],\"to\":[\"Event\"]},\"FOLLOWS\":{\"from\":[\"Event\"],\"properties\":{\"delta_ms\":\"int\",\"session_id\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"REFERENCES\":{\"from\":[\"Event\"],\"properties\":{\"role\":\"string\"},\"requires\":[],\"to\":[\"Entity\"]},\"RELATED_TO\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SAME_AS\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SIMILAR_TO\":{\"from\":[\"Event\"],\"properties\":{\"similarity_score\":\"float\"},\"requires\":[],\"to\":[\"Event\"]},\"SUMMARIZES\":{\"from\":[\"Summary\"],\"properties\":{},\"requires\":[],\"to\":[\"Event\",\"Summary\"]},\"SUPERSEDES\":{\"from\":[],\"note\":\"a newer version replaces an older one\",\"properties\":{},\"requires\":[],\"to\":[]}},\"extends_core_edges\":{},\"nodes\":{\"Entity\":{\"embed_fields\":[],\"id_property\":\"entity_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"entity_id\"],\"properties\":{\"embedding\":\"list<float>\",\"entity_id\":\"string\",\"entity_type\":{\"enum\":[\"agent\",\"user\",\"service\",\"tool\",\"resource\",\"concept\"]},\"first_seen\":\"datetime\",\"last_seen\":\"datetime\",\"mention_count\":\"int\",\"name\":\"string\"},\"text_fields\":[],\"vector_property\":\"embedding\"},\"Event\":{\"embed_fields\":[],\"id_property\":\"event_id\",\"indexes\":[\"session_id\"],\"interfaces\":[],\"key\":[\"event_id\"],\"properties\":{\"access_count\":\"int\",\"agent_id\":\"string\",\"embedding\":\"list<float>\",\"event_id\":\"string\",\"event_type\":\"string\",\"global_position\":\"string\",\"importance_score\":\"int\",\"keywords\":\"list<string>\",\"last_accessed_at\":\"datetime\",\"occurred_at\":\"datetime\",\"session_id\":\"string\",\"summary\":\"string\",\"tool_name\":\"string\",\"trace_id\":\"string\"},\"text_fields\":[\"summary\",\"keywords\"]},\"Summary\":{\"embed_fields\":[],\"id_property\":\"summary_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"summary_id\"],\"properties\":{\"content\":\"string\",\"created_at\":\"datetime\",\"event_count\":\"int\",\"scope\":\"string\",\"scope_id\":\"string\",\"summary_id\":\"string\",\"time_range\":\"list<datetime>\"},\"text_fields\":[\"content\"]}}}}]",
+    "recorded_at": "2026-10-07T14:31:33.640465+00:00",
+    "replay_failures": [],
+    "replayed_events": 0,
+    "version": "sha256:7aa9c7d4db1d5a24"
+  },
+  "runtime_cleanup_intent": [
+    "OntologyState",
+    "OntologyState:active"
+  ],
+  "runtime_cleanup_complete": true,
+  "after_ddl": [
+    "CREATE TABLE ConsumerCursors (\n  group_name STRING(MAX) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n  event_id STRING(64) NOT NULL,\n) PRIMARY KEY(group_name, shard)",
+    "CREATE TABLE ConsumerDeadLetters (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  dead_lettered_at TIMESTAMP NOT NULL,\n  fields JSON NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE TABLE ConsumerDeliveries (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  consumer STRING(MAX) NOT NULL,\n  delivery_count INT64 NOT NULL,\n  last_delivered_at TIMESTAMP NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries(group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerGroups (\n  group_name STRING(MAX) NOT NULL,\n  created_at TIMESTAMP NOT NULL,\n) PRIMARY KEY(group_name)",
+    "CREATE TABLE Events (\n  event_id STRING(64) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL OPTIONS (\n    allow_commit_timestamp = true\n  ),\n  batch_index INT64 NOT NULL,\n  session_id STRING(MAX) NOT NULL,\n  occurred_at_ms INT64 NOT NULL,\n  session_tag STRING(MAX),\n  agent_tag STRING(MAX),\n  trace_tag STRING(MAX),\n  event_type_tag STRING(MAX),\n  tool_name_tag STRING(MAX),\n  document JSON,\n  legacy_position STRING(MAX),\n  in_log BOOL NOT NULL,\n  in_session_index BOOL NOT NULL,\n  dedup_active BOOL NOT NULL,\n  summary STRING(MAX),\n  keywords STRING(MAX),\n  search_text STRING(MAX),\n  summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n  keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n  search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n  text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])) HIDDEN,\n) PRIMARY KEY(event_id)",
+    "CREATE INDEX EventsBySession ON Events(session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events(session_tag, occurred_at_ms)",
+    "CREATE INDEX EventsByShardPosition ON Events(shard, commit_ts, batch_index)",
+    "CREATE SEARCH INDEX EventsText ON Events(text_tokens) STORING (session_tag)",
+    "CREATE TABLE GraphEdges (\n  src_label STRING(64) NOT NULL,\n  src_id STRING(MAX) NOT NULL,\n  edge_type STRING(64) NOT NULL,\n  dst_label STRING(64) NOT NULL,\n  dst_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n) PRIMARY KEY(src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges(dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges(edge_type) STORING (props)",
+    "CREATE TABLE GraphNodes (\n  label STRING(64) NOT NULL,\n  node_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n  session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n  embedding ARRAY<FLOAT64>(vector_length=>384),\n  entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN,\n) PRIMARY KEY(label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes(label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes(embedding) WHERE embedding IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE TABLE TenantControl (\n  control_id STRING(16) NOT NULL,\n  tenant_id STRING(128) NOT NULL,\n  database_resource STRING(MAX) NOT NULL,\n  binding_id STRING(128) NOT NULL,\n  epoch INT64 NOT NULL,\n  bundle_digest STRING(80) NOT NULL,\n  serving_state STRING(16) NOT NULL,\n) PRIMARY KEY(control_id)",
+    "CREATE PROPERTY GRAPH EngramGraph\n  NODE TABLES(\n    GraphNodes\n      KEY(label, node_id)\n      LABEL GraphNodes PROPERTIES(\n        embedding,\n        label,\n        node_id,\n        props,\n        session_id)\n      DYNAMIC LABEL (label)\n      DYNAMIC PROPERTIES (props)\n  )\n  EDGE TABLES(\n    GraphEdges\n      KEY(src_label, src_id, edge_type, dst_label, dst_id)\n      SOURCE KEY(src_id, src_label) REFERENCES GraphNodes(node_id, label)\n      DESTINATION KEY(dst_id, dst_label) REFERENCES GraphNodes(node_id, label)\n      LABEL GraphEdges PROPERTIES(\n        dst_id,\n        dst_label,\n        edge_type,\n        props,\n        src_id,\n        src_label)\n      DYNAMIC LABEL (edge_type)\n      DYNAMIC PROPERTIES (props)\n  )"
+  ],
+  "after_rows": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

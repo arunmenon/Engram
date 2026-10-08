@@ -1,0 +1,25 @@
+.........................................                                [100%]
+=============================== warnings summary ===============================
+tests/unit/test_backend_end_to_end.py::test_api_and_workers_run_on_one_backend[spanner]
+tests/unit/test_backend_end_to_end.py::test_api_and_workers_run_on_one_backend[spanner]
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[spanner]
+tests/unit/test_pack_toy_end_to_end.py::test_a_new_pack_needs_no_code[spanner]
+tests/unit/test_pack_toy_end_to_end.py::test_a_new_pack_needs_no_code[spanner]
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_backend_end_to_end.py::test_api_and_workers_run_on_one_backend[spanner]
+tests/unit/test_backend_end_to_end.py::test_api_and_workers_run_on_one_backend[spanner]
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[spanner]
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[spanner]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+41 passed, 81 deselected, 9 warnings in 43.65s

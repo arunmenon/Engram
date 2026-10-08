@@ -38,6 +38,14 @@ class InvalidRequestError(StorageError):
     """The backend rejected the request as malformed or not permitted."""
 
 
+class RuntimeFencedError(StorageError):
+    """The runtime's authority/configuration expired; stop without ack or DLQ.
+
+    Retrying an event cannot repair this condition. A newly authorized runtime
+    must recover the pending work after the control-plane change is reconciled.
+    """
+
+
 # Errors a retry can fix: the backend was unreachable or slow, not the request wrong
 TRANSIENT_ERRORS: tuple[type[StorageError], ...] = (UnavailableError, StorageTimeoutError)
 

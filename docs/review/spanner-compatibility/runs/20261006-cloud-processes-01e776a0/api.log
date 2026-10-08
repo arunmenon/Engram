@@ -1,0 +1,25 @@
+2026-10-06 15:46:16 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:46:16 [info     ] llm_client_initialized
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 15:46:16 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 15:46:18 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:46:18 [info     ] event_ingested                 event_id=eaf88112-15ba-4941-97d9-285cdff8423a event_type=tool.execute global_position=2026-10-06T10:16:18.754335000Z/000000/eaf88112-15ba-4941-97d9-285cdff8423a request_id=d066de2b-b555-4670-b579-b96552741a26 status=created
+2026-10-06 15:46:18 [info     ] event_ingested                 event_id=892f0abc-432d-4e1d-a447-7aac640d58a8 event_type=tool.execute global_position=2026-10-06T10:16:18.859471000Z/000000/892f0abc-432d-4e1d-a447-7aac640d58a8 request_id=455ccdbc-54b7-4b3c-a2df-b9192f4fba7f status=created
+2026-10-06 15:46:19 [info     ] event_ingested                 event_id=afb98445-7f39-4e21-a5ca-d45121d58c10 event_type=system.session_end global_position=2026-10-06T10:16:18.976319000Z/000000/afb98445-7f39-4e21-a5ca-d45121d58c10 request_id=b22a6afa-325d-4871-aa9d-3e67169e3a56 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-06 15:46:34 [info     ] app_stopped

@@ -1,0 +1,14 @@
+{
+  "kind": "target database-scoped IAM setup",
+  "target": {
+    "project": "portiq-mvp",
+    "instance": "engram-experiment",
+    "database": "engram-compat-target"
+  },
+  "member": "serviceAccount:engram-experiment-sa@portiq-mvp.iam.gserviceaccount.com",
+  "role": "roles/spanner.databaseUser",
+  "authorization": "user requested all Spanner flow tests and created the requested disposable target",
+  "token_contents": false,
+  "broader_resource_access": false,
+  "run_id": "20261006-target-access-setup"
+}

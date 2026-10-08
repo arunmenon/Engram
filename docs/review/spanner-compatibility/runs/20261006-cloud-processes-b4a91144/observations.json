@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "name": "phase_setup",
+      "scenarios": [
+        "BOOT-02",
+        "BOOT-03"
+      ],
+      "verdict": "blocked",
+      "error_type": "Unauthenticated",
+      "error": "401 Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project. [reason: \"ACCESS_TOKEN_EXPIRED\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"spanner.googleapis.com\"\n}\nmetadata {\n  key: \"method\"\n  value: \"google.spanner.admin.database.v1.DatabaseAdmin.GetDatabaseDdl\"\n}\n]",
+      "seconds": 0
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

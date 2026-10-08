@@ -1,0 +1,27 @@
+2026-10-07 19:20:49 [info     ] worker_starting                consumer=consolidation neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 19:20:49 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-07 19:20:52 [info     ] archive_store_initialized      backend=fs path=/tmp/engram-archives
+2026-10-07 19:20:52 [info     ] consolidation_llm_client_initialized
+2026-10-07 19:20:52 [info     ] worker_running                 consumer=consolidation
+2026-10-07 19:20:52 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-07 19:20:52 [info     ] consumer_started               consumer=consolidation-1 group=consolidation stream=Events
+2026-10-07 19:20:52 [info     ] pending_drain_completed        group=consolidation
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-07 19:21:54 [info     ] shutdown_signal_received       consumer=consolidation
+2026-10-07 19:21:54 [info     ] consumer_stopped               consumer=consolidation-1 group=consolidation
+2026-10-07 19:21:54 [info     ] worker_shutting_down           consumer=consolidation
+2026-10-07 19:21:54 [info     ] worker_stopped                 consumer=consolidation
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

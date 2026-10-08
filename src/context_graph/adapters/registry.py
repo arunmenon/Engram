@@ -24,20 +24,24 @@ Source: ADR-0019
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import structlog
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
+    from context_graph.adapters.spanner.tenant_control import TenantFence
+    from context_graph.domain.pack_bundle import ActiveBundle
     from context_graph.ports.archive import ArchiveStore
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_backend import GraphBackend
     from context_graph.ports.graph_reads import GraphReads
+    from context_graph.ports.pack_graph import PackGraph
     from context_graph.ports.search import KeywordIndex, VectorIndex
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
+    from context_graph.tenancy import TenantBinding
 
 log = structlog.get_logger(__name__)
 
@@ -84,6 +88,8 @@ class Stores:
     backends: dict[str, str]
     _subscription_opener: Callable[[str, str], Subscription]
     _closers: list[Callable[[], Awaitable[None]]] = field(default_factory=list)
+    pack_reads: PackGraph | None = None
+    tenant_read_check: Callable[[], Awaitable[None]] | None = None
 
     def subscription(self, group_name: str, consumer_name: str) -> Subscription:
         """Open a subscription for one consumer of a group."""
@@ -91,8 +97,14 @@ class Stores:
 
     async def close(self) -> None:
         """Release every connection the stores hold, in the order opened."""
+        errors: list[Exception] = []
         for closer in self._closers:
-            await closer()
+            try:
+                await closer()
+            except Exception as exc:
+                errors.append(exc)
+        if errors:
+            raise ExceptionGroup("Store cleanup failed", errors)
 
 
 async def open_stores(
@@ -100,6 +112,9 @@ async def open_stores(
     *,
     prepare_ingest: bool = False,
     with_archive: bool = False,
+    bundle: ActiveBundle | None = None,
+    tenant_binding: TenantBinding | None = None,
+    tenant_read_operation: Literal["read", "processing"] = "read",
 ) -> Stores:
     """Open the configured stores.
 
@@ -112,6 +127,18 @@ async def open_stores(
     Stores take only their own settings; retrieval dependencies (embedding,
     intent, LLM) belong to ``context_graph.retrieval.RetrievalEngine``.
     """
+    from context_graph.ontology.runtime import configured_bundle
+
+    if tenant_read_operation not in ("read", "processing"):
+        raise ValueError("Unknown tenant read operation")
+    tenant_fence = None
+    if tenant_binding is not None:
+        from context_graph.adapters.spanner.tenant_control import TenantFence
+
+        settings, bundle = tenant_binding.runtime_configuration(settings, bundle)
+        tenant_fence = TenantFence.from_binding(tenant_binding)
+    if bundle is None:
+        bundle = configured_bundle(settings.ontology)
     storage = settings.storage
     _require("event_log", storage.event_log, EVENT_LOG_BACKENDS)
     _require("subscription", storage.subscription, SUBSCRIPTION_BACKENDS)
@@ -133,76 +160,138 @@ async def open_stores(
     if "spanner" in (storage.event_log, storage.graph):
         import asyncio
 
+        from context_graph.adapters.spanner.lifecycle import close_database
         from context_graph.adapters.spanner.schema import open_database
 
         spanner_database = await asyncio.to_thread(open_database, settings.spanner)
 
-    if storage.event_log == "memory":
-        event_log, open_subscription = _open_memory_log(settings)
-    elif storage.event_log == "spanner":
-        event_log, open_subscription = _open_spanner_log(settings, spanner_database)
-    else:
-        event_log, open_subscription = await _open_redis_log(settings, prepare_ingest, closers)
+        async def close_spanner() -> None:
+            await asyncio.to_thread(close_database, spanner_database)
 
-    if storage.graph == "spanner":
-        from context_graph.adapters.spanner.graph import SpannerGraphStore
+        closers.append(close_spanner)
 
-        graph: GraphBackend = SpannerGraphStore(
-            spanner_database,
-            embedding_dimensions=settings.spanner.embedding_dimensions,
-            decay_settings=settings.decay,
-            ppr_settings=settings.ppr,
-            commit_budget=_spanner_budget(settings),
+    try:
+        if tenant_fence is not None:
+            from context_graph.adapters.spanner.tenant_control import verify_control_schema
+
+            def verify_tenant() -> None:
+                tenant_fence.check_database(spanner_database)
+                verify_control_schema(spanner_database)
+                with spanner_database.snapshot() as snapshot:
+                    tenant_fence.check(snapshot, operation=tenant_read_operation)
+
+            await asyncio.to_thread(verify_tenant)
+
+        if storage.event_log == "memory":
+            event_log, open_subscription = _open_memory_log(settings)
+        elif storage.event_log == "spanner":
+            event_log, open_subscription = _open_spanner_log(
+                settings,
+                spanner_database,
+                tenant_fence=tenant_fence,
+                tenant_read_operation=tenant_read_operation,
+                tenant_engine_revision=tenant_binding.engine_revision if tenant_binding else None,
+                tenant_binding=tenant_binding,
+            )
+        else:
+            event_log, open_subscription = await _open_redis_log(settings, prepare_ingest, closers)
+
+        if storage.graph == "spanner":
+            from context_graph.adapters.spanner.graph import SpannerGraphStore
+
+            graph: GraphBackend = SpannerGraphStore(
+                spanner_database,
+                embedding_dimensions=settings.spanner.embedding_dimensions,
+                decay_settings=settings.decay,
+                ppr_settings=settings.ppr,
+                commit_budget=_spanner_budget(settings),
+                tenant_fence=tenant_fence,
+                tenant_read_operation=tenant_read_operation,
+            )
+        elif storage.graph == "memory":
+            from context_graph.adapters.memory.graph import MemoryGraphStore
+
+            graph = MemoryGraphStore(decay_settings=settings.decay, ppr_settings=settings.ppr)
+        else:
+            from context_graph.adapters.neo4j.store import Neo4jGraphStore
+
+            neo4j_graph = Neo4jGraphStore(settings.neo4j, query_settings=settings.query)
+            await neo4j_graph.ensure_constraints()
+            closers.append(neo4j_graph.close)
+            graph = neo4j_graph
+
+        # -- Search indexes ----------------------------------------------------
+        # Keyword search is served by the event log (RediSearch BM25 or the
+        # memory log's term match); vector search by the graph store.
+        from context_graph.adapters.search import EventStoreKeywordIndex, GraphVectorIndex
+
+        keyword_index: KeywordIndex
+        if storage.keyword_index == "spanner":
+            from context_graph.adapters.spanner.log import SpannerEventLog
+            from context_graph.adapters.spanner.search import SpannerKeywordIndex
+
+            assert isinstance(event_log, SpannerEventLog)
+            keyword_index = SpannerKeywordIndex(event_log)
+        else:
+            keyword_index = EventStoreKeywordIndex(event_log)
+        vector_index = GraphVectorIndex(graph)
+
+        from context_graph.adapters.composed_reads import (
+            ComposedGraphReads,
+            ComposedReadView,
+            ReadScope,
         )
-    elif storage.graph == "memory":
-        from context_graph.adapters.memory.graph import MemoryGraphStore
+        from context_graph.adapters.graph_ops import GraphOperations
 
-        graph = MemoryGraphStore(decay_settings=settings.decay, ppr_settings=settings.ppr)
-    else:
-        from context_graph.adapters.neo4j.store import Neo4jGraphStore
+        # These primitives return complete matching rows: scope them before
+        # shared algorithms rank or limit. Neo4j needs its own query predicates.
+        read_view = (
+            ComposedReadView(graph, ReadScope.from_bundle(bundle))
+            if isinstance(graph, GraphOperations)
+            else None
+        )
 
-        neo4j_graph = Neo4jGraphStore(settings.neo4j, query_settings=settings.query)
-        await neo4j_graph.ensure_constraints()
-        closers.append(neo4j_graph.close)
-        graph = neo4j_graph
+        # -- Archive -----------------------------------------------------------
+        archive = _open_archive(settings, closers) if with_archive else None
 
-    # -- Search indexes ----------------------------------------------------
-    # Keyword search is served by the event log (RediSearch BM25 or the
-    # memory log's term match); vector search by the graph store.
-    from context_graph.adapters.search import EventStoreKeywordIndex, GraphVectorIndex
+        tenant_read_check = None
+        if tenant_fence is not None:
 
-    keyword_index: KeywordIndex
-    if storage.keyword_index == "spanner":
-        from context_graph.adapters.spanner.log import SpannerEventLog
-        from context_graph.adapters.spanner.search import SpannerKeywordIndex
+            async def tenant_read_check() -> None:
+                def check_active() -> None:
+                    tenant_fence.check_database(spanner_database)
+                    with spanner_database.snapshot() as snapshot:
+                        tenant_fence.check(snapshot, operation="read")
 
-        assert isinstance(event_log, SpannerEventLog)
-        keyword_index = SpannerKeywordIndex(event_log)
-    else:
-        keyword_index = EventStoreKeywordIndex(event_log)
-    vector_index = GraphVectorIndex(graph)
+                await asyncio.to_thread(check_active)
 
-    # -- Archive -----------------------------------------------------------
-    archive = _open_archive(settings, closers) if with_archive else None
-
-    return Stores(
-        event_log=event_log,
-        graph=graph,
-        graph_reads=graph.reads,
-        keyword_index=keyword_index,
-        vector_index=vector_index,
-        archive=archive,
-        backends={
-            "event_log": storage.event_log,
-            "subscription": storage.subscription,
-            "graph": storage.graph,
-            "keyword_index": storage.keyword_index,
-            "vector_index": storage.vector_index,
-            "archive": storage.archive,
-        },
-        _subscription_opener=open_subscription,
-        _closers=closers,
-    )
+        return Stores(
+            event_log=event_log,
+            graph=graph,
+            graph_reads=ComposedGraphReads(read_view) if read_view is not None else graph.reads,
+            pack_reads=read_view,
+            keyword_index=keyword_index,
+            vector_index=vector_index,
+            archive=archive,
+            backends={
+                "event_log": storage.event_log,
+                "subscription": storage.subscription,
+                "graph": storage.graph,
+                "keyword_index": storage.keyword_index,
+                "vector_index": storage.vector_index,
+                "archive": storage.archive,
+            },
+            _subscription_opener=open_subscription,
+            _closers=closers,
+            tenant_read_check=tenant_read_check,
+        )
+    except BaseException:
+        for closer in closers:
+            try:
+                await closer()
+            except Exception:
+                log.exception("store_cleanup_after_startup_failure")
+        raise
 
 
 async def _open_redis_log(
@@ -288,6 +377,11 @@ def _spanner_budget(settings: Settings) -> Any:
 def _open_spanner_log(
     settings: Settings,
     database: Any,
+    *,
+    tenant_fence: TenantFence | None = None,
+    tenant_read_operation: Literal["read", "processing"] = "read",
+    tenant_engine_revision: str | None = None,
+    tenant_binding: TenantBinding | None = None,
 ) -> tuple[EventLog, Callable[[str, str], Subscription]]:
     """Spanner event log plus subscriptions over the same database."""
     from context_graph.adapters.spanner.log import SpannerEventLog
@@ -301,6 +395,10 @@ def _open_spanner_log(
         keyword=settings.keyword,
         commit_budget=_spanner_budget(settings),
         retention_batch_rows=spanner_settings.retention_batch_rows,
+        tenant_fence=tenant_fence,
+        tenant_read_operation=tenant_read_operation,
+        tenant_engine_revision=tenant_engine_revision,
+        tenant_binding=tenant_binding,
     )
 
     def open_subscription(group_name: str, consumer_name: str) -> Subscription:
@@ -311,6 +409,9 @@ def _open_spanner_log(
             shards=spanner_settings.shards,
             claim_idle_ms=consumer_settings.claim_idle_ms,
             poll_interval_ms=spanner_settings.poll_interval_ms,
+            tenant_fence=tenant_fence,
+            tenant_read_operation=tenant_read_operation,
+            tenant_engine_revision=tenant_engine_revision,
         )
 
     return spanner_log, open_subscription

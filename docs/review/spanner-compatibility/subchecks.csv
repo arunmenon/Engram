@@ -158,6 +158,8 @@ run_id,check,scenario_ids,verdict,seconds,error_type,evidence
 20261006-cloud-pdlc-b790ad36,PDLC_real_target_rebuild_evaluation,ONT-03;APP-02;ART-01,passed,44.85,,docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json
 20261006-cloud-pdlc-b790ad36,PDLC_OpenDAL_signed_ingestion_projection_evaluation,APP-02;ART-01;HOOK-01,passed,473.14,,docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json
 20261006-cloud-processes-01e776a0,independent_API_and_five_worker_process_journey,BOOT-01;APP-01;EXT-01;ENR-01;OPS-02,failed,22.78,AssertionError,docs/review/spanner-compatibility/runs/20261006-cloud-processes-01e776a0/observations.json
+20261006-cloud-processes-03fd8ecd,independent_API_and_five_worker_process_journey,BOOT-01;APP-01;EXT-01;ENR-01;OPS-02,passed,67.16,,docs/review/spanner-compatibility/runs/20261006-cloud-processes-03fd8ecd/observations.json
+20261006-cloud-processes-03fd8ecd,extraction_embedding_native_ANN_full_text,SEARCH-01;SEARCH-02,passed,2.11,,docs/review/spanner-compatibility/runs/20261006-cloud-processes-03fd8ecd/observations.json
 20261006-cloud-processes-2212badc,independent_API_and_five_worker_process_journey,BOOT-01;APP-01;EXT-01;ENR-01;OPS-02,failed,47.0,ReadTimeout,docs/review/spanner-compatibility/runs/20261006-cloud-processes-2212badc/observations.json
 20261006-cloud-processes-7c6d0b2e,independent_API_and_five_worker_process_journey,BOOT-01;APP-01;EXT-01;ENR-01;OPS-02,failed,76.24,TimeoutError,docs/review/spanner-compatibility/runs/20261006-cloud-processes-7c6d0b2e/observations.json
 20261006-cloud-processes-98933a6e,independent_API_and_five_worker_process_journey,BOOT-01;APP-01;EXT-01;ENR-01;OPS-02,passed,50.35,,docs/review/spanner-compatibility/runs/20261006-cloud-processes-98933a6e/observations.json
@@ -181,6 +183,7 @@ run_id,check,scenario_ids,verdict,seconds,error_type,evidence
 20261006-cloud-retention-completion-bce5e865,warm_API_dry_and_live_counts_follow_actual_edge_scores,LIFE-03,failed,4.57,TypeError,docs/review/spanner-compatibility/runs/20261006-cloud-retention-completion-bce5e865/observations.json
 20261006-cloud-retention-completion-bce5e865,actual_worker_nonzero_archive_graph_deletion_then_API_cold_dry_live,LIFE-03;CONS-02,failed,5.53,TypeError,docs/review/spanner-compatibility/runs/20261006-cloud-retention-completion-bce5e865/observations.json
 20261006-cloud-schema-9f308301,startup_dimension_mismatch,BOOT-03;OPS-03,passed,10.28,,docs/review/spanner-compatibility/runs/20261006-cloud-schema-9f308301/observations.json
+20261006-cloud-schema-d8ead18a,startup_dimension_mismatch,BOOT-03;OPS-03,passed,10.95,,docs/review/spanner-compatibility/runs/20261006-cloud-schema-d8ead18a/observations.json
 20261006-cloud-schema-fd247214,startup_dimension_mismatch,BOOT-03;OPS-03,failed,10.27,AssertionError,docs/review/spanner-compatibility/runs/20261006-cloud-schema-fd247214/observations.json
 20261006-cloud-search-cf3b5c0f,native_entity_vector_label_isolation,SEARCH-02;MEM-03,passed,0.16,,docs/review/spanner-compatibility/runs/20261006-cloud-search-cf3b5c0f/observations.json
 20261006-cloud-shutdown-30786378,API_lifecycle_releases_owned_Spanner_session_manager,BOOT-01,passed,3.15,,docs/review/spanner-compatibility/runs/20261006-cloud-shutdown-30786378/observations.json
@@ -216,4 +219,545 @@ run_id,check,scenario_ids,verdict,seconds,error_type,evidence
 20261006-cloud-webhook-handlers-5556f879,signed_body_dedup_independent_of_delivery_ID,HOOK-03;ING-04,passed,0.32,,docs/review/spanner-compatibility/runs/20261006-cloud-webhook-handlers-5556f879/observations.json
 20261006-cloud-webhook-handlers-5556f879,all_webhook_normalized_events_actual_projection,HOOK-01;HOOK-02;APP-02,passed,28.23,,docs/review/spanner-compatibility/runs/20261006-cloud-webhook-handlers-5556f879/observations.json
 20261006-cloud-workload-completion-660c44b3,two_API_instances_bounded_context_workload_and_backlog_drain,OPS-05,passed,30.65,,docs/review/spanner-compatibility/runs/20261006-cloud-workload-completion-660c44b3/observations.json
+20261007-auth-token-refresh-01,user token script refresh,,passed,,,docs/review/spanner-compatibility/runs/20261007-auth-token-refresh-01/observations.json
+20261007-auth-token-refresh-02,private token script completed,,passed,,,docs/review/spanner-compatibility/runs/20261007-auth-token-refresh-02/observations.json
+20261007-auth-token-refresh-04,authorized script refreshed private token; expected project and instance verified,,passed,,,docs/review/spanner-compatibility/runs/20261007-auth-token-refresh-04/observations.json
+20261007-cloud-acceptance-adapter-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,atomic_stamp_same_chunk_duplicate_and_conflict,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,real_json_numeric_roundtrip_matches_receipt_digest,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,concurrent_writers_create_once_preserve_original_position,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,different_chunk_identity_conflict_does_not_overwrite_receipt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,credential_rotation_retries_other_producer_conflicts_without_mutation,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,bound_import_refused,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,bound_bare_append_refused,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,original_payload_enrichment_refused,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,allowed_enrichment_preserves_request_and_receipt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,real_document_expiry_keeps_original_duplicate_identity,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,real_dedup_expiry_keeps_retained_row_identity_without_resurrection,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,frozen_owner_duplicate_cannot_bypass_current_control,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,stale_epoch_duplicate_cannot_bypass_current_control,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,new_epoch_retry_preserves_original_accepted_epoch_and_receipt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,exact_owned_events_removed_owner_and_other_application_tables_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-adapter-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-adapter-01/observations.json
+20261007-cloud-acceptance-prepare-01,acceptance_column_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-prepare-01/observations.json
+20261007-cloud-acceptance-prepare-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-prepare-01/observations.json
+20261007-cloud-acceptance-prepare-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-prepare-01/observations.json
+20261007-cloud-acceptance-prepare-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-acceptance-prepare-01/observations.json
+20261007-cloud-authenticated-source-trust-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,authenticated_admission_of_four_normalized_pdlc_events,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,real_fenced_records_keep_authenticated_producer_separate_from_payload,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,another_events_provenance_refused_before_planning,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,actual_projection_consumer_builds_common_and_pdlc_graph_on_spanner,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,actual_pack_extraction_consumer_writes_two_decisions_stubbed_model,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,stored_change_and_extracted_decision_trust_matches_receipts_not_spoofing,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,exact_four_derived_from_edges_reference_original_accepted_events,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,exact_fixture_cleanup_and_monotonic_core_configuration_restoration,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-authenticated-source-trust-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01/observations.json
+20261007-cloud-entity-ann-bulk-01,six Entity insert/replacement rows split into two-row commits,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-bulk-01/observations.json
+20261007-cloud-entity-ann-bulk-01,run-owned bulk Entities removed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-bulk-01/observations.json
+20261007-cloud-entity-ann-bulk-01,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-bulk-01/observations.json
+20261007-cloud-entity-ann-iam-01,database admin permission diagnostic,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-iam-01/observations.json
+20261007-cloud-entity-ann-inspect-01,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-inspect-01/observations.json
+20261007-cloud-entity-ann-observe-01,exact submitted operation observed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-observe-01/observations.json
+20261007-cloud-entity-ann-startup-01,API process startup 1 healthy on Spanner,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-startup-01/observations.json
+20261007-cloud-entity-ann-startup-01,API process startup 2 healthy on Spanner,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-startup-01/observations.json
+20261007-cloud-entity-ann-startup-01,API startup preserves compatible physical schema,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-startup-01/observations.json
+20261007-cloud-entity-ann-startup-01,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-startup-01/observations.json
+20261007-cloud-entity-ann-upgrade-01,schema inspection/upgrade,,failed,,PermissionDenied,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-upgrade-01/observations.json
+20261007-cloud-entity-ann-upgrade-02,schema inspection/upgrade,,failed,,EntityIndexUpgradeError,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-upgrade-02/observations.json
+20261007-cloud-entity-ann-upgrade-03,idempotent upgrade and target handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-upgrade-03/observations.json
+20261007-cloud-entity-ann-upgrade-03,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-upgrade-03/observations.json
+20261007-cloud-entity-ann-upgrade-03,graph unchanged from original submitted attempt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-upgrade-03/observations.json
+20261007-cloud-entity-ann-verify-01,native ANN excludes 65 embedded non-Entity rows before top-k,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01/observations.json
+20261007-cloud-entity-ann-verify-01,Engram vector Entity hits resolve to correct evidence Events,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01/observations.json
+20261007-cloud-entity-ann-verify-01,reconstructed adapter reads the filtered index,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01/observations.json
+20261007-cloud-entity-ann-verify-01,embedding update and removal affect native results,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01/observations.json
+20261007-cloud-entity-ann-verify-01,run-owned ANN nodes and edges removed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01/observations.json
+20261007-cloud-entity-ann-verify-01,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01/observations.json
+20261007-cloud-explicit-factory-startup-01,API process startup 1 healthy on Spanner,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-explicit-factory-startup-01/observations.json
+20261007-cloud-explicit-factory-startup-01,API process startup 2 healthy on Spanner,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-explicit-factory-startup-01/observations.json
+20261007-cloud-explicit-factory-startup-01,API startup preserves compatible physical schema,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-explicit-factory-startup-01/observations.json
+20261007-cloud-explicit-factory-startup-01,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-explicit-factory-startup-01/observations.json
+20261007-cloud-projection-expansion-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,five_contract_valid_events_accepted_under_new_engine_and_two_packs,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,real_accepted_records_refuse_unequal_product_and_cross_pack_overflow,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,actual_projection_consumer_dead_letters_only_three_invalid_events,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,all_five_common_event_properties_preserved_including_domain_refusals,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,valid_owner_subscriber_and_gap_correlated_stub_properties_match_oracle,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,all_seven_table_keys_match_exact_outputs_and_forbidden_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,exact_evidence_and_correlated_edge_properties_match_oracle,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,exact_owned_cleanup_and_latest_core_monotonic_restoration,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-projection-expansion-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-projection-expansion-01/observations.json
+20261007-cloud-target-ann-upgrade-01,idempotent upgrade and target handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-target-ann-upgrade-01/observations.json
+20261007-cloud-target-ann-upgrade-01,graph properties and embeddings unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-target-ann-upgrade-01/observations.json
+20261007-cloud-tenant-control-inspect-01,control_schema_absence_observed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-inspect-01/observations.json
+20261007-cloud-tenant-control-inspect-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-inspect-01/observations.json
+20261007-cloud-tenant-control-inspect-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-inspect-01/observations.json
+20261007-cloud-tenant-control-inspect-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-inspect-01/observations.json
+20261007-cloud-tenant-control-prepare-01,control_schema_prepare,,failed,,RuntimeError,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-01/observations.json
+20261007-cloud-tenant-control-prepare-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-01/observations.json
+20261007-cloud-tenant-control-prepare-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-01/observations.json
+20261007-cloud-tenant-control-prepare-02,control_schema_prepare,,failed,,RuntimeError,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-02/observations.json
+20261007-cloud-tenant-control-prepare-02,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-02/observations.json
+20261007-cloud-tenant-control-prepare-02,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-02/observations.json
+20261007-cloud-tenant-control-prepare-03,protected_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-03/observations.json
+20261007-cloud-tenant-control-prepare-03,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-03/observations.json
+20261007-cloud-tenant-control-prepare-03,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-03/observations.json
+20261007-cloud-tenant-control-prepare-03,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-prepare-03/observations.json
+20261007-cloud-tenant-control-verify-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,active_ledger_graph_and_delivery,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,draining_rejects_new_admission,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,draining_allows_outstanding_graph_write_and_ack,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,frozen_rejects_graph_write,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,frozen_rejects_ack,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,frozen_rejects_deadletter,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,frozen_rejects_admission,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,frozen_refusals_have_zero_application_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,old_runtime_delayed_graph_output_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,old_runtime_admission_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,old_runtime_ack_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,epoch_refusals_have_zero_application_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,new_epoch_runtime_recovers_pending_work,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,wrong_tenant_graph_write_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,wrong_tenant_refusal_has_zero_application_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,owned_fixture_cleanup_completed_control_owner_retained,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-control-verify-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-control-verify-01/observations.json
+20261007-cloud-tenant-read-fences-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_ledger_graph_and_delivery,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_graph_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_graph_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_ledger_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_ledger_documents,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_subscription_counts,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_subscription_dead_letters,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,active_external_read_subscription_lag,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_graph_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_graph_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_ledger_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_ledger_documents,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_subscription_counts,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_subscription_dead_letters,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_external_refused_subscription_lag,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_rejects_new_admission,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_allows_outstanding_graph_write_and_ack,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_graph_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_graph_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_ledger_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_ledger_documents,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_subscription_counts,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_subscription_dead_letters,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,draining_processing_allowed_subscription_lag,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_graph_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_graph_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_ledger_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_ledger_documents,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_subscription_counts,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_subscription_dead_letters,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_processing_refused_subscription_lag,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_rejects_graph_write,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_rejects_ack,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_rejects_deadletter,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_rejects_admission,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,frozen_refusals_have_zero_application_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_graph_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_graph_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_ledger_query,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_ledger_documents,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_subscription_counts,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_subscription_dead_letters,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,stale_epoch_read_refused_subscription_lag,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,old_runtime_delayed_graph_output_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,old_runtime_admission_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,old_runtime_ack_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,epoch_refusals_have_zero_application_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,new_epoch_runtime_recovers_pending_work,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,wrong_tenant_graph_write_rejected,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,wrong_tenant_refusal_has_zero_application_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,owned_fixture_cleanup_completed_control_owner_retained,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-read-fences-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-read-fences-01/observations.json
+20261007-cloud-tenant-response-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,actual_bound_api_cached_response_authorized,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,actual_bound_api_empty_response_authorized,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,unfinished_cursor_and_import_paths_refused_before_effects,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,freeze_after_handler_discards_entire_response_before_success_start,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,frozen_runtime_refused_before_handler,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,renewed_epoch_bound_api_recovers_after_freeze,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,all_owned_child_lifespans_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-response-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,private_api_lifespan_exact_database_bundle_and_fence,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,private_api_lifespan_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,projection_factory_exact_database_bundle_and_fence,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,projection_metadata_exact_pinned_pack_version,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,projection_stores_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,extraction_factory_exact_database_bundle_and_fence,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,extraction_stores_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,enrichment_factory_exact_database_bundle_and_fence,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,enrichment_stores_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,consolidation_factory_exact_database_bundle_and_fence,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,consolidation_stores_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,pack_extraction_factory_exact_database_bundle_and_fence,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,pack_extraction_stores_closed,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-tenant-runtime-startup-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-tenant-runtime-startup-01/observations.json
+20261007-cloud-terminal-disposition-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_projection_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_projection_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_enrichment_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_enrichment_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_pack_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,missing_receipt_pack_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_projection_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_projection_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_enrichment_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_enrichment_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_pack_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,old_contract_pack_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_projection_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_projection_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_enrichment_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_enrichment_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_pack_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,changed_payload_pack_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_receipt_ack_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_receipt_dlq_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_receipt_exhausted_retry_stops_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_receipt_exhausted_branch_never_enters_processing,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_receipt_restored_dlq_uses_authoritative_metadata,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_receipt_repeated_dlq_and_ack_are_idempotent,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_old_contract_ack_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_old_contract_dlq_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_old_contract_exhausted_retry_stops_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_old_contract_exhausted_branch_never_enters_processing,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_old_contract_restored_dlq_uses_authoritative_metadata,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_old_contract_repeated_dlq_and_ack_are_idempotent,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_changed_payload_ack_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_changed_payload_dlq_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_changed_payload_exhausted_retry_stops_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_changed_payload_exhausted_branch_never_enters_processing,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_changed_payload_restored_dlq_uses_authoritative_metadata,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_changed_payload_repeated_dlq_and_ack_are_idempotent,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_document_ack_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_document_dlq_refuses_after_processing_read,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_document_exhausted_retry_stops_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_document_exhausted_branch_never_enters_processing,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_document_restored_dlq_uses_authoritative_metadata,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,terminal_missing_document_repeated_dlq_and_ack_are_idempotent,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,no_provider_access_across_all_faults_and_recovery,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,exact_fixture_cleanup_all_application_rows_and_owner_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-terminal-disposition-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-terminal-disposition-01/observations.json
+20261007-cloud-worker-interpretation-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_projection_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_projection_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_enrichment_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_enrichment_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_pack_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,missing_receipt_pack_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_projection_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_projection_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_enrichment_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_enrichment_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_pack_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,old_contract_pack_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_projection_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_projection_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_enrichment_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_enrichment_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_pack_extraction_stops_pending_no_dlq_no_graph_or_provider,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,changed_payload_pack_extraction_restored_authority_recovery_acks_pending,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,no_provider_access_across_all_faults_and_recovery,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,exact_fixture_cleanup_all_application_rows_and_owner_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-worker-interpretation-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-worker-interpretation-01/observations.json
+20261007-cloud-writer-admission-01,existing_control_schema_handshake,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,unknown_core_and_inactive_domain_events_refused_without_writes,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,direct_append_enforces_active_pack_admission,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,authenticated_proxy_enforces_active_pack_admission,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,rejected_ids_remain_unreserved_for_subsequent_valid_events,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,atomic_stamp_same_chunk_duplicate_and_conflict,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,real_json_numeric_roundtrip_matches_receipt_digest,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,concurrent_writers_create_once_preserve_original_position,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,different_chunk_identity_conflict_does_not_overwrite_receipt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,credential_rotation_retries_other_producer_conflicts_without_mutation,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,bound_import_refused,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,bound_bare_append_refused,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,original_payload_enrichment_refused,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,allowed_enrichment_preserves_request_and_receipt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,real_document_expiry_keeps_original_duplicate_identity,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,real_dedup_expiry_keeps_retained_row_identity_without_resurrection,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,frozen_owner_duplicate_cannot_bypass_current_control,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,stale_epoch_duplicate_cannot_bypass_current_control,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,new_epoch_retry_preserves_original_accepted_epoch_and_receipt,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,exact_owned_events_removed_owner_and_other_application_tables_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,existing_schema_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,all_application_rows_preserved,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-cloud-writer-admission-01,runtime_source_unchanged,,passed,,,docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/observations.json
+20261007-local-acceptance-contract-01,acceptance_contract_suite_11_failed_163_passed,,failed,,TestFixtureAndChangedContract,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-01/observations.json
+20261007-local-acceptance-contract-02,acceptance foundation local focused tests:174 passed50warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-02/observations.json
+20261007-local-acceptance-contract-02,selected foundation ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-02/observations.json
+20261007-local-acceptance-contract-02,full current-worktree mypy:54 errors13files,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-02/observations.json
+20261007-local-acceptance-contract-03,acceptance foundation local focused tests:175 passed50warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-03/observations.json
+20261007-local-acceptance-contract-03,selected foundation ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-03/observations.json
+20261007-local-acceptance-contract-03,scoped event_acceptance mypy (follow-imports=silent),,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-contract-03/observations.json
+20261007-local-acceptance-harness-01,harnesslocal37passed2warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-harness-01/observations.json
+20261007-local-acceptance-harness-01,harnessruff4errors,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-harness-01/observations.json
+20261007-local-acceptance-harness-01,manifest_testsource_hash_captured_before_formatter,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-harness-01/observations.json
+20261007-local-acceptance-harness-02,harnesspreflightandatomicadapter43passed2warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-harness-02/observations.json
+20261007-local-acceptance-harness-02,harnessruffpassed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-acceptance-harness-02/observations.json
+20261007-local-api-user-boundary-03,"API optional user reads, foreign schema ownership, historical privacy and auth regressions",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-api-user-boundary-03/observations.json
+20261007-local-authenticated-source-trust-01,pytest-collection-wrong-file-name,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-01/observations.json
+20261007-local-authenticated-source-trust-01,ruff-6findings,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-01/observations.json
+20261007-local-authenticated-source-trust-01,scopedmypy4annotationerrors,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-01/observations.json
+20261007-local-authenticated-source-trust-02,tests208passed6failed,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-02/observations.json
+20261007-local-authenticated-source-trust-02,scopedmypy7files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-02/observations.json
+20261007-local-authenticated-source-trust-02,selectedruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-02/observations.json
+20261007-local-authenticated-source-trust-03,tests291passed3failedfixture,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-03/observations.json
+20261007-local-authenticated-source-trust-03,scopedmypy7files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-03/observations.json
+20261007-local-authenticated-source-trust-03,selectedruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-03/observations.json
+20261007-local-authenticated-source-trust-04,tests293passed2failed-extraction-oracle,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-04/observations.json
+20261007-local-authenticated-source-trust-04,scopedmypy7files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-04/observations.json
+20261007-local-authenticated-source-trust-04,selectedruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-04/observations.json
+20261007-local-authenticated-source-trust-05,authenticated-source-and-regression-295tests,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-05/observations.json
+20261007-local-authenticated-source-trust-05,scopedmypy7files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-05/observations.json
+20261007-local-authenticated-source-trust-05,selectedruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-authenticated-source-trust-05/observations.json
+20261007-local-composed-reads-04,96 local tests passed; Astra recheck identified remaining neighbor discriminator issue; no cloud acceptance,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-composed-reads-04/observations.json
+20261007-local-composed-reads-05,"98 local tests passed, including both stale discriminator regressions",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-composed-reads-05/observations.json
+20261007-local-composed-reads-05,Astra low implementation recheck approves scoped primitive retrieval boundary,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-composed-reads-05/observations.json
+20261007-local-composition-recheck-03,composition resolver regressions and existing boundary tests,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-composition-recheck-03/observations.json
+20261007-local-composition-substrate-01,composition_ontology_versioning_payload_regressions,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-composition-substrate-01/observations.json
+20261007-local-composition-substrate-01,ruff_scoped,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-composition-substrate-01/observations.json
+20261007-local-contract-prototype-01,pytest,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-contract-prototype-01/observations.json
+20261007-local-contract-prototype-01,ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-contract-prototype-01/observations.json
+20261007-local-control-canonical-01,recorded_spanner_control_ddl_canonicalization_and_mismatch_rejection,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-control-canonical-01/observations.json
+20261007-local-ddl-recovery-01,"88 passed, 10 integration tests deselected; Astra found restart replay cap, preserved reconciliation state and DDL baseline issues",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-ddl-recovery-01/observations.json
+20261007-local-ddl-recovery-02,"92 local tests passed, 10 integration tests deselected",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-ddl-recovery-02/observations.json
+20261007-local-ddl-recovery-02,Astra low approved database-scoped operation recovery after restart/state/baseline fixes,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-ddl-recovery-02/observations.json
+20261007-local-ddl-recovery-03,"93 local tests passed, 10 integration tests deselected; Spanner canonical RPC DDL whitespace accepted without changing original digest",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-ddl-recovery-03/observations.json
+20261007-local-ddl-recovery-03,Astra low approved formatting-only exact-operation reconciliation,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-ddl-recovery-03/observations.json
+20261007-local-empty-target-activation-01,16operator-unit-tests,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-empty-target-activation-01/observations.json
+20261007-local-empty-target-activation-01,ruff-importorder,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-empty-target-activation-01/observations.json
+20261007-local-entity-ann-01,"37 passed, 10 integration tests deselected; review found SDK pending operation mismatch requiring follow-up",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-entity-ann-01/observations.json
+20261007-local-entity-ann-02,"77 local tests passed, 10 integration tests deselected; real SDK live operation and previous physical vector budget regressions included",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-entity-ann-02/observations.json
+20261007-local-entity-ann-03,"79 local tests passed, 10 integration tests deselected; completed SDK operation and no startup repair verified",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-entity-ann-03/observations.json
+20261007-local-entity-ann-03,Astra low approved narrow ANN runtime implementation,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-entity-ann-03/observations.json
+20261007-local-entity-ann-04,"80 passed, 10 integration tests deselected; operation ID captured before failed result",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-entity-ann-04/observations.json
+20261007-local-entity-ann-04,Astra low approved runtime and admin harness after recheck,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-entity-ann-04/observations.json
+20261007-local-event-interpretation-01,"focused tests: 278 passed, one obsolete delivery-hint expectation failed",,failed,,,docs/review/spanner-compatibility/runs/20261007-local-event-interpretation-01/observations.json
+20261007-local-event-interpretation-01,scoped typing and selected Ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-event-interpretation-01/observations.json
+20261007-local-event-interpretation-02,280 focused tests passed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-event-interpretation-02/observations.json
+20261007-local-event-interpretation-02,three-file scoped mypy,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-event-interpretation-02/observations.json
+20261007-local-event-interpretation-02,Ruff test line exceeds 100 columns,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-event-interpretation-02/observations.json
+20261007-local-event-interpretation-03,selected Ruff clean and whitespace clean after formatting-only change,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-event-interpretation-03/observations.json
+20261007-local-explicit-runtime-settings-01,explicit runtime settings and auth/user/composition regressions,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-explicit-runtime-settings-01/observations.json
+20261007-local-full-typing-01,full worktree typing:52 errors in12files checked153files,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-full-typing-01/observations.json
+20261007-local-interpretation-harness-01,41 local tests passed; selected Ruff clean,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-interpretation-harness-01/observations.json
+20261007-local-interpretation-harness-02,42localtests including cancellationfailure recording,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-interpretation-harness-02/observations.json
+20261007-local-interpretation-harness-02,Ruff overlong wrapperline,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-interpretation-harness-02/observations.json
+20261007-local-interpretation-harness-03,Ruff and whitespace clean afterformattingonly,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-interpretation-harness-03/observations.json
+20261007-local-pack-admission-policy-01,198passed4testfixturefrozenassignmentfailures,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-pack-admission-policy-01/observations.json
+20261007-local-pack-admission-policy-01,Ruff2imports andmypy1dynamictypeerror,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-pack-admission-policy-01/observations.json
+20261007-local-pack-admission-policy-02,203tests passed; scopedmypy3files andRuffclean,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-pack-admission-policy-02/observations.json
+20261007-local-pack-admission-policy-02,declaration inventory all23PDLC types 17processed6unsupported,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-pack-admission-policy-02/observations.json
 20261007-local-pack-neutral-design-01,current_registry_admission_distinguishes_loaded_closed_namespace_only,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-pack-neutral-design-01/observations.json
+20261007-local-pdlc-contract-catalog-01,pytest,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-pdlc-contract-catalog-01/observations.json
+20261007-local-pdlc-contract-catalog-01,ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-pdlc-contract-catalog-01/observations.json
+20261007-local-runtime-binding-01,runtime_binding_reference_suite_72_passed_1_warning,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-runtime-binding-01/observations.json
+20261007-local-runtime-binding-01,astra_low_bounded_handoff_approved,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-runtime-binding-01/observations.json
+20261007-local-spanner-acceptance-01,local atomic acceptance and schema:4failed53passed10deselected,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-01/observations.json
+20261007-local-spanner-acceptance-02,atomic append normalizedHTTP/schema local:140passed10integrationdeselected50warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-02/observations.json
+20261007-local-spanner-acceptance-02,scopedmypy:2 existing readoperation type errors,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-02/observations.json
+20261007-local-spanner-acceptance-03,atomic acceptance local:1failed150passed10integrationdeselected50warnings,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-03/observations.json
+20261007-local-spanner-acceptance-03,scopedmypy6filespassed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-03/observations.json
+20261007-local-spanner-acceptance-04,atomic acceptance normalizedAPI/schema/codec:151passed10integrationdeselected50warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-04/observations.json
+20261007-local-spanner-acceptance-04,scopedmypy6filespassed-followimportssilent,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-04/observations.json
+20261007-local-spanner-acceptance-04,selectedruffpassed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-spanner-acceptance-04/observations.json
+20261007-local-tenant-catalog-01,tenant catalog regression suite,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-catalog-01/observations.json
+20261007-local-tenant-catalog-02,tenant catalog and factory/composition regressions,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-catalog-02/observations.json
+20261007-local-tenant-catalog-03,tenant catalog/factory/composition regressions,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-catalog-03/observations.json
+20261007-local-tenant-catalog-04,tenant catalog/factory/composition regressions,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-catalog-04/observations.json
+20261007-local-tenant-control-01,transaction_local_ownership_fence_and_explicit_bootstrap,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-control-01/observations.json
+20261007-local-tenant-control-02,store_mutation_fences_and_regression,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-control-02/observations.json
+20261007-local-tenant-control-03,store_mutation_fences_and_regression,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-control-03/observations.json
+20261007-local-tenant-dispatch-01,"tenant dispatch, pinned runtime, catalog/auth/user/composition regressions",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-dispatch-01/observations.json
+20261007-local-tenant-dispatch-02,"tenant dispatch, pinned factories and storage/worker regressions",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-dispatch-02/observations.json
+20261007-local-tenant-read-snapshots-01,seven_snapshot_helpers_control_before_rows_drain_and_stale_epoch,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-read-snapshots-01/observations.json
+20261007-local-tenant-read-snapshots-01,focused_regressions_137_passed_1_warning,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-read-snapshots-01/observations.json
+20261007-local-tenant-read-snapshots-02,expanded_suite_test_import_failure_3_failed_230_passed,,failed,,ModuleNotFoundError,docs/review/spanner-compatibility/runs/20261007-local-tenant-read-snapshots-02/observations.json
+20261007-local-tenant-read-snapshots-03,expanded_read_fence_suite_233_passed_43_warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-read-snapshots-03/observations.json
+20261007-local-tenant-response-01,response_guard_local_101_tests_passed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-response-01/observations.json
+20261007-local-tenant-response-01,astra_empty_chunk_bookkeeping_bound,,failed,,ReviewFinding,docs/review/spanner-compatibility/runs/20261007-local-tenant-response-01/observations.json
+20261007-local-tenant-response-02,response_guard_103_passed_2_warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-response-02/observations.json
+20261007-local-tenant-response-02,astra_bytearray_bound_and_sanitized_control_refusal_approved,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-response-02/observations.json
+20261007-local-tenant-response-03,response_and_manifest_preflight_106_passed_2_warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-response-03/observations.json
+20261007-local-tenant-response-03,astra_response_harness_manifest_p2_resolved,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-response-03/observations.json
+20261007-local-tenant-store-01,tenant_binding_store_handshake_and_cleanup,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-store-01/observations.json
+20261007-local-tenant-store-02,pinned_store_handshake_and_async_mutation_regression,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-tenant-store-02/observations.json
+20261007-local-terminal-disposition-01,"199tests passed, old bareappendtestfailed",,failed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-disposition-01/observations.json
+20261007-local-terminal-disposition-01,Ruffimportorder,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-disposition-01/observations.json
+20261007-local-terminal-disposition-01,scopedmypy3readmodeerrors,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-disposition-01/observations.json
+20261007-local-terminal-disposition-02,251focusedtests passed2warnings,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-disposition-02/observations.json
+20261007-local-terminal-disposition-02,scopedmypy4files and selectedRuff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-disposition-02/observations.json
+20261007-local-terminal-harness-01,46tests passed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-harness-01/observations.json
+20261007-local-terminal-harness-01,Ruff7loopbindingfindings,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-harness-01/observations.json
+20261007-local-terminal-harness-02,46localtests andselectedRuffpassed,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-terminal-harness-02/observations.json
+20261007-local-worker-boundary-02,"worker prompt/output and factory gates, LLM/extraction regression suite",,passed,,,docs/review/spanner-compatibility/runs/20261007-local-worker-boundary-02/observations.json
+20261007-local-worker-fence-01,worker_control_refusal_without_ack_or_deadletter,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-worker-fence-01/observations.json
+20261007-local-writer-admission-01,writer-tests-176pass-7fail-test-expectation-and-fixture-loader,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-01/observations.json
+20261007-local-writer-admission-01,ruff-import-order,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-01/observations.json
+20261007-local-writer-admission-02,bound-writer-and-existing-tenant-regression-214tests,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-02/observations.json
+20261007-local-writer-admission-02,selected-ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-02/observations.json
+20261007-local-writer-admission-02,scoped-mypy-3files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-02/observations.json
+20261007-local-writer-admission-03,writer-219pass-1fixture-fail,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-03/observations.json
+20261007-local-writer-admission-03,ruff-imports,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-03/observations.json
+20261007-local-writer-admission-03,scoped-mypy3files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-03/observations.json
+20261007-local-writer-admission-04,writer-219pass-1fixture-expectation-fail,,failed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-04/observations.json
+20261007-local-writer-admission-04,ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-04/observations.json
+20261007-local-writer-admission-05,writer-tenant-and-preflight-235tests,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-05/observations.json
+20261007-local-writer-admission-05,scoped-mypy3files,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-05/observations.json
+20261007-local-writer-admission-05,selected-ruff,,passed,,,docs/review/spanner-compatibility/runs/20261007-local-writer-admission-05/observations.json
+20261008-cloud-g01-all-01,PR01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-01,PR02,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-01,PR03,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-01,PR04,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-01,PR05-ticket,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-01,PR05,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-01,goal01_required_path,,failed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-01/observations.json
+20261008-cloud-g01-all-02,PR01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR02,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR03,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR04,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR05-ticket,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR05,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR06-open,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR06,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR07,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-all-02,PR08,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-all-02/observations.json
+20261008-cloud-g01-pr01-01,goal01_required_path,,failed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-pr01-01/observations.json
+20261008-cloud-g01-pr01-02,goal01_required_path,,failed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-pr01-02/observations.json
+20261008-cloud-g01-pr01-03,PR01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-pr01-03/observations.json
+20261008-cloud-g01-preflight-01,reserved_target_readable_and_empty,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g01-preflight-01/observations.json
+20261008-cloud-g02-all-01,PL01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL02-expiry,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL02-single,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL03,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL04,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL05,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL05-not-approved,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL06,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL07-duplicate,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL07-conflict,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL08-version,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL08-kind,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL09-before,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL09-after,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL10-spec,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL10-requirement,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,PL10-design,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-01,goal02_required_path,,failed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-01/observations.json
+20261008-cloud-g02-all-02,PL01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL02-expiry,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL02-single,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL03,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL04,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL05,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL05-not-approved,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL06,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL07-duplicate,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL07-conflict,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL08-version,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL08-kind,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL09-before,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL09-after,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL10-spec,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL10-requirement,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL10-design,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,PL11-hld-v1,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-02,goal02_required_path,,failed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-02/observations.json
+20261008-cloud-g02-all-03,PL01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL02-expiry,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL02-single,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL03,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL04,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL05,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL05-not-approved,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL06,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL07-duplicate,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL07-conflict,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL08-version,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL08-kind,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL09-before,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL09-after,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL10-spec,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL10-requirement,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL10-design,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL11-hld-v1,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL11-requirement,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL11-history,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL11-lld,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-all-03,PL12,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-all-03/observations.json
+20261008-cloud-g02-pl01-01,goal02_required_path,,failed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-pl01-01/observations.json
+20261008-cloud-g02-pl01-02,PL01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g02-pl01-02/observations.json
+20261008-cloud-g03-all-01,IM01,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM02,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM03,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM04,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM05,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM06,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM07-requested,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM07-approved,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM08-failure,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM08-success,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM09-spec,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM09-requirement,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM09-ticket,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM09-change,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM09-test,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM10-change,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM10-test,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM11-duplicate,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM11-conflict,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM12-revision,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM12-ticket,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM12-review,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM12-test,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM13-expiry,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM13-lld,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM13-change,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM13-test,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-cloud-g03-all-01,IM13-text,,passed,,,docs/review/spanner-compatibility/runs/20261008-cloud-g03-all-01/observations.json
+20261008-local-g01-ingress-01,webhook_regressions_30_passed,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-ingress-01/observations.json
+20261008-local-g01-ingress-01,scoped_ruff,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-ingress-01/observations.json
+20261008-local-g01-regressions-02,68_webhook_artifact_regressions,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-regressions-02/observations.json
+20261008-local-g01-regressions-02,ruff,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-regressions-02/observations.json
+20261008-local-g01-regressions-03,70_webhook_artifact_regressions,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-regressions-03/observations.json
+20261008-local-g01-regressions-03,scoped_ruff,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-regressions-03/observations.json
+20261008-local-g01-regressions-03,mypy_two_runtime_files,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-regressions-03/observations.json
+20261008-local-g01-seeds-red-01,same_repository_seed_pollution_reproduced_before_fix,,passed,,,docs/review/spanner-compatibility/runs/20261008-local-g01-seeds-red-01/observations.json

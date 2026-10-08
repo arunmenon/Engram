@@ -1,0 +1,108 @@
+{
+  "checks": [
+    {
+      "name": "pack_list-answer_refused_without_writes_ACK",
+      "scenarios": [
+        "PEXT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "answer_shape": "list-answer",
+        "model_calls": 1,
+        "counts": {
+          "nodes": {},
+          "edges": []
+        },
+        "pending": {}
+      },
+      "seconds": 1.34
+    },
+    {
+      "name": "pack_nonlist-nodes_refused_without_writes_ACK",
+      "scenarios": [
+        "PEXT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "answer_shape": "nonlist-nodes",
+        "model_calls": 1,
+        "counts": {
+          "nodes": {},
+          "edges": []
+        },
+        "pending": {}
+      },
+      "seconds": 1.05
+    },
+    {
+      "name": "pack_invalid-fields_refused_without_writes_ACK",
+      "scenarios": [
+        "PEXT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "answer_shape": "invalid-fields",
+        "model_calls": 1,
+        "counts": {
+          "nodes": {},
+          "edges": []
+        },
+        "pending": {}
+      },
+      "seconds": 1.05
+    },
+    {
+      "name": "pack_no_model_answer_raises_for_retry_without_writes",
+      "scenarios": [
+        "PEXT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "error_type": "ModelUnavailableError",
+        "before": {
+          "nodes": {},
+          "edges": []
+        },
+        "graph": {
+          "nodes": {},
+          "edges": []
+        },
+        "scope": "actual stored event public process_message rejects no-answer; full delivery live retry remains failed #14"
+      },
+      "seconds": 0.7
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 1
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 0
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -1,0 +1,65 @@
+..F..........................................                            [100%]
+=================================== FAILURES ===================================
+___ test_exact_manifest_content_pinned_even_when_name_version_path_are_same ____
+
+tmp_path = PosixPath('/private/var/folders/y3/d66g_m9923v6c8pvnhzmbn3c0000gn/T/pytest-of-arunmenon/pytest-1620/test_exact_manifest_content_pi0')
+
+    def test_exact_manifest_content_pinned_even_when_name_version_path_are_same(tmp_path):
+        path = tmp_path / "lab.pack.yaml"
+        path.write_text("pack:\n  name: lab\n  version: 1.0.0\n  description: first\n")
+        settings = configuration()
+        settings.ontology.pack_dirs = [str(tmp_path)]
+        settings.ontology.packs = ["lab"]
+        first = bind(settings=settings)
+        path.write_text("pack:\n  name: lab\n  version: 1.0.0\n  description: second\n")
+        second = bind(settings=settings)
+        assert first.bundle_digest != second.bundle_digest
+>       assert first.bundle.registry.pack("lab").description == "first"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_tenant_catalog.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Pack(pack=PackHeader(name='lab', version='1.0.0', requires=[], owner=None, description='first'), processing=Processing...hts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})
+item = 'description'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Pack' object has no attribute 'description'
+
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1042: AttributeError
+=============================== warnings summary ===============================
+tests/unit/test_explicit_runtime_settings.py::test_two_explicit_apps_keep_settings_auth_and_stores_separate
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_tenant_catalog.py::test_exact_manifest_content_pinned_even_when_name_version_path_are_same
+1 failed, 44 passed, 1 warning in 4.17s

@@ -1,0 +1,43 @@
+{
+  "status": "in_progress",
+  "issues": [
+    34,
+    35,
+    42,
+    39
+  ],
+  "completed_locally": [
+    "Explicit optional built-in roots with mandatory core and dependency closure",
+    "Immutable composed bundle with exact processing IDs and schema-owner checks",
+    "Legacy core fingerprint preservation and processing-change version classification",
+    "Worker startup resolves bundle before opening stores",
+    "User extraction capability gates both LLM messages and user writes; core Entity/REFERENCES preserved; unsolicited user fields dropped",
+    "API startup bundle validation before providers/stores",
+    "Ordinary user reads gated on owning user pack, with foreign-type impersonation regression",
+    "Historical user export/erasure retained with admin authentication despite disabling ordinary user reads"
+  ],
+  "verification": [
+    {
+      "run": "20261007-local-composition-recheck-03",
+      "passed": 23
+    },
+    {
+      "run": "20261007-local-worker-boundary-02",
+      "passed": 90
+    },
+    {
+      "run": "20261007-local-api-user-boundary-03",
+      "passed": 62,
+      "warnings": "21 dependency deprecation warnings"
+    }
+  ],
+  "remaining": [
+    "Both retrieval paths: active types, traversal, history, caches/cursors",
+    "Tenant database routing/handshake across all boundaries",
+    "Admission, projection and durable worker gaps and full journeys",
+    "Real Spanner baseline and feature acceptance"
+  ],
+  "cloud_acceptance": false,
+  "review": "Astra approved pure composition substrate, narrow worker extraction boundary, and narrow API user-read boundary. No runtime-wide or cloud acceptance.",
+  "failed_attempts": "Recheck-01/-02 malformed regression fixtures; worker-boundary-01 incorrect port assertion. Raw failed receipts retained; corrected reruns separate."
+}

@@ -1,0 +1,71 @@
+2026-10-06 15:41:37 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:41:37 [info     ] llm_client_initialized
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 15:41:37 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 15:41:38 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:41:38 [info     ] event_ingested                 event_id=fb310dd7-3960-4251-a246-788a39b62b08 event_type=tool.execute global_position=2026-10-06T10:11:38.787647000Z/000000/fb310dd7-3960-4251-a246-788a39b62b08 request_id=556f229e-3e5c-44a3-b513-89c80f1c1173 status=created
+2026-10-06 15:41:38 [info     ] event_ingested                 event_id=8c522e3b-d3fc-4903-a387-0874a98c42d9 event_type=tool.execute global_position=2026-10-06T10:11:38.866383000Z/000000/8c522e3b-d3fc-4903-a387-0874a98c42d9 request_id=12d81f89-4d91-4359-950a-0d7d02e23b77 status=created
+2026-10-06 15:41:38 [info     ] event_ingested                 event_id=35750263-a2f5-42ae-8c68-4b4bd843f410 event_type=system.session_end global_position=2026-10-06T10:11:38.949471000Z/000000/35750263-a2f5-42ae-8c68-4b4bd843f410 request_id=e62940be-32ad-43c0-94c0-57d19451d556 status=created
+2026-10-06 15:41:43 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=ee7d5fb7-10ec-41a6-9b3a-aa1ed996462e
+2026-10-06 15:41:44 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=585997fc-df2c-40f3-8da2-26593b03df0b
+2026-10-06 15:41:44 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=b4fb899f-3b91-4167-9c8e-176259e3b311
+2026-10-06 15:41:45 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=1ce83d7a-6b64-4a43-84c3-7d1451f2558e
+2026-10-06 15:41:46 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=e16b987e-7527-4a4b-a777-266916b508c0
+2026-10-06 15:41:47 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=505167ac-ef7c-4a19-9601-b48d3b62b83d
+2026-10-06 15:41:48 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=d9a3af63-0a72-43a6-aaa6-be40ed6422e5
+2026-10-06 15:41:49 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=abdc3272-00bf-4629-b4b9-cef85dab566e
+2026-10-06 15:41:50 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=eec1d71a-2ec2-4059-ad6a-59e004077f9e
+2026-10-06 15:41:51 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=0bd3e123-85f0-42d6-8312-02848318a916
+2026-10-06 15:41:53 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=8027c096-82cf-4ff0-b5e4-fd07e0f4ae1e
+2026-10-06 15:41:54 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=e5d70707-3eb2-4a94-a394-39a4836cec29
+2026-10-06 15:41:56 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=e3fc89af-08ce-44cf-a91d-8fe34e573728
+2026-10-06 15:41:57 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=a181f176-343f-42cb-ad73-7ce9c2308a2a
+2026-10-06 15:42:00 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=d7200eb0-aa33-4ab0-91cc-71bee5cbf501
+2026-10-06 15:42:01 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=a1294010-57f3-42bb-a26c-6076842035c1
+2026-10-06 15:42:03 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=80ad587f-58a9-40e4-901e-18464ad2fa04
+2026-10-06 15:42:04 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=2afb5575-1956-4bb9-9e26-f1e02035914a
+2026-10-06 15:42:06 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=6c5a9741-a40c-41db-a30d-44f2f8a95bd8
+2026-10-06 15:42:07 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=b342307f-58b4-4b57-b6d9-76a4ccb9c7f2
+2026-10-06 15:42:08 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=3c40e5b8-b99f-4e3f-a162-540c6297488f
+2026-10-06 15:42:10 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=0f0a400b-466c-4ae1-9aef-f038b8980683
+2026-10-06 15:42:11 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=e50bd234-2372-48de-8ef9-9a64d2fe8033
+2026-10-06 15:42:13 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=2259236a-064a-4674-bcf9-7b4e2769e35a
+2026-10-06 15:42:15 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=bf476cae-3d6b-440c-9238-06f1fa1ecc72
+2026-10-06 15:42:17 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=7513062c-f1dc-4b44-ab7b-91329c0af065
+2026-10-06 15:42:18 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=8e554046-33f5-4640-8f93-ebd9b715403f
+2026-10-06 15:42:19 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=8adc5964-a6cf-439e-9d9c-38b30d154383
+2026-10-06 15:42:21 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=72db98a6-eb21-45de-a15d-ea8878c90f32
+2026-10-06 15:42:23 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=665326b3-7778-4e59-b21d-df35373a3916
+2026-10-06 15:42:24 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=17e2d173-c744-422f-8846-2f306bd31754
+2026-10-06 15:42:25 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=0efe7fed-12a9-4e4e-b780-567b72eee963
+2026-10-06 15:42:27 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=4799de4d-7b84-4fad-afe8-99a3e1dd11d7
+2026-10-06 15:42:28 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=91eebe6e-eb2d-4c40-8525-0fc63c45e85f
+2026-10-06 15:42:30 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=ac836d78-8961-4e43-8428-364ee25ce58d
+2026-10-06 15:42:32 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=32d5facd-a19e-4086-85b6-923e08cffaab
+2026-10-06 15:42:32 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=2b7029dc-4202-4e41-9688-c11b5ca4dfe7
+2026-10-06 15:42:34 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=ac224971-2e0a-45ce-8456-de9e96488a9e
+2026-10-06 15:42:36 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=04801571-7b62-4c48-a137-15f22fe34112
+2026-10-06 15:42:37 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=876117e9-06b1-4363-9f39-65ca16f18f01
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-06 15:42:39 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=877f3c65-9713-4ca1-8b50-fbb1c4c51005
+2026-10-06 15:42:40 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=9a84c35e-9c7e-4a92-9c3e-2da7175fb0ac
+2026-10-06 15:42:42 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=2609fde9-a642-48cf-bf2d-3f77d828515d
+2026-10-06 15:42:43 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=0f4ea70b-93aa-4950-8164-a74da319a868
+2026-10-06 15:42:44 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=ca91150d-59ed-4f30-b7c3-eec54f219356
+2026-10-06 15:42:46 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=57c8b965-45ff-4113-b1df-2a3444507c0d
+2026-10-06 15:42:47 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:compat-process/profile request_id=70c51836-1209-4581-826a-1cec68621d3f
+2026-10-06 15:42:49 [info     ] app_stopped

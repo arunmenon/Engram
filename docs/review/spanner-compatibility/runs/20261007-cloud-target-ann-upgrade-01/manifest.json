@@ -1,0 +1,45 @@
+{
+  "kind": "cloud_entity_ann_upgrade",
+  "cloud_calls": true,
+  "issues": [
+    44,
+    41,
+    23,
+    42
+  ],
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram-compat-target"
+  },
+  "dimensions": 384,
+  "source_sha256": {
+    "scripts/engram_spanner_entity_ann.py": "bf7849514fdce66d88a9a03dcd179fb9304fda49e5cc3c7561fd0ec0153ae1d2",
+    "scripts/engram_spanner_entity_ann_cases.py": "4131cf3ab3dcb39730386a424a07117e50693fd5eee2cacabf88bb5e133e3fdc",
+    "src/context_graph/adapters/spanner/entity_index.py": "48c4c476c62da1bb3411c39ce3599cd475d130778b2332499325e8ffcafecff6",
+    "src/context_graph/adapters/spanner/ddl_upgrade.py": "5b1ead0d6f72cfa2df4bf814559f4b0ed565181d161f252285a68ef9739970ae",
+    "src/context_graph/adapters/spanner/schema.py": "2379029e6b25637bef68612bc1e1c30b14ea6db7f440cc8d24a2fddee7cd984d",
+    "src/context_graph/adapters/spanner/graph.py": "c74a487ccf10a64c37e0e30ffe235ed0087b604fa2e2c146534ee20ccf64c2c8",
+    "src/context_graph/adapters/spanner/commits.py": "c09da09c1eb2dbc0616efefe2392d82a542a27eb53065a7ff09af04ee4ef11ca"
+  },
+  "scope": "Physical schema/upgrade only",
+  "fixture_limits": {},
+  "startup_limits": {},
+  "bulk_limits": {},
+  "registered_attempt": {
+    "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+    "dimensions": 384,
+    "operation_id": "engram_ann_63525a934e684fbe96728d8f09c7e9cd",
+    "statements": null,
+    "digest": null,
+    "state": "registered",
+    "observed": false,
+    "submissions": 0,
+    "last_rpc_error": null,
+    "error": null,
+    "predecessor": null,
+    "migration": "entity_ann_v1"
+  },
+  "resume_source": null,
+  "run_id": "20261007-cloud-target-ann-upgrade-01"
+}

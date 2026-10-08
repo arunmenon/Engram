@@ -106,3 +106,8 @@ The prompt is strong on pipeline boundaries, whole-pack coverage and avoiding fa
 - Ask for retained evidence behavior after source/document expiry or authorized deletion, within this pack provenance boundary. Protecting pending processing alone does not guarantee that a completed answer's cited source remains resolvable forever.
 
 Residual limits: this source review did not exhaust every DSL expression or adapter, execute the tests, validate historical run artifacts, inspect remote issue updates, or independently verify provider specifications. Those are targeted implementation/conformance tasks, not grounds for a compatibility sign-off today.
+
+
+## PE-01 public pack-write recheck — 2026-10-07
+
+Later source grounding and registered diagnostic `runs/20261007-local-update-semantics-probe-01` correct one part of PE-01: public GraphOperations.upsert_nodes/upsert_edges call stored_values, which filters None; Neo4jPackGraph._props does likewise. The memory PackGraph diagnostic shows omitted and explicit-null values both preserve existing properties, while invalid int coercion silently preserves the old value. The lower-level apply_set can delete None fields but does not receive these pack None values. Spanner inherits the public filtering path; this diagnostic itself made no cloud calls. Keep PE-01 open for indistinguishable missing/null/invalid outcomes and deliberate clear support, without claiming omission deletion is reproduced. A/B/A old-value regression is independently reproduced and remains PE-02/#36 scope.

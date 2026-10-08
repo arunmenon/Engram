@@ -1,0 +1,33 @@
+2026-10-06 19:03:19 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:03:19 [info     ] llm_client_initialized
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:03:19 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:03:21 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'crm@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:ae97ca85cb6403f5 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:03:21 [info     ] events_imported                created=11 duplicate=0 failed=0 order=occurred_at received=11 rejected=0 request_id=020e54f9-998f-4847-9ac9-837059964a15
+2026-10-06 19:03:21 [info     ] webhook_ingested               delivery_id=combined-0 event_types=['pdlc.change.created'] request_id=5618bb45-1446-4ab6-9170-e57efcf1d249 source=github
+2026-10-06 19:03:21 [info     ] webhook_ingested               delivery_id=combined-1 event_types=['pdlc.testcaserun.finished'] request_id=472eafd5-47fb-462b-9c87-d2a60203f5c9 source=github
+2026-10-06 19:03:21 [info     ] webhook_ingested               delivery_id=combined-2 event_types=['pdlc.change.reviewed'] request_id=1abee1ba-5874-46f6-acb4-6b708fee37ad source=github
+2026-10-06 19:03:22 [info     ] webhook_ingested               delivery_id=combined-3 event_types=['pdlc.change.merged'] request_id=058af8ff-be83-4609-89ce-ed6cd4ecaafb source=github
+2026-10-06 19:03:22 [info     ] webhook_ingested               delivery_id=combined-4 event_types=['pdlc.ticket.created'] request_id=a793e90e-92d5-4e1f-84a8-c7b3b5321735 source=jira
+2026-10-06 19:03:22 [info     ] webhook_ingested               delivery_id=combined-5 event_types=['pdlc.release.published'] request_id=4bf3e2f5-5c54-4a2d-9fdd-d5e7bccf2e25 source=github
+2026-10-06 19:03:22 [info     ] webhook_ingested               delivery_id=combined-6 event_types=['pdlc.service.deployed'] request_id=0a94097c-a1d6-4e39-b424-fa03772e6e7b source=github
+2026-10-06 19:03:22 [info     ] webhook_ingested               delivery_id=combined-7 event_types=['pdlc.ticket.closed'] request_id=069c9592-10d4-43f8-a830-60452753a7f9 source=jira
+/Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-06 19:04:06 [info     ] app_stopped

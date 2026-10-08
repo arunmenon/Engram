@@ -1,0 +1,60 @@
+......F................................................................. [ 93%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+_____ test_artifact_neighbor_rejects_wrong_near_direction_and_far_identity _____
+
+    def test_artifact_neighbor_rejects_wrong_near_direction_and_far_identity():
+        selected, bundle = view(MemoryGraphStore(), ["pdlc"])
+        retriever = ArtifactRetriever(
+            selected,
+            bundle.registry,
+            default_max_depth=2,
+            seed_limit=10,
+            neighbor_limit=10,
+            provenance_source="memory",
+        )
+        ref = NodeRef("Requirement", "Requirement:r1")
+        row = {
+            "source_label": "Requirement",
+            "source_key": "Requirement:r2",
+            "target_label": "Requirement",
+            "target_key": "Requirement:r1",
+            "edge_type": "SUPERSEDES",
+            "node_label": "Requirement",
+            "node": {"node_id": "Requirement:r2"},
+            "properties": {},
+        }
+>       assert retriever._valid_neighbor(row, [ref], ["SUPERSEDES"], "in")
+E       AssertionError: assert False
+E        +  where False = _valid_neighbor({'source_label': 'Requirement', 'source_key': 'Requirement:r2', 'target_label': 'Requirement', 'target_key': 'Requirement:r1', ...}, [NodeRef(label='Requirement', key='Requirement:r1', key_property='node_id')], ['SUPERSEDES'], 'in')
+E        +    where _valid_neighbor = <context_graph.retrieval.artifacts.ArtifactRetriever object at 0x11001a0f0>._valid_neighbor
+
+tests/unit/test_composed_reads.py:166: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 18:07:06 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+=============================== warnings summary ===============================
+tests/unit/test_api_query.py::TestGetContext::test_get_context
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_api_query.py: 14 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_composed_reads.py::test_artifact_neighbor_rejects_wrong_near_direction_and_far_identity
+1 failed, 76 passed, 15 warnings in 2.20s

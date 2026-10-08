@@ -1,0 +1,112 @@
+[
+  {
+    "query": "python",
+    "session": null,
+    "hits": [
+      {
+        "id": "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+        "rank": 0,
+        "score": 1.0
+      },
+      {
+        "id": "0259eead-62b2-4bcc-a871-57aa7701331a",
+        "rank": 1,
+        "score": 1.0
+      },
+      {
+        "id": "ed50b3ff-be80-4ab4-bab2-c5c03617506d",
+        "rank": 2,
+        "score": 1.0
+      }
+    ],
+    "expected_ids": [
+      "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+      "0259eead-62b2-4bcc-a871-57aa7701331a",
+      "ed50b3ff-be80-4ab4-bab2-c5c03617506d"
+    ]
+  },
+  {
+    "query": "PYTHON",
+    "session": "keyword-a",
+    "hits": [
+      {
+        "id": "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+        "rank": 0,
+        "score": 1.0
+      },
+      {
+        "id": "0259eead-62b2-4bcc-a871-57aa7701331a",
+        "rank": 1,
+        "score": 1.0
+      }
+    ],
+    "expected_ids": [
+      "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+      "0259eead-62b2-4bcc-a871-57aa7701331a"
+    ]
+  },
+  {
+    "query": "caf\u00e9",
+    "session": null,
+    "hits": [
+      {
+        "id": "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+        "rank": 0,
+        "score": 1.0
+      },
+      {
+        "id": "0259eead-62b2-4bcc-a871-57aa7701331a",
+        "rank": 1,
+        "score": 1.0
+      },
+      {
+        "id": "ed50b3ff-be80-4ab4-bab2-c5c03617506d",
+        "rank": 2,
+        "score": 1.0
+      }
+    ],
+    "expected_ids": [
+      "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+      "0259eead-62b2-4bcc-a871-57aa7701331a",
+      "ed50b3ff-be80-4ab4-bab2-c5c03617506d"
+    ]
+  },
+  {
+    "query": "refund-retries",
+    "session": null,
+    "hits": [
+      {
+        "id": "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+        "rank": 0,
+        "score": 1.0
+      },
+      {
+        "id": "0259eead-62b2-4bcc-a871-57aa7701331a",
+        "rank": 1,
+        "score": 1.0
+      },
+      {
+        "id": "ed50b3ff-be80-4ab4-bab2-c5c03617506d",
+        "rank": 2,
+        "score": 1.0
+      }
+    ],
+    "expected_ids": [
+      "de0b9471-6bea-42c5-9824-a1cf9c060a03",
+      "0259eead-62b2-4bcc-a871-57aa7701331a",
+      "ed50b3ff-be80-4ab4-bab2-c5c03617506d"
+    ]
+  },
+  {
+    "query": "notpresentxyz",
+    "session": null,
+    "hits": [],
+    "expected_ids": []
+  },
+  {
+    "query": "",
+    "session": null,
+    "hits": [],
+    "expected_ids": []
+  }
+]

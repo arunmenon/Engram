@@ -1,0 +1,20 @@
+{
+  "kind": "local_pack_removal_primitive",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    36,
+    39,
+    41
+  ],
+  "source_sha256": {
+    "src/context_graph/domain/pack_removals.py": "79e49d29cbfcb4b71447450ffdd55aa5105a22f7b87c260f169c1595e4d76b30",
+    "src/context_graph/ports/pack_graph.py": "6da609f6720ad88a54de964d95befe9b92d4c199ab6ab0880349153278c4b239",
+    "src/context_graph/adapters/graph_ops.py": "1af9b57f6dfc0c621d41d992b7ebf2271396f9342504903c31aa7e44168166df",
+    "src/context_graph/adapters/neo4j/pack_graph.py": "22d5a2060f4f53f4702a393aa6d1e86988b1b416548fb35789e033d6ba94b7ef",
+    "src/context_graph/adapters/spanner/graph.py": "99f974c33f1dcc0cf1584a68676513beb9829f706728ce260dec64ec67e1c369",
+    "tests/unit/test_pack_property_removals.py": "45b46ed46048ac880c800d80ae9c49564601e3ece42fd704d51fd4df549f9e45"
+  },
+  "scope": "Explicit removal tuples/public batch preflight; memory actual operations, Spanner recording transaction and Neo4j generated query only; affected unit regression. No cloud/service runners; strict pack grammar not integrated.",
+  "run_id": "20261007-local-pack-removals-01"
+}

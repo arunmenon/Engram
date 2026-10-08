@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "updated_at": "2026-10-07T11:33:44.040916+00:00",
+  "status": "planned_not_executed",
+  "baseline": "65 baseline scenario rows remain unchanged; these 9 are additional acceptance groups, not passes.",
+  "scope": "Tenant-scoped composable packs across ingestion, processing, retrieval and operations.",
+  "fixture_policy": "Bind executable cases to exact input/expected-output fixtures before running; no LLM answer similarity or successful HTTP receipt substitutes for graph/evidence assertions.",
+  "unresolved_policies": [
+    "disabled-domain admission",
+    "historical disabled-data visibility",
+    "disable/re-enable catch-up",
+    "selected core summary/entity capabilities"
+  ],
+  "run_policy": "Register runs before execution, record code/configuration fingerprints and observations; report all assertions and linked defects; publish redacted evidence.",
+  "scenarios": [
+    {
+      "scenario_id": "COMP-01",
+      "flow": "Resolve bundle",
+      "input": "Tenant A selects core+PDLC; tenant B selects core+user; configure distinct authorized databases.",
+      "required_assertions": [
+        "Resolved pack versions, capabilities and database identity match each tenant configuration.",
+        "API and workers agree on interpretation identity.",
+        "Reordering selection produces equivalent composition."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "COMP-02",
+      "flow": "Admission boundary",
+      "input": "Valid PDLC fixture plus missing-required-field variant; submit as authorized tenant A.",
+      "required_assertions": [
+        "Valid event saved only in A ledger.",
+        "Invalid payload rejected with field-specific error and absent from ledger.",
+        "Unknown or disabled-domain admission has explicit ledger-only versus rejected policy; never promises domain processing."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "COMP-03",
+      "flow": "Projection and output gates",
+      "input": "Deliver valid PDLC fixture via production composition roots, including relevant session trigger.",
+      "required_assertions": [
+        "Exact fixture artifact IDs/properties/relationships and Event evidence match expected outputs.",
+        "No disabled UserProfile/Preference outputs, user-only extractor calls or related writes.",
+        "Core summaries/entity behavior follows explicitly selected capabilities."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "COMP-04",
+      "flow": "Retrieval selection",
+      "input": "Query expected PDLC artifact via A and profile capability with user disabled; seed historical disabled data.",
+      "required_assertions": [
+        "Exact expected artifacts/evidence returned for supported question.",
+        "Disabled functionality returns defined outcome, not accidental empty success.",
+        "Historical visibility and cross-pack traversal obey explicit policy."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "COMP-05",
+      "flow": "Combined capabilities",
+      "input": "Enable core+PDLC+user; execute domain fixture and supported user extraction fixture.",
+      "required_assertions": [
+        "Each selected capability produces expected outputs.",
+        "Both query paths behave as defined.",
+        "Shared work not duplicated; intentional multiple subscribers preserve identity/evidence.",
+        "No pack-combination-specific dispatcher changes required."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "COMP-06",
+      "flow": "Unfamiliar pack and conflicts",
+      "input": "Add unfamiliar supported-capability fixture pack alongside a domain; attempt missing dependency/version/capability and conflicting ownership.",
+      "required_assertions": [
+        "Compatible fixture runs using existing engine dispatch.",
+        "No engine pack-name branches added.",
+        "Unsupported or conflicting composition fails clearly before processing.",
+        "Composition order does not change outputs."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "TEN-01",
+      "flow": "Adversarial isolation",
+      "input": "Use identical event/session/agent/artifact IDs in two tenant databases; attempt unauthorized tenant/database override.",
+      "required_assertions": [
+        "Independent ledgers/graphs and query answers.",
+        "Unauthorized routing rejected before append.",
+        "No cross-tenant search, evidence, cache or worker/checkpoint effects."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "TEN-02",
+      "flow": "Handshake and failure isolation",
+      "input": "Deny access or introduce incompatible schema/configuration for one tenant database.",
+      "required_assertions": [
+        "Tenant handshake reports target-specific failure.",
+        "No default database fallback or wrong-tenant append.",
+        "Healthy tenant continues according to defined failure policy."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "scenario_id": "TEN-03",
+      "flow": "Recovery and maintenance",
+      "input": "Restart/retry; replay, retain and rebuild A; disable/re-enable selected capability according to policy.",
+      "required_assertions": [
+        "No duplicate artifacts or lost processing obligations/evidence.",
+        "B data/checkpoints/ontology state unchanged.",
+        "Versioned interpretation, historical visibility and catch-up match policy.",
+        "Scoped client/session cleanup and credential reconnect preserve database routing."
+      ],
+      "status": "planned_not_run",
+      "execution": "Local production-composition tests first; then Engram on real Spanner for acceptance.",
+      "issues": [
+        34,
+        35,
+        39,
+        41,
+        42,
+        43
+      ]
+    }
+  ]
+}

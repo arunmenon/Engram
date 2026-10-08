@@ -1,0 +1,22 @@
+{
+  "kind": "local_composed_read_boundary",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    42,
+    6,
+    39,
+    41
+  ],
+  "source_sha256": {
+    "src/context_graph/adapters/composed_reads.py": "0fb1f54bd8fcec38b7d749bf32162a3b0f668c310ec154a3dbb8c85a432f9317",
+    "src/context_graph/adapters/graph_ops.py": "f698e9453fb90d83e23edd607f45862f7f1e595611f829a78ac26f699da4aa0c",
+    "src/context_graph/adapters/registry.py": "eb25132108940881494469903ef8a34e94d9f21e86ff32f8e2139b4af4433773",
+    "src/context_graph/retrieval/engine.py": "789f4f441fa1f7484c384db2af93182fbdd8bed569a1280a62db68e43f7aafd2",
+    "src/context_graph/retrieval/artifacts.py": "1491ec12c8429e929d08fbdd496184409f596d1def66e07a220ab84f0e98957b",
+    "src/context_graph/api/app.py": "46ef12084a4095458c091cf332844b168cbeb6e48285d68172b0efca9e35b3a8",
+    "tests/unit/test_composed_reads.py": "8d67284acec040bd3bd33bec916695bf974e3ddfab055cb629da62da475498f6"
+  },
+  "scope": "Memory/Spanner complete primitive scope before counting/limits, event/entity semantic endpoints, artifact defensive filtering, explicit seed handling. No Neo4j runner, native Spanner ANN fix or real cloud acceptance.",
+  "run_id": "20261007-local-composed-reads-01"
+}

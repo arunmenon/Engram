@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 902, in journey
+    raise RuntimeError("process exited during journey")
+TimeoutError: five worker groups did not drain/profile missing
+
+{"name": "independent_API_and_five_worker_process_journey", "scenarios": ["BOOT-01", "APP-01", "EXT-01", "ENR-01", "OPS-02"], "verdict": "failed", "error_type": "TimeoutError", "error": "five worker groups did not drain/profile missing", "seconds": 77.05}

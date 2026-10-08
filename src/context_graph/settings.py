@@ -13,6 +13,7 @@ Sources:
 
 from __future__ import annotations
 
+import re
 from typing import Annotated
 
 from pydantic import Field, SecretStr, field_validator, model_validator
@@ -570,8 +571,9 @@ class SpannerSettings(BaseSettings):
 class OntologySettings(BaseSettings):
     """Active ontology packs (ADR-0018).
 
-    ``core``, ``memory`` and ``user`` (today's schema, which the code
-    writes) are always active. ``packs`` names the packs added to them,
+    ``core`` is mandatory. ``builtin_packs`` defaults to memory/user for
+    compatibility; an explicit empty selection omits those optional roots.
+    ``packs`` names the domain packs added to them,
     comma-separated (``CG_ONTOLOGY_PACKS=pdlc``); their required packs are
     loaded too. Packs are looked up in ``pack_dirs`` first
     (``CG_ONTOLOGY_PACK_DIRS``, comma-separated), then in the built-in
@@ -581,6 +583,7 @@ class OntologySettings(BaseSettings):
     model_config = {"env_prefix": "CG_ONTOLOGY_"}
 
     packs: Annotated[list[str], NoDecode] = Field(default=["pdlc"])
+    builtin_packs: Annotated[list[str], NoDecode] = Field(default=["memory", "user"])
     pack_dirs: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
     # Event agent_ids whose events mark pack nodes source_trust=trusted
@@ -588,6 +591,18 @@ class OntologySettings(BaseSettings):
     trusted_sources: Annotated[list[str], NoDecode] = Field(
         default=["webhook:github", "webhook:jira"]
     )
+
+    # Authenticated producer IDs for tenant-bound processing; no legacy agent aliasing.
+    trusted_source_ids: Annotated[list[str], NoDecode] = Field(default_factory=list)
+
+    @field_validator("trusted_source_ids")
+    @classmethod
+    def authenticated_source_ids(cls, values: list[str]) -> list[str]:
+        if any(
+            re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", value) is None for value in values
+        ):
+            raise ValueError("Invalid authenticated source ID")
+        return values
 
     # Nodes read when a rule finds an edge target by matching (to_latest,
     # match_any_prefix)
@@ -637,7 +652,14 @@ class OntologySettings(BaseSettings):
     allow_version_problems: bool = False
     replay_batch_size: int = 500
 
-    @field_validator("packs", "pack_dirs", "trusted_sources", mode="before")
+    @field_validator(
+        "packs",
+        "builtin_packs",
+        "pack_dirs",
+        "trusted_sources",
+        "trusted_source_ids",
+        mode="before",
+    )
     @classmethod
     def _split(cls, value: object) -> object:
         if isinstance(value, str):

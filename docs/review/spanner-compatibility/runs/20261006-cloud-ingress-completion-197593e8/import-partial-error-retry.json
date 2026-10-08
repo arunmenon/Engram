@@ -1,0 +1,90 @@
+{
+  "first_status": 200,
+  "first": [
+    {
+      "index": 0,
+      "event_id": "0d1d573e-f01c-4d00-bb8a-f2948e92b158",
+      "status": "created",
+      "global_position": "2026-10-06T16:24:33.603295000Z/000000/0d1d573e-f01c-4d00-bb8a-f2948e92b158"
+    },
+    {
+      "index": 1,
+      "event_id": "91c502cc-c987-4803-a13d-a0333d8a4407",
+      "status": "created",
+      "global_position": "2026-10-06T16:24:33.603295000Z/000001/91c502cc-c987-4803-a13d-a0333d8a4407"
+    },
+    {
+      "index": 2,
+      "event_id": "4f106478-d3da-4188-bbb3-bd07312d7456",
+      "status": "failed",
+      "error": "the store failed: synthetic second import store-call failure"
+    },
+    {
+      "index": 3,
+      "event_id": "6a0ffc63-2f28-45cd-8af2-44acda929a83",
+      "status": "failed",
+      "error": "the store failed: synthetic second import store-call failure"
+    },
+    {
+      "index": 4,
+      "event_id": "3e736863-3fe9-4405-bb6c-ab2e4547986c",
+      "status": "failed",
+      "error": "the store failed: synthetic second import store-call failure"
+    },
+    {
+      "summary": {
+        "received": 5,
+        "order": "input",
+        "created": 2,
+        "duplicate": 0,
+        "rejected": 0,
+        "failed": 3
+      }
+    }
+  ],
+  "retry_status": 200,
+  "retry": [
+    {
+      "index": 0,
+      "event_id": "0d1d573e-f01c-4d00-bb8a-f2948e92b158",
+      "status": "duplicate",
+      "global_position": "2026-10-06T16:24:33.603295000Z/000000/0d1d573e-f01c-4d00-bb8a-f2948e92b158"
+    },
+    {
+      "index": 1,
+      "event_id": "91c502cc-c987-4803-a13d-a0333d8a4407",
+      "status": "duplicate",
+      "global_position": "2026-10-06T16:24:33.603295000Z/000001/91c502cc-c987-4803-a13d-a0333d8a4407"
+    },
+    {
+      "index": 2,
+      "event_id": "4f106478-d3da-4188-bbb3-bd07312d7456",
+      "status": "created",
+      "global_position": "2026-10-06T16:24:33.977727000Z/000000/4f106478-d3da-4188-bbb3-bd07312d7456"
+    },
+    {
+      "index": 3,
+      "event_id": "6a0ffc63-2f28-45cd-8af2-44acda929a83",
+      "status": "created",
+      "global_position": "2026-10-06T16:24:33.977727000Z/000001/6a0ffc63-2f28-45cd-8af2-44acda929a83"
+    },
+    {
+      "index": 4,
+      "event_id": "3e736863-3fe9-4405-bb6c-ab2e4547986c",
+      "status": "created",
+      "global_position": "2026-10-06T16:24:34.240991000Z/000000/3e736863-3fe9-4405-bb6c-ab2e4547986c"
+    },
+    {
+      "summary": {
+        "received": 5,
+        "order": "input",
+        "created": 3,
+        "duplicate": 2,
+        "rejected": 0,
+        "failed": 0
+      }
+    }
+  ],
+  "store_calls_before_stop": 2,
+  "fault": "synthetic second store call; first real Spanner commit retained"
+}

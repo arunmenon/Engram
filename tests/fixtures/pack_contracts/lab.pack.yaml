@@ -1,0 +1,34 @@
+# Fixture-only unfamiliar domain, not a production pack or capability promise.
+pack: {name: lab, version: 0.1.0, requires: [core>=1.1]}
+types:
+  nodes:
+    LabSample:
+      key: [facility, sample_id]
+      interfaces: [Sourced]
+      properties: {facility: string, sample_id: string, reading: float, unit: string}
+      text_fields: [unit]
+events:
+  lab.sample.received:
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        facility: {type: string, required: true, min_length: 1}
+        measurements:
+          type: array
+          required: true
+          min_length: 1
+          max_length: 1
+          items:
+            type: object
+            additional_fields: forbid
+            properties:
+              sample_id: {type: string, required: true, min_length: 1}
+              reading: {type: number, required: true}
+              unit: {type: string, required: true, enum: [C, F]}
+projection:
+  - event: lab.sample.received
+    upsert:
+      - type: LabSample
+        key: {facility: $.facility, sample_id: '$.measurements[*].sample_id'}
+        set: {reading: '$.measurements[*].reading', unit: '$.measurements[*].unit'}

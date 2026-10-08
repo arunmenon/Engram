@@ -27,11 +27,12 @@ from fastapi.responses import ORJSONResponse, StreamingResponse
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
-from context_graph.api.dependencies import get_event_store
-from context_graph.api.ingest import BodyError, check_events, read_body
+from context_graph.api.dependencies import get_event_store, get_event_writer
+from context_graph.api.ingest import BodyError, check_events, input_contract_errors, read_body
 from context_graph.domain.models import Event  # noqa: TCH001 — runtime: model_validate
 from context_graph.domain.validation import ValidationError, validate_event
 from context_graph.metrics import EVENTS_BATCH_SIZE, EVENTS_INGESTED_TOTAL
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.event_store import (  # noqa: TCH001 — runtime: Depends()
     AppendOutcome,
     EventStore,
@@ -77,6 +78,7 @@ class BatchResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 EventStoreDep = Annotated[EventStore, Depends(get_event_store)]
+EventWriterDep = Annotated[EventStore, Depends(get_event_writer)]
 
 
 def _parse_event(data: dict[str, Any]) -> Event:
@@ -97,6 +99,9 @@ def _undeclared(request: Request, event: Event) -> str | None:
     """
     if event.agent_id.startswith(WEBHOOK_AGENT_PREFIX):
         return f"agent_id prefix {WEBHOOK_AGENT_PREFIX!r} is reserved for the webhook routes"
+    if getattr(request.app.state, "tenant_binding", None) is not None:
+        # Bound storage decides new admission after recognizing historical retries.
+        return None
     registry = getattr(request.app.state, "ontology", None)
     if registry is None or registry.accepts_event_type(event.event_type):
         return None
@@ -162,10 +167,27 @@ def _body_error(exc: BodyError) -> ORJSONResponse:
     return ORJSONResponse(status_code=exc.status, content={"detail": [{"message": exc.message}]})
 
 
+def _admission_errors(outcome: AppendOutcome) -> list[dict[str, str]]:
+    return [
+        {
+            "field": "payload." + ".".join(map(str, problem.path)),
+            "code": problem.code,
+            "message": "Field does not match the active pack contract",
+        }
+        for problem in outcome.problems
+    ] or [
+        {
+            "field": "event_type",
+            "code": outcome.reason or "event_rejected",
+            "message": "Event is not supported by the active pack configuration",
+        }
+    ]
+
+
 @router.post("/events", status_code=201)
 async def ingest_event(
     request: Request,
-    event_store: EventStoreDep,
+    event_store: EventWriterDep,
 ) -> ORJSONResponse:
     """Ingest a single event into the event ledger.
 
@@ -180,6 +202,9 @@ async def ingest_event(
         return ORJSONResponse(
             status_code=422, content={"detail": [{"message": "body must be a JSON object"}]}
         )
+
+    if problems := input_contract_errors(body):
+        return ORJSONResponse(status_code=422, content={"detail": problems})
 
     raw_payload = body.get("payload")
     event_payload: dict[str, Any] | None = raw_payload if isinstance(raw_payload, dict) else None
@@ -199,6 +224,20 @@ async def ingest_event(
         return limited
 
     (outcome,) = await event_store.append_batch_outcomes([event], payloads=[event_payload])
+    if outcome.status == "rejected":
+        return ORJSONResponse(
+            status_code=422,
+            content={
+                "event_id": str(event.event_id),
+                "event_type": event.event_type,
+                "reason": outcome.reason,
+                "detail": _admission_errors(outcome),
+            },
+        )
+    if outcome.status == "conflict":
+        return ORJSONResponse(
+            status_code=409, content={"detail": outcome.error or "Event ID conflict"}
+        )
     if outcome.status == "failed":
         return ORJSONResponse(
             status_code=503, content={"detail": f"the event was not stored: {outcome.error}"}
@@ -226,7 +265,7 @@ async def ingest_event(
 @router.post("/events/batch", status_code=201)
 async def ingest_event_batch(
     request: Request,
-    event_store: EventStoreDep,
+    event_store: EventWriterDep,
 ) -> ORJSONResponse:
     """Ingest a batch of events.
 
@@ -266,11 +305,35 @@ async def ingest_event_batch(
     results: list[dict[str, Any]] = []
     errors = list(checked.errors)
     store_failures = 0
+    identity_conflicts = 0
     if checked.events:
         outcomes = await event_store.append_batch_outcomes(
             checked.events, payloads=checked.payloads
         )
         for index, event, outcome in zip(checked.indexes, checked.events, outcomes, strict=True):
+            if outcome.status == "rejected":
+                errors.append(
+                    {
+                        "index": index,
+                        "event_id": str(event.event_id),
+                        "event_type": event.event_type,
+                        "reason": outcome.reason,
+                        "errors": _admission_errors(outcome),
+                    }
+                )
+                continue
+            if outcome.status == "conflict":
+                identity_conflicts += 1
+                errors.append(
+                    {
+                        "index": index,
+                        "event_id": str(event.event_id),
+                        "errors": [
+                            {"field": "event_id", "message": outcome.error or "Event ID conflict"}
+                        ],
+                    }
+                )
+                continue
             if outcome.status == "failed":
                 store_failures += 1
                 errors.append(
@@ -299,7 +362,9 @@ async def ingest_event_batch(
         store_failures=store_failures,
         total=len(raw_events),
     )
-    status_code = 201 if results else (503 if store_failures else 422)
+    status_code = (
+        201 if results else (503 if store_failures else 409 if identity_conflicts else 422)
+    )
     return ORJSONResponse(
         status_code=status_code,
         content={
@@ -411,7 +476,13 @@ async def import_events(
     batch_size = max(1, settings.import_batch_size)
 
     async def outcomes() -> Any:
-        counts = {"created": 0, "duplicate": 0, "rejected": len(checked.errors), "failed": 0}
+        counts = {
+            "created": 0,
+            "duplicate": 0,
+            "rejected": len(checked.errors),
+            "failed": 0,
+            "conflict": 0,
+        }
         for error in sorted(checked.errors, key=lambda e: e["index"]):
             yield _ndjson({**error, "status": "rejected"})
         stopped: str | None = None
@@ -423,6 +494,8 @@ async def import_events(
                     results = await event_store.append_batch_outcomes(
                         events, payloads=[checked.payloads[i] for i in chunk]
                     )
+                except RuntimeFencedError:
+                    raise
                 except Exception as exc:  # noqa: BLE001 - reported per event, then stop
                     logger.warning("import_append_failed", error=str(exc), at=start)
                     stopped = f"the store failed: {exc}"
@@ -435,7 +508,7 @@ async def import_events(
                     "event_id": str(event.event_id),
                     "status": outcome.status,
                 }
-                if outcome.status == "failed":
+                if outcome.status in {"failed", "conflict"}:
                     line["error"] = outcome.error
                 else:
                     line["global_position"] = outcome.position

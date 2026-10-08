@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 162, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_remaining.py", line 393, in handshake
+    assert not served, f"{mode} was accepted and served healthy"
+           ^^^^^^^^^^
+AssertionError: dimension_mismatch was accepted and served healthy
+
+{"name": "startup_dimension_mismatch", "scenarios": ["BOOT-03", "OPS-03"], "verdict": "failed", "error_type": "AssertionError", "error": "dimension_mismatch was accepted and served healthy", "seconds": 10.27}

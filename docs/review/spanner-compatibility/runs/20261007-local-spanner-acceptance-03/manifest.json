@@ -1,0 +1,31 @@
+{
+  "kind": "local_spanner_atomic_acceptance_adapter",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    37,
+    43,
+    41
+  ],
+  "scope": "Transaction-fake atomic receipt/duplicates/fencing/retention, normalized API authenticated writer/conflicts, additiveDDL planning. Workers/cloudupgrade not yet wired.",
+  "source_sha256": {
+    "src/context_graph/adapters/registry.py": "53437ab947227d5fcd73c91dc00d876db2b42fd1904a6f5bee9b7b7312be1ba6",
+    "src/context_graph/adapters/spanner/commits.py": "370647417c9ee597a6bd76146383e877b0c1f10980504e40d95ef6851e5fa158",
+    "src/context_graph/adapters/spanner/entity_index.py": "8872d30a4151016f30514f78c20a1c32cd90e2c99789083583fccef7e3d9ec98",
+    "src/context_graph/adapters/spanner/event_acceptance.py": "cb03180047da193abf9c10e839117c44ebc903f96c5cc575cbbc054fa9155e76",
+    "src/context_graph/adapters/spanner/log.py": "8281240bf07a5ea1daf6ffc20144c7ff833708d41fc7ff265db549a412d1071f",
+    "src/context_graph/adapters/spanner/schema.py": "e93d6ef5873088884a4806c74bbc7ae2349ff96fadf281d3f292af27f894bf93",
+    "src/context_graph/api/dependencies.py": "641e8e5faf01771284ad62a34860ece7d0754c4b14673c0187e39995f18153d2",
+    "src/context_graph/api/routes/events.py": "7defc6e6800a27840c8b7a3b470e7753639ffd0bf5a46370375f842465e3defe",
+    "src/context_graph/domain/event_acceptance.py": "f51d3a4d3e1e54727461e6769ad01f134211f4c3a0e257821b14f682b0eb2eaf",
+    "src/context_graph/ports/event_store.py": "52a1bb5fa8ea992f92c01e6dadda1a628f974e86054bec606203f63b002a8afd",
+    "tests/unit/test_spanner_event_acceptance.py": "1ab912779cbbbe4383be493222980d1e284080674419abbb9025f52728db6317"
+  },
+  "command": "pytest -q tests/unit/test_spanner_event_acceptance.py tests/unit/test_spanner_schema_handshake.py tests/unit/test_spanner_entity_index.py tests/unit/test_spanner_commits.py tests/unit/test_api_events.py tests/unit/test_api_ingest.py tests/unit/test_event_input_contract.py tests/unit/test_tenant_store_binding.py -m not integration tests/unit/test_spanner_json_codec.py",
+  "additional_checks": [
+    "ruff selectedfiles",
+    "scoped mypy with follow-imports=silent"
+  ],
+  "review_fix": "Tag every float to preserve exact fingerprint numeric semantics; narrow validated read operation Literal annotation.",
+  "run_id": "20261007-local-spanner-acceptance-03"
+}

@@ -1,0 +1,71 @@
+2026-10-06 19:36:18 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:36:18 [info     ] llm_client_initialized
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:36:18 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:36:20 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:36:21 [info     ] event_ingested                 event_id=2b32b99d-4b20-4a27-8ab5-95155b1e26c8 event_type=observation.input global_position=2026-10-06T14:06:21.016431000Z/000000/2b32b99d-4b20-4a27-8ab5-95155b1e26c8 request_id=f9e264bd-e3af-4696-9c31-856a78597230 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:36:21 [info     ] event_ingested                 event_id=8eb929ab-8c72-4956-a40a-ea789804f7e9 event_type=observation.input global_position=2026-10-06T14:06:21.269391000Z/000000/8eb929ab-8c72-4956-a40a-ea789804f7e9 request_id=d572f433-823f-4f86-9eb6-1ee030cd58e0 status=created
+2026-10-06 19:36:21 [info     ] event_ingested                 event_id=cf2d4fca-8cb9-4e6a-9321-04cb34dd3273 event_type=observation.input global_position=2026-10-06T14:06:21.452815000Z/000000/cf2d4fca-8cb9-4e6a-9321-04cb34dd3273 request_id=c1393e12-a764-4b9c-8187-57e3c0962862 status=created
+2026-10-06 19:36:21 [info     ] event_ingested                 event_id=e3f5090d-f8a6-4594-afd0-fb3df612d147 event_type=observation.input global_position=2026-10-06T14:06:21.640543000Z/000000/e3f5090d-f8a6-4594-afd0-fb3df612d147 request_id=139c7b70-31bd-4305-a7cb-e179ec7d4b2e status=created
+2026-10-06 19:36:22 [info     ] consumer_started               consumer=keyword-projection group=graph-projection stream=Events
+2026-10-06 19:36:22 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:36:23 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:06:21.016431000Z/000000/2b32b99d-4b20-4a27-8ab5-95155b1e26c8 event_id=2b32b99d-4b20-4a27-8ab5-95155b1e26c8 session_id=keyword-a
+2026-10-06 19:36:23 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T14:06:21.269391000Z/000000/8eb929ab-8c72-4956-a40a-ea789804f7e9 event_id=8eb929ab-8c72-4956-a40a-ea789804f7e9 session_id=keyword-a
+2026-10-06 19:36:24 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:06:21.452815000Z/000000/cf2d4fca-8cb9-4e6a-9321-04cb34dd3273 event_id=cf2d4fca-8cb9-4e6a-9321-04cb34dd3273 session_id=keyword-b
+2026-10-06 19:36:25 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T14:06:21.640543000Z/000000/e3f5090d-f8a6-4594-afd0-fb3df612d147 event_id=e3f5090d-f8a6-4594-afd0-fb3df612d147 session_id=keyword-b
+2026-10-06 19:36:26 [info     ] consumer_stopped               consumer=keyword-projection group=graph-projection
+{"name": "native_keyword_case_unicode_punctuation_empty_and_session_filter", "scenarios": ["SEARCH-01"], "verdict": "passed", "observation": [{"query": "python", "session": null, "hits": [{"id": "2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "rank": 0, "score": 1.0}, {"id": "8eb929ab-8c72-4956-a40a-ea789804f7e9", "rank": 1, "score": 1.0}, {"id": "cf2d4fca-8cb9-4e6a-9321-04cb34dd3273", "rank": 2, "score": 1.0}], "expected_ids": ["2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "8eb929ab-8c72-4956-a40a-ea789804f7e9", "cf2d4fca-8cb9-4e6a-9321-04cb34dd3273"]}, {"query": "PYTHON", "session": "keyword-a", "hits": [{"id": "2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "rank": 0, "score": 1.0}, {"id": "8eb929ab-8c72-4956-a40a-ea789804f7e9", "rank": 1, "score": 1.0}], "expected_ids": ["2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "8eb929ab-8c72-4956-a40a-ea789804f7e9"]}, {"query": "caf\u00e9", "session": null, "hits": [{"id": "2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "rank": 0, "score": 1.0}, {"id": "8eb929ab-8c72-4956-a40a-ea789804f7e9", "rank": 1, "score": 1.0}, {"id": "cf2d4fca-8cb9-4e6a-9321-04cb34dd3273", "rank": 2, "score": 1.0}], "expected_ids": ["2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "8eb929ab-8c72-4956-a40a-ea789804f7e9", "cf2d4fca-8cb9-4e6a-9321-04cb34dd3273"]}, {"query": "refund-retries", "session": null, "hits": [{"id": "2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "rank": 0, "score": 1.0}, {"id": "8eb929ab-8c72-4956-a40a-ea789804f7e9", "rank": 1, "score": 1.0}, {"id": "cf2d4fca-8cb9-4e6a-9321-04cb34dd3273", "rank": 2, "score": 1.0}], "expected_ids": ["2b32b99d-4b20-4a27-8ab5-95155b1e26c8", "8eb929ab-8c72-4956-a40a-ea789804f7e9", "cf2d4fca-8cb9-4e6a-9321-04cb34dd3273"]}, {"query": "notpresentxyz", "session": null, "hits": [], "expected_ids": []}, {"query": "", "session": null, "hits": [], "expected_ids": []}], "seconds": 0.57}
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 182, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 395, in keyword_only
+    assert response.status_code==200 and {r['event_id'] for r in rows[:2]}<=set(response.json()['nodes']),receipt
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'status': 422, 'body': {'detail': [{'type': 'missing', 'loc': ['body', 'agent_id'], 'msg': 'Field required', 'input': {'query': 'Python', 'session_id': 'keyword-a', 'max_nodes': 10}}]}, 'controls': 'graph seeds explicitly empty; embedding disabled; real native keyword index remains active'}
+
+{"name": "keyword_only_API_hydration_and_session_isolation", "scenarios": ["MEM-03", "SEARCH-01"], "verdict": "failed", "error_type": "AssertionError", "error": "{'status': 422, 'body': {'detail': [{'type': 'missing', 'loc': ['body', 'agent_id'], 'msg': 'Field required', 'input': {'query': 'Python', 'session_id': 'keyword-a', 'max_nodes': 10}}]}, 'controls': 'graph seeds explicitly empty; embedding disabled; real native keyword index remains active'}", "seconds": 0.01}
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 182, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 417, in enabled_features
+    assert response.status_code==200 and response.json()['nodes'],receipt
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'calls': {'embeddings': [], 'hyde': 0, 'MMR': 0, 'PPR': 0}, 'status': 422, 'body': {'detail': [{'type': 'missing', 'loc': ['body', 'agent_id'], 'msg': 'Field required', 'input': {'query': 'Python', 'session_id': 'keyword-a', 'use_hyde': True, 'max_nodes': 10}}]}, 'scope': 'scripted HyDE/query embedding; real graph, ANN and keyword ports; bounded feature smoke, not ranking quality benchmark'}
+
+{"name": "PPR_MMR_HyDE_RRF_decay_enabled_API_smoke", "scenarios": ["MEM-04"], "verdict": "failed", "error_type": "AssertionError", "error": "{'calls': {'embeddings': [], 'hyde': 0, 'MMR': 0, 'PPR': 0}, 'status': 422, 'body': {'detail': [{'type': 'missing', 'loc': ['body', 'agent_id'], 'msg': 'Field required', 'input': {'query': 'Python', 'session_id': 'keyword-a', 'use_hyde': True, 'max_nodes': 10}}]}, 'scope': 'scripted HyDE/query embedding; real graph, ANN and keyword ports; bounded feature smoke, not ranking quality benchmark'}", "seconds": 0.46}
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 182, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 433, in degradation
+    assert response.status_code==200 and {r['event_id'] for r in rows[:2]}<=set(response.json()['nodes']),receipt
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'status': 422, 'body': {'detail': [{'type': 'missing', 'loc': ['body', 'agent_id'], 'msg': 'Field required', 'input': {'query': 'Python', 'session_id': 'keyword-a', 'use_hyde': True, 'max_nodes': 10}}]}, 'faults': 'synthetic keyword failure and 50ms model timeout; actual graph channel retained'}
+
+{"name": "keyword_failure_HyDE_timeout_graph_fallback", "scenarios": ["MEM-03", "MEM-04"], "verdict": "failed", "error_type": "AssertionError", "error": "{'status': 422, 'body': {'detail': [{'type': 'missing', 'loc': ['body', 'agent_id'], 'msg': 'Field required', 'input': {'query': 'Python', 'session_id': 'keyword-a', 'use_hyde': True, 'max_nodes': 10}}]}, 'faults': 'synthetic keyword failure and 50ms model timeout; actual graph channel retained'}", "seconds": 0.0}
+2026-10-06 19:36:27 [info     ] app_stopped

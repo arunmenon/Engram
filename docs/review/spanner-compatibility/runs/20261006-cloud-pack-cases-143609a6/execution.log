@@ -1,0 +1,107 @@
+2026-10-06 19:27:49 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:27:49 [info     ] llm_client_initialized
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:27:49 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:27:51 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:27:51 [info     ] event_ingested                 event_id=33cc4734-fd16-44cb-9dad-eb7b792eae7b event_type=pdlc.service.deployed global_position=2026-10-06T13:57:51.503759000Z/000000/33cc4734-fd16-44cb-9dad-eb7b792eae7b request_id=06d70d79-6632-4c9d-ba3a-3cfbfbb4d11d status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:27:51 [info     ] event_ingested                 event_id=498f75d5-e808-49e1-ae97-19b29d748c67 event_type=pdlc.service.deployed global_position=2026-10-06T13:57:51.674383000Z/000000/498f75d5-e808-49e1-ae97-19b29d748c67 request_id=22e06b8a-90cc-48b8-a119-9b0d838420e0 status=created
+2026-10-06 19:27:51 [info     ] event_ingested                 event_id=358cb3c1-99d1-4c3e-b726-286ca1d8f51b event_type=pdlc.service.deployed global_position=2026-10-06T13:57:51.759823000Z/000000/358cb3c1-99d1-4c3e-b726-286ca1d8f51b request_id=75e97c45-5809-4423-9bbb-82f9d7805f7d status=created
+2026-10-06 19:27:51 [info     ] event_ingested                 event_id=4a90966d-0972-4f85-884f-0658fc9cc1a4 event_type=pdlc.incident.detected global_position=2026-10-06T13:57:51.852399000Z/000000/4a90966d-0972-4f85-884f-0658fc9cc1a4 request_id=917abf7a-3794-4ed5-95af-2f6ec1cc4e56 status=created
+2026-10-06 19:27:52 [info     ] consumer_started               consumer=pack-cases group=graph-projection stream=Events
+2026-10-06 19:27:52 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:27:52 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T13:57:51.503759000Z/000000/33cc4734-fd16-44cb-9dad-eb7b792eae7b event_id=33cc4734-fd16-44cb-9dad-eb7b792eae7b session_id=pack-cases
+2026-10-06 19:27:53 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+2026-10-06 19:27:53 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:57:51.674383000Z/000000/498f75d5-e808-49e1-ae97-19b29d748c67 event_id=498f75d5-e808-49e1-ae97-19b29d748c67 session_id=pack-cases
+2026-10-06 19:27:53 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+2026-10-06 19:27:53 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:57:51.759823000Z/000000/358cb3c1-99d1-4c3e-b726-286ca1d8f51b event_id=358cb3c1-99d1-4c3e-b726-286ca1d8f51b session_id=pack-cases
+2026-10-06 19:27:54 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+2026-10-06 19:27:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:57:51.852399000Z/000000/4a90966d-0972-4f85-884f-0658fc9cc1a4 event_id=4a90966d-0972-4f85-884f-0658fc9cc1a4 session_id=pack-cases
+2026-10-06 19:27:55 [debug    ] pack_plans_applied             edges=4 events=1 nodes=5 states=1
+2026-10-06 19:27:55 [info     ] consumer_stopped               consumer=pack-cases group=graph-projection
+{"name": "pack_latest_lookup_exceeds_limit_out_of_occurrence_order", "scenarios": ["PROJ-03"], "verdict": "passed", "observation": {"limit": 2, "candidate_count": 3, "expected_latest": "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00", "edges": [["Incident:INC-boundary", "OCCURRED_ON", "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00"]]}, "seconds": 4.68}
+2026-10-06 19:27:56 [info     ] event_ingested                 event_id=645ecbdd-1012-4b05-b182-2411964d0ac9 event_type=pdlc.change.merged global_position=2026-10-06T13:57:56.190831000Z/000000/645ecbdd-1012-4b05-b182-2411964d0ac9 request_id=8dad35e3-95bb-4c7f-85ef-a7805258e0ef status=created
+2026-10-06 19:27:56 [info     ] consumer_started               consumer=pack-cases group=graph-projection stream=Events
+2026-10-06 19:27:56 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:27:56 [debug    ] previous_event_from_ledger     event_id=645ecbdd-1012-4b05-b182-2411964d0ac9 previous_event_id=4a90966d-0972-4f85-884f-0658fc9cc1a4 session_id=pack-cases
+2026-10-06 19:27:56 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:57:56.190831000Z/000000/645ecbdd-1012-4b05-b182-2411964d0ac9 event_id=645ecbdd-1012-4b05-b182-2411964d0ac9 session_id=pack-cases
+2026-10-06 19:27:57 [debug    ] pack_plans_applied             edges=1 events=1 nodes=5 states=1
+2026-10-06 19:27:58 [info     ] consumer_stopped               consumer=pack-cases group=graph-projection
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 171, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 74, in prefixes
+    assert receipt["actual"] == receipt["expected"], "matching Component outside capped candidates silently omitted"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: matching Component outside capped candidates silently omitted
+
+{"name": "pack_component_prefix_match_beyond_lookup_limit", "scenarios": ["PROJ-03"], "verdict": "failed", "error_type": "AssertionError", "error": "matching Component outside capped candidates silently omitted", "seconds": 2.17}
+2026-10-06 19:27:58 [info     ] event_ingested                 event_id=54679e5d-06f2-44ef-8eea-027223514649 event_type=pdlc.change.created global_position=2026-10-06T13:57:58.283455000Z/000000/54679e5d-06f2-44ef-8eea-027223514649 request_id=f163b9b1-de1c-4eae-94a2-3d3f5b4b6e58 status=created
+2026-10-06 19:27:58 [info     ] consumer_started               consumer=pack-cases group=graph-projection stream=Events
+2026-10-06 19:27:58 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:27:59 [debug    ] previous_event_from_ledger     event_id=54679e5d-06f2-44ef-8eea-027223514649 previous_event_id=645ecbdd-1012-4b05-b182-2411964d0ac9 session_id=pack-cases
+2026-10-06 19:27:59 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:57:58.283455000Z/000000/54679e5d-06f2-44ef-8eea-027223514649 event_id=54679e5d-06f2-44ef-8eea-027223514649 session_id=pack-cases
+2026-10-06 19:27:59 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-06 19:28:00 [info     ] consumer_stopped               consumer=pack-cases group=graph-projection
+2026-10-06 19:28:00 [info     ] event_ingested                 event_id=eaeb0a33-c842-4509-8155-c4d372583637 event_type=pdlc.change.reviewed global_position=2026-10-06T13:58:00.480207000Z/000000/eaeb0a33-c842-4509-8155-c4d372583637 request_id=5c458f13-4dcc-4223-9ec6-f40341ad4600 status=created
+2026-10-06 19:28:00 [info     ] consumer_started               consumer=pack-cases group=graph-projection stream=Events
+2026-10-06 19:28:01 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:28:01 [debug    ] previous_event_from_ledger     event_id=eaeb0a33-c842-4509-8155-c4d372583637 previous_event_id=54679e5d-06f2-44ef-8eea-027223514649 session_id=pack-cases
+2026-10-06 19:28:01 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:58:00.480207000Z/000000/eaeb0a33-c842-4509-8155-c4d372583637 event_id=eaeb0a33-c842-4509-8155-c4d372583637 session_id=pack-cases
+2026-10-06 19:28:01 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-06 19:28:02 [info     ] consumer_stopped               consumer=pack-cases group=graph-projection
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 171, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 88, in provenance
+    assert [ref.key,"DERIVED_FROM",reviewed["event_id"]] in edges, "review state changed without direct event evidence"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: review state changed without direct event evidence
+
+{"name": "review_lifecycle_transition_has_direct_provenance", "scenarios": ["PROJ-04"], "verdict": "failed", "error_type": "AssertionError", "error": "review state changed without direct event evidence", "seconds": 4.5}
+2026-10-06 19:28:02 [info     ] event_ingested                 event_id=cfab47db-321f-4d1d-b732-c0f734f18fc4 event_type=observation.input global_position=2026-10-06T13:58:02.778927000Z/000000/cfab47db-321f-4d1d-b732-c0f734f18fc4 request_id=24bcdc45-6f14-4194-99b6-86dfc83e3a8f status=created
+2026-10-06 19:28:02 [info     ] consumer_started               consumer=pack-cases-extraction group=pack-extraction stream=Events
+2026-10-06 19:28:03 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 19:28:04 [debug    ] pack_plans_applied             edges=0 events=1 nodes=1 states=0
+2026-10-06 19:28:04 [info     ] pack_extraction_applied        edges_written=0 event_id=cfab47db-321f-4d1d-b732-c0f734f18fc4 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-06 19:28:05 [info     ] consumer_stopped               consumer=pack-cases-extraction group=pack-extraction
+2026-10-06 19:28:05 [info     ] consumer_started               consumer=pack-cases group=graph-projection stream=Events
+2026-10-06 19:28:05 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:28:05 [debug    ] previous_event_from_ledger     event_id=cfab47db-321f-4d1d-b732-c0f734f18fc4 previous_event_id=eaeb0a33-c842-4509-8155-c4d372583637 session_id=pack-cases
+2026-10-06 19:28:05 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T13:58:02.778927000Z/000000/cfab47db-321f-4d1d-b732-c0f734f18fc4 event_id=cfab47db-321f-4d1d-b732-c0f734f18fc4 session_id=pack-cases
+2026-10-06 19:28:06 [info     ] consumer_stopped               consumer=pack-cases group=graph-projection
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 171, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 111, in extraction_first
+    assert evidence in after["edges"], "pack extraction acknowledged before Event creation; evidence never repaired"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: pack extraction acknowledged before Event creation; evidence never repaired
+
+{"name": "pack_extraction_first_preserves_source_evidence_after_projection", "scenarios": ["PEXT-02", "EXT-03"], "verdict": "failed", "error_type": "AssertionError", "error": "pack extraction acknowledged before Event creation; evidence never repaired", "seconds": 3.93}
+2026-10-06 19:28:06 [info     ] app_stopped

@@ -1,0 +1,23 @@
+# Tenant control primitive review
+
+2026-10-07. Read-only inspection of tenant_control.py, its tests and current application table names. No tests/cloud executed.
+
+**Verdict: approve the bounded ownership/fence primitive; no concrete blocker identified for subsequent guarded store integration.** This does not approve enabling tenant service.
+
+The reserved `TenantControl/active` record sits outside generic graph maintenance. Bootstrap checks the concrete database handle, inserts rather than upserts ownership, and reads application/subscription tables within the same read-write transaction before admitting an empty database. Populated data requires the explicit adoption option. Existing ownership must match all five identity fields and remain active; bootstrap cannot overwrite another owner/epoch or reactivate draining/frozen records. Concurrent initializers rely on Spanner's transactional read/insert conflict handling rather than a separate preflight decision.
+
+`run` wraps both the control read and mutation callback inside `run_in_transaction`, so SDK retries revalidate the fence. Missing or mismatched ownership rejects before the callback. Active permits admission/processing/read checks; draining permits processing only; frozen and unknown states fail closed. Database handle verification occurs before starting guarded mutation transactions. The immutable fence includes full database resource, binding identity, epoch and bundle digest.
+
+Inspected `20261007-local-tenant-control-01/pytest.txt`: **33 passed**, 0.48 seconds. Tests cover identity mismatches, zero rejected callback effects, retry revalidation, wrong database handle, empty bootstrap/idempotence, adoption checks for every current application table and frozen-owner refusal.
+
+Integration conditions remain explicit: the DDL does not grant table-level IAM isolation or prohibit arbitrary operator writes; protection currently means separation from generic graph APIs plus the reserved active key. `check(snapshot, operation='read')` alone cannot verify which database supplied that snapshot, so the integrating read path must first verify the handle and use the check in its actual snapshot/read-epoch contract. Callback effects must stay transaction-local because retries can execute callbacks more than once. Store mutations, append/dedup envelopes, subscription checkpoints/acks, privacy/maintenance and error handling must all wire the fence before production tenant mode is enabled; TenantFenceError must never be acknowledged or dead-lettered as an event failure. No activation state-transition API, protected-schema handshake, transactional rollback cloud proof or durable end-to-end isolation is claimed here.
+
+## Optional adapter mutation plumbing review
+
+2026-10-07. Read-only inspection of optional tenant-fence constructors and mutation paths in Spanner graph, event log and subscription adapters. **Approve this bounded plumbing to continue integration; no remaining mutation bypass identified in these three inspected adapters.** No tests/cloud executed.
+
+Graph and subscription transaction helpers route their callbacks through the fence's retrying processing transaction when configured. Event-log direct mutation transactions now share `_transact_sync`; append uses admission checks, while document updates, retention and other mutations use processing checks. Constructor database-handle validation rejects cross-target injection. Without a fence, the original transaction path remains intact. The partitioned graph clear path explicitly refuses fenced operation because it cannot include the ownership read atomically. The Spanner error translator leaves TenantFenceError unchanged.
+
+Inspected registered `20261007-local-tenant-control-03/pytest.txt`: **116 passed, 10 skipped**, 2.22 seconds. Rejection tests include append, graph upsert/clear, group setup, delivery reads/claims/acks/dead-letter, document updates and retention; the earlier -02 clear-bypass failure remains historical evidence. Primitive retry coverage verifies rechecking before callback replay, while these adapter tests verify the wiring and zero effects on refusal.
+
+This does not establish complete tenant safety: registry enablement, read snapshots/epochs, authoritative event envelopes, activation/drain semantics, and worker control-error handling remain pending. In particular, classifying existing non-append mutations as processing is not by itself authorization to admit new privacy/admin work while draining; the future serving/activation boundary must enforce that policy. The public tenant factory must remain disabled until the full required paths are wired and verified.

@@ -1,0 +1,20 @@
+{
+  "kind": "local_expansion_harness_preflight",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    36,
+    39,
+    41
+  ],
+  "source_sha256": {
+    "scripts/engram_spanner_expansion_cases.py": "a8d52774ed7de0a1845fb1f7797fb3336e2dc4f082144068af0cd3a258997b55",
+    "scripts/engram_spanner_tenant_control.py": "f08475d22245355ff5cc793a8c4d1a08dbb019f9ec3bf26e1c2c8f2851c83074",
+    "tests/unit/test_tenant_control_harness_preflight.py": "c20a9451f883a6d7897d1fb1207fc800b7aa58f696bcfdd4a6f1627825d15f90",
+    "tests/fixtures/pack_contracts/expansion.pack.yaml": "03336acc51df96b9ca6ff9b6c79f6d77285633a7ddc48fb9b4c039eba1ecaf27",
+    "tests/fixtures/pack_contracts/expansion_observer.pack.yaml": "bf480e936d5d898f95d80ffd33085ba1bd18005f60adfb77a0b155a372e889ec",
+    "src/context_graph/domain/pack_projection.py": "cb565e6771db2493ed442614bd54a81f923e56bf8a09582b4567bf80c6740c4e"
+  },
+  "scope": "Manifest registration, cancellation checkpoint, all five fixture contracts/planner intents and scoped projector regression; no cloud/service calls.",
+  "run_id": "20261007-local-expansion-harness-02"
+}

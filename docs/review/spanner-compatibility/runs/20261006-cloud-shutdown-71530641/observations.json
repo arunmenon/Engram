@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "name": "API_lifecycle_releases_owned_Spanner_session_manager",
+      "scenarios": [
+        "BOOT-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "Spanner database/session manager is not released by API shutdown",
+      "seconds": 1.74
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

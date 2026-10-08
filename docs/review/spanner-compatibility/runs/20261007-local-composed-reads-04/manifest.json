@@ -1,0 +1,26 @@
+{
+  "kind": "local_composed_read_boundary",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    42,
+    7,
+    25,
+    39,
+    41,
+    44
+  ],
+  "source_sha256": {
+    "src/context_graph/adapters/composed_reads.py": "4dd90c04befe10b9a024f0cfe6920bac8406340c533b4a15a16873db4fc91aa6",
+    "src/context_graph/adapters/graph_ops.py": "08ccf8337132c2944bdf9a77b9db8f9efcba8d50928b96914a4ec3b63c01ed19",
+    "src/context_graph/adapters/registry.py": "eb25132108940881494469903ef8a34e94d9f21e86ff32f8e2139b4af4433773",
+    "src/context_graph/retrieval/engine.py": "b2aa359167e87d641feb299f03e951859e6497fbf86b681326115f9ebf931460",
+    "src/context_graph/retrieval/artifacts.py": "15c2ef89a7188be74f682852f18493fff6ecb344514a1cd71bcddf2eb028bfc1",
+    "src/context_graph/api/app.py": "f59b3c58f3a02a55c6bed648a8e60cb76b44dcbaa5e769f326a619a11bc328b4",
+    "tests/unit/test_composed_reads.py": "455a917b4295162ec69926e33b1b4ae88b24b1600df0a5edd07304cbdc74138f",
+    "src/context_graph/domain/pack_intents.py": "bd452d54c12ffcb1091edd5f19acdc9a6e65eecf106688f60999bd14f5848ee9",
+    "src/context_graph/api/routes/query.py": "88a58a61be23535dfa2edd4a29e180b2aeb830b0bf7fa4741f94f627a9ac0980"
+  },
+  "scope": "Memory/Spanner complete primitive scope before counting/limits, event/entity semantic endpoints, artifact defensive filtering, explicit seed handling. No Neo4j runner, native Spanner ANN fix or real cloud acceptance.",
+  "run_id": "20261007-local-composed-reads-04"
+}

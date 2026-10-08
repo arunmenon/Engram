@@ -1,0 +1,33 @@
+............................F..............................              [100%]
+=================================== FAILURES ===================================
+___________________ TestAdminKeyAuth.test_accepts_admin_key ____________________
+
+self = <tests.unit.test_api_auth.TestAdminKeyAuth object at 0x1048c4c80>
+auth_test_client = <starlette.testclient.TestClient object at 0x104894350>
+
+    def test_accepts_admin_key(self, auth_test_client: TestClient) -> None:
+        resp = auth_test_client.get(
+            "/v1/users/u1/profile",
+            headers={"Authorization": "Bearer test-admin-key"},
+        )
+        # 404 = user not found (StubGraphStore.get_user_profile returns None)
+        # The point is it got PAST the auth guard
+>       assert resp.status_code == 404
+E       assert 503 == 404
+E        +  where 503 = <Response [503 Service Unavailable]>.status_code
+
+tests/unit/test_api_auth.py:111: AssertionError
+=============================== warnings summary ===============================
+tests/unit/test_api_users.py::test_disabled_user_pack_hides_historical_ordinary_reads[profile]
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_api_users.py: 15 warnings
+tests/unit/test_api_auth.py: 3 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_api_auth.py::TestAdminKeyAuth::test_accepts_admin_key
+1 failed, 58 passed, 19 warnings in 2.05s

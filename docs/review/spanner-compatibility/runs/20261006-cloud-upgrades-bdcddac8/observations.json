@@ -1,0 +1,438 @@
+{
+  "checks": [
+    {
+      "name": "custom_pack_initial_import_projection",
+      "scenarios": [
+        "ONT-02",
+        "PROJ-02",
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "initial_kind": "initial",
+        "historical_API_import": true,
+        "ticket": {
+          "node_id": "Ticket:jira|1",
+          "node_type": "Ticket",
+          "number": 1,
+          "ontology_version": "sha256:be9b498c176ad482",
+          "status": "open",
+          "status_changed_at": "2026-06-28T13:47:22.203220+00:00",
+          "title": "old title",
+          "tracker": "jira",
+          "updated_at": "2026-06-28T13:47:22.203220+00:00"
+        }
+      },
+      "seconds": 3.56
+    },
+    {
+      "name": "additive_upgrade_and_version_breaking_refusals",
+      "scenarios": [
+        "ONT-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "additive": {
+          "kind": "additive",
+          "reasons": [
+            "node type Fix: property author added",
+            "node type Fix: definition changed"
+          ],
+          "replay_event_types": [],
+          "eval_required": [],
+          "version_problems": [],
+          "pack_changes": {
+            "demo": "additive"
+          }
+        },
+        "refusals": [
+          "ontology change refused (pack versions: demo: content changed but version 1.0.0 is not higher than 1.1.0). bump the pack versions, or set CG_ONTOLOGY_ALLOW_VERSION_PROBLEMS=true",
+          "ontology change refused (pack versions: demo: a breaking change needs a major version, but 1.1.0 -> 1.2.0 is a minor one). bump the pack versions, or set CG_ONTOLOGY_ALLOW_VERSION_PROBLEMS=true"
+        ]
+      },
+      "seconds": 0.8
+    },
+    {
+      "name": "mapping_replay_failure_retries_after_fault_removed",
+      "scenarios": [
+        "ONT-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "failed mapping replay recorded complete; retry does not repair",
+      "seconds": 1.19
+    },
+    {
+      "name": "rebuild_refuses_populated_incompatible_target",
+      "scenarios": [
+        "ONT-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "exit_code": 2,
+        "before": {
+          "nodes": {
+            "Change": 2,
+            "Component": 1,
+            "Deployment": 1,
+            "Event": 9,
+            "OntologyState": 1,
+            "Release": 1,
+            "Review": 1,
+            "TestCase": 1,
+            "TestRun": 1,
+            "WorkItem": 2
+          },
+          "edges": [
+            [
+              "Change:acme/payments|7",
+              "DERIVED_FROM",
+              "626140ea-7de7-5ee9-8e91-6e925ba934c6"
+            ],
+            [
+              "Change:acme/payments|7",
+              "DERIVED_FROM",
+              "7e1b7cc4-9d84-52f6-82fb-857770db49ab"
+            ],
+            [
+              "Change:acme/payments|7",
+              "IMPLEMENTS",
+              "WorkItem:jira|PAY-341"
+            ],
+            [
+              "Component:acme/payments",
+              "DERIVED_FROM",
+              "04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67"
+            ],
+            [
+              "Deployment:production|def456|2026-10-02T09:00:00+00:00",
+              "DEPLOYED_TO",
+              "Component:acme/payments"
+            ],
+            [
+              "Deployment:production|def456|2026-10-02T09:00:00+00:00",
+              "DEPLOYS",
+              "Change:acme/payments|7"
+            ],
+            [
+              "Deployment:production|def456|2026-10-02T09:00:00+00:00",
+              "DERIVED_FROM",
+              "04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67"
+            ],
+            [
+              "04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67",
+              "FOLLOWS",
+              "cbb029ae-5d84-5d23-8b7a-486dcb9a294b"
+            ],
+            [
+              "11737721-efde-577a-a759-0cffa38d45d3",
+              "FOLLOWS",
+              "626140ea-7de7-5ee9-8e91-6e925ba934c6"
+            ],
+            [
+              "65b7646c-016c-5708-9223-566d9ee6ea66",
+              "FOLLOWS",
+              "11737721-efde-577a-a759-0cffa38d45d3"
+            ],
+            [
+              "7e1b7cc4-9d84-52f6-82fb-857770db49ab",
+              "FOLLOWS",
+              "65b7646c-016c-5708-9223-566d9ee6ea66"
+            ],
+            [
+              "92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c",
+              "FOLLOWS",
+              "450a7a46-2f84-5cfc-b0db-a0c939e8ea7c"
+            ],
+            [
+              "cbb029ae-5d84-5d23-8b7a-486dcb9a294b",
+              "FOLLOWS",
+              "7e1b7cc4-9d84-52f6-82fb-857770db49ab"
+            ],
+            [
+              "Release:acme/payments|v1.4.0",
+              "DERIVED_FROM",
+              "cbb029ae-5d84-5d23-8b7a-486dcb9a294b"
+            ],
+            [
+              "Release:acme/payments|v1.4.0",
+              "INCLUDES",
+              "Change:acme/payments|7"
+            ],
+            [
+              "Release:acme/payments|v1.4.0",
+              "INCLUDES",
+              "Change:acme/payments|8"
+            ],
+            [
+              "Review:acme/payments|7|9001",
+              "DERIVED_FROM",
+              "65b7646c-016c-5708-9223-566d9ee6ea66"
+            ],
+            [
+              "Review:acme/payments|7|9001",
+              "REVIEWS",
+              "Change:acme/payments|7"
+            ],
+            [
+              "TestCase:acme/payments|unit-tests",
+              "DERIVED_FROM",
+              "11737721-efde-577a-a759-0cffa38d45d3"
+            ],
+            [
+              "TestRun:555",
+              "DERIVED_FROM",
+              "11737721-efde-577a-a759-0cffa38d45d3"
+            ],
+            [
+              "TestRun:555",
+              "EXECUTES",
+              "TestCase:acme/payments|unit-tests"
+            ],
+            [
+              "TestRun:555",
+              "RAN_AGAINST",
+              "Change:acme/payments|7"
+            ],
+            [
+              "WorkItem:jira|PAY-300",
+              "DECOMPOSES_INTO",
+              "WorkItem:jira|PAY-341"
+            ],
+            [
+              "WorkItem:jira|PAY-341",
+              "DERIVED_FROM",
+              "450a7a46-2f84-5cfc-b0db-a0c939e8ea7c"
+            ],
+            [
+              "WorkItem:jira|PAY-341",
+              "DERIVED_FROM",
+              "92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c"
+            ]
+          ]
+        },
+        "after": {
+          "nodes": {
+            "Change": 2,
+            "Component": 1,
+            "Deployment": 1,
+            "Event": 9,
+            "OntologyState": 1,
+            "Release": 1,
+            "Review": 1,
+            "TestCase": 1,
+            "TestRun": 1,
+            "WorkItem": 2
+          },
+          "edges": [
+            [
+              "Change:acme/payments|7",
+              "DERIVED_FROM",
+              "626140ea-7de7-5ee9-8e91-6e925ba934c6"
+            ],
+            [
+              "Change:acme/payments|7",
+              "DERIVED_FROM",
+              "7e1b7cc4-9d84-52f6-82fb-857770db49ab"
+            ],
+            [
+              "Change:acme/payments|7",
+              "IMPLEMENTS",
+              "WorkItem:jira|PAY-341"
+            ],
+            [
+              "Component:acme/payments",
+              "DERIVED_FROM",
+              "04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67"
+            ],
+            [
+              "Deployment:production|def456|2026-10-02T09:00:00+00:00",
+              "DEPLOYED_TO",
+              "Component:acme/payments"
+            ],
+            [
+              "Deployment:production|def456|2026-10-02T09:00:00+00:00",
+              "DEPLOYS",
+              "Change:acme/payments|7"
+            ],
+            [
+              "Deployment:production|def456|2026-10-02T09:00:00+00:00",
+              "DERIVED_FROM",
+              "04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67"
+            ],
+            [
+              "04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67",
+              "FOLLOWS",
+              "cbb029ae-5d84-5d23-8b7a-486dcb9a294b"
+            ],
+            [
+              "11737721-efde-577a-a759-0cffa38d45d3",
+              "FOLLOWS",
+              "626140ea-7de7-5ee9-8e91-6e925ba934c6"
+            ],
+            [
+              "65b7646c-016c-5708-9223-566d9ee6ea66",
+              "FOLLOWS",
+              "11737721-efde-577a-a759-0cffa38d45d3"
+            ],
+            [
+              "7e1b7cc4-9d84-52f6-82fb-857770db49ab",
+              "FOLLOWS",
+              "65b7646c-016c-5708-9223-566d9ee6ea66"
+            ],
+            [
+              "92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c",
+              "FOLLOWS",
+              "450a7a46-2f84-5cfc-b0db-a0c939e8ea7c"
+            ],
+            [
+              "cbb029ae-5d84-5d23-8b7a-486dcb9a294b",
+              "FOLLOWS",
+              "7e1b7cc4-9d84-52f6-82fb-857770db49ab"
+            ],
+            [
+              "Release:acme/payments|v1.4.0",
+              "DERIVED_FROM",
+              "cbb029ae-5d84-5d23-8b7a-486dcb9a294b"
+            ],
+            [
+              "Release:acme/payments|v1.4.0",
+              "INCLUDES",
+              "Change:acme/payments|7"
+            ],
+            [
+              "Release:acme/payments|v1.4.0",
+              "INCLUDES",
+              "Change:acme/payments|8"
+            ],
+            [
+              "Review:acme/payments|7|9001",
+              "DERIVED_FROM",
+              "65b7646c-016c-5708-9223-566d9ee6ea66"
+            ],
+            [
+              "Review:acme/payments|7|9001",
+              "REVIEWS",
+              "Change:acme/payments|7"
+            ],
+            [
+              "TestCase:acme/payments|unit-tests",
+              "DERIVED_FROM",
+              "11737721-efde-577a-a759-0cffa38d45d3"
+            ],
+            [
+              "TestRun:555",
+              "DERIVED_FROM",
+              "11737721-efde-577a-a759-0cffa38d45d3"
+            ],
+            [
+              "TestRun:555",
+              "EXECUTES",
+              "TestCase:acme/payments|unit-tests"
+            ],
+            [
+              "TestRun:555",
+              "RAN_AGAINST",
+              "Change:acme/payments|7"
+            ],
+            [
+              "WorkItem:jira|PAY-300",
+              "DECOMPOSES_INTO",
+              "WorkItem:jira|PAY-341"
+            ],
+            [
+              "WorkItem:jira|PAY-341",
+              "DERIVED_FROM",
+              "450a7a46-2f84-5cfc-b0db-a0c939e8ea7c"
+            ],
+            [
+              "WorkItem:jira|PAY-341",
+              "DERIVED_FROM",
+              "92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c"
+            ]
+          ]
+        }
+      },
+      "seconds": 7.06
+    },
+    {
+      "name": "real_target_rebuild_missing_document_fails_closed",
+      "scenarios": [
+        "ONT-03",
+        "LIFE-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "",
+      "seconds": 9.28
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "GraphEdges",
+      "rows": 25
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "GraphNodes",
+      "rows": 20
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "Events",
+      "rows": 0
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

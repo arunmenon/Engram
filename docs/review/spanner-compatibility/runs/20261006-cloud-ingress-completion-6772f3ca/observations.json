@@ -1,0 +1,280 @@
+{
+  "checks": [
+    {
+      "name": "configured_batch_empty_max_over_max_mixed_indices_and_conflicts",
+      "scenarios": [
+        "ING-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "{'configured_max_events': 3, 'empty_status': 422, 'over_max_status': 422, 'max_status': 201, 'max': {'accepted': 3, 'rejected': 0, 'results': [{'event_id': '55107236-a09a-4191-a4ca-6fc420ef62c1', 'global_position': '2026-10-06T16:23:43.160623000Z/000000/55107236-a09a-4191-a4ca-6fc420ef62c1', 'status': 'created'}, {'event_id': '55107236-a09a-4191-a4ca-6fc420ef62c1', 'global_position': '2026-10-06T16:23:43.160623000Z/000000/55107236-a09a-4191-a4ca-6fc420ef62c1', 'status': 'duplicate'}, {'event_id': '26bcc1f6-de39-4ccb-bdd8-8589f1e88bc1', 'global_position': '2026-10-06T16:23:43.160623000Z/000001/26bcc1f6-de39-4ccb-bdd8-8589f1e88bc1', 'status': 'created'}], 'errors': []}, 'mixed': {'accepted': 2, 'rejected': 1, 'results': [{'event_id': '4d595a0f-6532-454c-9c75-85f185018460', 'global_position': '2026-10-06T16:23:43.348367000Z/000000/4d595a0f-6532-454c-9c75-85f185018460', 'status': 'created'}, {'event_id': '1869ccb5-b71b-441a-ad92-8898f026cd6a', 'global_position': '2026-10-06T16:23:43.348367000Z/000001/1869ccb5-b71b-441a-ad92-8898f026cd6a', 'status': 'created'}], 'errors': [{'index': 1, 'event_id': '584c8c25-dc08-4a9c-a8b0-db79fd58c783', 'errors': [{'field': 'agent_id', 'message': 'Field",
+      "seconds": 0.56
+    },
+    {
+      "name": "batch_rejects_missing_pack_key_before_append",
+      "scenarios": [
+        "ING-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "batch accepts pack payload without required repo (#4)",
+      "seconds": 0.16
+    },
+    {
+      "name": "historical_import_malformed_line_exact_limit_and_occurrence_ties",
+      "scenarios": [
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "configured_max": 6,
+        "response_status": 200,
+        "outcomes": [
+          {
+            "index": 1,
+            "event_id": null,
+            "errors": [
+              {
+                "field": "",
+                "message": "line is not valid JSON: invalid literal, expected 'null': line 1 column 1 (char 0)"
+              }
+            ],
+            "status": "rejected"
+          },
+          {
+            "index": 2,
+            "event_id": "7efd8740-2236-474c-808f-a7fffe1f6d32",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:43.830047000Z/000000/7efd8740-2236-474c-808f-a7fffe1f6d32"
+          },
+          {
+            "index": 3,
+            "event_id": "619b164d-a668-48e3-872f-c55614702bb8",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:43.830047000Z/000001/619b164d-a668-48e3-872f-c55614702bb8"
+          },
+          {
+            "index": 4,
+            "event_id": "d216692b-11ee-4d21-bfe4-d3aa9ffd6582",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:43.938607000Z/000000/d216692b-11ee-4d21-bfe4-d3aa9ffd6582"
+          },
+          {
+            "index": 0,
+            "event_id": "0612ce38-9aa4-4366-a792-dd494c47bf95",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:43.938607000Z/000001/0612ce38-9aa4-4366-a792-dd494c47bf95"
+          },
+          {
+            "index": 5,
+            "event_id": "0612ce38-9aa4-4366-a792-dd494c47bf95",
+            "status": "duplicate",
+            "global_position": "2026-10-06T16:23:43.938607000Z/000001/0612ce38-9aa4-4366-a792-dd494c47bf95"
+          },
+          {
+            "summary": {
+              "received": 6,
+              "order": "occurred_at",
+              "created": 4,
+              "duplicate": 1,
+              "rejected": 1,
+              "failed": 0
+            }
+          }
+        ],
+        "empty_status": 422,
+        "over_max_status": 413,
+        "over_limit_wrote_rows": 0
+      },
+      "seconds": 0.71
+    },
+    {
+      "name": "streamed_import_committed_prefix_failure_stops_and_safe_retry",
+      "scenarios": [
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "first_status": 200,
+        "first": [
+          {
+            "index": 0,
+            "event_id": "bbfd6f8d-0bd7-4b47-9b1f-e7192f1df582",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:44.467663000Z/000000/bbfd6f8d-0bd7-4b47-9b1f-e7192f1df582"
+          },
+          {
+            "index": 1,
+            "event_id": "51c65d1f-9820-4005-a80d-6e9038fd5d17",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:44.467663000Z/000001/51c65d1f-9820-4005-a80d-6e9038fd5d17"
+          },
+          {
+            "index": 2,
+            "event_id": "eaafd6e8-1590-418f-8050-90a09b5afc5d",
+            "status": "failed",
+            "error": "the store failed: synthetic second import store-call failure"
+          },
+          {
+            "index": 3,
+            "event_id": "39c74255-37c7-4a3c-acf3-3fb478f8249b",
+            "status": "failed",
+            "error": "the store failed: synthetic second import store-call failure"
+          },
+          {
+            "index": 4,
+            "event_id": "9a5f876f-8846-4036-b92b-2003c6e3393e",
+            "status": "failed",
+            "error": "the store failed: synthetic second import store-call failure"
+          },
+          {
+            "summary": {
+              "received": 5,
+              "order": "input",
+              "created": 2,
+              "duplicate": 0,
+              "rejected": 0,
+              "failed": 3
+            }
+          }
+        ],
+        "retry_status": 200,
+        "retry": [
+          {
+            "index": 0,
+            "event_id": "bbfd6f8d-0bd7-4b47-9b1f-e7192f1df582",
+            "status": "duplicate",
+            "global_position": "2026-10-06T16:23:44.467663000Z/000000/bbfd6f8d-0bd7-4b47-9b1f-e7192f1df582"
+          },
+          {
+            "index": 1,
+            "event_id": "51c65d1f-9820-4005-a80d-6e9038fd5d17",
+            "status": "duplicate",
+            "global_position": "2026-10-06T16:23:44.467663000Z/000001/51c65d1f-9820-4005-a80d-6e9038fd5d17"
+          },
+          {
+            "index": 2,
+            "event_id": "eaafd6e8-1590-418f-8050-90a09b5afc5d",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:44.683903000Z/000000/eaafd6e8-1590-418f-8050-90a09b5afc5d"
+          },
+          {
+            "index": 3,
+            "event_id": "39c74255-37c7-4a3c-acf3-3fb478f8249b",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:44.683903000Z/000001/39c74255-37c7-4a3c-acf3-3fb478f8249b"
+          },
+          {
+            "index": 4,
+            "event_id": "9a5f876f-8846-4036-b92b-2003c6e3393e",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:44.879791000Z/000000/9a5f876f-8846-4036-b92b-2003c6e3393e"
+          },
+          {
+            "summary": {
+              "received": 5,
+              "order": "input",
+              "created": 3,
+              "duplicate": 2,
+              "rejected": 0,
+              "failed": 0
+            }
+          }
+        ],
+        "store_calls_before_stop": 2,
+        "fault": "synthetic second store call; first real Spanner commit retained"
+      },
+      "seconds": 0.6
+    },
+    {
+      "name": "explicit_input_import_preserves_input_not_occurrence_order",
+      "scenarios": [
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "status": 200,
+        "lines": [
+          {
+            "index": 0,
+            "event_id": "eb54355c-e2d6-4844-aea3-110204374782",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:45.052847000Z/000000/eb54355c-e2d6-4844-aea3-110204374782"
+          },
+          {
+            "index": 1,
+            "event_id": "09afc00e-462c-44fa-ab30-0ca6f1ba891d",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:45.052847000Z/000001/09afc00e-462c-44fa-ab30-0ca6f1ba891d"
+          },
+          {
+            "index": 2,
+            "event_id": "6e2968c7-2352-4fac-8163-a5ece933ffdc",
+            "status": "created",
+            "global_position": "2026-10-06T16:23:45.173791000Z/000000/6e2968c7-2352-4fac-8163-a5ece933ffdc"
+          },
+          {
+            "summary": {
+              "received": 3,
+              "order": "input",
+              "created": 3,
+              "duplicate": 0,
+              "rejected": 0,
+              "failed": 0
+            }
+          }
+        ]
+      },
+      "seconds": 0.26
+    },
+    {
+      "name": "encoded_and_decoded_payload_size_limits_prevent_append",
+      "scenarios": [
+        "OPS-02",
+        "ING-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "plain": 413,
+        "compressed": 413,
+        "decoded_bytes": 3279,
+        "compressed_bytes": 211,
+        "ledger_delta": 0
+      },
+      "seconds": 0.17
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 6
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 8
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 5
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -1,0 +1,44 @@
+I1007 19:20:37.456542 51289138 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(19, generation: 1)
+I1007 19:20:37.456736 51289138 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(18, generation: 1)
+I1007 19:20:37.456746 51289138 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+I1007 19:20:37.456751 51289138 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 19:20:40 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-07 19:20:40 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-07 19:20:40 [info     ] llm_client_initialized
+2026-10-07 19:20:42 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.1.0', 'pdlc@1.8.0'] ontology_version=sha256:235703933f7b62c7 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-07 19:20:42 [info     ] event_ingested                 event_id=eb7bf77a-5ee8-4dfc-ba13-24d7b177a4fe event_type=tool.execute global_position=2026-10-07T13:50:42.660367000Z/000000/eb7bf77a-5ee8-4dfc-ba13-24d7b177a4fe request_id=633239b5-0803-4dc9-b86b-353ad652be52 status=created
+2026-10-07 19:20:42 [info     ] event_ingested                 event_id=588f5699-6c12-4bd1-8628-cb4a3cf4deb2 event_type=tool.execute global_position=2026-10-07T13:50:42.756511000Z/000000/588f5699-6c12-4bd1-8628-cb4a3cf4deb2 request_id=248b4dc2-6c0c-4f6c-b3e9-f0981cdd24ef status=created
+2026-10-07 19:20:42 [info     ] event_ingested                 event_id=1778cd6a-3343-43ca-970c-dc186cca6a2c event_type=system.session_end global_position=2026-10-07T13:50:42.849535000Z/000000/1778cd6a-3343-43ca-970c-dc186cca6a2c request_id=4b5e14b1-9358-4f67-8829-e7499304fe30 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-07 19:21:33 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=5601cafa-34bb-4c48-a5fa-fcdf2ca19e89
+I1007 19:21:36.293444 51292160 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1007 19:21:36.293576 51292160 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 9857.47it/s]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-07 19:21:40 [warning  ] auth_failed                    guard=admin_key path=/v1/admin/replay request_id=aa5ab4c4-3be9-44fb-8124-e5d561d62bb0
+2026-10-07 19:21:44 [info     ] reconsolidation_complete       events_processed=3 request_id=72c96065-734d-422b-b0a6-56669d2b97b5 sessions_processed=1 summaries_created=1
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-07 19:21:47 [info     ] app_stopped
+/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

@@ -1,0 +1,48 @@
+{
+  "expected": {
+    "statement": "human-authored-policy-marker decision",
+    "rationale": "Reviewed by a human",
+    "status": "accepted",
+    "confidence": 1.0,
+    "source_trust": "trusted"
+  },
+  "actual": {
+    "confidence": 1.0,
+    "content_hash": "99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7",
+    "node_id": "Decision:99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7",
+    "node_type": "Decision",
+    "rationale": "Reviewed by a human",
+    "source_trust": "trusted",
+    "statement": "human-authored-policy-marker decision",
+    "status": "accepted"
+  },
+  "event_id": "683cb336-1c54-491f-b441-1b62eee1c70e",
+  "graph": {
+    "nodes": {
+      "Decision": 2,
+      "Event": 3
+    },
+    "edges": [
+      [
+        "Decision:99ab336e455762d6cea6d57f2f9c3c51c51462f0443163103c9f24f8e4563de7",
+        "DERIVED_FROM",
+        "683cb336-1c54-491f-b441-1b62eee1c70e"
+      ],
+      [
+        "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+        "DERIVED_FROM",
+        "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"
+      ],
+      [
+        "4b3a143d-6e56-44d9-9cc6-0857a483ab2a",
+        "FOLLOWS",
+        "cf241f26-3c3d-4077-9a11-230132e6a823"
+      ],
+      [
+        "683cb336-1c54-491f-b441-1b62eee1c70e",
+        "FOLLOWS",
+        "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"
+      ]
+    ]
+  }
+}

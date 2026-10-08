@@ -1,0 +1,49 @@
+{
+  "completed_at": "2026-10-07T12:02:00.954610+00:00",
+  "scope": {
+    "parent": 34,
+    "native_subissues": 32,
+    "compatibility_umbrella": 41,
+    "total_issue_bodies": 34
+  },
+  "status": "applied_and_verified",
+  "checks": {
+    "all_34_remote_bodies_verified": true,
+    "all_original_issues_remain_open": true,
+    "compatibility_checklist_unchanged": true,
+    "no_pending_tenancy_choice_in_43": true,
+    "no_mixed_backend_acceptance_in_13": true,
+    "no_stale_blanket_no_fix_in_28": true,
+    "prototype_declaration_distinguished_in_4": true,
+    "retrieval_audit_preserved": true,
+    "all_32_native_children_preserved": true
+  },
+  "corrections": [
+    "#43 pending tenancy choice replaced with confirmed database-per-tenant routing/activation scope and title.",
+    "#13 mixed Redis/Spanner and migration acceptance removed.",
+    "#4 baseline schema absence distinguished from current optional-contract prototype.",
+    "#28 historical no-fix statement corrected for later local implementation/review.",
+    "#34/#39 PDLC classification clarified:16 deterministic,1 extraction-only,6 missing mappings.",
+    "#41 body includes #42/#43 and nine planned composition/tenant acceptance groups.",
+    "All issues carry current specific scope/proof and common mandatory-core/composition/tenant/Spanner constraints."
+  ],
+  "evidence_limits": [
+    "Historical repros and pinned publication links retained as scoped evidence, not fresh verification.",
+    "Old comments remain historical; current issue bodies are the reconciled scope.",
+    "Local reports/raw runs remain unpublished; issue bodies contain operative decisions and acceptance.",
+    "No runtime tests, cloud tests, deployments or issue closures performed by this audit."
+  ],
+  "open_policy_choices": [
+    "Default-selection migration",
+    "Disabled-pack historical visibility",
+    "Disable/re-enable catch-up",
+    "Ordering/property ownership where unresolved",
+    "Exact persisted tenant/interpretation metadata and routing control-plane representation"
+  ],
+  "evidence_files": [
+    "issue-context-audit-before.json",
+    "issue-context-audit-after.json",
+    "issue-context-audit-plan.json",
+    "issue-context-audit-receipts.json"
+  ]
+}

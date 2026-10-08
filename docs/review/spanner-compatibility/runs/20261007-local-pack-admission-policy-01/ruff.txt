@@ -1,0 +1,32 @@
+UP035 [*] Import from `collections.abc` instead: `Mapping`
+  --> src/context_graph/domain/pack_admission.py:12:1
+   |
+10 | from dataclasses import dataclass, field
+11 | from types import MappingProxyType
+12 | from typing import Any, Literal, Mapping
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |
+14 | from pydantic import BaseModel, ValidationError
+   |
+help: Import from `collections.abc`
+   |
+11 | from types import MappingProxyType
+   - from typing import Any, Literal, Mapping
+12 + from typing import Any, Literal
+13 + from collections.abc import Mapping
+14 |
+   |
+
+TC001 Move application import `context_graph.domain.pack_bundle.ActiveBundle` into a type-checking block
+  --> src/context_graph/domain/pack_admission.py:17:46
+   |
+16 | from context_graph.domain.ontology import OntologyError
+17 | from context_graph.domain.pack_bundle import ActiveBundle
+   |                                              ^^^^^^^^^^^^
+18 |
+19 | Handling = Literal["processed", "ledger_only", "unsupported"]
+   |
+help: Move into type-checking block
+
+Found 2 errors.
+[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

@@ -34,6 +34,7 @@ import structlog
 from context_graph.domain.models import Event
 from context_graph.domain.ontology import OPEN_PACKS, OntologyError, OntologyRegistry, Pack
 from context_graph.domain.pack_versioning import ChangePlan, classify_change
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.pack_graph import NodeRef, NodeWrite
 from context_graph.worker.pack_projection import apply_plan
 
@@ -171,6 +172,16 @@ async def replay_event_types(
     One event's failure is logged and reported; the replay goes on, as the
     projection worker dead-letters a failing event and goes on.
     """
+    if (
+        getattr(event_log, "requires_source_provenance", False) is True
+        and projector.requires_provenance is not True
+    ):
+        raise RuntimeFencedError("Bound ledger requires authenticated replay policy")
+    if projector.requires_provenance is True:
+        from context_graph.ports.event_log import AcceptedRecordReader
+
+        if not isinstance(event_log, AcceptedRecordReader):
+            raise RuntimeFencedError("Bound replay requires an accepted-record reader")
     report = ReplayReport(failed=[])
     cursor: str | None = None
     while True:
@@ -186,8 +197,14 @@ async def replay_event_types(
                 event = Event.model_validate(document, strict=False)
                 if event.global_position is None:
                     event = event.model_copy(update={"global_position": entry.position})
-                await apply_plan(graph, projector.plan(event, document), lookup_limit)
+                await apply_plan(
+                    graph,
+                    projector.plan(event, document, provenance=entry.provenance),
+                    lookup_limit,
+                )
                 report.replayed += 1
+            except RuntimeFencedError:
+                raise
             except Exception:
                 log.exception("ontology_replay_event_failed", position=entry.position)
                 assert report.failed is not None
@@ -280,6 +297,8 @@ class EvalPending:
             return self._packs
         try:
             state = await read_state(self._graph)
+        except RuntimeFencedError:
+            raise
         except Exception:
             if self._packs is None:
                 raise

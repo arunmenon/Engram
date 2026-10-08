@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "name": "current_registry_admission_distinguishes_loaded_closed_namespace_only",
+      "verdict": "passed",
+      "scenarios": [],
+      "observation": {
+        "base_accepts_unloaded_pdlc": true,
+        "base_accepts_unknown_namespace": true,
+        "loaded_pdlc_accepts_declared": true,
+        "loaded_pdlc_refuses_undeclared": true
+      }
+    }
+  ],
+  "scope": "This passes a descriptive current-behavior assertion; it is not acceptance of strict pack admission or a Spanner test."
+}

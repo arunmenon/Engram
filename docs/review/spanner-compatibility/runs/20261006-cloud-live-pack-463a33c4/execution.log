@@ -1,0 +1,31 @@
+2026-10-06 19:46:04 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:46:04 [info     ] llm_client_initialized
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:46:04 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:46:06 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:46:06 [info     ] event_ingested                 event_id=a498011b-3413-4f49-a01a-60d69e3c0748 event_type=observation.input global_position=2026-10-06T14:16:06.372911000Z/000000/a498011b-3413-4f49-a01a-60d69e3c0748 request_id=0c09ebad-07ce-4ae1-9329-62f89fdca886 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:46:06 [info     ] consumer_started               consumer=live-projection group=graph-projection stream=Events
+2026-10-06 19:46:07 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:46:07 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:16:06.372911000Z/000000/a498011b-3413-4f49-a01a-60d69e3c0748 event_id=a498011b-3413-4f49-a01a-60d69e3c0748 session_id=live-pack
+2026-10-06 19:46:08 [info     ] consumer_stopped               consumer=live-projection group=graph-projection
+2026-10-06 19:46:08 [info     ] consumer_started               consumer=live-pack-extraction group=pack-extraction stream=Events
+2026-10-06 19:46:09 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 19:46:15 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-06 19:46:15 [info     ] pack_extraction_applied        edges_written=1 event_id=a498011b-3413-4f49-a01a-60d69e3c0748 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-06 19:46:15 [info     ] consumer_stopped               consumer=live-pack-extraction group=pack-extraction
+{"name": "real_configured_LLM_pack_proposal_persisted_with_Spanner_evidence", "scenarios": ["APP-05", "PEXT-01"], "verdict": "passed", "observation": {"calls": [{"model": "gpt-5.2-2025-12-11", "max_output_tokens": 256, "retries": 0, "timeout_seconds": 30, "answer": "{\n  \"nodes\": [\n    {\n      \"ref\": \"n1\",\n      \"type\": \"Decision\",\n      \"statement\": \"Use Spanner native graph to store compatibility evidence.\",\n      \"rationale\": \"Durable graph relationships are required.\",\n      \"alternatives\": \"\",\n      \"confidence\": 0.8,\n      \"evidence\": \"Decision: use Spanner native graph to store compatibility evidence, because durable graph relationships are required.\"\n    }\n  ],\n  \"links\": []\n}"}], "event_id": "a498011b-3413-4f49-a01a-60d69e3c0748", "graph": {"nodes": {"Decision": 1, "Event": 1}, "edges": [["Decision:0efb3c59481c184ae5bfe17655a1dade9b5f2382ff6178265e4bb394a13778e1", "DERIVED_FROM", "a498011b-3413-4f49-a01a-60d69e3c0748"]]}, "pending": {}, "scope": "one bounded real configured-model call through Engram PackExtractionConsumer; actual Spanner ledger/graph; local embeddings verified separately; no backend substitution"}, "seconds": 7.83}
+2026-10-06 19:46:16 [info     ] app_stopped

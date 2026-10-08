@@ -1,0 +1,60 @@
+{
+  "configured_max": 6,
+  "response_status": 200,
+  "outcomes": [
+    {
+      "index": 1,
+      "event_id": null,
+      "errors": [
+        {
+          "field": "",
+          "message": "line is not valid JSON: invalid literal, expected 'null': line 1 column 1 (char 0)"
+        }
+      ],
+      "status": "rejected"
+    },
+    {
+      "index": 2,
+      "event_id": "7efd8740-2236-474c-808f-a7fffe1f6d32",
+      "status": "created",
+      "global_position": "2026-10-06T16:23:43.830047000Z/000000/7efd8740-2236-474c-808f-a7fffe1f6d32"
+    },
+    {
+      "index": 3,
+      "event_id": "619b164d-a668-48e3-872f-c55614702bb8",
+      "status": "created",
+      "global_position": "2026-10-06T16:23:43.830047000Z/000001/619b164d-a668-48e3-872f-c55614702bb8"
+    },
+    {
+      "index": 4,
+      "event_id": "d216692b-11ee-4d21-bfe4-d3aa9ffd6582",
+      "status": "created",
+      "global_position": "2026-10-06T16:23:43.938607000Z/000000/d216692b-11ee-4d21-bfe4-d3aa9ffd6582"
+    },
+    {
+      "index": 0,
+      "event_id": "0612ce38-9aa4-4366-a792-dd494c47bf95",
+      "status": "created",
+      "global_position": "2026-10-06T16:23:43.938607000Z/000001/0612ce38-9aa4-4366-a792-dd494c47bf95"
+    },
+    {
+      "index": 5,
+      "event_id": "0612ce38-9aa4-4366-a792-dd494c47bf95",
+      "status": "duplicate",
+      "global_position": "2026-10-06T16:23:43.938607000Z/000001/0612ce38-9aa4-4366-a792-dd494c47bf95"
+    },
+    {
+      "summary": {
+        "received": 6,
+        "order": "occurred_at",
+        "created": 4,
+        "duplicate": 1,
+        "rejected": 1,
+        "failed": 0
+      }
+    }
+  ],
+  "empty_status": 422,
+  "over_max_status": 413,
+  "over_limit_wrote_rows": 0
+}

@@ -1,0 +1,83 @@
+{
+  "checks": [
+    {
+      "name": "owned_same_backend_ontology_rebuild",
+      "scenarios": [
+        "ONT-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "exit_code": 0,
+        "target_graph": {
+          "nodes": {
+            "Event": 11,
+            "Entity": 0,
+            "Summary": 0,
+            "UserProfile": 0,
+            "Preference": 0,
+            "Skill": 0,
+            "Workflow": 0,
+            "BehavioralPattern": 0
+          },
+          "edges": {
+            "FOLLOWS": 10,
+            "CAUSED_BY": 0,
+            "SIMILAR_TO": 0,
+            "REFERENCES": 0,
+            "SUMMARIZES": 0,
+            "SAME_AS": 0,
+            "RELATED_TO": 0
+          },
+          "total_nodes": 11,
+          "total_edges": 10
+        },
+        "target_ledger_count": 0,
+        "source_ledger_count": 11
+      },
+      "seconds": 20.47
+    },
+    {
+      "name": "Spanner_graph_cutover_preserves_source_ledger",
+      "scenarios": [
+        "ONT-04"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "Spanner graph target settings select a new empty ledger during cutover",
+      "seconds": 1.38
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 0
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

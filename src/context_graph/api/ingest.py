@@ -60,6 +60,10 @@ async def read_body(request: Request, limit: int, timeout_s: float) -> bytes:
         raise BodyError(400, f"body is not valid gzip: {exc}") from exc
     if len(decoded) > limit or decompressor.unconsumed_tail:
         raise BodyError(413, f"decompressed body exceeds {limit} bytes")
+    if not decompressor.eof:
+        raise BodyError(400, "body is an incomplete gzip stream")
+    if decompressor.unused_data:
+        raise BodyError(400, "body contains data after the gzip stream")
     return decoded
 
 
@@ -84,6 +88,40 @@ class CheckedEvents:
     errors: list[dict[str, Any]] = field(default_factory=list)
 
 
+_RESERVED_ACCEPTANCE = frozenset(
+    {
+        "acceptance",
+        "admission_context",
+        "envelope_version",
+        "tenant_id",
+        "database_resource",
+        "binding_id",
+        "accepted_epoch",
+        "bundle_digest",
+        "engine_revision",
+        "source_id",
+        "source_identity",
+        "request_digest",
+        "search_text",
+        "summary",
+        "keywords",
+    }
+)
+
+
+def input_contract_errors(raw: dict[str, Any]) -> list[dict[str, str]]:
+    """Reject ignored authority fields and payloads that would otherwise be lost."""
+    errors = [
+        {"field": key, "message": "This field is assigned by the server"}
+        for key in sorted(_RESERVED_ACCEPTANCE.intersection(raw))
+    ]
+    if raw.get("global_position") is not None:
+        errors.append({"field": "global_position", "message": "Position is assigned by the server"})
+    if raw.get("payload") is not None and not isinstance(raw["payload"], dict):
+        errors.append({"field": "payload", "message": "Payload must be a JSON object or null"})
+    return errors
+
+
 def check_events(
     raw_events: list[Any], refuse: Callable[[Event], tuple[str, str] | None]
 ) -> CheckedEvents:
@@ -99,6 +137,16 @@ def check_events(
                     "index": index,
                     "event_id": None,
                     "errors": [{"field": "", "message": "an event must be a JSON object"}],
+                }
+            )
+            continue
+        if problems := input_contract_errors(raw):
+            event_id = raw.get("event_id")
+            checked.errors.append(
+                {
+                    "index": index,
+                    "event_id": event_id if isinstance(event_id, str) else None,
+                    "errors": problems,
                 }
             )
             continue

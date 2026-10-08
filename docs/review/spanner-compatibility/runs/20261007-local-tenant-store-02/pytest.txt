@@ -1,0 +1,9 @@
+........................................................................ [ 72%]
+............................                                             [100%]
+=============================== warnings summary ===============================
+tests/unit/test_explicit_runtime_settings.py::test_two_explicit_apps_keep_settings_auth_and_stores_separate
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+100 passed, 1 warning in 4.26s

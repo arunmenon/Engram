@@ -1,0 +1,56 @@
+{
+  "runtime_source_sha256": {
+    "pyproject.toml": "8b79b23183c629f44b0fc7d1ab4bf86a9671591cec251e032e19db35cb2498bc",
+    "src/context_graph/adapters/registry.py": "a363da45bdf0b65919f9bb77e054b86afaa94b860de77fd7cc5de4d5632bb855",
+    "src/context_graph/adapters/spanner/lifecycle.py": "04f3a05194c3d89cc6de5f6bdc1e926b04235d3aa901195f257c8fce4dafeed8",
+    "src/context_graph/adapters/spanner/log.py": "2ff28dbc613ae0474ee4868fabad180466493e831f51337776be0085b999f8d4",
+    "src/context_graph/adapters/spanner/schema.py": "d4b3f90f13f5cf5b98ad8356eb3c294b31153e08ad4b3e6ec4007d69be84dc3b",
+    "src/context_graph/api/ingest.py": "fa0d04f2df14feeca7954123753a9e55b25a666ff2a3db7f226715efb34c390f",
+    "src/context_graph/api/middleware.py": "2be8d0ea026fd8e1cbe99decab7b5d202000ec7bbbb4bbe0aef45a7ba5b11802",
+    "src/context_graph/domain/models.py": "51b721e3d3bbd24b07ad45cfd664e51ef813c45fbcf168a4b2ce2223ee7eb289"
+  },
+  "worktree_diff_sha256": "1c0bf7a2543900498cd84daafdd1fb744b1415b843579bf2a95a878652eb0c49",
+  "run_id": "20261006-cloud-ingress-safety-recheck-ea36e04b",
+  "phase": "ingress-safety-recheck",
+  "backend": "real_spanner",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "harness_sha256": "69493c67d2cc3c77a9c42d9f30cac0f1f963cbae500a173cf06ed57fa9d86412",
+  "companion_sha256": {
+    "engram_spanner_compat_remaining.py": "8e770e86afc89214eb293799ed8a485aec66e2301a8253bdd58606cea0c29112",
+    "engram_spanner_compat_pack_cases.py": "2c187c58b9c9fe4b8dda94db1d93228e92017b8ef9aac3cdc27f4946713aba79",
+    "engram_spanner_process_bootstrap.py": "377c4b2e4d57ef3a96feecd16cb7214a7b3d01d5dce6e2647f092f71df0b9bab",
+    "engram_spanner_compat_completion.py": "24465723d210e33dd1dcd964741ef9ce93e44a0107322b9eb0f2a3976ae6c657"
+  },
+  "started_at": "2026-10-06T17:15:41.673883+00:00",
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram"
+  },
+  "authorization": "user explicitly confirmed existing engram DB disposable",
+  "auth": "explicit token SDK bootstrap; unmodified ADC startup not proved",
+  "credential_window_file_updated_at": "2026-10-06T17:12:52.510483+00:00",
+  "all_storage_ports": "spanner",
+  "fixture_reset": [
+    "GraphEdges",
+    "GraphNodes",
+    "ConsumerDeadLetters",
+    "ConsumerDeliveries",
+    "ConsumerCursors",
+    "ConsumerGroups",
+    "Events"
+  ],
+  "schema_changes": false,
+  "database_drop": false,
+  "provider_mode": "scripted LLM; local embedding if installed; no paid provider calls",
+  "max_phase_seconds": 600,
+  "phase_limits": {
+    "max_events": 10,
+    "routes": [
+      "single",
+      "batch",
+      "import"
+    ],
+    "gzip_faults": 4
+  }
+}

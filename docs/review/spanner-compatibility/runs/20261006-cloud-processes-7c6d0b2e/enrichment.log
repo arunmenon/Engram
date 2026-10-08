@@ -1,0 +1,14 @@
+2026-10-06 15:41:44 [info     ] worker_starting                consumer=enrichment neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 15:41:46 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-06 15:41:46 [info     ] worker_running                 consumer=enrichment
+2026-10-06 15:41:46 [info     ] consumer_started               consumer=enrichment-1 group=enrichment stream=Events
+2026-10-06 15:41:46 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 15:41:47 [warning  ] event_embedding_failed         event_id=fb310dd7-3960-4251-a246-788a39b62b08
+2026-10-06 15:41:48 [warning  ] event_embedding_failed         event_id=8c522e3b-d3fc-4903-a387-0874a98c42d9
+2026-10-06 15:41:49 [warning  ] event_embedding_failed         event_id=35750263-a2f5-42ae-8c68-4b4bd843f410
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-06 15:42:49 [info     ] shutdown_signal_received       consumer=enrichment
+2026-10-06 15:42:49 [info     ] consumer_stopped               consumer=enrichment-1 group=enrichment
+2026-10-06 15:42:49 [info     ] worker_shutting_down           consumer=enrichment
+2026-10-06 15:42:49 [info     ] worker_stopped                 consumer=enrichment
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

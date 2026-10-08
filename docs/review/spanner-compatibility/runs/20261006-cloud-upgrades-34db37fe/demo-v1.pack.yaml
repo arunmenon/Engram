@@ -1,0 +1,23 @@
+
+pack: {name: demo, version: 1.0.0, requires: [core>=1.0]}
+types:
+  nodes:
+    Ticket:
+      key: [tracker, number]
+      interfaces: [Lifecycled]
+      properties: {tracker: string, number: int, title: string}
+      lifecycle: {initial: open, states: [open, closed]}
+    Fix:
+      key: [sha]
+      properties: {sha: string}
+  edges:
+    RESOLVES: {from: [Fix], to: [Ticket]}
+events:
+  demo.ticket.opened: {}
+  demo.ticket.closed: {}
+projection:
+  - event: demo.ticket.opened
+    upsert:
+      - {type: Ticket, key: {tracker: $.tracker, number: $.number}, set: {title: $.title}}
+  - event: demo.ticket.closed
+    transition: {type: Ticket, to: closed, key: {tracker: $.tracker, number: $.number}}

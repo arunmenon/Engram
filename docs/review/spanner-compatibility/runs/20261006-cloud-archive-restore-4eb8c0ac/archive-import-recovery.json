@@ -1,0 +1,68 @@
+{
+  "expiry": [
+    1,
+    1
+  ],
+  "archives": [
+    {
+      "archive_id": "2026/10/06/20261006141239-903d7845.jsonl.gz",
+      "created_at": "2026-10-06T14:12:39.416709+00:00"
+    }
+  ],
+  "archive_documents": [
+    {
+      "agent_id": "compat-resume",
+      "ended_at": null,
+      "event_id": "9ef2b0a9-ef83-4c9c-91d9-6037fc756acb",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb",
+      "importance_hint": 1,
+      "occurred_at": "2026-06-28T14:12:35.652445Z",
+      "parent_event_id": null,
+      "payload": {
+        "content": "Restore archived payload",
+        "nested": {
+          "weight": 0.125
+        }
+      },
+      "payload_ref": "compat:resume",
+      "schema_version": 1,
+      "search_text": "Restore archived payload",
+      "session_id": "archive-old",
+      "status": null,
+      "tool_name": null,
+      "trace_id": "archive-old",
+      "occurred_at_epoch_ms": 1782655955652
+    }
+  ],
+  "expired_old_document": null,
+  "fresh_kept": true,
+  "trimmed": 0,
+  "housekeeping": {
+    "dedup_entries_removed": 1,
+    "session_streams_deleted": 0
+  },
+  "prune": {
+    "pruned_edges": 0,
+    "pruned_nodes": 1,
+    "dry_run": false,
+    "details": [
+      {
+        "action": "delete_cold_events",
+        "event_ids": [
+          "9ef2b0a9-ef83-4c9c-91d9-6037fc756acb"
+        ]
+      }
+    ],
+    "truncated": false
+  },
+  "import_response": "{\"index\":0,\"event_id\":\"9ef2b0a9-ef83-4c9c-91d9-6037fc756acb\",\"status\":\"created\",\"global_position\":\"2026-10-06T14:12:42.087375000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb\"}\n{\"summary\":{\"received\":1,\"order\":\"occurred_at\",\"created\":1,\"duplicate\":0,\"rejected\":0,\"failed\":0}}\n",
+  "restored_payload": {
+    "content": "Restore archived payload",
+    "nested": {
+      "weight": 0.125
+    }
+  },
+  "restored_graph_event": true,
+  "scope": "FS archive recovery via supported ArchiveStore and admin import, then actual projection; no configured GCS target"
+}

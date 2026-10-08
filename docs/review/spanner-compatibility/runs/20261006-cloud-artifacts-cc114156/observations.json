@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "name": "artifact_baseline_real_ingest_projection_gate",
+      "scenarios": [
+        "APP-03",
+        "ART-02",
+        "ART-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "CRM_competencies": "passed before rejection/budget injection"
+      },
+      "seconds": 4.18
+    },
+    {
+      "name": "incomplete_reads_do_not_claim_absence",
+      "scenarios": [
+        "ART-04"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "truncated coverage returns Acme as no_link although confirmed deals exist",
+      "seconds": 0.27
+    },
+    {
+      "name": "rejected_link_not_traversed_or_cited",
+      "scenarios": [
+        "ART-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "artifact answer includes rejected relationship as evidence",
+      "seconds": 2.49
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 1
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 3
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

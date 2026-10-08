@@ -1,0 +1,55 @@
+{
+  "checks": [
+    {
+      "name": "health",
+      "http_status": 200,
+      "ms": 90.0,
+      "passed": true,
+      "event_log": {
+        "backend": "spanner",
+        "ok": true
+      },
+      "graph": {
+        "backend": "spanner",
+        "ok": true
+      }
+    },
+    {
+      "name": "ontology",
+      "http_status": 200,
+      "ms": 56.3,
+      "passed": true
+    },
+    {
+      "name": "stats",
+      "http_status": 200,
+      "ms": 1539.4,
+      "passed": true,
+      "event_log_backend": "spanner"
+    },
+    {
+      "name": "empty_context",
+      "http_status": 200,
+      "ms": 48.1,
+      "passed": true,
+      "node_count": 0
+    },
+    {
+      "name": "missing_lineage",
+      "http_status": 200,
+      "ms": 341.9,
+      "passed": true,
+      "node_count": 0
+    },
+    {
+      "name": "empty_subgraph",
+      "http_status": 200,
+      "ms": 244.5,
+      "passed": true,
+      "node_count": 0
+    }
+  ],
+  "cloud_resource_changes": [],
+  "cleanup": "owned API process stopped",
+  "acceptance": "partial smoke only; no ingestion/workers/model providers"
+}

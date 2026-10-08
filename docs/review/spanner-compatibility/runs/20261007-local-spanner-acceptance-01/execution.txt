@@ -1,0 +1,77 @@
+...............F.....FF.............F....................                [100%]
+=================================== FAILURES ===================================
+_______ test_bound_enrichment_cannot_change_original_identity[event_id] ________
+
+field = 'event_id'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "field", ["payload", "event_id", "acceptance", "source_id", "occurred_at", "search_text"]
+    )
+    async def test_bound_enrichment_cannot_change_original_identity(field):
+        _, db, store = setup()
+        with pytest.raises(InvalidRequestError):
+>           await store.set_document_fields("x", **{field: "spoofed"})
+
+tests/unit/test_spanner_event_acceptance.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<context_graph.adapters.spanner.log.SpannerEventLog object at 0x10703bfe0>, 'x')
+kwargs = {'event_id': 'spoofed'}
+
+    @functools.wraps(method)
+    async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        try:
+>           return await method(*args, **kwargs)
+                         ^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: SpannerEventLog.set_document_fields() got multiple values for argument 'event_id'
+
+src/context_graph/adapters/errors.py:30: TypeError
+_________ test_acceptance_upgrade_is_additive_noop_or_explicit_refusal _________
+
+    def test_acceptance_upgrade_is_additive_noop_or_explicit_refusal():
+        ddl = schema_statements(384)
+>       assert acceptance_column_valid(ddl) and plan_acceptance_upgrade(ddl) == []
+E       AssertionError: assert (False)
+E        +  where False = acceptance_column_valid(['CREATE TABLE Events (\n            event_id STRING(64) NOT NULL,\n            shard INT64 NOT NULL,\n            com... group_name STRING(MAX) NOT NULL,\n            created_at TIMESTAMP NOT NULL\n        ) PRIMARY KEY (group_name)', ...])
+
+tests/unit/test_spanner_event_acceptance.py:249: AssertionError
+__________________ test_matching_physical_schema_is_accepted ___________________
+
+    def test_matching_physical_schema_is_accepted():
+>       assert schema_differences(database_fixture(), 384) == []
+E       AssertionError: assert ['Events.acce...nerated JSON'] == []
+E         
+E         Left contains one more item: 'Events.acceptance must be nullable nongenerated JSON'
+E         Use -v to get more diff
+
+tests/unit/test_spanner_schema_handshake.py:53: AssertionError
+__ test_quoted_parenthesized_equivalent_definitions_and_legacy_extra_accepted __
+
+    def test_quoted_parenthesized_equivalent_definitions_and_legacy_extra_accepted():
+        database = database_fixture()
+        database.ddl_statements = [
+            s.replace(
+                "IF(label = 'Entity', TRUE, NULL)", "(IF((`label` = 'Entity'), TRUE, NULL))"
+            ).replace(
+                "embedding IS NOT NULL AND entity_embedding_member IS NOT NULL",
+                "(entity_embedding_member IS NOT NULL) AND (embedding IS NOT NULL)",
+            )
+            for s in database.ddl_statements
+        ] + [
+            "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes (embedding) "
+            "WHERE embedding IS NOT NULL OPTIONS (distance_type = 'COSINE')"
+        ]
+>       assert schema_differences(database, 384) == []
+E       AssertionError: assert ['Events.acce...nerated JSON'] == []
+E         
+E         Left contains one more item: 'Events.acceptance must be nullable nongenerated JSON'
+E         Use -v to get more diff
+
+tests/unit/test_spanner_schema_handshake.py:112: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_spanner_event_acceptance.py::test_bound_enrichment_cannot_change_original_identity[event_id]
+FAILED tests/unit/test_spanner_event_acceptance.py::test_acceptance_upgrade_is_additive_noop_or_explicit_refusal
+FAILED tests/unit/test_spanner_schema_handshake.py::test_matching_physical_schema_is_accepted
+FAILED tests/unit/test_spanner_schema_handshake.py::test_quoted_parenthesized_equivalent_definitions_and_legacy_extra_accepted
+4 failed, 53 passed, 10 deselected in 1.37s

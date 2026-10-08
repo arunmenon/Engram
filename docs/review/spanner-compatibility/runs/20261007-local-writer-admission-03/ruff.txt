@@ -1,0 +1,49 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/context_graph/adapters/spanner/log.py:59:5
+   |
+58 |   if TYPE_CHECKING:
+59 | /     from context_graph.adapters.spanner.tenant_control import TenantFence
+60 | |     from context_graph.domain.models import EventQuery
+61 | |     from context_graph.tenancy import TenantBinding
+62 | |     from context_graph.ports.archive import ArchiveStore
+   | |________________________________________________________^
+63 |
+64 |   log = structlog.get_logger(__name__)
+   |
+help: Organize imports
+   |
+60 |     from context_graph.domain.models import EventQuery
+61 +     from context_graph.ports.archive import ArchiveStore
+62 |     from context_graph.tenancy import TenantBinding
+   -     from context_graph.ports.archive import ArchiveStore
+63 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/test_spanner_tenant_control.py:211:5
+    |
+209 |   )
+210 |   async def test_store_mutations_refuse_stale_epoch_before_application_access(action):
+211 | /     from datetime import UTC, datetime
+212 | |
+213 | |     from context_graph.adapters.spanner.graph import SpannerGraphStore
+214 | |     from context_graph.adapters.spanner.log import SpannerEventLog, format_position
+215 | |     from context_graph.adapters.spanner.subscription import SpannerSubscription
+216 | |     from context_graph.domain.event_acceptance import AdmissionContext
+217 | |     from context_graph.ports.subscription import Delivery
+218 | |     from tests.unit.test_event_acceptance import event
+219 | |
+220 | |     from tests.unit.test_tenant_catalog import bind, configuration
+    | |__________________________________________________________________^
+221 |
+222 |       settings = configuration("d")
+    |
+help: Organize imports
+    |
+218 |     from tests.unit.test_event_acceptance import event
+    -
+219 |     from tests.unit.test_tenant_catalog import bind, configuration
+    |
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.

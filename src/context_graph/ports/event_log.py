@@ -17,11 +17,12 @@ Source: ADR-0004, ADR-0014, ADR-0019
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from context_graph.ports.event_store import EventStore
 
 if TYPE_CHECKING:
+    from context_graph.domain.source_trust import AcceptedRecord, VerifiedSourceProvenance
     from context_graph.ports.archive import ArchiveStore
 
 
@@ -36,6 +37,7 @@ class LogEntry:
     position: str
     event_id: str
     document: dict[str, Any] | None = None
+    provenance: VerifiedSourceProvenance | None = None
 
 
 @dataclass(frozen=True)
@@ -140,3 +142,10 @@ class MigrationTarget(Protocol):
         native ones, breaking "every migrated event precedes every new one".
         """
         ...
+
+
+@runtime_checkable
+class AcceptedRecordReader(Protocol):
+    """Internal fenced read: no provenance is obtained from supplied document JSON."""
+
+    async def get_accepted_records(self, event_ids: list[str]) -> list[AcceptedRecord]: ...

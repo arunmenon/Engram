@@ -1,0 +1,155 @@
+{
+  "scope": "LOCAL ONLY: configuration and schema composition; no worker/store/runtime or cloud acceptance",
+  "loader": {
+    "[]": {
+      "packs": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "nodes": 11,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    "['core', 'pdlc']": {
+      "packs": [
+        "core",
+        "memory",
+        "user",
+        "pdlc"
+      ],
+      "nodes": 28,
+      "accepts_pdlc_unknown": false,
+      "accepts_unknown_domain": true
+    },
+    "['core', 'memory']": {
+      "packs": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "nodes": 11,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    "['core', 'user']": {
+      "packs": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "nodes": 11,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    "['memory', 'user', 'pdlc']": {
+      "packs": [
+        "core",
+        "memory",
+        "user",
+        "pdlc"
+      ],
+      "nodes": 28,
+      "accepts_pdlc_unknown": false,
+      "accepts_unknown_domain": true
+    },
+    "['does_not_exist']": {
+      "error": "Invalid ontology:\n  - pack 'does_not_exist' not found in /Users/arunmenon/projects/Engram/src/context_graph/ontology/packs"
+    }
+  },
+  "default": {
+    "packs": [
+      "core",
+      "memory",
+      "user",
+      "pdlc"
+    ],
+    "nodes": 28,
+    "accepts_pdlc_unknown": false,
+    "accepts_unknown_domain": true
+  },
+  "schema_only": {
+    "core": {
+      "packs": [
+        "core"
+      ],
+      "nodes": 3,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    "core+pdlc": {
+      "packs": [
+        "core",
+        "pdlc"
+      ],
+      "nodes": 20,
+      "accepts_pdlc_unknown": false,
+      "accepts_unknown_domain": true
+    },
+    "core+memory": {
+      "packs": [
+        "core",
+        "memory"
+      ],
+      "nodes": 6,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    "core+user": {
+      "packs": [
+        "core",
+        "user"
+      ],
+      "nodes": 8,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    "core+memory+user+pdlc": {
+      "packs": [
+        "core",
+        "memory",
+        "user",
+        "pdlc"
+      ],
+      "nodes": 28,
+      "accepts_pdlc_unknown": false,
+      "accepts_unknown_domain": true
+    },
+    "pdlc": {
+      "error": "Invalid ontology:\n  - the core pack must be active\n  - pdlc requires pack 'core', which is not active\n  - pdlc: Request uses unknown interface 'Lifecycled'\n  - pdlc: Request uses unknown interface 'Sourced'\n  - pdlc: Spec uses unknown interface 'Lifecycled'\n  - pdlc: Spec uses unknown interface 'Anchored'\n  - pdlc: Spec uses unknown interface 'Versioned'\n  - pdlc: Spec uses unknown interface 'Sourced'\n  - pdlc: Requirement uses unknown interface 'Lifecycled'\n  - pdlc: Requirement uses unknown interface 'Anchored'\n  - pdlc: Requirement uses unknown interface 'Sourced'\n  - pdlc: Decision uses unknown interface 'Lifecycled'\n  - pdlc: Decision uses unknown interface 'Anchored'\n  - pdlc: Decision"
+    },
+    "memory": {
+      "error": "Invalid ontology:\n  - the core pack must be active\n  - memory requires pack 'core', which is not active\n  - memory: edge CONTAINS refers to unknown type 'core:Event'\n  - memory: edge PURSUES refers to unknown type 'core:Entity'\n  - memory: extends unknown edge type 'SUPERSEDES'\n  - memory: extends unknown edge type 'CONTRADICTS'"
+    },
+    "user": {
+      "error": "Invalid ontology:\n  - the core pack must be active\n  - user requires pack 'core', which is not active\n  - user: edge HAS_PROFILE refers to unknown type 'core:Entity'\n  - user: edge HAS_PREFERENCE refers to unknown type 'core:Entity'\n  - user: edge HAS_SKILL refers to unknown type 'core:Entity'\n  - user: edge EXHIBITS_PATTERN refers to unknown type 'core:Entity'\n  - user: edge INTERESTED_IN refers to unknown type 'core:Entity'\n  - user: edge INTERESTED_IN refers to unknown type 'core:Entity'\n  - user: edge ABOUT refers to unknown type 'core:Entity'\n  - user: extends unknown edge type 'DERIVED_FROM'\n  - user: adds weights to unknown intent 'who_is'\n  - user: adds weights to unknown intent 'how"
+    }
+  },
+  "invalid_version": {
+    "error": "Invalid ontology:\n  - pdlc requires core>=99.0; core is 1.1.0"
+  },
+  "two_configuration_objects": [
+    {
+      "packs": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "nodes": 11,
+      "accepts_pdlc_unknown": true,
+      "accepts_unknown_domain": true
+    },
+    {
+      "packs": [
+        "core",
+        "memory",
+        "user",
+        "pdlc"
+      ],
+      "nodes": 28,
+      "accepts_pdlc_unknown": false,
+      "accepts_unknown_domain": true
+    }
+  ],
+  "two_configuration_objects_note": "Distinct cached configuration objects are possible. No tenant-to-registry/store routing follows from this."
+}

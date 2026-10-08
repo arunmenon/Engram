@@ -1,0 +1,48 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "OPS-01",
+      "status": "failed",
+      "issue_numbers": "22",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-stats-a4a0c509/observations.json",
+      "note": "Pack stats failure; earlier unrelated successful observability subchecks retained."
+    },
+    {
+      "scenario_id": "APP-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-api-64e30b68/observations.json",
+      "note": "Positive PDLC subchecks verified; all required corner cases/deployment assertions are not closed. See pdlc-coverage.md."
+    },
+    {
+      "scenario_id": "ART-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-api-64e30b68/observations.json",
+      "note": "Positive PDLC subchecks verified; all required corner cases/deployment assertions are not closed. See pdlc-coverage.md."
+    },
+    {
+      "scenario_id": "PROJ-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json",
+      "note": "Positive PDLC subchecks verified; all required corner cases/deployment assertions are not closed. See pdlc-coverage.md."
+    },
+    {
+      "scenario_id": "ONT-03",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json",
+      "note": "Positive PDLC subchecks verified; all required corner cases/deployment assertions are not closed. See pdlc-coverage.md."
+    },
+    {
+      "scenario_id": "PEXT-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json",
+      "note": "Positive PDLC subchecks verified; all required corner cases/deployment assertions are not closed. See pdlc-coverage.md."
+    },
+    {
+      "scenario_id": "PEXT-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pdlc-b790ad36/observations.json",
+      "note": "Positive PDLC subchecks verified; all required corner cases/deployment assertions are not closed. See pdlc-coverage.md."
+    }
+  ],
+  "summary": "Persist PDLC positive coverage, lexical limits and operational stats failure; no compatibility sign-off."
+}
