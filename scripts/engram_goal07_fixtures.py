@@ -13,7 +13,16 @@ def fixtures(run_id, *, start=None):
     from engram_goal07_catalog_fixtures import fixtures as catalog
 
     start = start or (datetime.now(UTC) - timedelta(hours=1)).replace(microsecond=0)
-    result = dict(ids={}, steps=[], queries=[], webhook_cases=[], source_kind=[], limitations=[])
+    result = dict(
+        ids={},
+        steps=[],
+        queries=[],
+        webhook_cases=[],
+        source_kind=[],
+        limitations=[],
+        nested_validation_baselines={},
+        unpopulated_nested_branches=[],
+    )
     for index, (label, factory) in enumerate(
         (("A", requests), ("B", lifecycle), ("C", skipped), ("D", deployments), ("E", catalog))
     ):
@@ -21,6 +30,8 @@ def fixtures(run_id, *, start=None):
         result["ids"].update({label + "-" + key: value for key, value in data["ids"].items()})
         for key in ("steps", "queries", "webhook_cases", "limitations"):
             result[key].extend(data.get(key, []))
+        result["nested_validation_baselines"].update(data.get("nested_validation_baselines", {}))
+        result["unpopulated_nested_branches"].extend(data.get("unpopulated_nested_branches", []))
         result["source_kind"].append(dict(slice=label, description=data["source_kind"]))
         if label == "A":
             result["fallback_seed"] = data["fallback_seed"]

@@ -16,6 +16,7 @@ def fixtures(run_id, *, start=None):
     start = start or datetime(2026, 10, 8, 10, tzinfo=UTC)
     start = start.astimezone(UTC)
     ids, steps, queries = {}, [], []
+    observed_before = set()
 
     def node(kind, *values):
         return kind + ":" + "|".join(str(v).replace("%", "%25").replace("|", "%7C") for v in values)
@@ -55,9 +56,15 @@ def fixtures(run_id, *, start=None):
             for edge in edges:
                 if edge[0] == "ROLLS_BACK":
                     step["extra_nodes"][edge[2]]["status"] = "rolled_back"
-        step["node_assertions"] = deepcopy(step["extra_nodes"])
-        if status == 201:
-            step["node_assertions"][nid] = deepcopy(props or {})
+        observed = {nid} if status == 201 else set()
+        if kind in {"deployed", "upgraded"} and status == 201:
+            observed.update(key for key in step["extra_nodes"] if key.startswith("Component:"))
+        step["expected_observed_node_ids"] = sorted(observed)
+        step["node_assertions"] = {}
+        for key in list(step["extra_nodes"]):
+            if key in observed_before and key not in observed:
+                step["node_assertions"][key] = step["extra_nodes"].pop(key)
+        observed_before.update(observed)
 
     def query(scenario, after, seed, required, states, observations, edges=()):
         queries.append(

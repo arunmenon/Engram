@@ -19,6 +19,7 @@ import sys
 import tarfile
 import traceback
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from uuid import UUID, uuid5
 
@@ -75,6 +76,7 @@ OLD = [
 def http_steps(data):
     """Materialize independent webhook ledger oracles; never run a translator."""
     steps = deepcopy(data["steps"])
+    observed_before = set()
     for step in steps:
         if "expected_observed_node_ids" in step:
             observed = set(step["expected_observed_node_ids"])
@@ -82,7 +84,12 @@ def http_steps(data):
             references = (
                 {step.get("expected_node"), *step.get("extra_nodes", {})} - {None}
             ) - observed
-            step["placeholders"] = sorted(set(step.get("placeholders", [])) | references)
+            step["unobserved_this_event"] = sorted(references)
+            step["placeholders"] = sorted(
+                (set(step.get("placeholders", [])) | references) - observed_before
+            )
+        if step["expected_status"] in {201, 202}:
+            observed_before.update(fixture_observations(step))
     for case in data.get("webhook_cases", []):
         assert case["expected_event_type"] == "pdlc.testcaserun.skipped"
         assert case["event"] == "check_run", "Only G07's declared check wrappers are supported"
@@ -134,6 +141,85 @@ def http_steps(data):
         retry.update(scenario=step["scenario"] + "-retry", duplicate=True)
         steps.append(retry)
     return steps
+
+
+def fixture_observations(fixture):
+    """Exactly the authored observations this Event contributes to bookkeeping."""
+    if "expected_observed_node_ids" in fixture:
+        return set(fixture["expected_observed_node_ids"])
+    observed = set(fixture.get("extra_nodes", {})) - set(fixture.get("placeholders", []))
+    if fixture.get("expected_node") and fixture.get("observes_node", True):
+        observed.add(fixture["expected_node"])
+    return observed
+
+
+def cleanup_artifact_ids(data):
+    """Predeclare owned identities solely from the authored fixture manifest."""
+    result = set(data["ids"].values())
+    for step in data["steps"]:
+        if step.get("expected_node"):
+            result.add(step["expected_node"])
+        result.update(step.get("extra_nodes", {}))
+        result.update(step.get("node_assertions", {}))
+        for _, source, target in step["expected_edges"]:
+            result.update((source, target))
+    return result
+
+
+def assert_latest_source(selected, sources, occurred_at):
+    """Allow every declared maximal-time source without inventing tie ordering."""
+    latest = max(occurred_at[event_id] for event_id in sources)
+    maximal = {event_id for event_id in sources if occurred_at[event_id] == latest}
+    assert selected in maximal, ("Wrong latest source", selected, maximal)
+
+
+async def retrieve_ledger_only_event(http, fixture, receipt_position):
+    """Read the admitted Event through the existing general subgraph endpoint."""
+    expected = fixture["request"]
+    event_id = expected["event_id"]
+    query = dict(
+        query="event " + event_id,
+        session_id=expected["session_id"],
+        agent_id=expected["agent_id"],
+        seed_nodes=[event_id],
+        intent="what",
+        max_nodes=100,
+        max_depth=1,
+    )
+    response = await http.post("/v1/query/subgraph", json=query)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    node = body["nodes"].get(event_id)
+    assert node and node["node_id"] == event_id and node["node_type"] == "Event", (
+        "Missing/wrong public Event",
+        event_id,
+        node,
+    )
+    attributes = node["attributes"]
+    assert attributes["event_type"] == expected["event_type"], "Wrong public Event type"
+    assert datetime.fromisoformat(attributes["occurred_at"]) == datetime.fromisoformat(
+        expected["occurred_at"]
+    ), "Wrong public Event time"
+    provenance = node.get("provenance") or {}
+    assert provenance.get("source") == "spanner", "Wrong public Event source"
+    for key in ("event_id", "session_id", "agent_id", "trace_id"):
+        assert provenance.get(key) == expected[key], ("Wrong public Event provenance", key)
+    assert provenance.get("global_position") == receipt_position, "Wrong public Event position"
+    # EventNode intentionally exposes envelope metadata, not the ledger document.
+    unavailable = []
+    for key in ("payload_ref", "payload"):
+        if key in attributes:
+            assert attributes[key] == expected[key], ("Wrong public Event content", key)
+        else:
+            unavailable.append(key)
+    return dict(
+        endpoint="/v1/query/subgraph",
+        request=query,
+        status=response.status_code,
+        body=body,
+        unavailable_public_fields=unavailable,
+        content_evidence="Exact payload_ref/payload verified separately in ledger snapshot",
+    )
 
 
 async def submit_fixture(http, fixture, secret):
@@ -322,7 +408,7 @@ async def execute(
     allowed["Events"] = [[eid] for eid in all_events]
     allowed["GraphNodes"] = (
         [["Event", eid] for eid in all_events]
-        + [[nid.split(":")[0], nid] for nid in data["ids"].values()]
+        + [[nid.split(":")[0], nid] for nid in sorted(cleanup_artifact_ids(data))]
         + [["OntologyState", "OntologyState:active"]]
     )
     allowed["ConsumerGroups"] = [[g] for g in groups]
@@ -500,15 +586,13 @@ async def execute(
                         and provenance.get("event_id") in artifact_events[nid]
                     ), ("Wrong evidence", nid, provenance)
                     if goal in {"G04", "G05", "G06", "G07"}:
-                        newest = max(
+                        assert_latest_source(
+                            provenance["event_id"],
                             artifact_events[nid],
-                            key=lambda event_id: all_events[event_id][0].occurred_at,
-                        )
-                        assert provenance["event_id"] == newest, (
-                            "Wrong latest source",
-                            nid,
-                            provenance,
-                            newest,
+                            {
+                                event_id: all_events[event_id][0].occurred_at
+                                for event_id in artifact_events[nid]
+                            },
                         )
                     for key, value in expected_nodes.get(nid, {}).items():
                         assert returned[nid]["attributes"].get(key) == value, (
@@ -663,12 +747,10 @@ async def execute(
                 nodes = {row[1]: row[2] for row in state["nodes"]}
                 if nid:
                     expected_nodes[nid] = fixture["expected_props"]
-                    if fixture.get("observes_node", True):
-                        artifact_events.setdefault(nid, set()).add(eid)
                 for extra_id, extra_props in fixture.get("extra_nodes", {}).items():
                     expected_nodes[extra_id] = extra_props
-                    if extra_id not in fixture.get("placeholders", []):
-                        artifact_events.setdefault(extra_id, set()).add(eid)
+                for observed_id in fixture_observations(fixture):
+                    artifact_events.setdefault(observed_id, set()).add(eid)
                 for existing_id, properties in fixture.get("node_assertions", {}).items():
                     assert existing_id in expected_nodes, "Assertion references an unobserved node"
                     expected_nodes[existing_id] = {**expected_nodes[existing_id], **properties}
@@ -839,6 +921,10 @@ async def execute(
                             )
                             item.setdefault("placeholder_retrieval", []).append(result)
 
+                elif fixture.get("ledger_only"):
+                    item["event_retrieval"] = await retrieve_ledger_only_event(
+                        http, fixture, receipt_position
+                    )
                 else:
                     seed = data["fallback_seed"] if "fallback_seed" in data else data["ids"]["spec"]
                     item["retrieval"] = await retrieve(
