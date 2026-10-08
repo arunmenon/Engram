@@ -1,0 +1,209 @@
+FFFFF..................................                                  [100%]
+=================================== FAILURES ===================================
+____ test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers0] _____
+
+headers = []
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            [],
+            [("Authorization", "Bearer wrong")],
+            [("Authorization", "Basic demo-key")],
+            [("Authorization", "Bearer demo-key"), ("Authorization", "Bearer demo-key")],
+        ],
+    )
+    async def test_demo_rejects_missing_invalid_and_ambiguous_credentials(headers):
+        app = App()
+>       entry = DemoAuthentication(app, bind("a"), token="demo-key")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_experiment_support.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/engram_experiment_support.py:152: in __init__
+    self.catalog = TenantCatalog((binding,), (CredentialGrant.from_token(principal, token),))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'context_graph.tenancy.CredentialGrant'>
+principal = Principal(credential_id='demo.query', tenant_id='a', roles=frozenset({'api'}), source_id='demo.query')
+token = 'demo-key'
+
+    @classmethod
+    def from_token(cls, principal: Principal, token: str) -> CredentialGrant:
+        if (
+            not isinstance(token, str)
+            or len(token) < 16
+            or not token.isascii()
+            or any(char.isspace() for char in token)
+        ):
+>           raise TenantConfigurationError("Credential must be a nonempty opaque ASCII token")
+E           context_graph.tenancy.TenantConfigurationError: Credential must be a nonempty opaque ASCII token
+
+src/context_graph/tenancy.py:226: TenantConfigurationError
+____ test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers1] _____
+
+headers = [('Authorization', 'Bearer wrong')]
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            [],
+            [("Authorization", "Bearer wrong")],
+            [("Authorization", "Basic demo-key")],
+            [("Authorization", "Bearer demo-key"), ("Authorization", "Bearer demo-key")],
+        ],
+    )
+    async def test_demo_rejects_missing_invalid_and_ambiguous_credentials(headers):
+        app = App()
+>       entry = DemoAuthentication(app, bind("a"), token="demo-key")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_experiment_support.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/engram_experiment_support.py:152: in __init__
+    self.catalog = TenantCatalog((binding,), (CredentialGrant.from_token(principal, token),))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'context_graph.tenancy.CredentialGrant'>
+principal = Principal(credential_id='demo.query', tenant_id='a', roles=frozenset({'api'}), source_id='demo.query')
+token = 'demo-key'
+
+    @classmethod
+    def from_token(cls, principal: Principal, token: str) -> CredentialGrant:
+        if (
+            not isinstance(token, str)
+            or len(token) < 16
+            or not token.isascii()
+            or any(char.isspace() for char in token)
+        ):
+>           raise TenantConfigurationError("Credential must be a nonempty opaque ASCII token")
+E           context_graph.tenancy.TenantConfigurationError: Credential must be a nonempty opaque ASCII token
+
+src/context_graph/tenancy.py:226: TenantConfigurationError
+____ test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers2] _____
+
+headers = [('Authorization', 'Basic demo-key')]
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            [],
+            [("Authorization", "Bearer wrong")],
+            [("Authorization", "Basic demo-key")],
+            [("Authorization", "Bearer demo-key"), ("Authorization", "Bearer demo-key")],
+        ],
+    )
+    async def test_demo_rejects_missing_invalid_and_ambiguous_credentials(headers):
+        app = App()
+>       entry = DemoAuthentication(app, bind("a"), token="demo-key")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_experiment_support.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/engram_experiment_support.py:152: in __init__
+    self.catalog = TenantCatalog((binding,), (CredentialGrant.from_token(principal, token),))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'context_graph.tenancy.CredentialGrant'>
+principal = Principal(credential_id='demo.query', tenant_id='a', roles=frozenset({'api'}), source_id='demo.query')
+token = 'demo-key'
+
+    @classmethod
+    def from_token(cls, principal: Principal, token: str) -> CredentialGrant:
+        if (
+            not isinstance(token, str)
+            or len(token) < 16
+            or not token.isascii()
+            or any(char.isspace() for char in token)
+        ):
+>           raise TenantConfigurationError("Credential must be a nonempty opaque ASCII token")
+E           context_graph.tenancy.TenantConfigurationError: Credential must be a nonempty opaque ASCII token
+
+src/context_graph/tenancy.py:226: TenantConfigurationError
+____ test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers3] _____
+
+headers = [('Authorization', 'Bearer demo-key'), ('Authorization', 'Bearer demo-key')]
+
+    @pytest.mark.parametrize(
+        "headers",
+        [
+            [],
+            [("Authorization", "Bearer wrong")],
+            [("Authorization", "Basic demo-key")],
+            [("Authorization", "Bearer demo-key"), ("Authorization", "Bearer demo-key")],
+        ],
+    )
+    async def test_demo_rejects_missing_invalid_and_ambiguous_credentials(headers):
+        app = App()
+>       entry = DemoAuthentication(app, bind("a"), token="demo-key")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_experiment_support.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/engram_experiment_support.py:152: in __init__
+    self.catalog = TenantCatalog((binding,), (CredentialGrant.from_token(principal, token),))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'context_graph.tenancy.CredentialGrant'>
+principal = Principal(credential_id='demo.query', tenant_id='a', roles=frozenset({'api'}), source_id='demo.query')
+token = 'demo-key'
+
+    @classmethod
+    def from_token(cls, principal: Principal, token: str) -> CredentialGrant:
+        if (
+            not isinstance(token, str)
+            or len(token) < 16
+            or not token.isascii()
+            or any(char.isspace() for char in token)
+        ):
+>           raise TenantConfigurationError("Credential must be a nonempty opaque ASCII token")
+E           context_graph.tenancy.TenantConfigurationError: Credential must be a nonempty opaque ASCII token
+
+src/context_graph/tenancy.py:226: TenantConfigurationError
+______ test_demo_authenticates_tenant_and_checks_before_response_release _______
+
+    async def test_demo_authenticates_tenant_and_checks_before_response_release():
+        app = App()
+>       entry = DemoAuthentication(app, bind("a"), token="demo-key")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_experiment_support.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/engram_experiment_support.py:152: in __init__
+    self.catalog = TenantCatalog((binding,), (CredentialGrant.from_token(principal, token),))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'context_graph.tenancy.CredentialGrant'>
+principal = Principal(credential_id='demo.query', tenant_id='a', roles=frozenset({'api'}), source_id='demo.query')
+token = 'demo-key'
+
+    @classmethod
+    def from_token(cls, principal: Principal, token: str) -> CredentialGrant:
+        if (
+            not isinstance(token, str)
+            or len(token) < 16
+            or not token.isascii()
+            or any(char.isspace() for char in token)
+        ):
+>           raise TenantConfigurationError("Credential must be a nonempty opaque ASCII token")
+E           context_graph.tenancy.TenantConfigurationError: Credential must be a nonempty opaque ASCII token
+
+src/context_graph/tenancy.py:226: TenantConfigurationError
+=============================== warnings summary ===============================
+tests/unit/test_tenant_responses.py::test_real_bound_fastapi_middleware_chunks_are_materialized_then_authorized
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_experiment_support.py::test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers0]
+FAILED tests/unit/test_experiment_support.py::test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers1]
+FAILED tests/unit/test_experiment_support.py::test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers2]
+FAILED tests/unit/test_experiment_support.py::test_demo_rejects_missing_invalid_and_ambiguous_credentials[headers3]
+FAILED tests/unit/test_experiment_support.py::test_demo_authenticates_tenant_and_checks_before_response_release
+5 failed, 34 passed, 1 warning in 4.07s

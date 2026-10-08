@@ -1,0 +1,118 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+...................................s.................................... [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+..ss..........................................ss........................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+......................................ssssssssss........................ [ 79%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+..........................                                               [100%]
+=============================== warnings summary ===============================
+tests/unit/test_metrics.py:18
+  /Users/arunmenon/projects/Engram-foundation-gate/tests/unit/test_metrics.py:18: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+tests/unit/test_admin_pruning_scores.py: 2 warnings
+tests/unit/test_api_admin.py: 13 warnings
+tests/unit/test_api_auth.py: 5 warnings
+tests/unit/test_api_events.py: 16 warnings
+tests/unit/test_api_health.py: 14 warnings
+tests/unit/test_api_import.py: 1 warning
+tests/unit/test_api_ingest.py: 6 warnings
+tests/unit/test_api_users.py: 15 warnings
+tests/unit/test_artifact_route.py: 3 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_event_input_contract.py: 20 warnings
+tests/unit/test_explicit_runtime_settings.py: 1 warning
+tests/unit/test_feedback.py: 3 warnings
+tests/unit/test_metrics.py: 3 warnings
+tests/unit/test_pack_toy_end_to_end.py: 2 warnings
+tests/unit/test_pdlc_end_to_end.py: 1 warning
+tests/unit/test_pdlc_opendal_eval.py: 1 warning
+tests/unit/test_spanner_event_acceptance.py: 1 warning
+tests/unit/test_spanner_pack_admission.py: 1 warning
+tests/unit/test_webhooks.py: 18 warnings
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_self_referential_parent
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_ended_at_before_occurred_at
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[UnavailableError]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[StorageTimeoutError]
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+tests/unit/test_api_ingest.py::TestBodies::test_a_body_that_is_not_an_object_is_a_client_error
+tests/unit/test_api_ingest.py::TestBodies::test_unknown_encodings_are_refused
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/events.py:200: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestBodies::test_size_is_bounded_before_and_after_decompression
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/events.py:281: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestEventQuota::test_batches_are_charged_per_event
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/events.py:302: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    if checked.events and (limited := _quota_exceeded(request, len(checked.events))) is not None:
+
+tests/unit/test_api_query.py: 14 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_metrics.py: 1 warning
+tests/unit/test_middleware_rate_limit.py: 6 warnings
+tests/unit/test_tenant_responses.py: 1 warning
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body0]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:53: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid("query is empty")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body2]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:55: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body3]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:57: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body4]
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_standard_endpoint_returns_429_after_exceeding_limit
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_429_response_has_proper_headers
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_admin_endpoint_has_separate_limit
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/middleware/base.py:197: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await self.dispatch_func(request, call_next)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2531 passed, 15 skipped, 170 warnings in 68.52s (0:01:08)

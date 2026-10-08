@@ -6,6 +6,8 @@ Control ownership persists, epochs never decrease, exact synthetic rows removed.
 
 from __future__ import annotations
 
+from engram_experiment_support import read_owner as read_owner
+
 import asyncio
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -30,13 +32,6 @@ COLUMNS = [
     "bundle_digest",
     "serving_state",
 ]
-
-
-def read_owner(database):
-    with database.snapshot() as snapshot:
-        return [
-            list(row) for row in snapshot.read("TenantControl", COLUMNS, KeySet(keys=[["active"]]))
-        ]
 
 
 def operator_transition(database, expected, *, state, advance=False):

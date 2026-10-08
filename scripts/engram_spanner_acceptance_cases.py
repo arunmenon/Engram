@@ -5,6 +5,8 @@ No workers or pack projection. Never reset tables or adopt a populated target.
 
 from __future__ import annotations
 
+from engram_experiment_support import await_settled as await_settled
+
 import asyncio
 from contextlib import suppress
 from dataclasses import replace
@@ -32,24 +34,6 @@ def assert_owned(row, binding, epochs):
     assert tuple(row[:-1]) == expected and row[-1] in {"active", "draining", "frozen"}, (
         "Unrelated owner"
     )
-
-
-async def await_settled(awaitable):
-    """Cancellation cannot let SDK threads outlive fixture cleanup."""
-    task = asyncio.ensure_future(awaitable)
-    try:
-        return await asyncio.shield(task)
-    except asyncio.CancelledError:
-        while not task.done():
-            try:
-                await asyncio.shield(task)
-            except asyncio.CancelledError:
-                continue
-            except BaseException:
-                break
-        with suppress(BaseException):
-            task.result()
-        raise
 
 
 async def verify_acceptance(database, values, run_id, evidence, checks, fingerprint, persist):

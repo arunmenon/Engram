@@ -1,0 +1,23 @@
+E501 Line too long (117 > 100)
+  --> tests/unit/test_experiment_support.py:32:101
+   |
+30 |         [("Authorization", "Bearer wrong")],
+31 |         [("Authorization", "Basic demo-test-credential-key")],
+32 |         [("Authorization", "Bearer demo-test-credential-key"), ("Authorization", "Bearer demo-test-credential-key")],
+   |                                                                                                     ^^^^^^^^^^^^^^^^^
+33 |     ],
+34 | )
+   |
+
+E501 Line too long (110 > 100)
+  --> tests/unit/test_experiment_support.py:53:101
+   |
+51 |         transport=httpx.ASGITransport(app=entry), base_url="http://demo"
+52 |     ) as client:
+53 |         response = await client.get("/v1/probe", headers={"Authorization": "Bearer demo-test-credential-key"})
+   |                                                                                                     ^^^^^^^^^^
+54 |     assert response.status_code == 200
+55 |     assert app.principals[0].tenant_id == "a"
+   |
+
+Found 2 errors.

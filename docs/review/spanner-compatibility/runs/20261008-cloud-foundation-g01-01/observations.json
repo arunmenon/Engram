@@ -1,0 +1,1905 @@
+{
+  "goal": "G01",
+  "scenarios": [],
+  "checks": [
+    {
+      "name": "goal01_required_path",
+      "passed": false,
+      "scenarios": []
+    }
+  ],
+  "ordering_policy": "Declared PDLC rules: delivery order governs title updates; edited does not transition lifecycle, so an older edit preserves merged status. No claim of timestamp-based property ordering.",
+  "runtime": "Single database-bound ordinary app, HMAC authenticated sources, real TCP HTTP and all five actual worker loops. Public tenant dispatcher not enabled or proved.",
+  "providers": "Unmodified LLM client and sentence-transformer embedder. PR/ticket events do not trigger session-end or domain LLM extraction. Structured artifact responses.",
+  "eval_gate": "serve_unevaluated explicitly enabled for disposable experiment; no full-pack evaluation claim",
+  "intent": {
+    "predecessor": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      30,
+      "sha256:d137c3bfce7254569c2783a2719c9cd0161ecec325f54c36b12a8f943f223eaa",
+      "active"
+    ],
+    "active": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      31,
+      "sha256:87c43a48e728ae1cb3e0a2ab1c74afd761ccedbb8d4c9e76a7755ed03569a226",
+      "active"
+    ],
+    "restore": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      32,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ],
+    "allowed_cleanup_keys": {
+      "Events": [
+        [
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ]
+      ],
+      "GraphNodes": [
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8382"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8383"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-billing|8382"
+        ],
+        [
+          "WorkItem",
+          "WorkItem:jira|APP-42"
+        ],
+        [
+          "OntologyState",
+          "OntologyState:active"
+        ]
+      ],
+      "GraphEdges": [
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8382",
+          "IMPLEMENTS",
+          "WorkItem",
+          "WorkItem:jira|APP-42"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "WorkItem",
+          "WorkItem:jira|APP-42",
+          "DERIVED_FROM",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8383",
+          "DERIVED_FROM",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8383",
+          "DERIVED_FROM",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-billing|8382",
+          "DERIVED_FROM",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Change",
+          "Change:g01/20261008-cloud-foundation-g01-01-payments|8382",
+          "DERIVED_FROM",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "FOLLOWS",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "SIMILAR_TO",
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "FOLLOWS",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "Event",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "SIMILAR_TO",
+          "Event",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ]
+      ],
+      "ConsumerGroups": [
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation"
+        ]
+      ],
+      "ConsumerCursors": [
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          0
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          1
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          2
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          3
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          4
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          5
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          6
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          7
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          8
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          9
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          10
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          11
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          12
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          13
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          14
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          15
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          0
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          1
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          2
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          3
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          4
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          5
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          6
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          7
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          8
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          9
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          10
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          11
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          12
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          13
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          14
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          15
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          0
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          1
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          2
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          3
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          4
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          5
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          6
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          7
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          8
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          9
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          10
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          11
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          12
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          13
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          14
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          15
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          0
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          1
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          2
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          3
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          4
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          5
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          6
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          7
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          8
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          9
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          10
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          11
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          12
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          13
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          14
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          15
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          0
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          1
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          2
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          3
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          4
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          5
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          6
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          7
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          8
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          9
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          10
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          11
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          12
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          13
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          14
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          15
+        ]
+      ],
+      "ConsumerDeliveries": [
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ]
+      ],
+      "ConsumerDeadLetters": [
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-projection",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-extraction",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-enrichment",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-pack_extraction",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "8c52306e-edf3-5ec6-a892-fa6e6210e6c2"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "49b19a24-5035-59a3-b9b2-1b44a6288e82"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "941e65b7-b7f8-5a20-9426-0adb4ab67c25"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "23f7c736-02fa-51d0-9ef2-e3bc74198525"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "d1a5e364-b134-5836-99bf-d8ac92a7d34e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "54cdbb16-94aa-55f8-a493-1c8b02f5f56e"
+        ],
+        [
+          "g01-20261008-cloud-foundation-g01-01-consolidation",
+          "06e18333-a6a8-577e-aa71-da2da5bee34b"
+        ]
+      ]
+    },
+    "packs": [
+      [
+        "core",
+        "1.1.0"
+      ],
+      [
+        "pdlc",
+        "2.1.0"
+      ]
+    ],
+    "processing": [
+      [
+        "core",
+        "entity.extract.v1"
+      ],
+      [
+        "core",
+        "event.enrich.v1"
+      ],
+      [
+        "core",
+        "event.project.v1"
+      ],
+      [
+        "core",
+        "event.retain.v1"
+      ],
+      [
+        "core",
+        "summary.consolidate.v1"
+      ],
+      [
+        "pdlc",
+        "pack.extract.v1"
+      ],
+      [
+        "pdlc",
+        "pack.project.v1"
+      ]
+    ],
+    "expected_change_ids": [
+      "Change:g01/20261008-cloud-foundation-g01-01-payments|8382",
+      "Change:g01/20261008-cloud-foundation-g01-01-payments|8383",
+      "Change:g01/20261008-cloud-foundation-g01-01-billing|8382"
+    ],
+    "expected_work_id": "WorkItem:jira|APP-42",
+    "no_ddl": true,
+    "expected_normalized": {
+      "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8": {
+        "event": {
+          "event_id": "37d77bf9-8eb5-54bd-b8b0-1e84d69302c8",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-08T04:28:02.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "1e34ee322d4f9407fd5477c60ac383927fc51c130b3333518336d6cf8c17624b",
+          "payload_ref": "webhook:github:1e34ee322d4f9407fd5477c60ac383927fc51c130b3333518336d6cf8c17624b",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.created"
+        }
+      },
+      "8c52306e-edf3-5ec6-a892-fa6e6210e6c2": {
+        "event": {
+          "event_id": "8c52306e-edf3-5ec6-a892-fa6e6210e6c2",
+          "event_type": "pdlc.change.updated",
+          "occurred_at": "2026-10-08T04:28:03.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "fe3ceb76bdbdcbae9ae0adfd6a4e855268399f1e465098495ed07027f8643df2",
+          "payload_ref": "webhook:github:fe3ceb76bdbdcbae9ae0adfd6a4e855268399f1e465098495ed07027f8643df2",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version [updated]",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "cdevents_type": "dev.cdevents.change.updated"
+        }
+      },
+      "49b19a24-5035-59a3-b9b2-1b44a6288e82": {
+        "event": {
+          "event_id": "49b19a24-5035-59a3-b9b2-1b44a6288e82",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-10-08T04:28:02.888000Z",
+          "session_id": "pdlc:jira:PAY",
+          "agent_id": "webhook:jira",
+          "trace_id": "66e9f82522819bd659f44d6cc17ce90ceaad349188807a03e20d25f8a2b781f2",
+          "payload_ref": "webhook:jira:66e9f82522819bd659f44d6cc17ce90ceaad349188807a03e20d25f8a2b781f2",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "tracker": "jira",
+          "key": "APP-42",
+          "title": "Refund retries",
+          "work_type": "story",
+          "status": "To Do",
+          "parent_key": null,
+          "resolution": null,
+          "cdevents_type": "dev.cdevents.ticket.created"
+        }
+      },
+      "941e65b7-b7f8-5a20-9426-0adb4ab67c25": {
+        "event": {
+          "event_id": "941e65b7-b7f8-5a20-9426-0adb4ab67c25",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-08T04:28:05.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "89f18470da3a57e521d79f6f652aea319c7e48bc9ff63a4f6be689a64a8eafe1",
+          "payload_ref": "webhook:github:89f18470da3a57e521d79f6f652aea319c7e48bc9ff63a4f6be689a64a8eafe1",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version [updated]",
+          "body": "Closes APP-42",
+          "merge_sha": "dddddddddddddddddddddddddddddddddddddddd",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.merged"
+        }
+      },
+      "23f7c736-02fa-51d0-9ef2-e3bc74198525": {
+        "event": {
+          "event_id": "23f7c736-02fa-51d0-9ef2-e3bc74198525",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-08T04:28:02.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "fd9356440bb7ef1b8392d80c6cdfbde24c2a78671bc4dd1bfaaedf60973978d1",
+          "payload_ref": "webhook:github:fd9356440bb7ef1b8392d80c6cdfbde24c2a78671bc4dd1bfaaedf60973978d1",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-payments",
+          "number": 8383,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.created"
+        }
+      },
+      "d1a5e364-b134-5836-99bf-d8ac92a7d34e": {
+        "event": {
+          "event_id": "d1a5e364-b134-5836-99bf-d8ac92a7d34e",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-08T04:28:07.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "9a10308c3034988377e58b492dd3e2d8822e2f4100e787773d13a83082ff257d",
+          "payload_ref": "webhook:github:9a10308c3034988377e58b492dd3e2d8822e2f4100e787773d13a83082ff257d",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-payments",
+          "number": 8383,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "merge_sha": "dddddddddddddddddddddddddddddddddddddddd",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.merged"
+        }
+      },
+      "54cdbb16-94aa-55f8-a493-1c8b02f5f56e": {
+        "event": {
+          "event_id": "54cdbb16-94aa-55f8-a493-1c8b02f5f56e",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-08T04:28:02.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-billing",
+          "agent_id": "webhook:github",
+          "trace_id": "8380bb5b246e317ffc31be4461e72ea6e11089621e455bb137d4b644ee1b8c17",
+          "payload_ref": "webhook:github:8380bb5b246e317ffc31be4461e72ea6e11089621e455bb137d4b644ee1b8c17",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-billing",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "files": [],
+          "cdevents_type": "dev.cdevents.change.created"
+        }
+      },
+      "06e18333-a6a8-577e-aa71-da2da5bee34b": {
+        "event": {
+          "event_id": "06e18333-a6a8-577e-aa71-da2da5bee34b",
+          "event_type": "pdlc.change.updated",
+          "occurred_at": "2026-10-08T04:28:04.888454Z",
+          "session_id": "pdlc:g01/20261008-cloud-foundation-g01-01-payments",
+          "agent_id": "webhook:github",
+          "trace_id": "42e1590788a5394d41c2f0d7ce6ba5e1ab38b5f5cacb68b57ae804e00659329f",
+          "payload_ref": "webhook:github:42e1590788a5394d41c2f0d7ce6ba5e1ab38b5f5cacb68b57ae804e00659329f",
+          "global_position": null,
+          "tool_name": null,
+          "parent_event_id": null,
+          "ended_at": null,
+          "status": null,
+          "schema_version": 1,
+          "importance_hint": null
+        },
+        "payload": {
+          "repo": "g01/20261008-cloud-foundation-g01-01-payments",
+          "number": 8382,
+          "title": "ci(moonbit): update pinned MoonBit version [older edit]",
+          "body": "",
+          "head_sha": "38987761a30222544814a4ae04a48597471470e5",
+          "cdevents_type": "dev.cdevents.change.updated"
+        }
+      }
+    }
+  },
+  "error": {
+    "type": "AssertionError",
+    "message": "Predecessor changed",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/arunmenon/projects/Engram-foundation-gate/scripts/engram_goal01_pr_demo.py\", line 352, in execute\n    assert await asyncio.to_thread(read_owner, database) == [OLD], \"Predecessor changed\"\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Predecessor changed\n"
+  },
+  "shutdown_errors": []
+}

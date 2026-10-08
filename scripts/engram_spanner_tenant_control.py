@@ -7,6 +7,9 @@ Setup submits once; uncertain operations resume by the exact recorded name.
 
 from __future__ import annotations
 
+from engram_experiment_support import durable_json as durable_json
+from engram_experiment_support import fingerprint as fingerprint
+
 import argparse
 import asyncio
 import fcntl
@@ -24,43 +27,6 @@ from engram_spanner_compat import load_credentials
 
 ROOT = Path(__file__).resolve().parents[1]
 RECORDS = ROOT / "docs/review/spanner-compatibility/runs"
-
-
-def durable_json(path, value):
-    temporary = path.with_suffix(".tmp")
-    with temporary.open("w") as output:
-        json.dump(value, output, indent=2)
-        output.flush()
-        os.fsync(output.fileno())
-    temporary.replace(path)
-    directory_fd = os.open(path.parent, os.O_RDONLY)
-    try:
-        os.fsync(directory_fd)
-    finally:
-        os.close(directory_fd)
-
-
-def fingerprint(database):
-    """Application rows and existing DDL; control table is separately observed."""
-    names = (
-        "Events",
-        "GraphNodes",
-        "GraphEdges",
-        "ConsumerGroups",
-        "ConsumerCursors",
-        "ConsumerDeliveries",
-        "ConsumerDeadLetters",
-    )
-    evidence = {}
-    with database.snapshot(multi_use=True) as snapshot:
-        for table in names:
-            rows = list(snapshot.execute_sql(f"SELECT * FROM {table}"))
-            canonical = sorted(json.dumps(row, sort_keys=True, default=str) for row in rows)
-            evidence[table] = {
-                "count": len(rows),
-                "sha256": hashlib.sha256(json.dumps(canonical).encode()).hexdigest(),
-            }
-    return evidence
 
 
 def schema_preserved(before, after, *, acceptance_upgrade=False):

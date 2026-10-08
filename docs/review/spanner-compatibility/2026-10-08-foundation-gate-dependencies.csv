@@ -1,0 +1,153 @@
+module,file,foundation_delta,backend_scope
+context_graph.adapters.composed_reads,src/context_graph/adapters/composed_reads.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.embedding.service,src/context_graph/adapters/embedding/service.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.errors,src/context_graph/adapters/errors.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.fs.archive,src/context_graph/adapters/fs/archive.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.gcs.archive,src/context_graph/adapters/gcs/archive.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.graph_ops,src/context_graph/adapters/graph_ops.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.llm.client,src/context_graph/adapters/llm/client.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.llm.intent_classifier,src/context_graph/adapters/llm/intent_classifier.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.memory.graph,src/context_graph/adapters/memory/graph.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.memory.log,src/context_graph/adapters/memory/log.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.memory.stream,src/context_graph/adapters/memory/stream.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.memory.subscription,src/context_graph/adapters/memory/subscription.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.neo4j,src/context_graph/adapters/neo4j/__init__.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.errors,src/context_graph/adapters/neo4j/errors.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.graph_reads,src/context_graph/adapters/neo4j/graph_reads.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.maintenance,src/context_graph/adapters/neo4j/maintenance.py,True,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.ontology_schema,src/context_graph/adapters/neo4j/ontology_schema.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.pack_graph,src/context_graph/adapters/neo4j/pack_graph.py,True,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.queries,src/context_graph/adapters/neo4j/queries.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.retrieval,src/context_graph/adapters/neo4j/retrieval.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.store,src/context_graph/adapters/neo4j/store.py,True,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.neo4j.user_queries,src/context_graph/adapters/neo4j/user_queries.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.redis.errors,src/context_graph/adapters/redis/errors.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.redis.indexes,src/context_graph/adapters/redis/indexes.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.redis.store,src/context_graph/adapters/redis/store.py,True,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.redis.subscription,src/context_graph/adapters/redis/subscription.py,False,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.redis.trimmer,src/context_graph/adapters/redis/trimmer.py,True,optional legacy adapter import; not exercised by cloud runners
+context_graph.adapters.registry,src/context_graph/adapters/registry.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.search,src/context_graph/adapters/search.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.commits,src/context_graph/adapters/spanner/commits.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.entity_index,src/context_graph/adapters/spanner/entity_index.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.errors,src/context_graph/adapters/spanner/errors.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.event_acceptance,src/context_graph/adapters/spanner/event_acceptance.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.graph,src/context_graph/adapters/spanner/graph.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.lifecycle,src/context_graph/adapters/spanner/lifecycle.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.log,src/context_graph/adapters/spanner/log.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.schema,src/context_graph/adapters/spanner/schema.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.search,src/context_graph/adapters/spanner/search.py,False,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.subscription,src/context_graph/adapters/spanner/subscription.py,True,shared engine or selected Spanner/helper path
+context_graph.adapters.spanner.tenant_control,src/context_graph/adapters/spanner/tenant_control.py,True,shared engine or selected Spanner/helper path
+context_graph.api.app,src/context_graph/api/app.py,True,shared engine or selected Spanner/helper path
+context_graph.api.dependencies,src/context_graph/api/dependencies.py,True,shared engine or selected Spanner/helper path
+context_graph.api.ingest,src/context_graph/api/ingest.py,True,shared engine or selected Spanner/helper path
+context_graph.api.middleware,src/context_graph/api/middleware.py,True,shared engine or selected Spanner/helper path
+context_graph.api.rate_limit,src/context_graph/api/rate_limit.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.admin,src/context_graph/api/routes/admin.py,True,shared engine or selected Spanner/helper path
+context_graph.api.routes.artifacts,src/context_graph/api/routes/artifacts.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.context,src/context_graph/api/routes/context.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.entities,src/context_graph/api/routes/entities.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.events,src/context_graph/api/routes/events.py,True,shared engine or selected Spanner/helper path
+context_graph.api.routes.feedback,src/context_graph/api/routes/feedback.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.health,src/context_graph/api/routes/health.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.lineage,src/context_graph/api/routes/lineage.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.ontology,src/context_graph/api/routes/ontology.py,False,shared engine or selected Spanner/helper path
+context_graph.api.routes.query,src/context_graph/api/routes/query.py,True,shared engine or selected Spanner/helper path
+context_graph.api.routes.simulate,src/context_graph/api/routes/simulate.py,True,shared engine or selected Spanner/helper path
+context_graph.api.routes.users,src/context_graph/api/routes/users.py,True,shared engine or selected Spanner/helper path
+context_graph.api.routes.webhooks,src/context_graph/api/routes/webhooks.py,False,shared engine or selected Spanner/helper path
+context_graph.api.tenant_responses,src/context_graph/api/tenant_responses.py,True,shared engine or selected Spanner/helper path
+context_graph.api.tenants,src/context_graph/api/tenants.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.consolidation,src/context_graph/domain/consolidation.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.contradiction,src/context_graph/domain/contradiction.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.entity_resolution,src/context_graph/domain/entity_resolution.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.event_acceptance,src/context_graph/domain/event_acceptance.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.extraction,src/context_graph/domain/extraction.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.feedback,src/context_graph/domain/feedback.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.forgetting,src/context_graph/domain/forgetting.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.intent,src/context_graph/domain/intent.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.keyword_search,src/context_graph/domain/keyword_search.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.lineage,src/context_graph/domain/lineage.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.models,src/context_graph/domain/models.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.ontology,src/context_graph/domain/ontology.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_admission,src/context_graph/domain/pack_admission.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_bundle,src/context_graph/domain/pack_bundle.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_contracts,src/context_graph/domain/pack_contracts.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_expressions,src/context_graph/domain/pack_expressions.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.pack_extraction,src/context_graph/domain/pack_extraction.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.pack_intents,src/context_graph/domain/pack_intents.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_projection,src/context_graph/domain/pack_projection.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_properties,src/context_graph/domain/pack_properties.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_removals,src/context_graph/domain/pack_removals.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pack_versioning,src/context_graph/domain/pack_versioning.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.pagination,src/context_graph/domain/pagination.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.ppr,src/context_graph/domain/ppr.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.projection,src/context_graph/domain/projection.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.query_expansion,src/context_graph/domain/query_expansion.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.reranking,src/context_graph/domain/reranking.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.scoring,src/context_graph/domain/scoring.py,False,shared engine or selected Spanner/helper path
+context_graph.domain.source_trust,src/context_graph/domain/source_trust.py,True,shared engine or selected Spanner/helper path
+context_graph.domain.validation,src/context_graph/domain/validation.py,False,shared engine or selected Spanner/helper path
+context_graph.metrics,src/context_graph/metrics.py,False,shared engine or selected Spanner/helper path
+context_graph.ontology.__main__,src/context_graph/ontology/__main__.py,False,shared engine or selected Spanner/helper path
+context_graph.ontology.evaluation,src/context_graph/ontology/evaluation.py,False,shared engine or selected Spanner/helper path
+context_graph.ontology.loader,src/context_graph/ontology/loader.py,True,shared engine or selected Spanner/helper path
+context_graph.ontology.rebuild,src/context_graph/ontology/rebuild.py,True,shared engine or selected Spanner/helper path
+context_graph.ontology.runtime,src/context_graph/ontology/runtime.py,True,shared engine or selected Spanner/helper path
+context_graph.ontology.versioning,src/context_graph/ontology/versioning.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.archive,src/context_graph/ports/archive.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.embedding,src/context_graph/ports/embedding.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.errors,src/context_graph/ports/errors.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.event_log,src/context_graph/ports/event_log.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.event_store,src/context_graph/ports/event_store.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.extraction,src/context_graph/ports/extraction.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.graph_backend,src/context_graph/ports/graph_backend.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.graph_reads,src/context_graph/ports/graph_reads.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.graph_store,src/context_graph/ports/graph_store.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.health,src/context_graph/ports/health.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.intent,src/context_graph/ports/intent.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.llm,src/context_graph/ports/llm.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.maintenance,src/context_graph/ports/maintenance.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.pack_graph,src/context_graph/ports/pack_graph.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.retrieval,src/context_graph/ports/retrieval.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.search,src/context_graph/ports/search.py,False,shared engine or selected Spanner/helper path
+context_graph.ports.subscription,src/context_graph/ports/subscription.py,True,shared engine or selected Spanner/helper path
+context_graph.ports.user_store,src/context_graph/ports/user_store.py,False,shared engine or selected Spanner/helper path
+context_graph.retrieval,src/context_graph/retrieval/__init__.py,False,shared engine or selected Spanner/helper path
+context_graph.retrieval.artifacts,src/context_graph/retrieval/artifacts.py,False,shared engine or selected Spanner/helper path
+context_graph.retrieval.atlas,src/context_graph/retrieval/atlas.py,False,shared engine or selected Spanner/helper path
+context_graph.retrieval.engine,src/context_graph/retrieval/engine.py,True,shared engine or selected Spanner/helper path
+context_graph.settings,src/context_graph/settings.py,True,shared engine or selected Spanner/helper path
+context_graph.sources,src/context_graph/sources/__init__.py,False,shared engine or selected Spanner/helper path
+context_graph.sources.events,src/context_graph/sources/events.py,False,shared engine or selected Spanner/helper path
+context_graph.sources.github,src/context_graph/sources/github.py,False,shared engine or selected Spanner/helper path
+context_graph.sources.jira,src/context_graph/sources/jira.py,False,shared engine or selected Spanner/helper path
+context_graph.tenancy,src/context_graph/tenancy.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.__main__,src/context_graph/worker/__main__.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.consolidation,src/context_graph/worker/consolidation.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.consumer,src/context_graph/worker/consumer.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.enrichment,src/context_graph/worker/enrichment.py,False,shared engine or selected Spanner/helper path
+context_graph.worker.extraction,src/context_graph/worker/extraction.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.pack_extraction,src/context_graph/worker/pack_extraction.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.pack_projection,src/context_graph/worker/pack_projection.py,True,shared engine or selected Spanner/helper path
+context_graph.worker.projection,src/context_graph/worker/projection.py,True,shared engine or selected Spanner/helper path
+engram_goal01_pr_demo,scripts/engram_goal01_pr_demo.py,False,shared engine or selected Spanner/helper path
+engram_goal02_fixtures,scripts/engram_goal02_fixtures.py,False,shared engine or selected Spanner/helper path
+engram_goal02_planning_demo,scripts/engram_goal02_planning_demo.py,False,shared engine or selected Spanner/helper path
+engram_goal03_fixtures,scripts/engram_goal03_fixtures.py,False,shared engine or selected Spanner/helper path
+engram_goal03_implementation_demo,scripts/engram_goal03_implementation_demo.py,False,shared engine or selected Spanner/helper path
+engram_spanner_acceptance_cases,scripts/engram_spanner_acceptance_cases.py,True,shared engine or selected Spanner/helper path
+engram_spanner_compat,scripts/engram_spanner_compat.py,True,shared engine or selected Spanner/helper path
+engram_spanner_compat_completion,scripts/engram_spanner_compat_completion.py,True,shared engine or selected Spanner/helper path
+engram_spanner_compat_pack_cases,scripts/engram_spanner_compat_pack_cases.py,True,shared engine or selected Spanner/helper path
+engram_spanner_compat_remaining,scripts/engram_spanner_compat_remaining.py,True,shared engine or selected Spanner/helper path
+engram_spanner_empty_activation,scripts/engram_spanner_empty_activation.py,True,shared engine or selected Spanner/helper path
+engram_spanner_expansion_cases,scripts/engram_spanner_expansion_cases.py,True,shared engine or selected Spanner/helper path
+engram_spanner_interpretation_cases,scripts/engram_spanner_interpretation_cases.py,True,shared engine or selected Spanner/helper path
+engram_spanner_process_bootstrap,scripts/engram_spanner_process_bootstrap.py,True,shared engine or selected Spanner/helper path
+engram_spanner_source_trust_cases,scripts/engram_spanner_source_trust_cases.py,True,shared engine or selected Spanner/helper path
+engram_spanner_tenant_control,scripts/engram_spanner_tenant_control.py,True,shared engine or selected Spanner/helper path
+engram_spanner_tenant_control_cases,scripts/engram_spanner_tenant_control_cases.py,True,shared engine or selected Spanner/helper path
+engram_spanner_tenant_runtime_cases,scripts/engram_spanner_tenant_runtime_cases.py,True,shared engine or selected Spanner/helper path
+track_spanner_compatibility,scripts/track_spanner_compatibility.py,True,"exercised subprocess tracking helper, outside static import closure"

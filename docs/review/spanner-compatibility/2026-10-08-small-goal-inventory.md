@@ -12,6 +12,10 @@ Every goal must follow the [verification and stakeholder demonstration standard]
 
 Owners: #34 pack integration; #42 optional memory/user within #34; #41 real-Spanner compatibility. This inventory reorganizes work and does not discard existing acceptance criteria or close issues.
 
+## Approved foundation gate before G04
+
+Stakeholder authorized a bounded foundation handoff gate before G04: consolidate the snapshot runtime and walkthrough evidence into one reproducible integration branch, reconcile prior reviews, verify a fresh locked environment, and rerun G01–G03 serially on real Spanner. See the [gate plan](2026-10-08-foundation-gate-plan.md), [independent review](2026-10-08-foundation-gate-astra-review.md) and [verification/handoff record](2026-10-08-foundation-gate-verification.md). Gate is paused at stakeholder request; fresh local checks and G01 rerun passed, G02 rerun interrupted with verified cleanup, G03 rerun/publication pending. This approval does not start G04, resume the retired broad goal or authorize migration.
+
 ## Execution control and reuse
 
 Explicit user approval is required before starting each goal, including after the preceding goal passes. No automatic continuation into the next goal. The old broad goal is retired from this execution plan and must remain paused; available goal controls cannot delete or cancel it, and it must not be falsely marked complete to replace it.

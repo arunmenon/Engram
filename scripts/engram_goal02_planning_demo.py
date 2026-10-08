@@ -21,9 +21,18 @@ from pathlib import Path
 import httpx
 import structlog
 import uvicorn
+from engram_experiment_support import (
+    DemoAuthentication,
+    await_settled,
+    durable_json,
+    fingerprint,
+    load_credentials,
+    read_owner,
+    runtime_settings,
+    snapshot,
+    stop_demo,
+)
 from engram_goal02_fixtures import fixtures
-from engram_spanner_acceptance_cases import await_settled
-from engram_spanner_compat import load_credentials
 from engram_spanner_empty_activation import (
     KEYS,
     RESOURCE,
@@ -31,25 +40,16 @@ from engram_spanner_empty_activation import (
     clean_registered_target,
     freeze_target,
 )
-from engram_spanner_tenant_control import durable_json, fingerprint
-from engram_spanner_tenant_control_cases import read_owner
-from engram_spanner_tenant_runtime_cases import runtime_settings
 from google.cloud import spanner
 from google.cloud.spanner_v1.pool import BurstyPool
 from google.oauth2.credentials import Credentials
-from starlette.responses import JSONResponse
 
 from context_graph.adapters.spanner.lifecycle import close_database, prepare_cleanup
 from context_graph.adapters.spanner.tenant_control import TenantFence
 from context_graph.api.app import create_app
-from context_graph.api.tenant_responses import TenantResponseGuard
 from context_graph.domain.models import Event
 from context_graph.tenancy import (
-    CredentialGrant,
-    Principal,
-    TenantAuthorizationError,
     TenantBinding,
-    TenantCatalog,
 )
 from context_graph.worker.__main__ import _build_consumer
 
@@ -64,66 +64,6 @@ OLD = [
     "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
     "active",
 ]
-
-
-class DemoAuthentication:
-    """Single-bound test entrypoint using actual catalog credential verification.
-
-    HMAC routes authenticate in Engram's handler. Other requests authenticate
-    against the actual immutable catalog before Engram's tenant role/response
-    guards. This is not the disabled public multi-tenant dispatcher.
-    """
-
-    def __init__(self, app, binding):
-        self.app = app
-        principal = Principal("demo.query", binding.tenant_id, frozenset({"api"}), "demo.query")
-        self.catalog = TenantCatalog(
-            (binding,), (CredentialGrant.from_token(principal, "g02-local-query-key"),)
-        )
-        self.guarded = TenantResponseGuard(app, child=app, binding=binding)
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http" or scope["path"].startswith("/v1/webhooks/"):
-            await self.app(scope, receive, send)
-            return
-        headers = [v for k, v in scope.get("headers", []) if k.lower() == b"authorization"]
-        try:
-            if len(headers) != 1 or not headers[0].startswith(b"Bearer "):
-                raise TenantAuthorizationError
-            principal = self.catalog.authenticate(headers[0][7:].decode("ascii"))
-        except (TenantAuthorizationError, UnicodeError):
-            await JSONResponse({"detail": "Unauthorized"}, 401)(scope, receive, send)
-            return
-        scope = dict(scope)
-        scope["engram.principal"] = principal
-        await self.guarded(scope, receive, send)
-
-
-def snapshot(database):
-    with database.snapshot(multi_use=True) as snap:
-        return {
-            "events": [
-                list(r)
-                for r in snap.execute_sql("SELECT event_id, document, acceptance FROM Events")
-            ],
-            "nodes": [
-                list(r) for r in snap.execute_sql("SELECT label, node_id, props FROM GraphNodes")
-            ],
-            "edges": [
-                list(r)
-                for r in snap.execute_sql(
-                    "SELECT src_label, src_id, edge_type, dst_label, dst_id, props FROM GraphEdges"
-                )
-            ],
-            "pending": [
-                list(r)
-                for r in snap.execute_sql("SELECT group_name, event_id FROM ConsumerDeliveries")
-            ],
-            "dead_letters": [
-                list(r)
-                for r in snap.execute_sql("SELECT group_name, event_id FROM ConsumerDeadLetters")
-            ],
-        }
 
 
 async def execute(values, run_id, directory, *, first_only=False):
@@ -269,7 +209,10 @@ async def execute(values, run_id, directory, *, first_only=False):
             port = sock.getsockname()[1]
         server = uvicorn.Server(
             uvicorn.Config(
-                DemoAuthentication(app, binding), host="127.0.0.1", port=port, log_level="warning"
+                DemoAuthentication(app, binding, token="g02-local-query-key"),
+                host="127.0.0.1",
+                port=port,
+                log_level="warning",
             )
         )
         server_task = asyncio.create_task(server.serve())
@@ -597,24 +540,7 @@ async def execute(values, run_id, directory, *, first_only=False):
         durable_json(directory / "observations.json", evidence)
         raise
     finally:
-        for consumer in consumers:
-            consumer.stop()
-        # stop() lets in-flight SDK calls finish; cancelling a to_thread await
-        # would not terminate its transaction and could race fixture cleanup.
-        task_results = await asyncio.gather(*tasks, return_exceptions=True)
-        shutdown_errors = [type(r).__name__ for r in task_results if isinstance(r, BaseException)]
-        for store in stores:
-            try:
-                await store.close()
-            except Exception as exc:
-                shutdown_errors.append(type(exc).__name__)
-        if server is not None:
-            server.should_exit = True
-        if server_task is not None:
-            try:
-                await asyncio.wait_for(server_task, 15)
-            except Exception as exc:
-                shutdown_errors.append(type(exc).__name__)
+        shutdown_errors = await stop_demo(consumers, tasks, stores, server, server_task)
         evidence["shutdown_errors"] = shutdown_errors
         durable_json(directory / "observations.json", evidence)
         if mutation_attempted and active_owner is not None and active_owner[3] == OLD[3] + 1:

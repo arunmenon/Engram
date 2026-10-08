@@ -1,0 +1,10 @@
+{
+  "gate": "foundation-before-G04",
+  "phase": "full unit recheck after stale PDLC assertions corrected",
+  "head": "f6fd87ce1086522bdc6fea1846d92ab9d6f50f31",
+  "cloud_writes": false,
+  "migration_scope": "excluded",
+  "python": "3.12.7",
+  "command": "HF_HUB_OFFLINE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q tests/unit",
+  "run_id": "20261008-local-foundation-gate-03"
+}

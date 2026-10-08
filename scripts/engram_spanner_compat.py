@@ -9,6 +9,8 @@ Each phase starts/finishes its own persistent run record.
 
 from __future__ import annotations
 
+from engram_experiment_support import load_credentials as load_credentials
+
 import argparse
 import asyncio
 import hashlib
@@ -35,25 +37,6 @@ TABLES = (
     "ConsumerGroups",
     "Events",
 )
-
-
-def load_credentials(path: Path) -> dict[str, str]:
-    keys = (
-        "GOOGLE_CLOUD_PROJECT",
-        "SPANNER_INSTANCE_ID",
-        "SPANNER_DATABASE_ID",
-        "GOOGLE_OAUTH_ACCESS_TOKEN",
-    )
-    result = {}
-    for line in path.read_text().splitlines():
-        if any(
-            line.startswith(prefix) for key in keys for prefix in (key + "=", "export " + key + "=")
-        ):
-            key, _, value = shlex.split(line)[-1].partition("=")
-            result[key] = value
-    if set(result) != set(keys):
-        raise ValueError("four expected credential assignments required")
-    return result
 
 
 def configure(values: dict[str, str], packs: str = "pdlc") -> None:

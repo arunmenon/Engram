@@ -1,0 +1,875 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+...................................s.................................... [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+...........F...............................................FFFFFFFFFFFFF [ 53%]
+FFFFFFFFFFFF............................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+..ss..........................................ss........................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+......................................ssssssssss........................ [ 79%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+..........................                                               [100%]
+=================================== FAILURES ===================================
+________________ TestPdlcPack.test_loads_with_its_requirements _________________
+
+self = <tests.unit.test_ontology_packs.TestPdlcPack object at 0x13a1d5340>
+
+    def test_loads_with_its_requirements(self) -> None:
+        registry = load_registry(["pdlc"])
+        assert [pack.name for pack in registry.packs] == ["core", "memory", "user", "pdlc"]
+>       assert registry.pack("pdlc").version == "1.8.0"
+E       AssertionError: assert '2.1.0' == '1.8.0'
+E         
+E         - 1.8.0
+E         + 2.1.0
+
+tests/unit/test_ontology_packs.py:154: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:52 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.created] _
+
+case = {'event_type': 'pdlc.change.created', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'repo': 'example/payments', 'number': 7, 'title': 'Retry payments', 'body': '', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.updated] _
+
+case = {'event_type': 'pdlc.change.updated', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'repo': 'example/payments', 'number': 7, 'title': 'Retry payments', 'body': '', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.merged] _
+
+case = {'event_type': 'pdlc.change.merged', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'repo': 'example/payments', 'number': 7, 'title': 'Retry payments', 'body': '', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.abandoned] _
+
+case = {'event_type': 'pdlc.change.abandoned', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'repo': 'example/payments', 'number': 7, 'title': 'Retry payments', 'body': ''}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:54 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.reviewed] _
+
+case = {'event_type': 'pdlc.change.reviewed', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'repo': 'example/payments', 'number': 7, 'review_id': 'r1', 'verdict': 'approved'}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.committed] _
+
+case = {'event_type': 'pdlc.change.committed', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'repo': 'example/payments', 'subject': 'fix: retry payments (#7)', 'body': '', 'files': []}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.release.published] _
+
+case = {'event_type': 'pdlc.release.published', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'de...': 'example/payments', 'version': 'v1', 'has_breaking': False, 'entries': [{'pr_number': 7, 'section': 'fixes'}]}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.testcaserun.finished] _
+
+case = {'event_type': 'pdlc.testcaserun.finished', 'source_kind': 'synthetic_normalized_contract_example', 'classification': ...nistic', 'payload': {'repo': 'example/payments', 'test_id': 'unit', 'run_id': 'run-1', 'outcome': 'success', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:55 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.testcaserun.skipped] _
+
+case = {'event_type': 'pdlc.testcaserun.skipped', 'source_kind': 'synthetic_normalized_contract_example', 'classification': '...apping', 'payload': {'repo': 'example/payments', 'test_id': 'unit', 'run_id': 'run-1', 'outcome': 'skipped', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.service.deployed] _
+
+case = {'event_type': 'pdlc.service.deployed', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'det... 'payload': {'service': 'payments', 'environment': 'prod', 'artifact_id': 'def', 'repo': 'example/payments', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.service.rolledback] _
+
+case = {'event_type': 'pdlc.service.rolledback', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'm... 'payload': {'service': 'payments', 'environment': 'prod', 'artifact_id': 'def', 'repo': 'example/payments', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.service.upgraded] _
+
+case = {'event_type': 'pdlc.service.upgraded', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'mis... 'payload': {'service': 'payments', 'environment': 'prod', 'artifact_id': 'def', 'repo': 'example/payments', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.incident.detected] _
+
+case = {'event_type': 'pdlc.incident.detected', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'de...load': {'incident_id': 'inc-1', 'service': 'payments', 'severity': 'high', 'description': 'Elevated errors', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:56 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.incident.resolved] _
+
+case = {'event_type': 'pdlc.incident.resolved', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'incident_id': 'inc-1', 'summary': 'Recovered'}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.incident.reported] _
+
+case = {'event_type': 'pdlc.incident.reported', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'missing_mapping', 'payload': {'incident_id': 'inc-1', 'description': 'Elevated errors'}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.ticket.created] _
+
+case = {'event_type': 'pdlc.ticket.created', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'tracker': 'jira', 'key': 'PAY-7', 'title': 'Retry payments', 'work_type': 'task', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.ticket.updated] _
+
+case = {'event_type': 'pdlc.ticket.updated', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'tracker': 'jira', 'key': 'PAY-7', 'title': 'Retry payments', 'work_type': 'task', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:57 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.ticket.closed] _
+
+case = {'event_type': 'pdlc.ticket.closed', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', 'payload': {'tracker': 'jira', 'key': 'PAY-7', 'title': 'Retry payments', 'work_type': 'task', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.request.created] _
+
+case = {'event_type': 'pdlc.request.created', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'missing_mapping', 'payload': {'source_system': 'jira', 'external_id': 'REQ-1', 'title': 'Retry payments'}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.spec.approved] _
+
+case = {'event_type': 'pdlc.spec.approved', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'determ...ic', 'payload': {'doc_id': 'payments', 'version': '1', 'title': 'Payment retries', 'request_system': 'jira', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.requirement.changed] _
+
+case = {'event_type': 'pdlc.requirement.changed', 'source_kind': 'synthetic_normalized_contract_example', 'classification': '... 'payload': {'spec_id': 'payments', 'local_id': 'R1', 'statement': 'Retries are idempotent', 'spec_version': '1'}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.design.section_changed] _
+
+case = {'event_type': 'pdlc.design.section_changed', 'source_kind': 'synthetic_normalized_contract_example', 'classification'...ld', 'section_path': 'Retries', 'body': 'Use idempotency keys to avoid duplicate payments.', 'version': '1', ...}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.decision.recorded] _
+
+case = {'event_type': 'pdlc.decision.recorded', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'de...yload': {'statement': 'Use idempotency keys', 'rationale': 'Avoid duplicate payments', 'applies_to_node_ids': []}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.spec.changed] _
+
+case = {'event_type': 'pdlc.spec.changed', 'payload': {'doc_id': 'payments', 'version': '1', 'title': 'Payment retries'}, 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.design.approval_recorded] _
+
+case = {'event_type': 'pdlc.design.approval_recorded', 'payload': {'approval_id': 'a1', 'reviewer': 'reviewer', 'doc_id': 'pa...path': 'Retries', ...}, 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'deterministic', ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
+    def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
+        checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
+        rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
+>       assert len(rules) == 23
+E       AssertionError: assert 25 == 23
+E        +  where 25 = len({'pdlc.change.abandoned': EventAdmissionRule(event_type='pdlc.change.abandoned', owner='pdlc', handling='processed', c... handling='processed', consumers=(('pdlc', 'pack.project.v1'),), contract_declared=True, unavailable_reason=None), ...})
+
+tests/unit/test_pack_admission.py:74: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 09:59:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+=============================== warnings summary ===============================
+tests/unit/test_metrics.py:18
+  /Users/arunmenon/projects/Engram-foundation-gate/tests/unit/test_metrics.py:18: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+tests/unit/test_admin_pruning_scores.py: 2 warnings
+tests/unit/test_api_admin.py: 13 warnings
+tests/unit/test_api_auth.py: 5 warnings
+tests/unit/test_api_events.py: 16 warnings
+tests/unit/test_api_health.py: 14 warnings
+tests/unit/test_api_import.py: 1 warning
+tests/unit/test_api_ingest.py: 6 warnings
+tests/unit/test_api_users.py: 15 warnings
+tests/unit/test_artifact_route.py: 3 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_event_input_contract.py: 20 warnings
+tests/unit/test_explicit_runtime_settings.py: 1 warning
+tests/unit/test_feedback.py: 3 warnings
+tests/unit/test_metrics.py: 3 warnings
+tests/unit/test_pack_toy_end_to_end.py: 2 warnings
+tests/unit/test_pdlc_end_to_end.py: 1 warning
+tests/unit/test_pdlc_opendal_eval.py: 1 warning
+tests/unit/test_spanner_event_acceptance.py: 1 warning
+tests/unit/test_spanner_pack_admission.py: 1 warning
+tests/unit/test_webhooks.py: 18 warnings
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_self_referential_parent
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_ended_at_before_occurred_at
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[UnavailableError]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[StorageTimeoutError]
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+tests/unit/test_api_ingest.py::TestBodies::test_a_body_that_is_not_an_object_is_a_client_error
+tests/unit/test_api_ingest.py::TestBodies::test_unknown_encodings_are_refused
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/events.py:200: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestBodies::test_size_is_bounded_before_and_after_decompression
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/events.py:281: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestEventQuota::test_batches_are_charged_per_event
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/events.py:302: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    if checked.events and (limited := _quota_exceeded(request, len(checked.events))) is not None:
+
+tests/unit/test_api_query.py: 14 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_metrics.py: 1 warning
+tests/unit/test_middleware_rate_limit.py: 6 warnings
+tests/unit/test_tenant_responses.py: 1 warning
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body0]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:53: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid("query is empty")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body2]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:55: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body3]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:57: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body4]
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_standard_endpoint_returns_429_after_exceeding_limit
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_429_response_has_proper_headers
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_admin_endpoint_has_separate_limit
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/middleware/base.py:197: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await self.dispatch_func(request, call_next)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_ontology_packs.py::TestPdlcPack::test_loads_with_its_requirements
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.created]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.updated]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.merged]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.abandoned]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.reviewed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.change.committed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.release.published]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.testcaserun.finished]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.testcaserun.skipped]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.service.deployed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.service.rolledback]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.service.upgraded]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.incident.detected]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.incident.resolved]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.incident.reported]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.ticket.created]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.ticket.updated]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.ticket.closed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.request.created]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.spec.approved]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.requirement.changed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.design.section_changed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.decision.recorded]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.spec.changed]
+FAILED tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.design.approval_recorded]
+26 failed, 2505 passed, 15 skipped, 170 warnings in 68.15s (0:01:08)

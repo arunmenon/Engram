@@ -71,7 +71,7 @@ def policy(pack=None):
 def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
     checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
     rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
-    assert len(rules) == 23
+    assert set(rules) == {item["event_type"] for item in CASES}
     rule = rules[case["event_type"]]
     assert rule.contract_declared
     before = copy.deepcopy(case["payload"])

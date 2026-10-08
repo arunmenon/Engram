@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from engram_experiment_support import runtime_settings as runtime_settings
+
 import asyncio
 from unittest.mock import patch
 
@@ -16,23 +18,6 @@ from context_graph.api.tenants import _create_bound_child
 from context_graph.settings import Settings
 from context_graph.tenancy import TenantBinding
 from context_graph.worker.__main__ import _build_consumer
-
-
-def runtime_settings(values):
-    settings = Settings()
-    for port in ("event_log", "subscription", "graph", "keyword_index", "vector_index"):
-        setattr(settings.storage, port, "spanner")
-    settings.spanner.project = values["GOOGLE_CLOUD_PROJECT"]
-    settings.spanner.instance = values["SPANNER_INSTANCE_ID"]
-    settings.spanner.database = "engram-compat-target"
-    settings.spanner.emulator_host = None
-    settings.spanner.check_schema = True
-    settings.spanner.create_if_missing = False
-    settings.spanner.allow_create_on_instance = False
-    settings.archive.enabled = False
-    settings.ontology.packs = []
-    settings.ontology.builtin_packs = []
-    return settings
 
 
 async def verify_runtime(database, values, run_id, evidence, checks, fingerprint, persist):

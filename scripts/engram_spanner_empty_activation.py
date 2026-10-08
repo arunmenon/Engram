@@ -6,7 +6,7 @@ Intent persistence and SDK-thread settlement belong to the tracked caller.
 
 from __future__ import annotations
 
-from engram_spanner_tenant_control_cases import COLUMNS
+from engram_experiment_support import CONTROL_COLUMNS as COLUMNS
 from google.cloud.spanner_v1 import KeySet
 
 RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target"

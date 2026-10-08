@@ -1,0 +1,171 @@
+{"event": "start", "run_id": "20261008-cloud-foundation-g02-01", "at": "2026-10-08T04:36:02.622145+00:00", "record": "docs/review/spanner-compatibility/runs/20261008-cloud-foundation-g02-01"}
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-08 10:06:02 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-08 10:06:05 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-08 10:06:05 [info     ] llm_client_initialized
+2026-10-08 10:06:08 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@2.1.0'] ontology_version=sha256:d47be0424787caa3 redis_host=localhost
+2026-10-08 10:06:11 [info     ] ontology_loaded                edge_types=36 event_types=36 intents=['completeness', 'general', 'how_does', 'impact', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=21 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '2.1.0', 'owner': 'TBD'}] version=sha256:d47be0424787caa3
+2026-10-08 10:06:12 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-08 10:06:12 [info     ] consumer_started               consumer=projection-1 group=g02-20261008-cloud-foundation-g02-01-projection stream=Events
+2026-10-08 10:06:13 [info     ] pending_drain_completed        group=g02-20261008-cloud-foundation-g02-01-projection
+2026-10-08 10:06:15 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-08 10:06:15 [info     ] consumer_started               consumer=extraction-1 group=g02-20261008-cloud-foundation-g02-01-extraction stream=Events
+2026-10-08 10:06:16 [info     ] pending_drain_completed        group=g02-20261008-cloud-foundation-g02-01-extraction
+2026-10-08 10:06:18 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-08 10:06:18 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-08 10:06:19 [info     ] consumer_started               consumer=enrichment-1 group=g02-20261008-cloud-foundation-g02-01-enrichment stream=Events
+2026-10-08 10:06:19 [info     ] pending_drain_completed        group=g02-20261008-cloud-foundation-g02-01-enrichment
+2026-10-08 10:06:22 [info     ] consumer_started               consumer=pack-extraction-1 group=g02-20261008-cloud-foundation-g02-01-pack_extraction stream=Events
+2026-10-08 10:06:22 [info     ] pending_drain_completed        group=g02-20261008-cloud-foundation-g02-01-pack_extraction
+2026-10-08 10:06:25 [info     ] consolidation_llm_client_initialized
+2026-10-08 10:06:25 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-08 10:06:25 [info     ] consumer_started               consumer=consolidation-1 group=g02-20261008-cloud-foundation-g02-01-consolidation stream=Events
+2026-10-08 10:06:25 [info     ] pending_drain_completed        group=g02-20261008-cloud-foundation-g02-01-consolidation
+2026-10-08 10:06:26 [info     ] event_ingested                 event_id=25c17335-b481-5b30-8178-55b6a59eb066 event_type=pdlc.spec.changed global_position=2026-10-08T04:36:26.025183000Z/000000/25c17335-b481-5b30-8178-55b6a59eb066 request_id=65dcf4bd-d72d-4079-b382-847b6413f60c status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-08 10:06:26 [debug    ] event_enriched                 event_id=25c17335-b481-5b30-8178-55b6a59eb066 importance_score=5 keywords=['pdlc', 'spec', 'changed']
+2026-10-08 10:06:31 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1008 10:06:31.511260 51922162 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1008 10:06:31.511778 51922162 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1008 10:06:31.511801 51922162 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(18, generation: 1)
+I1008 10:06:31.511808 51922162 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1008 10:06:31.511813 51922162 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6589.89it/s]
+2026-10-08 10:06:31 [debug    ] event_projected                edge_count=0 entry_id=2026-10-08T04:36:26.025183000Z/000000/25c17335-b481-5b30-8178-55b6a59eb066 event_id=25c17335-b481-5b30-8178-55b6a59eb066 session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:06:31 [debug    ] event_embedding_stored         event_id=25c17335-b481-5b30-8178-55b6a59eb066
+2026-10-08 10:06:32 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+PL01 passed
+2026-10-08 10:06:39 [info     ] event_ingested                 event_id=f01cdcc5-41dc-5b74-ad89-cb67288b1c39 event_type=pdlc.requirement.changed global_position=2026-10-08T04:36:39.165375000Z/000000/f01cdcc5-41dc-5b74-ad89-cb67288b1c39 request_id=97c0d1f3-28c1-4990-93e8-4b28aca41930 status=created
+2026-10-08 10:06:39 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:36:39.165375000Z/000000/f01cdcc5-41dc-5b74-ad89-cb67288b1c39 event_id=f01cdcc5-41dc-5b74-ad89-cb67288b1c39 session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:06:39 [debug    ] event_enriched                 event_id=f01cdcc5-41dc-5b74-ad89-cb67288b1c39 importance_score=5 keywords=['pdlc', 'requirement', 'changed']
+2026-10-08 10:06:39 [debug    ] event_embedding_stored         event_id=f01cdcc5-41dc-5b74-ad89-cb67288b1c39
+2026-10-08 10:06:40 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+PL02-expiry passed
+2026-10-08 10:06:48 [info     ] event_ingested                 event_id=54cd314e-b8aa-5a9e-8ced-fe3fa8059f30 event_type=pdlc.requirement.changed global_position=2026-10-08T04:36:48.527791000Z/000000/54cd314e-b8aa-5a9e-8ced-fe3fa8059f30 request_id=58fe9b21-2bef-431e-98cd-a945f49798e9 status=created
+2026-10-08 10:06:48 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:36:48.527791000Z/000000/54cd314e-b8aa-5a9e-8ced-fe3fa8059f30 event_id=54cd314e-b8aa-5a9e-8ced-fe3fa8059f30 session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:06:49 [debug    ] event_enriched                 event_id=54cd314e-b8aa-5a9e-8ced-fe3fa8059f30 importance_score=5 keywords=['pdlc', 'requirement', 'changed']
+2026-10-08 10:06:49 [debug    ] event_embedding_stored         event_id=54cd314e-b8aa-5a9e-8ced-fe3fa8059f30
+2026-10-08 10:06:50 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+PL02-single passed
+2026-10-08 10:06:58 [info     ] event_ingested                 event_id=fb518656-c931-5381-8553-a416b95ea4bf event_type=pdlc.design.section_changed global_position=2026-10-08T04:36:57.982991000Z/000000/fb518656-c931-5381-8553-a416b95ea4bf request_id=3ca5edec-ec76-4263-828d-729f05978915 status=created
+2026-10-08 10:06:58 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:36:57.982991000Z/000000/fb518656-c931-5381-8553-a416b95ea4bf event_id=fb518656-c931-5381-8553-a416b95ea4bf session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:06:58 [debug    ] event_enriched                 event_id=fb518656-c931-5381-8553-a416b95ea4bf importance_score=5 keywords=['pdlc', 'design', 'section_changed']
+2026-10-08 10:06:58 [debug    ] event_embedding_stored         event_id=fb518656-c931-5381-8553-a416b95ea4bf
+2026-10-08 10:07:00 [debug    ] pack_plans_applied             edges=3 events=1 nodes=5 states=0
+I1008 10:07:00.289944 51922023 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1008 10:07:00.300515 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1008 10:07:00.301072 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(42, generation: 1)
+I1008 10:07:00.303949 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(39, generation: 1)
+I1008 10:07:00.303954 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1008 10:07:00.303958 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1008 10:07:00.303962 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1008 10:07:00.303966 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1008 10:07:00.303970 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1008 10:07:00.303973 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1008 10:07:00.303977 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1008 10:07:00.303980 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(18, generation: 1)
+I1008 10:07:00.303984 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1008 10:07:00.303988 51926584 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+I1008 10:07:00.344192 51922023 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1008 10:07:00.349008 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1008 10:07:00.349296 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(42, generation: 1)
+I1008 10:07:00.349303 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(39, generation: 1)
+I1008 10:07:00.349307 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1008 10:07:00.349310 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1008 10:07:00.349315 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1008 10:07:00.349318 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1008 10:07:00.349321 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1008 10:07:00.349325 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1008 10:07:00.349329 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1008 10:07:00.349333 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(18, generation: 1)
+I1008 10:07:00.349335 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1008 10:07:00.349338 51926620 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-08 10:07:05 [debug    ] pack_plans_applied             edges=3 events=1 nodes=1 states=0
+2026-10-08 10:07:05 [info     ] pack_extraction_applied        edges_written=3 event_id=fb518656-c931-5381-8553-a416b95ea4bf links=2 nodes=1 pack=pdlc rejected=[]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+PL03 passed
+2026-10-08 10:07:21 [info     ] event_ingested                 event_id=f28a21ce-9f06-5586-8df1-9636a966c9bd event_type=pdlc.design.section_changed global_position=2026-10-08T04:37:21.299135000Z/000000/f28a21ce-9f06-5586-8df1-9636a966c9bd request_id=e7b9a8c6-88b9-48fe-a079-e3510f49c8fa status=created
+2026-10-08 10:07:21 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:37:21.299135000Z/000000/f28a21ce-9f06-5586-8df1-9636a966c9bd event_id=f28a21ce-9f06-5586-8df1-9636a966c9bd session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:07:21 [debug    ] event_enriched                 event_id=f28a21ce-9f06-5586-8df1-9636a966c9bd importance_score=5 keywords=['pdlc', 'design', 'section_changed']
+2026-10-08 10:07:22 [debug    ] event_embedding_stored         event_id=f28a21ce-9f06-5586-8df1-9636a966c9bd
+2026-10-08 10:07:22 [debug    ] pack_plans_applied             edges=3 events=1 nodes=5 states=0
+2026-10-08 10:07:26 [debug    ] pack_plans_applied             edges=3 events=1 nodes=1 states=0
+2026-10-08 10:07:26 [info     ] pack_extraction_applied        edges_written=3 event_id=f28a21ce-9f06-5586-8df1-9636a966c9bd links=2 nodes=1 pack=pdlc rejected=[]
+PL04 passed
+2026-10-08 10:07:42 [info     ] event_ingested                 event_id=f2cdd919-3132-5c42-8a95-9751bfa620eb event_type=pdlc.design.approval_recorded global_position=2026-10-08T04:37:42.021247000Z/000000/f2cdd919-3132-5c42-8a95-9751bfa620eb request_id=f2d06eff-49aa-44a9-8125-f1ce8ecb21c3 status=created
+2026-10-08 10:07:42 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:37:42.021247000Z/000000/f2cdd919-3132-5c42-8a95-9751bfa620eb event_id=f2cdd919-3132-5c42-8a95-9751bfa620eb session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:07:42 [debug    ] event_enriched                 event_id=f2cdd919-3132-5c42-8a95-9751bfa620eb importance_score=5 keywords=['pdlc', 'design', 'approval_recorded']
+2026-10-08 10:07:42 [debug    ] event_embedding_stored         event_id=f2cdd919-3132-5c42-8a95-9751bfa620eb
+2026-10-08 10:07:43 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+PL05 passed
+PL05-not-approved passed
+2026-10-08 10:08:01 [info     ] event_ingested                 event_id=3a69422b-88dc-5618-9bf5-58ad9ffb5be1 event_type=pdlc.design.section_changed global_position=2026-10-08T04:38:01.581183000Z/000000/3a69422b-88dc-5618-9bf5-58ad9ffb5be1 request_id=49cc8551-6085-41bf-8702-04f8a7e13c18 status=created
+2026-10-08 10:08:02 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:38:01.581183000Z/000000/3a69422b-88dc-5618-9bf5-58ad9ffb5be1 event_id=3a69422b-88dc-5618-9bf5-58ad9ffb5be1 session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:08:02 [debug    ] event_enriched                 event_id=3a69422b-88dc-5618-9bf5-58ad9ffb5be1 importance_score=5 keywords=['pdlc', 'design', 'section_changed']
+2026-10-08 10:08:02 [debug    ] event_embedding_stored         event_id=3a69422b-88dc-5618-9bf5-58ad9ffb5be1
+2026-10-08 10:08:03 [debug    ] pack_plans_applied             edges=4 events=1 nodes=7 states=0
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-08 10:08:05 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-08 10:08:05 [info     ] pack_extraction_applied        edges_written=1 event_id=3a69422b-88dc-5618-9bf5-58ad9ffb5be1 links=0 nodes=1 pack=pdlc rejected=[]
+PL06 passed
+2026-10-08 10:08:15 [info     ] event_ingested                 event_id=3a69422b-88dc-5618-9bf5-58ad9ffb5be1 event_type=pdlc.design.section_changed global_position=2026-10-08T04:38:01.581183000Z/000000/3a69422b-88dc-5618-9bf5-58ad9ffb5be1 request_id=f8fe4a3b-f559-4bd0-a852-32895479d886 status=duplicate
+PL07-duplicate passed
+PL07-conflict passed
+PL08-version passed
+PL08-kind passed
+2026-10-08 10:08:50 [info     ] event_ingested                 event_id=350b624a-5b5b-5797-8643-11fd3a80e5a3 event_type=pdlc.design.section_changed global_position=2026-10-08T04:38:50.918399000Z/000000/350b624a-5b5b-5797-8643-11fd3a80e5a3 request_id=c7a71fdf-aa8b-42c2-94e8-db23b0cd393a status=created
+2026-10-08 10:08:51 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:38:50.918399000Z/000000/350b624a-5b5b-5797-8643-11fd3a80e5a3 event_id=350b624a-5b5b-5797-8643-11fd3a80e5a3 session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:08:51 [debug    ] event_enriched                 event_id=350b624a-5b5b-5797-8643-11fd3a80e5a3 importance_score=5 keywords=['pdlc', 'design', 'section_changed']
+2026-10-08 10:08:51 [debug    ] event_embedding_stored         event_id=350b624a-5b5b-5797-8643-11fd3a80e5a3
+2026-10-08 10:08:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-08 10:08:56 [debug    ] pack_plans_applied             edges=2 events=1 nodes=1 states=0
+2026-10-08 10:08:56 [info     ] pack_extraction_applied        edges_written=2 event_id=350b624a-5b5b-5797-8643-11fd3a80e5a3 links=1 nodes=1 pack=pdlc rejected=[]
+PL09-before passed
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-08 10:09:04 [info     ] event_ingested                 event_id=9a2621cb-0fcb-577d-bf70-54e2bab3aa19 event_type=pdlc.design.section_changed global_position=2026-10-08T04:39:04.845551000Z/000000/9a2621cb-0fcb-577d-bf70-54e2bab3aa19 request_id=efeff410-f3d0-4e64-8f98-ee78c60b2ce0 status=created
+2026-10-08 10:09:05 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:39:04.845551000Z/000000/9a2621cb-0fcb-577d-bf70-54e2bab3aa19 event_id=9a2621cb-0fcb-577d-bf70-54e2bab3aa19 session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:09:05 [debug    ] event_enriched                 event_id=9a2621cb-0fcb-577d-bf70-54e2bab3aa19 importance_score=5 keywords=['pdlc', 'design', 'section_changed']
+2026-10-08 10:09:05 [debug    ] event_embedding_stored         event_id=9a2621cb-0fcb-577d-bf70-54e2bab3aa19
+2026-10-08 10:09:06 [debug    ] pack_plans_applied             edges=1 events=1 nodes=3 states=0
+2026-10-08 10:09:10 [debug    ] pack_plans_applied             edges=2 events=1 nodes=1 states=0
+2026-10-08 10:09:10 [info     ] pack_extraction_applied        edges_written=2 event_id=9a2621cb-0fcb-577d-bf70-54e2bab3aa19 links=1 nodes=1 pack=pdlc rejected=[]
+PL09-after passed
+2026-10-08 10:09:18 [info     ] event_ingested                 event_id=006c9bb6-b17b-5a0b-8c06-c91ffd16d0ac event_type=pdlc.spec.changed global_position=2026-10-08T04:39:18.288943000Z/000000/006c9bb6-b17b-5a0b-8c06-c91ffd16d0ac request_id=2d6db8d0-484b-41be-8b13-92e1da90c613 status=created
+2026-10-08 10:09:18 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:39:18.288943000Z/000000/006c9bb6-b17b-5a0b-8c06-c91ffd16d0ac event_id=006c9bb6-b17b-5a0b-8c06-c91ffd16d0ac session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:09:18 [debug    ] event_enriched                 event_id=006c9bb6-b17b-5a0b-8c06-c91ffd16d0ac importance_score=5 keywords=['pdlc', 'spec', 'changed']
+2026-10-08 10:09:19 [debug    ] event_embedding_stored         event_id=006c9bb6-b17b-5a0b-8c06-c91ffd16d0ac
+2026-10-08 10:09:20 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+PL10-spec passed
+2026-10-08 10:09:27 [info     ] event_ingested                 event_id=3a0d81cf-c205-5004-834b-e06e6bb9afad event_type=pdlc.requirement.changed global_position=2026-10-08T04:39:27.372639000Z/000000/3a0d81cf-c205-5004-834b-e06e6bb9afad request_id=5722c65e-f417-426a-9b19-3779696ccee9 status=created
+2026-10-08 10:09:27 [debug    ] event_projected                edge_count=1 entry_id=2026-10-08T04:39:27.372639000Z/000000/3a0d81cf-c205-5004-834b-e06e6bb9afad event_id=3a0d81cf-c205-5004-834b-e06e6bb9afad session_id=planning:g02/20261008-cloud-foundation-g02-01
+2026-10-08 10:09:27 [debug    ] event_enriched                 event_id=3a0d81cf-c205-5004-834b-e06e6bb9afad importance_score=5 keywords=['pdlc', 'requirement', 'changed']
+2026-10-08 10:09:28 [debug    ] event_embedding_stored         event_id=3a0d81cf-c205-5004-834b-e06e6bb9afad
+2026-10-08 10:09:29 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+PL10-requirement passed
+2026-10-08 10:09:37 [info     ] consumer_stopped               consumer=pack-extraction-1 group=g02-20261008-cloud-foundation-g02-01-pack_extraction
+2026-10-08 10:09:37 [info     ] consumer_stopped               consumer=projection-1 group=g02-20261008-cloud-foundation-g02-01-projection
+2026-10-08 10:09:37 [info     ] consumer_stopped               consumer=extraction-1 group=g02-20261008-cloud-foundation-g02-01-extraction
+2026-10-08 10:09:37 [info     ] consumer_stopped               consumer=enrichment-1 group=g02-20261008-cloud-foundation-g02-01-enrichment
+2026-10-08 10:09:37 [info     ] consumer_stopped               consumer=consolidation-1 group=g02-20261008-cloud-foundation-g02-01-consolidation
+2026-10-08 10:09:37 [info     ] app_stopped
+G02 run failed: KeyboardInterrupt
+I1008 10:09:44.341614 51949804 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(43, generation: 1)
+{"event": "finish", "run_id": "20261008-cloud-foundation-g02-01", "at": "2026-10-08T04:39:44.422953+00:00", "record": "docs/review/spanner-compatibility/runs/20261008-cloud-foundation-g02-01"}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
