@@ -1,0 +1,99 @@
+.......F................................................................ [ 63%]
+............F.................F..........                                [100%]
+=================================== FAILURES ===================================
+_ test_contract_accepts_fixture_and_rejects_bad_required_fields[pdlc.release.published] _
+
+case = {'event_type': 'pdlc.release.published', 'source_kind': 'synthetic_normalized_contract_example', 'classification': 'de...': 'example/payments', 'version': 'v1', 'has_breaking': False, 'entries': [{'pr_number': 7, 'section': 'fixes'}]}, ...}
+
+    @pytest.mark.parametrize("case", CASES, ids=lambda c: c["event_type"])
+    def test_contract_accepts_fixture_and_rejects_bad_required_fields(case):
+        contract = REGISTRY.event_types[case["event_type"]].definition.payload_contract
+        assert contract is not None
+        payload = copy.deepcopy(case["payload"])
+>       contract.validate_payload(payload)
+
+tests/unit/test_pdlc_payload_contracts.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PayloadContract(version=1, properties={'repo': PayloadField(type='string', required=True, nullable=False, properties={...ds='preserve', enum=None, minimum=None, maximum=None, min_length=None, max_length=1000)}, additional_fields='preserve')
+payload = {'repo': 'example/payments', 'version': 'v1', 'has_breaking': False, 'entries': [{'pr_number': 7, 'section': 'fixes'}]}
+
+    def validate_payload(self, payload: Any) -> None:
+        """Raise structured Pydantic errors; caller must not expose input values."""
+>       self.compile_validator().model_validate(payload)
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for PackPayload
+E       entries.0.section
+E         Input should be 'breaking', 'added', 'fixed', 'docs', 'ci' or 'other' [type=literal_error, input_value='fixes', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+
+src/context_graph/domain/pack_contracts.py:174: ValidationError
+_ TestReleasesTestsDeployments.test_an_incident_never_occurs_on_a_later_deployment _
+
+self = <tests.unit.test_pack_projection.TestReleasesTestsDeployments object at 0x1073565a0>
+
+    async def test_an_incident_never_occurs_on_a_later_deployment(self) -> None:
+        """Review N2: the deployment running when the incident happened, not a later one."""
+        h = Harness()
+        deploy = {"service": "payments", "environment": "prod", "artifact_id": "app:1.2"}
+        for minute in (10, 50):  # the second deployment comes after the incident
+            await h.ingest(
+                "pdlc.service.deployed",
+                {**deploy, "repo": "acme/app", "change_numbers": []},
+                at_minute=minute,
+            )
+        await h.ingest(
+            "pdlc.incident.detected",
+            {**deploy, "incident_id": "INC-3", "severity": "high"},
+            at_minute=30,
+        )
+        running = make_node_id(
+            "Deployment", ["prod", "app:1.2", (START + timedelta(minutes=10)).isoformat()]
+        )
+>       assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-3", running)}
+E       AssertionError: assert {('Incident:I...10:00+00:00')} == {('Incident:I...10:00+00:00')}
+E         
+E         Extra items in the left set:
+E         ('Incident:INC-3', 'Deployment:acme/app|payments|prod|app:1.2|2026-10-04T10:10:00+00:00')
+E         Extra items in the right set:
+E         ('Incident:INC-3', 'Deployment:prod|app:1.2|2026-10-04T10:10:00+00:00')
+E         Use -v to get more diff
+
+tests/unit/test_pack_projection.py:403: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 11:16:17 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+2026-10-08 11:16:17 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=1
+2026-10-08 11:16:17 [debug    ] pack_plans_applied             edges=4 events=1 nodes=5 states=1
+_____ TestReviewFindings.test_latest_deployment_regardless_of_write_order ______
+
+self = <tests.unit.test_pack_projection.TestReviewFindings object at 0x1072a0b30>
+
+    async def test_latest_deployment_regardless_of_write_order(self) -> None:
+        h = Harness()
+        deploy = {"service": "payments", "environment": "prod", "artifact_id": "a"}
+        for _ in range(3):
+            await h.ingest("pdlc.service.deployed", {**deploy, "change_numbers": []})
+        await h.ingest(
+            "pdlc.incident.detected",
+            {**deploy, "incident_id": "I", "severity": "low", "description": "d"},
+        )
+        latest = make_node_id(
+            "Deployment", ["prod", "a", (START + timedelta(minutes=3)).isoformat()]
+        )
+>       assert set(h.edges("OCCURRED_ON")) == {("Incident:I", latest)}
+E       AssertionError: assert set() == {('Incident:I...03:00+00:00')}
+E         
+E         Extra items in the right set:
+E         ('Incident:I', 'Deployment:prod|a|2026-10-04T10:03:00+00:00')
+E         Use -v to get more diff
+
+tests/unit/test_pack_projection.py:548: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 11:16:18 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=0
+2026-10-08 11:16:18 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=0
+2026-10-08 11:16:18 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=0
+2026-10-08 11:16:18 [debug    ] pack_plans_applied             edges=3 events=1 nodes=5 states=1
+=========================== short test summary info ============================
+FAILED tests/unit/test_pdlc_payload_contracts.py::test_contract_accepts_fixture_and_rejects_bad_required_fields[pdlc.release.published]
+FAILED tests/unit/test_pack_projection.py::TestReleasesTestsDeployments::test_an_incident_never_occurs_on_a_later_deployment
+FAILED tests/unit/test_pack_projection.py::TestReviewFindings::test_latest_deployment_regardless_of_write_order
+3 failed, 110 passed in 2.39s

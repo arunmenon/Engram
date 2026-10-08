@@ -1,0 +1,74 @@
+.F...................................................................... [ 37%]
+........................................................................ [ 75%]
+..............................................                           [100%]
+=================================== FAILURES ===================================
+____ test_scoped_deployments_failures_placeholders_and_exact_declared_links ____
+
+    async def test_scoped_deployments_failures_placeholders_and_exact_declared_links():
+        h = Harness()
+        data = module.fixtures("local-projection")
+        expected_nodes, expected_edges = {}, set()
+        for index, step in enumerate(data["steps"]):
+            if step["expected_status"] != 201 or step.get("duplicate"):
+                continue
+            request = step["request"]
+            event = Event.model_validate(dict(request, global_position=f"{index + 1}-0"), strict=False)
+            await h.graph.merge_event_node(event_to_node(event))
+            plan = PackProjector(REGISTRY, frozenset({"release.publisher"})).plan(
+                event, dict(orjson.loads(event.model_dump_json()), payload=request["payload"])
+            )
+            assert not plan.rejected
+            await apply_plan(h.graph, plan, 1000)
+            if step["expected_node"]:
+                expected_nodes[step["expected_node"]] = step["expected_props"]
+            expected_nodes.update(step["extra_nodes"])
+            for key, props in expected_nodes.items():
+                for name, value in props.items():
+>                   assert h.node(key).get(name) == value, (step["scenario"], key, name)
+                           ^^^^^^^^^^^
+
+tests/unit/test_goal04_release_journey.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tests.unit.test_pack_projection.Harness object at 0x117e2fe90>
+node_id = 'Deployment:g04/local-projection/payments|g04/local-projection/payments/api|production|reset-sha|2026-10-08T05:44:28+00:00'
+
+    def node(self, node_id: str) -> dict[str, Any]:
+        label = node_id.split(":")[0]
+>       return self.graph.nodes[(label, node_id)]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: ('Deployment', 'Deployment:g04/local-projection/payments|g04/local-projection/payments/api|production|reset-sha|2026-10-08T05:44:28+00:00')
+
+tests/unit/test_pack_projection.py:70: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 11:19:25 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-08 11:19:25 [debug    ] pack_plans_applied             edges=1 events=1 nodes=6 states=1
+2026-10-08 11:19:25 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-08 11:19:25 [debug    ] pack_plans_applied             edges=5 events=1 nodes=9 states=1
+=============================== warnings summary ===============================
+tests/unit/test_artifact_route.py::test_timeout_is_504
+tests/unit/test_artifact_route.py::test_query_is_stripped
+tests/unit/test_artifact_route.py::test_a_pending_packs_weights_are_not_used
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body0]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:53: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid("query is empty")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body2]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:55: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body3]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:57: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body4]
+  /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_goal04_release_journey.py::test_scoped_deployments_failures_placeholders_and_exact_declared_links
+1 failed, 189 passed, 7 warnings in 11.79s

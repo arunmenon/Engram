@@ -1,6 +1,6 @@
 {
   "pack": "pdlc",
-  "pack_version": "2.1.0",
+  "pack_version": "3.0.0",
   "fixture_kind": "synthetic_normalized_contract_examples_not_public_webhooks",
   "event_time": "2026-10-07T00:00:00Z",
   "cases": [
@@ -142,7 +142,7 @@
         "entries": [
           {
             "pr_number": 7,
-            "section": "fixes"
+            "section": "fixed"
           }
         ]
       },
@@ -229,20 +229,20 @@
       },
       "expected_observed_node_ids": [
         "Component:payments",
-        "Deployment:prod|def|2026-10-07T00:00:00+00:00"
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00"
       ],
       "expected_states": {
-        "Deployment:prod|def|2026-10-07T00:00:00+00:00": "succeeded"
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00": "succeeded"
       },
       "expected_domain_edges": [
         [
           "DEPLOYED_TO",
-          "Deployment:prod|def|2026-10-07T00:00:00+00:00",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00",
           "Component:payments"
         ],
         [
           "DEPLOYS",
-          "Deployment:prod|def|2026-10-07T00:00:00+00:00",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00",
           "Change:example/payments|7"
         ]
       ],
@@ -565,6 +565,41 @@
         ]
       ],
       "note": "G02 planning contract; cloud runs tracked separately.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.service.deployment_failed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "service": "payments",
+        "environment": "prod",
+        "artifact_id": "def",
+        "repo": "example/payments",
+        "change_numbers": [
+          7
+        ]
+      },
+      "expected_observed_node_ids": [
+        "Component:payments",
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00"
+      ],
+      "expected_states": {
+        "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00": "failed"
+      },
+      "expected_domain_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00",
+          "Component:payments"
+        ],
+        [
+          "DEPLOYS",
+          "Deployment:example/payments|payments|prod|def|2026-10-07T00:00:00+00:00",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "",
       "cloud_execution": "not_run"
     }
   ]

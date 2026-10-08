@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 2.1.0   # 2.1.0: explicit implementation/verification references and reviewer trace.
+  version: 3.0.0   # 3.0.0: scoped deployment identities, failure outcomes and explicit release links.
+                   # 2.1.0: explicit implementation/verification references and reviewer trace.
                    # 2.0.0: versioned planning identities, deterministic planning rules and revision approvals.
                    # 1.8.0: optional bounded payload contracts for all23 events; ingress enforcement pending.
                    # 1.7.0: Deployment records its repo; a merge links deployments of its commit seen earlier (minor: mapping).
@@ -120,9 +121,9 @@ types:
       interfaces: [Sourced]
       properties: {run_id: string, outcome: {enum: [success, failure, cancel, error, skipped]}, severity: {enum: [low, medium, high, critical]}, test_type: string, commit_sha: string, finished_at: datetime}
     Deployment:
-      key: [environment, artifact_id, started_at]
+      key: [repo, service, environment, artifact_id, started_at]
       interfaces: [Lifecycled, Sourced]
-      properties: {environment: string, artifact_id: string, started_at: datetime, repo: string}
+      properties: {repo: string, service: string, environment: string, artifact_id: string, started_at: datetime}
       lifecycle: {initial: started, states: [started, succeeded, failed, rolled_back]}
     Component:
       key: [catalog_name]
@@ -418,6 +419,7 @@ events:
                 required: true
               section:
                 type: string
+                enum: [breaking, added, fixed, docs, ci, other]
                 required: true
   pdlc.testcaserun.finished:
     aliases:
@@ -545,6 +547,40 @@ events:
         repo:
           type: string
           required: true
+          min_length: 1
+        release_version:
+          type: string
+          min_length: 1
+        change_numbers:
+          type: array
+          max_length: 1000
+          items:
+            type: integer
+            minimum: 1
+            maximum: 9223372036854775807
+  pdlc.service.deployment_failed:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        service:
+          type: string
+          required: true
+          min_length: 1
+        environment:
+          type: string
+          required: true
+          min_length: 1
+        artifact_id:
+          type: string
+          required: true
+          min_length: 1
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        release_version:
+          type: string
           min_length: 1
         change_numbers:
           type: array
@@ -1189,13 +1225,25 @@ projection:
   - event: pdlc.service.deployed
     upsert:
       - {type: Component, key: {catalog_name: $.service}}
-      - {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo}}
+      - {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo}}
     transition: {type: Deployment, to: succeeded}
     edges:
-      - {type: DEPLOYED_TO, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
-      - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
+      - {type: DEPLOYED_TO, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
       # A deployed commit is the merge commit of a change: link it (a change merged later is linked by its merge rule)
-      - {type: DEPLOYS, from: {type: Deployment, key: {environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Release, key: {repo: $.repo, version: $.release_version}}, when: $.release_version}
+  - event: pdlc.service.deployment_failed
+    upsert:
+      - {type: Component, key: {catalog_name: $.service}}
+      - {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}, set: {repo: $.repo}}
+    transition: {type: Deployment, to: failed}
+    edges:
+      - {type: DEPLOYED_TO, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Component, key: {catalog_name: $.service}}, set: {environment: $.environment}}
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, key: {repo: $.repo, number: "$.change_numbers[*]"}}}
+      # A deployed commit is the merge commit of a change: link it (a change merged later is linked by its merge rule)
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
+      - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Release, key: {repo: $.repo, version: $.release_version}}, when: $.release_version}
   - event: pdlc.incident.detected
     upsert:
       - {type: Incident, key: {incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}
@@ -1272,7 +1320,7 @@ extraction:
     VERIFIES: {rule: "a test file changed in the same commit as the change", confidence: 0.3, method: co_change, link_status: proposed}   # Kafka 74%, OpenDAL 14% of commits change tests too   # these come only from tool events
 
 retrieval:
-  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, TestCase, TestRun, Review, DesignApproval]
+  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, Deployment, TestCase, TestRun, Review, DesignApproval]
   intents:
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"

@@ -15,6 +15,7 @@ import os
 import socket
 import subprocess
 import sys
+import tarfile
 import traceback
 from pathlib import Path
 
@@ -66,11 +67,13 @@ OLD = [
 ]
 
 
-async def execute(values, run_id, directory, *, first_only=False):
-    data = fixtures(run_id)
+async def execute(
+    values, run_id, directory, *, first_only=False, goal="G03", fixture_factory=fixtures
+):
+    data = fixture_factory(run_id)
     durable_json(directory / "fixtures.json", data)
     evidence = {
-        "goal": "G03",
+        "goal": goal,
         "scenarios": [],
         "checks": [],
         "reference_policy": (
@@ -136,7 +139,7 @@ async def execute(values, run_id, directory, *, first_only=False):
     kinds = ("projection", "extraction", "enrichment", "pack_extraction", "consolidation")
     groups = []
     for kind in kinds:
-        group = "g03-" + run_id + "-" + kind
+        group = goal.lower() + "-" + run_id + "-" + kind
         setattr(settings.consumer, "group_" + kind, group)
         groups.append(group)
     binding = TenantBinding.from_settings(
@@ -264,13 +267,14 @@ async def execute(values, run_id, directory, *, first_only=False):
         expected_nodes = {}
         expected_edges = set()
         artifact_events = {}
+        expected_edge_properties = {}
         async with httpx.AsyncClient(
             base_url=f"http://127.0.0.1:{port}",
             timeout=40,
             headers={"Authorization": "Bearer g03-local-query-key"},
         ) as http:
 
-            async def retrieve(query, required, forbidden):
+            async def retrieve(query, required, forbidden, *, exact=False):
                 response = await http.post("/v1/query/artifacts", json=query)
                 result = {"request": query, "status": response.status_code, "body": response.json()}
                 evidence.setdefault("retrieval_attempts", []).append(result)
@@ -283,6 +287,11 @@ async def execute(values, run_id, directory, *, first_only=False):
                     set(required) - set(returned),
                     result,
                 )
+                if exact:
+                    assert set(returned) == set(required), (
+                        "Unexpected retrieval identities",
+                        set(returned) ^ set(required),
+                    )
                 assert not (set(forbidden) & set(returned)), ("Cross-feature contamination", result)
                 assert not answer["meta"].get("truncated"), (
                     "Truncated result is not complete acceptance"
@@ -297,7 +306,21 @@ async def execute(values, run_id, directory, *, first_only=False):
                     "Missing required retrieval edges",
                     required_edges - returned_edges,
                 )
+                if goal == "G04" and exact:
+                    assert returned_edges == required_edges, (
+                        "Unexpected retrieval edges",
+                        returned_edges ^ required_edges,
+                    )
                 for edge in answer["edges"]:
+                    edge_key = (edge["edge_type"], edge["source"], edge["target"])
+                    if goal == "G04" and edge_key in expected_edge_properties:
+                        for name, value in expected_edge_properties[edge_key].items():
+                            assert edge.get("properties", {}).get(name) == value, (
+                                "Wrong retrieval edge property",
+                                edge_key,
+                                name,
+                            )
+
                     if edge["edge_type"] == "RAN_AGAINST" and edge["source"] in required:
                         assert (
                             edge.get("properties", {}).get("commit_sha")
@@ -312,6 +335,17 @@ async def execute(values, run_id, directory, *, first_only=False):
                         and provenance.get("source") == "spanner"
                         and provenance.get("event_id") in artifact_events[nid]
                     ), ("Wrong evidence", nid, provenance)
+                    if goal == "G04":
+                        newest = max(
+                            artifact_events[nid],
+                            key=lambda event_id: all_events[event_id][0].occurred_at,
+                        )
+                        assert provenance["event_id"] == newest, (
+                            "Wrong latest source",
+                            nid,
+                            provenance,
+                            newest,
+                        )
                     for key, value in expected_nodes.get(nid, {}).items():
                         assert returned[nid]["attributes"].get(key) == value, (
                             "Stale artifact",
@@ -332,13 +366,22 @@ async def execute(values, run_id, directory, *, first_only=False):
                 evidence["scenarios"].append(item)
                 durable_json(directory / "observations.json", evidence)
                 previous = await asyncio.to_thread(snapshot, database)
+                negative = fixture["expected_status"] != 201 or fixture.get(
+                    "duplicate", sid == "IM11-duplicate"
+                )
+                before_fingerprint = (
+                    await asyncio.to_thread(fingerprint, database)
+                    if goal == "G04" and negative
+                    else None
+                )
                 response = await http.post("/v1/events", json=request)
                 item["response"] = {"status": response.status_code, "body": response.json()}
                 durable_json(directory / "observations.json", evidence)
                 assert response.status_code == fixture["expected_status"], item["response"]
                 if fixture["expected_status"] == 201:
                     assert response.json()["event_id"] == eid and response.json()["global_position"]
-                    expected_outcome = "duplicate" if sid == "IM11-duplicate" else "created"
+                    is_duplicate = fixture.get("duplicate", sid == "IM11-duplicate")
+                    expected_outcome = "duplicate" if is_duplicate else "created"
                     assert response.json()["status"] == expected_outcome
                     accepted.add(eid)
                 completed = False
@@ -393,8 +436,19 @@ async def execute(values, run_id, directory, *, first_only=False):
                         and authority["accepted_epoch"] == owner[3]
                         and authority["source_id"] == "demo.query"
                     )
-                if fixture["expected_status"] != 201 or sid == "IM11-duplicate":
+                if fixture["expected_status"] != 201 or fixture.get(
+                    "duplicate", sid == "IM11-duplicate"
+                ):
                     assert state == previous, "Rejected/duplicate request changed persistent state"
+                    if goal == "G04":
+                        after_fingerprint = await asyncio.to_thread(fingerprint, database)
+                        item["no_write_fingerprints"] = {
+                            "before": before_fingerprint,
+                            "after": after_fingerprint,
+                        }
+                        assert before_fingerprint == after_fingerprint, (
+                            "Rejected/duplicate request changed full persistent state"
+                        )
                 nid = fixture["expected_node"]
                 nodes = {row[1]: row[2] for row in state["nodes"]}
                 if nid:
@@ -402,8 +456,15 @@ async def execute(values, run_id, directory, *, first_only=False):
                     artifact_events.setdefault(nid, set()).add(eid)
                 for extra_id, extra_props in fixture.get("extra_nodes", {}).items():
                     expected_nodes[extra_id] = extra_props
-                    artifact_events.setdefault(extra_id, set()).add(eid)
+                    if extra_id not in fixture.get("placeholders", []):
+                        artifact_events.setdefault(extra_id, set()).add(eid)
+                for placeholder in fixture.get("placeholders", []):
+                    assert not any(
+                        r[1] == placeholder and r[2] == "DERIVED_FROM" for r in state["edges"]
+                    ), ("Placeholder falsely has event evidence", placeholder)
                 expected_edges.update(tuple(e) for e in fixture["expected_edges"])
+                for kind, source, target, properties in fixture.get("expected_edge_properties", []):
+                    expected_edge_properties[(kind, source, target)] = properties
                 domain = {
                     n[1]
                     for n in state["nodes"]
@@ -418,6 +479,9 @@ async def execute(values, run_id, directory, *, first_only=False):
                         "Review",
                         "TestCase",
                         "TestRun",
+                        "Release",
+                        "Deployment",
+                        "Component",
                     }
                 }
                 expected_domain = set(expected_nodes)
@@ -441,6 +505,9 @@ async def execute(values, run_id, directory, *, first_only=False):
                         "VERIFIES",
                         "EXECUTES",
                         "RAN_AGAINST",
+                        "INCLUDES",
+                        "DEPLOYS",
+                        "DEPLOYED_TO",
                     }
                 }
                 assert actual_edges == expected_edges, (
@@ -448,6 +515,17 @@ async def execute(values, run_id, directory, *, first_only=False):
                     actual_edges ^ expected_edges,
                 )
                 for edge in state["edges"]:
+                    if goal == "G04" and edge[2] == "DEPLOYED_TO":
+                        assert edge[5].get("environment") == nodes[edge[1]].get("environment")
+                    if goal == "G04":
+                        for name, value in expected_edge_properties.get(
+                            (edge[2], edge[1], edge[4]), {}
+                        ).items():
+                            assert edge[5].get(name) == value, (
+                                "Wrong stored edge property",
+                                edge,
+                                name,
+                            )
                     if edge[2] == "RAN_AGAINST":
                         run_props = nodes[edge[1]]
                         assert edge[5].get("commit_sha") == run_props.get("commit_sha"), (
@@ -459,6 +537,33 @@ async def execute(values, run_id, directory, *, first_only=False):
                     assert {(key, event) for event in events} <= {
                         (r[1], r[4]) for r in state["edges"] if r[2] == "DERIVED_FROM"
                     }
+                if goal == "G04":
+                    actual_sources = {
+                        (r[1], r[4])
+                        for r in state["edges"]
+                        if r[2] == "DERIVED_FROM" and r[1] in expected_nodes
+                    }
+                    required_sources = {
+                        (key, event_id)
+                        for key, events in artifact_events.items()
+                        for event_id in events
+                    }
+                    assert actual_sources == required_sources, (
+                        "Unexpected artifact provenance",
+                        actual_sources ^ required_sources,
+                    )
+                    if fixture.get("absence_id"):
+                        item["absence_retrieval"] = await retrieve(
+                            {
+                                "query": "absence-check-" + eid,
+                                "seed_node_ids": [fixture["absence_id"]],
+                                "intent": "status",
+                                "max_nodes": 50,
+                            },
+                            [],
+                            [fixture["absence_id"]],
+                            exact=True,
+                        )
                 assert not any(
                     r[0] in {"UserProfile", "Preference", "Skill", "Belief", "Goal", "Episode"}
                     for r in state["nodes"]
@@ -471,9 +576,25 @@ async def execute(values, run_id, directory, *, first_only=False):
                         "max_nodes": 50,
                     }
                     item["retrieval"] = await retrieve(query, [nid], [])
+                    if goal == "G04":
+                        for placeholder in fixture.get("placeholders", []):
+                            result = await retrieve(
+                                {
+                                    "query": "status " + placeholder,
+                                    "seed_node_ids": [placeholder],
+                                    "intent": "status",
+                                    "max_nodes": 50,
+                                },
+                                [placeholder],
+                                [],
+                            )
+                            assert not result["body"]["nodes"][placeholder].get("provenance"), (
+                                "Placeholder API falsely claims provenance"
+                            )
+                            item.setdefault("placeholder_retrieval", []).append(result)
 
                 else:
-                    seed = data["ids"]["spec"]
+                    seed = data["fallback_seed"] if "fallback_seed" in data else data["ids"]["spec"]
                     item["retrieval"] = await retrieve(
                         {
                             "query": "status " + seed,
@@ -503,7 +624,10 @@ async def execute(values, run_id, directory, *, first_only=False):
                     item = {
                         "scenario": sid,
                         "retrieval": await retrieve(
-                            query, fixture["required"], fixture["forbidden"]
+                            query,
+                            fixture["required"],
+                            fixture["forbidden"],
+                            exact=fixture.get("exact", False),
                         ),
                         "verdict": "passed",
                     }
@@ -518,7 +642,7 @@ async def execute(values, run_id, directory, *, first_only=False):
             "traceback": traceback.format_exc(),
         }
         evidence["checks"].append(
-            {"name": "goal03_required_path", "passed": False, "scenarios": []}
+            {"name": goal.lower() + "_required_path", "passed": False, "scenarios": []}
         )
         durable_json(directory / "observations.json", evidence)
         raise
@@ -600,12 +724,12 @@ async def execute(values, run_id, directory, *, first_only=False):
         assert not shutdown_errors, ("Shutdown errors", shutdown_errors)
 
 
-def main():
+def main(*, goal="G03", fixture_factory=fixtures, driver_path=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--credentials", type=Path, required=True)
     parser.add_argument("--first-only", action="store_true")
-    parser.add_argument("--expected-epoch", type=int, default=28)
+    parser.add_argument("--expected-epoch", type=int, default=OLD[3])
     parser.add_argument("--expected-digest", default=OLD[4])
     args = parser.parse_args()
     OLD[3] = args.expected_epoch
@@ -619,17 +743,25 @@ def main():
     os.environ["HF_HUB_OFFLINE"] = "1"
     tracker = ROOT / "scripts/track_spanner_compatibility.py"
     manifest = {
-        "goal": "G03",
-        "phase": "IM01 full-path checkpoint"
+        "goal": goal,
+        "phase": goal + " first-input checkpoint"
         if args.first_only
-        else "implementation/review/test scenarios",
+        else goal + " full journey scenarios",
         "target": RESOURCE,
         "scope": "one ordinary bound app; no tenant dispatcher sign-off",
-        "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "source_sha256": hashlib.sha256((driver_path or Path(__file__)).read_bytes()).hexdigest(),
         "runtime_sources": {
             str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted((ROOT / "src").rglob("*"))
             if p.is_file() and p.suffix in {".py", ".yaml"}
+        },
+        "harness_sources": {
+            str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in (
+                Path(__file__),
+                ROOT / "scripts/engram_experiment_support.py",
+                ROOT / ("scripts/engram_" + goal.lower().replace("g", "goal", 1) + "_fixtures.py"),
+            )
         },
         "code_head": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "dirty_diff_sha256": hashlib.sha256(
@@ -639,7 +771,7 @@ def main():
     }
     with Path("/private/tmp/engram-spanner-compat.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        manifest_path = Path("/private/tmp/engram-g03-run-manifest.json")
+        manifest_path = Path("/private/tmp/engram-" + goal.lower() + "-run-manifest.json")
         durable_json(manifest_path, manifest)
         subprocess.run(
             [
@@ -654,18 +786,47 @@ def main():
             check=True,
         )
         directory = RECORDS / "runs" / args.run_id
+        if goal == "G04":
+            # Freeze contents before the first cloud read/write, not just after execution.
+            paths = sorted(
+                set(manifest["runtime_sources"])
+                | {str(p.relative_to(ROOT)) for p in (ROOT / "scripts").glob("engram*.py")}
+                | {
+                    "scripts/track_spanner_compatibility.py",
+                    "pyproject.toml",
+                    "uv.lock",
+                    "tests/unit/test_goal04_release_journey.py",
+                    "tests/fixtures/pack_contracts/pdlc.json",
+                }
+            )
+            hashes = {
+                name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in paths
+            }
+            with tarfile.open(directory / "executed-source.tar.gz", "w:gz") as archive:
+                for name in paths:
+                    archive.add(ROOT / name, arcname=name)
+            durable_json(directory / "executed-source-sha256.json", hashes)
         code = 0
         try:
             asyncio.run(
-                await_settled(execute(values, args.run_id, directory, first_only=args.first_only))
+                await_settled(
+                    execute(
+                        values,
+                        args.run_id,
+                        directory,
+                        first_only=args.first_only,
+                        goal=goal,
+                        fixture_factory=fixture_factory,
+                    )
+                )
             )
         except BaseException as exc:
-            print("G03 run failed: " + type(exc).__name__, flush=True)
+            print(goal + " run failed: " + type(exc).__name__, flush=True)
             code = 1
         finally:
             results = {
                 "scenarios": [],
-                "summary": "G03: individual scenarios in observations. No baseline promotion.",
+                "summary": goal + ": individual scenarios in observations. No baseline promotion.",
                 "cleanup": (
                     "See recorded cleanup/restoration evidence; "
                     "absence of evidence is not cleanup success."

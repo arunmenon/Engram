@@ -1,0 +1,27 @@
+.F...................................................................... [ 62%]
+...........................................                              [100%]
+=================================== FAILURES ===================================
+____ test_scoped_deployments_failures_placeholders_and_exact_declared_links ____
+
+    async def test_scoped_deployments_failures_placeholders_and_exact_declared_links():
+        h = Harness()
+        data = module.fixtures("local-projection")
+        expected_nodes, expected_edges = {}, set()
+        for index, step in enumerate(data["steps"]):
+            if step["expected_status"] != 201 or step.get("duplicate"):
+                continue
+            request = step["request"]
+>           event = Event.model_validate(dict(request, global_position=f"{index + 1}-0"))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 2 validation errors for Event
+E           event_id
+E             Input should be an instance of UUID [type=is_instance_of, input_value='714502cd-d8ba-5813-8a36-b0cbd6ac62a2', input_type=str]
+E               For further information visit https://errors.pydantic.dev/2.13/v/is_instance_of
+E           occurred_at
+E             Input should be a valid datetime [type=datetime_type, input_value='2026-10-08T05:42:13+00:00', input_type=str]
+E               For further information visit https://errors.pydantic.dev/2.13/v/datetime_type
+
+tests/unit/test_goal04_release_journey.py:47: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/test_goal04_release_journey.py::test_scoped_deployments_failures_placeholders_and_exact_declared_links
+1 failed, 114 passed in 2.36s

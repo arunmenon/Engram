@@ -287,7 +287,16 @@ class TestReleasesTestsDeployments:
         await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "sha7"})
         await h.ingest("pdlc.service.deployed", {**deploy, "artifact_id": "unknown"})
         earlier, later = (
-            make_node_id("Deployment", ["prod", "sha7", (START + timedelta(minutes=m)).isoformat()])
+            make_node_id(
+                "Deployment",
+                [
+                    "acme/app",
+                    "acme/app",
+                    "prod",
+                    "sha7",
+                    (START + timedelta(minutes=m)).isoformat(),
+                ],
+            )
             for m in (1, 4)
         )
         # Both deployments of the commit, and only to the change in their repo
@@ -334,7 +343,8 @@ class TestReleasesTestsDeployments:
             {**deploy, "incident_id": "INC-1", "severity": "high", "description": "failing"},
         )
         second = make_node_id(
-            "Deployment", ["prod", "app:1.2", (START + timedelta(minutes=2)).isoformat()]
+            "Deployment",
+            ["acme/app", "payments", "prod", "app:1.2", (START + timedelta(minutes=2)).isoformat()],
         )
         assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-1", second)}
         assert h.edges("AFFECTS")[("Incident:INC-1", "Component:payments")]["link_status"] == (
@@ -361,7 +371,14 @@ class TestReleasesTestsDeployments:
             at_minute=40,
         )
         latest = make_node_id(
-            "Deployment", ["prod", "app:1.2", (START + timedelta(minutes=30)).isoformat()]
+            "Deployment",
+            [
+                "acme/app",
+                "payments",
+                "prod",
+                "app:1.2",
+                (START + timedelta(minutes=30)).isoformat(),
+            ],
         )
         assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-2", latest)}
 
@@ -381,7 +398,14 @@ class TestReleasesTestsDeployments:
             at_minute=30,
         )
         running = make_node_id(
-            "Deployment", ["prod", "app:1.2", (START + timedelta(minutes=10)).isoformat()]
+            "Deployment",
+            [
+                "acme/app",
+                "payments",
+                "prod",
+                "app:1.2",
+                (START + timedelta(minutes=10)).isoformat(),
+            ],
         )
         assert set(h.edges("OCCURRED_ON")) == {("Incident:INC-3", running)}
         # Before any deployment of the artifact: no link at all
@@ -518,7 +542,12 @@ class TestReviewFindings:
 
     async def test_latest_deployment_regardless_of_write_order(self) -> None:
         h = Harness()
-        deploy = {"service": "payments", "environment": "prod", "artifact_id": "a"}
+        deploy = {
+            "repo": "acme/app",
+            "service": "payments",
+            "environment": "prod",
+            "artifact_id": "a",
+        }
         for _ in range(3):
             await h.ingest("pdlc.service.deployed", {**deploy, "change_numbers": []})
         await h.ingest(
@@ -526,7 +555,8 @@ class TestReviewFindings:
             {**deploy, "incident_id": "I", "severity": "low", "description": "d"},
         )
         latest = make_node_id(
-            "Deployment", ["prod", "a", (START + timedelta(minutes=3)).isoformat()]
+            "Deployment",
+            ["acme/app", "payments", "prod", "a", (START + timedelta(minutes=3)).isoformat()],
         )
         assert set(h.edges("OCCURRED_ON")) == {("Incident:I", latest)}
 

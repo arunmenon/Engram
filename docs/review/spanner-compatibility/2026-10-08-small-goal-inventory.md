@@ -99,3 +99,7 @@ G03 [verification and recorded stakeholder walkthrough](2026-10-08-goal-03-verif
 ## Cleaned foundation revalidation checkpoint
 
 The stakeholder separately authorized G01, then G02/G03. All passed on `feature/engram-verified-foundation`: G01 eight scenarios, G02 22 checks and G03 28 checks, with independent evidence reviews and exact cleanup. See the [bounded foundation handoff](2026-10-08-foundation-gate-verification.md). Original runs and failed/interrupted reruns remain preserved. G04 has not started and needs explicit approval. The retired broad goal remains paused.
+
+## G04 authorization (latest checkpoint)
+
+User explicitly authorized G04 after the completed foundation reconciliation and G02/G03 reruns. Execute [G04 release/deployment specification](2026-10-08-goal-04-release-deployment.md) only, with its [verification record](2026-10-08-goal-04-verification.md). Earlier “G04 unstarted” paragraphs are historical checkpoints. No separate foundation work or G01–G03 cloud reruns. G05 remains unstarted pending separate approval.
