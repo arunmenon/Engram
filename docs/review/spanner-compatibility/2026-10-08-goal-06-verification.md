@@ -248,7 +248,6 @@ The exact node and edge arrays are frozen in fixtures, not inferred from respons
 | unciting_spec | Spec:g06/20261008-cloud-g06-all-03-unrelated-spec\|1 |
 | unknown_lesson | Lesson:0000000000000000000000000000000000000000000000000000000000000000:authored |
 | unknown_spec | Spec:g06/20261008-cloud-g06-all-03-unknown-reference\|1 |
-
 | filled_reference_service | Component:g06/20261008-cloud-g06-all-03/auth/future |
 
 ## Evidence and issue synchronization
