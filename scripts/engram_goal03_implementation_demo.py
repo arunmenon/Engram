@@ -427,7 +427,10 @@ async def execute(
                 ]
                 if (
                     fixture["expected_status"] == 201
-                    and request["event_type"] == "pdlc.design.section_changed"
+                    and (
+                        request["event_type"] == "pdlc.design.section_changed"
+                        or (goal == "G06" and request["event_type"] == "pdlc.spec.approved")
+                    )
                 ):
                     assert matching and all(
                         o["event"] == "pack_extraction_applied" for o in matching
