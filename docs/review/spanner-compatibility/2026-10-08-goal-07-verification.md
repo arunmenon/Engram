@@ -103,3 +103,7 @@ Preparation tracking: [actual #39 update](https://github.com/arunmenon/Engram/is
 - Request mapping and seed, strict skipped TestRun projection, no-PR commit guard, and exact rollback action/upgraded deployment declarations integrated.
 - Cloud fixture/oracle and runner reconciliation, final independent review, and the full tracked Spanner write-to-read run remain outstanding.
 - G05/G06 have not been written or cleaned by this goal. No G07 issue is closed.
+
+- Astra scoped runtime review found a UTC-overflow admission defect. Fixed in d379637 with observational date-time validation; 167 focused contract/deployment/catalog checks passed. Independent recheck is pending.
+- Matrix preserves the original 4.2.0 baseline columns and now identifies the 5.0.0 G07 target separately; every cloud status remains NOT RUN.
+- Slice issue progress comments are preserved in the ticket receipt file. Updates are evidence checkpoints, not closure.
