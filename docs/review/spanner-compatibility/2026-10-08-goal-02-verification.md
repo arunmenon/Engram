@@ -1,5 +1,11 @@
 # G02 verification and stakeholder demonstration
 
+## Scope decision — disposable experiments (2026-10-08)
+
+Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
+
+Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
+
 Status: VERIFIED on real Spanner, independently reviewed, pushed and reconciled with GitHub. Recorded walkthrough delivered in this document; stakeholder sign-off is not assumed. G03 remains unstarted.
 
 ## What this proves
@@ -121,7 +127,7 @@ For a recorded walkthrough, follow PL01 → PL02 → PL03/04 → PL05/06, then s
 - Single bound tenant app with real authentication, not the public multi-tenant dispatcher; cross-tenant isolation is not newly signed off.
 - Synthetic explicitly normalized producer events, not native document adapters or arbitrary raw payload interpretation.
 - Approval asserts a named revision and supplied reviewer; it does not prove independently authenticated human approval or immutable content. Different event IDs can still rewrite the same revision. Design lifecycle remains draft; approval does not automatically promote it.
-- PDLC 2.0 breaks prior Requirement/DesignElement identities. Only an empty disposable target was activated; historical migration/replay is not verified.
+- PDLC 2.0 breaks prior Requirement/DesignElement identities. Only an empty disposable target was activated. Historical migration is excluded from current goals and is not a blocker.
 - Actual cloud data operations succeed; monitoring metrics emit an IAM 403, so metrics publication is not verified.
 - All original65 Spanner baseline scenario statuses remain unchanged; these G02 extensions do not promote baseline cases. Full PDLC event coverage, CRM/unfamiliar packs and later journeys remain outside G02.
 

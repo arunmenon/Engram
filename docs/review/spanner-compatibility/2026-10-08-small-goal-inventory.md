@@ -1,5 +1,11 @@
 # Small goal inventory
 
+## Scope decision — disposable experiments (2026-10-08)
+
+Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
+
+Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
+
 Status: G01 verified, independently reviewed and recorded demonstration published; stakeholder approval not assumed. G02 explicitly authorized on 2026-10-08 and verified, independently reviewed, pushed and issue-reconciled in run 20261008-cloud-g02-all-03; G03 and later remain proposed and unstarted. User chooses each goal to execute. The former combined autonomous goal is paused and retired from the execution plan, not completed. No automatic progression between goals.
 
 Every goal must follow the [verification and stakeholder demonstration standard](goal-verification-standard.md), produce its own detailed verification document, and end with a stakeholder walkthrough. G01's [verification document](2026-10-08-goal-01-verification.md) contains the recorded real-Spanner results.
@@ -48,7 +54,7 @@ Numbers below preserve the original discussion's goal references; rows 1–7 are
 | 22 | Interrupted worker recovery | Final artifacts/evidence correct; pending content retained |
 | 23 | Late events and delayed relationships | Agreed ordering and repair verified |
 | 24 | Honest retrieval limits | Pagination/deadlines/rejected links/incompleteness checked |
-| 25 | Upgrade and rebuild recovery | Historical interpretation and original ledger preserved |
+| 25 | Same-pack replay and graph recovery on disposable data | Reprocess this experiment’s accepted events; preserve its ledger; no historical migration |
 | 26 | Spanner sign-off | 65 baseline cases plus agreed extensions pass with evidence |
 
 Proposed buckets, in order: working PR journey; input/update safety (included in G01 where specified); planning-to-implementation; remaining PDLC lifecycle; optional/composed packs; tenant isolation; recovery and compatibility. G02 is the separately authorized PRD/Requirement/HLD/LLD journey now technically verified; subsequent goals remain unstarted.
@@ -75,9 +81,9 @@ G02 was separately authorized. G03 and every later goal below remain unstarted. 
 | G14 | Interrupted worker processing and recovery |
 | G15 | Broader late-event, ordering and delayed relationship handling |
 | G16 | Retrieval pagination/deadlines/rejected relationships and honest incompleteness |
-| G17 | Pack upgrade/rebuild interruption, historical interpretation and ledger preservation |
+| G17 | Same-pack graph rebuild/replay interruption and ledger preservation using this experiment’s own events; historical migration and cross-version upgrades deferred |
 | G18 | Full65-scenario Spanner baseline plus agreed additions; evidence-backed sign-off |
 
-Supporting safety cases not completed by the selected journeys remain explicit, including protected-field clearing, conflicting semantic identities and full historical replay. Grouping is not closure. Every goal ends with its verification document, stakeholder demo, independent review, issue reconciliation and explicit stop boundary.
+Supporting safety cases not completed by the selected journeys remain explicit, including protected-field clearing, conflicting semantic identities and recovery/replay within the current experiment. Historical migration and cross-version replay are deferred. Grouping is not closure. Every goal ends with its verification document, stakeholder demo, independent review, issue reconciliation and explicit stop boundary.
 
 G02 [verification and recorded stakeholder walkthrough](2026-10-08-goal-02-verification.md) is published; #46 closed, broad issues remain open. Stakeholder sign-off is not inferred. Stop boundary: G03 and all subsequent goals remain unstarted pending explicit approval.

@@ -1,5 +1,11 @@
 # Required verification and stakeholder demonstration for every goal
 
+## Scope decision — disposable experiments (2026-10-08)
+
+Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
+
+Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
+
 Every goal requires its own verification document and a walkthrough for the stakeholder. Apply this standard to all goals in the small-goal inventory. A code summary, test count or successful ingestion receipt is insufficient. Documentation alone does not authorize execution.
 
 ## Before execution

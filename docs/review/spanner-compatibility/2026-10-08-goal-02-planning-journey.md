@@ -1,5 +1,11 @@
 # G02 — Versioned planning journey on real Spanner
 
+## Scope decision — disposable experiments (2026-10-08)
+
+Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
+
+Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
+
 Status: VERIFIED. User explicitly authorized G02 on 2026-10-08. G01 complete; G03 and later goals remain unstarted. The old broad control goal remains paused. Follow goal-verification-standard.md; this file tracks only G02.
 
 ## Outcome and existing gap
@@ -12,7 +18,7 @@ Current PDLC 1.8 declares requirement.changed and design.section_changed but has
 
 Use existing interpreter, common event envelope, keyed endpoint placeholders, source authority and shared storage. No new service, projection engine or direct artifact insertion.
 
-PDLC 2.0 is a breaking pack revision: DesignElement identity becomes doc_id+section_path+version, Requirement identity becomes spec_id+spec_version+local_id. Old records require separate migration/replay work; this goal activates only a known empty disposable database and does not claim upgrades proved. Spec is already keyed by doc_id+version.
+PDLC 2.0 is a breaking pack revision: DesignElement identity becomes doc_id+section_path+version, Requirement identity becomes spec_id+spec_version+local_id. This experiment activates only a known empty disposable database. No old dataset exists to migrate; historical migration and cross-version upgrade work are excluded from the current goals. Spec is already keyed by doc_id+version.
 
 Add deterministic spec.changed, requirement.changed and design.section_changed rules. Requirement explicitly REFINES its Spec revision. Design explicitly REFINES named Requirement or DesignElement revisions. Version 2 SUPERSEDES explicitly named version 1; both revisions remain. Extend REFINES endpoints for DesignElement targets. Add DesignApproval keyed by approval_id, with reviewer/approved verdict/time and exact DesignElement target via APPROVES. Design approval is an artifact, not a mutable blanket flag. Only approved is admitted by this approval event; changes_requested is rejected, not recorded as approval. Approval is a separate record; DesignElement lifecycle status is not automatically promoted by this slice. Version 2 receives no implicit approval. APPROVES and SUPERSEDES have explicit trace/status weights; PL11 uses status intent to include superseded history and trace for current content. Approval asserts a revision key, not an immutable content hash or independently verified reviewer identity. A producer reusing an event ID with changed content conflicts through existing admission; identity immutability beyond that is not implied.
 

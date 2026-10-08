@@ -1,5 +1,11 @@
 # G01 verification and stakeholder demonstration
 
+## Scope decision — disposable experiments (2026-10-08)
+
+Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
+
+Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
+
 Status: G01 verification complete and recorded stakeholder demo published. All eight required scenarios PASSED on real Spanner; independent Astra review found no blocking findings. Only G01 is authorized. G02 remains stopped. This is PR-slice acceptance, not completion of #34 or Spanner umbrella #41.
 
 ## What this demonstrates

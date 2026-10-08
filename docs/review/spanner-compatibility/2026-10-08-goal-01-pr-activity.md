@@ -1,5 +1,11 @@
 # G01 — Prove PR activity end to end through Engram on real Spanner
 
+## Scope decision — disposable experiments (2026-10-08)
+
+Applies to every current goal: historical-data migration, migration adapters, conversion of old pack identities, and cross-version historical upgrade analysis/tests are OUT OF SCOPE. Do not spend implementation, review or analysis effort on them or use their absence as a completion blocker. Runs start with an explicitly owned disposable dataset. Priorities are ontology-pack composition and the actual Engram ingestion → ledger → workers/projection → Spanner graph → retrieval/evidence path.
+
+Revision history, approvals, retries, ordering and recovery/replay of events created within the same experiment and pinned pack configuration remain functional tests. They are not historical migration. A fresh connected demo dataset must be created through Engram ingestion; retaining it for an approved demonstration does not add migration scope. Existing migration tickets/history are preserved as deferred future work; do not silently count their scenarios as passing or close them. A migration-only baseline case is explicitly deferred, not a current-goal sign-off requirement. Migration work requires a separate explicit future authorization.
+
 Status: G01 verified and recorded demonstration published. Eight cloud scenarios PASSED and independently reviewed; issue reconciliation complete. Explicitly authorized by user on 2026-10-08. Do not start G02 or unrelated feature work. Prior combined goal remains paused; its requirements are not declared complete. G01 execution is tracked here because the available goal controls cannot replace an unfinished paused goal without falsely completing it.
 
 Follow the [mandatory verification and stakeholder demonstration standard](goal-verification-standard.md). Populate [G01 verification](2026-10-08-goal-01-verification.md) with the full per-scenario trace and deliver the stakeholder walkthrough before reporting this goal delivered.
