@@ -211,7 +211,14 @@ async def test_missing_candidate_seed_can_discover_other_matching_artifacts():
         {"doc_id": "known-spec", "version": "1", "title": "Check token expiry server-side"},
     )
     missing = "Lesson:" + "0" * 64 + ":authored"
-    answer = await ArtifactRetriever(h.graph, REGISTRY).retrieve(
+    answer = await ArtifactRetriever(
+        h.graph,
+        REGISTRY,
+        default_max_depth=3,
+        seed_limit=20,
+        neighbor_limit=100,
+        provenance_source="memory",
+    ).retrieve(
         ArtifactQuery(
             query="absence-check-00000000-0000-0000-0000-000000000099",
             seed_node_ids=(missing,),
