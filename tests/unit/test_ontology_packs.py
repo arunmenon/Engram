@@ -151,9 +151,9 @@ class TestPdlcPack:
     def test_loads_with_its_requirements(self) -> None:
         registry = load_registry(["pdlc"])
         assert [pack.name for pack in registry.packs] == ["core", "memory", "user", "pdlc"]
-        assert registry.pack("pdlc").version == "4.2.0"
-        # Includes Release and the revision-bound DesignApproval introduced in G02.
-        assert len([t for t in registry.node_types.values() if t.pack == "pdlc"]) == 18
+        assert registry.pack("pdlc").version == "5.0.0"
+        # Includes G02 DesignApproval and G07 DeploymentRollback action evidence.
+        assert len([t for t in registry.node_types.values() if t.pack == "pdlc"]) == 19
         assert set(registry.rules_for("pdlc.change.merged")[0][1].model_dump()) >= {"event"}
 
     def test_pdlc_types_are_identified_by_node_id(self) -> None:
