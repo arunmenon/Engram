@@ -156,3 +156,5 @@ Current external blocker: read-only `get_database` returned `PermissionDenied` f
 service account has its required database permissions. No G07 DDL or data write has
 been attempted. All #54–#58 remain open; #34/#41 compatibility sign-off is unchanged.
 G08, the composition assessment and the developer pilot have not started.
+
+Final GitHub progress reconciliation: [actual comment receipts](2026-10-08-g07-final-github-reconciliation.json) for #54–#58 and affected #34/#36/#37/#39/#40/#41. All remain open.

@@ -1,6 +1,6 @@
 # Small goal inventory
 
-## Current checkpoint — G06 verified; G07 selected for execution
+## Current checkpoint — G06 verified; G07 local gate reviewed, cloud blocked
 
 G01–G06 have bounded published verification records. G05's connected dataset is
 retained in `engram-compat-target`; G06's separate dataset is retained in
@@ -13,7 +13,7 @@ scoped #51–#53 while eleven broader issues remain open. Both failed full attem
 are preserved with runner/oracle explanations. No whole-pack/baseline65 or
 stakeholder-sign-off claim is made. No new feature bucket was needed.
 
-The stakeholder selected G07 first. Its [specification and proposed slices](2026-10-08-goal-07-event-coverage.md),
+The stakeholder selected G07 first. Its local implementation and final runtime/harness reviews are complete on `feature/engram-g07-event-coverage`;234 focused checks passed. Real-Spanner acceptance is NOT RUN because `engram-g07-target` access returned PermissionDenied. The638 planned checks and actual open-issue updates are preserved in its verification record. No G07 issue is closed. Its [specification and proposed slices](2026-10-08-goal-07-event-coverage.md),
 [28-event matrix](2026-10-08-g07-event-coverage.csv) and [verification template](2026-10-08-goal-07-verification.md)
 are published. Selection authorizes kickoff; implementation/review/cloud results
 remain NOT RUN until actual evidence is recorded. Do not infer ticket publication
