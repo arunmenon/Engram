@@ -69,6 +69,7 @@ def fixtures(run_id, *, start=None):
                 expected_states=states,
                 expected_observation_events=observations,
                 expected_edges=[list(e) for e in edges],
+                exact=True,
             )
         )
 
@@ -188,10 +189,10 @@ def fixtures(run_id, *, start=None):
         "DQ04-real-observation",
         "D04-late-fill",
         unknown_rollback,
-        [unknown_rollback, unknown],
+        [unknown_rollback, unknown, component],
         {unknown: "rolled_back"},
         {unknown: event_id("D04-late-fill"), unknown_rollback: event_id("D04-unknown")},
-        [("ROLLS_BACK", unknown_rollback, unknown)],
+        [("ROLLS_BACK", unknown_rollback, unknown), ("DEPLOYED_TO", unknown, component)],
     )
 
     upgrade = ids["upgrade"] = node(
