@@ -1267,6 +1267,9 @@ events:
 # Deterministic projection: event -> node upserts -> edge upserts -> lifecycle transitions.
 # $.x reads the event payload; $event.x reads the envelope. Unknown references fail validation at pack load.
 projection:
+  - event: pdlc.request.created
+    upsert:
+      - {type: Request, key: {source_system: $.source_system, external_id: $.external_id}, set: {title: $.title, description: $.description}}
   - event: pdlc.spec.changed
     upsert:
       - {type: Spec, key: {doc_id: $.doc_id, version: $.version}, set: {title: $.title, scope: $.scope, acceptance_criteria: $.acceptance_criteria, source_uri: $.source_uri, content_hash: $.content_hash}}
@@ -1456,7 +1459,7 @@ extraction:
     VERIFIES: {rule: "a test file changed in the same commit as the change", confidence: 0.3, method: co_change, link_status: proposed}   # Kafka 74%, OpenDAL 14% of commits change tests too   # these come only from tool events
 
 retrieval:
-  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, Deployment, TestCase, TestRun, Review, DesignApproval]
+  seed_types: [Request, Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, Deployment, TestCase, TestRun, Review, DesignApproval]
   intents:
     incident:
       description: "Retrieve declared incident occurrence, affected service and deployment evidence"
