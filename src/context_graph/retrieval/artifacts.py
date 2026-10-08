@@ -513,8 +513,9 @@ class ArtifactRetriever:
                     score = 2.0 + (0.5 if others and all(o in key_terms for o in others) else 0.0)
                     if number_ref not in found or found[number_ref].score < score:
                         found[number_ref] = _Found(number_ref, props, score, 0, origin="number")
-        if words and not found:
-            # Precise references found nothing: match words, the rarer the stronger
+        if words and not found and not given:
+            # Loose discovery is fallback only when no precise seed resolved.
+            # Descriptive words must not widen an explicitly anchored journey.
             await self._word_seeds(words, found, given_refs, result)
         # Word matches far weaker than the best one are noise
         best_word = max((f.score for f in found.values() if f.origin == "word"), default=0.0)

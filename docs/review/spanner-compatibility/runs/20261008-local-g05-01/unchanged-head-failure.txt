@@ -1,0 +1,47 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ TestReviewFindings.test_no_keyword_uses_artifact_edges_only __________
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestReviewFindings object at 0x103edd790>
+setup = (<context_graph.adapters.memory.graph.MemoryGraphStore object at 0x103e4a690>, <context_graph.retrieval.artifacts.ArtifactRetriever object at 0x103b08f20>)
+
+    async def test_no_keyword_uses_artifact_edges_only(
+        self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
+    ) -> None:
+        _graph, retriever = setup
+        response = await retriever.retrieve(ArtifactQuery("PAY-341"))
+        assert response.meta.inferred_intents == {}
+        types = {n.node_type for n in response.nodes.values()}
+        assert "Event" not in types
+        assert all(n.retrieval_reason != "superseded" for n in response.nodes.values())
+        owners = await retriever.retrieve(ArtifactQuery("Who owns the payments service?"))
+>       assert {n.node_type for n in owners.nodes.values()} == {"Component"}
+E       AssertionError: assert {'Component', 'Deployment'} == {'Component'}
+E         
+E         Extra items in the left set:
+E         'Deployment'
+E         Use -v to get more diff
+
+tests/unit/test_pdlc_retrieval_eval.py:851: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=1 events=1 nodes=3 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=5 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=5 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=1 events=1 nodes=3 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=3 events=1 nodes=7 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=1 events=1 nodes=6 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=3 events=1 nodes=7 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=4 events=1 nodes=7 states=0
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=3 events=1 nodes=4 states=0
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=5 events=1 nodes=8 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=4 events=1 nodes=5 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=2 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=3 events=1 nodes=4 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=2 states=1
+2026-10-08 17:02:52 [debug    ] pack_plans_applied             edges=2 events=1 nodes=2 states=1
+=========================== short test summary info ============================
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings::test_no_keyword_uses_artifact_edges_only
+1 failed in 0.35s

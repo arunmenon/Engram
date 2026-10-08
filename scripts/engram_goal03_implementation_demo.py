@@ -68,9 +68,17 @@ OLD = [
 
 
 async def execute(
-    values, run_id, directory, *, first_only=False, goal="G03", fixture_factory=fixtures
+    values,
+    run_id,
+    directory,
+    *,
+    first_only=False,
+    goal="G03",
+    fixture_factory=fixtures,
+    retain_success=False,
 ):
     data = fixture_factory(run_id)
+    journey_passed = False
     durable_json(directory / "fixtures.json", data)
     evidence = {
         "goal": goal,
@@ -306,14 +314,14 @@ async def execute(
                     "Missing required retrieval edges",
                     required_edges - returned_edges,
                 )
-                if goal == "G04" and exact:
+                if goal in {"G04", "G05"} and exact:
                     assert returned_edges == required_edges, (
                         "Unexpected retrieval edges",
                         returned_edges ^ required_edges,
                     )
                 for edge in answer["edges"]:
                     edge_key = (edge["edge_type"], edge["source"], edge["target"])
-                    if goal == "G04" and edge_key in expected_edge_properties:
+                    if goal in {"G04", "G05"} and edge_key in expected_edge_properties:
                         for name, value in expected_edge_properties[edge_key].items():
                             assert edge.get("properties", {}).get(name) == value, (
                                 "Wrong retrieval edge property",
@@ -335,7 +343,7 @@ async def execute(
                         and provenance.get("source") == "spanner"
                         and provenance.get("event_id") in artifact_events[nid]
                     ), ("Wrong evidence", nid, provenance)
-                    if goal == "G04":
+                    if goal in {"G04", "G05"}:
                         newest = max(
                             artifact_events[nid],
                             key=lambda event_id: all_events[event_id][0].occurred_at,
@@ -371,7 +379,7 @@ async def execute(
                 )
                 before_fingerprint = (
                     await asyncio.to_thread(fingerprint, database)
-                    if goal == "G04" and negative
+                    if goal in {"G04", "G05"} and negative
                     else None
                 )
                 response = await http.post("/v1/events", json=request)
@@ -440,7 +448,7 @@ async def execute(
                     "duplicate", sid == "IM11-duplicate"
                 ):
                     assert state == previous, "Rejected/duplicate request changed persistent state"
-                    if goal == "G04":
+                    if goal in {"G04", "G05"}:
                         after_fingerprint = await asyncio.to_thread(fingerprint, database)
                         item["no_write_fingerprints"] = {
                             "before": before_fingerprint,
@@ -515,9 +523,9 @@ async def execute(
                     actual_edges ^ expected_edges,
                 )
                 for edge in state["edges"]:
-                    if goal == "G04" and edge[2] == "DEPLOYED_TO":
+                    if goal in {"G04", "G05"} and edge[2] == "DEPLOYED_TO":
                         assert edge[5].get("environment") == nodes[edge[1]].get("environment")
-                    if goal == "G04":
+                    if goal in {"G04", "G05"}:
                         for name, value in expected_edge_properties.get(
                             (edge[2], edge[1], edge[4]), {}
                         ).items():
@@ -537,7 +545,7 @@ async def execute(
                     assert {(key, event) for event in events} <= {
                         (r[1], r[4]) for r in state["edges"] if r[2] == "DERIVED_FROM"
                     }
-                if goal == "G04":
+                if goal in {"G04", "G05"}:
                     actual_sources = {
                         (r[1], r[4])
                         for r in state["edges"]
@@ -576,7 +584,7 @@ async def execute(
                         "max_nodes": 50,
                     }
                     item["retrieval"] = await retrieve(query, [nid], [])
-                    if goal == "G04":
+                    if goal in {"G04", "G05"}:
                         for placeholder in fixture.get("placeholders", []):
                             result = await retrieve(
                                 {
@@ -616,10 +624,12 @@ async def execute(
                     sid = fixture["scenario"]
                     query = {
                         "query": fixture.get("text") or fixture["intent"] + " " + fixture["seed"],
-                        "seed_node_ids": [fixture["seed"]] if fixture["seed"] else [],
+                        "seed_node_ids": fixture.get(
+                            "seeds", [fixture["seed"]] if fixture["seed"] else []
+                        ),
                         "intent": fixture["intent"],
                         "max_nodes": 50,
-                        "max_depth": 5,
+                        "max_depth": fixture.get("max_depth", 5),
                     }
                     item = {
                         "scenario": sid,
@@ -635,6 +645,9 @@ async def execute(
                     evidence["checks"].append({"name": sid, "passed": True, "scenarios": []})
                     durable_json(directory / "observations.json", evidence)
                     print(sid + " passed", flush=True)
+            journey_passed = not first_only and len(evidence["checks"]) == len(data["steps"]) + len(
+                data["queries"]
+            )
     except BaseException as exc:
         evidence["error"] = {
             "type": type(exc).__name__,
@@ -681,42 +694,58 @@ async def execute(
             )
             # Reconcile only exact previously persisted operation intents.
             active_owner = observed_owner[0]
-        if active_owner is not None:
-            if active_owner[-1] == "active":
-                evidence["cleanup_intent"] = {
-                    "freeze": active_owner,
-                    "keys": allowed,
-                    "restore": restoration,
-                }
-                durable_json(directory / "observations.json", evidence)
-                await asyncio.to_thread(freeze_target, database, active_owner)
-                active_owner = [*active_owner[:-1], "frozen"]
-            if active_owner[3] == OLD[3] + 1:
-                evidence["cleanup_counts"] = await asyncio.to_thread(
-                    clean_registered_target, database, active_owner, allowed
-                )
-                await asyncio.to_thread(activate_empty_target, database, active_owner, restore)
-                evidence["restored_owner"] = await asyncio.to_thread(read_owner, database)
-                evidence["after"] = await asyncio.to_thread(fingerprint, database)
-                assert evidence["restored_owner"] == [restoration]
-                assert not any(v["count"] for v in evidence["after"].values())
-                durable_json(directory / "observations.json", evidence)
-            elif active_owner == [*OLD[:-1], "frozen"]:
-                recovery = TenantBinding.from_settings(
-                    "compat-control",
-                    "compat-control-binding",
-                    OLD[3] + 1,
-                    runtime_settings(values),
-                    engine_revision="tenant-control-conformance-v1",
-                )
-                evidence["preactivation_recovery_intent"] = [
-                    *TenantFence.from_binding(recovery)._identity(),
-                    "active",
-                ]
-                durable_json(directory / "observations.json", evidence)
-                await asyncio.to_thread(activate_empty_target, database, active_owner, recovery)
-                evidence["restored_owner"] = await asyncio.to_thread(read_owner, database)
-                durable_json(directory / "observations.json", evidence)
+        keep_dataset = retain_success and journey_passed and not shutdown_errors
+        if keep_dataset:
+            assert active_owner == owner, "Retained owner changed"
+            evidence["retention"] = {
+                "status": "retained_pending_stakeholder_cleanup_approval",
+                "owner": active_owner,
+                "run_id": run_id,
+                "packs": binding.bundle.pack_identities,
+                "fingerprints": await asyncio.to_thread(fingerprint, database),
+                "registered_cleanup_keys": allowed,
+                "workers_and_HTTP": "stopped and settled; no unattended process",
+                "cleanup": "Explicit approval required before deleting or reusing dataset",
+            }
+            durable_json(directory / "retained-dataset.json", evidence["retention"])
+            durable_json(directory / "observations.json", evidence)
+        else:
+            if active_owner is not None:
+                if active_owner[-1] == "active":
+                    evidence["cleanup_intent"] = {
+                        "freeze": active_owner,
+                        "keys": allowed,
+                        "restore": restoration,
+                    }
+                    durable_json(directory / "observations.json", evidence)
+                    await asyncio.to_thread(freeze_target, database, active_owner)
+                    active_owner = [*active_owner[:-1], "frozen"]
+                if active_owner[3] == OLD[3] + 1:
+                    evidence["cleanup_counts"] = await asyncio.to_thread(
+                        clean_registered_target, database, active_owner, allowed
+                    )
+                    await asyncio.to_thread(activate_empty_target, database, active_owner, restore)
+                    evidence["restored_owner"] = await asyncio.to_thread(read_owner, database)
+                    evidence["after"] = await asyncio.to_thread(fingerprint, database)
+                    assert evidence["restored_owner"] == [restoration]
+                    assert not any(v["count"] for v in evidence["after"].values())
+                    durable_json(directory / "observations.json", evidence)
+                elif active_owner == [*OLD[:-1], "frozen"]:
+                    recovery = TenantBinding.from_settings(
+                        "compat-control",
+                        "compat-control-binding",
+                        OLD[3] + 1,
+                        runtime_settings(values),
+                        engine_revision="tenant-control-conformance-v1",
+                    )
+                    evidence["preactivation_recovery_intent"] = [
+                        *TenantFence.from_binding(recovery)._identity(),
+                        "active",
+                    ]
+                    durable_json(directory / "observations.json", evidence)
+                    await asyncio.to_thread(activate_empty_target, database, active_owner, recovery)
+                    evidence["restored_owner"] = await asyncio.to_thread(read_owner, database)
+                    durable_json(directory / "observations.json", evidence)
         if old_logging is not None:
             structlog.configure(**old_logging)
         await asyncio.to_thread(close_database, database)
@@ -724,7 +753,7 @@ async def execute(
         assert not shutdown_errors, ("Shutdown errors", shutdown_errors)
 
 
-def main(*, goal="G03", fixture_factory=fixtures, driver_path=None):
+def main(*, goal="G03", fixture_factory=fixtures, driver_path=None, retain_success=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--credentials", type=Path, required=True)
@@ -786,7 +815,7 @@ def main(*, goal="G03", fixture_factory=fixtures, driver_path=None):
             check=True,
         )
         directory = RECORDS / "runs" / args.run_id
-        if goal == "G04":
+        if goal in {"G04", "G05"}:
             # Freeze contents before the first cloud read/write, not just after execution.
             paths = sorted(
                 set(manifest["runtime_sources"])
@@ -796,6 +825,7 @@ def main(*, goal="G03", fixture_factory=fixtures, driver_path=None):
                     "pyproject.toml",
                     "uv.lock",
                     "tests/unit/test_goal04_release_journey.py",
+                    *(["tests/unit/test_goal05_connected_journey.py"] if goal == "G05" else []),
                     "tests/fixtures/pack_contracts/pdlc.json",
                 }
             )
@@ -817,6 +847,7 @@ def main(*, goal="G03", fixture_factory=fixtures, driver_path=None):
                         first_only=args.first_only,
                         goal=goal,
                         fixture_factory=fixture_factory,
+                        retain_success=retain_success,
                     )
                 )
             )
