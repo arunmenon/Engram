@@ -42,6 +42,7 @@ EXPECTED_BRANCHES = {
 
 def test_all_frozen_required_nested_fields_have_probes_with_valid_populated_parents():
     data = fixtures("nested-proof")
+    assert data["unpopulated_nested_branches"] == []
     registry = load_registry(["pdlc"])
     nested = [s for s in data["steps"] if "expected_validation_location" in s]
     expected = {

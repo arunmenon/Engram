@@ -314,3 +314,69 @@ def test_rollback_preserves_representable_year_boundaries(timestamp, canonical):
     assert payload["target_started_at"] == timestamp
     result = plan("rolledback", payload)
     assert result.states[0].ref.key == "Deployment:acme/app|api|prod|abc|" + canonical
+
+
+async def test_frozen_rollback_checkpoint_manifests_match_exact_retrieval():
+    import json
+    import sys
+    from pathlib import Path
+
+    from context_graph.ports.pack_graph import NodeRef, NodeWrite
+    from context_graph.retrieval.artifacts import ArtifactQuery, ArtifactRetriever
+    from context_graph.worker.pack_projection import apply_plan
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+    from engram_goal07_deployment_fixtures import fixtures
+
+    data = fixtures("exact-rollback")
+    graph = PackGraphBoundary()
+    retriever = ArtifactRetriever(
+        graph,
+        REGISTRY,
+        default_max_depth=5,
+        seed_limit=10,
+        neighbor_limit=100,
+        provenance_source="boundary",
+    )
+    for step in data["steps"]:
+        if step["expected_status"] != 201:
+            continue
+        request = step["request"]
+        event = Event.model_validate_json(
+            json.dumps(
+                {k: v for k, v in request.items() if k != "payload"} | {"global_position": "1-0"}
+            )
+        )
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    NodeRef("Event", str(event.event_id), "event_id"),
+                    json.loads(event.model_dump_json()),
+                )
+            ]
+        )
+        await apply_plan(
+            graph,
+            PackProjector(REGISTRY, frozenset({"deployment.publisher"})).plan(
+                event, {"payload": request["payload"]}
+            ),
+            100,
+        )
+        for query in data["queries"]:
+            if query["after_scenario"] != step["scenario"]:
+                continue
+            assert query["exact"] is True
+            response = await retriever.retrieve(
+                ArtifactQuery(
+                    query=query["request"]["query"],
+                    intent="trace",
+                    seed_node_ids=tuple(query["request"]["seed_node_ids"]),
+                )
+            )
+            assert set(response.nodes) == set(query["required_nodes"]), query["scenario"]
+            assert {(e.edge_type, e.source, e.target) for e in response.edges} == {
+                tuple(edge) for edge in query["expected_edges"]
+            }, query["scenario"]
+            for node_id, expected in query["expected_observation_events"].items():
+                provenance = response.nodes[node_id].provenance
+                assert (provenance.event_id if provenance else None) == expected
