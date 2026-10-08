@@ -95,13 +95,15 @@ def fingerprint(database):
     return evidence
 
 
-def runtime_settings(values):
+def runtime_settings(values, *, database="engram-compat-target"):
+    if database not in {"engram-compat-target", "engram-g06-target"}:
+        raise ValueError("Only named disposable experiment databases are supported")
     settings = Settings()
     for port in ("event_log", "subscription", "graph", "keyword_index", "vector_index"):
         setattr(settings.storage, port, "spanner")
     settings.spanner.project = values["GOOGLE_CLOUD_PROJECT"]
     settings.spanner.instance = values["SPANNER_INSTANCE_ID"]
-    settings.spanner.database = "engram-compat-target"
+    settings.spanner.database = database
     settings.spanner.emulator_host = None
     settings.spanner.check_schema = True
     settings.spanner.create_if_missing = False
