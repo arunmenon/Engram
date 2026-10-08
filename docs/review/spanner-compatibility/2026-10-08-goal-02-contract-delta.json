@@ -1,0 +1,583 @@
+{
+  "goal": "G02",
+  "pack": "pdlc@2.0.0",
+  "original_catalog_count": 23,
+  "current_count": 25,
+  "added_events": [
+    "pdlc.spec.changed",
+    "pdlc.design.approval_recorded"
+  ],
+  "identity_changes": {
+    "Requirement": [
+      "spec_id",
+      "spec_version",
+      "local_id"
+    ],
+    "DesignElement": [
+      "doc_id",
+      "section_path",
+      "version"
+    ]
+  },
+  "historical_upgrade_verified": false,
+  "all_current_event_types": [
+    "pdlc.change.created",
+    "pdlc.change.reviewed",
+    "pdlc.change.merged",
+    "pdlc.change.abandoned",
+    "pdlc.change.updated",
+    "pdlc.change.committed",
+    "pdlc.release.published",
+    "pdlc.testcaserun.finished",
+    "pdlc.testcaserun.skipped",
+    "pdlc.service.deployed",
+    "pdlc.service.rolledback",
+    "pdlc.service.upgraded",
+    "pdlc.incident.detected",
+    "pdlc.incident.resolved",
+    "pdlc.incident.reported",
+    "pdlc.ticket.created",
+    "pdlc.ticket.updated",
+    "pdlc.ticket.closed",
+    "pdlc.request.created",
+    "pdlc.spec.approved",
+    "pdlc.requirement.changed",
+    "pdlc.design.section_changed",
+    "pdlc.decision.recorded",
+    "pdlc.spec.changed",
+    "pdlc.design.approval_recorded"
+  ],
+  "planning_contracts": {
+    "pdlc.spec.changed": {
+      "payload_contract": {
+        "version": 1,
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "version": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "title": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "scope": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "acceptance_criteria": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "source_uri": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "content_hash": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "supersedes_version": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          }
+        },
+        "additional_fields": "preserve"
+      },
+      "handling": null,
+      "aliases": {},
+      "note": null
+    },
+    "pdlc.requirement.changed": {
+      "payload_contract": {
+        "version": 1,
+        "properties": {
+          "spec_id": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "spec_version": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "local_id": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "statement": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "source_uri": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          }
+        },
+        "additional_fields": "preserve"
+      },
+      "handling": null,
+      "aliases": {},
+      "note": null
+    },
+    "pdlc.design.section_changed": {
+      "payload_contract": {
+        "version": 1,
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "section_path": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "version": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "kind": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": [
+              "hld",
+              "lld"
+            ],
+            "minimum": null,
+            "maximum": null,
+            "min_length": null,
+            "max_length": null
+          },
+          "body": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "title": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "source_uri": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "requirements": {
+            "type": "array",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": {
+              "type": "object",
+              "required": false,
+              "nullable": false,
+              "properties": {
+                "spec_id": {
+                  "type": "string",
+                  "required": true,
+                  "nullable": false,
+                  "properties": {},
+                  "items": null,
+                  "additional_fields": "preserve",
+                  "enum": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "min_length": 1,
+                  "max_length": null
+                },
+                "spec_version": {
+                  "type": "string",
+                  "required": true,
+                  "nullable": false,
+                  "properties": {},
+                  "items": null,
+                  "additional_fields": "preserve",
+                  "enum": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "min_length": 1,
+                  "max_length": null
+                },
+                "local_id": {
+                  "type": "string",
+                  "required": true,
+                  "nullable": false,
+                  "properties": {},
+                  "items": null,
+                  "additional_fields": "preserve",
+                  "enum": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "min_length": 1,
+                  "max_length": null
+                }
+              },
+              "items": null,
+              "additional_fields": "preserve",
+              "enum": null,
+              "minimum": null,
+              "maximum": null,
+              "min_length": null,
+              "max_length": null
+            },
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": null,
+            "max_length": 100
+          },
+          "refines_designs": {
+            "type": "array",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": {
+              "type": "object",
+              "required": false,
+              "nullable": false,
+              "properties": {
+                "doc_id": {
+                  "type": "string",
+                  "required": true,
+                  "nullable": false,
+                  "properties": {},
+                  "items": null,
+                  "additional_fields": "preserve",
+                  "enum": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "min_length": 1,
+                  "max_length": null
+                },
+                "section_path": {
+                  "type": "string",
+                  "required": true,
+                  "nullable": false,
+                  "properties": {},
+                  "items": null,
+                  "additional_fields": "preserve",
+                  "enum": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "min_length": 1,
+                  "max_length": null
+                },
+                "version": {
+                  "type": "string",
+                  "required": true,
+                  "nullable": false,
+                  "properties": {},
+                  "items": null,
+                  "additional_fields": "preserve",
+                  "enum": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "min_length": 1,
+                  "max_length": null
+                }
+              },
+              "items": null,
+              "additional_fields": "preserve",
+              "enum": null,
+              "minimum": null,
+              "maximum": null,
+              "min_length": null,
+              "max_length": null
+            },
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": null,
+            "max_length": 100
+          },
+          "supersedes_version": {
+            "type": "string",
+            "required": false,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          }
+        },
+        "additional_fields": "preserve"
+      },
+      "handling": null,
+      "aliases": {},
+      "note": null
+    },
+    "pdlc.design.approval_recorded": {
+      "payload_contract": {
+        "version": 1,
+        "properties": {
+          "approval_id": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "reviewer": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "doc_id": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "section_path": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "version": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": null,
+            "minimum": null,
+            "maximum": null,
+            "min_length": 1,
+            "max_length": null
+          },
+          "verdict": {
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "properties": {},
+            "items": null,
+            "additional_fields": "preserve",
+            "enum": [
+              "approved"
+            ],
+            "minimum": null,
+            "maximum": null,
+            "min_length": null,
+            "max_length": null
+          }
+        },
+        "additional_fields": "preserve"
+      },
+      "handling": null,
+      "aliases": {},
+      "note": null
+    }
+  },
+  "approval_scope": "Only approved verdict admitted; changes_requested rejected, not represented as APPROVES. Named revision, not immutable content attestation."
+}

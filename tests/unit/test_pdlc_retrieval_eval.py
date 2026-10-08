@@ -291,9 +291,10 @@ async def build_graph() -> MemoryGraphStore:
     }
     writes = [
         NodeWrite(
-            NodeRef("Requirement", f"Requirement:refunds|{key}"),
+            NodeRef("Requirement", f"Requirement:refunds|2|{key}"),
             {
                 "spec_id": "refunds",
+                "spec_version": "2",
                 "local_id": key,
                 "statement": text,
                 "status": "accepted",
@@ -303,8 +304,8 @@ async def build_graph() -> MemoryGraphStore:
         for key, text in requirements.items()
     ]
     test_window = NodeRef("TestCase", "TestCase:acme/app|test_window")
-    hld_old = NodeRef("DesignElement", "DesignElement:refunds-hld|retry-v1")
-    hld_new = NodeRef("DesignElement", "DesignElement:refunds-hld|retry-v2")
+    hld_old = NodeRef("DesignElement", "DesignElement:refunds-hld|retry-v1|1")
+    hld_new = NodeRef("DesignElement", "DesignElement:refunds-hld|retry-v2|2")
     constraint = NodeRef("Constraint", "Constraint:never-exceed")
     lesson = NodeRef("Lesson", "Lesson:idempotency")
     writes += [
@@ -316,6 +317,7 @@ async def build_graph() -> MemoryGraphStore:
             {
                 "doc_id": "refunds-hld",
                 "section_path": "retry-v1",
+                "version": "1",
                 "title": "Refund retry design",
                 "body": "Retry once",
                 "status": "approved",
@@ -327,6 +329,7 @@ async def build_graph() -> MemoryGraphStore:
             {
                 "doc_id": "refunds-hld",
                 "section_path": "retry-v2",
+                "version": "2",
                 "title": "Refund retry design",
                 "body": "Retry three times with idempotency keys",
                 "status": "approved",
@@ -357,20 +360,20 @@ async def build_graph() -> MemoryGraphStore:
         [
             *(
                 EdgeWrite(
-                    "REFINES", NodeRef("Requirement", f"Requirement:refunds|{k}"), spec, declared
+                    "REFINES", NodeRef("Requirement", f"Requirement:refunds|2|{k}"), spec, declared
                 )
                 for k in requirements
             ),
             EdgeWrite(
                 "VERIFIES",
                 NodeRef("TestCase", "TestCase:acme/app|test_retry"),
-                NodeRef("Requirement", "Requirement:refunds|R1"),
+                NodeRef("Requirement", "Requirement:refunds|2|R1"),
                 declared,
             ),
             EdgeWrite(
                 "VERIFIES",
                 test_window,
-                NodeRef("Requirement", "Requirement:refunds|R3"),
+                NodeRef("Requirement", "Requirement:refunds|2|R3"),
                 {"confidence": 0.3, "method": "co_change", "link_status": "proposed"},
             ),
             EdgeWrite("SUPERSEDES", hld_new, hld_old),
@@ -453,7 +456,7 @@ QUESTIONS = [
         "supersession",
         "Is the refund retry design still the approved version, and what replaced the old one?",
         "DesignElement",
-        frozenset({"DesignElement:refunds-hld|retry-v2"}),
+        frozenset({"DesignElement:refunds-hld|retry-v2|2"}),
     ),
     Question(
         "supersession",
@@ -465,7 +468,7 @@ QUESTIONS = [
         "completeness",
         "Which requirements have no tests?",
         "Requirement",
-        frozenset({"Requirement:refunds|R2"}),
+        frozenset({"Requirement:refunds|2|R2"}),
     ),
     Question(
         "completeness",
@@ -484,13 +487,13 @@ QUESTIONS = [
         "completeness",
         "Which requirements lack test coverage?",
         "Requirement",
-        frozenset({"Requirement:refunds|R2"}),
+        frozenset({"Requirement:refunds|2|R2"}),
     ),
     Question(
         "completeness",
         "List requirements that nobody tests",
         "Requirement",
-        frozenset({"Requirement:refunds|R2"}),
+        frozenset({"Requirement:refunds|2|R2"}),
     ),
     Question(
         "completeness",
@@ -579,8 +582,8 @@ class TestRetrievalBehaviour:
         response = await retriever.retrieve(ArtifactQuery("Which requirements have no tests?"))
         reasons = {k: n.retrieval_reason for k, n in response.nodes.items()}
         assert reasons == {
-            "Requirement:refunds|R2": "no_link",
-            "Requirement:refunds|R3": "proposed_only",
+            "Requirement:refunds|2|R2": "no_link",
+            "Requirement:refunds|2|R3": "proposed_only",
         }
         assert response.meta.retrieval_channels == {
             "completeness.VERIFIES.no_link": 1,
@@ -647,11 +650,11 @@ class TestRetrievalBehaviour:
         status = await retriever.retrieve(
             ArtifactQuery("Is the refund retry design still current?")
         )
-        assert status.nodes["DesignElement:refunds-hld|retry-v1"].retrieval_reason == "superseded"
+        assert status.nodes["DesignElement:refunds-hld|retry-v1|1"].retrieval_reason == "superseded"
         trace = await retriever.retrieve(
             ArtifactQuery("Trace the refund retry design", intent="trace")
         )
-        assert "DesignElement:refunds-hld|retry-v1" not in trace.nodes
+        assert "DesignElement:refunds-hld|retry-v1|1" not in trace.nodes
 
     async def test_given_seeds_and_bounds(
         self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
@@ -711,12 +714,18 @@ DECLARED = {"confidence": 1.0, "method": "declared", "link_status": "confirmed"}
 
 async def _requirements(count: int, tests_each: int) -> MemoryGraphStore:
     graph = MemoryGraphStore()
-    requirements = [NodeRef("Requirement", f"Requirement:s|R{i:03d}") for i in range(count)]
+    requirements = [NodeRef("Requirement", f"Requirement:s|1|R{i:03d}") for i in range(count)]
     await graph.upsert_nodes(
         [
             NodeWrite(
                 ref,
-                {"spec_id": "s", "local_id": ref.key[-4:], "statement": "x", "status": "accepted"},
+                {
+                    "spec_id": "s",
+                    "spec_version": "1",
+                    "local_id": ref.key[-4:],
+                    "statement": "x",
+                    "status": "accepted",
+                },
             )
             for ref in requirements
         ]
@@ -744,7 +753,7 @@ class TestReviewFindings:
         small = await _retriever(await build_graph(), neighbor_limit=1).retrieve(
             ArtifactQuery("Which requirements have no tests?")
         )
-        assert small.nodes["Requirement:refunds|R3"].retrieval_reason == "proposed_only"
+        assert small.nodes["Requirement:refunds|2|R3"].retrieval_reason == "proposed_only"
 
     async def test_completeness_scans_every_subject_and_reports_the_cut(self) -> None:
         graph = await _requirements(150, 0)
@@ -763,8 +772,8 @@ class TestReviewFindings:
             ArtifactQuery("Which requirements of spec refunds are untested?")
         )
         assert {k: n.retrieval_reason for k, n in response.nodes.items()} == {
-            "Requirement:refunds|R2": "no_link",
-            "Requirement:refunds|R3": "proposed_only",
+            "Requirement:refunds|2|R2": "no_link",
+            "Requirement:refunds|2|R3": "proposed_only",
         }
 
     async def test_an_approving_review_needs_the_approved_verdict(self) -> None:
@@ -854,7 +863,7 @@ class TestReviewFindings:
         _graph, retriever = setup
         ids = (
             *(f"Change:acme/app|{n}" for n in (7, 8, 9)),
-            *(f"Requirement:refunds|R{n}" for n in (1, 2, 3)),
+            *(f"Requirement:refunds|2|R{n}" for n in (1, 2, 3)),
             *(f"WorkItem:jira|PAY-{n}" for n in (300, 341, 342)),
             "Component:payments",
             "Component:ledger",

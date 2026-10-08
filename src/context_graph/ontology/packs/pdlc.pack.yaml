@@ -19,7 +19,9 @@
 
 pack:
   name: pdlc
-  version: 1.7.0   # 1.7.0: Deployment records its repo; a merge links deployments of its commit seen earlier (minor: mapping).
+  version: 2.0.0   # 2.0.0: versioned planning identities, deterministic planning rules and revision approvals.
+                   # 1.8.0: optional bounded payload contracts for all23 events; ingress enforcement pending.
+                   # 1.7.0: Deployment records its repo; a merge links deployments of its commit seen earlier (minor: mapping).
                    # 1.6.0: shared interfaces and provenance move to core 1.1.0; lifecycles name their superseded states (minor: additive).
                    # 1.5.0: REVERTS also read from GitHub's revert forms (minor: mapping, an added rule part).
                    # 1.4.0: DEPLOYS from a deployment to the change whose merge_sha it deployed (minor: mapping).
@@ -58,9 +60,9 @@ types:
       text_fields: [title, acceptance_criteria, scope]
       embed_fields: [title, acceptance_criteria]
     Requirement:
-      key: [spec_id, local_id]
+      key: [spec_id, spec_version, local_id]
       interfaces: [Lifecycled, Anchored, Sourced]
-      properties: {spec_id: string, local_id: string, statement: text, priority: string}
+      properties: {spec_id: string, spec_version: string, local_id: string, statement: text, priority: string}
       lifecycle: {initial: proposed, states: [proposed, accepted, implemented, verified, retired]}
       text_fields: [statement]
       embed_fields: [statement]
@@ -79,12 +81,17 @@ types:
       text_fields: [statement]
       embed_fields: [statement]
     DesignElement:
-      key: [doc_id, section_path]
+      key: [doc_id, section_path, version]
       interfaces: [Lifecycled, Anchored, Versioned, Sourced]
       properties: {doc_id: string, section_path: string, kind: {enum: [hld, lld]}, title: string, body: text}
       lifecycle: {initial: draft, states: [draft, reviewed, approved, superseded], superseded_states: [superseded]}
       text_fields: [title, body]
       embed_fields: [title, body]
+    DesignApproval:
+      key: [approval_id]
+      interfaces: [Sourced]
+      properties: {approval_id: string, reviewer: string, verdict: {enum: [approved]}, recorded_at: datetime}
+      note: "Source assertion about an exact design revision, not cryptographic attestation of reviewer identity or immutable content."
     WorkItem:
       key: [tracker, external_key]
       interfaces: [Lifecycled, Owned, Sourced]
@@ -146,7 +153,8 @@ types:
       embed_fields: [statement]
 
   edges:
-    REFINES:         {from: [Spec, Requirement, DesignElement], to: [Request, Spec, Requirement], requires: [confidence, method, link_status]}
+    REFINES:         {from: [Spec, Requirement, DesignElement], to: [Request, Spec, Requirement, DesignElement], requires: [confidence, method, link_status]}
+    APPROVES:        {from: [DesignApproval], to: [DesignElement], requires: [confidence, method, link_status]}
     DECOMPOSES_INTO: {from: [Spec, WorkItem], to: [WorkItem], properties: {order: int}}
     IMPLEMENTS:      {from: [Change, WorkItem], to: [WorkItem, Requirement, DesignElement], requires: [confidence, method, link_status]}
     VERIFIES:        {from: [TestCase], to: [Requirement, Spec, Change, WorkItem], requires: [confidence, method, link_status]}   # Spec: OpenDAL behaviour tests are the conformance suite for its specs
@@ -174,7 +182,7 @@ types:
   # Trace-link policy (BRIEF E-20261002-01-r2): a confidence cut-off at write time left about 1 trail in 3 intact in the
   # source study, and the confidence was never calibrated. So links are never dropped at write time.
   link_policy:
-    applies_to: [REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO, APPLIES_TO, AMENDS, AFFECTS, REMEDIATES]
+    applies_to: [APPROVES, REFINES, IMPLEMENTS, VERIFIES, ATTRIBUTED_TO, APPLIES_TO, AMENDS, AFFECTS, REMEDIATES]
     link_status: {enum: [proposed, confirmed, rejected], declared_links_start_as: confirmed, inferred_links_start_as: proposed}
     write_time_threshold: none                     # store every proposed link with its score
     read_time_threshold: per_edge_type_fitted      # fitted on our own labelled data, per type (B14)
@@ -188,35 +196,810 @@ types:
     SAME_AS:      {from: [WorkItem, Component], to: [WorkItem, Component], note: "cross-tool identity, e.g. GitHub issue == Jira ticket"}
 
 events:
-  # Tool events follow CDEvents; the original type is kept in payload.cdevents_type.
-  pdlc.change.created:        {aliases: {cdevents: dev.cdevents.change.created}}
-  pdlc.change.reviewed:       {aliases: {cdevents: dev.cdevents.change.reviewed}}
-  pdlc.change.merged:         {aliases: {cdevents: dev.cdevents.change.merged}}
-  pdlc.change.abandoned:      {aliases: {cdevents: dev.cdevents.change.abandoned}}
-  pdlc.change.updated:        {aliases: {cdevents: dev.cdevents.change.updated}}
-  pdlc.change.committed:      {note: "git-only fallback when no PR webhook is available"}
-  pdlc.release.published:     {aliases: {cdevents: dev.cdevents.artifact.published}}
-  pdlc.testcaserun.finished:  {aliases: {cdevents: dev.cdevents.testcaserun.finished}}
-  pdlc.testcaserun.skipped:   {aliases: {cdevents: dev.cdevents.testcaserun.skipped}}
-  pdlc.service.deployed:      {aliases: {cdevents: dev.cdevents.service.deployed}}
-  pdlc.service.rolledback:    {aliases: {cdevents: dev.cdevents.service.rolledback}}
-  pdlc.service.upgraded:      {aliases: {cdevents: dev.cdevents.service.upgraded}}
-  pdlc.incident.detected:     {aliases: {cdevents: dev.cdevents.incident.detected}}
-  pdlc.incident.resolved:     {aliases: {cdevents: dev.cdevents.incident.resolved}}
-  pdlc.incident.reported:     {aliases: {cdevents: dev.cdevents.incident.reported}}
-  pdlc.ticket.created:        {aliases: {cdevents: dev.cdevents.ticket.created}}
-  pdlc.ticket.updated:        {aliases: {cdevents: dev.cdevents.ticket.updated}}
-  pdlc.ticket.closed:         {aliases: {cdevents: dev.cdevents.ticket.closed}}
-  # Intake events: CDEvents stops at the code boundary, so these are Engram's own.
-  pdlc.request.created:       {}
-  pdlc.spec.approved:         {}
-  pdlc.requirement.changed:   {}
-  pdlc.design.section_changed: {}
-  pdlc.decision.recorded:     {}
+  pdlc.change.created:
+    aliases:
+      cdevents: dev.cdevents.change.created
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          required: true
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+          nullable: true
+        head_sha:
+          type: string
+          nullable: true
+        files:
+          type: array
+          max_length: 1000
+          items:
+            type: string
+  pdlc.change.reviewed:
+    aliases:
+      cdevents: dev.cdevents.change.reviewed
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          required: true
+        review_id:
+          type: string
+          required: true
+          min_length: 1
+        verdict:
+          type: string
+          required: true
+          enum:
+          - approved
+          - commented
+          - changes_requested
+  pdlc.change.merged:
+    aliases:
+      cdevents: dev.cdevents.change.merged
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          required: true
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+          nullable: true
+        files:
+          type: array
+          max_length: 1000
+          items:
+            type: string
+        merge_sha:
+          type: string
+          nullable: true
+  pdlc.change.abandoned:
+    aliases:
+      cdevents: dev.cdevents.change.abandoned
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          required: true
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+          nullable: true
+  pdlc.change.updated:
+    aliases:
+      cdevents: dev.cdevents.change.updated
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          required: true
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+          nullable: true
+        head_sha:
+          type: string
+          nullable: true
+  pdlc.change.committed:
+    note: git-only fallback when no PR webhook is available
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        subject:
+          type: string
+          required: true
+          min_length: 1
+        body:
+          type: string
+        files:
+          type: array
+          max_length: 1000
+          items:
+            type: string
+  pdlc.release.published:
+    aliases:
+      cdevents: dev.cdevents.artifact.published
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        version:
+          type: string
+          required: true
+          min_length: 1
+        has_breaking:
+          type: boolean
+        entries:
+          type: array
+          max_length: 1000
+          items:
+            type: object
+            properties:
+              pr_number:
+                type: integer
+                minimum: 1
+                maximum: 9223372036854775807
+                required: true
+              section:
+                type: string
+                required: true
+  pdlc.testcaserun.finished:
+    aliases:
+      cdevents: dev.cdevents.testcaserun.finished
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        test_id:
+          type: string
+          required: true
+          min_length: 1
+        run_id:
+          type: string
+          required: true
+          min_length: 1
+        outcome:
+          type: string
+          required: true
+          enum:
+          - success
+          - failure
+          - cancel
+          - error
+          - skipped
+        name:
+          type: string
+          nullable: true
+        path:
+          type: string
+          nullable: true
+        commit_sha:
+          type: string
+          nullable: true
+        change_number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          nullable: true
+  pdlc.testcaserun.skipped:
+    aliases:
+      cdevents: dev.cdevents.testcaserun.skipped
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        test_id:
+          type: string
+          required: true
+          min_length: 1
+        run_id:
+          type: string
+          required: true
+          min_length: 1
+        outcome:
+          type: string
+          required: true
+          enum:
+          - success
+          - failure
+          - cancel
+          - error
+          - skipped
+        name:
+          type: string
+          nullable: true
+        path:
+          type: string
+          nullable: true
+        commit_sha:
+          type: string
+          nullable: true
+        change_number:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+          nullable: true
+  pdlc.service.deployed:
+    aliases:
+      cdevents: dev.cdevents.service.deployed
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        service:
+          type: string
+          required: true
+          min_length: 1
+        environment:
+          type: string
+          required: true
+          min_length: 1
+        artifact_id:
+          type: string
+          required: true
+          min_length: 1
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        change_numbers:
+          type: array
+          max_length: 1000
+          items:
+            type: integer
+            minimum: 1
+            maximum: 9223372036854775807
+  pdlc.service.rolledback:
+    aliases:
+      cdevents: dev.cdevents.service.rolledback
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        service:
+          type: string
+          required: true
+          min_length: 1
+        environment:
+          type: string
+          required: true
+          min_length: 1
+        artifact_id:
+          type: string
+          required: true
+          min_length: 1
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        change_numbers:
+          type: array
+          max_length: 1000
+          items:
+            type: integer
+            minimum: 1
+            maximum: 9223372036854775807
+  pdlc.service.upgraded:
+    aliases:
+      cdevents: dev.cdevents.service.upgraded
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        service:
+          type: string
+          required: true
+          min_length: 1
+        environment:
+          type: string
+          required: true
+          min_length: 1
+        artifact_id:
+          type: string
+          required: true
+          min_length: 1
+        repo:
+          type: string
+          required: true
+          min_length: 1
+        change_numbers:
+          type: array
+          max_length: 1000
+          items:
+            type: integer
+            minimum: 1
+            maximum: 9223372036854775807
+  pdlc.incident.detected:
+    aliases:
+      cdevents: dev.cdevents.incident.detected
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        incident_id:
+          type: string
+          required: true
+          min_length: 1
+        service:
+          type: string
+          required: true
+          min_length: 1
+        severity:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        environment:
+          type: string
+          nullable: true
+        artifact_id:
+          type: string
+          nullable: true
+  pdlc.incident.resolved:
+    aliases:
+      cdevents: dev.cdevents.incident.resolved
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        incident_id:
+          type: string
+          required: true
+          min_length: 1
+        summary:
+          type: string
+          nullable: true
+  pdlc.incident.reported:
+    aliases:
+      cdevents: dev.cdevents.incident.reported
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        incident_id:
+          type: string
+          required: true
+          min_length: 1
+        description:
+          type: string
+          nullable: true
+  pdlc.ticket.created:
+    aliases:
+      cdevents: dev.cdevents.ticket.created
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        tracker:
+          type: string
+          required: true
+          min_length: 1
+        key:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          nullable: true
+        work_type:
+          type: string
+          enum:
+          - epic
+          - story
+          - task
+          - bug
+          - production_change
+        status:
+          type: string
+          nullable: true
+        parent_key:
+          type: string
+          nullable: true
+        resolution:
+          type: string
+          nullable: true
+  pdlc.ticket.updated:
+    aliases:
+      cdevents: dev.cdevents.ticket.updated
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        tracker:
+          type: string
+          required: true
+          min_length: 1
+        key:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          nullable: true
+        work_type:
+          type: string
+          enum:
+          - epic
+          - story
+          - task
+          - bug
+          - production_change
+        status:
+          type: string
+          nullable: true
+        parent_key:
+          type: string
+          nullable: true
+        resolution:
+          type: string
+          nullable: true
+  pdlc.ticket.closed:
+    aliases:
+      cdevents: dev.cdevents.ticket.closed
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        tracker:
+          type: string
+          required: true
+          min_length: 1
+        key:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          nullable: true
+        work_type:
+          type: string
+          enum:
+          - epic
+          - story
+          - task
+          - bug
+          - production_change
+        status:
+          type: string
+          nullable: true
+        parent_key:
+          type: string
+          nullable: true
+        resolution:
+          type: string
+          nullable: true
+  pdlc.request.created:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        source_system:
+          type: string
+          required: true
+          min_length: 1
+        external_id:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+  pdlc.spec.approved:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        doc_id:
+          type: string
+          required: true
+          min_length: 1
+        version:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          nullable: true
+        acceptance_criteria:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+        source_uri:
+          type: string
+          nullable: true
+        content_hash:
+          type: string
+          nullable: true
+        request_system:
+          type: string
+        request_ids:
+          type: array
+          max_length: 1000
+          items:
+            type: string
+            min_length: 1
+        cited_node_ids:
+          type: array
+          max_length: 1000
+          items:
+            type: string
+            min_length: 1
+  pdlc.requirement.changed:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        spec_id:
+          type: string
+          required: true
+          min_length: 1
+        spec_version:
+          type: string
+          required: true
+          min_length: 1
+        local_id:
+          type: string
+          required: true
+          min_length: 1
+        statement:
+          type: string
+          required: true
+          min_length: 1
+        source_uri:
+          type: string
+          required: false
+          min_length: 1
+
+  pdlc.design.section_changed:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        doc_id:
+          type: string
+          required: true
+          min_length: 1
+        section_path:
+          type: string
+          required: true
+          min_length: 1
+        version:
+          type: string
+          required: true
+          min_length: 1
+        kind:
+          type: string
+          required: true
+          enum:
+          - hld
+          - lld
+        body:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          required: false
+          min_length: 1
+        source_uri:
+          type: string
+          required: false
+          min_length: 1
+        requirements:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              spec_id:
+                type: string
+                required: true
+                min_length: 1
+              spec_version:
+                type: string
+                required: true
+                min_length: 1
+              local_id:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+        refines_designs:
+          type: array
+          max_length: 100
+          items:
+            type: object
+            properties:
+              doc_id:
+                type: string
+                required: true
+                min_length: 1
+              section_path:
+                type: string
+                required: true
+                min_length: 1
+              version:
+                type: string
+                required: true
+                min_length: 1
+            additional_fields: preserve
+        supersedes_version:
+          type: string
+          required: false
+          min_length: 1
+
+  pdlc.decision.recorded:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        statement:
+          type: string
+          required: true
+          min_length: 1
+        rationale:
+          type: string
+          nullable: true
+        source_uri:
+          type: string
+          nullable: true
+        supersedes_hash:
+          type: string
+          nullable: true
+        applies_to_node_ids:
+          type: array
+          max_length: 1000
+          items:
+            type: string
+            min_length: 1
+
+  pdlc.spec.changed:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        doc_id:
+          type: string
+          required: true
+          min_length: 1
+        version:
+          type: string
+          required: true
+          min_length: 1
+        title:
+          type: string
+          required: true
+          min_length: 1
+        scope:
+          type: string
+          required: false
+          min_length: 1
+        acceptance_criteria:
+          type: string
+          required: false
+          min_length: 1
+        source_uri:
+          type: string
+          required: false
+          min_length: 1
+        content_hash:
+          type: string
+          required: false
+          min_length: 1
+        supersedes_version:
+          type: string
+          required: false
+          min_length: 1
+
+  pdlc.design.approval_recorded:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        approval_id:
+          type: string
+          required: true
+          min_length: 1
+        reviewer:
+          type: string
+          required: true
+          min_length: 1
+        doc_id:
+          type: string
+          required: true
+          min_length: 1
+        section_path:
+          type: string
+          required: true
+          min_length: 1
+        version:
+          type: string
+          required: true
+          min_length: 1
+        verdict:
+          type: string
+          required: true
+          enum:
+          - approved
 
 # Deterministic projection: event -> node upserts -> edge upserts -> lifecycle transitions.
 # $.x reads the event payload; $event.x reads the envelope. Unknown references fail validation at pack load.
 projection:
+  - event: pdlc.spec.changed
+    upsert:
+      - {type: Spec, key: {doc_id: $.doc_id, version: $.version}, set: {title: $.title, scope: $.scope, acceptance_criteria: $.acceptance_criteria, source_uri: $.source_uri, content_hash: $.content_hash}}
+    edges:
+      - {type: SUPERSEDES, from: {type: Spec, key: {doc_id: $.doc_id, version: $.version}}, to: {type: Spec, key: {doc_id: $.doc_id, version: $.supersedes_version}}, when: $.supersedes_version}
+  - event: pdlc.requirement.changed
+    upsert:
+      - {type: Requirement, key: {spec_id: $.spec_id, spec_version: $.spec_version, local_id: $.local_id}, set: {statement: $.statement, source_uri: $.source_uri}}
+    edges:
+      - {type: REFINES, from: {type: Requirement, key: {spec_id: $.spec_id, spec_version: $.spec_version, local_id: $.local_id}}, to: {type: Spec, key: {doc_id: $.spec_id, version: $.spec_version}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+  - event: pdlc.design.section_changed
+    upsert:
+      - {type: DesignElement, key: {doc_id: $.doc_id, section_path: $.section_path, version: $.version}, set: {kind: $.kind, title: $.title, body: $.body, source_uri: $.source_uri}}
+    edges:
+      - {type: REFINES, from: {type: DesignElement, key: {doc_id: $.doc_id, section_path: $.section_path, version: $.version}}, to_each: {type: Requirement, key: {spec_id: "$.requirements[*].spec_id", spec_version: "$.requirements[*].spec_version", local_id: "$.requirements[*].local_id"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+      - {type: REFINES, from: {type: DesignElement, key: {doc_id: $.doc_id, section_path: $.section_path, version: $.version}}, to_each: {type: DesignElement, key: {doc_id: "$.refines_designs[*].doc_id", section_path: "$.refines_designs[*].section_path", version: "$.refines_designs[*].version"}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
+      - {type: SUPERSEDES, from: {type: DesignElement, key: {doc_id: $.doc_id, section_path: $.section_path, version: $.version}}, to: {type: DesignElement, key: {doc_id: $.doc_id, section_path: $.section_path, version: $.supersedes_version}}, when: $.supersedes_version}
+  - event: pdlc.design.approval_recorded
+    upsert:
+      - {type: DesignApproval, key: {approval_id: $.approval_id}, set: {reviewer: $.reviewer, verdict: $.verdict, recorded_at: $event.occurred_at}}
+    edges:
+      - {type: APPROVES, from: {type: DesignApproval, key: {approval_id: $.approval_id}}, to: {type: DesignElement, key: {doc_id: $.doc_id, section_path: $.section_path, version: $.version}}, set: {confidence: 1.0, method: declared, link_status: confirmed}}
   - event: pdlc.change.created
     upsert:
       - {type: Change, key: {repo: $.repo, number: $.number}, set: {title: $.title, body: $.body, head_sha: $.head_sha, files: $.files}}
@@ -345,13 +1128,13 @@ extraction:
     VERIFIES: {rule: "a test file changed in the same commit as the change", confidence: 0.3, method: co_change, link_status: proposed}   # Kafka 74%, OpenDAL 14% of commits change tests too   # these come only from tool events
 
 retrieval:
-  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, TestCase]
+  seed_types: [Requirement, Decision, Constraint, Change, Component, Incident, WorkItem, Spec, DesignElement, Lesson, Release, TestCase, DesignApproval]
   intents:
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"
       examples: ["where is PAY-341 deployed", "trace the refund retry requirement", "what implements REQ-12"]
       keywords: [trace, deployed, implements, implemented, delivered, deliver, shipped, ship, release]
-      weights: {REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
+      weights: {APPROVES: 4, SUPERSEDES: 4, REFINES: 5, IMPLEMENTS: 5, VERIFIES: 4, DEPLOYS: 4, DEPLOYED_TO: 3, DECOMPOSES_INTO: 3, INCLUDES: 4}
       max_depth: 5
     completeness:
       description: "Find artifacts missing an expected link (requirement without test, change without review)"
@@ -363,7 +1146,7 @@ retrieval:
       description: "Current, non-superseded state of a decision, spec or design"
       examples: ["is the idempotency decision still current", "latest version of the refunds HLD"]
       keywords: [still, current, latest, valid, superseded, replaced, reversed, amended, contradict, contradicts, approved version]
-      weights: {SUPERSEDES: 5, AMENDS: 4, CONTRADICTS: 4, DECIDED_BY: 2, APPLIES_TO: 3, CITES: 4}
+      weights: {REFINES: 3, APPROVES: 5, SUPERSEDES: 5, AMENDS: 4, CONTRADICTS: 4, DECIDED_BY: 2, APPLIES_TO: 3, CITES: 4}
       prefer_types: [Spec]   # step 2: OpenDAL specs, not the latest RFC, state the current contract
     impact:
       description: "What is affected if this changes"

@@ -468,9 +468,7 @@ class ArtifactRetriever:
         # or path again as loose text can introduce unrelated sibling artifacts.
         # Preserve independently mentioned references and unresolved-ID fallback.
         resolved_literals = {
-            literal
-            for literal in query.seed_node_ids
-            if self._parse_node_id(literal) in given_refs
+            literal for literal in query.seed_node_ids if self._parse_node_id(literal) in given_refs
         }
         for literal in sorted(resolved_literals, key=len, reverse=True):
             text = re.sub(
@@ -706,6 +704,7 @@ class ArtifactRetriever:
             )
             parents = {(f.ref.label, f.ref.key): f for f in frontier}
             reached: list[tuple[float, str, _Found, NodeRef, dict[str, Any], dict[str, Any]]] = []
+            deferred_edges: list[dict[str, Any]] = []
             for row in rows:
                 source, target = self._row_ends(row)
                 near, far = (
@@ -716,6 +715,7 @@ class ArtifactRetriever:
                 if parent is None or other is None:
                     continue
                 if self._drifts(parent, row["edge_type"], near == source, far.label):
+                    deferred_edges.append(row)
                     continue
                 score = parent.score * weights.get(row["edge_type"], 0.0) / top
                 reached.append((score, self._node_key(other), parent, other, row, row["node"]))
@@ -745,6 +745,13 @@ class ArtifactRetriever:
                 source, target = self._row_ends(row)
                 edge_key = (self._node_key(source), self._node_key(target), row["edge_type"])
                 result.edges[edge_key] = row["properties"]
+            # Drift limits expansion, not topology among nodes already selected.
+            # Attach after selection so same-level candidates are order independent.
+            for row in deferred_edges:
+                source, target = self._row_ends(row)
+                source_key, target_key = self._node_key(source), self._node_key(target)
+                if source_key in result.nodes and target_key in result.nodes:
+                    result.edges[(source_key, target_key, row["edge_type"])] = row["properties"]
             frontier = next_frontier
 
     @staticmethod

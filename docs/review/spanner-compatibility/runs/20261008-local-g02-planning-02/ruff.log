@@ -1,0 +1,106 @@
+E731 Do not assign a `lambda` expression, use a `def`
+  --> scripts/engram_goal02_fixtures.py:28:5
+   |
+26 |         other_design=f"DesignElement:{other}-hld|subscriptions|1",
+27 |     )
+28 |     req = lambda key: dict(spec_id=spec, spec_version="1", local_id=key)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 |     des = lambda section="tokens", version="1": dict(
+30 |         doc_id=hld, section_path=section, version=version
+   |
+help: Rewrite `req` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> scripts/engram_goal02_fixtures.py:29:5
+   |
+27 |       )
+28 |       req = lambda key: dict(spec_id=spec, spec_version="1", local_id=key)
+29 | /     des = lambda section="tokens", version="1": dict(
+30 | |         doc_id=hld, section_path=section, version=version
+31 | |     )
+   | |_____^
+32 |       steps = []
+33 |       start = datetime.now(UTC) - timedelta(minutes=5)
+   |
+help: Rewrite `des` as a `def`
+
+E501 Line too long (126 > 100)
+   --> scripts/engram_goal02_fixtures.py:248:101
+    |
+246 |     ]
+247 |     return dict(
+248 |         source="Synthetic normalized producer examples; no captured native document-service payloads or public-source claim.",
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+249 |         ids=ids,
+250 |         steps=steps,
+    |
+
+E501 Line too long (120 > 100)
+   --> scripts/engram_goal02_planning_demo.py:135:101
+    |
+133 | …     "scenarios": [],
+134 | …     "checks": [],
+135 | …     "reference_policy": "Explicit typed revision keys create visible placeholders; actual arrival fills same node.",
+    |                                                                                                   ^^^^^^^^^^^^^^^^^^^^
+136 | …     "runtime": "Single bound app, real Bearer catalog verification, real TCP HTTP and all five workers; no public dispatcher sign-o…
+137 | …     "providers": "Actual configured LLM and cached embedder. LLM proposals retained and recorded separately from declared planning …
+    |
+
+E501 Line too long (140 > 100)
+   --> scripts/engram_goal02_planning_demo.py:136:101
+    |
+134 | …
+135 | …eys create visible placeholders; actual arrival fills same node.",
+136 | …log verification, real TCP HTTP and all five workers; no public dispatcher sign-off.",
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+137 | … embedder. LLM proposals retained and recorded separately from declared planning links.",
+138 | …ities/events or generated nodes with DERIVED_FROM to this run's accepted Event, plus edges between those owned endpoints. Verify act…
+    |
+
+E501 Line too long (143 > 100)
+   --> scripts/engram_goal02_planning_demo.py:137:101
+    |
+135 | …s create visible placeholders; actual arrival fills same node.",
+136 | …g verification, real TCP HTTP and all five workers; no public dispatcher sign-off.",
+137 | …mbedder. LLM proposals retained and recorded separately from declared planning links.",
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+138 | …ies/events or generated nodes with DERIVED_FROM to this run's accepted Event, plus edges between those owned endpoints. Verify activ…
+139 | …
+    |
+
+E501 Line too long (245 > 100)
+   --> scripts/engram_goal02_planning_demo.py:138:101
+    |
+136 | …ive workers; no public dispatcher sign-off.",
+137 | …orded separately from declared planning links.",
+138 | …VED_FROM to this run's accepted Event, plus edges between those owned endpoints. Verify active fence, stop workers before cleanup; otherwise refuse.",
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+139 | …
+140 | …
+    |
+
+F841 Local variable `other_ids` is assigned to but never used
+   --> scripts/engram_goal02_planning_demo.py:280:9
+    |
+278 |         expected_edges = set()
+279 |         artifact_events = {}
+280 |         other_ids = {v for k, v in data["ids"].items() if k.startswith("other")}
+    |         ^^^^^^^^^
+281 |         async with httpx.AsyncClient(
+282 |             base_url=f"http://127.0.0.1:{port}",
+    |
+help: Remove assignment to unused variable `other_ids`
+
+E741 Ambiguous variable name: `l`
+   --> scripts/engram_goal02_planning_demo.py:351:90
+    |
+349 |                     projected = {n[1] for n in state["nodes"] if n[0] == "Event"}
+350 |                     assert not state["dead_letters"], "Worker dead-lettered event"
+351 |                     if accepted <= projected and not state["pending"] and all(l == 0 for l in lags):
+    |                                                                                          ^
+352 |                         completed = True
+353 |                         break
+    |
+
+Found 9 errors.
+No fixes available (3 hidden fixes can be enabled with the `--unsafe-fixes` option).

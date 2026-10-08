@@ -1,0 +1,64 @@
+FF...................................................................... [ 54%]
+...........................................................              [100%]
+=================================== FAILURES ===================================
+_________ test_revision_approval_and_explicit_refinement_are_distinct __________
+
+    async def test_revision_approval_and_explicit_refinement_are_distinct():
+        graph = MemoryGraphStore()
+>       await write(graph, 'pdlc.spec.changed', dict(doc_id='reset', version='1', title='Reset'))
+
+tests/unit/test_planning_journey.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_planning_journey.py:17: in write
+    await graph.merge_event_node(event_to_node(event))
+                                 ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+event = Event(event_id=UUID('5924c179-1786-4b9a-b8b1-f09c542fe32a'), event_type='pdlc.spec.changed', occurred_at=datetime.date...osition=None, tool_name=None, parent_event_id=None, ended_at=None, status=None, schema_version=1, importance_hint=None)
+
+    def event_to_node(event: Event) -> EventNode:
+        """Transform an Event into an EventNode for Neo4j projection.
+    
+        Maps the required Event fields onto the EventNode schema. The
+        ``global_position`` must already be set on the event (assigned
+        during Redis ingestion).
+        """
+        if event.global_position is None:
+            msg = "Event must have global_position set before projection"
+>           raise ValueError(msg)
+E           ValueError: Event must have global_position set before projection
+
+src/context_graph/domain/projection.py:37: ValueError
+______ test_missing_hld_is_visible_placeholder_then_filled_without_repair ______
+
+    async def test_missing_hld_is_visible_placeholder_then_filled_without_repair():
+        graph=MemoryGraphStore()
+        lld=dict(doc_id='reset-lld',section_path='storage',version='1',kind='lld',body='Store token digest',refines_designs=[dict(doc_id='reset-hld',section_path='late',version='1')])
+>       await write(graph,'pdlc.design.section_changed',lld)
+
+tests/unit/test_planning_journey.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_planning_journey.py:17: in write
+    await graph.merge_event_node(event_to_node(event))
+                                 ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+event = Event(event_id=UUID('b491109e-9be7-4625-b9b5-c4c1ca06314b'), event_type='pdlc.design.section_changed', occurred_at=dat...osition=None, tool_name=None, parent_event_id=None, ended_at=None, status=None, schema_version=1, importance_hint=None)
+
+    def event_to_node(event: Event) -> EventNode:
+        """Transform an Event into an EventNode for Neo4j projection.
+    
+        Maps the required Event fields onto the EventNode schema. The
+        ``global_position`` must already be set on the event (assigned
+        during Redis ingestion).
+        """
+        if event.global_position is None:
+            msg = "Event must have global_position set before projection"
+>           raise ValueError(msg)
+E           ValueError: Event must have global_position set before projection
+
+src/context_graph/domain/projection.py:37: ValueError
+=========================== short test summary info ============================
+FAILED tests/unit/test_planning_journey.py::test_revision_approval_and_explicit_refinement_are_distinct
+FAILED tests/unit/test_planning_journey.py::test_missing_hld_is_visible_placeholder_then_filled_without_repair
+2 failed, 129 passed in 1.74s

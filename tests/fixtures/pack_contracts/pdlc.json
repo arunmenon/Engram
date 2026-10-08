@@ -1,0 +1,571 @@
+{
+  "pack": "pdlc",
+  "pack_version": "2.0.0",
+  "fixture_kind": "synthetic_normalized_contract_examples_not_public_webhooks",
+  "event_time": "2026-10-07T00:00:00Z",
+  "cases": [
+    {
+      "event_type": "pdlc.change.created",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "number": 7,
+        "title": "Retry payments",
+        "body": "",
+        "head_sha": "abc",
+        "files": []
+      },
+      "expected_observed_node_ids": [
+        "Change:example/payments|7"
+      ],
+      "expected_states": {
+        "Change:example/payments|7": "open"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.change.updated",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "number": 7,
+        "title": "Retry payments",
+        "body": "",
+        "head_sha": "abc"
+      },
+      "expected_observed_node_ids": [
+        "Change:example/payments|7"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.change.merged",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "number": 7,
+        "title": "Retry payments",
+        "body": "",
+        "files": [],
+        "merge_sha": "def"
+      },
+      "expected_observed_node_ids": [
+        "Change:example/payments|7"
+      ],
+      "expected_states": {
+        "Change:example/payments|7": "merged"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.change.abandoned",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "number": 7,
+        "title": "Retry payments",
+        "body": ""
+      },
+      "expected_observed_node_ids": [
+        "Change:example/payments|7"
+      ],
+      "expected_states": {
+        "Change:example/payments|7": "abandoned"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.change.reviewed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "number": 7,
+        "review_id": "r1",
+        "verdict": "approved"
+      },
+      "expected_observed_node_ids": [
+        "Review:example/payments|7|r1"
+      ],
+      "expected_states": {
+        "Change:example/payments|7": "reviewed"
+      },
+      "expected_domain_edges": [
+        [
+          "REVIEWS",
+          "Review:example/payments|7|r1",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "Referenced Change starts as a stub/open; transition-only evidence is independently tracked by issue9.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.change.committed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "subject": "fix: retry payments (#7)",
+        "body": "",
+        "files": []
+      },
+      "expected_observed_node_ids": [
+        "Change:example/payments|7"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Subject must carry a PR number for a Change; syntactically valid commits without it intentionally produce no Change under current rules. Semantic refusal/no-op policy remains feature36.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.release.published",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "version": "v1",
+        "has_breaking": false,
+        "entries": [
+          {
+            "pr_number": 7,
+            "section": "fixes"
+          }
+        ]
+      },
+      "expected_observed_node_ids": [
+        "Release:example/payments|v1"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [
+        [
+          "INCLUDES",
+          "Release:example/payments|v1",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.testcaserun.finished",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "repo": "example/payments",
+        "test_id": "unit",
+        "run_id": "run-1",
+        "outcome": "success",
+        "name": "unit",
+        "path": null,
+        "commit_sha": "abc",
+        "change_number": 7
+      },
+      "expected_observed_node_ids": [
+        "TestCase:example/payments|unit",
+        "TestRun:run-1"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [
+        [
+          "EXECUTES",
+          "TestRun:run-1",
+          "TestCase:example/payments|unit"
+        ],
+        [
+          "RAN_AGAINST",
+          "TestRun:run-1",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "Skipped is emitted by builtin adapter but has no deterministic domain rule; do not claim TestRun creation.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.testcaserun.skipped",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "missing_mapping",
+      "payload": {
+        "repo": "example/payments",
+        "test_id": "unit",
+        "run_id": "run-1",
+        "outcome": "skipped",
+        "name": "unit",
+        "path": null,
+        "commit_sha": "abc",
+        "change_number": 7
+      },
+      "expected_observed_node_ids": [],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Skipped is emitted by builtin adapter but has no deterministic domain rule; do not claim TestRun creation.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.service.deployed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "service": "payments",
+        "environment": "prod",
+        "artifact_id": "def",
+        "repo": "example/payments",
+        "change_numbers": [
+          7
+        ]
+      },
+      "expected_observed_node_ids": [
+        "Component:payments",
+        "Deployment:prod|def|2026-10-07T00:00:00+00:00"
+      ],
+      "expected_states": {
+        "Deployment:prod|def|2026-10-07T00:00:00+00:00": "succeeded"
+      },
+      "expected_domain_edges": [
+        [
+          "DEPLOYED_TO",
+          "Deployment:prod|def|2026-10-07T00:00:00+00:00",
+          "Component:payments"
+        ],
+        [
+          "DEPLOYS",
+          "Deployment:prod|def|2026-10-07T00:00:00+00:00",
+          "Change:example/payments|7"
+        ]
+      ],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.service.rolledback",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "missing_mapping",
+      "payload": {
+        "service": "payments",
+        "environment": "prod",
+        "artifact_id": "def",
+        "repo": "example/payments",
+        "change_numbers": [
+          7
+        ]
+      },
+      "expected_observed_node_ids": [],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Rollback/upgrade schema is provisional normalized producer contract, not a source adapter or implemented graph operation.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.service.upgraded",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "missing_mapping",
+      "payload": {
+        "service": "payments",
+        "environment": "prod",
+        "artifact_id": "def",
+        "repo": "example/payments",
+        "change_numbers": [
+          7
+        ]
+      },
+      "expected_observed_node_ids": [],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Rollback/upgrade schema is provisional normalized producer contract, not a source adapter or implemented graph operation.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.incident.detected",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "incident_id": "inc-1",
+        "service": "payments",
+        "severity": "high",
+        "description": "Elevated errors",
+        "environment": "prod",
+        "artifact_id": null
+      },
+      "expected_observed_node_ids": [
+        "Incident:inc-1",
+        "Component:payments"
+      ],
+      "expected_states": {
+        "Incident:inc-1": "detected"
+      },
+      "expected_domain_edges": [
+        [
+          "AFFECTS",
+          "Incident:inc-1",
+          "Component:payments"
+        ]
+      ],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.incident.resolved",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "incident_id": "inc-1",
+        "summary": "Recovered"
+      },
+      "expected_observed_node_ids": [
+        "Incident:inc-1"
+      ],
+      "expected_states": {
+        "Incident:inc-1": "resolved"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.incident.reported",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "missing_mapping",
+      "payload": {
+        "incident_id": "inc-1",
+        "description": "Elevated errors"
+      },
+      "expected_observed_node_ids": [],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Provisional contract; source mapping and domain rule remain absent.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.ticket.created",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "tracker": "jira",
+        "key": "PAY-7",
+        "title": "Retry payments",
+        "work_type": "task",
+        "status": "To Do",
+        "parent_key": null,
+        "resolution": null
+      },
+      "expected_observed_node_ids": [
+        "WorkItem:jira|PAY-7"
+      ],
+      "expected_states": {
+        "WorkItem:jira|PAY-7": "open"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.ticket.updated",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "tracker": "jira",
+        "key": "PAY-7",
+        "title": "Retry payments",
+        "work_type": "task",
+        "status": "To Do",
+        "parent_key": null,
+        "resolution": null
+      },
+      "expected_observed_node_ids": [
+        "WorkItem:jira|PAY-7"
+      ],
+      "expected_states": {
+        "WorkItem:jira|PAY-7": "open"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.ticket.closed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "tracker": "jira",
+        "key": "PAY-7",
+        "title": "Retry payments",
+        "work_type": "task",
+        "status": "Done",
+        "parent_key": null,
+        "resolution": null
+      },
+      "expected_observed_node_ids": [
+        "WorkItem:jira|PAY-7"
+      ],
+      "expected_states": {
+        "WorkItem:jira|PAY-7": "done"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.request.created",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "missing_mapping",
+      "payload": {
+        "source_system": "jira",
+        "external_id": "REQ-1",
+        "title": "Retry payments"
+      },
+      "expected_observed_node_ids": [],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Required keys follow Request identity; no domain projection or builtin adapter currently implements this event.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.spec.approved",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "doc_id": "payments",
+        "version": "1",
+        "title": "Payment retries",
+        "request_system": "jira",
+        "request_ids": [
+          "REQ-1"
+        ],
+        "cited_node_ids": []
+      },
+      "expected_observed_node_ids": [
+        "Spec:payments|1"
+      ],
+      "expected_states": {
+        "Spec:payments|1": "approved"
+      },
+      "expected_domain_edges": [
+        [
+          "REFINES",
+          "Spec:payments|1",
+          "Request:jira|REQ-1"
+        ]
+      ],
+      "note": "Approval must be attested by source binding; nonempty request_ids requires request_system semantically, not expressed by this prototype.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.requirement.changed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "spec_id": "payments",
+        "local_id": "R1",
+        "statement": "Retries are idempotent",
+        "spec_version": "1"
+      },
+      "expected_observed_node_ids": [
+        "Requirement:payments|1|R1"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [
+        [
+          "REFINES",
+          "Requirement:payments|1|R1",
+          "Spec:payments|1"
+        ]
+      ],
+      "note": "Deterministic version-bound requirement and explicit Spec reference.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.design.section_changed",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "doc_id": "payments-hld",
+        "section_path": "Retries",
+        "body": "Use idempotency keys to avoid duplicate payments.",
+        "version": "1",
+        "kind": "hld"
+      },
+      "expected_observed_node_ids": [
+        "DesignElement:payments-hld|Retries|1"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "Deterministic versioned section; optional LLM proposals remain separate.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.decision.recorded",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "statement": "Use idempotency keys",
+        "rationale": "Avoid duplicate payments",
+        "applies_to_node_ids": []
+      },
+      "expected_observed_node_ids": [
+        "Decision:6778ff223842c4456865ed4e67200039c848ea423c4c715cc9b67c61468e27bd"
+      ],
+      "expected_states": {
+        "Decision:6778ff223842c4456865ed4e67200039c848ea423c4c715cc9b67c61468e27bd": "accepted"
+      },
+      "expected_domain_edges": [],
+      "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.spec.changed",
+      "payload": {
+        "doc_id": "payments",
+        "version": "1",
+        "title": "Payment retries"
+      },
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "expected_observed_node_ids": [
+        "Spec:payments|1"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [],
+      "note": "G02 planning contract; cloud runs tracked separately.",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.design.approval_recorded",
+      "payload": {
+        "approval_id": "a1",
+        "reviewer": "reviewer",
+        "doc_id": "payments-hld",
+        "section_path": "Retries",
+        "version": "1",
+        "verdict": "approved"
+      },
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "expected_observed_node_ids": [
+        "DesignApproval:a1"
+      ],
+      "expected_states": {},
+      "expected_domain_edges": [
+        [
+          "APPROVES",
+          "DesignApproval:a1",
+          "DesignElement:payments-hld|Retries|1"
+        ]
+      ],
+      "note": "G02 planning contract; cloud runs tracked separately.",
+      "cloud_execution": "not_run"
+    }
+  ]
+}
