@@ -46,6 +46,7 @@ from google.cloud.spanner_v1.pool import BurstyPool
 from google.oauth2.credentials import Credentials
 
 from context_graph.adapters.spanner.lifecycle import close_database, prepare_cleanup
+from context_graph.adapters.spanner.log import json_value
 from context_graph.adapters.spanner.tenant_control import TenantFence
 from context_graph.api.app import create_app
 from context_graph.domain.models import Event
@@ -565,7 +566,7 @@ async def execute(
                         for name, value in expected_edge_properties.get(
                             (edge[2], edge[1], edge[4]), {}
                         ).items():
-                            assert edge[5].get(name) == value, (
+                            assert (json_value(edge[5]) or {}).get(name) == value, (
                                 "Wrong stored edge property",
                                 edge,
                                 name,
