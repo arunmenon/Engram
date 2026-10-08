@@ -90,3 +90,5 @@ or inference feature discovered later is assessed explicitly, not silently inclu
 
 Independent review, implementation delta, cloud run receipts, failed-attempt
 corrections, issue completion and stakeholder sign-off: **pending, not claimed**.
+
+Preparation tracking: [actual #39 update](https://github.com/arunmenon/Engram/issues/39#issuecomment-6064974375). This is a preparation comment, not completed-goal reconciliation.
