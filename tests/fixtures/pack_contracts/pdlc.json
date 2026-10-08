@@ -1,6 +1,6 @@
 {
   "pack": "pdlc",
-  "pack_version": "4.0.0",
+  "pack_version": "4.1.0",
   "fixture_kind": "synthetic_normalized_contract_examples_not_public_webhooks",
   "event_time": "2026-10-07T00:00:00Z",
   "cases": [
@@ -616,6 +616,33 @@
         ]
       ],
       "note": "",
+      "cloud_execution": "not_run"
+    },
+    {
+      "event_type": "pdlc.incident.remediation_recorded",
+      "source_kind": "synthetic_normalized_contract_example",
+      "classification": "deterministic",
+      "payload": {
+        "change": {
+          "repo": "example/payments",
+          "number": 8
+        },
+        "incident": {
+          "repo": "example/payments",
+          "service": "payments",
+          "incident_id": "inc-1"
+        }
+      },
+      "expected_observed_node_ids": [],
+      "expected_states": {},
+      "expected_domain_edges": [
+        [
+          "REMEDIATES",
+          "Change:example/payments|8",
+          "Incident:example/payments|payments|inc-1"
+        ]
+      ],
+      "note": "Complete keyed references create reference-only stubs without artifact observation provenance; edge declares correction, never completion or causality.",
       "cloud_execution": "not_run"
     }
   ]

@@ -19,7 +19,8 @@
 
 pack:
   name: pdlc
-  version: 4.0.0   # 4.0.0: repository/service-scoped incident identities and reported projection.
+  version: 4.1.0   # 4.1.0: source-declared remediation with independent incident resolution.
+                   # 4.0.0: repository/service-scoped incident identities and reported projection.
                    # 3.0.0: scoped deployment identities, failure outcomes and explicit release links.
                    # 2.1.0: explicit implementation/verification references and reviewer trace.
                    # 2.0.0: versioned planning identities, deterministic planning rules and revision approvals.
@@ -179,7 +180,7 @@ types:
     OCCURRED_ON:     {from: [Incident], to: [Deployment], note: "normalized producer occurrence assertion, not causality; latest deployment in repo/service/environment/artifact scope at or before incident time"}
     ATTRIBUTED_TO:   {from: [Incident], to: [Change, WorkItem], requires: [confidence, method, link_status]}   # WorkItem: planned production changes (GitLab change issues)
     AMENDS:          {from: [Decision], to: [Decision], properties: {kind: {enum: [builds_on, updates, replaces_part]}}, requires: [confidence, method, link_status], note: "step 2: OpenDAL RFCs cite earlier RFCs with 'updates', 'builds on', 'changes'; none says 'supersedes'"}
-    REMEDIATES:      {from: [Change], to: [Incident], requires: [confidence, method, link_status]}   # a related merge request may be the fix or the cause
+    REMEDIATES:      {from: [Change], to: [Incident], properties: {source_event_id: string, pinned_position: string}, requires: [confidence, method, link_status], note: "source-declared corrective intent, neither causal attribution nor completed resolution"}
     RAISES:          {from: [Incident], to: [Request]}
     LEARNED_FROM:    {from: [Lesson], to: [Incident, Change]}
   # Trace-link policy (BRIEF E-20261002-01-r2): a confidence cut-off at write time left about 1 trail in 3 intact in the
@@ -650,6 +651,40 @@ events:
             type: integer
             minimum: 1
             maximum: 9223372036854775807
+  pdlc.incident.remediation_recorded:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        change:
+          type: object
+          required: true
+          properties:
+            repo:
+              type: string
+              required: true
+              min_length: 1
+            number:
+              type: integer
+              required: true
+              minimum: 1
+              maximum: 9223372036854775807
+        incident:
+          type: object
+          required: true
+          properties:
+            repo:
+              type: string
+              required: true
+              min_length: 1
+            service:
+              type: string
+              required: true
+              min_length: 1
+            incident_id:
+              type: string
+              required: true
+              min_length: 1
   pdlc.incident.detected:
     aliases:
       cdevents: dev.cdevents.incident.detected
@@ -1274,6 +1309,9 @@ projection:
       # A deployed commit is the merge commit of a change: link it (a change merged later is linked by its merge rule)
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to_each: {type: Change, match: {repo: $.repo, merge_sha: $.artifact_id}}, when: $.artifact_id}
       - {type: DEPLOYS, from: {type: Deployment, key: {repo: $.repo, service: $.service, environment: $.environment, artifact_id: $.artifact_id, started_at: $event.occurred_at}}, to: {type: Release, key: {repo: $.repo, version: $.release_version}}, when: $.release_version}
+  - event: pdlc.incident.remediation_recorded
+    edges:
+      - {type: REMEDIATES, from: {type: Change, key: {repo: $.change.repo, number: $.change.number}}, to: {type: Incident, key: {repo: $.incident.repo, service: $.incident.service, incident_id: $.incident.incident_id}}, set: {source_event_id: $event.event_id, pinned_position: $event.global_position}}
   - event: pdlc.incident.detected
     upsert:
       - {type: Incident, key: {repo: $.repo, service: $.service, incident_id: $.incident_id}, set: {severity: $.severity, title: $.description, environment: $.environment, artifact_id: $.artifact_id}}
@@ -1364,7 +1402,7 @@ retrieval:
       description: "Retrieve declared incident occurrence, affected service and deployment evidence"
       examples: ["which deployment did incident INC-1 occur on", "show incident OUTAGE-73"]
       keywords: [incident, incidents, outage, outages]
-      weights: {OCCURRED_ON: 5, AFFECTS: 4, DEPLOYS: 3, INCLUDES: 3}
+      weights: {REMEDIATES: 5, OCCURRED_ON: 5, AFFECTS: 4, DEPLOYS: 3, INCLUDES: 3}
       max_depth: 3
     trace:
       description: "Follow a requirement or request through design, code, tests and deployment"

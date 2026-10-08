@@ -24,10 +24,10 @@ EVENT_ID = UUID("00000000-0000-0000-0000-000000000001")
 
 def test_catalog_exactly_covers_pack_owned_events():
     owned = {n for n, e in REGISTRY.event_types.items() if e.pack == "pdlc"}
-    assert len(CASES) == len(owned) == 26
+    assert len(CASES) == len(owned) == 27
     assert {c["event_type"] for c in CASES} == owned
     assert CATALOG["pack_version"] == REGISTRY.pack("pdlc").version
-    assert sum(c["classification"] == "deterministic" for c in CASES) == 22
+    assert sum(c["classification"] == "deterministic" for c in CASES) == 23
     assert sum(c["classification"] == "missing_mapping" for c in CASES) == 4
 
 

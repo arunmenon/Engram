@@ -1,0 +1,16 @@
+# Normalized #52 journey in test_incident_remediation.py; no native incident adapter.
+pack: pdlc
+min_f1: 1.0
+questions:
+  - id: incident-corrective-pr
+    query: "Which PR corrects incident INC-51?"
+    intent: incident
+    seed_node_ids: ["Incident:acme/auth|reset|INC-51"]
+    answer: {node_type: Change}
+    expected: ["Change:acme/auth|8"]
+  - id: corrective-pr-incident
+    query: "Which incident does this PR correct?"
+    intent: incident
+    seed_node_ids: ["Change:acme/auth|8"]
+    answer: {node_type: Incident}
+    expected: ["Incident:acme/auth|reset|INC-51"]
