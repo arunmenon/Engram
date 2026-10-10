@@ -1,6 +1,6 @@
 # Controlled developer pilot: requested scope and prerequisite assessment
 
-Status update, 10 October 2026: stakeholder authorized the pack-composition assessment after confirming G7 complete. The [local and partial live assessment and evidence](2026-10-10-pack-composition-assessment.md) are now saved. Local configuration/shared-logic work is complete; real-Spanner combination acceptance remains unrun. The developer pilot has not started. The original planning and historical grounding below are preserved; references to G7 being selected or the assessment awaiting authorization describe the earlier checkpoint, not current execution status.
+Status update, 10 October 2026: stakeholder confirmed G7 complete and authorized the pack-composition assessment, including reuse of only the assessment database after verified exports. The [local and live assessment](2026-10-10-pack-composition-assessment.md) now records all five configurations attempted: enrichment persistence failed in core/PDLC cases, both user-enabled runs failed on Entity-interest provenance, and useful Memory production remains blocked. Sequential reuse does not prove concurrent tenant isolation. No runtime fixes or developer pilot have started. Historical planning below is preserved.
 
 ## Grounding review — completed, code inspection only
 

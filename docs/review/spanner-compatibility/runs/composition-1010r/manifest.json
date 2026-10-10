@@ -1,0 +1,35 @@
+{
+  "run_id": "1010r",
+  "created_at": "2026-10-10T14:08:52.906332+00:00",
+  "scope": "Five private bound runtimes; real HTTP, five workers, real model and Spanner",
+  "limitations": [
+    "Not public tenant dispatcher acceptance",
+    "Unevaluated-bundle development gate enabled",
+    "No historical migration",
+    "No new Memory semantics or producer"
+  ],
+  "retention": "Preserve assessment databases and evidence; do not modify existing goal targets",
+  "configurations": [
+    "core",
+    "user",
+    "user-memory",
+    "pdlc-memory"
+  ],
+  "expected_checks": [
+    "Normal event accepted, one ledger row, one Event, retrievable through subgraph API",
+    "Exact retry does not add ledger or graph records",
+    "Invalid event rejected without writes",
+    "Session-end triggers real extraction; core and user results checked separately",
+    "User-disabled selections have no user-profile/preference outputs",
+    "User-enabled selections produce a profile and preference, retrievable via user API",
+    "Diagnostic: composed graph reader retains the enabled profile (not HTTP acceptance)",
+    "PDLC admission and Change artifact/evidence retrieval succeed only with PDLC selected",
+    "Memory-selected configurations have no useful Memory producer (blocked capability)",
+    "Worker delivery completion and dead letters recorded, never treated as output proof",
+    "Enrichment keywords persist for every accepted event after workers finish",
+    "Same event/session identities across databases do not leak tenant-specific content"
+  ],
+  "target": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+  "execution": "Sequential export/reset/run; not concurrent tenant isolation",
+  "authorization": "Stakeholder: Plz reuse assessment database"
+}

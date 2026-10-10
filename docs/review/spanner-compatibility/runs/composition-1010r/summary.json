@@ -1,0 +1,76 @@
+{
+  "configurations": [
+    {
+      "configuration": "core",
+      "state": "completed with findings",
+      "checks": {
+        "PASS": 11,
+        "FAIL": 1
+      },
+      "error": null,
+      "retained_counts": {
+        "events": 2,
+        "nodes": 9,
+        "edges": 13,
+        "pending": 0,
+        "dead_letters": 0
+      },
+      "shutdown_errors": []
+    },
+    {
+      "configuration": "user",
+      "state": "failed",
+      "checks": {
+        "PASS": 6
+      },
+      "error": "Worker extraction rejected entity_id; processing remained pending. Runner stopped gracefully after exceeding intended 60-second wall deadline.",
+      "retained_counts": {
+        "events": 2,
+        "nodes": 15,
+        "edges": 28,
+        "pending": 1,
+        "dead_letters": 0
+      },
+      "shutdown_errors": []
+    },
+    {
+      "configuration": "user-memory",
+      "state": "failed",
+      "checks": {
+        "PASS": 6
+      },
+      "error": "TimeoutError: Workers did not complete delivery within 60 seconds",
+      "retained_counts": {
+        "events": 2,
+        "nodes": 16,
+        "edges": 31,
+        "pending": 1,
+        "dead_letters": 0
+      },
+      "shutdown_errors": []
+    },
+    {
+      "configuration": "pdlc-memory",
+      "state": "completed with findings",
+      "checks": {
+        "PASS": 12,
+        "FAIL": 1,
+        "BLOCKED": 1
+      },
+      "error": null,
+      "retained_counts": {
+        "events": 3,
+        "nodes": 13,
+        "edges": 16,
+        "pending": 0,
+        "dead_letters": 0
+      },
+      "shutdown_errors": []
+    }
+  ],
+  "exports_verified": 4,
+  "final_retained": "pdlc-memory at epoch 5",
+  "concurrent_isolation": "NOT RUN",
+  "runtime_changes": false,
+  "independent_review": "NOT RUN"
+}

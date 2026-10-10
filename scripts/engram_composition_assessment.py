@@ -13,6 +13,7 @@ import json
 import os
 import socket
 import subprocess
+import time
 import traceback
 from datetime import UTC, datetime
 from pathlib import Path
@@ -70,13 +71,13 @@ def database_id(run_id, config):
     return f"engram-assess-{run_id}-{suffix}"
 
 
-def settings_for(run_id, config):
+def settings_for(run_id, config, *, target_database=None):
     settings = Settings()
     for port in ("event_log", "subscription", "graph", "keyword_index", "vector_index"):
         setattr(settings.storage, port, "spanner")
     settings.spanner.project = PROJECT
     settings.spanner.instance = INSTANCE
-    settings.spanner.database = database_id(run_id, config)
+    settings.spanner.database = target_database or database_id(run_id, config)
     settings.spanner.emulator_host = None
     settings.spanner.create_if_missing = False
     settings.spanner.allow_create_on_instance = False
@@ -98,12 +99,12 @@ def settings_for(run_id, config):
     return settings
 
 
-def binding_for(run_id, config):
+def binding_for(run_id, config, *, target_database=None, epoch=1):
     return TenantBinding.from_settings(
         "assessment-" + config,
         "assessment-" + run_id + "-" + config,
-        1,
-        settings_for(run_id, config),
+        epoch,
+        settings_for(run_id, config, target_database=target_database),
         engine_revision="composition-assessment-v1",
     )
 
@@ -207,14 +208,16 @@ def event(run_id, key, *, event_type="observation.input", payload=None):
     )
 
 
-async def run_configuration(run_id, config, directory):
+async def run_configuration(
+    run_id, config, directory, *, target_database=None, epoch=1, prebound=False
+):
     path = directory / (config + "-observations.json")
     evidence = {"configuration": config, "checks": [], "responses": [], "state": "starting"}
     durable_json(path, evidence)
     consumers, tasks, stores = [], [], []
     server = server_task = None
     database = None
-    binding = binding_for(run_id, config)
+    binding = binding_for(run_id, config, target_database=target_database, epoch=epoch)
     settings = binding.settings()
     credentials = Credentials(token=token(impersonate=True))
     original_client = spanner.Client
@@ -240,8 +243,12 @@ async def run_configuration(run_id, config, directory):
         assert not any(v["count"] for v in before.values()), (
             "Assessment DB is not empty; refusing adoption"
         )
-        assert not await asyncio.to_thread(read_owner, database), "Assessment target already bound"
         owner = [*TenantFence.from_binding(binding)._identity(), "active"]
+        existing_owner = await asyncio.to_thread(read_owner, database)
+        if prebound:
+            assert existing_owner == [owner], "Prebound assessment authority differs"
+        else:
+            assert not existing_owner, "Assessment target already bound"
         evidence["owner_intent"] = owner
         durable_json(path, evidence)
 
@@ -252,7 +259,8 @@ async def run_configuration(run_id, config, directory):
                     "TenantControl", ["control_id", *CONTROL_COLUMNS], [["active", *owner]]
                 )
 
-        await asyncio.to_thread(bind)
+        if not prebound:
+            await asyncio.to_thread(bind)
         assert await asyncio.to_thread(read_owner, database) == [owner]
         app = create_app(binding.settings(), bundle=binding.bundle)
         app.state.tenant_binding = binding
@@ -285,7 +293,8 @@ async def run_configuration(run_id, config, directory):
             tasks.append(asyncio.create_task(consumer.run()))
 
         async def settled():
-            for _ in range(300):
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
                 for task in tasks:
                     if task.done():
                         await task
@@ -394,7 +403,7 @@ async def run_configuration(run_id, config, directory):
                 )
                 check("personalization API responds", status == 200, answer)
                 key = ("UserProfile", "profile:user:assessment-agent")
-                observed = await app.state.stores.graph_reads.read_keyed_nodes([key])
+                observed = await app.state.stores.pack_reads.read_keyed_nodes([key])
                 check(
                     "diagnostic: composed profile identity",
                     key in observed,

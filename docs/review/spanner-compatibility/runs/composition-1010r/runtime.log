@@ -1,0 +1,1707 @@
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 19:38:53 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+{"configuration": "core", "state": "export verified; empty epoch active", "epoch": 2}
+2026-10-10 19:39:00 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:39:00 [info     ] llm_client_initialized
+2026-10-10 19:39:03 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0'] ontology_version=sha256:7aa9c7d4db1d5a24 redis_host=localhost
+2026-10-10 19:39:04 [info     ] ontology_loaded                edge_types=10 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=3 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:7aa9c7d4db1d5a24
+2026-10-10 19:39:04 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-10 19:39:05 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-10 19:39:05 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-10 19:39:07 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-10 19:39:07 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-10 19:39:08 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-10 19:39:09 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:39:09 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-10 19:39:09 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-10 19:39:10 [info     ] consolidation_llm_client_initialized
+2026-10-10 19:39:10 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-10 19:39:10 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-10 19:39:10 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-10 19:39:10 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-10 19:39:12 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-10 19:39:12 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:09:12.460463000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=56a2481e-3fac-4ef9-acaf-77cfc96b8894 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:39:12 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-10 19:39:12 [debug    ] event_enriched                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 importance_score=5 keywords=['observation', 'input']
+2026-10-10 19:39:17 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1010 19:39:22.653725 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1010 19:39:22.654097 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(40, generation: 1)
+I1010 19:39:22.654297 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1010 19:39:22.654346 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1010 19:39:22.654446 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1010 19:39:22.654505 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1010 19:39:22.654914 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1010 19:39:22.654966 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1010 19:39:22.655036 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1010 19:39:22.655190 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1010 19:39:22.655229 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1010 19:39:22.655238 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+I1010 19:39:22.655242 54272666 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(12, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5790.13it/s]
+2026-10-10 19:39:31 [debug    ] event_projected                edge_count=0 entry_id=2026-10-10T14:09:12.460463000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 session_id=composition:1010r
+2026-10-10 19:39:31 [debug    ] event_embedding_stored         event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08
+2026-10-10 19:39:32 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=9312dbc2-a574-4e87-abdb-2199d4423f69
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10386.93it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-10 19:39:40 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:09:12.460463000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=7e5333c7-7bcc-47d0-af50-dca019e33c79 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:39:41 [info     ] event_ingested                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 event_type=system.session_end global_position=2026-10-10T14:09:41.407007000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 request_id=2623c404-8f16-4d4b-9b31-6064558e0430 status=created
+2026-10-10 19:39:41 [debug    ] event_projected                edge_count=1 entry_id=2026-10-10T14:09:41.407007000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:39:41 [info     ] extraction_triggered           agent_id=assessment-agent entry_id=2026-10-10T14:09:41.407007000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:39:41 [debug    ] event_enriched                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 importance_score=5 keywords=['system', 'session_end']
+2026-10-10 19:39:41 [debug    ] session_events_collected       event_count=2 session_id=composition:1010r
+I1010 19:39:42.131236 54272308 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1010 19:39:42.138886 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1010 19:39:42.139772 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(40, generation: 1)
+I1010 19:39:42.139852 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1010 19:39:42.139993 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1010 19:39:42.140157 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1010 19:39:42.140244 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1010 19:39:42.140472 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1010 19:39:42.140568 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1010 19:39:42.140591 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1010 19:39:42.140594 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1010 19:39:42.140597 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1010 19:39:42.140600 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+I1010 19:39:42.140603 54273774 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(12, generation: 1)
+I1010 19:39:42.154924 54272308 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1010 19:39:42.159551 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1010 19:39:42.159854 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(40, generation: 1)
+I1010 19:39:42.159927 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1010 19:39:42.159956 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1010 19:39:42.159991 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1010 19:39:42.160074 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1010 19:39:42.160163 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1010 19:39:42.160374 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1010 19:39:42.160383 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1010 19:39:42.160386 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1010 19:39:42.160390 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1010 19:39:42.160393 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+I1010 19:39:42.160396 54273811 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(12, generation: 1)
+2026-10-10 19:39:42 [debug    ] event_embedding_stored         event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0
+2026-10-10 19:39:47 [info     ] extraction_llm_success         entities=6 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=composition:1010r skills=0
+2026-10-10 19:39:47 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8258.56it/s]
+2026-10-10 19:39:53 [debug    ] entity_created                 entity_id=entity:Casey name=Casey
+2026-10-10 19:39:54 [debug    ] entity_created                 entity_id=entity:engineer name=engineer
+2026-10-10 19:39:55 [debug    ] entity_created                 entity_id='entity:tenant core' name='tenant core'
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-10 19:39:55 [debug    ] entity_created                 entity_id=entity:Python name=Python
+2026-10-10 19:39:56 [debug    ] entity_created                 entity_id='entity:Orion service' name='Orion service'
+2026-10-10 19:39:57 [debug    ] entity_created                 entity_id=entity:assessment-agent name=assessment-agent
+2026-10-10 19:39:57 [info     ] extraction_results_written     session_id=composition:1010r user_entity_id=user:assessment-agent
+2026-10-10 19:39:57 [info     ] extraction_completed           entities=6 interests=0 preferences=0 session_id=composition:1010r skills=0
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:39:58 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-10 19:39:58 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-10 19:39:58 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-10 19:39:58 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-10 19:39:58 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-10 19:40:01 [info     ] app_stopped
+{"configuration": "core", "state": "completed with findings", "checks": [{"name": "core admission", "status": "PASS", "detail": 201}, {"name": "core ledger and Event", "status": "PASS", "detail": null}, {"name": "core API retrieval", "status": "PASS", "detail": null}, {"name": "exact retry ledger idempotency", "status": "PASS", "detail": {"event_id": "0e41fbf6-d010-59fc-babd-8eb3c498bf08", "global_position": "2026-10-10T14:09:12.460463000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08", "status": "duplicate"}}, {"name": "invalid event no writes", "status": "PASS", "detail": 422}, {"name": "session-end admission", "status": "PASS", "detail": null}, {"name": "session produces core entities", "status": "PASS", "detail": null}, {"name": "disabled user outputs absent", "status": "PASS", "detail": null}, {"name": "PDLC selection admission", "status": "PASS", "detail": {"event_id": "fd009649-357c-50cf-98ed-1a1d2bb55391", "event_type": "pdlc.change.created", "reason": "event_unsupported", "detail": [{"field": "event_type", "code": "event_unsupported", "message": "Event is not supported by the active pack configuration"}]}}, {"name": "enrichment persists after worker completion", "status": "FAIL", "detail": {"0e41fbf6-d010-59fc-babd-8eb3c498bf08": {"expected": ["observation", "input"], "actual": []}, "8c407b7a-e191-5506-b03f-76e347c7f5a0": {"expected": ["system", "session_end"], "actual": []}}}, {"name": "disabled PDLC outputs absent", "status": "PASS", "detail": null}, {"name": "dead letters absent", "status": "PASS", "detail": []}], "error": null}
+I1010 19:40:02.346748 54276149 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(44, generation: 1)
+I1010 19:41:07.591127 54277050 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(44, generation: 1)
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+{"configuration": "user", "state": "export verified; empty epoch active", "epoch": 3}
+I1010 19:41:12.926486 54277284 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(44, generation: 1)
+2026-10-10 19:41:15 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:41:15 [info     ] llm_client_initialized
+2026-10-10 19:41:18 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'user@1.1.0'] ontology_version=sha256:5bfe4499fadd80c9 redis_host=localhost
+2026-10-10 19:41:20 [info     ] ontology_loaded                edge_types=18 event_types=15 intents=['general', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=8 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:5bfe4499fadd80c9
+2026-10-10 19:41:20 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-10 19:41:20 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-10 19:41:21 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-10 19:41:22 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-10 19:41:22 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-10 19:41:23 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-10 19:41:24 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:41:24 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-10 19:41:25 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-10 19:41:25 [info     ] consolidation_llm_client_initialized
+2026-10-10 19:41:25 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-10 19:41:25 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-10 19:41:25 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-10 19:41:26 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-10 19:41:28 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-10 19:41:28 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:11:28.872575000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=6f5c63d9-bb8e-483b-8728-eb7984b45ce4 status=created
+2026-10-10 19:41:29 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-10 19:41:29 [debug    ] event_enriched                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 importance_score=5 keywords=['observation', 'input']
+2026-10-10 19:41:29 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10477.11it/s]
+2026-10-10 19:41:38 [debug    ] event_projected                edge_count=0 entry_id=2026-10-10T14:11:28.872575000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 session_id=composition:1010r
+2026-10-10 19:41:38 [debug    ] event_embedding_stored         event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08
+2026-10-10 19:41:38 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=66d4e3b9-2f55-4cb5-9a10-ed6f7fe2da1a
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8382.10it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-10 19:41:55 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:11:28.872575000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=b005dc45-4052-431f-9ea2-434070c97e23 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:41:57 [info     ] event_ingested                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 event_type=system.session_end global_position=2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 request_id=0b18e867-3774-489d-805a-087dacae6f63 status=created
+2026-10-10 19:41:57 [debug    ] event_projected                edge_count=1 entry_id=2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:41:57 [info     ] extraction_triggered           agent_id=assessment-agent entry_id=2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:41:57 [debug    ] event_enriched                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 importance_score=5 keywords=['system', 'session_end']
+2026-10-10 19:41:57 [debug    ] session_events_collected       event_count=2 session_id=composition:1010r
+2026-10-10 19:41:57 [debug    ] event_embedding_stored         event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0
+2026-10-10 19:42:06 [info     ] extraction_llm_success         entities=4 interests=2 model_id=gpt-5.2-2025-12-11 preferences=2 session_id=composition:1010r skills=3
+2026-10-10 19:42:06 [info     ] extraction_wrote_user_profile  persona_name=Casey persona_role='Engineer (tenant user)' session_id=composition:1010r user_entity_id=user:assessment-agent
+2026-10-10 19:42:06 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8319.31it/s]
+2026-10-10 19:42:14 [debug    ] entity_created                 entity_id=entity:Casey name=Casey
+2026-10-10 19:42:15 [debug    ] entity_created                 entity_id=entity:Python name=Python
+2026-10-10 19:42:16 [debug    ] entity_created                 entity_id='entity:Orion service' name='Orion service'
+2026-10-10 19:42:17 [debug    ] entity_created                 entity_id='entity:tenant user' name='tenant user'
+2026-10-10 19:42:24 [error    ] message_processing_failed      consumer=extraction-1 entry_id=2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 group=assessment-extraction
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/worker/co │
+│ nsumer.py:282 in run                                                         │
+│                                                                              │
+│   279 │   │   │   for delivery in deliveries:                                │
+│   280 │   │   │   │   entry_id = delivery.position                           │
+│   281 │   │   │   │   try:                                                   │
+│ ❱ 282 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   283 │   │   │   │   │   if not self.deferred_ack:                          │
+│   284 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   285 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-10T14:11:57.050143000Z/000000/8c407b… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  '8c407b7a-e191-5506-b03f-76e347c7f5a0'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-10T14:11:57.050143000Z/000000/8c407b… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  '8c407b7a-e191-5506-b03f-76e347c7f5a0'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191-5… │ │
+│ │ loop_iteration = 46                                                      │ │
+│ │           self = <context_graph.worker.extraction.ExtractionConsumer     │ │
+│ │                  object at 0x156603860>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/worker/ex │
+│ traction.py:165 in process_message                                           │
+│                                                                              │
+│   162 │   │   │   event_payloads=raw_docs,                                   │
+│   163 │   │   )                                                              │
+│   164 │   │                                                                  │
+│ ❱ 165 │   │   await self._write_extraction_results(session_id, agent_id, res │
+│       source_event_ids)                                                      │
+│   166 │   │                                                                  │
+│   167 │   │   log.info(                                                      │
+│   168 │   │   │   "extraction_completed",                                    │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │         agent_id = 'assessment-agent'                                    │ │
+│ │             data = {'event_id': '8c407b7a-e191-5506-b03f-76e347c7f5a0'}  │ │
+│ │              doc = {                                                     │ │
+│ │                    │   'agent_id': 'assessment-agent',                   │ │
+│ │                    │   'ended_at': None,                                 │ │
+│ │                    │   'event_id':                                       │ │
+│ │                    '8c407b7a-e191-5506-b03f-76e347c7f5a0',               │ │
+│ │                    │   'event_type': 'system.session_end',               │ │
+│ │                    │   'global_position':                                │ │
+│ │                    '2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191… │ │
+│ │                    │   'importance_hint': None,                          │ │
+│ │                    │   'occurred_at': '2026-10-10T02:00:00Z',            │ │
+│ │                    │   'parent_event_id': None,                          │ │
+│ │                    │   'payload': {},                                    │ │
+│ │                    │   'payload_ref': 'assessment:session-end',          │ │
+│ │                    │   ... +6                                            │ │
+│ │                    }                                                     │ │
+│ │         entry_id = '2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191… │ │
+│ │         event_id = '8c407b7a-e191-5506-b03f-76e347c7f5a0'                │ │
+│ │       event_type = 'system.session_end'                                  │ │
+│ │           events = [                                                     │ │
+│ │                    │   Event(                                            │ │
+│ │                    │   │                                                 │ │
+│ │                    event_id=UUID('0e41fbf6-d010-59fc-babd-8eb3c498bf08'… │ │
+│ │                    │   │   event_type='observation.input',               │ │
+│ │                    │   │   occurred_at=datetime.datetime(2026, 10, 10,   │ │
+│ │                    2, 0, tzinfo=datetime.timezone.utc),                  │ │
+│ │                    │   │   session_id='composition:1010r',               │ │
+│ │                    │   │   agent_id='assessment-agent',                  │ │
+│ │                    │   │   trace_id='1010r',                             │ │
+│ │                    │   │   payload_ref='assessment:observation',         │ │
+│ │                    │   │                                                 │ │
+│ │                    global_position='2026-10-10T14:11:28.872575000Z/0000… │ │
+│ │                    │   │   tool_name=None,                               │ │
+│ │                    │   │   parent_event_id=None,                         │ │
+│ │                    │   │   ended_at=None,                                │ │
+│ │                    │   │   status=None,                                  │ │
+│ │                    │   │   schema_version=1,                             │ │
+│ │                    │   │   importance_hint=None                          │ │
+│ │                    │   ),                                                │ │
+│ │                    │   Event(                                            │ │
+│ │                    │   │                                                 │ │
+│ │                    event_id=UUID('8c407b7a-e191-5506-b03f-76e347c7f5a0'… │ │
+│ │                    │   │   event_type='system.session_end',              │ │
+│ │                    │   │   occurred_at=datetime.datetime(2026, 10, 10,   │ │
+│ │                    2, 0, tzinfo=datetime.timezone.utc),                  │ │
+│ │                    │   │   session_id='composition:1010r',               │ │
+│ │                    │   │   agent_id='assessment-agent',                  │ │
+│ │                    │   │   trace_id='1010r',                             │ │
+│ │                    │   │   payload_ref='assessment:session-end',         │ │
+│ │                    │   │                                                 │ │
+│ │                    global_position='2026-10-10T14:11:57.050143000Z/0000… │ │
+│ │                    │   │   tool_name=None,                               │ │
+│ │                    │   │   parent_event_id=None,                         │ │
+│ │                    │   │   ended_at=None,                                │ │
+│ │                    │   │   status=None,                                  │ │
+│ │                    │   │   schema_version=1,                             │ │
+│ │                    │   │   importance_hint=None                          │ │
+│ │                    │   )                                                 │ │
+│ │                    ]                                                     │ │
+│ │         raw_docs = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'agent_id': 'assessment-agent',               │ │
+│ │                    │   │   'ended_at': None,                             │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '0e41fbf6-d010-59fc-babd-8eb3c498bf08',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-10T14:11:28.872575000Z/000000/0e41fbf6-d010… │ │
+│ │                    │   │   'importance_hint': None,                      │ │
+│ │                    │   │   'occurred_at': '2026-10-10T02:00:00Z',        │ │
+│ │                    │   │   'parent_event_id': None,                      │ │
+│ │                    │   │   'payload': {                                  │ │
+│ │                    │   │   │   'content': 'My name is Casey. I am an     │ │
+│ │                    engineer on tenant user. I prefer concise             │ │
+│ │                    bullet-point'+50,                                     │ │
+│ │                    │   │   │   'input': 'My name is Casey. I am an       │ │
+│ │                    engineer on tenant user. I prefer concise             │ │
+│ │                    bullet-point'+50                                      │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   'payload_ref': 'assessment:observation',      │ │
+│ │                    │   │   ... +7                                        │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'agent_id': 'assessment-agent',               │ │
+│ │                    │   │   'ended_at': None,                             │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '8c407b7a-e191-5506-b03f-76e347c7f5a0',               │ │
+│ │                    │   │   'event_type': 'system.session_end',           │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-10T14:11:57.050143000Z/000000/8c407b7a-e191… │ │
+│ │                    │   │   'importance_hint': None,                      │ │
+│ │                    │   │   'occurred_at': '2026-10-10T02:00:00Z',        │ │
+│ │                    │   │   'parent_event_id': None,                      │ │
+│ │                    │   │   'payload': {},                                │ │
+│ │                    │   │   'payload_ref': 'assessment:session-end',      │ │
+│ │                    │   │   ... +6                                        │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │           result = {                                                     │ │
+│ │                    │   'session_id': 'composition:1010r',                │ │
+│ │                    │   'agent_id': 'assessment-agent',                   │ │
+│ │                    │   'model_id': 'gpt-5.2-2025-12-11',                 │ │
+│ │                    │   'prompt_version': 'v1',                           │ │
+│ │                    │   'entities': [                                     │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Casey',                          │ │
+│ │                    │   │   │   'entity_type': 'user',                    │ │
+│ │                    │   │   │   'confidence': 0.99,                       │ │
+│ │                    │   │   │   'source_quote': 'My name is Casey.',      │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Python',                         │ │
+│ │                    │   │   │   'entity_type': 'tool',                    │ │
+│ │                    │   │   │   'confidence': 0.95,                       │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Orion service',                  │ │
+│ │                    │   │   │   'entity_type': 'service',                 │ │
+│ │                    │   │   │   'confidence': 0.78,                       │ │
+│ │                    │   │   │   'source_quote': 'build the Orion          │ │
+│ │                    service',                                             │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'tenant user',                    │ │
+│ │                    │   │   │   'entity_type': 'concept',                 │ │
+│ │                    │   │   │   'confidence': 0.6,                        │ │
+│ │                    │   │   │   'source_quote': 'I am an engineer on      │ │
+│ │                    tenant user.',                                        │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'preferences': [                                  │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'category': 'communication',              │ │
+│ │                    │   │   │   'key': 'concise_bullet_point_answers',    │ │
+│ │                    │   │   │   'polarity': 'positive',                   │ │
+│ │                    │   │   │   'strength': 0.95,                         │ │
+│ │                    │   │   │   'confidence': 0.95,                       │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'context': 'User explicitly requests a    │ │
+│ │                    concise bullet-point response format.',               │ │
+│ │                    │   │   │   'about_entity': 'answer format',          │ │
+│ │                    │   │   │   'source_quote': 'I prefer concise         │ │
+│ │                    bullet-point answers.',                               │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'category': 'tool',                       │ │
+│ │                    │   │   │   'key': 'python',                          │ │
+│ │                    │   │   │   'polarity': 'positive',                   │ │
+│ │                    │   │   │   'strength': 0.7,                          │ │
+│ │                    │   │   │   'confidence': 0.7,                        │ │
+│ │                    │   │   │   'source': 'implicit_intentional',         │ │
+│ │                    │   │   │   'context': 'User chooses Python for       │ │
+│ │                    building a service, implying preference/standard tool │ │
+│ │                    ch'+5,                                                │ │
+│ │                    │   │   │   'about_entity': 'Python',                 │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'skills': [                                       │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Python',                         │ │
+│ │                    │   │   │   'category': 'programming_language',       │ │
+│ │                    │   │   │   'proficiency': 0.75,                      │ │
+│ │                    │   │   │   'confidence': 0.8,                        │ │
+│ │                    │   │   │   'source': 'declared',                     │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Software engineering',           │ │
+│ │                    │   │   │   'category': 'domain_knowledge',           │ │
+│ │                    │   │   │   'proficiency': 0.7,                       │ │
+│ │                    │   │   │   'confidence': 0.65,                       │ │
+│ │                    │   │   │   'source': 'declared',                     │ │
+│ │                    │   │   │   'source_quote': 'I am an engineer on      │ │
+│ │                    tenant user.',                                        │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Service development',            │ │
+│ │                    │   │   │   'category': 'domain_knowledge',           │ │
+│ │                    │   │   │   'proficiency': 0.7,                       │ │
+│ │                    │   │   │   'confidence': 0.6,                        │ │
+│ │                    │   │   │   'source': 'inferred',                     │ │
+│ │                    │   │   │   'source_quote': 'use Python to build the  │ │
+│ │                    Orion service',                                       │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'interests': [                                    │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'entity_name': 'Orion service',           │ │
+│ │                    │   │   │   'entity_type': 'service',                 │ │
+│ │                    │   │   │   'weight': 0.7,                            │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'source_quote': 'build the Orion          │ │
+│ │                    service',                                             │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'entity_name': 'Python',                  │ │
+│ │                    │   │   │   'entity_type': 'tool',                    │ │
+│ │                    │   │   │   'weight': 0.6,                            │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'persona': {                                      │ │
+│ │                    │   │   'name': 'Casey',                              │ │
+│ │                    │   │   'role': 'Engineer (tenant user)',             │ │
+│ │                    │   │   'tech_level': 'advanced',                     │ │
+│ │                    │   │   'communication_style': 'Direct, concise;      │ │
+│ │                    prefers bullet points',                               │ │
+│ │                    │   │   'source_quote': 'My name is Casey. I am an    │ │
+│ │                    engineer on tenant user.'                             │ │
+│ │                    │   }                                                 │ │
+│ │                    }                                                     │ │
+│ │             self = <context_graph.worker.extraction.ExtractionConsumer   │ │
+│ │                    object at 0x156603860>                                │ │
+│ │       session_id = 'composition:1010r'                                   │ │
+│ │ source_event_ids = [                                                     │ │
+│ │                    │   '0e41fbf6-d010-59fc-babd-8eb3c498bf08',           │ │
+│ │                    │   '8c407b7a-e191-5506-b03f-76e347c7f5a0'            │ │
+│ │                    ]                                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/worker/ex │
+│ traction.py:419 in _write_extraction_results                                 │
+│                                                                              │
+│   416 │   │   │   │   )                                                      │
+│   417 │   │   │   │   interest_entity_id = f"entity:{interest_data.get('enti │
+│   418 │   │   │   │   for event_id in source_event_ids:                      │
+│ ❱ 419 │   │   │   │   │   await us.write_derived_from_edge(                  │
+│   420 │   │   │   │   │   │   source_node_id=interest_entity_id,             │
+│   421 │   │   │   │   │   │   source_id_field="entity_id",                   │
+│   422 │   │   │   │   │   │   event_id=event_id,                             │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  _semantic_matches = []                                                  │ │
+│ │           agent_id = 'assessment-agent'                                  │ │
+│ │          embedding = [                                                   │ │
+│ │                      │   0.059454768896102905,                           │ │
+│ │                      │   0.022396426647901535,                           │ │
+│ │                      │   -0.03450339287519455,                           │ │
+│ │                      │   -0.0497397743165493,                            │ │
+│ │                      │   -0.08798076957464218,                           │ │
+│ │                      │   -0.029439203441143036,                          │ │
+│ │                      │   0.06499377638101578,                            │ │
+│ │                      │   -0.0667613223195076,                            │ │
+│ │                      │   -0.004054345656186342,                          │ │
+│ │                      │   -0.02437579445540905,                           │ │
+│ │                      │   ... +374                                        │ │
+│ │                      ]                                                   │ │
+│ │        entity_data = {                                                   │ │
+│ │                      │   'name': 'tenant user',                          │ │
+│ │                      │   'entity_type': 'concept',                       │ │
+│ │                      │   'confidence': 0.6,                              │ │
+│ │                      │   'source_quote': 'I am an engineer on tenant     │ │
+│ │                      user.',                                             │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │          entity_id = 'entity:tenant user'                                │ │
+│ │        entity_name = 'tenant user'                                       │ │
+│ │        entity_type = 'concept'                                           │ │
+│ │           event_id = '0e41fbf6-d010-59fc-babd-8eb3c498bf08'              │ │
+│ │  existing_entities = [                                                   │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'user:assessment-agent',       │ │
+│ │                      │   │   'name': 'Casey (Engineer (tenant user))',   │ │
+│ │                      │   │   'entity_type': 'user'                       │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:Casey',                │ │
+│ │                      │   │   'name': 'Casey',                            │ │
+│ │                      │   │   'entity_type': 'user'                       │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:Python',               │ │
+│ │                      │   │   'name': 'Python',                           │ │
+│ │                      │   │   'entity_type': 'tool'                       │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:Orion service',        │ │
+│ │                      │   │   'name': 'Orion service',                    │ │
+│ │                      │   │   'entity_type': 'service'                    │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:tenant user',          │ │
+│ │                      │   │   'name': 'tenant user',                      │ │
+│ │                      │   │   'entity_type': 'concept'                    │ │
+│ │                      │   }                                               │ │
+│ │                      ]                                                   │ │
+│ │      interest_data = {                                                   │ │
+│ │                      │   'entity_name': 'Orion service',                 │ │
+│ │                      │   'entity_type': 'service',                       │ │
+│ │                      │   'weight': 0.7,                                  │ │
+│ │                      │   'source': 'explicit',                           │ │
+│ │                      │   'source_quote': 'build the Orion service',      │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │ interest_entity_id = 'entity:Orion service'                              │ │
+│ │     mention_counts = {                                                   │ │
+│ │                      │   'user:assessment-agent': 1,                     │ │
+│ │                      │   'entity:Casey': 1,                              │ │
+│ │                      │   'entity:Python': 1,                             │ │
+│ │                      │   'entity:Orion service': 1,                      │ │
+│ │                      │   'entity:tenant user': 1                         │ │
+│ │                      }                                                   │ │
+│ │                now = '2026-10-10T14:12:06.183795+00:00'                  │ │
+│ │       persona_data = {                                                   │ │
+│ │                      │   'name': 'Casey',                                │ │
+│ │                      │   'role': 'Engineer (tenant user)',               │ │
+│ │                      │   'tech_level': 'advanced',                       │ │
+│ │                      │   'communication_style': 'Direct, concise;        │ │
+│ │                      prefers bullet points',                             │ │
+│ │                      │   'source_quote': 'My name is Casey. I am an      │ │
+│ │                      engineer on tenant user.'                           │ │
+│ │                      }                                                   │ │
+│ │          pref_data = {                                                   │ │
+│ │                      │   'category': 'tool',                             │ │
+│ │                      │   'key': 'python',                                │ │
+│ │                      │   'polarity': 'positive',                         │ │
+│ │                      │   'strength': 0.7,                                │ │
+│ │                      │   'confidence': 0.7,                              │ │
+│ │                      │   'source': 'implicit_intentional',               │ │
+│ │                      │   'context': 'User chooses Python for building a  │ │
+│ │                      service, implying preference/standard tool ch'+5,   │ │
+│ │                      │   'about_entity': 'Python',                       │ │
+│ │                      │   'source_quote': 'I use Python to build the      │ │
+│ │                      Orion service.',                                    │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │       profile_data = {                                                   │ │
+│ │                      │   'user_id': 'user:assessment-agent',             │ │
+│ │                      │   'display_name': 'Casey (Engineer (tenant        │ │
+│ │                      user))',                                            │ │
+│ │                      │   'timezone': None,                               │ │
+│ │                      │   'language': None,                               │ │
+│ │                      │   'communication_style': 'Direct, concise;        │ │
+│ │                      prefers bullet points',                             │ │
+│ │                      │   'technical_level': 'advanced'                   │ │
+│ │                      }                                                   │ │
+│ │         resolution = None                                                │ │
+│ │             result = {                                                   │ │
+│ │                      │   'session_id': 'composition:1010r',              │ │
+│ │                      │   'agent_id': 'assessment-agent',                 │ │
+│ │                      │   'model_id': 'gpt-5.2-2025-12-11',               │ │
+│ │                      │   'prompt_version': 'v1',                         │ │
+│ │                      │   'entities': [                                   │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Casey',                        │ │
+│ │                      │   │   │   'entity_type': 'user',                  │ │
+│ │                      │   │   │   'confidence': 0.99,                     │ │
+│ │                      │   │   │   'source_quote': 'My name is Casey.',    │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Python',                       │ │
+│ │                      │   │   │   'entity_type': 'tool',                  │ │
+│ │                      │   │   │   'confidence': 0.95,                     │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Orion service',                │ │
+│ │                      │   │   │   'entity_type': 'service',               │ │
+│ │                      │   │   │   'confidence': 0.78,                     │ │
+│ │                      │   │   │   'source_quote': 'build the Orion        │ │
+│ │                      service',                                           │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'tenant user',                  │ │
+│ │                      │   │   │   'entity_type': 'concept',               │ │
+│ │                      │   │   │   'confidence': 0.6,                      │ │
+│ │                      │   │   │   'source_quote': 'I am an engineer on    │ │
+│ │                      tenant user.',                                      │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'preferences': [                                │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'category': 'communication',            │ │
+│ │                      │   │   │   'key': 'concise_bullet_point_answers',  │ │
+│ │                      │   │   │   'polarity': 'positive',                 │ │
+│ │                      │   │   │   'strength': 0.95,                       │ │
+│ │                      │   │   │   'confidence': 0.95,                     │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'context': 'User explicitly requests a  │ │
+│ │                      concise bullet-point response format.',             │ │
+│ │                      │   │   │   'about_entity': 'answer format',        │ │
+│ │                      │   │   │   'source_quote': 'I prefer concise       │ │
+│ │                      bullet-point answers.',                             │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'category': 'tool',                     │ │
+│ │                      │   │   │   'key': 'python',                        │ │
+│ │                      │   │   │   'polarity': 'positive',                 │ │
+│ │                      │   │   │   'strength': 0.7,                        │ │
+│ │                      │   │   │   'confidence': 0.7,                      │ │
+│ │                      │   │   │   'source': 'implicit_intentional',       │ │
+│ │                      │   │   │   'context': 'User chooses Python for     │ │
+│ │                      building a service, implying preference/standard    │ │
+│ │                      tool ch'+5,                                         │ │
+│ │                      │   │   │   'about_entity': 'Python',               │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'skills': [                                     │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Python',                       │ │
+│ │                      │   │   │   'category': 'programming_language',     │ │
+│ │                      │   │   │   'proficiency': 0.75,                    │ │
+│ │                      │   │   │   'confidence': 0.8,                      │ │
+│ │                      │   │   │   'source': 'declared',                   │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Software engineering',         │ │
+│ │                      │   │   │   'category': 'domain_knowledge',         │ │
+│ │                      │   │   │   'proficiency': 0.7,                     │ │
+│ │                      │   │   │   'confidence': 0.65,                     │ │
+│ │                      │   │   │   'source': 'declared',                   │ │
+│ │                      │   │   │   'source_quote': 'I am an engineer on    │ │
+│ │                      tenant user.',                                      │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Service development',          │ │
+│ │                      │   │   │   'category': 'domain_knowledge',         │ │
+│ │                      │   │   │   'proficiency': 0.7,                     │ │
+│ │                      │   │   │   'confidence': 0.6,                      │ │
+│ │                      │   │   │   'source': 'inferred',                   │ │
+│ │                      │   │   │   'source_quote': 'use Python to build    │ │
+│ │                      the Orion service',                                 │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'interests': [                                  │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'entity_name': 'Orion service',         │ │
+│ │                      │   │   │   'entity_type': 'service',               │ │
+│ │                      │   │   │   'weight': 0.7,                          │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'source_quote': 'build the Orion        │ │
+│ │                      service',                                           │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'entity_name': 'Python',                │ │
+│ │                      │   │   │   'entity_type': 'tool',                  │ │
+│ │                      │   │   │   'weight': 0.6,                          │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'persona': {                                    │ │
+│ │                      │   │   'name': 'Casey',                            │ │
+│ │                      │   │   'role': 'Engineer (tenant user)',           │ │
+│ │                      │   │   'tech_level': 'advanced',                   │ │
+│ │                      │   │   'communication_style': 'Direct, concise;    │ │
+│ │                      prefers bullet points',                             │ │
+│ │                      │   │   'source_quote': 'My name is Casey. I am an  │ │
+│ │                      engineer on tenant user.'                           │ │
+│ │                      │   }                                               │ │
+│ │                      }                                                   │ │
+│ │               role = 'Engineer (tenant user)'                            │ │
+│ │      same_as_edges = []                                                  │ │
+│ │               self = <context_graph.worker.extraction.ExtractionConsumer │ │
+│ │                      object at 0x156603860>                              │ │
+│ │         session_id = 'composition:1010r'                                 │ │
+│ │         skill_data = {                                                   │ │
+│ │                      │   'name': 'Service development',                  │ │
+│ │                      │   'category': 'domain_knowledge',                 │ │
+│ │                      │   'proficiency': 0.7,                             │ │
+│ │                      │   'confidence': 0.6,                              │ │
+│ │                      │   'source': 'inferred',                           │ │
+│ │                      │   'source_quote': 'use Python to build the Orion  │ │
+│ │                      service',                                           │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │   source_event_ids = [                                                   │ │
+│ │                      │   '0e41fbf6-d010-59fc-babd-8eb3c498bf08',         │ │
+│ │                      │   '8c407b7a-e191-5506-b03f-76e347c7f5a0'          │ │
+│ │                      ]                                                   │ │
+│ │       source_quote = 'use Python to build the Orion service'             │ │
+│ │                 us = <context_graph.adapters.spanner.graph.SpannerGraph… │ │
+│ │                      object at 0x156839fd0>                              │ │
+│ │     user_entity_id = 'user:assessment-agent'                             │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/adapters/ │
+│ errors.py:30 in wrapper                                                      │
+│                                                                              │
+│   27 │   @functools.wraps(method)                                            │
+│   28 │   async def wrapper(*args: Any, **kwargs: Any) -> Any:                │
+│   29 │   │   try:                                                            │
+│ ❱ 30 │   │   │   return await method(*args, **kwargs)                        │
+│   31 │   │   except StorageError:                                            │
+│   32 │   │   │   raise                                                       │
+│   33 │   │   except Exception as exc:                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │    args = (                                                              │ │
+│ │           │   <context_graph.adapters.spanner.graph.SpannerGraphStore    │ │
+│ │           object at 0x156839fd0>,                                        │ │
+│ │           )                                                              │ │
+│ │  kwargs = {                                                              │ │
+│ │           │   'source_node_id': 'entity:Orion service',                  │ │
+│ │           │   'source_id_field': 'entity_id',                            │ │
+│ │           │   'event_id': '0e41fbf6-d010-59fc-babd-8eb3c498bf08',        │ │
+│ │           │   'method': 'llm_extraction',                                │ │
+│ │           │   'session_id': 'composition:1010r'                          │ │
+│ │           }                                                              │ │
+│ │ neutral = None                                                           │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/adapters/ │
+│ graph_ops.py:1328 in write_derived_from_edge                                 │
+│                                                                              │
+│   1325 │   │   │   │   f"Unknown source_id_field: {source_id_field!r}. "     │
+│   1326 │   │   │   │   f"Allowed: {sorted(DERIVED_FROM_SOURCES)}"            │
+│   1327 │   │   │   )                                                         │
+│ ❱ 1328 │   │   │   raise ValueError(msg)                                     │
+│   1329 │   │   await self._derived_from(                                     │
+│   1330 │   │   │   (DERIVED_FROM_SOURCES[source_id_field], source_node_id),  │
+│   1331 │   │   │   [event_id],                                               │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │        event_id = '0e41fbf6-d010-59fc-babd-8eb3c498bf08'                 │ │
+│ │          method = 'llm_extraction'                                       │ │
+│ │             msg = "Unknown source_id_field: 'entity_id'. Allowed:        │ │
+│ │                   ['pattern_id', 'preference_id', '"+25                  │ │
+│ │            self = <context_graph.adapters.spanner.graph.SpannerGraphSto… │ │
+│ │                   object at 0x156839fd0>                                 │ │
+│ │      session_id = 'composition:1010r'                                    │ │
+│ │ source_id_field = 'entity_id'                                            │ │
+│ │  source_node_id = 'entity:Orion service'                                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: Unknown source_id_field: 'entity_id'. Allowed: ['pattern_id', 
+'preference_id', 'skill_id', 'workflow_id']
+
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-10 19:44:18 [info     ] app_stopped
+2026-10-10 19:44:18 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-10 19:44:18 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-10 19:44:18 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-10 19:44:18 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-10 19:44:18 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+{"configuration": "user", "state": "starting", "checks": [{"name": "core admission", "status": "PASS", "detail": 201}, {"name": "core ledger and Event", "status": "PASS", "detail": null}, {"name": "core API retrieval", "status": "PASS", "detail": null}, {"name": "exact retry ledger idempotency", "status": "PASS", "detail": {"event_id": "0e41fbf6-d010-59fc-babd-8eb3c498bf08", "global_position": "2026-10-10T14:11:28.872575000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08", "status": "duplicate"}}, {"name": "invalid event no writes", "status": "PASS", "detail": 422}, {"name": "session-end admission", "status": "PASS", "detail": null}], "error": null}
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/scripts/engram_composition_assessment.py", line 381, in run_configuration
+    state = await settled()
+            ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/scripts/engram_composition_assessment.py", line 301, in settled
+    state = await asyncio.to_thread(snapshot, database)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-foundation-gate/scripts/engram_composition_reuse.py", line 253, in <module>
+    main()
+  File "/Users/arunmenon/projects/Engram-foundation-gate/scripts/engram_composition_reuse.py", line 203, in main
+    result = asyncio.run(
+             ^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 19:45:04 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+{"configuration": "user-memory", "state": "export verified; empty epoch active", "epoch": 4}
+2026-10-10 19:45:10 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:45:10 [info     ] llm_client_initialized
+2026-10-10 19:45:12 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.1.0'] ontology_version=sha256:5a56bb6eaaa4c24b redis_host=localhost
+2026-10-10 19:45:14 [info     ] ontology_loaded                edge_types=20 event_types=15 intents=['general', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=11 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.0.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:5a56bb6eaaa4c24b
+2026-10-10 19:45:14 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-10 19:45:14 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-10 19:45:15 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-10 19:45:15 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-10 19:45:16 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-10 19:45:16 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-10 19:45:17 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:45:18 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-10 19:45:18 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-10 19:45:20 [info     ] consolidation_llm_client_initialized
+2026-10-10 19:45:20 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-10 19:45:20 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-10 19:45:20 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-10 19:45:21 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-10 19:45:22 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-10 19:45:23 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:15:23.006703000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=eff0cdf2-37e4-4613-b949-b7d292c9e09a status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:45:23 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-10 19:45:23 [debug    ] event_projected                edge_count=0 entry_id=2026-10-10T14:15:23.006703000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 session_id=composition:1010r
+2026-10-10 19:45:23 [debug    ] event_enriched                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 importance_score=5 keywords=['observation', 'input']
+2026-10-10 19:45:28 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1010 19:45:33.204240 54311892 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1010 19:45:33.204317 54311892 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1010 19:45:33.204343 54311892 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+I1010 19:45:33.204349 54311892 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(11, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7210.32it/s]
+2026-10-10 19:45:37 [debug    ] event_embedding_stored         event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08
+2026-10-10 19:45:38 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=9e366004-bf43-41b7-9aee-086984884f84
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7272.46it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-10 19:45:45 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:15:23.006703000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=d335e740-ac80-45d4-a3bd-5d043ced6b21 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:45:46 [info     ] event_ingested                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 event_type=system.session_end global_position=2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 request_id=ba375fe5-25f8-4a00-a422-bbe211497400 status=created
+2026-10-10 19:45:46 [info     ] extraction_triggered           agent_id=assessment-agent entry_id=2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:45:46 [debug    ] event_projected                edge_count=1 entry_id=2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:45:47 [debug    ] event_enriched                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 importance_score=5 keywords=['system', 'session_end']
+2026-10-10 19:45:47 [debug    ] event_embedding_stored         event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0
+2026-10-10 19:45:47 [debug    ] session_events_collected       event_count=2 session_id=composition:1010r
+I1010 19:45:47.396548 54311525 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1010 19:45:47.409890 54313065 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1010 19:45:47.409947 54313065 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(35, generation: 1)
+I1010 19:45:47.409953 54313065 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1010 19:45:47.409957 54313065 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1010 19:45:47.421447 54311525 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1010 19:45:47.430635 54313102 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1010 19:45:47.430830 54313102 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1010 19:45:47.430837 54313102 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(15, generation: 1)
+I1010 19:45:47.430842 54313102 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(11, generation: 1)
+2026-10-10 19:45:56 [info     ] extraction_llm_success         entities=4 interests=3 model_id=gpt-5.2-2025-12-11 preferences=2 session_id=composition:1010r skills=4
+2026-10-10 19:45:57 [info     ] extraction_wrote_user_profile  persona_name=Casey persona_role='Engineer (tenant user-memory)' session_id=composition:1010r user_entity_id=user:assessment-agent
+2026-10-10 19:45:57 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11512.07it/s]
+2026-10-10 19:46:03 [debug    ] entity_created                 entity_id=entity:Casey name=Casey
+2026-10-10 19:46:04 [debug    ] entity_created                 entity_id='entity:tenant user-memory' name='tenant user-memory'
+2026-10-10 19:46:04 [debug    ] entity_created                 entity_id=entity:Python name=Python
+2026-10-10 19:46:05 [debug    ] entity_created                 entity_id='entity:Orion service' name='Orion service'
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-10 19:46:12 [error    ] message_processing_failed      consumer=extraction-1 entry_id=2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 group=assessment-extraction
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/worker/co │
+│ nsumer.py:282 in run                                                         │
+│                                                                              │
+│   279 │   │   │   for delivery in deliveries:                                │
+│   280 │   │   │   │   entry_id = delivery.position                           │
+│   281 │   │   │   │   try:                                                   │
+│ ❱ 282 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   283 │   │   │   │   │   if not self.deferred_ack:                          │
+│   284 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   285 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-10T14:15:46.785967000Z/000000/8c407b… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  '8c407b7a-e191-5506-b03f-76e347c7f5a0'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-10T14:15:46.785967000Z/000000/8c407b… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  '8c407b7a-e191-5506-b03f-76e347c7f5a0'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191-5… │ │
+│ │ loop_iteration = 58                                                      │ │
+│ │           self = <context_graph.worker.extraction.ExtractionConsumer     │ │
+│ │                  object at 0x12abc4b90>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/worker/ex │
+│ traction.py:165 in process_message                                           │
+│                                                                              │
+│   162 │   │   │   event_payloads=raw_docs,                                   │
+│   163 │   │   )                                                              │
+│   164 │   │                                                                  │
+│ ❱ 165 │   │   await self._write_extraction_results(session_id, agent_id, res │
+│       source_event_ids)                                                      │
+│   166 │   │                                                                  │
+│   167 │   │   log.info(                                                      │
+│   168 │   │   │   "extraction_completed",                                    │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │         agent_id = 'assessment-agent'                                    │ │
+│ │             data = {'event_id': '8c407b7a-e191-5506-b03f-76e347c7f5a0'}  │ │
+│ │              doc = {                                                     │ │
+│ │                    │   'agent_id': 'assessment-agent',                   │ │
+│ │                    │   'ended_at': None,                                 │ │
+│ │                    │   'event_id':                                       │ │
+│ │                    '8c407b7a-e191-5506-b03f-76e347c7f5a0',               │ │
+│ │                    │   'event_type': 'system.session_end',               │ │
+│ │                    │   'global_position':                                │ │
+│ │                    '2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191… │ │
+│ │                    │   'importance_hint': None,                          │ │
+│ │                    │   'occurred_at': '2026-10-10T02:00:00Z',            │ │
+│ │                    │   'parent_event_id': None,                          │ │
+│ │                    │   'payload': {},                                    │ │
+│ │                    │   'payload_ref': 'assessment:session-end',          │ │
+│ │                    │   ... +6                                            │ │
+│ │                    }                                                     │ │
+│ │         entry_id = '2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191… │ │
+│ │         event_id = '8c407b7a-e191-5506-b03f-76e347c7f5a0'                │ │
+│ │       event_type = 'system.session_end'                                  │ │
+│ │           events = [                                                     │ │
+│ │                    │   Event(                                            │ │
+│ │                    │   │                                                 │ │
+│ │                    event_id=UUID('0e41fbf6-d010-59fc-babd-8eb3c498bf08'… │ │
+│ │                    │   │   event_type='observation.input',               │ │
+│ │                    │   │   occurred_at=datetime.datetime(2026, 10, 10,   │ │
+│ │                    2, 0, tzinfo=datetime.timezone.utc),                  │ │
+│ │                    │   │   session_id='composition:1010r',               │ │
+│ │                    │   │   agent_id='assessment-agent',                  │ │
+│ │                    │   │   trace_id='1010r',                             │ │
+│ │                    │   │   payload_ref='assessment:observation',         │ │
+│ │                    │   │                                                 │ │
+│ │                    global_position='2026-10-10T14:15:23.006703000Z/0000… │ │
+│ │                    │   │   tool_name=None,                               │ │
+│ │                    │   │   parent_event_id=None,                         │ │
+│ │                    │   │   ended_at=None,                                │ │
+│ │                    │   │   status=None,                                  │ │
+│ │                    │   │   schema_version=1,                             │ │
+│ │                    │   │   importance_hint=None                          │ │
+│ │                    │   ),                                                │ │
+│ │                    │   Event(                                            │ │
+│ │                    │   │                                                 │ │
+│ │                    event_id=UUID('8c407b7a-e191-5506-b03f-76e347c7f5a0'… │ │
+│ │                    │   │   event_type='system.session_end',              │ │
+│ │                    │   │   occurred_at=datetime.datetime(2026, 10, 10,   │ │
+│ │                    2, 0, tzinfo=datetime.timezone.utc),                  │ │
+│ │                    │   │   session_id='composition:1010r',               │ │
+│ │                    │   │   agent_id='assessment-agent',                  │ │
+│ │                    │   │   trace_id='1010r',                             │ │
+│ │                    │   │   payload_ref='assessment:session-end',         │ │
+│ │                    │   │                                                 │ │
+│ │                    global_position='2026-10-10T14:15:46.785967000Z/0000… │ │
+│ │                    │   │   tool_name=None,                               │ │
+│ │                    │   │   parent_event_id=None,                         │ │
+│ │                    │   │   ended_at=None,                                │ │
+│ │                    │   │   status=None,                                  │ │
+│ │                    │   │   schema_version=1,                             │ │
+│ │                    │   │   importance_hint=None                          │ │
+│ │                    │   )                                                 │ │
+│ │                    ]                                                     │ │
+│ │         raw_docs = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'agent_id': 'assessment-agent',               │ │
+│ │                    │   │   'ended_at': None,                             │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '0e41fbf6-d010-59fc-babd-8eb3c498bf08',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-10T14:15:23.006703000Z/000000/0e41fbf6-d010… │ │
+│ │                    │   │   'importance_hint': None,                      │ │
+│ │                    │   │   'occurred_at': '2026-10-10T02:00:00Z',        │ │
+│ │                    │   │   'parent_event_id': None,                      │ │
+│ │                    │   │   'payload': {                                  │ │
+│ │                    │   │   │   'content': 'My name is Casey. I am an     │ │
+│ │                    engineer on tenant user-memory. I prefer concise      │ │
+│ │                    bulle'+57,                                            │ │
+│ │                    │   │   │   'input': 'My name is Casey. I am an       │ │
+│ │                    engineer on tenant user-memory. I prefer concise      │ │
+│ │                    bulle'+57                                             │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   'payload_ref': 'assessment:observation',      │ │
+│ │                    │   │   ... +7                                        │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'agent_id': 'assessment-agent',               │ │
+│ │                    │   │   'ended_at': None,                             │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '8c407b7a-e191-5506-b03f-76e347c7f5a0',               │ │
+│ │                    │   │   'event_type': 'system.session_end',           │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-10T14:15:46.785967000Z/000000/8c407b7a-e191… │ │
+│ │                    │   │   'importance_hint': None,                      │ │
+│ │                    │   │   'occurred_at': '2026-10-10T02:00:00Z',        │ │
+│ │                    │   │   'parent_event_id': None,                      │ │
+│ │                    │   │   'payload': {},                                │ │
+│ │                    │   │   'payload_ref': 'assessment:session-end',      │ │
+│ │                    │   │   ... +6                                        │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │           result = {                                                     │ │
+│ │                    │   'session_id': 'composition:1010r',                │ │
+│ │                    │   'agent_id': 'assessment-agent',                   │ │
+│ │                    │   'model_id': 'gpt-5.2-2025-12-11',                 │ │
+│ │                    │   'prompt_version': 'v1',                           │ │
+│ │                    │   'entities': [                                     │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Casey',                          │ │
+│ │                    │   │   │   'entity_type': 'user',                    │ │
+│ │                    │   │   │   'confidence': 0.99,                       │ │
+│ │                    │   │   │   'source_quote': 'My name is Casey.',      │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'tenant user-memory',             │ │
+│ │                    │   │   │   'entity_type': 'concept',                 │ │
+│ │                    │   │   │   'confidence': 0.78,                       │ │
+│ │                    │   │   │   'source_quote': 'an engineer on tenant    │ │
+│ │                    user-memory',                                         │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Python',                         │ │
+│ │                    │   │   │   'entity_type': 'tool',                    │ │
+│ │                    │   │   │   'confidence': 0.95,                       │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Orion service',                  │ │
+│ │                    │   │   │   'entity_type': 'service',                 │ │
+│ │                    │   │   │   'confidence': 0.87,                       │ │
+│ │                    │   │   │   'source_quote': 'build the Orion          │ │
+│ │                    service',                                             │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'preferences': [                                  │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'category': 'communication',              │ │
+│ │                    │   │   │   'key': 'concise_bullet_point_answers',    │ │
+│ │                    │   │   │   'polarity': 'positive',                   │ │
+│ │                    │   │   │   'strength': 0.95,                         │ │
+│ │                    │   │   │   'confidence': 0.95,                       │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'context': 'User explicitly requests a    │ │
+│ │                    concise bullet-point response format.',               │ │
+│ │                    │   │   │   'about_entity': 'answer format',          │ │
+│ │                    │   │   │   'source_quote': 'I prefer concise         │ │
+│ │                    bullet-point answers.',                               │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'category': 'tool',                       │ │
+│ │                    │   │   │   'key': 'python',                          │ │
+│ │                    │   │   │   'polarity': 'positive',                   │ │
+│ │                    │   │   │   'strength': 0.7,                          │ │
+│ │                    │   │   │   'confidence': 0.7,                        │ │
+│ │                    │   │   │   'source': 'implicit_intentional',         │ │
+│ │                    │   │   │   'context': 'User uses Python for building │ │
+│ │                    a service, implying preference/standard tool          │ │
+│ │                    choic'+2,                                             │ │
+│ │                    │   │   │   'about_entity': 'Python',                 │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'skills': [                                       │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Python',                         │ │
+│ │                    │   │   │   'category': 'programming_language',       │ │
+│ │                    │   │   │   'proficiency': 0.75,                      │ │
+│ │                    │   │   │   'confidence': 0.8,                        │ │
+│ │                    │   │   │   'source': 'declared',                     │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Software Engineering',           │ │
+│ │                    │   │   │   'category': 'domain_knowledge',           │ │
+│ │                    │   │   │   'proficiency': 0.7,                       │ │
+│ │                    │   │   │   'confidence': 0.7,                        │ │
+│ │                    │   │   │   'source': 'declared',                     │ │
+│ │                    │   │   │   'source_quote': 'I am an engineer on      │ │
+│ │                    tenant user-memory.',                                 │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Service Development (Orion       │ │
+│ │                    service)',                                            │ │
+│ │                    │   │   │   'category': 'domain_knowledge',           │ │
+│ │                    │   │   │   'proficiency': 0.65,                      │ │
+│ │                    │   │   │   'confidence': 0.65,                       │ │
+│ │                    │   │   │   'source': 'observed',                     │ │
+│ │                    │   │   │   'source_quote': 'use Python to build the  │ │
+│ │                    Orion service',                                       │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'name': 'Tenant user-memory domain',      │ │
+│ │                    │   │   │   'category': 'domain_knowledge',           │ │
+│ │                    │   │   │   'proficiency': 0.6,                       │ │
+│ │                    │   │   │   'confidence': 0.6,                        │ │
+│ │                    │   │   │   'source': 'inferred',                     │ │
+│ │                    │   │   │   'source_quote': 'an engineer on tenant    │ │
+│ │                    user-memory',                                         │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'interests': [                                    │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'entity_name': 'tenant user-memory',      │ │
+│ │                    │   │   │   'entity_type': 'concept',                 │ │
+│ │                    │   │   │   'weight': 0.7,                            │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'source_quote': 'an engineer on tenant    │ │
+│ │                    user-memory',                                         │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'entity_name': 'Orion service',           │ │
+│ │                    │   │   │   'entity_type': 'service',                 │ │
+│ │                    │   │   │   'weight': 0.75,                           │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'source_quote': 'build the Orion          │ │
+│ │                    service',                                             │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'entity_name': 'Python',                  │ │
+│ │                    │   │   │   'entity_type': 'tool',                    │ │
+│ │                    │   │   │   'weight': 0.6,                            │ │
+│ │                    │   │   │   'source': 'explicit',                     │ │
+│ │                    │   │   │   'source_quote': 'I use Python to build    │ │
+│ │                    the Orion service.',                                  │ │
+│ │                    │   │   │   'source_turn_index': None                 │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   'persona': {                                      │ │
+│ │                    │   │   'name': 'Casey',                              │ │
+│ │                    │   │   'role': 'Engineer (tenant user-memory)',      │ │
+│ │                    │   │   'tech_level': 'advanced',                     │ │
+│ │                    │   │   'communication_style': 'Concise, direct,      │ │
+│ │                    bullet-point oriented',                               │ │
+│ │                    │   │   'source_quote': 'My name is Casey. I am an    │ │
+│ │                    engineer on tenant user-memory.'                      │ │
+│ │                    │   }                                                 │ │
+│ │                    }                                                     │ │
+│ │             self = <context_graph.worker.extraction.ExtractionConsumer   │ │
+│ │                    object at 0x12abc4b90>                                │ │
+│ │       session_id = 'composition:1010r'                                   │ │
+│ │ source_event_ids = [                                                     │ │
+│ │                    │   '0e41fbf6-d010-59fc-babd-8eb3c498bf08',           │ │
+│ │                    │   '8c407b7a-e191-5506-b03f-76e347c7f5a0'            │ │
+│ │                    ]                                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/worker/ex │
+│ traction.py:419 in _write_extraction_results                                 │
+│                                                                              │
+│   416 │   │   │   │   )                                                      │
+│   417 │   │   │   │   interest_entity_id = f"entity:{interest_data.get('enti │
+│   418 │   │   │   │   for event_id in source_event_ids:                      │
+│ ❱ 419 │   │   │   │   │   await us.write_derived_from_edge(                  │
+│   420 │   │   │   │   │   │   source_node_id=interest_entity_id,             │
+│   421 │   │   │   │   │   │   source_id_field="entity_id",                   │
+│   422 │   │   │   │   │   │   event_id=event_id,                             │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  _semantic_matches = []                                                  │ │
+│ │           agent_id = 'assessment-agent'                                  │ │
+│ │          embedding = [                                                   │ │
+│ │                      │   -0.06397590041160583,                           │ │
+│ │                      │   -0.011663831770420074,                          │ │
+│ │                      │   -0.011554049327969551,                          │ │
+│ │                      │   -0.04980890452861786,                           │ │
+│ │                      │   -0.08838693052530289,                           │ │
+│ │                      │   -0.0421578511595726,                            │ │
+│ │                      │   0.02520478144288063,                            │ │
+│ │                      │   -0.03924321010708809,                           │ │
+│ │                      │   -0.020163027569651604,                          │ │
+│ │                      │   0.030722733587026596,                           │ │
+│ │                      │   ... +374                                        │ │
+│ │                      ]                                                   │ │
+│ │        entity_data = {                                                   │ │
+│ │                      │   'name': 'Orion service',                        │ │
+│ │                      │   'entity_type': 'service',                       │ │
+│ │                      │   'confidence': 0.87,                             │ │
+│ │                      │   'source_quote': 'build the Orion service',      │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │          entity_id = 'entity:Orion service'                              │ │
+│ │        entity_name = 'Orion service'                                     │ │
+│ │        entity_type = 'service'                                           │ │
+│ │           event_id = '0e41fbf6-d010-59fc-babd-8eb3c498bf08'              │ │
+│ │  existing_entities = [                                                   │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'user:assessment-agent',       │ │
+│ │                      │   │   'name': 'Casey (Engineer (tenant            │ │
+│ │                      user-memory))',                                     │ │
+│ │                      │   │   'entity_type': 'user'                       │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:Casey',                │ │
+│ │                      │   │   'name': 'Casey',                            │ │
+│ │                      │   │   'entity_type': 'user'                       │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:tenant user-memory',   │ │
+│ │                      │   │   'name': 'tenant user-memory',               │ │
+│ │                      │   │   'entity_type': 'concept'                    │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:Python',               │ │
+│ │                      │   │   'name': 'Python',                           │ │
+│ │                      │   │   'entity_type': 'tool'                       │ │
+│ │                      │   },                                              │ │
+│ │                      │   {                                               │ │
+│ │                      │   │   'entity_id': 'entity:Orion service',        │ │
+│ │                      │   │   'name': 'Orion service',                    │ │
+│ │                      │   │   'entity_type': 'service'                    │ │
+│ │                      │   }                                               │ │
+│ │                      ]                                                   │ │
+│ │      interest_data = {                                                   │ │
+│ │                      │   'entity_name': 'tenant user-memory',            │ │
+│ │                      │   'entity_type': 'concept',                       │ │
+│ │                      │   'weight': 0.7,                                  │ │
+│ │                      │   'source': 'explicit',                           │ │
+│ │                      │   'source_quote': 'an engineer on tenant          │ │
+│ │                      user-memory',                                       │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │ interest_entity_id = 'entity:tenant user-memory'                         │ │
+│ │     mention_counts = {                                                   │ │
+│ │                      │   'user:assessment-agent': 1,                     │ │
+│ │                      │   'entity:Casey': 1,                              │ │
+│ │                      │   'entity:tenant user-memory': 1,                 │ │
+│ │                      │   'entity:Python': 1,                             │ │
+│ │                      │   'entity:Orion service': 1                       │ │
+│ │                      }                                                   │ │
+│ │                now = '2026-10-10T14:15:56.756593+00:00'                  │ │
+│ │       persona_data = {                                                   │ │
+│ │                      │   'name': 'Casey',                                │ │
+│ │                      │   'role': 'Engineer (tenant user-memory)',        │ │
+│ │                      │   'tech_level': 'advanced',                       │ │
+│ │                      │   'communication_style': 'Concise, direct,        │ │
+│ │                      bullet-point oriented',                             │ │
+│ │                      │   'source_quote': 'My name is Casey. I am an      │ │
+│ │                      engineer on tenant user-memory.'                    │ │
+│ │                      }                                                   │ │
+│ │          pref_data = {                                                   │ │
+│ │                      │   'category': 'tool',                             │ │
+│ │                      │   'key': 'python',                                │ │
+│ │                      │   'polarity': 'positive',                         │ │
+│ │                      │   'strength': 0.7,                                │ │
+│ │                      │   'confidence': 0.7,                              │ │
+│ │                      │   'source': 'implicit_intentional',               │ │
+│ │                      │   'context': 'User uses Python for building a     │ │
+│ │                      service, implying preference/standard tool          │ │
+│ │                      choic'+2,                                           │ │
+│ │                      │   'about_entity': 'Python',                       │ │
+│ │                      │   'source_quote': 'I use Python to build the      │ │
+│ │                      Orion service.',                                    │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │       profile_data = {                                                   │ │
+│ │                      │   'user_id': 'user:assessment-agent',             │ │
+│ │                      │   'display_name': 'Casey (Engineer (tenant        │ │
+│ │                      user-memory))',                                     │ │
+│ │                      │   'timezone': None,                               │ │
+│ │                      │   'language': None,                               │ │
+│ │                      │   'communication_style': 'Concise, direct,        │ │
+│ │                      bullet-point oriented',                             │ │
+│ │                      │   'technical_level': 'advanced'                   │ │
+│ │                      }                                                   │ │
+│ │         resolution = None                                                │ │
+│ │             result = {                                                   │ │
+│ │                      │   'session_id': 'composition:1010r',              │ │
+│ │                      │   'agent_id': 'assessment-agent',                 │ │
+│ │                      │   'model_id': 'gpt-5.2-2025-12-11',               │ │
+│ │                      │   'prompt_version': 'v1',                         │ │
+│ │                      │   'entities': [                                   │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Casey',                        │ │
+│ │                      │   │   │   'entity_type': 'user',                  │ │
+│ │                      │   │   │   'confidence': 0.99,                     │ │
+│ │                      │   │   │   'source_quote': 'My name is Casey.',    │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'tenant user-memory',           │ │
+│ │                      │   │   │   'entity_type': 'concept',               │ │
+│ │                      │   │   │   'confidence': 0.78,                     │ │
+│ │                      │   │   │   'source_quote': 'an engineer on tenant  │ │
+│ │                      user-memory',                                       │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Python',                       │ │
+│ │                      │   │   │   'entity_type': 'tool',                  │ │
+│ │                      │   │   │   'confidence': 0.95,                     │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Orion service',                │ │
+│ │                      │   │   │   'entity_type': 'service',               │ │
+│ │                      │   │   │   'confidence': 0.87,                     │ │
+│ │                      │   │   │   'source_quote': 'build the Orion        │ │
+│ │                      service',                                           │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'preferences': [                                │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'category': 'communication',            │ │
+│ │                      │   │   │   'key': 'concise_bullet_point_answers',  │ │
+│ │                      │   │   │   'polarity': 'positive',                 │ │
+│ │                      │   │   │   'strength': 0.95,                       │ │
+│ │                      │   │   │   'confidence': 0.95,                     │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'context': 'User explicitly requests a  │ │
+│ │                      concise bullet-point response format.',             │ │
+│ │                      │   │   │   'about_entity': 'answer format',        │ │
+│ │                      │   │   │   'source_quote': 'I prefer concise       │ │
+│ │                      bullet-point answers.',                             │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'category': 'tool',                     │ │
+│ │                      │   │   │   'key': 'python',                        │ │
+│ │                      │   │   │   'polarity': 'positive',                 │ │
+│ │                      │   │   │   'strength': 0.7,                        │ │
+│ │                      │   │   │   'confidence': 0.7,                      │ │
+│ │                      │   │   │   'source': 'implicit_intentional',       │ │
+│ │                      │   │   │   'context': 'User uses Python for        │ │
+│ │                      building a service, implying preference/standard    │ │
+│ │                      tool choic'+2,                                      │ │
+│ │                      │   │   │   'about_entity': 'Python',               │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'skills': [                                     │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Python',                       │ │
+│ │                      │   │   │   'category': 'programming_language',     │ │
+│ │                      │   │   │   'proficiency': 0.75,                    │ │
+│ │                      │   │   │   'confidence': 0.8,                      │ │
+│ │                      │   │   │   'source': 'declared',                   │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Software Engineering',         │ │
+│ │                      │   │   │   'category': 'domain_knowledge',         │ │
+│ │                      │   │   │   'proficiency': 0.7,                     │ │
+│ │                      │   │   │   'confidence': 0.7,                      │ │
+│ │                      │   │   │   'source': 'declared',                   │ │
+│ │                      │   │   │   'source_quote': 'I am an engineer on    │ │
+│ │                      tenant user-memory.',                               │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Service Development (Orion     │ │
+│ │                      service)',                                          │ │
+│ │                      │   │   │   'category': 'domain_knowledge',         │ │
+│ │                      │   │   │   'proficiency': 0.65,                    │ │
+│ │                      │   │   │   'confidence': 0.65,                     │ │
+│ │                      │   │   │   'source': 'observed',                   │ │
+│ │                      │   │   │   'source_quote': 'use Python to build    │ │
+│ │                      the Orion service',                                 │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'name': 'Tenant user-memory domain',    │ │
+│ │                      │   │   │   'category': 'domain_knowledge',         │ │
+│ │                      │   │   │   'proficiency': 0.6,                     │ │
+│ │                      │   │   │   'confidence': 0.6,                      │ │
+│ │                      │   │   │   'source': 'inferred',                   │ │
+│ │                      │   │   │   'source_quote': 'an engineer on tenant  │ │
+│ │                      user-memory',                                       │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'interests': [                                  │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'entity_name': 'tenant user-memory',    │ │
+│ │                      │   │   │   'entity_type': 'concept',               │ │
+│ │                      │   │   │   'weight': 0.7,                          │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'source_quote': 'an engineer on tenant  │ │
+│ │                      user-memory',                                       │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'entity_name': 'Orion service',         │ │
+│ │                      │   │   │   'entity_type': 'service',               │ │
+│ │                      │   │   │   'weight': 0.75,                         │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'source_quote': 'build the Orion        │ │
+│ │                      service',                                           │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   },                                          │ │
+│ │                      │   │   {                                           │ │
+│ │                      │   │   │   'entity_name': 'Python',                │ │
+│ │                      │   │   │   'entity_type': 'tool',                  │ │
+│ │                      │   │   │   'weight': 0.6,                          │ │
+│ │                      │   │   │   'source': 'explicit',                   │ │
+│ │                      │   │   │   'source_quote': 'I use Python to build  │ │
+│ │                      the Orion service.',                                │ │
+│ │                      │   │   │   'source_turn_index': None               │ │
+│ │                      │   │   }                                           │ │
+│ │                      │   ],                                              │ │
+│ │                      │   'persona': {                                    │ │
+│ │                      │   │   'name': 'Casey',                            │ │
+│ │                      │   │   'role': 'Engineer (tenant user-memory)',    │ │
+│ │                      │   │   'tech_level': 'advanced',                   │ │
+│ │                      │   │   'communication_style': 'Concise, direct,    │ │
+│ │                      bullet-point oriented',                             │ │
+│ │                      │   │   'source_quote': 'My name is Casey. I am an  │ │
+│ │                      engineer on tenant user-memory.'                    │ │
+│ │                      │   }                                               │ │
+│ │                      }                                                   │ │
+│ │               role = 'Engineer (tenant user-memory)'                     │ │
+│ │      same_as_edges = []                                                  │ │
+│ │               self = <context_graph.worker.extraction.ExtractionConsumer │ │
+│ │                      object at 0x12abc4b90>                              │ │
+│ │         session_id = 'composition:1010r'                                 │ │
+│ │         skill_data = {                                                   │ │
+│ │                      │   'name': 'Tenant user-memory domain',            │ │
+│ │                      │   'category': 'domain_knowledge',                 │ │
+│ │                      │   'proficiency': 0.6,                             │ │
+│ │                      │   'confidence': 0.6,                              │ │
+│ │                      │   'source': 'inferred',                           │ │
+│ │                      │   'source_quote': 'an engineer on tenant          │ │
+│ │                      user-memory',                                       │ │
+│ │                      │   'source_turn_index': None                       │ │
+│ │                      }                                                   │ │
+│ │   source_event_ids = [                                                   │ │
+│ │                      │   '0e41fbf6-d010-59fc-babd-8eb3c498bf08',         │ │
+│ │                      │   '8c407b7a-e191-5506-b03f-76e347c7f5a0'          │ │
+│ │                      ]                                                   │ │
+│ │       source_quote = 'an engineer on tenant user-memory'                 │ │
+│ │                 us = <context_graph.adapters.spanner.graph.SpannerGraph… │ │
+│ │                      object at 0x12a56bda0>                              │ │
+│ │     user_entity_id = 'user:assessment-agent'                             │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/adapters/ │
+│ errors.py:30 in wrapper                                                      │
+│                                                                              │
+│   27 │   @functools.wraps(method)                                            │
+│   28 │   async def wrapper(*args: Any, **kwargs: Any) -> Any:                │
+│   29 │   │   try:                                                            │
+│ ❱ 30 │   │   │   return await method(*args, **kwargs)                        │
+│   31 │   │   except StorageError:                                            │
+│   32 │   │   │   raise                                                       │
+│   33 │   │   except Exception as exc:                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │    args = (                                                              │ │
+│ │           │   <context_graph.adapters.spanner.graph.SpannerGraphStore    │ │
+│ │           object at 0x12a56bda0>,                                        │ │
+│ │           )                                                              │ │
+│ │  kwargs = {                                                              │ │
+│ │           │   'source_node_id': 'entity:tenant user-memory',             │ │
+│ │           │   'source_id_field': 'entity_id',                            │ │
+│ │           │   'event_id': '0e41fbf6-d010-59fc-babd-8eb3c498bf08',        │ │
+│ │           │   'method': 'llm_extraction',                                │ │
+│ │           │   'session_id': 'composition:1010r'                          │ │
+│ │           }                                                              │ │
+│ │ neutral = None                                                           │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/src/context_graph/adapters/ │
+│ graph_ops.py:1328 in write_derived_from_edge                                 │
+│                                                                              │
+│   1325 │   │   │   │   f"Unknown source_id_field: {source_id_field!r}. "     │
+│   1326 │   │   │   │   f"Allowed: {sorted(DERIVED_FROM_SOURCES)}"            │
+│   1327 │   │   │   )                                                         │
+│ ❱ 1328 │   │   │   raise ValueError(msg)                                     │
+│   1329 │   │   await self._derived_from(                                     │
+│   1330 │   │   │   (DERIVED_FROM_SOURCES[source_id_field], source_node_id),  │
+│   1331 │   │   │   [event_id],                                               │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │        event_id = '0e41fbf6-d010-59fc-babd-8eb3c498bf08'                 │ │
+│ │          method = 'llm_extraction'                                       │ │
+│ │             msg = "Unknown source_id_field: 'entity_id'. Allowed:        │ │
+│ │                   ['pattern_id', 'preference_id', '"+25                  │ │
+│ │            self = <context_graph.adapters.spanner.graph.SpannerGraphSto… │ │
+│ │                   object at 0x12a56bda0>                                 │ │
+│ │      session_id = 'composition:1010r'                                    │ │
+│ │ source_id_field = 'entity_id'                                            │ │
+│ │  source_node_id = 'entity:tenant user-memory'                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: Unknown source_id_field: 'entity_id'. Allowed: ['pattern_id', 
+'preference_id', 'skill_id', 'workflow_id']
+
+2026-10-10 19:46:47 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-10 19:46:47 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-10 19:46:47 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-10 19:46:47 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-10 19:46:47 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-10 19:46:50 [info     ] app_stopped
+{"configuration": "user-memory", "state": "failed", "checks": [{"name": "core admission", "status": "PASS", "detail": 201}, {"name": "core ledger and Event", "status": "PASS", "detail": null}, {"name": "core API retrieval", "status": "PASS", "detail": null}, {"name": "exact retry ledger idempotency", "status": "PASS", "detail": {"event_id": "0e41fbf6-d010-59fc-babd-8eb3c498bf08", "global_position": "2026-10-10T14:15:23.006703000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08", "status": "duplicate"}}, {"name": "invalid event no writes", "status": "PASS", "detail": 422}, {"name": "session-end admission", "status": "PASS", "detail": null}], "error": "TimeoutError: Workers did not complete delivery within 60 seconds"}
+I1010 19:46:52.174604 54324634 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(47, generation: 1)
+I1010 19:46:58.947901 54324750 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(47, generation: 1)
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 19:47:06 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+{"configuration": "pdlc-memory", "state": "export verified; empty epoch active", "epoch": 5}
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 19:47:08 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+I1010 19:47:08.476530 54325060 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(47, generation: 1)
+2026-10-10 19:47:36 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:47:36 [info     ] llm_client_initialized
+2026-10-10 19:47:41 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'pdlc@5.0.0'] ontology_version=sha256:dceb5d293d693414 redis_host=localhost
+2026-10-10 19:47:44 [info     ] ontology_loaded                edge_types=39 event_types=39 intents=['completeness', 'general', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.0.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:dceb5d293d693414
+2026-10-10 19:47:44 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-10 19:47:46 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-10 19:47:47 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-10 19:47:49 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-10 19:47:49 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-10 19:47:53 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-10 19:47:55 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-10 19:47:55 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-10 19:47:56 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-10 19:48:01 [info     ] consolidation_llm_client_initialized
+2026-10-10 19:48:01 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-10 19:48:01 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-10 19:48:02 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-10 19:48:04 [info     ] pending_drain_completed        group=assessment-consolidation
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-10 19:48:09 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-10 19:48:09 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:18:09.695535000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=5dac4818-aa7d-46f8-a015-659e9c369ab2 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:48:10 [debug    ] event_enriched                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 importance_score=5 keywords=['observation', 'input']
+2026-10-10 19:48:10 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6777.21it/s]
+2026-10-10 19:48:35 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-10 19:48:35 [debug    ] event_embedding_stored         event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08
+2026-10-10 19:48:35 [debug    ] event_projected                edge_count=0 entry_id=2026-10-10T14:18:09.695535000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 session_id=composition:1010r
+2026-10-10 19:48:43 [debug    ] pack_plans_applied             edges=2 events=1 nodes=2 states=0
+2026-10-10 19:48:43 [info     ] pack_extraction_applied        edges_written=2 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 links=0 nodes=2 pack=pdlc rejected=[]
+2026-10-10 19:48:46 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=28f4737e-c185-4307-a385-a552c2e30272
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7382.95it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-10 19:49:01 [info     ] event_ingested                 event_id=0e41fbf6-d010-59fc-babd-8eb3c498bf08 event_type=observation.input global_position=2026-10-10T14:18:09.695535000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08 request_id=3bc0042b-a2b7-4de9-83a0-fa2a0519af10 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:49:05 [info     ] event_ingested                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 event_type=system.session_end global_position=2026-10-10T14:19:05.708735000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 request_id=26764721-d174-4a0e-b102-86c91c3db557 status=created
+2026-10-10 19:49:06 [debug    ] event_enriched                 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 importance_score=5 keywords=['system', 'session_end']
+2026-10-10 19:49:06 [debug    ] event_projected                edge_count=1 entry_id=2026-10-10T14:19:05.708735000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:49:06 [info     ] extraction_triggered           agent_id=assessment-agent entry_id=2026-10-10T14:19:05.708735000Z/000000/8c407b7a-e191-5506-b03f-76e347c7f5a0 session_id=composition:1010r
+2026-10-10 19:49:06 [debug    ] event_embedding_stored         event_id=8c407b7a-e191-5506-b03f-76e347c7f5a0
+2026-10-10 19:49:07 [debug    ] session_events_collected       event_count=2 session_id=composition:1010r
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-10 19:49:11 [info     ] extraction_llm_success         entities=6 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=composition:1010r skills=0
+2026-10-10 19:49:13 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10247.72it/s]
+2026-10-10 19:49:30 [debug    ] entity_created                 entity_id=entity:Casey name=Casey
+2026-10-10 19:49:34 [debug    ] entity_created                 entity_id=entity:engineer name=engineer
+2026-10-10 19:49:36 [debug    ] entity_created                 entity_id='entity:tenant pdlc-memory' name='tenant pdlc-memory'
+2026-10-10 19:49:40 [debug    ] entity_created                 entity_id='entity:concise bullet-point answers' name='concise bullet-point answers'
+2026-10-10 19:49:41 [debug    ] entity_created                 entity_id=entity:Python name=Python
+2026-10-10 19:49:43 [debug    ] entity_created                 entity_id='entity:Orion service' name='Orion service'
+2026-10-10 19:49:43 [info     ] extraction_results_written     session_id=composition:1010r user_entity_id=user:assessment-agent
+2026-10-10 19:49:43 [info     ] extraction_completed           entities=6 interests=0 preferences=0 session_id=composition:1010r skills=0
+2026-10-10 19:49:45 [info     ] event_ingested                 event_id=fd009649-357c-50cf-98ed-1a1d2bb55391 event_type=pdlc.change.created global_position=2026-10-10T14:19:45.313055000Z/000000/fd009649-357c-50cf-98ed-1a1d2bb55391 request_id=7abf4aa2-99d4-418d-aeff-be9c9a85535c status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:49:45 [debug    ] event_enriched                 event_id=fd009649-357c-50cf-98ed-1a1d2bb55391 importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-10 19:49:45 [debug    ] event_projected                edge_count=0 entry_id=2026-10-10T14:19:45.313055000Z/000000/fd009649-357c-50cf-98ed-1a1d2bb55391 event_id=fd009649-357c-50cf-98ed-1a1d2bb55391 session_id=composition:1010r
+2026-10-10 19:49:45 [debug    ] event_embedding_stored         event_id=fd009649-357c-50cf-98ed-1a1d2bb55391
+2026-10-10 19:49:47 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-10 19:49:55 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-10 19:49:55 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-10 19:49:55 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-10 19:49:55 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-10 19:49:55 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-10 19:49:58 [info     ] app_stopped
+{"configuration": "pdlc-memory", "state": "completed with findings", "checks": [{"name": "core admission", "status": "PASS", "detail": 201}, {"name": "core ledger and Event", "status": "PASS", "detail": null}, {"name": "core API retrieval", "status": "PASS", "detail": null}, {"name": "exact retry ledger idempotency", "status": "PASS", "detail": {"event_id": "0e41fbf6-d010-59fc-babd-8eb3c498bf08", "global_position": "2026-10-10T14:18:09.695535000Z/000000/0e41fbf6-d010-59fc-babd-8eb3c498bf08", "status": "duplicate"}}, {"name": "invalid event no writes", "status": "PASS", "detail": 422}, {"name": "session-end admission", "status": "PASS", "detail": null}, {"name": "session produces core entities", "status": "PASS", "detail": null}, {"name": "disabled user outputs absent", "status": "PASS", "detail": null}, {"name": "PDLC selection admission", "status": "PASS", "detail": {"event_id": "fd009649-357c-50cf-98ed-1a1d2bb55391", "global_position": "2026-10-10T14:19:45.313055000Z/000000/fd009649-357c-50cf-98ed-1a1d2bb55391", "status": "created"}}, {"name": "enrichment persists after worker completion", "status": "FAIL", "detail": {"0e41fbf6-d010-59fc-babd-8eb3c498bf08": {"expected": ["observation", "input"], "actual": []}, "8c407b7a-e191-5506-b03f-76e347c7f5a0": {"expected": ["system", "session_end"], "actual": []}, "fd009649-357c-50cf-98ed-1a1d2bb55391": {"expected": ["pdlc", "change", "created"], "actual": []}}}, {"name": "PDLC Change projected", "status": "PASS", "detail": null}, {"name": "PDLC artifact API with evidence", "status": "PASS", "detail": {"nodes": {"Change:assessment/pdlc-memory|7": {"node_id": "Change:assessment/pdlc-memory|7", "node_type": "Change", "attributes": {"node_id": "Change:assessment/pdlc-memory|7", "node_type": "Change", "number": 7, "ontology_version": "sha256:dceb5d293d693414", "repo": "assessment/pdlc-memory", "source_trust": "trusted", "status": "open", "status_changed_at": "2026-10-10T02:00:00+00:00", "title": "Tenant pdlc-memory change", "updated_at": "2026-10-10T02:00:00+00:00"}, "provenance": {"event_id": "fd009649-357c-50cf-98ed-1a1d2bb55391", "global_position": "2026-10-10T14:19:45.313055000Z/000000/fd009649-357c-50cf-98ed-1a1d2bb55391", "source": "spanner", "occurred_at": "2026-10-10T02:00:00Z", "session_id": "composition:1010r", "agent_id": "assessment-agent", "trace_id": "1010r"}, "scores": {"decay_score": 0.0, "relevance_score": 1.0, "importance_score": 0, "ppr_score": 0.0}, "retrieval_reason": "direct", "proactive_signal": null}}, "edges": [], "pagination": {"cursor": null, "has_more": false}, "meta": {"query_ms": 6852, "nodes_returned": 1, "truncated": false, "inferred_intents": {"trace": 1.0}, "intent_override": null, "seed_nodes": ["Change:assessment/pdlc-memory|7"], "seed_strategy": "artifact_seeds", "proactive_nodes_count": 0, "scoring_weights": {"recency": 1.0, "importance": 1.0, "relevance": 1.0}, "retrieval_channels": {}, "capacity": {"max_nodes": 100, "used_nodes": 1, "max_depth": 5}, "eval_pending": []}}}, {"name": "dead letters absent", "status": "PASS", "detail": []}, {"name": "useful Memory behavior", "status": "BLOCKED", "detail": "No registered Belief/Goal/Episode producer; no conversion invented"}], "error": null}
+I1010 19:50:00.846614 54330501 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(47, generation: 1)
+{"state": "assessment executed", "configurations": 4, "clean_pass": false}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
