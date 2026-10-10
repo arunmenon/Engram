@@ -127,6 +127,8 @@ The preference probe does not establish full consumer retry/correction behavior.
 
 At the initial local checkpoint, reads confirmed #35, #39, #42 and #43 remained open, and no issue was modified. After the partial live run, progress evidence was posted to [#29](https://github.com/arunmenon/Engram/issues/29#issuecomment-6092787059) and [#34](https://github.com/arunmenon/Engram/issues/34#issuecomment-6092788351). No issue was closed. No new feature bucket is needed for the observed enrichment failure; larger Memory semantics require their own explicit specification.
 
+After sequential reuse completed, follow-up evidence was posted to [#20](https://github.com/arunmenon/Engram/issues/20#issuecomment-6098465417), [#29](https://github.com/arunmenon/Engram/issues/29#issuecomment-6098465705), [#42](https://github.com/arunmenon/Engram/issues/42#issuecomment-6098466227), [#34](https://github.com/arunmenon/Engram/issues/34#issuecomment-6098466549), [#41](https://github.com/arunmenon/Engram/issues/41#issuecomment-6098466850). These issues remain open; no new issue or feature bucket was created. [Reconciliation receipt](runs/composition-1010r/issue-reconciliation.json).
+
 ## Verification and next checkpoint
 
 **132 selected local regression tests passed.** [Exact command and result](runs/20261010-pack-composition-assessment-local/test-receipt.json). They cover composition, composed reads, extraction gating, tenant binding/dispatch and extraction behavior, using mocks/reference storage where applicable. They do not certify the public service, live LLMs or Spanner combinations.
