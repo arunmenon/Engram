@@ -1,0 +1,628 @@
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 07:43:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+{
+  "scope": "LOCAL configuration execution only; no live worker, API, model or Spanner acceptance",
+  "revision": "9abe3c3fce30de3ba1e770a195649aaaaba295b7",
+  "configurations": [
+    {
+      "name": "core",
+      "settings": {
+        "builtin_packs": [],
+        "packs": []
+      },
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ]
+      ],
+      "bundle_identity": "sha256:90e345515c3001bf417113df87e3b5f4ba2829de92aa10519b664136157a6cd3",
+      "schema_version": "sha256:7aa9c7d4db1d5a24",
+      "processing": [
+        [
+          "core",
+          "entity.extract.v1"
+        ],
+        [
+          "core",
+          "event.enrich.v1"
+        ],
+        [
+          "core",
+          "event.project.v1"
+        ],
+        [
+          "core",
+          "event.retain.v1"
+        ],
+        [
+          "core",
+          "summary.consolidate.v1"
+        ]
+      ],
+      "nodes": [
+        "Entity",
+        "Event",
+        "Summary"
+      ],
+      "edges": [
+        "CAUSED_BY",
+        "CONTRADICTS",
+        "DERIVED_FROM",
+        "FOLLOWS",
+        "REFERENCES",
+        "RELATED_TO",
+        "SAME_AS",
+        "SIMILAR_TO",
+        "SUMMARIZES",
+        "SUPERSEDES"
+      ],
+      "intents": [
+        "general",
+        "how_does",
+        "related",
+        "what",
+        "when",
+        "who_is",
+        "why"
+      ],
+      "projection_rule_counts": {
+        "core": 0
+      },
+      "extraction_profiles": [],
+      "user_enabled": false
+    },
+    {
+      "name": "core+user",
+      "settings": {
+        "builtin_packs": [
+          "user"
+        ],
+        "packs": []
+      },
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "user",
+          "1.1.0"
+        ]
+      ],
+      "bundle_identity": "sha256:4115ef85bd6410c82e2add6df6d48a97925bc154f28bd3db42af48a3fc26837f",
+      "schema_version": "sha256:5bfe4499fadd80c9",
+      "processing": [
+        [
+          "core",
+          "entity.extract.v1"
+        ],
+        [
+          "core",
+          "event.enrich.v1"
+        ],
+        [
+          "core",
+          "event.project.v1"
+        ],
+        [
+          "core",
+          "event.retain.v1"
+        ],
+        [
+          "core",
+          "summary.consolidate.v1"
+        ],
+        [
+          "user",
+          "user.extract.v1"
+        ]
+      ],
+      "nodes": [
+        "BehavioralPattern",
+        "Entity",
+        "Event",
+        "Preference",
+        "Skill",
+        "Summary",
+        "UserProfile",
+        "Workflow"
+      ],
+      "edges": [
+        "ABOUT",
+        "ABSTRACTED_FROM",
+        "CAUSED_BY",
+        "CONTRADICTS",
+        "DERIVED_FROM",
+        "EXHIBITS_PATTERN",
+        "FOLLOWS",
+        "HAS_PREFERENCE",
+        "HAS_PROFILE",
+        "HAS_SKILL",
+        "INTERESTED_IN",
+        "PARENT_SKILL",
+        "REFERENCES",
+        "RELATED_TO",
+        "SAME_AS",
+        "SIMILAR_TO",
+        "SUMMARIZES",
+        "SUPERSEDES"
+      ],
+      "intents": [
+        "general",
+        "how_does",
+        "personalize",
+        "related",
+        "what",
+        "when",
+        "who_is",
+        "why"
+      ],
+      "projection_rule_counts": {
+        "core": 0,
+        "user": 0
+      },
+      "extraction_profiles": [],
+      "user_enabled": true
+    },
+    {
+      "name": "core+user+memory",
+      "settings": {
+        "builtin_packs": [
+          "user",
+          "memory"
+        ],
+        "packs": []
+      },
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.0.0"
+        ],
+        [
+          "user",
+          "1.1.0"
+        ]
+      ],
+      "bundle_identity": "sha256:a0c740c98b2135802bc5fabfc1e2dff50a9dd2d6f3045166c76e369b133c61df",
+      "schema_version": "sha256:5a56bb6eaaa4c24b",
+      "processing": [
+        [
+          "core",
+          "entity.extract.v1"
+        ],
+        [
+          "core",
+          "event.enrich.v1"
+        ],
+        [
+          "core",
+          "event.project.v1"
+        ],
+        [
+          "core",
+          "event.retain.v1"
+        ],
+        [
+          "core",
+          "summary.consolidate.v1"
+        ],
+        [
+          "user",
+          "user.extract.v1"
+        ]
+      ],
+      "nodes": [
+        "BehavioralPattern",
+        "Belief",
+        "Entity",
+        "Episode",
+        "Event",
+        "Goal",
+        "Preference",
+        "Skill",
+        "Summary",
+        "UserProfile",
+        "Workflow"
+      ],
+      "edges": [
+        "ABOUT",
+        "ABSTRACTED_FROM",
+        "CAUSED_BY",
+        "CONTAINS",
+        "CONTRADICTS",
+        "DERIVED_FROM",
+        "EXHIBITS_PATTERN",
+        "FOLLOWS",
+        "HAS_PREFERENCE",
+        "HAS_PROFILE",
+        "HAS_SKILL",
+        "INTERESTED_IN",
+        "PARENT_SKILL",
+        "PURSUES",
+        "REFERENCES",
+        "RELATED_TO",
+        "SAME_AS",
+        "SIMILAR_TO",
+        "SUMMARIZES",
+        "SUPERSEDES"
+      ],
+      "intents": [
+        "general",
+        "how_does",
+        "personalize",
+        "related",
+        "what",
+        "when",
+        "who_is",
+        "why"
+      ],
+      "projection_rule_counts": {
+        "core": 0,
+        "memory": 0,
+        "user": 0
+      },
+      "extraction_profiles": [],
+      "user_enabled": true
+    },
+    {
+      "name": "core+pdlc",
+      "settings": {
+        "builtin_packs": [],
+        "packs": [
+          "pdlc"
+        ]
+      },
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "bundle_identity": "sha256:11b2640ec16b7e49fcb615ee08c8da13addc933b89eb64324450ac776231aa49",
+      "schema_version": "sha256:bc0d421693b2f8ae",
+      "processing": [
+        [
+          "core",
+          "entity.extract.v1"
+        ],
+        [
+          "core",
+          "event.enrich.v1"
+        ],
+        [
+          "core",
+          "event.project.v1"
+        ],
+        [
+          "core",
+          "event.retain.v1"
+        ],
+        [
+          "core",
+          "summary.consolidate.v1"
+        ],
+        [
+          "pdlc",
+          "pack.extract.v1"
+        ],
+        [
+          "pdlc",
+          "pack.project.v1"
+        ]
+      ],
+      "nodes": [
+        "Change",
+        "Component",
+        "Constraint",
+        "Decision",
+        "Deployment",
+        "DeploymentRollback",
+        "DesignApproval",
+        "DesignElement",
+        "Entity",
+        "Event",
+        "Incident",
+        "Lesson",
+        "Release",
+        "Request",
+        "Requirement",
+        "Review",
+        "Spec",
+        "Summary",
+        "Team",
+        "TestCase",
+        "TestRun",
+        "WorkItem"
+      ],
+      "edges": [
+        "AFFECTS",
+        "AMENDS",
+        "APPLIES_TO",
+        "APPROVES",
+        "ATTRIBUTED_TO",
+        "CAUSED_BY",
+        "CITES",
+        "CONSTRAINS",
+        "CONTRADICTS",
+        "DECIDED_BY",
+        "DECOMPOSES_INTO",
+        "DEPENDS_ON",
+        "DEPLOYED_TO",
+        "DEPLOYS",
+        "DERIVED_FROM",
+        "EXECUTES",
+        "FOLLOWS",
+        "IMPLEMENTS",
+        "INCLUDES",
+        "LEARNED_FROM",
+        "OCCURRED_ON",
+        "OWNED_BY",
+        "RAISES",
+        "RAN_AGAINST",
+        "REFERENCES",
+        "REFINES",
+        "RELATED_TO",
+        "REMEDIATES",
+        "REVERTS",
+        "REVIEWS",
+        "ROLLS_BACK",
+        "SAME_AS",
+        "SIMILAR_TO",
+        "SUMMARIZES",
+        "SUPERSEDES",
+        "TOUCHES",
+        "VERIFIES"
+      ],
+      "intents": [
+        "completeness",
+        "general",
+        "how_does",
+        "impact",
+        "incident",
+        "preflight",
+        "related",
+        "status",
+        "trace",
+        "what",
+        "when",
+        "who_is",
+        "why"
+      ],
+      "projection_rule_counts": {
+        "core": 0,
+        "pdlc": 28
+      },
+      "extraction_profiles": [
+        {
+          "pack": "pdlc",
+          "sources": [
+            "pdlc.design.section_changed",
+            "pdlc.spec.approved",
+            "core:observation.input"
+          ],
+          "propose": [
+            "AMENDS",
+            "APPLIES_TO",
+            "Constraint",
+            "Decision",
+            "IMPLEMENTS",
+            "Lesson",
+            "VERIFIES"
+          ]
+        }
+      ],
+      "user_enabled": false
+    },
+    {
+      "name": "core+pdlc+memory",
+      "settings": {
+        "builtin_packs": [
+          "memory"
+        ],
+        "packs": [
+          "pdlc"
+        ]
+      },
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.0.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "bundle_identity": "sha256:ca5c6afb8f2bf40b27eba48e0bd2e3fd426a1422cac1e7e696de2d7d873df932",
+      "schema_version": "sha256:dceb5d293d693414",
+      "processing": [
+        [
+          "core",
+          "entity.extract.v1"
+        ],
+        [
+          "core",
+          "event.enrich.v1"
+        ],
+        [
+          "core",
+          "event.project.v1"
+        ],
+        [
+          "core",
+          "event.retain.v1"
+        ],
+        [
+          "core",
+          "summary.consolidate.v1"
+        ],
+        [
+          "pdlc",
+          "pack.extract.v1"
+        ],
+        [
+          "pdlc",
+          "pack.project.v1"
+        ]
+      ],
+      "nodes": [
+        "Belief",
+        "Change",
+        "Component",
+        "Constraint",
+        "Decision",
+        "Deployment",
+        "DeploymentRollback",
+        "DesignApproval",
+        "DesignElement",
+        "Entity",
+        "Episode",
+        "Event",
+        "Goal",
+        "Incident",
+        "Lesson",
+        "Release",
+        "Request",
+        "Requirement",
+        "Review",
+        "Spec",
+        "Summary",
+        "Team",
+        "TestCase",
+        "TestRun",
+        "WorkItem"
+      ],
+      "edges": [
+        "AFFECTS",
+        "AMENDS",
+        "APPLIES_TO",
+        "APPROVES",
+        "ATTRIBUTED_TO",
+        "CAUSED_BY",
+        "CITES",
+        "CONSTRAINS",
+        "CONTAINS",
+        "CONTRADICTS",
+        "DECIDED_BY",
+        "DECOMPOSES_INTO",
+        "DEPENDS_ON",
+        "DEPLOYED_TO",
+        "DEPLOYS",
+        "DERIVED_FROM",
+        "EXECUTES",
+        "FOLLOWS",
+        "IMPLEMENTS",
+        "INCLUDES",
+        "LEARNED_FROM",
+        "OCCURRED_ON",
+        "OWNED_BY",
+        "PURSUES",
+        "RAISES",
+        "RAN_AGAINST",
+        "REFERENCES",
+        "REFINES",
+        "RELATED_TO",
+        "REMEDIATES",
+        "REVERTS",
+        "REVIEWS",
+        "ROLLS_BACK",
+        "SAME_AS",
+        "SIMILAR_TO",
+        "SUMMARIZES",
+        "SUPERSEDES",
+        "TOUCHES",
+        "VERIFIES"
+      ],
+      "intents": [
+        "completeness",
+        "general",
+        "how_does",
+        "impact",
+        "incident",
+        "preflight",
+        "related",
+        "status",
+        "trace",
+        "what",
+        "when",
+        "who_is",
+        "why"
+      ],
+      "projection_rule_counts": {
+        "core": 0,
+        "memory": 0,
+        "pdlc": 28
+      },
+      "extraction_profiles": [
+        {
+          "pack": "pdlc",
+          "sources": [
+            "pdlc.design.section_changed",
+            "pdlc.spec.approved",
+            "core:observation.input"
+          ],
+          "propose": [
+            "AMENDS",
+            "APPLIES_TO",
+            "Constraint",
+            "Decision",
+            "IMPLEMENTS",
+            "Lesson",
+            "VERIFIES"
+          ]
+        }
+      ],
+      "user_enabled": false
+    }
+  ],
+  "public_tenant_factory": {
+    "observed": "fail_closed",
+    "error": "Durable tenant database ownership and epoch fences are required",
+    "scope": "local factory invocation, no stores opened"
+  },
+  "matched_comparisons": {
+    "user_vs_user_memory_same_handlers": true,
+    "pdlc_vs_pdlc_memory_same_handlers": true,
+    "all_core_mandatory": true,
+    "no_user_handler_without_user": true
+  }
+}

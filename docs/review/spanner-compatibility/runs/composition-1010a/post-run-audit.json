@@ -1,0 +1,81 @@
+{
+  "kind": "post-run diagnostic; original twelve checks unchanged",
+  "state": "FAIL",
+  "enrichment": [
+    {
+      "event_id": "7c09052e-4c7d-573f-a37f-a9fdf16fdd23",
+      "expected_keywords": [
+        "observation",
+        "input"
+      ],
+      "actual_keywords": []
+    },
+    {
+      "event_id": "ed2d84bd-a39e-5fe1-9323-a75fb285fa33",
+      "expected_keywords": [
+        "system",
+        "session_end"
+      ],
+      "actual_keywords": []
+    },
+    {
+      "event_id": "633c9890-48cd-5c7b-882f-4d31182420b0",
+      "expected_keywords": [
+        "pdlc",
+        "change",
+        "created"
+      ],
+      "actual_keywords": []
+    }
+  ],
+  "basis": "keywords from admitted event types; final database snapshot after all workers stopped",
+  "root_cause": "Not established; loss-before-target and overwriting need distinction",
+  "semantic_review_required": [
+    {
+      "type": "Constraint",
+      "id": "Constraint:8ae66d52876b9f7d9e4fcb469fb918a1ddf3c3687707345ed73af5fdfceeaf9b",
+      "properties": {
+        "confidence": {
+          "$float": "0.7"
+        },
+        "content_hash": "8ae66d52876b9f7d9e4fcb469fb918a1ddf3c3687707345ed73af5fdfceeaf9b",
+        "method": "extracted",
+        "node_id": "Constraint:8ae66d52876b9f7d9e4fcb469fb918a1ddf3c3687707345ed73af5fdfceeaf9b",
+        "node_type": "Constraint",
+        "ontology_version": "sha256:bc0d421693b2f8ae",
+        "scope": "assistant responses to Casey",
+        "severity": "preference",
+        "source_trust": "trusted",
+        "statement": "Provide answers in concise bullet-point form.",
+        "status": "active",
+        "status_changed_at": "2026-10-10T02:00:00+00:00",
+        "updated_at": "2026-10-10T02:00:00+00:00"
+      }
+    },
+    {
+      "type": "Decision",
+      "id": "Decision:8069d8ded507370bedbf9d6db46fd8c70d5a6eb691053ab7bdc8b32cafee6cc6",
+      "properties": {
+        "confidence": {
+          "$float": "0.75"
+        },
+        "content_hash": "8069d8ded507370bedbf9d6db46fd8c70d5a6eb691053ab7bdc8b32cafee6cc6",
+        "method": "extracted",
+        "node_id": "Decision:8069d8ded507370bedbf9d6db46fd8c70d5a6eb691053ab7bdc8b32cafee6cc6",
+        "node_type": "Decision",
+        "ontology_version": "sha256:bc0d421693b2f8ae",
+        "rationale": "Stated implementation choice by the engineer.",
+        "source_trust": "trusted",
+        "statement": "Use Python to build the Orion service.",
+        "status": "proposed",
+        "status_changed_at": "2026-10-10T02:00:00+00:00",
+        "updated_at": "2026-10-10T02:00:00+00:00"
+      }
+    }
+  ],
+  "original_checks": {
+    "PASS": 12,
+    "total": 12
+  },
+  "shutdown_errors": []
+}

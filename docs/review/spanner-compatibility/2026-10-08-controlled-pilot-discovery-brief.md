@@ -1,9 +1,6 @@
 # Controlled developer pilot: requested scope and prerequisite assessment
 
-Status: stakeholder requirements captured. This is a discovery brief, not a
-completed assessment, approved implementation specification or pilot-readiness
-claim. G07 is selected first. Do not automatically start this assessment, G08 or
-the pilot when G07 ends; present the assessment scope at that checkpoint.
+Status update, 10 October 2026: stakeholder authorized the pack-composition assessment after confirming G7 complete. The [local and partial live assessment and evidence](2026-10-10-pack-composition-assessment.md) are now saved. Local configuration/shared-logic work is complete; real-Spanner combination acceptance remains unrun. The developer pilot has not started. The original planning and historical grounding below are preserved; references to G7 being selected or the assessment awaiting authorization describe the earlier checkpoint, not current execution status.
 
 ## Grounding review — completed, code inspection only
 

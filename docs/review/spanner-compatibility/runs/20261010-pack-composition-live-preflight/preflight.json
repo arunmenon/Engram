@@ -1,0 +1,20 @@
+{
+  "scope": "read-only database discovery; no data or schema writes",
+  "at": "2026-10-10T02:23:21.449918+00:00",
+  "outcome": "blocked",
+  "error": "403 Operation denied by [IAM permission 'spanner.databases.list' on resource '//spanner.googleapis.com/projects/portiq-mvp/instances/engram-experiment']. [reason: \"IAM_PERMISSION_DENIED\"\ndomain: \"iam.googleapis.com\"\nmetadata {\n  key: \"resource\"\n  value: \"projects/portiq-mvp/instances/engram-experiment\"\n}\nmetadata {\n  key: \"permission\"\n  value: \"spanner.databases.list\"\n}\n]",
+  "operator_database_inventory": [
+    "engram",
+    "engram-compat-target",
+    "engram-g06-target",
+    "engram-g07-target"
+  ],
+  "operator_inventory_result": "succeeded using existing operator credentials",
+  "assessment_target": "not selected; existing goal targets retained",
+  "live_assessment": "NOT RUN",
+  "next_required_work": [
+    "Prepare dedicated assessment targets without reusing retained goal databases",
+    "Build full API-to-worker-to-retrieval combination runner with frozen expected results",
+    "Run diagnostic cases as failures where appropriate; do not infer Memory behavior or enable public dispatcher"
+  ]
+}

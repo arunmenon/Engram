@@ -1,0 +1,96 @@
+{
+  "run_id": "1010a",
+  "created_at": "2026-10-10T02:26:59.528319+00:00",
+  "scope": "Five private bound runtimes; real HTTP, five workers, real model and Spanner",
+  "limitations": [
+    "Not public tenant dispatcher acceptance",
+    "Unevaluated-bundle development gate enabled",
+    "No historical migration",
+    "No new Memory semantics or producer"
+  ],
+  "retention": "Preserve all assessment databases and evidence; do not modify existing goal targets",
+  "configurations": {
+    "core": {
+      "database": "engram-assess-1010a-core",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ]
+      ]
+    },
+    "user": {
+      "database": "engram-assess-1010a-user",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "user",
+          "1.1.0"
+        ]
+      ]
+    },
+    "user-memory": {
+      "database": "engram-assess-1010a-user-memory",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.0.0"
+        ],
+        [
+          "user",
+          "1.1.0"
+        ]
+      ]
+    },
+    "pdlc": {
+      "database": "engram-assess-1010a-pdlc",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ]
+    },
+    "pdlc-memory": {
+      "database": "engram-assess-1010a-pdlc-memory",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.0.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ]
+    }
+  },
+  "expected_checks": [
+    "Normal event accepted, one ledger row, one Event, retrievable through subgraph API",
+    "Exact retry does not add ledger or graph records",
+    "Invalid event rejected without writes",
+    "Session-end triggers real extraction; core entities and user results checked separately",
+    "User-disabled selections have no user-profile/preference outputs",
+    "User-enabled selections produce a profile and preference, retrievable through user API",
+    "Diagnostic: composed graph reader retains the enabled profile (not HTTP acceptance)",
+    "PDLC admission and Change artifact/evidence retrieval succeed only with PDLC selected",
+    "Memory-selected configurations currently have no useful Memory producer (blocked capability)",
+    "Worker delivery completion and dead letters recorded, never treated as output proof",
+    "Same event identities and session IDs in separate databases do not leak tenant-specific content"
+  ]
+}

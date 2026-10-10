@@ -1,0 +1,24 @@
+{
+  "scope": "Local isolated MemoryGraphStore diagnostics of shared GraphOperations; no HTTP, worker loops, LLM or Spanner execution. Direct writer calls below are diagnostic only and do not satisfy goal/pilot acceptance.",
+  "profile_key_probe": {
+    "raw_profile_present": true,
+    "specialized_user_read_present": true,
+    "composed_profile_present": false,
+    "registry_key_field": "user_id",
+    "actual_stored_user_id": "user:assessment-agent",
+    "actual_stored_profile_id": "profile:user:assessment-agent",
+    "verdict": "local_reproduced_disagreement"
+  },
+  "repeated_preference_writer_probe": {
+    "without_supplied_id_two_calls_node_count": 2,
+    "with_fixed_id_two_calls_observation_count": 2,
+    "verdict": "writer_not_idempotent_for_repeated_identical_calls",
+    "limit": "Does not establish full worker retry/correction outcome; model/provider/consumer receipts were not exercised."
+  },
+  "enrichment_before_projection_probe": {
+    "keywords_after_late_creation": [],
+    "expected_keyword_present": false,
+    "verdict": "local_reproduced_lost_annotation",
+    "limit": "Shared adapter logic only. Full concurrent worker and Spanner convergence unverified."
+  }
+}

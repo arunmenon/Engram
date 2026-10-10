@@ -1,0 +1,34 @@
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 07:56:59 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 07:57:00 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+{"configuration": "user-memory", "database": "engram-assess-1010a-user-memory", "state": "failed", "error": "InvalidArgument: 400 Invalid GetDatabaseDdl request. [field_violations {\n  field: \"database\"\n  description: \"Expected projects/{project ID}/instances/{instance ID}/databases/{database name}\\nGot: projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-user-memory\\nError: Invalid database name: `engram-assess-1010a-user-memory`. Database name must start with a lowercase letter, be 2-30 characters long, contain only lowercase letters, numbers, underscores or hyphens, and not end with an underscore or hyphen.\"\n}\n]"}
+{"configuration": "core", "database": "engram-assess-1010a-core", "state": "failed", "error": "ResourceExhausted: 429 Unable to create database 'engram-assess-1010a-core' because the instance 'projects/portiq-mvp/instances/engram-experiment' has already reached the maximum database limit (5). Please delete a database in the instance and try again, or choose a different instance."}
+I1010 07:57:22.406447 54202159 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+{"configuration": "pdlc-memory", "database": "engram-assess-1010a-pdlc-memory", "state": "failed", "error": "InvalidArgument: 400 Invalid GetDatabaseDdl request. [field_violations {\n  field: \"database\"\n  description: \"Expected projects/{project ID}/instances/{instance ID}/databases/{database name}\\nGot: projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc-memory\\nError: Invalid database name: `engram-assess-1010a-pdlc-memory`. Database name must start with a lowercase letter, be 2-30 characters long, contain only lowercase letters, numbers, underscores or hyphens, and not end with an underscore or hyphen.\"\n}\n]"}
+{"configuration": "pdlc", "database": "engram-assess-1010a-pdlc", "state": "schema and database-specific IAM prepared", "operation": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc/operations/_auto_op_5835cb64c7632a36"}
+{"configuration": "user", "database": "engram-assess-1010a-user", "state": "failed", "error": "ResourceExhausted: 429 Unable to create database 'engram-assess-1010a-user' because the instance 'projects/portiq-mvp/instances/engram-experiment' has already reached the maximum database limit (5). Please delete a database in the instance and try again, or choose a different instance."}
