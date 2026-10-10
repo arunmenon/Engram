@@ -58,6 +58,10 @@ Pack extraction produced Constraint/Decision artifacts from the prose inputs in 
 
 The reuse runner deliberately refuses a fresh invocation over existing evidence. Its `--resume` option continues only a safely recorded prefix; it is not a command to rerun or erase the completed assessment. A repeat experiment needs a separately named evidence run and the same export/owner checks. The final dataset is retained, not automatically cleaned.
 
+## Memory historical RCA
+
+The stakeholder requested a check for a lost producer during refactoring. The [completed RCA](2026-10-10-memory-producer-rca.md) found schema/helpers but no direct producer calls across 45 available refs/checkpoints, and no worker/API history showing such a producer removed. Original episodic behavior wrote Summary nodes and remains in the source; 74 local consolidation/composition tests passed. This supports an inherited typed-producer gap, not a demonstrated removal. It does not certify all historical Memory behavior or add cloud acceptance.
+
 ## What was assessed
 
 Can the five selected combinations resolve into explicit worker/read configurations? What useful behavior exists, and what must be fixed or specified before the two-tenant developer pilot?

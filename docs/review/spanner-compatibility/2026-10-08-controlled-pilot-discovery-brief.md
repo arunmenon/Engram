@@ -239,6 +239,8 @@ nothing and claims no new implementation or runtime verification.
 
 ## Follow-up: was memory projection removed by the refactor?
 
+Expanded 10 October RCA: [branch/history call audit, timeline, cause and bounded corrective direction](2026-10-10-memory-producer-rca.md).
+
 Stakeholder asked whether an existing memory producer was lost and should be restored.
 The coordinating agent inspected history read-only after Astra's report; this section
 is additional source/history evidence, not a new Astra review or runtime test.
