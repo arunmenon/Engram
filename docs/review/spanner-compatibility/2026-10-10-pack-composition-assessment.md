@@ -111,7 +111,7 @@ The preference probe does not establish full consumer retry/correction behavior.
 | Block useful Memory claims | Choose the minimum intended Memory behavior before implementing a producer. Do not invent ticket→Goal or Summary→Episode conversion. | #35 / #42 |
 | Block public shared pilot claims | Specify supported dispatch/bootstrap and worker lifecycle; keep fail-closed behavior until verified. | #43 |
 
-Live reads confirmed #35, #39, #42 and #43 remain open. No issue was modified or closed. This report proposes ownership, not issue completion. No new feature bucket is needed for these bounded findings; larger Memory semantics require their own explicit specification.
+At the initial local checkpoint, reads confirmed #35, #39, #42 and #43 remained open, and no issue was modified. After the partial live run, progress evidence was posted to [#29](https://github.com/arunmenon/Engram/issues/29#issuecomment-6092787059) and [#34](https://github.com/arunmenon/Engram/issues/34#issuecomment-6092788351). No issue was closed. No new feature bucket is needed for the observed enrichment failure; larger Memory semantics require their own explicit specification.
 
 ## Verification and next checkpoint
 
