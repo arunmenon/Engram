@@ -104,35 +104,35 @@ ALL_VECTOR_INDEXES = [VECTOR_INDEX_ENTITY_EMBEDDING]
 
 MERGE_EVENT_NODE = """
 MERGE (e:Event {event_id: $event_id})
+ON CREATE SET e.keywords = $keywords,
+    e.summary = $summary,
+    e.importance_score = $importance_score,
+    e.access_count = $access_count,
+    e.last_accessed_at = $last_accessed_at
 SET e.event_type = $event_type,
     e.occurred_at = $occurred_at,
     e.session_id = $session_id,
     e.agent_id = $agent_id,
     e.trace_id = $trace_id,
     e.tool_name = $tool_name,
-    e.global_position = $global_position,
-    e.keywords = $keywords,
-    e.summary = $summary,
-    e.importance_score = $importance_score,
-    e.access_count = $access_count,
-    e.last_accessed_at = $last_accessed_at
+    e.global_position = $global_position
 """.strip()
 
 BATCH_MERGE_EVENT_NODES = """
 UNWIND $events AS evt
 MERGE (e:Event {event_id: evt.event_id})
+ON CREATE SET e.keywords = evt.keywords,
+    e.summary = evt.summary,
+    e.importance_score = evt.importance_score,
+    e.access_count = evt.access_count,
+    e.last_accessed_at = evt.last_accessed_at
 SET e.event_type = evt.event_type,
     e.occurred_at = evt.occurred_at,
     e.session_id = evt.session_id,
     e.agent_id = evt.agent_id,
     e.trace_id = evt.trace_id,
     e.tool_name = evt.tool_name,
-    e.global_position = evt.global_position,
-    e.keywords = evt.keywords,
-    e.summary = evt.summary,
-    e.importance_score = evt.importance_score,
-    e.access_count = evt.access_count,
-    e.last_accessed_at = evt.last_accessed_at
+    e.global_position = evt.global_position
 """.strip()
 
 MERGE_ENTITY_NODE = """
@@ -458,12 +458,14 @@ SET e.access_count = coalesce(e.access_count, 0) + 1,
 UPDATE_EVENT_ENRICHMENT = """
 MATCH (e:Event {event_id: $event_id})
 SET e.keywords = $keywords,
-    e.importance_score = $importance_score
+    e.importance_score = coalesce(e.importance_score, $importance_score)
+RETURN e.event_id AS event_id
 """.strip()
 
 UPDATE_EVENT_EMBEDDING = """
 MATCH (e:Event {event_id: $event_id})
 SET e.embedding = $embedding
+RETURN e.event_id AS event_id
 """.strip()
 
 # ---------------------------------------------------------------------------

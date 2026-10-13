@@ -25,7 +25,7 @@ from context_graph.domain.models import (
     AtlasResponse,
     EdgeType,
 )
-from context_graph.ports.errors import InvalidRequestError
+from context_graph.ports.errors import InvalidRequestError, UnavailableError
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -715,29 +715,24 @@ class Neo4jGraphStore(Neo4jPackGraph):
     async def update_event_enrichment(
         self, event_id: str, keywords: list[str], importance_score: int
     ) -> None:
-        async with self._driver.session(database=self._database) as session:
-            await session.execute_write(
-                lambda tx: tx.run(
-                    queries.UPDATE_EVENT_ENRICHMENT,
-                    {
-                        "event_id": event_id,
-                        "keywords": keywords,
-                        "importance_score": importance_score,
-                    },
-                )
-            )
+        await self._annotate_existing_event(
+            queries.UPDATE_EVENT_ENRICHMENT,
+            {"event_id": event_id, "keywords": keywords, "importance_score": importance_score},
+        )
 
     async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
+        await self._annotate_existing_event(
+            queries.UPDATE_EVENT_EMBEDDING, {"event_id": event_id, "embedding": embedding}
+        )
+
+    async def _annotate_existing_event(self, query: str, params: dict[str, Any]) -> None:
+        async def write(tx: Any) -> None:
+            result = await tx.run(query, params)
+            if await result.single() is None:
+                raise UnavailableError("Event projection is not available for enrichment")
+
         async with self._driver.session(database=self._database) as session:
-            await session.execute_write(
-                lambda tx: tx.run(
-                    queries.UPDATE_EVENT_EMBEDDING,
-                    {
-                        "event_id": event_id,
-                        "embedding": embedding,
-                    },
-                )
-            )
+            await session.execute_write(write)
 
     async def adjust_node_importance(
         self,

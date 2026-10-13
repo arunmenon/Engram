@@ -336,13 +336,25 @@ class GraphOperations:
         }
 
     async def merge_event_node(self, node: EventNode) -> None:
-        await self._merge_node("Event", node.event_id, self._event_props(node))
+        await self.merge_event_nodes_batch([node])
 
     async def merge_event_nodes_batch(self, nodes: list[EventNode]) -> None:
         if nodes:
-            await self._upsert_nodes(
-                [(("Event", node.event_id), self._event_props(node)) for node in nodes]
-            )
+            items = []
+            for node in nodes:
+                props = self._event_props(node)
+                defaults = {
+                    name: props.pop(name)
+                    for name in (
+                        "keywords",
+                        "summary",
+                        "importance_score",
+                        "access_count",
+                        "last_accessed_at",
+                    )
+                }
+                items.append((("Event", node.event_id), props, defaults))
+            await self._merge_nodes(items)
 
     async def merge_entity_node(self, node: EntityNode) -> None:
         await self._merge_node(
@@ -487,12 +499,27 @@ class GraphOperations:
     async def update_event_enrichment(
         self, event_id: str, keywords: list[str], importance_score: int
     ) -> None:
-        await self._update_existing(
+        await self._update_event_annotations(
             ("Event", event_id), {"keywords": keywords, "importance_score": importance_score}
         )
 
     async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
-        await self._update_existing(("Event", event_id), {"embedding": embedding})
+        await self._update_event_annotations(("Event", event_id), {"embedding": embedding})
+
+    async def _update_event_annotations(self, key: NodeKey, updates: dict[str, Any]) -> None:
+        """Patch a projected Event; concurrent backends override atomically.
+
+        Projection owns source fields; enrichment initializes missing importance,
+        while later importance adjustments retain ownership of the stored value.
+        """
+        from context_graph.ports.errors import UnavailableError
+
+        props = await self._node(key)
+        if props is None:
+            raise UnavailableError("Event projection is not available for enrichment")
+        if props.get("importance_score") is not None:
+            updates = {k: v for k, v in updates.items() if k != "importance_score"}
+        await self._upsert_nodes([(key, updates)])
 
     async def adjust_node_importance(
         self,

@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from context_graph.ports.errors import UnavailableError
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
@@ -34,7 +35,7 @@ class EnrichmentConsumer(BaseConsumer):
     1. Fetch the event document from the event log.
     2. Extract keywords from the event_type (split by '.') and tool_name.
     3. Determine importance_score from importance_hint or use default.
-    4. Update the Neo4j node with keywords and importance_score.
+    4. Wait for the projected Event, then annotate it through the graph port.
     """
 
     def __init__(
@@ -62,15 +63,13 @@ class EnrichmentConsumer(BaseConsumer):
             return
 
         # Fetch the full event document from the event log
-        documents = await self._event_log.get_documents([event_id])
-        doc = documents[0]
-        if doc is None:
-            log.warning(
-                "enrichment_event_json_not_found",
-                event_id=event_id,
-                entry_id=entry_id,
-            )
-            return
+        async def read_document() -> dict[str, Any]:
+            documents = await self._event_log.get_documents([event_id])
+            if not documents or documents[0] is None:
+                raise UnavailableError("Accepted event document is not available for enrichment")
+            return documents[0]
+
+        doc = await self._retry_transient(read_document, "read_enrichment_document")
 
         # Extract keywords from event_type
         event_type = doc.get("event_type", "")
@@ -80,8 +79,12 @@ class EnrichmentConsumer(BaseConsumer):
         importance_hint = doc.get("importance_hint")
         importance_score = importance_hint if importance_hint is not None else DEFAULT_IMPORTANCE
 
-        # Update Neo4j node
-        await self._graph_store.update_event_enrichment(event_id, keywords, importance_score)
+        # Projection and enrichment are independent consumers. An absent target
+        # is a dependency wait, never a successfully handled delivery.
+        await self._retry_transient(
+            lambda: self._graph_store.update_event_enrichment(event_id, keywords, importance_score),
+            "annotate_projected_event",
+        )
 
         log.debug(
             "event_enriched",
@@ -117,7 +120,10 @@ class EnrichmentConsumer(BaseConsumer):
             log.warning("event_embedding_failed", event_id=event_id)
             return
 
-        await self._graph_store.store_event_embedding(event_id, embedding)
+        await self._retry_transient(
+            lambda: self._graph_store.store_event_embedding(event_id, embedding),
+            "store_event_embedding",
+        )
         log.debug("event_embedding_stored", event_id=event_id)
 
 

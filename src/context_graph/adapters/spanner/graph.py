@@ -575,6 +575,36 @@ class SpannerGraphStore(GraphOperations):
             write,
         )
 
+    async def _update_event_annotations(self, key: NodeKey, updates: dict[str, Any]) -> None:
+        """Require projection and preserve adjusted importance in one transaction."""
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.ports.errors import UnavailableError
+
+        def write(run: list[tuple[NodeKey, dict[str, Any]]], enforce: bool) -> Any:
+            def work(transaction: Any) -> None:
+                rows = list(transaction.read("GraphNodes", NODE_COLUMNS, KeySet(keys=[list(key)])))
+                if not rows:
+                    raise UnavailableError("Event projection is not available for enrichment")
+                label, node_id, raw, embedding = rows[0]
+                previous = json_value(raw)
+                props = dict(previous)
+                patch = dict(updates)
+                if props.get("importance_score") is not None:
+                    patch.pop("importance_score", None)
+                apply_set(props, patch)
+                transaction.insert_or_update(
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    self._node_rows(
+                        {key: props}, [key], enforce, {key: previous}, {key: embedding}
+                    ),
+                )
+
+            return work
+
+        await self._write_in_commits([[(key, updates)]], self._node_estimate, write)
+
     async def _apply_state_changes(self, changes: list[StateChange]) -> int:
         """Apply transitions in order; one node's transitions share a transaction."""
         from google.cloud.spanner_v1 import KeySet

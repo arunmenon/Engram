@@ -82,11 +82,15 @@ class GraphStore(Protocol):
     async def update_event_enrichment(
         self, event_id: str, keywords: list[str], importance_score: int
     ) -> None:
-        """Update keywords and importance on an Event node."""
+        """Set keywords and initialize missing importance on a projected Event.
+
+        Preserve existing importance (including adjustments). Raise
+        UnavailableError for a missing Event rather than silently losing work.
+        """
         ...
 
     async def store_event_embedding(self, event_id: str, embedding: list[float]) -> None:
-        """Store embedding vector on an Event node."""
+        """Store embedding on a projected Event; raise UnavailableError if absent."""
         ...
 
     async def merge_entity_node_raw(
