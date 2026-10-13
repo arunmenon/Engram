@@ -1,6 +1,6 @@
 # Enrichment ordering — issue #29
 
-Status: bounded implementation and live verification complete; Astra cleared issue #29 closure. GitHub publication/reconciliation follows below. Failed cloud01 and cloud02 remain retained. Recorded stakeholder walkthrough provided here; no live stakeholder attendance or sign-off inferred.
+Status: complete for the bounded enrichment slice, independently reviewed, published and reconciled in GitHub. Issue #29 is closed; broader umbrellas and separately discovered defects remain open. Failed cloud01 and cloud02 remain retained. Recorded stakeholder walkthrough provided here; no live stakeholder attendance or sign-off inferred.
 
 ## Outcome
 
@@ -108,3 +108,20 @@ Use a new run ID. The runner refuses evidence overwrite or owner/data drift; it 
 ## Independent verdict
 
 [Astra final completeness review](enrichment-ordering-review/astra-final-review.md) clears bounded #29 closure after reviewing all five configurations, actual responses, transaction ownership, pending/restart evidence, vectors, source hashes, exports and retained state. It excludes broader retry policy, shutdown, public/concurrent tenancy, all producer journeys, ANN quality, live Neo4j and pilot readiness.
+
+## Published GitHub reconciliation
+
+Runtime/harness: `79d8779`. Verification/reviews/raw evidence: `41f2e37`. Both pushed to `feature/engram-memory-episodes`.
+
+| Issue | Before → after | What changed | GitHub update |
+|---|---|---|---|
+| [#29](https://github.com/arunmenon/Engram/issues/29) | OPEN → CLOSED | Bounded acceptance complete; body/checklists reconciled and issue closed | [Comment](https://github.com/arunmenon/Engram/issues/29#issuecomment-6152304048) |
+| [#34](https://github.com/arunmenon/Engram/issues/34) | OPEN → OPEN | Bounded progress/evidence recorded; full issue scope remains | [Comment](https://github.com/arunmenon/Engram/issues/34#issuecomment-6152306116) |
+| [#35](https://github.com/arunmenon/Engram/issues/35) | OPEN → OPEN | Bounded progress/evidence recorded; full issue scope remains | [Comment](https://github.com/arunmenon/Engram/issues/35#issuecomment-6152319847) |
+| [#39](https://github.com/arunmenon/Engram/issues/39) | OPEN → OPEN | Bounded progress/evidence recorded; full issue scope remains | [Comment](https://github.com/arunmenon/Engram/issues/39#issuecomment-6152307013) |
+| [#41](https://github.com/arunmenon/Engram/issues/41) | OPEN → OPEN | Bounded progress/evidence recorded; full issue scope remains | [Comment](https://github.com/arunmenon/Engram/issues/41#issuecomment-6152307863) |
+| [#42](https://github.com/arunmenon/Engram/issues/42) | OPEN → OPEN | Bounded progress/evidence recorded; full issue scope remains | [Comment](https://github.com/arunmenon/Engram/issues/42#issuecomment-6152308741) |
+| [#18](https://github.com/arunmenon/Engram/issues/18) | OPEN → OPEN | Fresh-worker proof only; cached predecessor bug remains | [Comment](https://github.com/arunmenon/Engram/issues/18#issuecomment-6152309481) |
+| [#61](https://github.com/arunmenon/Engram/issues/61) | OPEN → OPEN | New confirmed UUID access defect, native child of #34; unimplemented | [Comment](https://github.com/arunmenon/Engram/issues/61#issuecomment-6152310375) |
+
+Native #34 sub-issue links for #29 and #61 were re-read after updates. #60 remains OPEN and unchanged. No new umbrella is needed. Next slice and pilot are not started. The full reconciled state and links are saved in [GitHub reconciliation](enrichment-ordering-review/github-reconciliation.json).
