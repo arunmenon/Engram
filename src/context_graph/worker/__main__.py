@@ -259,6 +259,8 @@ async def _build_consumer(
             settings=settings,
             archive_store=stores.archive,
             llm_client=consolidation_llm_client,
+            bundle=bundle,
+            episode_graph=stores.graph,
         ), stores
 
     except BaseException:

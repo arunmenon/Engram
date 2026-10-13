@@ -1,0 +1,45 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_pdlc_adds_artifact_intents_without_changing_event_intents ________
+
+    def test_pdlc_adds_artifact_intents_without_changing_event_intents() -> None:
+        registry = load_registry(["pdlc"])
+        events = RegistryIntents.for_events(registry)
+        artifacts = RegistryIntents.for_artifacts(registry)
+        assert events.names == [
+            "why", "when", "what", "related", "general", "who_is", "how_does", "personalize"
+        ]  # fmt: skip
+>       assert artifacts.names == [
+            "why",
+            "who_is",
+            "trace",
+            "completeness",
+            "status",
+            "impact",
+            "preflight",
+        ]
+E       AssertionError: assert ['why', 'who_...'status', ...] == ['why', 'who_...'impact', ...]
+E         
+E         At index 2 diff: 'incident' != 'trace'
+E         Left contains one more item: 'preflight'
+E         Use -v to get more diff
+
+tests/unit/test_pack_intents.py:44: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-10 20:39:13 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+=========================== short test summary info ============================
+FAILED tests/unit/test_pack_intents.py::test_pdlc_adds_artifact_intents_without_changing_event_intents
+1 failed in 0.32s

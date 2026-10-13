@@ -4,10 +4,14 @@
 
 pack:
   name: memory
-  version: 1.0.0
+  version: 1.1.0
   requires: [core>=1.0]
   owner: engram
   description: Beliefs, goals and episodes derived from agent sessions.
+
+processing:
+  enabled: [memory.episode.v1]
+  requires: [summary.consolidate.v1]
 
 types:
   nodes:
@@ -47,11 +51,21 @@ types:
         event_count: int
         episode_type: {enum: [temporal, causal, thematic]}
         summary_id: string
+        source_event_ids: list<string>
+        snapshot_kind: string
+        complete: bool
 
   edges:
     CONTAINS: {from: [Episode], to: ["core:Event"]}
     PURSUES:  {from: ["core:Entity"], to: [Goal]}
 
   extends_core_edges:
+    SUMMARIZES: {from: ["core:Summary"], to: [Episode]}
+    DERIVED_FROM: {from: [Episode], to: ["core:Event"]}
     SUPERSEDES:  {from: [Belief], to: [Belief]}
     CONTRADICTS: {from: [Belief], to: [Belief]}
+
+retrieval:
+  core_intent_weights:
+    when: {CONTAINS: 3.0}
+    general: {CONTAINS: 1.0}

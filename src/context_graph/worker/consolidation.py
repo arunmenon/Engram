@@ -26,13 +26,16 @@ from context_graph.domain.consolidation import (
     group_events_into_episodes,
     should_reconsolidate,
 )
+from context_graph.domain.episodes import episode_identity, materialize_episode_snapshot
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
     from context_graph.adapters.llm.client import LLMExtractionClient
+    from context_graph.domain.pack_bundle import ActiveBundle
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.maintenance import GraphMaintenance
+    from context_graph.ports.pack_graph import PackGraph
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
@@ -57,6 +60,8 @@ class ConsolidationConsumer(BaseConsumer):
         settings: Settings,
         archive_store: Any = None,
         llm_client: LLMExtractionClient | None = None,
+        bundle: ActiveBundle | None = None,
+        episode_graph: PackGraph | None = None,
     ) -> None:
         super().__init__(
             subscription,
@@ -68,6 +73,11 @@ class ConsolidationConsumer(BaseConsumer):
         self._settings = settings
         self._archive_store = archive_store
         self._llm_client = llm_client
+        self._episode_graph = (
+            episode_graph if bundle is not None and bundle.enables("memory.episode.v1") else None
+        )
+        if bundle is not None and bundle.enables("memory.episode.v1") and episode_graph is None:
+            raise ValueError("Selected Memory Episodes require a graph producer")
         self._consolidation_lock = asyncio.Lock()
 
     # -- lifecycle ----------------------------------------------------------
@@ -237,6 +247,12 @@ class ConsolidationConsumer(BaseConsumer):
 
         # Create summaries for each episode
         for idx, episode in enumerate(episodes):
+            event_ids = [e["event_id"] for e in episode]
+            scope_id = (
+                episode_identity(session_id, event_ids)
+                if self._episode_graph is not None
+                else f"{session_id}-ep{idx}"
+            )
             llm_summary_text: str | None = None
             if self._llm_client is not None:
                 prompt = build_summary_prompt(episode)
@@ -245,7 +261,7 @@ class ConsolidationConsumer(BaseConsumer):
             summary = create_summary_from_events(
                 events=episode,
                 scope="episode",
-                scope_id=f"{session_id}-ep{idx}",
+                scope_id=scope_id,
                 llm_summary_text=llm_summary_text,
             )
 
@@ -262,6 +278,10 @@ class ConsolidationConsumer(BaseConsumer):
                 time_range=[dt.isoformat() for dt in summary.time_range],
                 event_ids=event_ids,
             )
+            if self._episode_graph is not None:
+                await materialize_episode_snapshot(
+                    self._episode_graph, session_id, summary, episode
+                )
 
         # Create a session-level summary covering all events
         session_llm_text: str | None = None

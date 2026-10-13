@@ -93,6 +93,8 @@ class TestTodaysSchema:
             str(intent): {str(edge): weight for edge, weight in weights.items()}
             for intent, weights in INTENT_WEIGHTS.items()
         }
+        expected["when"]["CONTAINS"] = 3.0
+        expected["general"]["CONTAINS"] = 1.0
         assert registry.intent_weights() == expected
 
     def test_intent_keywords_and_seeds_equal_the_classifier(
@@ -110,11 +112,11 @@ class TestTodaysSchema:
 
         assert endpoints("FOLLOWS") == ({"Event"}, {"Event"})
         assert endpoints("REFERENCES") == ({"Event"}, {"Entity"})
-        assert endpoints("SUMMARIZES") == ({"Summary"}, {"Event", "Summary"})
+        assert endpoints("SUMMARIZES") == ({"Summary"}, {"Event", "Summary", "Episode"})
         assert endpoints("SUPERSEDES") == ({"Belief"}, {"Belief"})
         assert endpoints("CONTAINS") == ({"Episode"}, {"Event"})
         assert endpoints("DERIVED_FROM") == (
-            {"Preference", "BehavioralPattern", "Skill", "Workflow"},
+            {"Preference", "BehavioralPattern", "Skill", "Workflow", "Episode"},
             {"Event"},
         )
         assert endpoints("HAS_PROFILE") == ({"Entity"}, {"UserProfile"})

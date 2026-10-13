@@ -272,6 +272,19 @@ class RetrievalEngine:
             seed_node_ids, nodes, edges, seen_edges, edge_weights, query_embedding
         )
 
+        episode_truncated = False
+        if (
+            self._bundle is not None
+            and self._bundle.enables("memory.episode.v1")
+            and self._pack_graph is not None
+            and edge_weights.get("CONTAINS", 0) > 0
+        ):
+            from context_graph.retrieval.episodes import add_episode_context
+
+            episode_truncated = await add_episode_context(
+                self._pack_graph, query, nodes, edges, seen_edges, self._provenance_source
+            )
+
         # PPR post-processing (L5)
         self._apply_ppr(nodes, edges, edge_weights, seed_node_ids)
 
@@ -300,6 +313,7 @@ class RetrievalEngine:
 
         keep_set = set(paged_ids)
         nodes = {k: v for k, v in nodes.items() if k in keep_set}
+        edges = [edge for edge in edges if edge.source in keep_set and edge.target in keep_set]
 
         # Bump access counts for event nodes only
         event_ids = [nid for nid in nodes if nid.startswith("evt")]
@@ -319,7 +333,7 @@ class RetrievalEngine:
         meta = QueryMeta(
             query_ms=elapsed_ms,
             nodes_returned=len(nodes),
-            truncated=has_more_sg,
+            truncated=has_more_sg or episode_truncated,
             inferred_intents=inferred_intents,
             intent_override=str(query.intent) if query.intent is not None else None,
             seed_nodes=seed_node_ids,

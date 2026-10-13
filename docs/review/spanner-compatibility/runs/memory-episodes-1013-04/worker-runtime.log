@@ -1,0 +1,306 @@
+2026-10-13 17:13:09 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 17:13:09 [info     ] llm_client_initialized
+2026-10-13 17:13:11 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.1.0'] ontology_version=sha256:03ee50609e8d14af redis_host=localhost
+2026-10-13 17:13:11 [info     ] event_ingested                 event_id=30548f72-2aa5-52db-b4fb-c6c8e4242bfc event_type=observation.input global_position=2026-10-13T11:43:11.873295000Z/000000/30548f72-2aa5-52db-b4fb-c6c8e4242bfc request_id=6dd133ba-080c-45cb-8900-091ef0c2db92 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 17:13:12 [info     ] event_ingested                 event_id=dbed0b80-e0cc-55f9-8314-ad52f1e795a0 event_type=observation.input global_position=2026-10-13T11:43:12.059839000Z/000000/dbed0b80-e0cc-55f9-8314-ad52f1e795a0 request_id=2528082b-d8cd-43e3-927c-b126b57e7d39 status=created
+2026-10-13 17:13:14 [info     ] ontology_loaded                edge_types=12 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=6 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:03ee50609e8d14af
+2026-10-13 17:13:14 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 17:13:14 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 17:13:14 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 17:13:15 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:43:11.873295000Z/000000/30548f72-2aa5-52db-b4fb-c6c8e4242bfc event_id=30548f72-2aa5-52db-b4fb-c6c8e4242bfc session_id=memory-episodes-1013-04:memory
+2026-10-13 17:13:15 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:43:12.059839000Z/000000/dbed0b80-e0cc-55f9-8314-ad52f1e795a0 event_id=dbed0b80-e0cc-55f9-8314-ad52f1e795a0 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:13:16 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 17:13:16 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 17:13:16 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 17:13:17 [debug    ] event_enriched                 event_id=30548f72-2aa5-52db-b4fb-c6c8e4242bfc importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:13:22 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6528.44it/s]
+2026-10-13 17:13:28 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 17:13:28 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 17:13:28 [debug    ] event_embedding_stored         event_id=30548f72-2aa5-52db-b4fb-c6c8e4242bfc
+2026-10-13 17:13:28 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 17:13:28 [debug    ] event_enriched                 event_id=dbed0b80-e0cc-55f9-8314-ad52f1e795a0 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:13:29 [debug    ] event_embedding_stored         event_id=dbed0b80-e0cc-55f9-8314-ad52f1e795a0
+2026-10-13 17:13:30 [info     ] consolidation_llm_client_initialized
+2026-10-13 17:13:30 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 17:13:30 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 17:13:30 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 17:13:31 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 17:13:33 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 17:13:33 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 17:13:50 [info     ] consolidation_timer_fired
+2026-10-13 17:13:50 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:13:50 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:13:50 [info     ] consolidating_session          event_count=2 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:13:50 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:memory
+I1013 17:13:51.171557 56480749 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 17:13:51.183707 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(41, generation: 1)
+I1013 17:13:51.183815 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 17:13:51.183821 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 17:13:51.183826 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 17:13:51.183830 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 17:13:51.183834 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(28, generation: 1)
+I1013 17:13:51.183839 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 17:13:51.183842 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1013 17:13:51.183846 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 17:13:51.183849 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 17:13:51.183853 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 17:13:51.183858 56485473 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 17:13:51.196463 56480749 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 17:13:51.204138 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(41, generation: 1)
+I1013 17:13:51.204326 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 17:13:51.204434 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(42, generation: 1)
+I1013 17:13:51.204545 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 17:13:51.204641 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 17:13:51.204774 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 17:13:51.204788 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(28, generation: 1)
+I1013 17:13:51.204793 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 17:13:51.204797 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1013 17:13:51.204801 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 17:13:51.204805 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 17:13:51.204809 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 17:13:51.204890 56485509 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+2026-10-13 17:13:56 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:13:56 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:13:56 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=6484e027-486a-4037-b37f-035894e4a73c
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11915.64it/s]
+2026-10-13 17:14:02 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-13 17:14:02 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 17:14:03 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:14:03 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:14:03 [info     ] event_ingested                 event_id=445691bc-a4f4-539c-b252-459c882ebbd5 event_type=observation.input global_position=2026-10-13T11:44:03.682255000Z/000000/445691bc-a4f4-539c-b252-459c882ebbd5 request_id=f663d767-b2f9-46e9-b32f-5b715faf996f status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 17:14:03 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:44:03.682255000Z/000000/445691bc-a4f4-539c-b252-459c882ebbd5 event_id=445691bc-a4f4-539c-b252-459c882ebbd5 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:04 [debug    ] event_enriched                 event_id=445691bc-a4f4-539c-b252-459c882ebbd5 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:14:04 [debug    ] event_embedding_stored         event_id=445691bc-a4f4-539c-b252-459c882ebbd5
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:14:23 [info     ] consolidation_timer_fired
+2026-10-13 17:14:23 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:14:23 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:14:23 [info     ] consolidating_session          event_count=3 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:23 [info     ] episodes_grouped               episode_count=2 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:31 [info     ] session_consolidated           episode_summaries=2 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:31 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:14:31 [info     ] importance_recomputed_from_centrality updated_count=3
+2026-10-13 17:14:32 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:14:33 [info     ] event_ingested                 event_id=8a3fdb81-d776-588a-872e-dd5f6bdb0b4b event_type=observation.input global_position=2026-10-13T11:44:33.014575000Z/000000/8a3fdb81-d776-588a-872e-dd5f6bdb0b4b request_id=3031b20e-837e-4113-8a3d-51e2fce99d6e status=created
+2026-10-13 17:14:33 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:44:33.014575000Z/000000/8a3fdb81-d776-588a-872e-dd5f6bdb0b4b event_id=8a3fdb81-d776-588a-872e-dd5f6bdb0b4b session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:33 [debug    ] event_enriched                 event_id=8a3fdb81-d776-588a-872e-dd5f6bdb0b4b importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:14:33 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:14:33 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:14:33 [debug    ] event_embedding_stored         event_id=8a3fdb81-d776-588a-872e-dd5f6bdb0b4b
+2026-10-13 17:14:53 [info     ] consolidation_timer_fired
+2026-10-13 17:14:53 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:14:53 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:14:53 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:53 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:14:59 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:00 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:15:00 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:15:02 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:15:02 [info     ] event_ingested                 event_id=8a3fdb81-d776-588a-872e-dd5f6bdb0b4b event_type=observation.input global_position=2026-10-13T11:44:33.014575000Z/000000/8a3fdb81-d776-588a-872e-dd5f6bdb0b4b request_id=ff091f62-67f1-457e-9fec-e13670626c37 status=duplicate
+2026-10-13 17:15:03 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:15:03 [info     ] consolidation_cycle_completed  source=timer
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:15:23 [info     ] consolidation_timer_fired
+2026-10-13 17:15:23 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:15:23 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:15:23 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:23 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:29 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:30 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:15:30 [info     ] event_ingested                 event_id=c4a5a3fc-e236-5849-8daf-99b771ba60e4 event_type=observation.input global_position=2026-10-13T11:45:30.646383000Z/000000/c4a5a3fc-e236-5849-8daf-99b771ba60e4 request_id=adfc8b5f-a3fa-49c5-8b70-41435fa6a210 status=created
+2026-10-13 17:15:30 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:15:30 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:45:30.646383000Z/000000/c4a5a3fc-e236-5849-8daf-99b771ba60e4 event_id=c4a5a3fc-e236-5849-8daf-99b771ba60e4 session_id=memory-episodes-1013-04:memory:other
+2026-10-13 17:15:30 [debug    ] event_enriched                 event_id=c4a5a3fc-e236-5849-8daf-99b771ba60e4 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:15:31 [debug    ] event_embedding_stored         event_id=c4a5a3fc-e236-5849-8daf-99b771ba60e4
+2026-10-13 17:15:31 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:15:32 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:15:32 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:15:52 [info     ] consolidation_timer_fired
+2026-10-13 17:15:52 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:15:53 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-13 17:15:53 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:53 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:59 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:memory
+2026-10-13 17:15:59 [info     ] consolidating_session          event_count=1 session_id=memory-episodes-1013-04:memory:other
+2026-10-13 17:15:59 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:memory:other
+2026-10-13 17:16:05 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:memory:other
+2026-10-13 17:16:06 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=2
+2026-10-13 17:16:06 [info     ] importance_recomputed_from_centrality updated_count=5
+2026-10-13 17:16:07 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:16:08 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:16:08 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:16:11 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 17:16:11 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 17:16:11 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 17:16:11 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 17:16:11 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 17:16:13 [info     ] app_stopped
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 17:16:14 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 17:16:15 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 17:16:15 [info     ] llm_client_initialized
+2026-10-13 17:16:19 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.1.0', 'pdlc@5.0.0'] ontology_version=sha256:4b9b03a63127a443 redis_host=localhost
+2026-10-13 17:16:19 [info     ] event_ingested                 event_id=26a7aac4-690f-54b5-b0af-eb842476b5a4 event_type=observation.input global_position=2026-10-13T11:46:19.905503000Z/000000/26a7aac4-690f-54b5-b0af-eb842476b5a4 request_id=a614de16-cdc1-49fe-a188-af336291baba status=created
+2026-10-13 17:16:20 [info     ] event_ingested                 event_id=1bf7d315-dc63-50c1-a2ed-e17a93247cab event_type=observation.input global_position=2026-10-13T11:46:20.291983000Z/000000/1bf7d315-dc63-50c1-a2ed-e17a93247cab request_id=313bbfc7-c905-416a-8c69-a59aba726d7c status=created
+2026-10-13 17:16:23 [info     ] ontology_loaded                edge_types=39 event_types=39 intents=['completeness', 'general', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:4b9b03a63127a443
+2026-10-13 17:16:23 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 17:16:24 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 17:16:25 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 17:16:25 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:46:19.905503000Z/000000/26a7aac4-690f-54b5-b0af-eb842476b5a4 event_id=26a7aac4-690f-54b5-b0af-eb842476b5a4 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:16:26 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:46:20.291983000Z/000000/1bf7d315-dc63-50c1-a2ed-e17a93247cab event_id=1bf7d315-dc63-50c1-a2ed-e17a93247cab session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:16:27 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 17:16:27 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 17:16:28 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 17:16:29 [debug    ] event_enriched                 event_id=26a7aac4-690f-54b5-b0af-eb842476b5a4 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:16:29 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 15304.43it/s]
+2026-10-13 17:16:35 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 17:16:35 [debug    ] event_embedding_stored         event_id=26a7aac4-690f-54b5-b0af-eb842476b5a4
+2026-10-13 17:16:35 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 17:16:35 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 17:16:36 [debug    ] event_enriched                 event_id=1bf7d315-dc63-50c1-a2ed-e17a93247cab importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:16:36 [debug    ] event_embedding_stored         event_id=1bf7d315-dc63-50c1-a2ed-e17a93247cab
+2026-10-13 17:16:37 [info     ] consolidation_llm_client_initialized
+2026-10-13 17:16:38 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-13 17:16:38 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 17:16:38 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 17:16:38 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 17:16:41 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 17:16:41 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 17:16:44 [info     ] pack_extraction_applied        edges_written=0 event_id=26a7aac4-690f-54b5-b0af-eb842476b5a4 links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-13 17:16:47 [info     ] pack_extraction_applied        edges_written=0 event_id=1bf7d315-dc63-50c1-a2ed-e17a93247cab links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-13 17:16:58 [info     ] consolidation_timer_fired
+2026-10-13 17:16:58 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:16:58 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:16:58 [info     ] consolidating_session          event_count=2 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:16:58 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:04 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:04 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=0a3485d9-cc55-4e45-a074-566ea98e4f3b
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12661.59it/s]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:17:10 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:17:11 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-13 17:17:12 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 17:17:13 [info     ] event_ingested                 event_id=5e72b943-fa0b-52c2-9033-920bd07f478c event_type=observation.input global_position=2026-10-13T11:47:13.497583000Z/000000/5e72b943-fa0b-52c2-9033-920bd07f478c request_id=0e49eec5-2eaa-43b8-874a-c4ef3db2ef09 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 17:17:13 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:47:13.497583000Z/000000/5e72b943-fa0b-52c2-9033-920bd07f478c event_id=5e72b943-fa0b-52c2-9033-920bd07f478c session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:14 [debug    ] event_enriched                 event_id=5e72b943-fa0b-52c2-9033-920bd07f478c importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:17:14 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:17:14 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:17:14 [debug    ] event_embedding_stored         event_id=5e72b943-fa0b-52c2-9033-920bd07f478c
+2026-10-13 17:17:17 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-13 17:17:17 [info     ] pack_extraction_applied        edges_written=1 event_id=5e72b943-fa0b-52c2-9033-920bd07f478c links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-13 17:17:34 [info     ] consolidation_timer_fired
+2026-10-13 17:17:34 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:17:34 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:17:34 [info     ] consolidating_session          event_count=3 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:34 [info     ] episodes_grouped               episode_count=2 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:44 [info     ] session_consolidated           episode_summaries=2 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:45 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:17:46 [info     ] importance_recomputed_from_centrality updated_count=3
+2026-10-13 17:17:47 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:17:48 [info     ] event_ingested                 event_id=b4cfcde9-026a-5024-98d6-3c91fa59d947 event_type=observation.input global_position=2026-10-13T11:47:48.647663000Z/000000/b4cfcde9-026a-5024-98d6-3c91fa59d947 request_id=78933a45-e435-4379-b118-52ec3d5c9afd status=created
+2026-10-13 17:17:48 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:47:48.647663000Z/000000/b4cfcde9-026a-5024-98d6-3c91fa59d947 event_id=b4cfcde9-026a-5024-98d6-3c91fa59d947 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:17:49 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:17:49 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:17:49 [debug    ] event_enriched                 event_id=b4cfcde9-026a-5024-98d6-3c91fa59d947 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:17:49 [debug    ] event_embedding_stored         event_id=b4cfcde9-026a-5024-98d6-3c91fa59d947
+2026-10-13 17:17:50 [info     ] pack_extraction_applied        edges_written=0 event_id=b4cfcde9-026a-5024-98d6-3c91fa59d947 links=0 nodes=0 pack=pdlc rejected=[]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:18:09 [info     ] consolidation_timer_fired
+2026-10-13 17:18:09 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:18:09 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:18:09 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:18:09 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:18:16 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:18:17 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:18:17 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:18:19 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:18:20 [info     ] event_ingested                 event_id=b4cfcde9-026a-5024-98d6-3c91fa59d947 event_type=observation.input global_position=2026-10-13T11:47:48.647663000Z/000000/b4cfcde9-026a-5024-98d6-3c91fa59d947 request_id=363c8115-9e0f-41a6-b459-7cf06b49ca59 status=duplicate
+2026-10-13 17:18:20 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:18:20 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:18:40 [info     ] consolidation_timer_fired
+2026-10-13 17:18:40 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:18:40 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:18:40 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:18:41 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:18:47 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:18:48 [info     ] event_ingested                 event_id=23523328-e167-565c-bff7-1037dc6698c1 event_type=observation.input global_position=2026-10-13T11:48:48.449375000Z/000000/23523328-e167-565c-bff7-1037dc6698c1 request_id=fe83a0f9-6d30-40ff-a608-277c63caa854 status=created
+2026-10-13 17:18:48 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:18:48 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:48:48.449375000Z/000000/23523328-e167-565c-bff7-1037dc6698c1 event_id=23523328-e167-565c-bff7-1037dc6698c1 session_id=memory-episodes-1013-04:pdlc-memory:other
+2026-10-13 17:18:48 [debug    ] event_enriched                 event_id=23523328-e167-565c-bff7-1037dc6698c1 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:18:49 [debug    ] event_embedding_stored         event_id=23523328-e167-565c-bff7-1037dc6698c1
+2026-10-13 17:18:49 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:18:50 [info     ] pack_extraction_applied        edges_written=0 event_id=23523328-e167-565c-bff7-1037dc6698c1 links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-13 17:18:50 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:18:52 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:18:52 [info     ] consolidation_cycle_completed  source=timer
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:19:12 [info     ] consolidation_timer_fired
+2026-10-13 17:19:12 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:19:12 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-13 17:19:12 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:12 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:18 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:18 [info     ] consolidating_session          event_count=1 session_id=memory-episodes-1013-04:pdlc-memory:other
+2026-10-13 17:19:19 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory:other
+2026-10-13 17:19:24 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory:other
+2026-10-13 17:19:26 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=2
+2026-10-13 17:19:26 [info     ] importance_recomputed_from_centrality updated_count=5
+2026-10-13 17:19:28 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:19:29 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:19:29 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:19:34 [info     ] event_ingested                 event_id=73ae95ce-e6c6-5314-841a-0d7c0122451f event_type=pdlc.change.created global_position=2026-10-13T11:49:34.807567000Z/000000/73ae95ce-e6c6-5314-841a-0d7c0122451f request_id=86d1c7d1-621b-4c1e-986a-1b54fa6fce0a status=created
+2026-10-13 17:19:35 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:49:34.807567000Z/000000/73ae95ce-e6c6-5314-841a-0d7c0122451f event_id=73ae95ce-e6c6-5314-841a-0d7c0122451f session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:35 [debug    ] event_enriched                 event_id=73ae95ce-e6c6-5314-841a-0d7c0122451f importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-13 17:19:35 [debug    ] event_embedding_stored         event_id=73ae95ce-e6c6-5314-841a-0d7c0122451f
+2026-10-13 17:19:36 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-13 17:19:49 [info     ] consolidation_timer_fired
+2026-10-13 17:19:49 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:19:49 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-13 17:19:49 [info     ] consolidating_session          event_count=5 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:49 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:56 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory
+2026-10-13 17:19:56 [info     ] consolidating_session          event_count=1 session_id=memory-episodes-1013-04:pdlc-memory:other
+2026-10-13 17:19:56 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-04:pdlc-memory:other
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 17:20:02 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-04:pdlc-memory:other
+2026-10-13 17:20:03 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 17:20:03 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 17:20:03 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 17:20:03 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 17:20:03 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 17:20:06 [info     ] app_stopped
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

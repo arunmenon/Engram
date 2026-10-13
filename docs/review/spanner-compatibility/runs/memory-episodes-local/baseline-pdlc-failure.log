@@ -1,0 +1,152 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________________ test_webhooks_build_a_pdlc_graph[memory] ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d7aef90>
+backend = 'memory'
+
+    @pytest.mark.asyncio()
+    @pytest.mark.parametrize(
+        "backend",
+        [
+            "memory",
+            pytest.param("spanner", marks=pytest.mark.integration),
+            pytest.param("neo4j", marks=pytest.mark.integration),
+        ],
+    )
+    async def test_webhooks_build_a_pdlc_graph(monkeypatch: pytest.MonkeyPatch, backend: str) -> None:
+        for port in STORAGE_PORTS:
+            monkeypatch.setenv(f"CG_STORAGE_{port}", backend)
+        if backend == "neo4j":
+            for port in ("EVENT_LOG", "SUBSCRIPTION", "KEYWORD_INDEX"):
+                monkeypatch.setenv(f"CG_STORAGE_{port}", "memory")
+        if backend == "spanner":
+            emulator = os.environ.get("CG_SPANNER_EMULATOR_HOST")
+            if not emulator:
+                pytest.skip("Spanner emulator not configured (CG_SPANNER_EMULATOR_HOST)")
+            pytest.importorskip("google.cloud.spanner")
+            monkeypatch.setenv("CG_SPANNER_DATABASE", f"pdlc{uuid4().hex[:12]}")
+            monkeypatch.setenv("CG_SPANNER_CREATE_IF_MISSING", "true")
+        monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+        monkeypatch.setenv("CG_ONTOLOGY_EVAL_STATE_TTL_S", "0")  # see each recorded change at once
+        monkeypatch.setenv("CG_WEBHOOK_GITHUB_SECRET", SECRET)
+        monkeypatch.setenv("CG_WEBHOOK_JIRA_SECRET", SECRET)
+        monkeypatch.delenv("CG_AUTH_API_KEY", raising=False)
+        monkeypatch.delenv("CG_ONTOLOGY_PACKS", raising=False)
+        settings = Settings()
+    
+        try:
+            stores = await asyncio.wait_for(open_stores(settings, prepare_ingest=True), timeout=15)
+        except Exception as exc:  # noqa: BLE001
+            if backend == "memory":
+                raise
+            pytest.skip(f"{backend} unreachable: {exc}")
+        if backend == "neo4j":
+            await stores.graph.delete_all(confirm=True)  # type: ignore[attr-defined]
+        close = stores.close
+    
+        async def keep_open() -> None:
+            """The app's shutdown must not close stores the worker still uses."""
+    
+        monkeypatch.setattr(stores, "close", keep_open)
+        try:
+>           await _run(monkeypatch, settings, stores, backend)
+
+tests/unit/test_pdlc_end_to_end.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_pdlc_end_to_end.py:210: in _run
+    await _check_eval_gate(client, settings, stores)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+client = <httpx.AsyncClient object at 0x10f153ad0>
+settings = Settings(app_name='context-graph', debug=False, log_level='INFO', uvicorn_workers=4, cors_origins=['http://localhost:5...ks=WebhookSettings(github_secret=SecretStr('**********'), jira_secret=SecretStr('**********'), max_body_bytes=1000000))
+stores = Stores(event_log=<context_graph.adapters.memory.log.MemoryEventLog object at 0x10ee149b0>, graph=<context_graph.adapte...=[], pack_reads=<context_graph.adapters.composed_reads.ComposedReadView object at 0x10cb1f470>, tenant_read_check=None)
+
+    async def _check_eval_gate(client: httpx.AsyncClient, settings: Settings, stores: Stores) -> None:
+        """Decision 10: PDLC's weights wait on its evaluation set, from the first deploy."""
+        # Before the worker records the ontology, and after: PDLC is pending either way
+        question = {"query": "Where is PAY-341 deployed? Trace it."}
+        unrecorded = (await client.post("/v1/query/artifacts", json=question)).json()
+        assert unrecorded["meta"]["eval_pending"] == ["pdlc"]
+        projector = configured_projector(settings.ontology)
+        plan = await reconcile(
+            stores.graph,
+            stores.event_log,
+            projector,
+            allow_breaking=False,
+            batch_size=100,
+            lookup_limit=settings.ontology.lookup_limit,
+        )
+        assert plan.kind == "initial"
+        assert plan.eval_required == {"pdlc"}
+        pending = (await client.post("/v1/query/artifacts", json=question)).json()
+        assert pending["meta"]["eval_pending"] == ["pdlc"]
+        assert pending["meta"]["inferred_intents"] == {}  # trace is PDLC's: not used yet
+        asked = await client.post("/v1/query/artifacts", json={**question, "intent": "trace"})
+        assert asked.status_code == 409, asked.text
+        assert "evaluate --record" in asked.json()["detail"]
+    
+        reports = await evaluate_graph(
+            settings, stores.graph, projector.registry, [EVAL_SETS], record=True
+        )
+>       assert [(r.pack, r.passed) for r in reports] == [("pdlc", True)]
+E       AssertionError: assert [('pdlc', False)] == [('pdlc', True)]
+E         
+E         At index 0 diff: ('pdlc', False) != ('pdlc', True)
+E         Use -v to get more diff
+
+tests/unit/test_pdlc_end_to_end.py:243: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 16:57:29 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 16:57:30 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 16:57:30 [info     ] llm_client_initialized
+2026-10-13 16:57:30 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.1.0', 'pdlc@5.0.0'] ontology_version=sha256:808f3b7e7fa0ea6e redis_host=localhost
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-0 event_types=['pdlc.change.created'] request_id=2f60bc27-84d5-45a6-8900-e7973ef683b1 source=github
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-1 event_types=['pdlc.testcaserun.finished'] request_id=0796ffa9-05fd-4408-a15e-08e98479110e source=github
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-2 event_types=['pdlc.change.reviewed'] request_id=6b3bd6bd-b2f5-4f0c-8cdb-a04fe76e0943 source=github
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-3 event_types=['pdlc.change.merged'] request_id=1ecf85f3-6e82-4f8e-8cb1-743d31e5daf3 source=github
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-4 event_types=['pdlc.ticket.created'] request_id=b8359719-0068-4e74-afac-2ab99bdc6ddb source=jira
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-5 event_types=['pdlc.release.published'] request_id=2f06450a-d3e0-44fc-9391-773363245acc source=github
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-6 event_types=['pdlc.service.deployed'] request_id=0de04e1c-2be1-4b46-aa30-3d9e39003486 source=github
+2026-10-13 16:57:30 [info     ] webhook_ingested               delivery_id=delivery-7 event_types=['pdlc.ticket.closed'] request_id=6a7a9369-7512-4e85-89dc-807ff028f35a source=jira
+2026-10-13 16:57:30 [info     ] consumer_started               consumer=projection-1 group=graph-projection stream=events:__global__
+2026-10-13 16:57:30 [info     ] pending_drain_completed        group=graph-projection
+2026-10-13 16:57:30 [debug    ] flushing_buffer_on_idle        buffered=8
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=0 entry_id=1791890850324-0 event_id=626140ea-7de7-5ee9-8e91-6e925ba934c6 session_id=pdlc:acme/payments
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=1 entry_id=1791890850385-0 event_id=11737721-efde-577a-a759-0cffa38d45d3 session_id=pdlc:acme/payments
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=1 entry_id=1791890850445-0 event_id=65b7646c-016c-5708-9223-566d9ee6ea66 session_id=pdlc:acme/payments
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=1 entry_id=1791890850508-0 event_id=7e1b7cc4-9d84-52f6-82fb-857770db49ab session_id=pdlc:acme/payments
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=0 entry_id=1791890850572-0 event_id=450a7a46-2f84-5cfc-b0db-a0c939e8ea7c session_id=pdlc:jira:PAY
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=1 entry_id=1791890850637-0 event_id=cbb029ae-5d84-5d23-8b7a-486dcb9a294b session_id=pdlc:acme/payments
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=1 entry_id=1791890850701-0 event_id=04aa5cc9-2bdf-540d-a2b1-73dfd65f5a67 session_id=pdlc:acme/payments
+2026-10-13 16:57:30 [debug    ] event_projected                edge_count=1 entry_id=1791890850769-0 event_id=92e4ccb4-1fab-54a3-ab67-b0d9ceb3d44c session_id=pdlc:jira:PAY
+2026-10-13 16:57:30 [debug    ] pack_plans_applied             edges=20 events=8 nodes=35 states=6
+2026-10-13 16:57:30 [info     ] consumer_stopped               consumer=projection-1 group=graph-projection
+2026-10-13 16:57:30 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 16:57:31 [info     ] app_stopped
+=============================== warnings summary ===============================
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+1 failed, 2 warnings in 8.39s

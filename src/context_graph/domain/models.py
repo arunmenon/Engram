@@ -502,6 +502,9 @@ class EpisodeNode(BaseModel):
     event_count: int = 0
     episode_type: EpisodeType
     summary_id: str | None = None
+    source_event_ids: list[str] = Field(default_factory=list)
+    snapshot_kind: str = "membership"
+    complete: bool = False
 
 
 # ---------------------------------------------------------------------------

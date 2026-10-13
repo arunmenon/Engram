@@ -1,0 +1,188 @@
+2026-10-13 17:06:31 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 17:06:31 [info     ] llm_client_initialized
+2026-10-13 17:06:34 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.1.0'] ontology_version=sha256:03ee50609e8d14af redis_host=localhost
+2026-10-13 17:06:34 [info     ] event_ingested                 event_id=45a63df4-9cde-5529-bf47-2901cdbda970 event_type=observation.input global_position=2026-10-13T11:36:34.606943000Z/000000/45a63df4-9cde-5529-bf47-2901cdbda970 request_id=0840282b-be19-44f7-a40a-55ae96d24028 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 17:06:34 [info     ] event_ingested                 event_id=ad085618-9b33-54e7-91e4-ef7a38c285c7 event_type=observation.input global_position=2026-10-13T11:36:34.820927000Z/000000/ad085618-9b33-54e7-91e4-ef7a38c285c7 request_id=67081cbc-b278-4395-b63d-df9d9f3580cc status=created
+2026-10-13 17:06:37 [info     ] ontology_loaded                edge_types=12 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=6 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:03ee50609e8d14af
+2026-10-13 17:06:37 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 17:06:37 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 17:06:38 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 17:06:38 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:36:34.606943000Z/000000/45a63df4-9cde-5529-bf47-2901cdbda970 event_id=45a63df4-9cde-5529-bf47-2901cdbda970 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:06:39 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:36:34.820927000Z/000000/ad085618-9b33-54e7-91e4-ef7a38c285c7 event_id=ad085618-9b33-54e7-91e4-ef7a38c285c7 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:06:40 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 17:06:40 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 17:06:40 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 17:06:41 [debug    ] event_enriched                 event_id=45a63df4-9cde-5529-bf47-2901cdbda970 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:06:46 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6942.54it/s]
+2026-10-13 17:06:52 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 17:06:52 [debug    ] event_embedding_stored         event_id=45a63df4-9cde-5529-bf47-2901cdbda970
+2026-10-13 17:06:52 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 17:06:52 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 17:06:52 [debug    ] event_enriched                 event_id=ad085618-9b33-54e7-91e4-ef7a38c285c7 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:06:53 [debug    ] event_embedding_stored         event_id=ad085618-9b33-54e7-91e4-ef7a38c285c7
+2026-10-13 17:06:54 [info     ] consolidation_llm_client_initialized
+2026-10-13 17:06:54 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 17:06:54 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 17:06:54 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 17:06:55 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 17:06:57 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 17:06:57 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 17:07:14 [info     ] consolidation_timer_fired
+2026-10-13 17:07:14 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:07:14 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:07:14 [info     ] consolidating_session          event_count=2 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:14 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+I1013 17:07:15.447538 56414941 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 17:07:15.460393 56419797 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 17:07:15.460478 56419797 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 17:07:15.460487 56419797 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 17:07:15.460491 56419797 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 17:07:15.472207 56414941 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 17:07:15.480206 56419837 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 17:07:15.480293 56419837 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 17:07:15.480300 56419837 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 17:07:15.480304 56419837 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+2026-10-13 17:07:20 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:21 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:07:21 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-13 17:07:22 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=eba5edf4-9ef8-43ad-a357-9a596acc5dd9
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10880.03it/s]
+2026-10-13 17:07:28 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:07:29 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:07:29 [info     ] consolidation_cycle_completed  source=timer
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 17:07:29 [info     ] event_ingested                 event_id=da3de652-5024-5838-9454-90a48783abd1 event_type=observation.input global_position=2026-10-13T11:37:29.673663000Z/000000/da3de652-5024-5838-9454-90a48783abd1 request_id=b3ff2675-e03a-46ed-b68e-3b8b1005befb status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 17:07:29 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:37:29.673663000Z/000000/da3de652-5024-5838-9454-90a48783abd1 event_id=da3de652-5024-5838-9454-90a48783abd1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:29 [debug    ] event_enriched                 event_id=da3de652-5024-5838-9454-90a48783abd1 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:07:30 [debug    ] event_embedding_stored         event_id=da3de652-5024-5838-9454-90a48783abd1
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:07:49 [info     ] consolidation_timer_fired
+2026-10-13 17:07:49 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:07:49 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:07:49 [info     ] consolidating_session          event_count=3 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:49 [info     ] episodes_grouped               episode_count=2 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:58 [info     ] session_consolidated           episode_summaries=2 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:58 [info     ] event_ingested                 event_id=ad01cbf8-08bf-5851-97a5-9268a295c447 event_type=observation.input global_position=2026-10-13T11:37:58.695151000Z/000000/ad01cbf8-08bf-5851-97a5-9268a295c447 request_id=8a21bbc5-a53d-4a66-852b-e7feb8ca5929 status=created
+2026-10-13 17:07:58 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:07:58 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:37:58.695151000Z/000000/ad01cbf8-08bf-5851-97a5-9268a295c447 event_id=ad01cbf8-08bf-5851-97a5-9268a295c447 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:07:58 [debug    ] event_enriched                 event_id=ad01cbf8-08bf-5851-97a5-9268a295c447 importance_score=5 keywords=['observation', 'input']
+2026-10-13 17:07:59 [debug    ] event_embedding_stored         event_id=ad01cbf8-08bf-5851-97a5-9268a295c447
+2026-10-13 17:07:59 [info     ] importance_recomputed_from_centrality updated_count=3
+2026-10-13 17:08:00 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:08:00 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:08:00 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:08:20 [info     ] consolidation_timer_fired
+2026-10-13 17:08:20 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:08:20 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:08:20 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:08:21 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:08:26 [info     ] event_ingested                 event_id=ad01cbf8-08bf-5851-97a5-9268a295c447 event_type=observation.input global_position=2026-10-13T11:37:58.695151000Z/000000/ad01cbf8-08bf-5851-97a5-9268a295c447 request_id=78d4c79f-4023-4896-ad62-f6fe251fb161 status=duplicate
+2026-10-13 17:08:27 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:08:27 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:08:28 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:08:28 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:08:29 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:08:29 [info     ] consolidation_cycle_completed  source=timer
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:08:49 [info     ] consolidation_timer_fired
+2026-10-13 17:08:49 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:08:49 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:08:49 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:08:49 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:08:56 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:08:56 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:08:56 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:08:57 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:08:58 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:08:58 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:09:18 [info     ] consolidation_timer_fired
+2026-10-13 17:09:18 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:09:18 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:09:18 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:09:18 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:09:24 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:09:25 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:09:25 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:09:26 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:09:27 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:09:27 [info     ] consolidation_cycle_completed  source=timer
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:09:47 [info     ] consolidation_timer_fired
+2026-10-13 17:09:47 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:09:47 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:09:47 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:09:47 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:09:53 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:09:54 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:09:54 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:09:55 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:09:56 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:09:56 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:10:16 [info     ] consolidation_timer_fired
+2026-10-13 17:10:16 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:10:16 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:10:16 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:10:16 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:10:22 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:10:23 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:10:23 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:10:24 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:10:25 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:10:25 [info     ] consolidation_cycle_completed  source=timer
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 17:10:45 [info     ] consolidation_timer_fired
+2026-10-13 17:10:45 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:10:45 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:10:45 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:10:45 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:10:52 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:10:52 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:10:52 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:10:53 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:10:54 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:10:54 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:11:14 [info     ] consolidation_timer_fired
+2026-10-13 17:11:14 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 17:11:14 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 17:11:14 [info     ] consolidating_session          event_count=4 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:11:14 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:11:20 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-03:memory
+2026-10-13 17:11:21 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 17:11:21 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-13 17:11:22 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 17:11:23 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 17:11:23 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 17:11:27 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 17:11:27 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 17:11:27 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 17:11:27 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 17:11:27 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 17:11:30 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 512, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 498, in main
+    await run_config(config, bound, db)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 314, in run_config
+    raise TimeoutError("No subsequent consolidation output observed")
+TimeoutError: No subsequent consolidation output observed
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

@@ -30,6 +30,9 @@ def test_base_packs_equal_todays_tables(query: str) -> None:
     weights = {
         str(k): v for k, v in get_edge_weights(classify_intent(query), INTENT_WEIGHTS).items()
     }
+    contains = 3.0 * fixed.get("when", 0) + fixed.get("general", 0)
+    if contains:
+        weights["CONTAINS"] = contains
     assert intents.edge_weights(fixed) == weights
     assert intents.seed_strategy(fixed) == select_seed_strategy(classify_intent(query))
 
@@ -44,6 +47,7 @@ def test_pdlc_adds_artifact_intents_without_changing_event_intents() -> None:
     assert artifacts.names == [
         "why",
         "who_is",
+        "incident",
         "trace",
         "completeness",
         "status",

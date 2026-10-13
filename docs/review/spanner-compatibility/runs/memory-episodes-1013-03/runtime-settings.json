@@ -1,0 +1,17 @@
+{
+  "model_id": "gpt-5.2-2025-12-11",
+  "llm_timeout_seconds": 30,
+  "llm_max_retries": 0,
+  "consolidation_interval_seconds": 20,
+  "reflection_threshold": 5,
+  "intent_use_llm": false,
+  "serve_unevaluated": true,
+  "storage": {
+    "event_log": "spanner",
+    "subscription": "spanner",
+    "graph": "spanner",
+    "keyword_index": "spanner",
+    "vector_index": "spanner"
+  },
+  "runtime": "Private tenant-bound authenticated HTTP service and five worker loops; sequential configurations"
+}

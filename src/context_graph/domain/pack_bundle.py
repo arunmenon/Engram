@@ -31,6 +31,11 @@ PROCESSING_PROVIDERS: Mapping[str, ProcessingProvider] = MappingProxyType(
         "event.enrich.v1": ProcessingProvider("core", frozenset({"Event"})),
         "entity.extract.v1": ProcessingProvider("core", frozenset({"Event", "Entity"})),
         "summary.consolidate.v1": ProcessingProvider("core", frozenset({"Event", "Summary"})),
+        "memory.episode.v1": ProcessingProvider(
+            "memory",
+            frozenset({"Episode", "Event", "Summary"}),
+            (("Event", "core"), ("Summary", "core")),
+        ),
         "event.retain.v1": ProcessingProvider("core", frozenset({"Event"})),
         "user.extract.v1": ProcessingProvider(
             "user",

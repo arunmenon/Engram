@@ -1,0 +1,149 @@
+2026-10-13 16:54:10 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 16:54:10 [info     ] llm_client_initialized
+2026-10-13 16:54:13 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0'] ontology_version=sha256:7aa9c7d4db1d5a24 redis_host=localhost
+2026-10-13 16:54:13 [info     ] event_ingested                 event_id=dc232eb4-8f88-5242-be33-891a703a04f2 event_type=observation.input global_position=2026-10-13T11:24:13.476479000Z/000000/dc232eb4-8f88-5242-be33-891a703a04f2 request_id=26c9b10b-2cac-494b-be2d-7d4dc1703af2 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 16:54:13 [info     ] event_ingested                 event_id=4183b340-aa6b-55ed-acd3-43550f277194 event_type=observation.input global_position=2026-10-13T11:24:13.761519000Z/000000/4183b340-aa6b-55ed-acd3-43550f277194 request_id=0f3782e3-c399-49cf-9a66-2a0c32229aeb status=created
+2026-10-13 16:54:16 [info     ] ontology_loaded                edge_types=10 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=3 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:7aa9c7d4db1d5a24
+2026-10-13 16:54:16 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 16:54:16 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 16:54:17 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 16:54:17 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:24:13.476479000Z/000000/dc232eb4-8f88-5242-be33-891a703a04f2 event_id=dc232eb4-8f88-5242-be33-891a703a04f2 session_id=memory-episodes-1013-01:core
+2026-10-13 16:54:18 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:24:13.761519000Z/000000/4183b340-aa6b-55ed-acd3-43550f277194 event_id=4183b340-aa6b-55ed-acd3-43550f277194 session_id=memory-episodes-1013-01:core
+2026-10-13 16:54:19 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 16:54:19 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 16:54:20 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 16:54:20 [debug    ] event_enriched                 event_id=dc232eb4-8f88-5242-be33-891a703a04f2 importance_score=5 keywords=['observation', 'input']
+2026-10-13 16:54:27 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1013 16:54:29.971301 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 16:54:29.974548 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 16:54:29.974585 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 16:54:29.974593 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 16:54:29.974760 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1013 16:54:29.974838 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 16:54:29.974853 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 16:54:29.974866 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 16:54:29.974984 56327166 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6069.22it/s]
+2026-10-13 16:54:33 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 16:54:33 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 16:54:33 [debug    ] event_embedding_stored         event_id=dc232eb4-8f88-5242-be33-891a703a04f2
+2026-10-13 16:54:34 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 16:54:34 [debug    ] event_enriched                 event_id=4183b340-aa6b-55ed-acd3-43550f277194 importance_score=5 keywords=['observation', 'input']
+2026-10-13 16:54:34 [debug    ] event_embedding_stored         event_id=4183b340-aa6b-55ed-acd3-43550f277194
+2026-10-13 16:54:36 [info     ] consolidation_llm_client_initialized
+2026-10-13 16:54:36 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 16:54:36 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 16:54:36 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 16:54:37 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 16:54:39 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 16:54:39 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 16:54:56 [info     ] consolidation_timer_fired
+2026-10-13 16:54:56 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 16:54:56 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 16:54:56 [info     ] consolidating_session          event_count=2 session_id=memory-episodes-1013-01:core
+2026-10-13 16:54:56 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-01:core
+I1013 16:54:57.533815 56330758 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 16:54:57.553047 56332103 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(43, generation: 1)
+I1013 16:54:57.556412 56332103 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 16:54:57.557039 56332103 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 16:54:57.557826 56332103 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 16:54:57.573610 56330758 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 16:54:57.582668 56332144 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 16:54:57.582738 56332144 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 16:54:57.582743 56332144 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 16:54:57.582748 56332144 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+2026-10-13 16:55:03 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-01:core
+2026-10-13 16:55:04 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=1944f801-d894-4965-bcb1-f4b7b21018b1
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10824.96it/s]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 16:55:10 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 16:55:10 [info     ] importance_recomputed_from_centrality updated_count=2
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 16:55:11 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 16:55:11 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 16:55:11 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 16:55:11 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 16:55:11 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 16:55:15 [info     ] app_stopped
+2026-10-13 16:55:18 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 16:55:18 [info     ] llm_client_initialized
+2026-10-13 16:55:21 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.1.0'] ontology_version=sha256:03ee50609e8d14af redis_host=localhost
+2026-10-13 16:55:21 [info     ] event_ingested                 event_id=64d94d83-66ec-5ea2-b995-74f82b97e419 event_type=observation.input global_position=2026-10-13T11:25:21.766095000Z/000000/64d94d83-66ec-5ea2-b995-74f82b97e419 request_id=d7aa972f-1226-46b8-8295-5c358d56da0a status=created
+2026-10-13 16:55:22 [info     ] event_ingested                 event_id=9f60db98-4912-5438-a3e1-52b659d6d620 event_type=observation.input global_position=2026-10-13T11:25:22.017151000Z/000000/9f60db98-4912-5438-a3e1-52b659d6d620 request_id=af82970e-c373-4471-a758-04d1d02f9523 status=created
+2026-10-13 16:55:24 [info     ] ontology_loaded                edge_types=12 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=6 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:03ee50609e8d14af
+2026-10-13 16:55:24 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 16:55:24 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 16:55:25 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 16:55:25 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T11:25:21.766095000Z/000000/64d94d83-66ec-5ea2-b995-74f82b97e419 event_id=64d94d83-66ec-5ea2-b995-74f82b97e419 session_id=memory-episodes-1013-01:memory
+2026-10-13 16:55:26 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T11:25:22.017151000Z/000000/9f60db98-4912-5438-a3e1-52b659d6d620 event_id=9f60db98-4912-5438-a3e1-52b659d6d620 session_id=memory-episodes-1013-01:memory
+2026-10-13 16:55:27 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 16:55:27 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 16:55:28 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 16:55:28 [debug    ] event_enriched                 event_id=64d94d83-66ec-5ea2-b995-74f82b97e419 importance_score=5 keywords=['observation', 'input']
+2026-10-13 16:55:28 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 16594.20it/s]
+2026-10-13 16:55:34 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 16:55:34 [debug    ] event_embedding_stored         event_id=64d94d83-66ec-5ea2-b995-74f82b97e419
+2026-10-13 16:55:34 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 16:55:34 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 16:55:34 [debug    ] event_enriched                 event_id=9f60db98-4912-5438-a3e1-52b659d6d620 importance_score=5 keywords=['observation', 'input']
+2026-10-13 16:55:35 [debug    ] event_embedding_stored         event_id=9f60db98-4912-5438-a3e1-52b659d6d620
+2026-10-13 16:55:36 [info     ] consolidation_llm_client_initialized
+2026-10-13 16:55:36 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 16:55:36 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 16:55:37 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 16:55:37 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 16:55:39 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 16:55:40 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 16:55:56 [info     ] consolidation_timer_fired
+2026-10-13 16:55:56 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 16:55:57 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 16:55:57 [info     ] consolidating_session          event_count=2 session_id=memory-episodes-1013-01:memory
+2026-10-13 16:55:57 [info     ] episodes_grouped               episode_count=1 session_id=memory-episodes-1013-01:memory
+2026-10-13 16:56:02 [info     ] session_consolidated           episode_summaries=1 session_id=memory-episodes-1013-01:memory
+2026-10-13 16:56:02 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=c9b75355-33fa-413a-9aca-32a37607638e
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 13196.89it/s]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 16:56:08 [info     ] agent_summary_created          agent_id=memory-demo-agent sessions=1
+2026-10-13 16:56:09 [info     ] importance_recomputed_from_centrality updated_count=2
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 16:56:10 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 16:56:10 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 16:56:10 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 16:56:10 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 16:56:10 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 16:56:14 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 489, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 475, in main
+    await run_config(config, bound, db)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 277, in run_config
+    check(
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_memory_episodes_demo.py", line 75, in check
+    raise AssertionError(name)
+AssertionError: M02 exact Episode, Summary, members and evidence via API
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
