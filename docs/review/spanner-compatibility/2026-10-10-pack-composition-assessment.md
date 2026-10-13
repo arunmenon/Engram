@@ -155,3 +155,27 @@ The original configuration probe warnings are retained in configuration-probe.lo
 `ontology/loader.py`, `ontology/runtime.py`, `domain/pack_bundle.py`, `ontology/packs/{core,user,memory,pdlc}.pack.yaml`, `worker/__main__.py`, the five worker modules, `adapters/graph_ops.py`, `adapters/composed_reads.py`, `api/tenants.py`, `tenancy.py`, and `retrieval/{engine,artifacts}.py`.
 
 This assessment reuses the earlier independent Astra source review; no new independent review or cloud sign-off is claimed.
+
+## Next checkpoint authorized — 13 October: user attachment and retry safety
+
+Memory remediation is separately verified and published in `51bb4fd`; that does not resolve the user or enrichment findings above. The stakeholder authorized the previously agreed sequence and reaffirmed the verification and umbrella-tracking requirements. The first bounded stage is user attachment, profile identity and retry safety. Enrichment, whole-combination verification, two-tenant isolation and the pilot remain later approval checkpoints.
+
+GitHub's native sub-issue relation was checked: #20, #29, #37, #39, #42 and #43 are actual children of feature umbrella #34. #41 remains the separate linked Spanner-verification umbrella. Existing issues cover the observed failures; no duplicate issue or new feature bucket is needed at this checkpoint.
+
+For the first stage, reuse extraction, UserStore/graph adapters, User pack declarations, composed reads and existing user/retrieval APIs. Current grounding confirms #20's `entity_id` provenance allowlist mismatch; the profile writer uses `profile:<user_id>` while UserProfile declares `user_id`; preference writes without an explicit identity generate random IDs and increment on repeated calls. These are observed implementation boundaries, not completed fixes or a commitment to new infrastructure. Choose the smallest coherent correction after checking producer, storage and read callers.
+
+| Case | Required observable result |
+|---|---|
+| UA01 interest attachment | Actual extraction creates the intended interest Entity and exact DERIVED_FROM evidence, completes and acknowledges the session-end delivery |
+| UA02 profile identity | User API, composed reads and applicable personalization resolve the same canonical newly created profile and owner |
+| UA03 exact retry | Reprocessing the same accepted observation/session-end does not create another preference or increase its support/observation count |
+| UA04 interrupted write and restart | A fault after partial output remains recoverable; restart/retry converges to exact artifacts and evidence without double counting; label injected-provider/storage tests separately from live results |
+| UA05 correction | An explicit changed preference preserves the defined prior history and source evidence; same-key unrelated context is not silently overwritten |
+| UA06 owner boundary | A second owner has a positive profile/preference read and does not contaminate the first owner's applicable results; logical owner filtering is not tenant isolation sign-off |
+| UA07 selection boundary | Core+User and Core+User+Memory preserve supported behavior; User-off Core+PDLC creates no User-specific outputs and preserves domain/core processing |
+
+Freeze concrete payloads, literal identities, property values, relationship directions, source membership and forbidden effects before live execution. Run through authenticated Engram HTTP, actual ledger/workers, the authorized assessment Spanner database and public reads; raw row inspection supplements those reads. Reuse the latest epoch18 retained record only after verified export/owner/fingerprint checks, and retain final data. No historical migration or other database reset is authorized.
+
+Completion requires targeted regressions, independent Astra review, real-Spanner case results including retries/failures, retained failed attempts, a stakeholder verification walkthrough, issue reconciliation with precise open/closed criteria and a feature-bucket assessment. Do not close #34/#42/#39/#41 from this slice alone. At this checkpoint only source/issue grounding has begun; there are no new runtime fixes or live runs to report.
+
+Authorized scope/verification checkpoint published to [#42](https://github.com/arunmenon/Engram/issues/42#issuecomment-6147429971); the matching #34 umbrella comment records the same stage and stop boundary. These are scope updates, not new completion claims.
