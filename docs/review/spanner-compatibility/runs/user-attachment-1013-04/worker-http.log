@@ -1,0 +1,166 @@
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 20:39:52 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 20:39:55 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:39:55 [info     ] llm_client_initialized
+2026-10-13 20:39:56 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@5.0.0'] ontology_version=sha256:bc0d421693b2f8ae redis_host=localhost
+2026-10-13 20:39:58 [info     ] ontology_loaded                edge_types=37 event_types=39 intents=['completeness', 'general', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=22 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:bc0d421693b2f8ae
+2026-10-13 20:39:59 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 20:39:59 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 20:39:59 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 20:40:01 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 20:40:01 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 20:40:01 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 20:40:03 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:40:03 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:40:03 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:40:04 [info     ] consolidation_llm_client_initialized
+2026-10-13 20:40:04 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-13 20:40:04 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 20:40:05 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 20:40:05 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 20:40:06 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 20:40:06 [info     ] event_ingested                 event_id=8291001f-bf1e-5cf6-8b0c-c2cf295d1af6 event_type=observation.input global_position=2026-10-13T15:10:06.820991000Z/000000/8291001f-bf1e-5cf6-8b0c-c2cf295d1af6 request_id=2be25540-ca56-4fce-8da5-b51036bf6318 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:40:07 [info     ] event_ingested                 event_id=c4614a1a-7dbb-58be-8490-35da6db2960f event_type=system.session_end global_position=2026-10-13T15:10:07.020991000Z/000000/c4614a1a-7dbb-58be-8490-35da6db2960f request_id=d42aa01b-e0ef-47d2-9c3f-3479a83082a5 status=created
+2026-10-13 20:40:07 [debug    ] event_enriched                 event_id=8291001f-bf1e-5cf6-8b0c-c2cf295d1af6 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:40:11 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]I1013 20:40:16.162925 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1013 20:40:16.163141 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:40:16.163269 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 20:40:16.163318 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1013 20:40:16.163323 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:40:16.163327 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 20:40:16.163329 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:40:16.163332 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:40:16.163335 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:40:16.163338 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:40:16.163341 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:40:16.163343 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:40:16.163346 56797294 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8321.71it/s]
+2026-10-13 20:40:19 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 20:40:20 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:10:06.820991000Z/000000/8291001f-bf1e-5cf6-8b0c-c2cf295d1af6 event_id=8291001f-bf1e-5cf6-8b0c-c2cf295d1af6 session_id=user-attachment-1013-04:real:alice
+2026-10-13 20:40:20 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 20:40:20 [debug    ] event_embedding_stored         event_id=8291001f-bf1e-5cf6-8b0c-c2cf295d1af6
+2026-10-13 20:40:20 [info     ] extraction_triggered           agent_id=alice entry_id=2026-10-13T15:10:07.020991000Z/000000/c4614a1a-7dbb-58be-8490-35da6db2960f session_id=user-attachment-1013-04:real:alice
+2026-10-13 20:40:20 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 20:40:20 [debug    ] session_events_collected       event_count=2 session_id=user-attachment-1013-04:real:alice
+2026-10-13 20:40:20 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+I1013 20:40:20.725905 56796257 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:40:20.740265 56797440 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:40:20.740444 56797440 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:40:20.740480 56797440 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:40:20.740484 56797440 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 20:40:20.754507 56796257 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:40:20.763190 56797481 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 20:40:20.763291 56797481 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:40:20.763296 56797481 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:40:20.763301 56797481 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+2026-10-13 20:40:22 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-13 20:40:22 [info     ] pack_extraction_applied        edges_written=1 event_id=8291001f-bf1e-5cf6-8b0c-c2cf295d1af6 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-13 20:40:23 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 20:40:23 [info     ] extraction_llm_success         entities=3 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=user-attachment-1013-04:real:alice skills=0
+2026-10-13 20:40:23 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 13544.01it/s]
+2026-10-13 20:40:30 [debug    ] entity_created                 entity_id=entity:Alice name=Alice
+2026-10-13 20:40:30 [debug    ] entity_created                 entity_id='entity:Rust development' name='Rust development'
+2026-10-13 20:40:31 [debug    ] entity_created                 entity_id='entity:short answers' name='short answers'
+2026-10-13 20:40:31 [info     ] extraction_results_written     session_id=user-attachment-1013-04:real:alice user_entity_id=user:alice
+2026-10-13 20:40:31 [info     ] extraction_completed           entities=3 interests=0 preferences=0 session_id=user-attachment-1013-04:real:alice skills=0
+2026-10-13 20:40:32 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:40:36 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
+    raise exc
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 996, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 982, in main
+    await run_config(args.run_id, directory, config, bound, db)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 289, in run_config
+    await send(body)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 254, in send
+    status, answer = await request("POST", "/v1/events", body)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 239, in request
+    response = await http.request(method, route, json=body)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadError
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

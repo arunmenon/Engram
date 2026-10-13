@@ -1,0 +1,141 @@
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 20:42:29 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 20:42:31 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:42:31 [info     ] llm_client_initialized
+2026-10-13 20:42:33 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@5.0.0'] ontology_version=sha256:bc0d421693b2f8ae redis_host=localhost
+2026-10-13 20:42:35 [info     ] ontology_loaded                edge_types=37 event_types=39 intents=['completeness', 'general', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=22 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:bc0d421693b2f8ae
+2026-10-13 20:42:36 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 20:42:36 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 20:42:36 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 20:42:37 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 20:42:38 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 20:42:38 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 20:42:39 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:42:40 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:42:40 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:42:41 [info     ] consolidation_llm_client_initialized
+2026-10-13 20:42:41 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-13 20:42:41 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 20:42:41 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 20:42:41 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 20:42:43 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 20:42:43 [info     ] event_ingested                 event_id=5b2dd30d-105c-5c5a-9b94-fad84d0da227 event_type=observation.input global_position=2026-10-13T15:12:43.433743000Z/000000/5b2dd30d-105c-5c5a-9b94-fad84d0da227 request_id=7cdb4353-a309-4e1c-8524-32dba495c57c status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:42:43 [debug    ] event_enriched                 event_id=5b2dd30d-105c-5c5a-9b94-fad84d0da227 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:42:48 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1013 20:42:50.937869 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1013 20:42:50.938246 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:42:50.938275 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 20:42:50.938280 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 20:42:50.938284 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:42:50.938287 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 20:42:50.938290 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:42:50.938294 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:42:50.938297 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:42:50.938300 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:42:50.938304 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:42:50.938307 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:42:50.938311 56800228 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7675.05it/s]
+2026-10-13 20:42:54 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:12:43.433743000Z/000000/5b2dd30d-105c-5c5a-9b94-fad84d0da227 event_id=5b2dd30d-105c-5c5a-9b94-fad84d0da227 session_id=user-attachment-1013-05:real:alice
+2026-10-13 20:42:54 [info     ] event_ingested                 event_id=e8e8ab65-0ca8-5204-b142-5f11708d4cd7 event_type=system.session_end global_position=2026-10-13T15:12:43.682223000Z/000000/e8e8ab65-0ca8-5204-b142-5f11708d4cd7 request_id=b458c269-8567-4dce-8a1f-813989df394a status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:42:54 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 20:42:54 [info     ] event_ingested                 event_id=e39f9c94-6930-5c3d-8c36-db22312476fd event_type=pdlc.change.created global_position=2026-10-13T15:12:54.541791000Z/000000/e39f9c94-6930-5c3d-8c36-db22312476fd request_id=c36a7eb6-6d7a-4593-96b8-fb031a16d0e5 status=created
+2026-10-13 20:42:54 [debug    ] event_embedding_stored         event_id=5b2dd30d-105c-5c5a-9b94-fad84d0da227
+2026-10-13 20:42:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:12:43.682223000Z/000000/e8e8ab65-0ca8-5204-b142-5f11708d4cd7 event_id=e8e8ab65-0ca8-5204-b142-5f11708d4cd7 session_id=user-attachment-1013-05:real:alice
+2026-10-13 20:42:54 [info     ] extraction_triggered           agent_id=alice entry_id=2026-10-13T15:12:43.682223000Z/000000/e8e8ab65-0ca8-5204-b142-5f11708d4cd7 session_id=user-attachment-1013-05:real:alice
+2026-10-13 20:42:55 [debug    ] session_events_collected       event_count=3 session_id=user-attachment-1013-05:real:alice
+I1013 20:42:55.378723 56800357 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:42:55.394313 56800483 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:42:55.394626 56800483 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:42:55.394633 56800483 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:42:55.394637 56800483 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 20:42:55.411892 56800353 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:42:55.419710 56800357 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:42:55.419891 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1013 20:42:55.420108 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:42:55.420115 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 20:42:55.420119 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 20:42:55.420123 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:42:55.420126 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 20:42:55.420130 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:42:55.420133 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:42:55.420137 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:42:55.420140 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:42:55.420144 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:42:55.420147 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:42:55.420150 56800515 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 20:42:55.422523 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1013 20:42:55.422806 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:42:55.422833 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 20:42:55.422837 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 20:42:55.422840 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:42:55.422844 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 20:42:55.422847 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:42:55.422866 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:42:55.422869 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:42:55.422872 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:42:55.422874 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:42:55.422877 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:42:55.422879 56800535 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+2026-10-13 20:42:55 [debug    ] event_enriched                 event_id=e8e8ab65-0ca8-5204-b142-5f11708d4cd7 importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:42:55 [debug    ] event_embedding_stored         event_id=e8e8ab65-0ca8-5204-b142-5f11708d4cd7
+2026-10-13 20:42:56 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:12:54.541791000Z/000000/e39f9c94-6930-5c3d-8c36-db22312476fd event_id=e39f9c94-6930-5c3d-8c36-db22312476fd session_id=user-attachment-1013-05:real:alice
+2026-10-13 20:42:56 [debug    ] event_enriched                 event_id=e39f9c94-6930-5c3d-8c36-db22312476fd importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-13 20:42:56 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-13 20:42:56 [debug    ] event_embedding_stored         event_id=e39f9c94-6930-5c3d-8c36-db22312476fd
+2026-10-13 20:42:58 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-13 20:42:58 [info     ] pack_extraction_applied        edges_written=1 event_id=5b2dd30d-105c-5c5a-9b94-fad84d0da227 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-13 20:42:58 [info     ] extraction_llm_success         entities=2 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=user-attachment-1013-05:real:alice skills=0
+2026-10-13 20:42:58 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12981.95it/s]
+2026-10-13 20:43:04 [info     ] consolidation_timer_fired
+2026-10-13 20:43:04 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 20:43:04 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 20:43:04 [info     ] consolidating_session          event_count=3 session_id=user-attachment-1013-05:real:alice
+2026-10-13 20:43:04 [debug    ] entity_created                 entity_id=entity:Alice name=Alice
+2026-10-13 20:43:04 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-05:real:alice
+2026-10-13 20:43:05 [debug    ] entity_created                 entity_id='entity:Rust development' name='Rust development'
+2026-10-13 20:43:06 [info     ] extraction_results_written     session_id=user-attachment-1013-05:real:alice user_entity_id=user:alice
+2026-10-13 20:43:06 [info     ] extraction_completed           entities=2 interests=0 preferences=0 session_id=user-attachment-1013-05:real:alice skills=0
+2026-10-13 20:43:07 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 20:43:07 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 20:43:07 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 20:43:07 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 20:43:07 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:43:09 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 997, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 983, in main
+    await run_config(args.run_id, directory, config, bound, db)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 310, in run_config
+    check(
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 154, in check
+    raise AssertionError(name)
+AssertionError: User-off Change retrievable through artifact API
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

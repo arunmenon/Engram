@@ -1,0 +1,59 @@
+........FFF                                                              [100%]
+=================================== FAILURES ===================================
+_____________ test_competing_corrections_rollback_all_user_outputs _____________
+
+    async def test_competing_corrections_rollback_all_user_outputs():
+        from context_graph.domain.user_extraction import UserExtractionConflictError
+    
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(graph, 71, {"content": "short answers"},
+            {"preferences": [_preference()]})
+        await graph.apply_user_extraction(trigger)
+        old = receipt["result"]["preferences"][0]["preference_id"]
+        corrections = [dict(previous_preference_id=old, replacement_key="answer-length",
+            replacement_polarity=p, context="support") for p in ("negative", "neutral")]
+        trigger, _, _ = await _prepared(graph, 73,
+            {"content": "short answers", "preference_corrections": corrections},
+            {"preferences": [_preference("negative"), _preference("neutral")]})
+>       with pytest.raises(UserExtractionConflictError, match="successor"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UserExtractionConflictError
+
+tests/unit/test_user_attachment_retry.py:463: Failed
+___ test_deleting_owned_skills_preserves_other_owner_and_legacy_shared_skill ___
+
+    async def test_deleting_owned_skills_preserves_other_owner_and_legacy_shared_skill():
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(graph, 81, {"content": "I know Python"},
+            {"skills": [dict(category="programming_language", name="Python", proficiency=0.8,
+                confidence=0.9, source="declared", source_quote="I know Python")]})
+        await graph.apply_user_extraction(trigger)
+        owned = NodeRef("Skill", receipt["result"]["skills"][0]["skill_id"], "skill_id")
+        await graph.write_skill_with_edges("user:bob", {"skill_id": "legacy-python", "name": "Python"}, [], {})
+        bob_skills = await graph.get_user_skills("user:bob")
+        await graph.delete_user_data("user:alice")
+>       assert owned not in await graph.get_nodes([owned])
+E       AssertionError: assert NodeRef(label='Skill', key='skill:6eda305bb215bdfc2d05378a76fa92c0dd962c77c46ce0d9a9935b7df47861af', key_property='skill_id') not in {NodeRef(label='Skill', key='skill:6eda305bb215bdfc2d05378a76fa92c0dd962c77c46ce0d9a9935b7df47861af', key_property='sk...dd962c77c46ce0d9a9935b7df47861af', 'user_id': 'user:alice', 'name': 'Python', 'category': 'programming_language', ...}}
+
+tests/unit/test_user_attachment_retry.py:480: AssertionError
+_______ test_missing_accepted_trigger_document_is_retryable_not_success ________
+
+    async def test_missing_accepted_trigger_document_is_retryable_not_success():
+        from context_graph.ports.errors import UnavailableError
+    
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        worker = ExtractionConsumer(MemorySubscription(ledger.stream, "extraction", "test"),
+            ledger, AsyncMock(), Settings(ontology=OntologySettings(builtin_packs=["user"])),
+            graph_store=graph, user_store=graph)
+>       with pytest.raises(UnavailableError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnavailableError
+
+tests/unit/test_user_attachment_retry.py:491: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-13 20:16:15 [warning  ] extraction_event_json_not_found event_id=00000000-0000-0000-0000-00000000005b
+=========================== short test summary info ============================
+FAILED tests/unit/test_user_attachment_retry.py::test_competing_corrections_rollback_all_user_outputs
+FAILED tests/unit/test_user_attachment_retry.py::test_deleting_owned_skills_preserves_other_owner_and_legacy_shared_skill
+FAILED tests/unit/test_user_attachment_retry.py::test_missing_accepted_trigger_document_is_retryable_not_success
+3 failed, 8 passed in 0.66s

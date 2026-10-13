@@ -1,0 +1,44 @@
+.................F                                                       [100%]
+=================================== FAILURES ===================================
+___ test_personalization_returns_owned_profile_preference_and_exact_evidence ___
+
+    async def test_personalization_returns_owned_profile_preference_and_exact_evidence():
+        from context_graph.domain.models import SubgraphQuery
+    
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(
+            graph,
+            151,
+            {"content": "My name is Alice. I prefer short answers"},
+            {
+                "persona": {"name": "Alice", "source_quote": "My name is Alice"},
+                "preferences": [_preference()],
+            },
+        )
+        await graph.apply_user_extraction(trigger)
+        other, _, _ = await _prepared(
+            graph,
+            153,
+            {"content": "My name is Bob"},
+            {"persona": {"name": "Bob", "source_quote": "My name is Bob"}},
+            owner="bob",
+        )
+        await graph.apply_user_extraction(other)
+        query = SubgraphQuery(
+            query="How does Alice prefer answers?",
+            session_id="bounded",
+            agent_id="alice",
+            intent="personalize",
+        )
+        answer = await _user_engine(graph).get_subgraph(query)
+        pref = receipt["result"]["preferences"][0]["preference_id"]
+>       assert {"profile:user:alice", pref} <= answer.nodes.keys()
+E       AssertionError: assert {'preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd', 'profile:user:alice'} <= dict_keys(['00000000-0000-0000-0000-000000000097', '00000000-0000-0000-0000-000000000098', '00000000-0000-0000-0000-000000000099', '00000000-0000-0000-0000-00000000009a'])
+E        +  where dict_keys(['00000000-0000-0000-0000-000000000097', '00000000-0000-0000-0000-000000000098', '00000000-0000-0000-0000-000000000099', '00000000-0000-0000-0000-00000000009a']) = <built-in method keys of dict object at 0x1309caac0>()
+E        +    where <built-in method keys of dict object at 0x1309caac0> = {'00000000-0000-0000-0000-000000000097': AtlasNode(node_id='00000000-0000-0000-0000-000000000097', node_type='Event', ...e=0.546984, relevance_score=0.5, importance_score=5, ppr_score=0.0), retrieval_reason='direct', proactive_signal=None)}.keys
+E        +      where {'00000000-0000-0000-0000-000000000097': AtlasNode(node_id='00000000-0000-0000-0000-000000000097', node_type='Event', ...e=0.546984, relevance_score=0.5, importance_score=5, ppr_score=0.0), retrieval_reason='direct', proactive_signal=None)} = AtlasResponse(nodes={'00000000-0000-0000-0000-000000000097': AtlasNode(node_id='00000000-0000-0000-0000-000000000097',...graph': 4, 'vector': 0, 'bm25': 0}, capacity=QueryCapacity(max_nodes=100, used_nodes=4, max_depth=3), eval_pending=[])).nodes
+
+tests/unit/test_user_attachment_retry.py:802: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_user_attachment_retry.py::test_personalization_returns_owned_profile_preference_and_exact_evidence
+1 failed, 17 passed in 1.22s

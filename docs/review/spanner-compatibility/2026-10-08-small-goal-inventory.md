@@ -138,3 +138,9 @@ G04 technical result: [verification and recorded walkthrough](2026-10-08-goal-04
 ## G04 completed checkpoint
 
 G04 is verified and published with [recorded stakeholder walkthrough](2026-10-08-goal-04-verification.md), [Astra evidence review](2026-10-08-astra-g04-evidence-review.md) and [actual issue receipts](2026-10-08-g04-issue-reconciliation.json). #47 closed; eight broader issues updated and remain open. G01–G03 results remain pinned to their prior versions, not retroactively proved on PDLC 3.0. No new feature bucket, no foundation track/reruns, no migration. G05 remains unstarted pending explicit approval; the retired broad goal remains paused.
+
+## Post-assessment User checkpoint — 13 October
+
+The separately authorized User attachment/profile/retry slice is complete for UA01–UA07; this does not mark G8–G11 or the pilot complete. [Stakeholder verification walkthrough](user-attachment-verification.md) and [Astra final review](user-attachment-review/astra-final-review.md) capture 277 accepted Spanner assertions, retained failures, local verification and epoch29 retained data. Bounded defects #20/#59 are cleared for closure; #34/#42/#39/#41 remain open. New child #60 tracks the observed production consolidation-shutdown defect and remains unresolved.
+
+Stop for stakeholder review here. Enrichment #29, wider combinations, tenant isolation and pilot prerequisites require their own subsequent approval. No historical migration work is added.

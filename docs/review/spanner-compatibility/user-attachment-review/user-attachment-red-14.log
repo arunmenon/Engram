@@ -1,0 +1,42 @@
+......................F                                                  [100%]
+=================================== FAILURES ===================================
+___ test_user_outputs_preserve_existing_shared_entity_timestamps_and_counts ____
+
+    async def test_user_outputs_preserve_existing_shared_entity_timestamps_and_counts():
+        graph = MemoryGraphStore()
+        seen = "2026-10-13T12:00:00+00:00"
+        await graph.merge_entity_node_raw("entity:Rust", "Rust", "tool", seen, seen, 7)
+        trigger, _, _ = await _prepared(
+            graph,
+            181,
+            {"content": "short answers; interested in Rust"},
+            {
+                "preferences": [{**_preference(), "about_entity": "Rust"}],
+                "interests": [
+                    dict(
+                        entity_name="Rust",
+                        entity_type="concept",
+                        weight=0.8,
+                        source="explicit",
+                        source_quote="interested in Rust",
+                    )
+                ],
+            },
+        )
+        await graph.apply_user_extraction(trigger)
+        ref = NodeRef("Entity", "entity:Rust", "entity_id")
+        props = (await graph.get_nodes([ref]))[ref]
+>       assert props["first_seen"] == seen and props["last_seen"] == seen
+E       AssertionError: assert ('2026-10-13T12:00:00+00:00' == '2026-10-13T12:00:00+00:00'
+E         
+E           2026-10-13T12:00:00+00:00 and '2026-10-13T00:00:00+00:00' == '2026-10-13T12:00:00+00:00'
+E         
+E         - 2026-10-13T12:00:00+00:00
+E         ?            ^^
+E         + 2026-10-13T00:00:00+00:00
+E         ?            ^^)
+
+tests/unit/test_user_attachment_retry.py:921: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_user_attachment_retry.py::test_user_outputs_preserve_existing_shared_entity_timestamps_and_counts
+1 failed, 22 passed in 1.33s

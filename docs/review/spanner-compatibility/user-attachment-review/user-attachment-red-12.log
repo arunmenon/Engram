@@ -1,0 +1,126 @@
+...........F                                                             [100%]
+=================================== FAILURES ===================================
+____ test_later_trigger_does_not_reinterpret_applied_historical_correction _____
+
+    async def test_later_trigger_does_not_reinterpret_applied_historical_correction():
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        trigger, receipt, _ = await _prepared(graph, 101, {"content": "short answers"},
+            {"preferences": [_preference()]})
+        await graph.apply_user_extraction(trigger)
+        old = receipt["result"]["preferences"][0]["preference_id"]
+        provider = AsyncMock()
+        provider.extract_from_session.side_effect = [
+            {"preferences": [_preference("negative")]}, {},
+        ]
+        settings = Settings(ontology=OntologySettings(builtin_packs=["user"]))
+        worker = ExtractionConsumer(MemorySubscription(ledger.stream, "extraction", "test"),
+            ledger, provider, settings, graph_store=graph, user_store=graph)
+        for number, kind, payload in [
+            (103, "observation.input", {"content": "short answers", "preference_corrections": [
+                dict(previous_preference_id=old, replacement_key="answer-length",
+                    replacement_polarity="negative", context="support")]}),
+            (104, "system.session_end", {}),
+            (105, "observation.input", {"content": "No new preference today."}),
+            (106, "system.session_end", {}),
+        ]:
+            event = trigger.model_copy(update={"event_id": UUID(int=number), "event_type": kind,
+                "global_position": None})
+            position = await ledger.append(event, payload)
+            await graph.merge_event_node(event_to_node(event.model_copy(update={"global_position": position})))
+            if kind == "system.session_end":
+>               await worker.process_message(position, {"event_id": str(event.event_id)})
+
+tests/unit/test_user_attachment_retry.py:521: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/worker/extraction.py:118: in process_message
+    await self._retry_transient(
+src/context_graph/worker/consumer.py:99: in _retry_transient
+    return await operation()
+           ^^^^^^^^^^^^^^^^^
+src/context_graph/worker/extraction.py:243: in _process_user_trigger
+    candidate = prepare_extraction_receipt(trigger, events, documents, raw)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+trigger = Event(event_id=UUID('00000000-0000-0000-0000-00000000006a'), event_type='system.session_end', occurred_at=datetime.dat...902801270-1', tool_name=None, parent_event_id=None, ended_at=None, status=None, schema_version=1, importance_hint=None)
+events = [Event(event_id=UUID('00000000-0000-0000-0000-000000000067'), event_type='observation.input', occurred_at=datetime.dat...02801270-1', tool_name=None, parent_event_id=None, ended_at=None, status=None, schema_version=1, importance_hint=None)]
+documents = [{'event_id': '00000000-0000-0000-0000-000000000067', 'event_type': 'observation.input', 'occurred_at': '2026-10-13T00...0000000006a', 'event_type': 'system.session_end', 'occurred_at': '2026-10-13T00:00:00Z', 'session_id': 'bounded', ...}]
+raw = {}
+
+    def prepare_extraction_receipt(
+        trigger: Event, events: list[Event], documents: list[dict[str, Any]], raw: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Freeze validated output identities and exact quoted source membership."""
+        if not events or len(events) > MAX_INPUT_EVENTS or not trigger.global_position:
+            raise ValueError("User extraction requires a bounded accepted input window")
+        ids = [str(event.event_id) for event in events]
+        if len(set(ids)) != len(ids) or ids[-1] != str(trigger.event_id):
+            raise ValueError("User input window must contain its distinct accepted trigger")
+        if any(
+            event.agent_id != trigger.agent_id or event.session_id != trigger.session_id
+            for event in events
+        ):
+            raise UserExtractionConflictError("User extraction window crosses owner/session")
+        by_id = {str(document["event_id"]): document for document in documents}
+        if set(by_id) != set(ids):
+            raise ValueError("User extraction documents do not match frozen inputs")
+        result = SessionExtractionResult.model_validate(
+            {**raw, "session_id": trigger.session_id, "agent_id": trigger.agent_id}
+        ).model_dump(mode="json")
+        owner = "user:" + trigger.agent_id
+        outputs = [item for kind in ("preferences", "skills", "interests") for item in result[kind]]
+        if result["persona"]:
+            outputs.append(result["persona"])
+        if len(outputs) > MAX_USER_OUTPUTS:
+            raise ValueError("User extraction output exceeds the atomic bound")
+        for item in outputs:
+            quote = _normalize(item.get("source_quote", ""))
+            supports = [
+                event_id for event_id in ids if quote and quote in _normalize(_content(by_id[event_id]))
+            ]
+            if not supports:
+                raise ValueError("User extraction quote has no exact accepted source")
+            item["support_event_ids"] = supports
+        for item in result["preferences"]:
+            item.update(scope="global", scope_id=None)
+            item["preference_id"] = artifact_identity("Preference", owner, item)
+        for item in result["skills"]:
+            item["skill_id"] = artifact_identity("Skill", owner, item)
+        corrections = []
+        for event_id in ids:
+            declared = (by_id[event_id].get("payload") or {}).get("preference_corrections", [])
+            if not isinstance(declared, list):
+                raise ValueError("Preference corrections must be a list")
+            for correction in declared:
+                if not isinstance(correction, dict) or set(correction) != {
+                    "previous_preference_id",
+                    "replacement_key",
+                    "replacement_polarity",
+                    "context",
+                }:
+                    raise ValueError(
+                        "Correction needs an exact predecessor, replacement key, polarity and context"
+                    )
+                targets = [
+                    item
+                    for item in result["preferences"]
+                    if item["key"] == correction["replacement_key"]
+                    and item["polarity"] == correction["replacement_polarity"]
+                    and item.get("context") == correction["context"]
+                    and event_id in item["support_event_ids"]
+                ]
+                if (
+                    len(targets) != 1
+                    or not isinstance(correction["previous_preference_id"], str)
+                    or not correction["previous_preference_id"]
+                ):
+>                   raise ValueError("Correction must select exactly one supported replacement")
+E                   ValueError: Correction must select exactly one supported replacement
+
+src/context_graph/domain/user_extraction.py:127: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-13 20:16:41 [info     ] extraction_results_written     session_id=bounded user_entity_id=user:alice
+2026-10-13 20:16:41 [info     ] user_extraction_applied        event_id=00000000-0000-0000-0000-000000000068 outcome=applied session_id=bounded
+=========================== short test summary info ============================
+FAILED tests/unit/test_user_attachment_retry.py::test_later_trigger_does_not_reinterpret_applied_historical_correction
+1 failed, 11 passed in 0.70s

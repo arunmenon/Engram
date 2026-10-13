@@ -1,0 +1,111 @@
+2026-10-13 20:25:31 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:25:31 [info     ] llm_client_initialized
+2026-10-13 20:25:34 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'user@1.2.0'] ontology_version=sha256:9a662be4bd081f51 redis_host=localhost
+2026-10-13 20:25:37 [info     ] ontology_loaded                edge_types=18 event_types=15 intents=['general', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=8 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:9a662be4bd081f51
+2026-10-13 20:25:37 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 20:25:38 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 20:25:38 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 20:25:41 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 20:25:41 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 20:25:42 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 20:25:43 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:25:44 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:25:45 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:25:47 [info     ] consolidation_llm_client_initialized
+2026-10-13 20:25:47 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 20:25:47 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 20:25:47 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 20:25:48 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 20:26:07 [info     ] consolidation_timer_fired
+2026-10-13 20:26:07 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 20:26:07 [info     ] importance_recomputed_from_centrality updated_count=0
+2026-10-13 20:26:09 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 20:26:10 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 20:26:11 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 20:26:11 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 20:26:11 [info     ] event_ingested                 event_id=d36781f6-b082-5917-aaa0-5da5dbdaeb32 event_type=observation.input global_position=2026-10-13T14:56:11.098383000Z/000000/d36781f6-b082-5917-aaa0-5da5dbdaeb32 request_id=1b799f17-7993-428e-a524-0265067ebf21 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:26:11 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T14:56:11.098383000Z/000000/d36781f6-b082-5917-aaa0-5da5dbdaeb32 event_id=d36781f6-b082-5917-aaa0-5da5dbdaeb32 session_id=user-attachment-1013-01:real:alice
+2026-10-13 20:26:11 [debug    ] event_enriched                 event_id=d36781f6-b082-5917-aaa0-5da5dbdaeb32 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:26:16 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1013 20:26:19.067722 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(35, generation: 1)
+I1013 20:26:19.067962 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:26:19.068049 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(32, generation: 1)
+I1013 20:26:19.068136 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 20:26:19.068142 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(28, generation: 1)
+I1013 20:26:19.068146 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 20:26:19.068149 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:26:19.068153 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:26:19.068156 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:26:19.068160 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:26:19.068179 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:26:19.068250 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:26:19.068291 56753454 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6870.88it/s]
+2026-10-13 20:26:22 [info     ] event_ingested                 event_id=9daf7725-092a-563d-953c-30fee76bd579 event_type=system.session_end global_position=2026-10-13T14:56:11.615743000Z/000000/9daf7725-092a-563d-953c-30fee76bd579 request_id=769e36e0-b082-4ac1-b8e7-d7c331079dea status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:26:22 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 20:26:22 [debug    ] event_embedding_stored         event_id=d36781f6-b082-5917-aaa0-5da5dbdaeb32
+2026-10-13 20:26:23 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T14:56:11.615743000Z/000000/9daf7725-092a-563d-953c-30fee76bd579 event_id=9daf7725-092a-563d-953c-30fee76bd579 session_id=user-attachment-1013-01:real:alice
+I1013 20:26:23.964236 56750206 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:26:23.975045 56753708 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:26:23.975176 56753708 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:26:23.975215 56753708 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:26:23.975253 56753708 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 20:26:23.989132 56750206 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:26:23.998222 56753745 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 20:26:23.998365 56753745 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 20:26:23.998411 56753745 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:26:23.998416 56753745 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:26:23.998434 56753745 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+2026-10-13 20:26:24 [debug    ] event_enriched                 event_id=9daf7725-092a-563d-953c-30fee76bd579 importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:26:24 [debug    ] event_embedding_stored         event_id=9daf7725-092a-563d-953c-30fee76bd579
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 20:26:31 [info     ] consolidation_timer_fired
+2026-10-13 20:26:31 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 20:26:31 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 20:26:31 [info     ] consolidating_session          event_count=2 session_id=user-attachment-1013-01:real:alice
+2026-10-13 20:26:31 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-01:real:alice
+2026-10-13 20:26:33 [info     ] extraction_llm_success         entities=4 interests=2 model_id=gpt-5.2-2025-12-11 preferences=2 session_id=user-attachment-1013-01:real:alice skills=1
+2026-10-13 20:26:33 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12288.47it/s]
+2026-10-13 20:26:39 [debug    ] entity_created                 entity_id=entity:Alice name=Alice
+2026-10-13 20:26:40 [debug    ] entity_created                 entity_id=entity:Rust name=Rust
+2026-10-13 20:26:42 [debug    ] entity_resolved_link           action=RELATED_TO canonical=Rust name='Rust language development'
+2026-10-13 20:26:42 [info     ] session_consolidated           episode_summaries=1 session_id=user-attachment-1013-01:real:alice
+2026-10-13 20:26:43 [debug    ] entity_created                 entity_id='entity:Software engineering' name='Software engineering'
+2026-10-13 20:26:43 [info     ] agent_summary_created          agent_id=alice sessions=1
+2026-10-13 20:26:43 [info     ] extraction_results_written     session_id=user-attachment-1013-01:real:alice user_entity_id=user:alice
+2026-10-13 20:26:44 [info     ] user_extraction_applied        event_id=9daf7725-092a-563d-953c-30fee76bd579 outcome=applied session_id=user-attachment-1013-01:real:alice
+2026-10-13 20:26:44 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-13 20:26:45 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 20:26:45 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:26:45 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 20:26:45 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 20:26:45 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 20:26:49 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 944, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 930, in main
+    await run_config(args.run_id, directory, config, bound, db)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 346, in run_config
+    profile = await user_read("alice", "profile")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 259, in user_read
+    check("User API " + owner + " " + family, status == 200, answer)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachment_demo.py", line 154, in check
+    raise AssertionError(name)
+AssertionError: User API alice profile
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

@@ -1,0 +1,33 @@
+{
+  "before": {
+    "count": 71,
+    "sha256": "c4ce21322101baca79562bb01cf548648bf1366fd49a6ecfdadd42b003452b8d"
+  },
+  "after": {
+    "count": 73,
+    "sha256": "8e1fd406e6b42ca9048b9011ec64c9e6e3ffcf6b5ac9164075cc6cf18be0ab5d"
+  },
+  "exact_added_edges": [
+    [
+      "Summary",
+      "summary-user-attachment-1013-07:probe:bob-ep0-a238c14ddc78",
+      "SUMMARIZES",
+      "Event",
+      "68fa2ceb-0a44-5c99-8708-bcefaf8c04c9",
+      {
+        "created_at": "2026-10-13T15:23:21.902614+00:00"
+      }
+    ],
+    [
+      "Summary",
+      "summary-user-attachment-1013-07:probe:bob-ep0-a238c14ddc78",
+      "SUMMARIZES",
+      "Event",
+      "c4763c9e-327c-5fe1-bdde-174dbeabfbdb",
+      {
+        "created_at": "2026-10-13T15:23:21.902614+00:00"
+      }
+    ]
+  ],
+  "method": "Remove each pair of retained edge rows and recompute original canonical fingerprint; require exact pre-request hash."
+}

@@ -1,0 +1,1435 @@
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 20:44:16 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 20:44:18 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:44:18 [info     ] llm_client_initialized
+2026-10-13 20:44:21 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@5.0.0'] ontology_version=sha256:bc0d421693b2f8ae redis_host=localhost
+2026-10-13 20:44:23 [info     ] ontology_loaded                edge_types=37 event_types=39 intents=['completeness', 'general', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=22 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:bc0d421693b2f8ae
+2026-10-13 20:44:23 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 20:44:24 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 20:44:24 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 20:44:25 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 20:44:25 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 20:44:26 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 20:44:27 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:44:27 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:44:28 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:44:28 [info     ] consolidation_llm_client_initialized
+2026-10-13 20:44:28 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-13 20:44:28 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 20:44:29 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 20:44:29 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 20:44:30 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 20:44:31 [info     ] event_ingested                 event_id=7335d600-21a3-5b8c-961f-379d904be1f6 event_type=observation.input global_position=2026-10-13T15:14:30.998959000Z/000000/7335d600-21a3-5b8c-961f-379d904be1f6 request_id=c0b73bd5-1c27-4975-81c3-0bc3f0966087 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:44:31 [info     ] event_ingested                 event_id=2d945983-7f2f-5054-bb89-39c0ce309782 event_type=system.session_end global_position=2026-10-13T15:14:31.245775000Z/000000/2d945983-7f2f-5054-bb89-39c0ce309782 request_id=b96e8f14-6bff-4ba9-b020-ac9806ab1aea status=created
+2026-10-13 20:44:31 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:14:30.998959000Z/000000/7335d600-21a3-5b8c-961f-379d904be1f6 event_id=7335d600-21a3-5b8c-961f-379d904be1f6 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:44:31 [debug    ] event_enriched                 event_id=7335d600-21a3-5b8c-961f-379d904be1f6 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:44:36 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1013 20:44:38.332566 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(44, generation: 1)
+I1013 20:44:38.332680 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:44:38.332688 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 20:44:38.332694 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(35, generation: 1)
+I1013 20:44:38.332698 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:44:38.332718 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 20:44:38.333089 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:44:38.333331 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:44:38.333438 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:44:38.333599 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:44:38.333633 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:44:38.333639 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:44:38.333644 56803860 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6201.47it/s]
+2026-10-13 20:44:41 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 20:44:41 [info     ] event_ingested                 event_id=29e38d68-7751-5229-ad07-5f0f4c364d52 event_type=pdlc.change.created global_position=2026-10-13T15:14:41.928639000Z/000000/29e38d68-7751-5229-ad07-5f0f4c364d52 request_id=2d58f3e5-a1a7-45b9-839c-7a524a6ac214 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:44:41 [info     ] extraction_triggered           agent_id=alice entry_id=2026-10-13T15:14:31.245775000Z/000000/2d945983-7f2f-5054-bb89-39c0ce309782 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:44:42 [debug    ] event_embedding_stored         event_id=7335d600-21a3-5b8c-961f-379d904be1f6
+2026-10-13 20:44:42 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:14:31.245775000Z/000000/2d945983-7f2f-5054-bb89-39c0ce309782 event_id=2d945983-7f2f-5054-bb89-39c0ce309782 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:44:42 [debug    ] session_events_collected       event_count=3 session_id=user-attachment-1013-06:real:alice
+I1013 20:44:42.436044 56803213 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:44:42.444764 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(44, generation: 1)
+I1013 20:44:42.445052 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 20:44:42.445221 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 20:44:42.445273 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(35, generation: 1)
+I1013 20:44:42.445285 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 20:44:42.445296 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 20:44:42.445305 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:44:42.445316 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 20:44:42.445327 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1013 20:44:42.445337 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1013 20:44:42.445345 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 20:44:42.445353 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 20:44:42.445362 56804117 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 20:44:42.458330 56803213 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 20:44:42.466645 56804156 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1013 20:44:42.466725 56804156 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(35, generation: 1)
+I1013 20:44:42.466750 56804156 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 20:44:42.466754 56804156 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+2026-10-13 20:44:42 [debug    ] event_enriched                 event_id=2d945983-7f2f-5054-bb89-39c0ce309782 importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:44:42 [debug    ] event_embedding_stored         event_id=2d945983-7f2f-5054-bb89-39c0ce309782
+2026-10-13 20:44:43 [debug    ] event_enriched                 event_id=29e38d68-7751-5229-ad07-5f0f4c364d52 importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-13 20:44:43 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:14:41.928639000Z/000000/29e38d68-7751-5229-ad07-5f0f4c364d52 event_id=29e38d68-7751-5229-ad07-5f0f4c364d52 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:44:43 [debug    ] event_embedding_stored         event_id=29e38d68-7751-5229-ad07-5f0f4c364d52
+2026-10-13 20:44:44 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-13 20:44:44 [info     ] extraction_llm_success         entities=2 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=user-attachment-1013-06:real:alice skills=0
+2026-10-13 20:44:44 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12766.73it/s]
+2026-10-13 20:44:50 [info     ] consolidation_timer_fired
+2026-10-13 20:44:50 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 20:44:50 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 20:44:50 [info     ] consolidating_session          event_count=3 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:44:50 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-13 20:44:50 [info     ] pack_extraction_applied        edges_written=1 event_id=7335d600-21a3-5b8c-961f-379d904be1f6 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-13 20:44:50 [debug    ] entity_created                 entity_id=entity:Alice name=Alice
+2026-10-13 20:44:50 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:44:51 [debug    ] entity_created                 entity_id='entity:Rust development' name='Rust development'
+2026-10-13 20:44:52 [info     ] extraction_results_written     session_id=user-attachment-1013-06:real:alice user_entity_id=user:alice
+2026-10-13 20:44:52 [info     ] extraction_completed           entities=2 interests=0 preferences=0 session_id=user-attachment-1013-06:real:alice skills=0
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:44:55 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=1e67b973-dfc7-4092-be03-120611be6131
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12173.50it/s]
+2026-10-13 20:45:01 [info     ] session_consolidated           episode_summaries=1 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:45:02 [info     ] agent_summary_created          agent_id=alice sessions=1
+2026-10-13 20:45:02 [info     ] importance_recomputed_from_centrality updated_count=3
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 20:45:03 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 20:45:03 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 20:45:03 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 20:45:03 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 20:45:03 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:45:05 [info     ] app_stopped
+2026-10-13 20:45:08 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:45:08 [info     ] llm_client_initialized
+2026-10-13 20:45:11 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'user@1.2.0'] ontology_version=sha256:e861b87f989b1869 redis_host=localhost
+2026-10-13 20:45:14 [info     ] ontology_loaded                edge_types=20 event_types=23 intents=['beliefs', 'general', 'goals', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=11 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:e861b87f989b1869
+2026-10-13 20:45:14 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 20:45:15 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 20:45:16 [info     ] pending_drain_completed        group=assessment-projection
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 20:45:18 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 20:45:18 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 20:45:19 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 20:45:21 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:45:21 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:45:22 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:45:24 [info     ] consolidation_llm_client_initialized
+2026-10-13 20:45:24 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 20:45:24 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 20:45:24 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 20:45:25 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 20:45:27 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 20:45:27 [info     ] event_ingested                 event_id=162e1640-5947-50d1-8f27-6132f99feac9 event_type=observation.input global_position=2026-10-13T15:15:27.544543000Z/000000/162e1640-5947-50d1-8f27-6132f99feac9 request_id=e36f385c-9866-474f-ab56-e9ab1978b667 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:45:28 [info     ] event_ingested                 event_id=c803f36b-11ef-5ffd-8616-4785d435176d event_type=system.session_end global_position=2026-10-13T15:15:27.994927000Z/000000/c803f36b-11ef-5ffd-8616-4785d435176d request_id=afd19002-f33b-484b-9060-3feda6bc1c3d status=created
+2026-10-13 20:45:28 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 20:45:28 [debug    ] event_enriched                 event_id=162e1640-5947-50d1-8f27-6132f99feac9 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:45:28 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11932.75it/s]
+2026-10-13 20:45:33 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:15:27.544543000Z/000000/162e1640-5947-50d1-8f27-6132f99feac9 event_id=162e1640-5947-50d1-8f27-6132f99feac9 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:45:33 [debug    ] event_embedding_stored         event_id=162e1640-5947-50d1-8f27-6132f99feac9
+2026-10-13 20:45:34 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:45:34 [debug    ] event_enriched                 event_id=c803f36b-11ef-5ffd-8616-4785d435176d importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:45:34 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:15:27.994927000Z/000000/c803f36b-11ef-5ffd-8616-4785d435176d event_id=c803f36b-11ef-5ffd-8616-4785d435176d session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:45:34 [debug    ] event_embedding_stored         event_id=c803f36b-11ef-5ffd-8616-4785d435176d
+2026-10-13 20:45:34 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-13 20:45:43 [info     ] extraction_llm_success         entities=2 interests=1 model_id=gpt-5.2-2025-12-11 preferences=3 session_id=user-attachment-1013-06:real:alice skills=2
+2026-10-13 20:45:43 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 13174.75it/s]
+2026-10-13 20:45:48 [info     ] consolidation_timer_fired
+2026-10-13 20:45:48 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 20:45:49 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 20:45:49 [info     ] consolidating_session          event_count=2 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:45:49 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:45:49 [debug    ] entity_created                 entity_id=entity:Alice name=Alice
+2026-10-13 20:45:50 [debug    ] entity_created                 entity_id=entity:Rust name=Rust
+2026-10-13 20:45:51 [info     ] extraction_results_written     session_id=user-attachment-1013-06:real:alice user_entity_id=user:alice
+2026-10-13 20:45:51 [info     ] user_extraction_applied        event_id=c803f36b-11ef-5ffd-8616-4785d435176d outcome=applied session_id=user-attachment-1013-06:real:alice
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:45:54 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=cfba9f9b-70a6-4fc1-970a-4e66cb95287f
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12699.18it/s]
+2026-10-13 20:46:00 [info     ] session_consolidated           episode_summaries=1 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:46:01 [info     ] agent_summary_created          agent_id=alice sessions=1
+2026-10-13 20:46:01 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-13 20:46:04 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 20:46:05 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 20:46:05 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 20:46:05 [info     ] event_ingested                 event_id=c803f36b-11ef-5ffd-8616-4785d435176d event_type=system.session_end global_position=2026-10-13T15:15:27.994927000Z/000000/c803f36b-11ef-5ffd-8616-4785d435176d request_id=2507c10a-4bdc-42a8-a846-221790129c72 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 20:46:06 [info     ] event_ingested                 event_id=c98a5c5d-faf5-532f-a9b7-a6450b144463 event_type=observation.input global_position=2026-10-13T15:16:06.362831000Z/000000/c98a5c5d-faf5-532f-a9b7-a6450b144463 request_id=a428c2a4-5432-42d1-b3ef-145fb3530743 status=created
+2026-10-13 20:46:06 [info     ] event_ingested                 event_id=9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 event_type=system.session_end global_position=2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 request_id=726787e2-6ef9-4ad0-8d40-af9884d3b0c5 status=created
+2026-10-13 20:46:06 [debug    ] event_enriched                 event_id=c98a5c5d-faf5-532f-a9b7-a6450b144463 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:46:06 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:16:06.362831000Z/000000/c98a5c5d-faf5-532f-a9b7-a6450b144463 event_id=c98a5c5d-faf5-532f-a9b7-a6450b144463 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:07 [debug    ] event_embedding_stored         event_id=c98a5c5d-faf5-532f-a9b7-a6450b144463
+2026-10-13 20:46:07 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:46:07 [debug    ] event_enriched                 event_id=9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:46:07 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 event_id=9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:08 [debug    ] event_embedding_stored         event_id=9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309
+2026-10-13 20:46:08 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-13 20:46:09 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:alice user_entity_id=user:probe-alice
+2026-10-13 20:46:09 [error    ] message_processing_failed      consumer=extraction-1 entry_id=2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 group=assessment-extraction
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsumer.py:282 in run                                                         │
+│                                                                              │
+│   279 │   │   │   for delivery in deliveries:                                │
+│   280 │   │   │   │   entry_id = delivery.position                           │
+│   281 │   │   │   │   try:                                                   │
+│ ❱ 282 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   283 │   │   │   │   │   if not self.deferred_ack:                          │
+│   284 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   285 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-13T15:16:06.804319000Z/000000/9dcc05… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-13T15:16:06.804319000Z/000000/9dcc05… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-5… │ │
+│ │ loop_iteration = 66                                                      │ │
+│ │           self = <context_graph.worker.extraction.ExtractionConsumer     │ │
+│ │                  object at 0x30666daf0>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/ex │
+│ traction.py:118 in process_message                                           │
+│                                                                              │
+│   115 │   │   if self._user_extraction_store is not None:                    │
+│   116 │   │   │   trigger = Event.model_validate(doc, strict=False)          │
+│   117 │   │   │   if event_type == "system.session_end":                     │
+│ ❱ 118 │   │   │   │   await self._retry_transient(                           │
+│   119 │   │   │   │   │   partial(self._process_user_trigger, trigger), "use │
+│   120 │   │   │   │   )                                                      │
+│   121 │   │   │   elif event_type and not event_type.startswith("system.") a │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   agent_id = 'probe-alice'                                               │ │
+│ │       data = {'event_id': '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'}        │ │
+│ │        doc = {                                                           │ │
+│ │              │   'agent_id': 'probe-alice',                              │ │
+│ │              │   'ended_at': None,                                       │ │
+│ │              │   'event_id': '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',     │ │
+│ │              │   'event_type': 'system.session_end',                     │ │
+│ │              │   'global_position':                                      │ │
+│ │              '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-5abc-… │ │
+│ │              │   'importance_hint': None,                                │ │
+│ │              │   'occurred_at': '2026-10-13T15:16:06.037237Z',           │ │
+│ │              │   'parent_event_id': None,                                │ │
+│ │              │   'payload': {},                                          │ │
+│ │              │   'payload_ref': 'user-demo:probe-first-end',             │ │
+│ │              │   ... +6                                                  │ │
+│ │              }                                                           │ │
+│ │   entry_id = '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-5abc-… │ │
+│ │   event_id = '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'                      │ │
+│ │ event_type = 'system.session_end'                                        │ │
+│ │       self = <context_graph.worker.extraction.ExtractionConsumer object  │ │
+│ │              at 0x30666daf0>                                             │ │
+│ │ session_id = 'user-attachment-1013-06:probe:alice'                       │ │
+│ │    trigger = Event(                                                      │ │
+│ │              │   event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'),  │ │
+│ │              │   event_type='system.session_end',                        │ │
+│ │              │   occurred_at=datetime.datetime(2026, 10, 13, 15, 16, 6,  │ │
+│ │              37237, tzinfo=datetime.timezone.utc),                       │ │
+│ │              │   session_id='user-attachment-1013-06:probe:alice',       │ │
+│ │              │   agent_id='probe-alice',                                 │ │
+│ │              │   trace_id='user-attachment-1013-06',                     │ │
+│ │              │   payload_ref='user-demo:probe-first-end',                │ │
+│ │              │                                                           │ │
+│ │              global_position='2026-10-13T15:16:06.804319000Z/000000/9dc… │ │
+│ │              │   tool_name=None,                                         │ │
+│ │              │   parent_event_id=None,                                   │ │
+│ │              │   ended_at=None,                                          │ │
+│ │              │   status=None,                                            │ │
+│ │              │   schema_version=1,                                       │ │
+│ │              │   importance_hint=None                                    │ │
+│ │              )                                                           │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsumer.py:99 in _retry_transient                                             │
+│                                                                              │
+│    96 │   │   delay_ms = self._transient_backoff_ms                          │
+│    97 │   │   while True:                                                    │
+│    98 │   │   │   try:                                                       │
+│ ❱  99 │   │   │   │   return await operation()                               │
+│   100 │   │   │   except TRANSIENT_ERRORS as exc:                            │
+│   101 │   │   │   │   if self._stopped:                                      │
+│   102 │   │   │   │   │   raise                                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  delay_ms = 800                                                          │ │
+│ │ operation = functools.partial(<bound method                              │ │
+│ │             ExtractionConsumer._process_user_trigger of                  │ │
+│ │             <context_graph.worker.extraction.ExtractionConsumer object   │ │
+│ │             at 0x30666daf0>>,                                            │ │
+│ │             Event(event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'), │ │
+│ │             event_type='system.session_end',                             │ │
+│ │             occurred_at=datetime.datetime(2026, 10, 13, 15, 16, 6,       │ │
+│ │             37237, tzinfo=datetime.timezone.utc),                        │ │
+│ │             session_id='user-attachment-1013-06:probe:alice',            │ │
+│ │             agent_id='probe-alice', trace_id='user-attachment-1013-06',  │ │
+│ │             payload_ref='user-demo:probe-first-end',                     │ │
+│ │             global_position='2026-10-13T15:16:06.804319000Z/000000/9dcc… │ │
+│ │             tool_name=None, parent_event_id=None, ended_at=None,         │ │
+│ │             status=None, schema_version=1, importance_hint=None))        │ │
+│ │      self = <context_graph.worker.extraction.ExtractionConsumer object   │ │
+│ │             at 0x30666daf0>                                              │ │
+│ │      what = 'user_extraction'                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/ex │
+│ traction.py:276 in _process_user_trigger                                     │
+│                                                                              │
+│   273 │   │   │   receipt["input_event_ids"],                                │
+│   274 │   │   │   user_outputs=False,                                        │
+│   275 │   │   )                                                              │
+│ ❱ 276 │   │   outcome = await store.apply_user_extraction(trigger)           │
+│   277 │   │   log.info(                                                      │
+│   278 │   │   │   "user_extraction_applied",                                 │
+│   279 │   │   │   event_id=str(trigger.event_id),                            │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ applied_sources = set()                                                  │ │
+│ │       candidate = {                                                      │ │
+│ │                   │   'version': 'user-extraction-v1',                   │ │
+│ │                   │   'owner': 'user:probe-alice',                       │ │
+│ │                   │   'session_id':                                      │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   'trigger_event_id':                                │ │
+│ │                   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',                │ │
+│ │                   │   'source_position':                                 │ │
+│ │                   '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-… │ │
+│ │                   │   'input_event_ids': [                               │ │
+│ │                   │   │   'c98a5c5d-faf5-532f-a9b7-a6450b144463',        │ │
+│ │                   │   │   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'         │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'input_hash':                                      │ │
+│ │                   'ff5102430b019a26e9a0f43d31448a78eaa2a9bba6ee15a6cd0d… │ │
+│ │                   │   'effective_at':                                    │ │
+│ │                   '2026-10-13T15:16:06.037237+00:00',                    │ │
+│ │                   │   'result': {                                        │ │
+│ │                   │   │   'session_id':                                  │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'model_id': None,                              │ │
+│ │                   │   │   'prompt_version': None,                        │ │
+│ │                   │   │   'entities': [],                                │ │
+│ │                   │   │   'preferences': [                               │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'category': 'communication',           │ │
+│ │                   │   │   │   │   'key': 'answer-length',                │ │
+│ │                   │   │   │   │   'polarity': 'positive',                │ │
+│ │                   │   │   │   │   'strength': 0.8,                       │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'context': 'support',                  │ │
+│ │                   │   │   │   │   'about_entity': None,                  │ │
+│ │                   │   │   │   │   'source_quote': 'short answers',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   ... +4                                 │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'skills': [                                    │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'name': 'Python',                      │ │
+│ │                   │   │   │   │   'category': 'programming_language',    │ │
+│ │                   │   │   │   │   'proficiency': 0.8,                    │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'declared',                  │ │
+│ │                   │   │   │   │   'source_quote': 'I know Python',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'skill_id':                            │ │
+│ │                   'skill:287f5389d12cd16fc9b7646efa6b54625f03d223c531ce… │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'interests': [                                 │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'entity_name': 'RetryTopic',           │ │
+│ │                   │   │   │   │   'entity_type': 'concept',              │ │
+│ │                   │   │   │   │   'weight': 0.8,                         │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'source_quote': 'interested in         │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'persona': None                                │ │
+│ │                   │   },                                                 │ │
+│ │                   │   'corrections': [],                                 │ │
+│ │                   │   ... +2                                             │ │
+│ │                   }                                                      │ │
+│ │       documents = [                                                      │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'ended_at': None,                              │ │
+│ │                   │   │   'event_id':                                    │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463',                │ │
+│ │                   │   │   'event_type': 'observation.input',             │ │
+│ │                   │   │   'global_position':                             │ │
+│ │                   '2026-10-13T15:16:06.362831000Z/000000/c98a5c5d-faf5-… │ │
+│ │                   │   │   'importance_hint': None,                       │ │
+│ │                   │   │   'occurred_at': '2026-10-13T15:16:06.037224Z',  │ │
+│ │                   │   │   'parent_event_id': None,                       │ │
+│ │                   │   │   'payload': {                                   │ │
+│ │                   │   │   │   'content': 'I prefer short answers. I know │ │
+│ │                   Python. I am interested in RetryTopic development'+1,  │ │
+│ │                   │   │   │   'probe_result': {                          │ │
+│ │                   │   │   │   │   'interests': [                         │ │
+│ │                   │   │   │   │   │   {                                  │ │
+│ │                   │   │   │   │   │   │   'entity_name': 'RetryTopic',   │ │
+│ │                   │   │   │   │   │   │   'entity_type': 'concept',      │ │
+│ │                   │   │   │   │   │   │   'source': 'explicit',          │ │
+│ │                   │   │   │   │   │   │   'source_quote': 'interested in │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   │   │   'weight': 0.8                  │ │
+│ │                   │   │   │   │   │   }                                  │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'preferences': [                       │ │
+│ │                   │   │   │   │   │   {                                  │ │
+│ │                   │   │   │   │   │   │   'category': 'communication',   │ │
+│ │                   │   │   │   │   │   │   'confidence': 0.9,             │ │
+│ │                   │   │   │   │   │   │   'context': 'support',          │ │
+│ │                   │   │   │   │   │   │   'key': 'answer-length',        │ │
+│ │                   │   │   │   │   │   │   'polarity': 'positive',        │ │
+│ │                   │   │   │   │   │   │   'source': 'explicit',          │ │
+│ │                   │   │   │   │   │   │   'source_quote': 'short         │ │
+│ │                   answers',                                              │ │
+│ │                   │   │   │   │   │   │   'strength': 0.8                │ │
+│ │                   │   │   │   │   │   }                                  │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'skills': [                            │ │
+│ │                   │   │   │   │   │   {                                  │ │
+│ │                   │   │   │   │   │   │   'category':                    │ │
+│ │                   'programming_language',                                │ │
+│ │                   │   │   │   │   │   │   'confidence': 0.9,             │ │
+│ │                   │   │   │   │   │   │   'name': 'Python',              │ │
+│ │                   │   │   │   │   │   │   'proficiency': 0.8,            │ │
+│ │                   │   │   │   │   │   │   'source': 'declared',          │ │
+│ │                   │   │   │   │   │   │   'source_quote': 'I know        │ │
+│ │                   Python'                                                │ │
+│ │                   │   │   │   │   │   }                                  │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   },                                             │ │
+│ │                   │   │   'payload_ref': 'user-demo:probe-first',        │ │
+│ │                   │   │   ... +7                                         │ │
+│ │                   │   },                                                 │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'ended_at': None,                              │ │
+│ │                   │   │   'event_id':                                    │ │
+│ │                   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',                │ │
+│ │                   │   │   'event_type': 'system.session_end',            │ │
+│ │                   │   │   'global_position':                             │ │
+│ │                   '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-… │ │
+│ │                   │   │   'importance_hint': None,                       │ │
+│ │                   │   │   'occurred_at': '2026-10-13T15:16:06.037237Z',  │ │
+│ │                   │   │   'parent_event_id': None,                       │ │
+│ │                   │   │   'payload': {},                                 │ │
+│ │                   │   │   'payload_ref': 'user-demo:probe-first-end',    │ │
+│ │                   │   │   ... +6                                         │ │
+│ │                   │   }                                                  │ │
+│ │                   ]                                                      │ │
+│ │           event = Event(                                                 │ │
+│ │                   │                                                      │ │
+│ │                   event_id=UUID('c98a5c5d-faf5-532f-a9b7-a6450b144463'), │ │
+│ │                   │   event_type='observation.input',                    │ │
+│ │                   │   occurred_at=datetime.datetime(2026, 10, 13, 15,    │ │
+│ │                   16, 6, 37224, tzinfo=datetime.timezone.utc),           │ │
+│ │                   │   session_id='user-attachment-1013-06:probe:alice',  │ │
+│ │                   │   agent_id='probe-alice',                            │ │
+│ │                   │   trace_id='user-attachment-1013-06',                │ │
+│ │                   │   payload_ref='user-demo:probe-first',               │ │
+│ │                   │                                                      │ │
+│ │                   global_position='2026-10-13T15:16:06.362831000Z/00000… │ │
+│ │                   │   tool_name=None,                                    │ │
+│ │                   │   parent_event_id=None,                              │ │
+│ │                   │   ended_at=None,                                     │ │
+│ │                   │   status=None,                                       │ │
+│ │                   │   schema_version=1,                                  │ │
+│ │                   │   importance_hint=None                               │ │
+│ │                   )                                                      │ │
+│ │          events = [                                                      │ │
+│ │                   │   Event(                                             │ │
+│ │                   │   │                                                  │ │
+│ │                   event_id=UUID('c98a5c5d-faf5-532f-a9b7-a6450b144463'), │ │
+│ │                   │   │   event_type='observation.input',                │ │
+│ │                   │   │   occurred_at=datetime.datetime(2026, 10, 13,    │ │
+│ │                   15, 16, 6, 37224, tzinfo=datetime.timezone.utc),       │ │
+│ │                   │   │                                                  │ │
+│ │                   session_id='user-attachment-1013-06:probe:alice',      │ │
+│ │                   │   │   agent_id='probe-alice',                        │ │
+│ │                   │   │   trace_id='user-attachment-1013-06',            │ │
+│ │                   │   │   payload_ref='user-demo:probe-first',           │ │
+│ │                   │   │                                                  │ │
+│ │                   global_position='2026-10-13T15:16:06.362831000Z/00000… │ │
+│ │                   │   │   tool_name=None,                                │ │
+│ │                   │   │   parent_event_id=None,                          │ │
+│ │                   │   │   ended_at=None,                                 │ │
+│ │                   │   │   status=None,                                   │ │
+│ │                   │   │   schema_version=1,                              │ │
+│ │                   │   │   importance_hint=None                           │ │
+│ │                   │   ),                                                 │ │
+│ │                   │   Event(                                             │ │
+│ │                   │   │                                                  │ │
+│ │                   event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'), │ │
+│ │                   │   │   event_type='system.session_end',               │ │
+│ │                   │   │   occurred_at=datetime.datetime(2026, 10, 13,    │ │
+│ │                   15, 16, 6, 37237, tzinfo=datetime.timezone.utc),       │ │
+│ │                   │   │                                                  │ │
+│ │                   session_id='user-attachment-1013-06:probe:alice',      │ │
+│ │                   │   │   agent_id='probe-alice',                        │ │
+│ │                   │   │   trace_id='user-attachment-1013-06',            │ │
+│ │                   │   │   payload_ref='user-demo:probe-first-end',       │ │
+│ │                   │   │                                                  │ │
+│ │                   global_position='2026-10-13T15:16:06.804319000Z/00000… │ │
+│ │                   │   │   tool_name=None,                                │ │
+│ │                   │   │   parent_event_id=None,                          │ │
+│ │                   │   │   ended_at=None,                                 │ │
+│ │                   │   │   status=None,                                   │ │
+│ │                   │   │   schema_version=1,                              │ │
+│ │                   │   │   importance_hint=None                           │ │
+│ │                   │   )                                                  │ │
+│ │                   ]                                                      │ │
+│ │        interval = 50                                                     │ │
+│ │             raw = {                                                      │ │
+│ │                   │   'interests': [                                     │ │
+│ │                   │   │   {                                              │ │
+│ │                   │   │   │   'entity_name': 'RetryTopic',               │ │
+│ │                   │   │   │   'entity_type': 'concept',                  │ │
+│ │                   │   │   │   'source': 'explicit',                      │ │
+│ │                   │   │   │   'source_quote': 'interested in RetryTopic  │ │
+│ │                   development',                                          │ │
+│ │                   │   │   │   'weight': 0.8                              │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'preferences': [                                   │ │
+│ │                   │   │   {                                              │ │
+│ │                   │   │   │   'category': 'communication',               │ │
+│ │                   │   │   │   'confidence': 0.9,                         │ │
+│ │                   │   │   │   'context': 'support',                      │ │
+│ │                   │   │   │   'key': 'answer-length',                    │ │
+│ │                   │   │   │   'polarity': 'positive',                    │ │
+│ │                   │   │   │   'source': 'explicit',                      │ │
+│ │                   │   │   │   'source_quote': 'short answers',           │ │
+│ │                   │   │   │   'strength': 0.8                            │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'skills': [                                        │ │
+│ │                   │   │   {                                              │ │
+│ │                   │   │   │   'category': 'programming_language',        │ │
+│ │                   │   │   │   'confidence': 0.9,                         │ │
+│ │                   │   │   │   'name': 'Python',                          │ │
+│ │                   │   │   │   'proficiency': 0.8,                        │ │
+│ │                   │   │   │   'source': 'declared',                      │ │
+│ │                   │   │   │   'source_quote': 'I know Python'            │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   ]                                                  │ │
+│ │                   }                                                      │ │
+│ │         receipt = {                                                      │ │
+│ │                   │   'version': 'user-extraction-v1',                   │ │
+│ │                   │   'owner': 'user:probe-alice',                       │ │
+│ │                   │   'session_id':                                      │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   'trigger_event_id':                                │ │
+│ │                   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',                │ │
+│ │                   │   'source_position':                                 │ │
+│ │                   '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-… │ │
+│ │                   │   'input_event_ids': [                               │ │
+│ │                   │   │   'c98a5c5d-faf5-532f-a9b7-a6450b144463',        │ │
+│ │                   │   │   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'         │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'input_hash':                                      │ │
+│ │                   'ff5102430b019a26e9a0f43d31448a78eaa2a9bba6ee15a6cd0d… │ │
+│ │                   │   'effective_at':                                    │ │
+│ │                   '2026-10-13T15:16:06.037237+00:00',                    │ │
+│ │                   │   'result': {                                        │ │
+│ │                   │   │   'session_id':                                  │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'model_id': None,                              │ │
+│ │                   │   │   'prompt_version': None,                        │ │
+│ │                   │   │   'entities': [],                                │ │
+│ │                   │   │   'preferences': [                               │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'category': 'communication',           │ │
+│ │                   │   │   │   │   'key': 'answer-length',                │ │
+│ │                   │   │   │   │   'polarity': 'positive',                │ │
+│ │                   │   │   │   │   'strength': 0.8,                       │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'context': 'support',                  │ │
+│ │                   │   │   │   │   'about_entity': None,                  │ │
+│ │                   │   │   │   │   'source_quote': 'short answers',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   ... +4                                 │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'skills': [                                    │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'name': 'Python',                      │ │
+│ │                   │   │   │   │   'category': 'programming_language',    │ │
+│ │                   │   │   │   │   'proficiency': 0.8,                    │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'declared',                  │ │
+│ │                   │   │   │   │   'source_quote': 'I know Python',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'skill_id':                            │ │
+│ │                   'skill:287f5389d12cd16fc9b7646efa6b54625f03d223c531ce… │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'interests': [                                 │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'entity_name': 'RetryTopic',           │ │
+│ │                   │   │   │   │   'entity_type': 'concept',              │ │
+│ │                   │   │   │   │   'weight': 0.8,                         │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'source_quote': 'interested in         │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'persona': None                                │ │
+│ │                   │   },                                                 │ │
+│ │                   │   'corrections': [],                                 │ │
+│ │                   │   ... +2                                             │ │
+│ │                   }                                                      │ │
+│ │            self = <context_graph.worker.extraction.ExtractionConsumer    │ │
+│ │                   object at 0x30666daf0>                                 │ │
+│ │           store = <__main__.InterruptApply object at 0x306bdaa80>        │ │
+│ │         trigger = Event(                                                 │ │
+│ │                   │                                                      │ │
+│ │                   event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'), │ │
+│ │                   │   event_type='system.session_end',                   │ │
+│ │                   │   occurred_at=datetime.datetime(2026, 10, 13, 15,    │ │
+│ │                   16, 6, 37237, tzinfo=datetime.timezone.utc),           │ │
+│ │                   │   session_id='user-attachment-1013-06:probe:alice',  │ │
+│ │                   │   agent_id='probe-alice',                            │ │
+│ │                   │   trace_id='user-attachment-1013-06',                │ │
+│ │                   │   payload_ref='user-demo:probe-first-end',           │ │
+│ │                   │                                                      │ │
+│ │                   global_position='2026-10-13T15:16:06.804319000Z/00000… │ │
+│ │                   │   tool_name=None,                                    │ │
+│ │                   │   parent_event_id=None,                              │ │
+│ │                   │   ended_at=None,                                     │ │
+│ │                   │   status=None,                                       │ │
+│ │                   │   schema_version=1,                                  │ │
+│ │                   │   importance_hint=None                               │ │
+│ │                   )                                                      │ │
+│ │           turns = 1                                                      │ │
+│ │          window = None                                                   │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachm │
+│ ent_demo.py:121 in apply_user_extraction                                     │
+│                                                                              │
+│    118 │   │   mode = self.faults.pop(key, None)                             │
+│    119 │   │   if mode == "before":                                          │
+│    120 │   │   │   self.hits[key] = mode                                     │
+│ ❱  121 │   │   │   raise RuntimeError("controlled interruption after prepare │
+│    122 │   │   result = await self.actual.apply_user_extraction(trigger)     │
+│    123 │   │   if mode == "after":                                           │
+│    124 │   │   │   self.hits[key] = mode                                     │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     key = '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'                         │ │
+│ │    mode = 'before'                                                       │ │
+│ │    self = <__main__.InterruptApply object at 0x306bdaa80>                │ │
+│ │ trigger = Event(                                                         │ │
+│ │           │   event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'),     │ │
+│ │           │   event_type='system.session_end',                           │ │
+│ │           │   occurred_at=datetime.datetime(2026, 10, 13, 15, 16, 6,     │ │
+│ │           37237, tzinfo=datetime.timezone.utc),                          │ │
+│ │           │   session_id='user-attachment-1013-06:probe:alice',          │ │
+│ │           │   agent_id='probe-alice',                                    │ │
+│ │           │   trace_id='user-attachment-1013-06',                        │ │
+│ │           │   payload_ref='user-demo:probe-first-end',                   │ │
+│ │           │                                                              │ │
+│ │           global_position='2026-10-13T15:16:06.804319000Z/000000/9dcc05… │ │
+│ │           │   tool_name=None,                                            │ │
+│ │           │   parent_event_id=None,                                      │ │
+│ │           │   ended_at=None,                                             │ │
+│ │           │   status=None,                                               │ │
+│ │           │   schema_version=1,                                          │ │
+│ │           │   importance_hint=None                                       │ │
+│ │           )                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: controlled interruption after prepare, before apply
+
+2026-10-13 20:46:10 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:46:13 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:46:14 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:46:15 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:alice user_entity_id=user:probe-alice
+2026-10-13 20:46:15 [info     ] user_extraction_applied        event_id=9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309 outcome=applied session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:16 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:46:17 [info     ] event_ingested                 event_id=f61d3062-06f4-580e-bf63-2eb25e0461c2 event_type=system.session_end global_position=2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-580e-bf63-2eb25e0461c2 request_id=87367e1b-92f3-45a5-99a8-db823b3e8fbe status=created
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 20:46:17 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:46:17 [debug    ] event_enriched                 event_id=f61d3062-06f4-580e-bf63-2eb25e0461c2 importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:46:17 [debug    ] event_embedding_stored         event_id=f61d3062-06f4-580e-bf63-2eb25e0461c2
+2026-10-13 20:46:17 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-13 20:46:17 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-580e-bf63-2eb25e0461c2 event_id=f61d3062-06f4-580e-bf63-2eb25e0461c2 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:19 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:alice user_entity_id=user:probe-alice
+2026-10-13 20:46:19 [error    ] message_processing_failed      consumer=extraction-1 entry_id=2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-580e-bf63-2eb25e0461c2 group=assessment-extraction
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsumer.py:282 in run                                                         │
+│                                                                              │
+│   279 │   │   │   for delivery in deliveries:                                │
+│   280 │   │   │   │   entry_id = delivery.position                           │
+│   281 │   │   │   │   try:                                                   │
+│ ❱ 282 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   283 │   │   │   │   │   if not self.deferred_ack:                          │
+│   284 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   285 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-13T15:16:17.093295000Z/000000/f61d30… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  'f61d3062-06f4-580e-bf63-2eb25e0461c2'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-13T15:16:17.093295000Z/000000/f61d30… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  'f61d3062-06f4-580e-bf63-2eb25e0461c2'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-5… │ │
+│ │ loop_iteration = 5                                                       │ │
+│ │           self = <context_graph.worker.extraction.ExtractionConsumer     │ │
+│ │                  object at 0x306888830>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/ex │
+│ traction.py:118 in process_message                                           │
+│                                                                              │
+│   115 │   │   if self._user_extraction_store is not None:                    │
+│   116 │   │   │   trigger = Event.model_validate(doc, strict=False)          │
+│   117 │   │   │   if event_type == "system.session_end":                     │
+│ ❱ 118 │   │   │   │   await self._retry_transient(                           │
+│   119 │   │   │   │   │   partial(self._process_user_trigger, trigger), "use │
+│   120 │   │   │   │   )                                                      │
+│   121 │   │   │   elif event_type and not event_type.startswith("system.") a │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   agent_id = 'probe-alice'                                               │ │
+│ │       data = {'event_id': 'f61d3062-06f4-580e-bf63-2eb25e0461c2'}        │ │
+│ │        doc = {                                                           │ │
+│ │              │   'agent_id': 'probe-alice',                              │ │
+│ │              │   'ended_at': None,                                       │ │
+│ │              │   'event_id': 'f61d3062-06f4-580e-bf63-2eb25e0461c2',     │ │
+│ │              │   'event_type': 'system.session_end',                     │ │
+│ │              │   'global_position':                                      │ │
+│ │              '2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-580e-… │ │
+│ │              │   'importance_hint': None,                                │ │
+│ │              │   'occurred_at': '2026-10-13T15:16:16.726115Z',           │ │
+│ │              │   'parent_event_id': None,                                │ │
+│ │              │   'payload': {},                                          │ │
+│ │              │   'payload_ref': 'user-demo:overlap-end',                 │ │
+│ │              │   ... +6                                                  │ │
+│ │              }                                                           │ │
+│ │   entry_id = '2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-580e-… │ │
+│ │   event_id = 'f61d3062-06f4-580e-bf63-2eb25e0461c2'                      │ │
+│ │ event_type = 'system.session_end'                                        │ │
+│ │       self = <context_graph.worker.extraction.ExtractionConsumer object  │ │
+│ │              at 0x306888830>                                             │ │
+│ │ session_id = 'user-attachment-1013-06:probe:alice'                       │ │
+│ │    trigger = Event(                                                      │ │
+│ │              │   event_id=UUID('f61d3062-06f4-580e-bf63-2eb25e0461c2'),  │ │
+│ │              │   event_type='system.session_end',                        │ │
+│ │              │   occurred_at=datetime.datetime(2026, 10, 13, 15, 16, 16, │ │
+│ │              726115, tzinfo=datetime.timezone.utc),                      │ │
+│ │              │   session_id='user-attachment-1013-06:probe:alice',       │ │
+│ │              │   agent_id='probe-alice',                                 │ │
+│ │              │   trace_id='user-attachment-1013-06',                     │ │
+│ │              │   payload_ref='user-demo:overlap-end',                    │ │
+│ │              │                                                           │ │
+│ │              global_position='2026-10-13T15:16:17.093295000Z/000000/f61… │ │
+│ │              │   tool_name=None,                                         │ │
+│ │              │   parent_event_id=None,                                   │ │
+│ │              │   ended_at=None,                                          │ │
+│ │              │   status=None,                                            │ │
+│ │              │   schema_version=1,                                       │ │
+│ │              │   importance_hint=None                                    │ │
+│ │              )                                                           │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsumer.py:99 in _retry_transient                                             │
+│                                                                              │
+│    96 │   │   delay_ms = self._transient_backoff_ms                          │
+│    97 │   │   while True:                                                    │
+│    98 │   │   │   try:                                                       │
+│ ❱  99 │   │   │   │   return await operation()                               │
+│   100 │   │   │   except TRANSIENT_ERRORS as exc:                            │
+│   101 │   │   │   │   if self._stopped:                                      │
+│   102 │   │   │   │   │   raise                                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  delay_ms = 800                                                          │ │
+│ │ operation = functools.partial(<bound method                              │ │
+│ │             ExtractionConsumer._process_user_trigger of                  │ │
+│ │             <context_graph.worker.extraction.ExtractionConsumer object   │ │
+│ │             at 0x306888830>>,                                            │ │
+│ │             Event(event_id=UUID('f61d3062-06f4-580e-bf63-2eb25e0461c2'), │ │
+│ │             event_type='system.session_end',                             │ │
+│ │             occurred_at=datetime.datetime(2026, 10, 13, 15, 16, 16,      │ │
+│ │             726115, tzinfo=datetime.timezone.utc),                       │ │
+│ │             session_id='user-attachment-1013-06:probe:alice',            │ │
+│ │             agent_id='probe-alice', trace_id='user-attachment-1013-06',  │ │
+│ │             payload_ref='user-demo:overlap-end',                         │ │
+│ │             global_position='2026-10-13T15:16:17.093295000Z/000000/f61d… │ │
+│ │             tool_name=None, parent_event_id=None, ended_at=None,         │ │
+│ │             status=None, schema_version=1, importance_hint=None))        │ │
+│ │      self = <context_graph.worker.extraction.ExtractionConsumer object   │ │
+│ │             at 0x306888830>                                              │ │
+│ │      what = 'user_extraction'                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/ex │
+│ traction.py:276 in _process_user_trigger                                     │
+│                                                                              │
+│   273 │   │   │   receipt["input_event_ids"],                                │
+│   274 │   │   │   user_outputs=False,                                        │
+│   275 │   │   )                                                              │
+│ ❱ 276 │   │   outcome = await store.apply_user_extraction(trigger)           │
+│   277 │   │   log.info(                                                      │
+│   278 │   │   │   "user_extraction_applied",                                 │
+│   279 │   │   │   event_id=str(trigger.event_id),                            │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ applied_sources = set()                                                  │ │
+│ │       candidate = {                                                      │ │
+│ │                   │   'version': 'user-extraction-v1',                   │ │
+│ │                   │   'owner': 'user:probe-alice',                       │ │
+│ │                   │   'session_id':                                      │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   'trigger_event_id':                                │ │
+│ │                   'f61d3062-06f4-580e-bf63-2eb25e0461c2',                │ │
+│ │                   │   'source_position':                                 │ │
+│ │                   '2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-… │ │
+│ │                   │   'input_event_ids': [                               │ │
+│ │                   │   │   'c98a5c5d-faf5-532f-a9b7-a6450b144463',        │ │
+│ │                   │   │   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',        │ │
+│ │                   │   │   'f61d3062-06f4-580e-bf63-2eb25e0461c2'         │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'input_hash':                                      │ │
+│ │                   '85d5c6333d64f3edfc0381722f45b6a05202aeaf730fffd72eb9… │ │
+│ │                   │   'effective_at':                                    │ │
+│ │                   '2026-10-13T15:16:16.726115+00:00',                    │ │
+│ │                   │   'result': {                                        │ │
+│ │                   │   │   'session_id':                                  │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'model_id': None,                              │ │
+│ │                   │   │   'prompt_version': None,                        │ │
+│ │                   │   │   'entities': [],                                │ │
+│ │                   │   │   'preferences': [                               │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'category': 'communication',           │ │
+│ │                   │   │   │   │   'key': 'answer-length',                │ │
+│ │                   │   │   │   │   'polarity': 'positive',                │ │
+│ │                   │   │   │   │   'strength': 0.8,                       │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'context': 'support',                  │ │
+│ │                   │   │   │   │   'about_entity': None,                  │ │
+│ │                   │   │   │   │   'source_quote': 'short answers',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   ... +4                                 │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'skills': [                                    │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'name': 'Python',                      │ │
+│ │                   │   │   │   │   'category': 'programming_language',    │ │
+│ │                   │   │   │   │   'proficiency': 0.8,                    │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'declared',                  │ │
+│ │                   │   │   │   │   'source_quote': 'I know Python',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'skill_id':                            │ │
+│ │                   'skill:287f5389d12cd16fc9b7646efa6b54625f03d223c531ce… │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'interests': [                                 │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'entity_name': 'RetryTopic',           │ │
+│ │                   │   │   │   │   'entity_type': 'concept',              │ │
+│ │                   │   │   │   │   'weight': 0.8,                         │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'source_quote': 'interested in         │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'persona': None                                │ │
+│ │                   │   },                                                 │ │
+│ │                   │   'corrections': [],                                 │ │
+│ │                   │   ... +2                                             │ │
+│ │                   }                                                      │ │
+│ │       documents = [                                                      │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'ended_at': None,                              │ │
+│ │                   │   │   'event_id':                                    │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463',                │ │
+│ │                   │   │   'event_type': 'observation.input',             │ │
+│ │                   │   │   'global_position':                             │ │
+│ │                   '2026-10-13T15:16:06.362831000Z/000000/c98a5c5d-faf5-… │ │
+│ │                   │   │   'importance_hint': None,                       │ │
+│ │                   │   │   'occurred_at': '2026-10-13T15:16:06.037224Z',  │ │
+│ │                   │   │   'parent_event_id': None,                       │ │
+│ │                   │   │   'payload': {                                   │ │
+│ │                   │   │   │   'content': 'I prefer short answers. I know │ │
+│ │                   Python. I am interested in RetryTopic development'+1,  │ │
+│ │                   │   │   │   'probe_result': {                          │ │
+│ │                   │   │   │   │   'interests': [                         │ │
+│ │                   │   │   │   │   │   {                                  │ │
+│ │                   │   │   │   │   │   │   'entity_name': 'RetryTopic',   │ │
+│ │                   │   │   │   │   │   │   'entity_type': 'concept',      │ │
+│ │                   │   │   │   │   │   │   'source': 'explicit',          │ │
+│ │                   │   │   │   │   │   │   'source_quote': 'interested in │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   │   │   'weight': 0.8                  │ │
+│ │                   │   │   │   │   │   }                                  │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'preferences': [                       │ │
+│ │                   │   │   │   │   │   {                                  │ │
+│ │                   │   │   │   │   │   │   'category': 'communication',   │ │
+│ │                   │   │   │   │   │   │   'confidence': 0.9,             │ │
+│ │                   │   │   │   │   │   │   'context': 'support',          │ │
+│ │                   │   │   │   │   │   │   'key': 'answer-length',        │ │
+│ │                   │   │   │   │   │   │   'polarity': 'positive',        │ │
+│ │                   │   │   │   │   │   │   'source': 'explicit',          │ │
+│ │                   │   │   │   │   │   │   'source_quote': 'short         │ │
+│ │                   answers',                                              │ │
+│ │                   │   │   │   │   │   │   'strength': 0.8                │ │
+│ │                   │   │   │   │   │   }                                  │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'skills': [                            │ │
+│ │                   │   │   │   │   │   {                                  │ │
+│ │                   │   │   │   │   │   │   'category':                    │ │
+│ │                   'programming_language',                                │ │
+│ │                   │   │   │   │   │   │   'confidence': 0.9,             │ │
+│ │                   │   │   │   │   │   │   'name': 'Python',              │ │
+│ │                   │   │   │   │   │   │   'proficiency': 0.8,            │ │
+│ │                   │   │   │   │   │   │   'source': 'declared',          │ │
+│ │                   │   │   │   │   │   │   'source_quote': 'I know        │ │
+│ │                   Python'                                                │ │
+│ │                   │   │   │   │   │   }                                  │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   },                                             │ │
+│ │                   │   │   'payload_ref': 'user-demo:probe-first',        │ │
+│ │                   │   │   ... +7                                         │ │
+│ │                   │   },                                                 │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'ended_at': None,                              │ │
+│ │                   │   │   'event_id':                                    │ │
+│ │                   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',                │ │
+│ │                   │   │   'event_type': 'system.session_end',            │ │
+│ │                   │   │   'global_position':                             │ │
+│ │                   '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-… │ │
+│ │                   │   │   'importance_hint': None,                       │ │
+│ │                   │   │   'occurred_at': '2026-10-13T15:16:06.037237Z',  │ │
+│ │                   │   │   'parent_event_id': None,                       │ │
+│ │                   │   │   'payload': {},                                 │ │
+│ │                   │   │   'payload_ref': 'user-demo:probe-first-end',    │ │
+│ │                   │   │   ... +6                                         │ │
+│ │                   │   },                                                 │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'ended_at': None,                              │ │
+│ │                   │   │   'event_id':                                    │ │
+│ │                   'f61d3062-06f4-580e-bf63-2eb25e0461c2',                │ │
+│ │                   │   │   'event_type': 'system.session_end',            │ │
+│ │                   │   │   'global_position':                             │ │
+│ │                   '2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-… │ │
+│ │                   │   │   'importance_hint': None,                       │ │
+│ │                   │   │   'occurred_at': '2026-10-13T15:16:16.726115Z',  │ │
+│ │                   │   │   'parent_event_id': None,                       │ │
+│ │                   │   │   'payload': {},                                 │ │
+│ │                   │   │   'payload_ref': 'user-demo:overlap-end',        │ │
+│ │                   │   │   ... +6                                         │ │
+│ │                   │   }                                                  │ │
+│ │                   ]                                                      │ │
+│ │           event = Event(                                                 │ │
+│ │                   │                                                      │ │
+│ │                   event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'), │ │
+│ │                   │   event_type='system.session_end',                   │ │
+│ │                   │   occurred_at=datetime.datetime(2026, 10, 13, 15,    │ │
+│ │                   16, 6, 37237, tzinfo=datetime.timezone.utc),           │ │
+│ │                   │   session_id='user-attachment-1013-06:probe:alice',  │ │
+│ │                   │   agent_id='probe-alice',                            │ │
+│ │                   │   trace_id='user-attachment-1013-06',                │ │
+│ │                   │   payload_ref='user-demo:probe-first-end',           │ │
+│ │                   │                                                      │ │
+│ │                   global_position='2026-10-13T15:16:06.804319000Z/00000… │ │
+│ │                   │   tool_name=None,                                    │ │
+│ │                   │   parent_event_id=None,                              │ │
+│ │                   │   ended_at=None,                                     │ │
+│ │                   │   status=None,                                       │ │
+│ │                   │   schema_version=1,                                  │ │
+│ │                   │   importance_hint=None                               │ │
+│ │                   )                                                      │ │
+│ │          events = [                                                      │ │
+│ │                   │   Event(                                             │ │
+│ │                   │   │                                                  │ │
+│ │                   event_id=UUID('c98a5c5d-faf5-532f-a9b7-a6450b144463'), │ │
+│ │                   │   │   event_type='observation.input',                │ │
+│ │                   │   │   occurred_at=datetime.datetime(2026, 10, 13,    │ │
+│ │                   15, 16, 6, 37224, tzinfo=datetime.timezone.utc),       │ │
+│ │                   │   │                                                  │ │
+│ │                   session_id='user-attachment-1013-06:probe:alice',      │ │
+│ │                   │   │   agent_id='probe-alice',                        │ │
+│ │                   │   │   trace_id='user-attachment-1013-06',            │ │
+│ │                   │   │   payload_ref='user-demo:probe-first',           │ │
+│ │                   │   │                                                  │ │
+│ │                   global_position='2026-10-13T15:16:06.362831000Z/00000… │ │
+│ │                   │   │   tool_name=None,                                │ │
+│ │                   │   │   parent_event_id=None,                          │ │
+│ │                   │   │   ended_at=None,                                 │ │
+│ │                   │   │   status=None,                                   │ │
+│ │                   │   │   schema_version=1,                              │ │
+│ │                   │   │   importance_hint=None                           │ │
+│ │                   │   ),                                                 │ │
+│ │                   │   Event(                                             │ │
+│ │                   │   │                                                  │ │
+│ │                   event_id=UUID('9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'), │ │
+│ │                   │   │   event_type='system.session_end',               │ │
+│ │                   │   │   occurred_at=datetime.datetime(2026, 10, 13,    │ │
+│ │                   15, 16, 6, 37237, tzinfo=datetime.timezone.utc),       │ │
+│ │                   │   │                                                  │ │
+│ │                   session_id='user-attachment-1013-06:probe:alice',      │ │
+│ │                   │   │   agent_id='probe-alice',                        │ │
+│ │                   │   │   trace_id='user-attachment-1013-06',            │ │
+│ │                   │   │   payload_ref='user-demo:probe-first-end',       │ │
+│ │                   │   │                                                  │ │
+│ │                   global_position='2026-10-13T15:16:06.804319000Z/00000… │ │
+│ │                   │   │   tool_name=None,                                │ │
+│ │                   │   │   parent_event_id=None,                          │ │
+│ │                   │   │   ended_at=None,                                 │ │
+│ │                   │   │   status=None,                                   │ │
+│ │                   │   │   schema_version=1,                              │ │
+│ │                   │   │   importance_hint=None                           │ │
+│ │                   │   ),                                                 │ │
+│ │                   │   Event(                                             │ │
+│ │                   │   │                                                  │ │
+│ │                   event_id=UUID('f61d3062-06f4-580e-bf63-2eb25e0461c2'), │ │
+│ │                   │   │   event_type='system.session_end',               │ │
+│ │                   │   │   occurred_at=datetime.datetime(2026, 10, 13,    │ │
+│ │                   15, 16, 16, 726115, tzinfo=datetime.timezone.utc),     │ │
+│ │                   │   │                                                  │ │
+│ │                   session_id='user-attachment-1013-06:probe:alice',      │ │
+│ │                   │   │   agent_id='probe-alice',                        │ │
+│ │                   │   │   trace_id='user-attachment-1013-06',            │ │
+│ │                   │   │   payload_ref='user-demo:overlap-end',           │ │
+│ │                   │   │                                                  │ │
+│ │                   global_position='2026-10-13T15:16:17.093295000Z/00000… │ │
+│ │                   │   │   tool_name=None,                                │ │
+│ │                   │   │   parent_event_id=None,                          │ │
+│ │                   │   │   ended_at=None,                                 │ │
+│ │                   │   │   status=None,                                   │ │
+│ │                   │   │   schema_version=1,                              │ │
+│ │                   │   │   importance_hint=None                           │ │
+│ │                   │   )                                                  │ │
+│ │                   ]                                                      │ │
+│ │        interval = 50                                                     │ │
+│ │           prior = {                                                      │ │
+│ │                   │   'corrections': [],                                 │ │
+│ │                   │   'effective_at':                                    │ │
+│ │                   '2026-10-13T15:16:06.037237+00:00',                    │ │
+│ │                   │   'input_event_ids': [                               │ │
+│ │                   │   │   'c98a5c5d-faf5-532f-a9b7-a6450b144463',        │ │
+│ │                   │   │   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309'         │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'input_hash':                                      │ │
+│ │                   'ff5102430b019a26e9a0f43d31448a78eaa2a9bba6ee15a6cd0d… │ │
+│ │                   │   'owner': 'user:probe-alice',                       │ │
+│ │                   │   'result': {                                        │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'entities': [],                                │ │
+│ │                   │   │   'interests': [                                 │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'entity_name': 'RetryTopic',           │ │
+│ │                   │   │   │   │   'entity_type': 'concept',              │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'source_quote': 'interested in         │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'weight': 0.8                          │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'model_id': None,                              │ │
+│ │                   │   │   'persona': None,                               │ │
+│ │                   │   │   'preferences': [                               │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'about_entity': None,                  │ │
+│ │                   │   │   │   │   'category': 'communication',           │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'context': 'support',                  │ │
+│ │                   │   │   │   │   'key': 'answer-length',                │ │
+│ │                   │   │   │   │   'polarity': 'positive',                │ │
+│ │                   │   │   │   │   'preference_id':                       │ │
+│ │                   'preference:0f10a706c7c36073ab6c3156d965e8800c77f34f8… │ │
+│ │                   │   │   │   │   'scope': 'global',                     │ │
+│ │                   │   │   │   │   'scope_id': None,                      │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   ... +4                                 │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'prompt_version': None,                        │ │
+│ │                   │   │   'session_id':                                  │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   │   'skills': [                                    │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'category': 'programming_language',    │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'name': 'Python',                      │ │
+│ │                   │   │   │   │   'proficiency': 0.8,                    │ │
+│ │                   │   │   │   │   'skill_id':                            │ │
+│ │                   'skill:287f5389d12cd16fc9b7646efa6b54625f03d223c531ce… │ │
+│ │                   │   │   │   │   'source': 'declared',                  │ │
+│ │                   │   │   │   │   'source_quote': 'I know Python',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ]                                              │ │
+│ │                   │   },                                                 │ │
+│ │                   │   'result_hash':                                     │ │
+│ │                   'df7c245a1b854bebc07f3851f9a35e65326422f7af69f8c0a97f… │ │
+│ │                   │   'session_id':                                      │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   'source_position':                                 │ │
+│ │                   '2026-10-13T15:16:06.804319000Z/000000/9dcc058c-8ff1-… │ │
+│ │                   │   'status': 'applied',                               │ │
+│ │                   │   ... +2                                             │ │
+│ │                   }                                                      │ │
+│ │             raw = {                                                      │ │
+│ │                   │   'interests': [                                     │ │
+│ │                   │   │   {                                              │ │
+│ │                   │   │   │   'entity_name': 'RetryTopic',               │ │
+│ │                   │   │   │   'entity_type': 'concept',                  │ │
+│ │                   │   │   │   'source': 'explicit',                      │ │
+│ │                   │   │   │   'source_quote': 'interested in RetryTopic  │ │
+│ │                   development',                                          │ │
+│ │                   │   │   │   'weight': 0.8                              │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'preferences': [                                   │ │
+│ │                   │   │   {                                              │ │
+│ │                   │   │   │   'category': 'communication',               │ │
+│ │                   │   │   │   'confidence': 0.9,                         │ │
+│ │                   │   │   │   'context': 'support',                      │ │
+│ │                   │   │   │   'key': 'answer-length',                    │ │
+│ │                   │   │   │   'polarity': 'positive',                    │ │
+│ │                   │   │   │   'source': 'explicit',                      │ │
+│ │                   │   │   │   'source_quote': 'short answers',           │ │
+│ │                   │   │   │   'strength': 0.8                            │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'skills': [                                        │ │
+│ │                   │   │   {                                              │ │
+│ │                   │   │   │   'category': 'programming_language',        │ │
+│ │                   │   │   │   'confidence': 0.9,                         │ │
+│ │                   │   │   │   'name': 'Python',                          │ │
+│ │                   │   │   │   'proficiency': 0.8,                        │ │
+│ │                   │   │   │   'source': 'declared',                      │ │
+│ │                   │   │   │   'source_quote': 'I know Python'            │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   ]                                                  │ │
+│ │                   }                                                      │ │
+│ │         receipt = {                                                      │ │
+│ │                   │   'version': 'user-extraction-v1',                   │ │
+│ │                   │   'owner': 'user:probe-alice',                       │ │
+│ │                   │   'session_id':                                      │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   'trigger_event_id':                                │ │
+│ │                   'f61d3062-06f4-580e-bf63-2eb25e0461c2',                │ │
+│ │                   │   'source_position':                                 │ │
+│ │                   '2026-10-13T15:16:17.093295000Z/000000/f61d3062-06f4-… │ │
+│ │                   │   'input_event_ids': [                               │ │
+│ │                   │   │   'c98a5c5d-faf5-532f-a9b7-a6450b144463',        │ │
+│ │                   │   │   '9dcc058c-8ff1-5abc-a24b-b7a4b0f4b309',        │ │
+│ │                   │   │   'f61d3062-06f4-580e-bf63-2eb25e0461c2'         │ │
+│ │                   │   ],                                                 │ │
+│ │                   │   'input_hash':                                      │ │
+│ │                   '85d5c6333d64f3edfc0381722f45b6a05202aeaf730fffd72eb9… │ │
+│ │                   │   'effective_at':                                    │ │
+│ │                   '2026-10-13T15:16:16.726115+00:00',                    │ │
+│ │                   │   'result': {                                        │ │
+│ │                   │   │   'session_id':                                  │ │
+│ │                   'user-attachment-1013-06:probe:alice',                 │ │
+│ │                   │   │   'agent_id': 'probe-alice',                     │ │
+│ │                   │   │   'model_id': None,                              │ │
+│ │                   │   │   'prompt_version': None,                        │ │
+│ │                   │   │   'entities': [],                                │ │
+│ │                   │   │   'preferences': [                               │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'category': 'communication',           │ │
+│ │                   │   │   │   │   'key': 'answer-length',                │ │
+│ │                   │   │   │   │   'polarity': 'positive',                │ │
+│ │                   │   │   │   │   'strength': 0.8,                       │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'context': 'support',                  │ │
+│ │                   │   │   │   │   'about_entity': None,                  │ │
+│ │                   │   │   │   │   'source_quote': 'short answers',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   ... +4                                 │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'skills': [                                    │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'name': 'Python',                      │ │
+│ │                   │   │   │   │   'category': 'programming_language',    │ │
+│ │                   │   │   │   │   'proficiency': 0.8,                    │ │
+│ │                   │   │   │   │   'confidence': 0.9,                     │ │
+│ │                   │   │   │   │   'source': 'declared',                  │ │
+│ │                   │   │   │   │   'source_quote': 'I know Python',       │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ],                                     │ │
+│ │                   │   │   │   │   'skill_id':                            │ │
+│ │                   'skill:287f5389d12cd16fc9b7646efa6b54625f03d223c531ce… │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'interests': [                                 │ │
+│ │                   │   │   │   {                                          │ │
+│ │                   │   │   │   │   'entity_name': 'RetryTopic',           │ │
+│ │                   │   │   │   │   'entity_type': 'concept',              │ │
+│ │                   │   │   │   │   'weight': 0.8,                         │ │
+│ │                   │   │   │   │   'source': 'explicit',                  │ │
+│ │                   │   │   │   │   'source_quote': 'interested in         │ │
+│ │                   RetryTopic development',                               │ │
+│ │                   │   │   │   │   'source_turn_index': None,             │ │
+│ │                   │   │   │   │   'support_event_ids': [                 │ │
+│ │                   │   │   │   │   │                                      │ │
+│ │                   'c98a5c5d-faf5-532f-a9b7-a6450b144463'                 │ │
+│ │                   │   │   │   │   ]                                      │ │
+│ │                   │   │   │   }                                          │ │
+│ │                   │   │   ],                                             │ │
+│ │                   │   │   'persona': None                                │ │
+│ │                   │   },                                                 │ │
+│ │                   │   'corrections': [],                                 │ │
+│ │                   │   ... +2                                             │ │
+│ │                   }                                                      │ │
+│ │            self = <context_graph.worker.extraction.ExtractionConsumer    │ │
+│ │                   object at 0x306888830>                                 │ │
+│ │           store = <__main__.InterruptApply object at 0x30688acc0>        │ │
+│ │         trigger = Event(                                                 │ │
+│ │                   │                                                      │ │
+│ │                   event_id=UUID('f61d3062-06f4-580e-bf63-2eb25e0461c2'), │ │
+│ │                   │   event_type='system.session_end',                   │ │
+│ │                   │   occurred_at=datetime.datetime(2026, 10, 13, 15,    │ │
+│ │                   16, 16, 726115, tzinfo=datetime.timezone.utc),         │ │
+│ │                   │   session_id='user-attachment-1013-06:probe:alice',  │ │
+│ │                   │   agent_id='probe-alice',                            │ │
+│ │                   │   trace_id='user-attachment-1013-06',                │ │
+│ │                   │   payload_ref='user-demo:overlap-end',               │ │
+│ │                   │                                                      │ │
+│ │                   global_position='2026-10-13T15:16:17.093295000Z/00000… │ │
+│ │                   │   tool_name=None,                                    │ │
+│ │                   │   parent_event_id=None,                              │ │
+│ │                   │   ended_at=None,                                     │ │
+│ │                   │   status=None,                                       │ │
+│ │                   │   schema_version=1,                                  │ │
+│ │                   │   importance_hint=None                               │ │
+│ │                   )                                                      │ │
+│ │           turns = 1                                                      │ │
+│ │          window = None                                                   │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_user_attachm │
+│ ent_demo.py:125 in apply_user_extraction                                     │
+│                                                                              │
+│    122 │   │   result = await self.actual.apply_user_extraction(trigger)     │
+│    123 │   │   if mode == "after":                                           │
+│    124 │   │   │   self.hits[key] = mode                                     │
+│ ❱  125 │   │   │   raise RuntimeError("controlled interruption after commit, │
+│    126 │   │   return result                                                 │
+│    127                                                                       │
+│    128                                                                       │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     key = 'f61d3062-06f4-580e-bf63-2eb25e0461c2'                         │ │
+│ │    mode = 'after'                                                        │ │
+│ │  result = 'applied'                                                      │ │
+│ │    self = <__main__.InterruptApply object at 0x30688acc0>                │ │
+│ │ trigger = Event(                                                         │ │
+│ │           │   event_id=UUID('f61d3062-06f4-580e-bf63-2eb25e0461c2'),     │ │
+│ │           │   event_type='system.session_end',                           │ │
+│ │           │   occurred_at=datetime.datetime(2026, 10, 13, 15, 16, 16,    │ │
+│ │           726115, tzinfo=datetime.timezone.utc),                         │ │
+│ │           │   session_id='user-attachment-1013-06:probe:alice',          │ │
+│ │           │   agent_id='probe-alice',                                    │ │
+│ │           │   trace_id='user-attachment-1013-06',                        │ │
+│ │           │   payload_ref='user-demo:overlap-end',                       │ │
+│ │           │                                                              │ │
+│ │           global_position='2026-10-13T15:16:17.093295000Z/000000/f61d30… │ │
+│ │           │   tool_name=None,                                            │ │
+│ │           │   parent_event_id=None,                                      │ │
+│ │           │   ended_at=None,                                             │ │
+│ │           │   status=None,                                               │ │
+│ │           │   schema_version=1,                                          │ │
+│ │           │   importance_hint=None                                       │ │
+│ │           )                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: controlled interruption after commit, before ACK
+
+2026-10-13 20:46:20 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:46:24 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 20:46:24 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 20:46:25 [info     ] consolidation_timer_fired
+2026-10-13 20:46:25 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 20:46:25 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-13 20:46:25 [info     ] consolidating_session          event_count=3 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:25 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:26 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 20:46:28 [info     ] event_ingested                 event_id=7ad91f17-9ea2-5700-b2ee-995b519bdd01 event_type=observation.input global_position=2026-10-13T15:16:28.910991000Z/000000/7ad91f17-9ea2-5700-b2ee-995b519bdd01 request_id=98bc4e90-212c-4eaf-beae-8c11e8ce8a60 status=created
+2026-10-13 20:46:29 [debug    ] event_enriched                 event_id=7ad91f17-9ea2-5700-b2ee-995b519bdd01 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:46:29 [info     ] event_ingested                 event_id=5b31ff32-7a75-5b0b-bf4d-c376ca035c6e event_type=system.session_end global_position=2026-10-13T15:16:29.369231000Z/000000/5b31ff32-7a75-5b0b-bf4d-c376ca035c6e request_id=0302ac2a-1e82-4eca-9fc0-854bd6097220 status=created
+2026-10-13 20:46:29 [debug    ] event_embedding_stored         event_id=7ad91f17-9ea2-5700-b2ee-995b519bdd01
+2026-10-13 20:46:29 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:16:28.910991000Z/000000/7ad91f17-9ea2-5700-b2ee-995b519bdd01 event_id=7ad91f17-9ea2-5700-b2ee-995b519bdd01 session_id=user-attachment-1013-06:probe:reviews
+2026-10-13 20:46:30 [debug    ] event_enriched                 event_id=5b31ff32-7a75-5b0b-bf4d-c376ca035c6e importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:46:30 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:16:29.369231000Z/000000/5b31ff32-7a75-5b0b-bf4d-c376ca035c6e event_id=5b31ff32-7a75-5b0b-bf4d-c376ca035c6e session_id=user-attachment-1013-06:probe:reviews
+2026-10-13 20:46:30 [debug    ] event_embedding_stored         event_id=5b31ff32-7a75-5b0b-bf4d-c376ca035c6e
+2026-10-13 20:46:30 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:46:31 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:reviews user_entity_id=user:probe-alice
+2026-10-13 20:46:32 [info     ] user_extraction_applied        event_id=5b31ff32-7a75-5b0b-bf4d-c376ca035c6e outcome=applied session_id=user-attachment-1013-06:probe:reviews
+2026-10-13 20:46:32 [info     ] session_consolidated           episode_summaries=1 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:32 [info     ] consolidating_session          event_count=2 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:46:32 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:46:33 [info     ] event_ingested                 event_id=c8f0a0f1-6283-5d47-939d-a1701a82b231 event_type=observation.input global_position=2026-10-13T15:16:33.163951000Z/000000/c8f0a0f1-6283-5d47-939d-a1701a82b231 request_id=4e916c9e-44ec-4c35-8aac-71c8b6a1c538 status=created
+2026-10-13 20:46:33 [info     ] event_ingested                 event_id=10e08601-c6ea-5e19-8f1e-fd99a123639c event_type=system.session_end global_position=2026-10-13T15:16:33.640015000Z/000000/10e08601-c6ea-5e19-8f1e-fd99a123639c request_id=6a1fc3d8-1e2c-4add-b699-b1e72ad995bf status=created
+2026-10-13 20:46:33 [debug    ] event_enriched                 event_id=c8f0a0f1-6283-5d47-939d-a1701a82b231 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:46:33 [debug    ] event_embedding_stored         event_id=c8f0a0f1-6283-5d47-939d-a1701a82b231
+2026-10-13 20:46:34 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:16:33.163951000Z/000000/c8f0a0f1-6283-5d47-939d-a1701a82b231 event_id=c8f0a0f1-6283-5d47-939d-a1701a82b231 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:34 [debug    ] event_enriched                 event_id=10e08601-c6ea-5e19-8f1e-fd99a123639c importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:46:34 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:46:34 [debug    ] event_embedding_stored         event_id=10e08601-c6ea-5e19-8f1e-fd99a123639c
+2026-10-13 20:46:35 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:16:33.640015000Z/000000/10e08601-c6ea-5e19-8f1e-fd99a123639c event_id=10e08601-c6ea-5e19-8f1e-fd99a123639c session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:35 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-13 20:46:36 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:alice user_entity_id=user:probe-alice
+2026-10-13 20:46:37 [info     ] user_extraction_applied        event_id=10e08601-c6ea-5e19-8f1e-fd99a123639c outcome=applied session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:37 [info     ] session_consolidated           episode_summaries=1 session_id=user-attachment-1013-06:real:alice
+2026-10-13 20:46:38 [info     ] agent_summary_created          agent_id=probe-alice sessions=1
+2026-10-13 20:46:38 [info     ] event_ingested                 event_id=f5822cb6-30ab-5e67-b3dc-e7eb1e7ee9f5 event_type=observation.input global_position=2026-10-13T15:16:38.883007000Z/000000/f5822cb6-30ab-5e67-b3dc-e7eb1e7ee9f5 request_id=c9f2f527-fc0f-4eee-8ec3-f8f0d96ec4af status=created
+2026-10-13 20:46:39 [info     ] agent_summary_created          agent_id=alice sessions=1
+2026-10-13 20:46:39 [debug    ] event_enriched                 event_id=f5822cb6-30ab-5e67-b3dc-e7eb1e7ee9f5 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:46:39 [info     ] event_ingested                 event_id=c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c event_type=system.session_end global_position=2026-10-13T15:16:39.354143000Z/000000/c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c request_id=ef1949b4-b7ac-4886-8ee0-b4ab6b0ad768 status=created
+2026-10-13 20:46:39 [debug    ] event_embedding_stored         event_id=f5822cb6-30ab-5e67-b3dc-e7eb1e7ee9f5
+2026-10-13 20:46:39 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:16:38.883007000Z/000000/f5822cb6-30ab-5e67-b3dc-e7eb1e7ee9f5 event_id=f5822cb6-30ab-5e67-b3dc-e7eb1e7ee9f5 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:39 [info     ] importance_recomputed_from_centrality updated_count=8
+2026-10-13 20:46:40 [info     ] consolidating_session          event_count=6 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:40 [info     ] episodes_grouped               episode_count=1 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:40 [debug    ] event_enriched                 event_id=c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:46:40 [debug    ] event_embedding_stored         event_id=c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c
+2026-10-13 20:46:40 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:46:40 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:16:39.354143000Z/000000/c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c event_id=c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:40 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-13 20:46:42 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:alice user_entity_id=user:probe-alice
+2026-10-13 20:46:43 [info     ] user_extraction_applied        event_id=c9fb8f35-e0e4-5628-9fcb-d98b51fe4f8c outcome=applied session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:44 [info     ] event_ingested                 event_id=9a881c42-73f2-56b9-ac09-c1777c7bd863 event_type=observation.input global_position=2026-10-13T15:16:44.832655000Z/000000/9a881c42-73f2-56b9-ac09-c1777c7bd863 request_id=b1c0e624-230a-437b-b5f8-293321dfdcd5 status=created
+2026-10-13 20:46:45 [debug    ] event_enriched                 event_id=9a881c42-73f2-56b9-ac09-c1777c7bd863 importance_score=5 keywords=['observation', 'input']
+2026-10-13 20:46:45 [info     ] event_ingested                 event_id=b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8 event_type=system.session_end global_position=2026-10-13T15:16:45.289967000Z/000000/b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8 request_id=c400e131-f435-4e8e-8824-6cac00406b01 status=created
+2026-10-13 20:46:45 [debug    ] event_embedding_stored         event_id=9a881c42-73f2-56b9-ac09-c1777c7bd863
+2026-10-13 20:46:45 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T15:16:44.832655000Z/000000/9a881c42-73f2-56b9-ac09-c1777c7bd863 event_id=9a881c42-73f2-56b9-ac09-c1777c7bd863 session_id=user-attachment-1013-06:probe:bob
+2026-10-13 20:46:46 [debug    ] event_enriched                 event_id=b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8 importance_score=5 keywords=['system', 'session_end']
+2026-10-13 20:46:46 [info     ] session_consolidated           episode_summaries=1 session_id=user-attachment-1013-06:probe:alice
+2026-10-13 20:46:46 [debug    ] event_embedding_stored         event_id=b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8
+2026-10-13 20:46:46 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-13 20:46:46 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T15:16:45.289967000Z/000000/b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8 event_id=b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8 session_id=user-attachment-1013-06:probe:bob
+2026-10-13 20:46:46 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-13 20:46:48 [info     ] extraction_results_written     session_id=user-attachment-1013-06:probe:bob user_entity_id=user:probe-bob
+2026-10-13 20:46:48 [info     ] user_extraction_applied        event_id=b46d69d4-fd1a-58d4-bacd-3aeadc61c0a8 outcome=applied session_id=user-attachment-1013-06:probe:bob
+2026-10-13 20:46:48 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 20:46:50 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 20:46:50 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 20:47:03 [info     ] user_data_exported             request_id=e6caa0af-3807-4a64-80d8-3a3b9718c12c user_id=user:probe-alice
+2026-10-13 20:47:05 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 20:47:05 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 20:47:05 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 20:47:05 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 20:47:05 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 20:47:09 [info     ] app_stopped
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
