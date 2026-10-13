@@ -16,20 +16,30 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from context_graph.domain.memory_actions import (
+    MEMORY_EVENT_HANDLERS,
+    MemoryAction,
+    MemoryActionConflictError,
+    MemoryReferenceMissingError,
+)
 from context_graph.domain.models import Event
 from context_graph.domain.projection import project_event
 from context_graph.metrics import CONSUMER_MESSAGE_ERRORS
 from context_graph.ports.errors import RuntimeFencedError, is_transient
 from context_graph.ports.event_log import AcceptedRecordReader
+from context_graph.ports.pack_graph import NodeRef, NodeWrite
 from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.pack_projection import apply_plan, apply_plans
 
 if TYPE_CHECKING:
+    from context_graph.domain.pack_bundle import ActiveBundle
     from context_graph.domain.pack_projection import PackProjector, ProjectionPlan
     from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
+    from context_graph.ports.memory_state import MemoryStateStore
+    from context_graph.ports.pack_graph import PackGraph
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
@@ -64,6 +74,9 @@ class ProjectionConsumer(BaseConsumer):
         settings: Settings,
         pack_projector: PackProjector | None = None,
         pack_lookup_limit: int = DEFAULT_LOOKUP_LIMIT,
+        bundle: ActiveBundle | None = None,
+        memory_store: MemoryStateStore | None = None,
+        memory_graph: PackGraph | None = None,
     ) -> None:
         super().__init__(
             subscription,
@@ -91,6 +104,16 @@ class ProjectionConsumer(BaseConsumer):
             and not isinstance(event_log, AcceptedRecordReader)
         ):
             raise RuntimeFencedError("Bound projection requires an accepted-record reader")
+        self._memory_bundle = bundle
+        selected_memory = bundle is not None and any(
+            bundle.enables(capability) for capability in set(MEMORY_EVENT_HANDLERS.values())
+        )
+        if selected_memory and (memory_store is None or memory_graph is None):
+            raise ValueError(
+                "Selected Memory actions require atomic state storage and graph diagnostics"
+            )
+        self._memory_store = memory_store if selected_memory else None
+        self._memory_graph = memory_graph if selected_memory else None
         self._pack_lookup_limit = pack_lookup_limit
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
@@ -117,6 +140,8 @@ class ProjectionConsumer(BaseConsumer):
         if self._buffer and self._batch_timeout_elapsed():
             log.debug("flushing_buffer_on_idle", buffered=len(self._buffer))
             await self._flush_buffer()
+        if self._memory_store is not None:
+            await self._retry_pending_memory()
 
     async def _flush_buffer(self) -> None:
         """Flush the buffered events: fetch, project, and batch-write to Neo4j."""
@@ -193,10 +218,104 @@ class ProjectionConsumer(BaseConsumer):
         if self._pack_projector is not None and pack_events:
             await self._apply_pack_rules(pack_events, provenances)
 
-        # ACK all entries after successful write (deferred_ack = True)
-        entry_ids = [eid for eid, _ in batch]
+        memory_outcomes = await self._apply_memory_actions(fetched, dict(batch))
+        # Pending references stay pending; explicit conflicts are dead-lettered.
+        entry_ids = [eid for eid, _ in batch if memory_outcomes.get(eid, "applied") == "applied"]
         if entry_ids:
             await self._ack(*entry_ids)
+
+    async def _memory_diagnostic(
+        self, event: Event, status: str, reason: str | None = None
+    ) -> None:
+        assert self._memory_graph is not None
+        graph = self._memory_graph
+        ref = NodeRef("Event", str(event.event_id), "event_id")
+        # Diagnostics never fabricate an Event whose source projection is absent.
+        if ref not in await self._memory_graph.get_nodes([ref]):
+            return
+        await self._retry_transient(
+            lambda: graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        ref,
+                        {"memory_status": status, **({"memory_reason": reason} if reason else {})},
+                        remove_properties=() if reason else ("memory_reason",),
+                    )
+                ]
+            ),
+            "memory_diagnostic",
+        )
+
+    async def _apply_memory_actions(
+        self,
+        fetched: dict[str, tuple[Event, dict[str, Any], VerifiedSourceProvenance | None]],
+        deliveries: dict[str, dict[str, str]],
+    ) -> dict[str, str]:
+        if self._memory_store is None:
+            return {}
+        assert self._memory_bundle is not None
+        store = self._memory_store
+        outcomes = {}
+        for entry_id, (event, document, provenance) in fetched.items():
+            handler = MEMORY_EVENT_HANDLERS.get(event.event_type)
+            if handler is None or not self._memory_bundle.enables(handler):
+                continue
+            try:
+                action = MemoryAction.from_event(
+                    event,
+                    document.get("payload", {}),
+                    trusted=self._pack_projector.source_trusted(event, document, provenance)
+                    if self._pack_projector is not None
+                    else False,
+                )
+                await self._retry_transient(
+                    partial(store.apply_memory_action, action), "memory_action"
+                )
+            except MemoryReferenceMissingError:
+                await self._memory_diagnostic(event, "deferred", "reference_missing")
+                outcomes[entry_id] = "deferred"
+            except (MemoryActionConflictError, ValueError) as exc:
+                reason = (
+                    "state_conflict"
+                    if isinstance(exc, MemoryActionConflictError)
+                    else "invalid_action"
+                )
+                await self._memory_diagnostic(event, "conflict", reason)
+                log.warning("memory_action_rejected", event_id=str(event.event_id), reason=reason)
+                await self._dead_letter_message(
+                    entry_id, {**deliveries[entry_id], "memory_reason": reason}, 1
+                )
+                outcomes[entry_id] = "failed"
+            else:
+                await self._memory_diagnostic(event, "applied")
+                outcomes[entry_id] = "applied"
+        return outcomes
+
+    async def _retry_pending_memory(self) -> None:
+        pending = await self._subscription.read_pending(self._BATCH_SIZE)
+        if not pending:
+            return
+        batch = [(delivery.position, delivery.fields) for delivery in pending]
+        fetched = await self._fetch_batch(batch)
+        counts = await self._get_delivery_counts()
+        assert self._memory_bundle is not None
+        for entry_id, (event, _document, _provenance) in list(fetched.items()):
+            handler = MEMORY_EVENT_HANDLERS.get(event.event_type)
+            if handler is None or not self._memory_bundle.enables(handler):
+                fetched.pop(entry_id)
+                continue
+            if counts.get(entry_id, 1) > self._max_retries:
+                await self._memory_diagnostic(event, "failed", "reference_missing")
+                await self._dead_letter_message(
+                    entry_id,
+                    {**dict(batch)[entry_id], "memory_reason": "reference_missing"},
+                    counts[entry_id],
+                )
+                fetched.pop(entry_id)
+        outcomes = await self._apply_memory_actions(fetched, dict(batch))
+        applied = [entry_id for entry_id, status in outcomes.items() if status == "applied"]
+        if applied:
+            await self._ack(*applied)
 
     async def _apply_pack_rules(
         self,

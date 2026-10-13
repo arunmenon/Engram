@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ValidationError
 
+from context_graph.domain.memory_actions import MEMORY_EVENT_HANDLERS
 from context_graph.domain.ontology import OntologyError
 
 if TYPE_CHECKING:
@@ -113,6 +114,10 @@ def compile_admission_policy(bundle: ActiveBundle) -> AdmissionPolicy:
                     problems.append(f"{pack.name}: open namespace overlaps another pack")
                 else:
                     namespaces.add(namespace)
+        if pack.name == "memory":
+            for event_type, handler in MEMORY_EVENT_HANDLERS.items():
+                if (pack.name, handler) in bindings and event_type in pack.events:
+                    subscribers.setdefault(event_type, set()).add((pack.name, handler))
         if (pack.name, "pack.project.v1") in bindings:
             for rule in pack.projection:
                 subscribers.setdefault(rule.event.rpartition(":")[2], set()).add(

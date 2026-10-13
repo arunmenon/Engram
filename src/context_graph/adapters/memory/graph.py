@@ -23,6 +23,7 @@ from context_graph.adapters.graph_ops import (
 )
 
 if TYPE_CHECKING:
+    from context_graph.domain.memory_actions import MemoryAction
     from context_graph.settings import DecaySettings, PPRSettings
 
 
@@ -42,6 +43,30 @@ class MemoryGraphStore(GraphOperations):
         )
         self.nodes: dict[NodeKey, dict[str, Any]] = {}
         self.edges: dict[EdgeKey, dict[str, Any]] = {}
+
+    async def apply_memory_action(self, action: MemoryAction) -> str:
+        """Reference atomic action: no await or mutation before the whole plan validates."""
+        from context_graph.domain.memory_actions import plan_memory_action
+
+        refs = action.read_refs()
+        stored = {
+            ref: dict(self.nodes[(ref.label, ref.key)])
+            for ref in refs
+            if (ref.label, ref.key) in self.nodes
+        }
+        plan = plan_memory_action(action, stored)
+        nodes = {(write.ref.label, write.ref.key): dict(write.properties) for write in plan.nodes}
+        edges = {}
+        available = self.nodes.keys() | nodes.keys()
+        for write in plan.edges:
+            source = (write.source.label, write.source.key)
+            target = (write.target.label, write.target.key)
+            if source not in available or target not in available:
+                raise ValueError("Memory evidence endpoint is absent")
+            edges[(source, write.edge_type, target)] = dict(write.properties)
+        self.nodes.update(nodes)
+        self.edges.update(edges)
+        return plan.outcome
 
     async def _get_nodes(self, keys: list[NodeKey]) -> dict[NodeKey, dict[str, Any]]:
         return {key: dict(self.nodes[key]) for key in keys if key in self.nodes}

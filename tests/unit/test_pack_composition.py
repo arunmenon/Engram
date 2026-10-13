@@ -117,7 +117,8 @@ def test_bundle_enables_user_only_from_selected_owner() -> None:
     assert not memory.enables("user.extract.v1")
     assert memory.enables("summary.consolidate.v1")
     assert memory.enables("memory.episode.v1")
-    assert not any("belief" in handler for _, handler in memory.processing)
+    assert memory.enables("memory.belief.v1")
+    assert memory.enables("memory.goal.v1")
 
 
 def test_support_requirement_does_not_enable_handler() -> None:

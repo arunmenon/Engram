@@ -209,9 +209,9 @@ class TestEnumCompleteness:
         """EdgeType: 5 core + 4 new + 2 entity + 9 personalization = 20."""
         assert len(EdgeType) == 20
 
-    def test_intent_type_has_eight_members(self) -> None:
-        """IntentType must have all 8 intent categories."""
-        assert len(IntentType) == 8
+    def test_intent_type_has_ten_members(self) -> None:
+        """IntentType includes the two explicit Memory recall categories."""
+        assert len(IntentType) == 10
         expected = {
             "WHY",
             "WHEN",
@@ -221,6 +221,8 @@ class TestEnumCompleteness:
             "WHO_IS",
             "HOW_DOES",
             "PERSONALIZE",
+            "BELIEFS",
+            "GOALS",
         }
         assert {m.name for m in IntentType} == expected
 

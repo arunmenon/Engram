@@ -61,6 +61,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from context_graph.adapters.spanner.tenant_control import TenantFence
+    from context_graph.domain.memory_actions import MemoryAction
     from context_graph.ports.pack_graph import StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
@@ -325,6 +326,72 @@ class SpannerGraphStore(GraphOperations):
             for props in nodes
             if all(props.get(name) == value for name, value in conditions.items())
         ]
+
+    async def apply_memory_action(self, action: MemoryAction) -> str:
+        """Serialize subject revisions and source evidence in one fenced transaction."""
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.domain.memory_actions import plan_memory_action
+
+        def work(transaction: Any) -> str:
+            refs = action.read_refs()
+            keys = sorted({(ref.label, ref.key) for ref in refs})
+            rows = list(
+                transaction.read(
+                    "GraphNodes", NODE_COLUMNS, KeySet(keys=[list(key) for key in keys])
+                )
+            )
+            existing = {(label, key): json_value(props) or {} for label, key, props, _ in rows}
+            stored = {
+                ref: existing[(ref.label, ref.key)]
+                for ref in refs
+                if (ref.label, ref.key) in existing
+            }
+            plan = plan_memory_action(action, stored)
+            updated = {(write.ref.label, write.ref.key): write.properties for write in plan.nodes}
+            costs = []
+            for key, props in updated.items():
+                mutations, size = node_row_cost(key, props, self._embedding_column(key[0], props))
+                if key in existing:
+                    _, old_size = node_row_cost(key, existing[key], existing[key].get("embedding"))
+                    size += old_size
+                costs.append((mutations, size))
+            for write in plan.edges:
+                for ref in (write.source, write.target):
+                    if (ref.label, ref.key) not in existing and (ref.label, ref.key) not in updated:
+                        raise ValueError("Memory action edge endpoint is missing")
+                costs.append(
+                    edge_row_cost(
+                        (
+                            (write.source.label, write.source.key),
+                            write.edge_type,
+                            (write.target.label, write.target.key),
+                        ),
+                        write.properties,
+                    )
+                )
+            self._budget.check(costs)
+            if updated:
+                transaction.insert_or_update(
+                    "GraphNodes", NODE_COLUMNS, self._node_rows(updated, updated, False, existing)
+                )
+            edge_rows = [
+                [
+                    write.source.label,
+                    write.source.key,
+                    write.edge_type,
+                    write.target.label,
+                    write.target.key,
+                    json_param(write.properties),
+                ]
+                for write in plan.edges
+            ]
+            if edge_rows:
+                transaction.insert_or_update("GraphEdges", EDGE_COLUMNS, edge_rows)
+            return plan.outcome
+
+        result: str = await self._transact(work)
+        return result
 
     async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
         from google.cloud.spanner_v1 import KeySet

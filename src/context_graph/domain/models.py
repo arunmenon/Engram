@@ -60,6 +60,15 @@ class EventType(enum.StrEnum):
     USER_SKILL_DECLARED = "user.skill.declared"
     USER_PROFILE_UPDATED = "user.profile.updated"
 
+    MEMORY_BELIEF_STATED = "memory.belief.stated"
+    MEMORY_BELIEF_INFERRED = "memory.belief.inferred"
+    MEMORY_BELIEF_CONFIRMED = "memory.belief.confirmed"
+    MEMORY_BELIEF_CORRECTED = "memory.belief.corrected"
+    MEMORY_GOAL_CREATED = "memory.goal.created"
+    MEMORY_GOAL_COMPLETED = "memory.goal.completed"
+    MEMORY_GOAL_ABANDONED = "memory.goal.abandoned"
+    MEMORY_GOAL_SUPERSEDED = "memory.goal.superseded"
+
 
 class EntityType(enum.StrEnum):
     """Entity type hierarchy grounded in PROV-O (ADR-0011 §3).
@@ -131,6 +140,9 @@ class IntentType(enum.StrEnum):
     WHO_IS = "who_is"
     HOW_DOES = "how_does"
     PERSONALIZE = "personalize"
+
+    BELIEFS = "beliefs"
+    GOALS = "goals"
 
 
 class RetentionTier(enum.StrEnum):
@@ -254,6 +266,16 @@ class CausalMechanism(enum.StrEnum):
     """CAUSED_BY edge mechanism (ADR-0009)."""
 
     DIRECT = "direct"
+    INFERRED = "inferred"
+
+
+class MemoryScope(enum.StrEnum):
+    SESSION = "session"
+    AGENT = "agent"
+
+
+class BeliefOrigin(enum.StrEnum):
+    STATED = "stated"
     INFERRED = "inferred"
 
 
@@ -478,6 +500,17 @@ class BeliefNode(BaseModel):
     last_confirmed_at: datetime
     confirmation_count: int = 1
     superseded_by: str | None = None
+    agent_id: str = ""
+    session_id: str = ""
+    scope: MemoryScope = MemoryScope.SESSION
+    local_key: str = ""
+    state_revision: int = Field(default=0, ge=0)
+    evidence_event_ids: list[str] = Field(default_factory=list)
+    complete: bool = False
+    source_trust: str = "untrusted"
+    contradiction_declared: bool = False
+    origin: BeliefOrigin = BeliefOrigin.STATED
+    supporting_event_ids: list[str] = Field(default_factory=list)
 
 
 class GoalNode(BaseModel):
@@ -490,6 +523,16 @@ class GoalNode(BaseModel):
     last_active_at: datetime
     priority: int | None = Field(default=None, ge=1, le=10)
     evidence_count: int = 1
+    superseded_by: str | None = None
+    status_changed_at: datetime | None = None
+    source_trust: str = "untrusted"
+    agent_id: str = ""
+    session_id: str = ""
+    scope: MemoryScope = MemoryScope.SESSION
+    local_key: str = ""
+    state_revision: int = Field(default=0, ge=0)
+    evidence_event_ids: list[str] = Field(default_factory=list)
+    complete: bool = False
 
 
 class EpisodeNode(BaseModel):

@@ -136,3 +136,64 @@ No issue was closed on partial feature coverage. No new feature bucket was neede
 ## Subsequent scope expansion
 
 On 13 October the stakeholder explicitly required Belief and Goal producers in the overall Memory goal. Earlier exclusions in this document describe the completed Episode implementation scope, not the current overall goal. The [updated Memory goal](memory-episodes-goal.md) records required remaining journeys. Episode verification stays accepted; Memory pack completion and pilot readiness remain unclaimed.
+
+## Belief/Goal continuation — verified bounded implementation
+
+The Episode result above remains its own verified slice. The following work implements the stakeholder's expanded Memory scope. It does not change the earlier run's evidence or claim that the controlled pilot is ready.
+
+The existing projection worker now consumes eight structured Memory event contracts. A stated Belief begins with one distinct supporting Event; an inferred producer proposal begins with zero. Confirmations require an exact revision. Correction preserves both Beliefs and creates SUPERSEDES, adding CONTRADICTS only when explicitly declared. A Goal begins active and requires an explicit event to become completed, abandoned or superseded. PDLC events do not automatically create or complete Goals. The existing consolidation worker continues producing Episodes.
+
+State, source binding and evidence are committed together through the existing backend transaction. Public subgraph retrieval validates ownership, exact source receipts, counters and history before returning Memory context. Current recall omits superseded records; timeline recall preserves their declared history. Source assertions are not authenticated human judgments or guarantees of truth.
+
+| Verification | Expected outcome |
+|---|---|
+| Memory disabled | Contract rejected before ledger write; stored Memory also excluded from composed reads |
+| Stated and inferred Beliefs | Exact text/category/confidence, distinct origin, correct initial support and actual source provenance |
+| Confirmation and retries | Only distinct applied support counts; duplicate creation does not reset current state |
+| Competing revisions | One applied update, one explicit conflict; only winning evidence changes state |
+| Correction | Exact predecessor/replacement, retained history, explicit contradiction only |
+| Goal lifecycle | Active/completed/abandoned/superseded states and exact lifecycle source evidence |
+| Ownership and scope | Default session scope; explicit agent scope crosses sessions; other owners positively retrievable under their own query and excluded from the first owner's Memory context |
+| Missing parent | Pending worker retry converges after parent arrival; exhausted references dead-letter without partial state |
+| Invalid body | 422 and no ledger write |
+| PDLC composition | Existing Change remains retrievable; no invented Goal or implicit Memory lifecycle |
+| Bounded retrieval | Explicit truncation, respected max_nodes, no dangling edges |
+| Independent evidence audit | Exact API state/source/edge checks and separate final decoded Spanner-row audit; all groups settled and only expected conflict dead letters |
+
+Astra's staging review identified and corrected two implementation defects before cloud acceptance: unauthorized history edges could be copied into answers, and Spanner node/edge budgets were checked separately instead of atomically. An additional source-validation gap was addressed by binding each accepted action's target and expected revision to its Event in the same transaction. Local negative probes reject fabricated history and substituted same-owner evidence. Combined-budget rejection schedules no mutations.
+
+Cloud attempt `memory-actions-1013-01` remains failed: Core-only passed, and Memory API checks passed, but the final row audit compared codec-encoded confidence with a decoded float. The audit was corrected to decode actual stored properties; expected semantics were unchanged. Failed data and logs are retained. Attempt `memory-actions-1013-02` is the subsequent rerun; results must be read from its saved checks, not inferred from this narrative.
+
+### Oracle corrections retained with the raw attempts
+
+Attempt02 also remained failed at its DLQ audit: bound Spanner subscriptions deliberately reconstruct authoritative identity fields and do not preserve caller-added `memory_reason`. The corrected audit requires exactly the losing Event IDs, projection group and disposition epoch in ConsumerDeadLetters, plus `memory_status=conflict` AND `memory_reason=state_conflict` on each actual Event. Winner-only revision and evidence expectations were unchanged. Astra independently approved this field-location correction.
+
+Attempt03 additionally uses a pinned batch-one configuration and two separately named projection consumers, each with independent stores in the same group. The original consumer is stopped and awaited before the two updates are admitted. Each new consumer reads a distinct accepted delivery; their handlers run concurrently. Only the winner may increment the revision and add support. Recorded start/end times establish handler overlap; there is no claim that a Spanner abort/retry was observed.
+
+Raw attempt03 has legacy top-level summary fields `expected.belief_confirmations=2` and `expected.belief_revision=2`. Those describe the earlier single-consumer scenario and were not the acceptance oracle for the added parallel probe. Its independently reconstructed canonical `expected_state` and exact checks require **three supports, revision two after parallel confirmation, and revision three after correction**. Raw evidence is not rewritten. Astra confirmed this metadata mismatch is not a material blocker given the exact state and receipt audits.
+
+
+### Final results and stakeholder walkthrough
+
+All required types in this Memory slice now have production paths: Episodes through existing consolidation; Beliefs and Goals through eight structured contracts in existing graph projection. Independent Astra review accepted this bounded implementation with no remaining blocker. The controlled pilot and remaining assessment failures are separate work and have not started.
+
+| Configuration | Selected live result | Evidence |
+|---|---|---|
+| Core only | 4/4 PASS; Memory input refused without writes | [attempt01 core](runs/memory-actions-1013-01/core.json) |
+| Core+Memory | 65/65 PASS; exact state, evidence and parallel-consumer CAS | [attempt03 memory](runs/memory-actions-1013-03/memory.json) |
+| Core+PDLC+Memory | 69/69 PASS; same Memory checks plus PDLC coexistence | [attempt03 composed](runs/memory-actions-1013-03/pdlc-memory.json) |
+
+1. **Send the assertion.** Follow the `requests` entry for `memory-actions:stated`: authenticated POST `/v1/events` carries the common envelope and a `memory.belief.stated` payload with key `expiry`, text, category `world_model` and confidence 0.7. HTTP 201 means the ledger accepted it; the worker's persisted `memory_status=applied` establishes projection. A typed Belief has one support and the actual source Event.
+2. **Confirm it and introduce a conflict.** Two distinct Events claim expected revision zero. Exactly one applies. Then two independent projection consumers handle distinct revision-one confirmations concurrently. Again, exactly one applies. The Belief has three supports and revision two; both losing Events are explicitly conflicted and dead-lettered. Inspect `parallel_handlers`, `dead_letters_inspected`, the API answer and `expected_edges`. A ledger acceptance is not silently treated as a successful state update.
+3. **Correct it without erasing history.** An inferred replacement starts with zero confirmations. An explicit correction advances the old Belief to revision three, preserves its three supports and links replacement to predecessor via SUPERSEDES and explicitly declared CONTRADICTS. Current Belief recall omits the predecessor; `when` recall shows both with source evidence. No model-generated truth or invented confirmation is implied.
+4. **Follow Goal lifecycle.** Creation yields active. Explicit commands produce completed, abandoned and superseded examples. The replacement Goal remains active. Each terminal Goal has exactly two source Events; the active replacement has one. A PDLC Change is still independently retrievable and neither creates nor completes a Goal implicitly.
+5. **Check boundaries and recovery.** Session-scoped memories stay within the requested owner/session. Explicit agent scope is positively retrieved from another session. The other owner has its own positive read and is excluded from the first owner's Memory context. A confirmation delivered before its parent is held pending and then applied by worker retry. Invalid contracts produce 422 without ledger writes. Bounded answers report truncation without dangling edges.
+6. **Inspect the independent final audit.** Canonical `expected_state` and `expected_edges` are derived from the submitted bodies and independently known winning revision outcomes. Both public owner-specific answers and final decoded Spanner rows match exactly. All five groups settle, pending deliveries are empty, expected conflict dispositions are exact, and shutdown is clean.
+
+The final assessment dataset remains retained at epoch **18** in `engram-assess-1010a-pdlc`. A fresh owner/fingerprint reread matches [retained record](runs/memory-actions-1013-03/pdlc-memory-retained.json) and [retention recheck](runs/memory-actions-1013-03/retention-recheck.json). Prior datasets were exported and hash-verified before reset; no other database was reused or historical data migrated. [Source manifest](runs/memory-actions-1013-03/source-manifest.json) hashes all 210 runtime/script files, and Astra independently checked them and the export hashes.
+
+Local verification: [181 targeted tests passed](runs/memory-actions-local/targeted-final.log), including 18 Memory action tests and 22 Episode tests; [Ruff](runs/memory-actions-local/ruff-final.log) and [mypy over 12 source files](runs/memory-actions-local/mypy-final.log) passed. The [earlier broad unit run](runs/memory-actions-local/full-unit-01.log) recorded 2,771 passes, 15 skips and two failures: an expected old eight-intent assertion was corrected and rechecked in the targeted suite; the existing PDLC evaluation-gate failure remains unrelated and open. Local injected SDK scheduling failure and combined-budget probes are supplemental tests, not live cloud fault injection.
+
+Read [Astra's final independent review](runs/memory-actions-1013-03/astra-final-review.md) before treating this as acceptance. Limits: private bound tenant, sequential configuration reuse, explicit producer assertions, no autonomous natural-language Belief/Goal inference, no live Neo4j verification, no public/concurrent tenant isolation, no original 65-case Spanner baseline rerun. Cloud Monitoring still returns its existing permission error; telemetry export is not verified. The existing user-attachment and enrichment assessment findings remain.
+
+Repeat with the saved runner and a NEW run ID, pointing `--previous-record` at the latest retained record. `--parallel-probe --configurations memory pdlc-memory` enables the reviewed batch-one/two-consumer check. The runner refuses evidence overwrite or owner/fingerprint mismatch. It exports and verifies the dataset before exact-key reset, so do not run it casually against data you intend to keep only in place.

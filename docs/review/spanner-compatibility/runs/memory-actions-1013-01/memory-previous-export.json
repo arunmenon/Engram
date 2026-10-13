@@ -1,0 +1,149 @@
+{
+  "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+  "owner": [
+    "memory-core",
+    "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+    "memory-actions-1013-01-core",
+    14,
+    "sha256:058033bd84abb4aaab901a440cff2070db6ed7cfb35fd50bd4e6a6dc34b087db",
+    "frozen"
+  ],
+  "tables": {
+    "Events": {
+      "columns": [
+        "event_id",
+        "shard",
+        "commit_ts",
+        "batch_index",
+        "session_id",
+        "occurred_at_ms",
+        "session_tag",
+        "agent_tag",
+        "trace_tag",
+        "event_type_tag",
+        "tool_name_tag",
+        "document",
+        "acceptance",
+        "legacy_position",
+        "in_log",
+        "in_session_index",
+        "dedup_active",
+        "summary",
+        "keywords",
+        "search_text"
+      ],
+      "rows": []
+    },
+    "GraphNodes": {
+      "columns": [
+        "label",
+        "node_id",
+        "props",
+        "session_id",
+        "embedding"
+      ],
+      "rows": []
+    },
+    "GraphEdges": {
+      "columns": [
+        "src_label",
+        "src_id",
+        "edge_type",
+        "dst_label",
+        "dst_id",
+        "props"
+      ],
+      "rows": []
+    },
+    "ConsumerGroups": {
+      "columns": [
+        "group_name",
+        "created_at"
+      ],
+      "rows": []
+    },
+    "ConsumerCursors": {
+      "columns": [
+        "group_name",
+        "shard",
+        "commit_ts",
+        "batch_index",
+        "event_id"
+      ],
+      "rows": []
+    },
+    "ConsumerDeliveries": {
+      "columns": [
+        "group_name",
+        "event_id",
+        "consumer",
+        "delivery_count",
+        "last_delivered_at",
+        "commit_ts",
+        "batch_index"
+      ],
+      "rows": []
+    },
+    "ConsumerDeadLetters": {
+      "columns": [
+        "group_name",
+        "event_id",
+        "dead_lettered_at",
+        "fields"
+      ],
+      "rows": []
+    },
+    "TenantControl": {
+      "columns": [
+        "control_id",
+        "tenant_id",
+        "database_resource",
+        "binding_id",
+        "epoch",
+        "bundle_digest",
+        "serving_state"
+      ],
+      "rows": [
+        [
+          "active",
+          "memory-core",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+          "memory-actions-1013-01-core",
+          14,
+          "sha256:058033bd84abb4aaab901a440cff2070db6ed7cfb35fd50bd4e6a6dc34b087db",
+          "frozen"
+        ]
+      ]
+    }
+  },
+  "fingerprints": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

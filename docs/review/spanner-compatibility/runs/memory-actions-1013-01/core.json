@@ -1,0 +1,80 @@
+{
+  "config": "core",
+  "state": "passed selected live scenarios",
+  "requests": [
+    {
+      "route": "/v1/events",
+      "input": {
+        "event_id": "07fdbe97-f343-5752-b12a-a984a740b09b",
+        "event_type": "memory.belief.stated",
+        "occurred_at": "2026-10-13T10:57:56.651130+00:00",
+        "session_id": "memory-actions-1013-01:core",
+        "agent_id": "memory-action-agent",
+        "trace_id": "memory-actions-1013-01",
+        "payload_ref": "memory-actions:stated",
+        "payload": {
+          "key": "expiry",
+          "belief_text": "Reset tokens expire in fifteen minutes.",
+          "confidence": 0.7,
+          "category": "world_model"
+        }
+      },
+      "status": 422,
+      "answer": {
+        "event_id": "07fdbe97-f343-5752-b12a-a984a740b09b",
+        "event_type": "memory.belief.stated",
+        "reason": "event_unsupported",
+        "detail": [
+          {
+            "field": "event_type",
+            "code": "event_unsupported",
+            "message": "Event is not supported by the active pack configuration"
+          }
+        ]
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "empty owned starting dataset",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "HTTP startup",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "admission memory-actions:stated",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Memory disabled leaves ledger and typed graph empty",
+      "status": "PASS",
+      "detail": null
+    }
+  ],
+  "session": "memory-actions-1013-01:core",
+  "expected": {
+    "belief_confirmations": 2,
+    "belief_revision": 2,
+    "goal_completed": "completed",
+    "goal_abandoned": "abandoned",
+    "goal_superseded": "superseded"
+  },
+  "limitations": [
+    "Private bound tenant, sequential configurations",
+    "Structured producer assertions, not autonomous LLM belief inference",
+    "No concurrent tenant isolation claim"
+  ],
+  "shutdown_errors": [],
+  "retained_snapshot": {
+    "events": [],
+    "nodes": [],
+    "edges": [],
+    "pending": [],
+    "dead_letters": []
+  }
+}

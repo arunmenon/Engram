@@ -1,10 +1,10 @@
 # Memory pack goal: produce and retrieve Episodes, Beliefs and Goals
 
-Status: Episode slice implemented and verified; Belief and Goal producers are now explicitly in scope and pending. The Memory pack goal remains in progress. See [Episode verification](memory-episodes-verification.md); its results do not verify Belief/Goal production. This is not pilot readiness.
+Status: the bounded Episodes, Beliefs and Goals producers are implemented and verified. See [verification and stakeholder walkthrough](memory-episodes-verification.md), including 138 live Belief/Goal checks, earlier Episode acceptance, local fault probes and Astra final review. This is not pilot readiness.
 
 ## Observable behavior
 
-A Memory-enabled tenant can ask Engram for a session timeline and receive typed Episode snapshots, their Summary, exact member Events and evidence. Existing consolidation groups events with a gap greater than 30 minutes. Core-only tenants retain Summary behavior and do not produce or return Memory artifacts. Belief and Goal production are required remaining work. #20/#29 fixes, the broader pack audit and public/concurrent tenant readiness remain separate work.
+A Memory-enabled tenant can ask Engram for a session timeline and receive typed Episode snapshots, their Summary, exact member Events and evidence. Existing consolidation groups events with a gap greater than 30 minutes. Core-only tenants retain Summary behavior and do not produce or return Memory artifacts. Beliefs and Goals now use explicit Memory contracts, atomic projection and evidenced public recall. #20/#29 fixes, the broader pack audit and public/concurrent tenant readiness remain separate work.
 
 Episodes are immutable membership snapshots, not a claim that a session is permanently closed. Identity depends on session and sorted member event IDs. Repeating the same grouping reuses identities and edges. A later event changing membership creates a new snapshot; earlier snapshots remain history. Retrieval must identify this as history, not silently claim a single latest partition.
 
@@ -61,3 +61,19 @@ Required remaining acceptance journeys:
 Apply the same standard as Episodes: declare exact expected results before execution, write regressions, review with Astra, exercise accepted journeys through authenticated Engram writes, real workers, Spanner and public retrieval, preserve failures, independently audit rows, reconcile #42/#34/#39/#41, and produce the stakeholder walkthrough. Label local fault probes separately from live cloud results. Reuse the authorized assessment database only with its current retained owner/fingerprint record and verified export; retain final data. No historical migration work.
 
 Completion requires Episodes, Beliefs AND Goals to meet their declared acceptance journeys. The pilot stays paused until the remaining Memory work and the other pilot prerequisites are resolved; do not start another goal automatically.
+
+## Grounded implementation boundary for Belief/Goal
+
+Use structured `memory.belief.*` and `memory.goal.*` events, with explicit stated/inferred origin and explicit lifecycle commands, through the existing event contracts and projection worker. Natural-language inference is not silently represented as an authoritative state change. Native Belief/Goal identities remain owner- and scope-qualified; default session scope, explicit agent scope for cross-session recall. Confirmation counts include distinct supporting Events only (stated assertion starts at one; inferred proposal at zero).
+
+A narrow atomic graph-storage action is necessary: validate owner and expected state revision, detect already-applied Event identity, update subject/count/state, and write its evidence/history in the same transaction. Existing generic pack node/state/edge calls are separate and cannot enforce this across workers. Reuse the current graph tables and backend transactions; an in-process lock alone is not the Spanner guarantee. Wrong revision/terminal conflicts must be explicit, not last-writer-wins. Missing references require bounded recovery or an explicit failure outcome. Public `/v1/query/subgraph` will return validated owner-scoped Memory context; a tenant-wide artifact query without an owner selector is not an adequate substitute.
+
+The already agreed test seams remain authenticated HTTP ingestion/retrieval, public projection handling and graph-storage operations. Start with one stated Belief end to end through the storage seam, then confirmation/correction and Goal lifecycle; prove Spanner atomicity with competing updates before claiming verification.
+
+## Belief/Goal live verification plan (13 October)
+
+Runner: `scripts/engram_memory_actions_demo.py`, reusing the Episode harness's exact-target export, owner/fingerprint reset and shutdown safeguards. Core-only must reject Memory actions without ledger writes. Core+Memory and Core+PDLC+Memory must independently exercise stated/inferred Beliefs, distinct confirmation, same-revision conflict, explicit correction/history, all four Goal states, session versus explicit agent scope, a different owner, missing-parent recovery, invalid-contract rejection and bounded retrieval. Five real workers run; the final dataset remains retained.
+
+Expected states, source receipts and exact DERIVED_FROM/SUPERSEDES/CONTRADICTS sets are reconstructed from submitted inputs, excluding only the independently checked revision-conflict loser. API answers and a separate final Spanner row audit must match. Equivalent timezone formats are compared as datetimes. All groups must settle; the exact expected conflict is the only permitted dead letter. Both review findings about false-positive harness checks and failed attempts remain evidence.
+
+Concurrent HTTP submission to one projection consumer proves deterministic revision conflict handling, not concurrent-worker transaction safety. That backend concurrency claim needs its own probe and must not be inferred from the HTTP check. Structured `inferred` inputs are producer proposals, not a claim that an autonomous LLM inferred a belief. No pilot or other goal starts automatically.

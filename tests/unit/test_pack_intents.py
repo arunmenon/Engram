@@ -42,8 +42,17 @@ def test_pdlc_adds_artifact_intents_without_changing_event_intents() -> None:
     events = RegistryIntents.for_events(registry)
     artifacts = RegistryIntents.for_artifacts(registry)
     assert events.names == [
-        "why", "when", "what", "related", "general", "who_is", "how_does", "personalize"
-    ]  # fmt: skip
+        "why",
+        "when",
+        "what",
+        "related",
+        "general",
+        "who_is",
+        "how_does",
+        "beliefs",
+        "goals",
+        "personalize",
+    ]
     assert artifacts.names == [
         "why",
         "who_is",

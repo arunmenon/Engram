@@ -24,6 +24,7 @@ from context_graph.ports.errors import InvalidRequestError
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
 
+    from context_graph.domain.memory_actions import MemoryAction
     from context_graph.domain.ontology import OntologyRegistry
     from context_graph.ports.pack_graph import (
         Direction,
@@ -99,6 +100,67 @@ class Neo4jPackGraph:
         async with self._driver.session(database=self._database) as session:
             result = await session.run(query, params)
             return [record.data() async for record in result]
+
+    async def apply_memory_action(self, action: MemoryAction) -> str:
+        """Lock subjects and atomically validate/write state with its evidence."""
+        from context_graph.domain.memory_actions import plan_memory_action
+
+        async def work(tx: Any) -> str:
+            stored = {}
+            for ref in sorted(action.read_refs(), key=lambda item: (item.label, item.key)):
+                label, key = _label(ref.label), _property(ref.key_property)
+                if label == "Event":
+                    record = await (
+                        await tx.run(
+                            f"MATCH (n:{label} {{{key}: $key}}) RETURN properties(n) AS props",
+                            {"key": ref.key},
+                        )
+                    ).single()
+                    if record:
+                        stored[ref] = dict(record["props"])
+                    continue
+                record = await (
+                    await tx.run(
+                        f"MERGE (n:{label} {{{key}: $key}}) "
+                        "ON CREATE SET n.__memory_creation = $event "
+                        "SET n.__memory_lock = true REMOVE n.__memory_lock "
+                        "RETURN properties(n) AS props",
+                        {"key": ref.key, "event": str(action.event.event_id)},
+                    )
+                ).single()
+                props = dict(record["props"])
+                if props.pop("__memory_creation", None) != str(action.event.event_id):
+                    stored[ref] = props
+            plan = plan_memory_action(action, stored)
+            for write in plan.nodes:
+                label, key = _label(write.ref.label), _property(write.ref.key_property)
+                await tx.run(
+                    f"MATCH (n:{label} {{{key}: $key}}) SET n += $props REMOVE n.__memory_creation",
+                    {"key": write.ref.key, "props": _props(write.properties)},
+                )
+            for edge_write in plan.edges:
+                source, target = edge_write.source, edge_write.target
+                result = await (
+                    await tx.run(
+                        f"MATCH (a:{_label(source.label)} "
+                        f"{{{_property(source.key_property)}:$source}}), "
+                        f"(b:{_label(target.label)} {{{_property(target.key_property)}:$target}}) "
+                        f"MERGE (a)-[r:{_edge_type(edge_write.edge_type)}]->(b) "
+                        "SET r += $props RETURN count(r) AS count",
+                        {
+                            "source": source.key,
+                            "target": target.key,
+                            "props": _props(edge_write.properties),
+                        },
+                    )
+                ).single()
+                if not result or result["count"] != 1:
+                    raise ValueError("Memory evidence endpoint disappeared")
+            return plan.outcome
+
+        async with self._driver.session(database=self._database) as session:
+            result: str = await session.execute_write(work)
+            return result
 
     async def ensure_pack_schema(
         self, registry: OntologyRegistry, embedding_dimensions: int

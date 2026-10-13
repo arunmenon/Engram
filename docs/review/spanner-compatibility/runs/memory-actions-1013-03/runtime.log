@@ -1,0 +1,394 @@
+2026-10-13 18:36:55 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 18:36:55 [info     ] llm_client_initialized
+2026-10-13 18:36:58 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0'] ontology_version=sha256:4fa321fd932b565a redis_host=localhost
+2026-10-13 18:36:58 [info     ] event_ingested                 event_id=e772d959-658c-5f99-8182-abeae1a62771 event_type=memory.belief.stated global_position=2026-10-13T13:06:58.933151000Z/000000/e772d959-658c-5f99-8182-abeae1a62771 request_id=757bdc83-238a-4d7a-a3f0-ffd27e35f5ef status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 18:37:00 [info     ] ontology_loaded                edge_types=12 event_types=19 intents=['beliefs', 'general', 'goals', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=6 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:4fa321fd932b565a
+2026-10-13 18:37:01 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 18:37:01 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 18:37:02 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 18:37:02 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T13:06:58.933151000Z/000000/e772d959-658c-5f99-8182-abeae1a62771 event_id=e772d959-658c-5f99-8182-abeae1a62771 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:03 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 18:37:03 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 18:37:04 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 18:37:05 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 18:37:05 [debug    ] event_enriched                 event_id=e772d959-658c-5f99-8182-abeae1a62771 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:37:10 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1013 18:37:12.531149 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1013 18:37:12.531573 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 18:37:12.531807 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(32, generation: 1)
+I1013 18:37:12.532055 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 18:37:12.532062 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 18:37:12.532066 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 18:37:12.532070 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1013 18:37:12.532074 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 18:37:12.532077 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 18:37:12.532081 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 18:37:12.532084 56627280 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6722.79it/s]
+2026-10-13 18:37:15 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 18:37:16 [info     ] consolidation_llm_client_initialized
+2026-10-13 18:37:16 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 18:37:16 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 18:37:16 [debug    ] event_embedding_stored         event_id=e772d959-658c-5f99-8182-abeae1a62771
+2026-10-13 18:37:16 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 18:37:16 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 18:37:17 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 18:37:18 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 18:37:18 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 18:37:19 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=8c1c7d27-d98c-47bd-bd2a-480707419cf4
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11264.13it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 18:37:27 [info     ] event_ingested                 event_id=e772d959-658c-5f99-8182-abeae1a62771 event_type=memory.belief.stated global_position=2026-10-13T13:06:58.933151000Z/000000/e772d959-658c-5f99-8182-abeae1a62771 request_id=06398d57-62b7-4da1-8a05-09acb70654b6 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 18:37:28 [info     ] event_ingested                 event_id=c1c5adba-62b4-5ebe-a75a-2e6da92bd537 event_type=memory.belief.confirmed global_position=2026-10-13T13:07:28.465903000Z/000000/c1c5adba-62b4-5ebe-a75a-2e6da92bd537 request_id=17ea33e1-a0b5-456e-bb76-b87a94774f64 status=created
+2026-10-13 18:37:28 [info     ] event_ingested                 event_id=9a0224f9-6b14-52eb-a89b-18be34aed4be event_type=memory.belief.confirmed global_position=2026-10-13T13:07:28.465919000Z/000000/9a0224f9-6b14-52eb-a89b-18be34aed4be request_id=88b217e2-1e10-4dbc-a0b2-d5ab86dc3ccb status=created
+2026-10-13 18:37:28 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:07:28.465903000Z/000000/c1c5adba-62b4-5ebe-a75a-2e6da92bd537 event_id=c1c5adba-62b4-5ebe-a75a-2e6da92bd537 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:28 [debug    ] event_enriched                 event_id=c1c5adba-62b4-5ebe-a75a-2e6da92bd537 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:37:29 [debug    ] event_embedding_stored         event_id=c1c5adba-62b4-5ebe-a75a-2e6da92bd537
+2026-10-13 18:37:29 [debug    ] event_enriched                 event_id=9a0224f9-6b14-52eb-a89b-18be34aed4be importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:37:30 [debug    ] event_embedding_stored         event_id=9a0224f9-6b14-52eb-a89b-18be34aed4be
+2026-10-13 18:37:30 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:07:28.465919000Z/000000/9a0224f9-6b14-52eb-a89b-18be34aed4be event_id=9a0224f9-6b14-52eb-a89b-18be34aed4be session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:31 [warning  ] memory_action_rejected         event_id=9a0224f9-6b14-52eb-a89b-18be34aed4be reason=state_conflict
+2026-10-13 18:37:36 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 18:37:36 [info     ] consolidation_timer_fired
+2026-10-13 18:37:36 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 18:37:36 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 18:37:36 [info     ] consolidating_session          event_count=3 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:36 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:memory
+I1013 18:37:36.898510 56627323 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 18:37:36.911816 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 18:37:36.911920 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 18:37:36.911926 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 18:37:36.911931 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 18:37:36.911935 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1013 18:37:36.911940 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(23, generation: 1)
+I1013 18:37:36.911945 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1013 18:37:36.916780 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 18:37:36.916817 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 18:37:36.916824 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 18:37:36.916840 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(31, generation: 1)
+I1013 18:37:36.916846 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 18:37:36.916851 56629326 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 18:37:36.926408 56627323 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1013 18:37:36.936397 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1013 18:37:36.936573 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(32, generation: 1)
+I1013 18:37:36.936580 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1013 18:37:36.936586 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(27, generation: 1)
+I1013 18:37:36.936590 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1013 18:37:36.936594 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 18:37:36.936598 56629362 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+2026-10-13 18:37:38 [info     ] ontology_loaded                edge_types=12 event_types=19 intents=['beliefs', 'general', 'goals', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=6 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:4fa321fd932b565a
+2026-10-13 18:37:40 [info     ] ontology_loaded                edge_types=12 event_types=19 intents=['beliefs', 'general', 'goals', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=6 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:4fa321fd932b565a
+2026-10-13 18:37:40 [info     ] event_ingested                 event_id=1f42f75b-de81-575c-ad07-72f4f7457dc9 event_type=memory.belief.confirmed global_position=2026-10-13T13:07:40.638575000Z/000000/1f42f75b-de81-575c-ad07-72f4f7457dc9 request_id=255382fe-4c8b-4f81-9d0d-dbc973ec4a9b status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 18:37:40 [info     ] event_ingested                 event_id=753cbae4-72cc-53a5-983a-80cb73ef56ec event_type=memory.belief.confirmed global_position=2026-10-13T13:07:40.638463000Z/000000/753cbae4-72cc-53a5-983a-80cb73ef56ec request_id=d51d5cc3-2420-4617-97a9-87eb0d59e00c status=created
+2026-10-13 18:37:41 [debug    ] event_enriched                 event_id=753cbae4-72cc-53a5-983a-80cb73ef56ec importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:37:41 [debug    ] event_embedding_stored         event_id=753cbae4-72cc-53a5-983a-80cb73ef56ec
+2026-10-13 18:37:42 [debug    ] previous_event_from_ledger     event_id=753cbae4-72cc-53a5-983a-80cb73ef56ec previous_event_id=9a0224f9-6b14-52eb-a89b-18be34aed4be session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:42 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:07:40.638463000Z/000000/753cbae4-72cc-53a5-983a-80cb73ef56ec event_id=753cbae4-72cc-53a5-983a-80cb73ef56ec session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:42 [debug    ] event_enriched                 event_id=1f42f75b-de81-575c-ad07-72f4f7457dc9 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:37:42 [debug    ] previous_event_from_ledger     event_id=1f42f75b-de81-575c-ad07-72f4f7457dc9 previous_event_id=753cbae4-72cc-53a5-983a-80cb73ef56ec session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:42 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:07:40.638575000Z/000000/1f42f75b-de81-575c-ad07-72f4f7457dc9 event_id=1f42f75b-de81-575c-ad07-72f4f7457dc9 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:42 [debug    ] event_embedding_stored         event_id=1f42f75b-de81-575c-ad07-72f4f7457dc9
+2026-10-13 18:37:43 [warning  ] memory_action_rejected         event_id=1f42f75b-de81-575c-ad07-72f4f7457dc9 reason=state_conflict
+2026-10-13 18:37:45 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:46 [info     ] agent_summary_created          agent_id=memory-action-agent sessions=1
+2026-10-13 18:37:46 [info     ] importance_recomputed_from_centrality updated_count=5
+2026-10-13 18:37:46 [info     ] consolidating_session          event_count=5 session_id=memory-actions-1013-03:memory
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 18:37:47 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:47 [info     ] consumer_started               consumer=memory-cas-a group=assessment-projection stream=Events
+2026-10-13 18:37:47 [info     ] event_ingested                 event_id=ac0c4cee-f703-5ab1-aca7-a56abc294c8c event_type=memory.belief.inferred global_position=2026-10-13T13:07:47.452575000Z/000000/ac0c4cee-f703-5ab1-aca7-a56abc294c8c request_id=7462ab11-a51c-46a4-9774-8ee2d6f25e5e status=created
+2026-10-13 18:37:47 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 18:37:48 [debug    ] event_enriched                 event_id=ac0c4cee-f703-5ab1-aca7-a56abc294c8c importance_score=5 keywords=['memory', 'belief', 'inferred']
+2026-10-13 18:37:48 [debug    ] event_embedding_stored         event_id=ac0c4cee-f703-5ab1-aca7-a56abc294c8c
+2026-10-13 18:37:48 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:07:47.452575000Z/000000/ac0c4cee-f703-5ab1-aca7-a56abc294c8c event_id=ac0c4cee-f703-5ab1-aca7-a56abc294c8c session_id=memory-actions-1013-03:memory
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 18:37:53 [info     ] event_ingested                 event_id=f5759462-b25f-5eb4-97ae-6ffd79c644f0 event_type=memory.belief.corrected global_position=2026-10-13T13:07:53.188943000Z/000000/f5759462-b25f-5eb4-97ae-6ffd79c644f0 request_id=0ffe877d-657d-4d3e-a8cc-1c7cdc7c840e status=created
+2026-10-13 18:37:53 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:07:53.188943000Z/000000/f5759462-b25f-5eb4-97ae-6ffd79c644f0 event_id=f5759462-b25f-5eb4-97ae-6ffd79c644f0 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:54 [debug    ] event_enriched                 event_id=f5759462-b25f-5eb4-97ae-6ffd79c644f0 importance_score=5 keywords=['memory', 'belief', 'corrected']
+2026-10-13 18:37:54 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:37:54 [debug    ] event_embedding_stored         event_id=f5759462-b25f-5eb4-97ae-6ffd79c644f0
+2026-10-13 18:37:55 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 18:37:57 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 18:37:57 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 18:38:04 [info     ] event_ingested                 event_id=9dd2eaa6-d0de-5144-a056-7a3ef1538c00 event_type=memory.goal.created global_position=2026-10-13T13:08:04.162335000Z/000000/9dd2eaa6-d0de-5144-a056-7a3ef1538c00 request_id=754a252a-b52e-45c0-af86-2481feadf438 status=created
+2026-10-13 18:38:04 [debug    ] event_enriched                 event_id=9dd2eaa6-d0de-5144-a056-7a3ef1538c00 importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:38:04 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:04.162335000Z/000000/9dd2eaa6-d0de-5144-a056-7a3ef1538c00 event_id=9dd2eaa6-d0de-5144-a056-7a3ef1538c00 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:04 [debug    ] event_embedding_stored         event_id=9dd2eaa6-d0de-5144-a056-7a3ef1538c00
+2026-10-13 18:38:07 [info     ] event_ingested                 event_id=4138df44-6ceb-5227-9b19-64a7dec9e1fb event_type=memory.goal.completed global_position=2026-10-13T13:08:07.149327000Z/000000/4138df44-6ceb-5227-9b19-64a7dec9e1fb request_id=7717767d-01c1-4ef5-a817-a2aa3f20e380 status=created
+2026-10-13 18:38:07 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:07.149327000Z/000000/4138df44-6ceb-5227-9b19-64a7dec9e1fb event_id=4138df44-6ceb-5227-9b19-64a7dec9e1fb session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:07 [debug    ] event_enriched                 event_id=4138df44-6ceb-5227-9b19-64a7dec9e1fb importance_score=5 keywords=['memory', 'goal', 'completed']
+2026-10-13 18:38:08 [debug    ] event_embedding_stored         event_id=4138df44-6ceb-5227-9b19-64a7dec9e1fb
+2026-10-13 18:38:10 [info     ] event_ingested                 event_id=4f06591f-ab61-54dc-a02d-64171fd04702 event_type=memory.goal.created global_position=2026-10-13T13:08:10.181759000Z/000000/4f06591f-ab61-54dc-a02d-64171fd04702 request_id=89ef459b-3969-4252-8da8-eaa7a9e35e90 status=created
+2026-10-13 18:38:10 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:10.181759000Z/000000/4f06591f-ab61-54dc-a02d-64171fd04702 event_id=4f06591f-ab61-54dc-a02d-64171fd04702 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:11 [debug    ] event_enriched                 event_id=4f06591f-ab61-54dc-a02d-64171fd04702 importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:38:12 [debug    ] event_embedding_stored         event_id=4f06591f-ab61-54dc-a02d-64171fd04702
+2026-10-13 18:38:14 [info     ] event_ingested                 event_id=70398f3d-8a95-5012-b05e-1a922891637c event_type=memory.goal.abandoned global_position=2026-10-13T13:08:14.345199000Z/000000/70398f3d-8a95-5012-b05e-1a922891637c request_id=60b5c186-65af-401a-b96f-aac1c25d1b33 status=created
+2026-10-13 18:38:14 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:14.345199000Z/000000/70398f3d-8a95-5012-b05e-1a922891637c event_id=70398f3d-8a95-5012-b05e-1a922891637c session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:14 [debug    ] event_enriched                 event_id=70398f3d-8a95-5012-b05e-1a922891637c importance_score=5 keywords=['memory', 'goal', 'abandoned']
+2026-10-13 18:38:15 [debug    ] event_embedding_stored         event_id=70398f3d-8a95-5012-b05e-1a922891637c
+2026-10-13 18:38:17 [info     ] consolidation_timer_fired
+2026-10-13 18:38:17 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 18:38:17 [info     ] event_ingested                 event_id=c2e73db2-c43f-52b9-b479-cf1fc3ab7303 event_type=memory.goal.created global_position=2026-10-13T13:08:17.349951000Z/000000/c2e73db2-c43f-52b9-b479-cf1fc3ab7303 request_id=342aca9a-928d-43ac-a519-4b7faa91d8ae status=created
+2026-10-13 18:38:17 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 18:38:17 [info     ] consolidating_session          event_count=11 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:17 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:17 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:17.349951000Z/000000/c2e73db2-c43f-52b9-b479-cf1fc3ab7303 event_id=c2e73db2-c43f-52b9-b479-cf1fc3ab7303 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:17 [debug    ] event_enriched                 event_id=c2e73db2-c43f-52b9-b479-cf1fc3ab7303 importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:38:18 [debug    ] event_embedding_stored         event_id=c2e73db2-c43f-52b9-b479-cf1fc3ab7303
+2026-10-13 18:38:20 [info     ] event_ingested                 event_id=dbf49036-c393-5622-953b-ab39282a6186 event_type=memory.goal.created global_position=2026-10-13T13:08:20.353119000Z/000000/dbf49036-c393-5622-953b-ab39282a6186 request_id=766fc398-c628-4c1a-938b-4169cf4bf3d0 status=created
+2026-10-13 18:38:20 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:20.353119000Z/000000/dbf49036-c393-5622-953b-ab39282a6186 event_id=dbf49036-c393-5622-953b-ab39282a6186 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:20 [debug    ] event_enriched                 event_id=dbf49036-c393-5622-953b-ab39282a6186 importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:38:21 [debug    ] event_embedding_stored         event_id=dbf49036-c393-5622-953b-ab39282a6186
+2026-10-13 18:38:23 [info     ] event_ingested                 event_id=4ce25488-a054-5b06-af9b-4777d3ab5f6a event_type=memory.goal.superseded global_position=2026-10-13T13:08:23.454239000Z/000000/4ce25488-a054-5b06-af9b-4777d3ab5f6a request_id=a6d54719-7d64-40df-8bf3-6fea6809be46 status=created
+2026-10-13 18:38:23 [debug    ] event_enriched                 event_id=4ce25488-a054-5b06-af9b-4777d3ab5f6a importance_score=5 keywords=['memory', 'goal', 'superseded']
+2026-10-13 18:38:24 [debug    ] event_embedding_stored         event_id=4ce25488-a054-5b06-af9b-4777d3ab5f6a
+2026-10-13 18:38:24 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:23.454239000Z/000000/4ce25488-a054-5b06-af9b-4777d3ab5f6a event_id=4ce25488-a054-5b06-af9b-4777d3ab5f6a session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:26 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:27 [info     ] agent_summary_created          agent_id=memory-action-agent sessions=1
+2026-10-13 18:38:27 [info     ] importance_recomputed_from_centrality updated_count=14
+2026-10-13 18:38:27 [info     ] consolidating_session          event_count=14 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:28 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:31 [info     ] event_ingested                 event_id=7cfe6cd6-00af-5a26-8d3e-46bf6750cd81 event_type=memory.belief.stated global_position=2026-10-13T13:08:31.755471000Z/000000/7cfe6cd6-00af-5a26-8d3e-46bf6750cd81 request_id=35e7d1fc-f254-43be-a8d6-e76f8a90b64c status=created
+2026-10-13 18:38:32 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:31.755471000Z/000000/7cfe6cd6-00af-5a26-8d3e-46bf6750cd81 event_id=7cfe6cd6-00af-5a26-8d3e-46bf6750cd81 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:32 [debug    ] event_enriched                 event_id=7cfe6cd6-00af-5a26-8d3e-46bf6750cd81 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:38:32 [debug    ] event_embedding_stored         event_id=7cfe6cd6-00af-5a26-8d3e-46bf6750cd81
+2026-10-13 18:38:34 [info     ] event_ingested                 event_id=48860389-0df3-5b13-b147-42e77e46acbb event_type=memory.belief.stated global_position=2026-10-13T13:08:34.887887000Z/000000/48860389-0df3-5b13-b147-42e77e46acbb request_id=3db299e6-7cf4-4392-a8c4-0be5d530c3cf status=created
+2026-10-13 18:38:35 [debug    ] event_enriched                 event_id=48860389-0df3-5b13-b147-42e77e46acbb importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:38:35 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:34.887887000Z/000000/48860389-0df3-5b13-b147-42e77e46acbb event_id=48860389-0df3-5b13-b147-42e77e46acbb session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:35 [debug    ] event_embedding_stored         event_id=48860389-0df3-5b13-b147-42e77e46acbb
+2026-10-13 18:38:36 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:37 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 18:38:39 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 18:38:39 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 18:38:45 [info     ] event_ingested                 event_id=d3f96f9f-bd7e-5061-9e94-ff5ea9f3ce50 event_type=memory.belief.confirmed global_position=2026-10-13T13:08:45.168687000Z/000000/d3f96f9f-bd7e-5061-9e94-ff5ea9f3ce50 request_id=ece51036-f129-45f5-a775-f6fcd2c0e0ef status=created
+2026-10-13 18:38:45 [debug    ] event_enriched                 event_id=d3f96f9f-bd7e-5061-9e94-ff5ea9f3ce50 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:38:45 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:45.168687000Z/000000/d3f96f9f-bd7e-5061-9e94-ff5ea9f3ce50 event_id=d3f96f9f-bd7e-5061-9e94-ff5ea9f3ce50 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:45 [debug    ] event_embedding_stored         event_id=d3f96f9f-bd7e-5061-9e94-ff5ea9f3ce50
+2026-10-13 18:38:48 [info     ] event_ingested                 event_id=fd257126-e17a-5705-99b1-d4aa0b1750a9 event_type=memory.belief.stated global_position=2026-10-13T13:08:48.386879000Z/000000/fd257126-e17a-5705-99b1-d4aa0b1750a9 request_id=7198d7ab-9076-4b84-9980-d0c6883e9d5c status=created
+2026-10-13 18:38:48 [debug    ] event_enriched                 event_id=fd257126-e17a-5705-99b1-d4aa0b1750a9 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:38:49 [debug    ] event_embedding_stored         event_id=fd257126-e17a-5705-99b1-d4aa0b1750a9
+2026-10-13 18:38:49 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:08:48.386879000Z/000000/fd257126-e17a-5705-99b1-d4aa0b1750a9 event_id=fd257126-e17a-5705-99b1-d4aa0b1750a9 session_id=memory-actions-1013-03:memory
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 18:38:59 [info     ] consolidation_timer_fired
+2026-10-13 18:38:59 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 18:38:59 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 18:38:59 [info     ] consolidating_session          event_count=18 session_id=memory-actions-1013-03:memory
+2026-10-13 18:38:59 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:39:08 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:39:09 [info     ] agent_summary_created          agent_id=memory-action-agent sessions=1
+2026-10-13 18:39:10 [info     ] importance_recomputed_from_centrality updated_count=18
+2026-10-13 18:39:10 [info     ] consolidating_session          event_count=18 session_id=memory-actions-1013-03:memory
+2026-10-13 18:39:10 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:memory
+2026-10-13 18:39:16 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 18:39:16 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 18:39:16 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 18:39:16 [info     ] consumer_stopped               consumer=memory-cas-a group=assessment-projection
+2026-10-13 18:39:16 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 18:39:19 [info     ] app_stopped
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 18:39:20 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-13 18:39:21 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-13 18:39:25 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 18:39:25 [info     ] llm_client_initialized
+2026-10-13 18:39:27 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'pdlc@5.0.0'] ontology_version=sha256:b5b9857af719ffe2 redis_host=localhost
+2026-10-13 18:39:27 [info     ] event_ingested                 event_id=119aaebf-4d7e-5a0d-8054-a6c545938eb4 event_type=memory.belief.stated global_position=2026-10-13T13:09:27.766207000Z/000000/119aaebf-4d7e-5a0d-8054-a6c545938eb4 request_id=86e23031-e738-4724-9616-52bcaa260058 status=created
+2026-10-13 18:39:29 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-13 18:39:30 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 18:39:30 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 18:39:31 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 18:39:32 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 18:39:32 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T13:09:27.766207000Z/000000/119aaebf-4d7e-5a0d-8054-a6c545938eb4 event_id=119aaebf-4d7e-5a0d-8054-a6c545938eb4 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:39:32 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 18:39:33 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 18:39:34 [debug    ] event_enriched                 event_id=119aaebf-4d7e-5a0d-8054-a6c545938eb4 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:39:34 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8643.72it/s]
+2026-10-13 18:39:39 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 18:39:40 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 18:39:40 [debug    ] event_embedding_stored         event_id=119aaebf-4d7e-5a0d-8054-a6c545938eb4
+2026-10-13 18:39:40 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 18:39:41 [info     ] consolidation_llm_client_initialized
+2026-10-13 18:39:41 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-13 18:39:41 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-13 18:39:42 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 18:39:42 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 18:39:43 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 18:39:44 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=9b1419df-755f-4cd7-8d78-ace8eda5a783
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12641.21it/s]
+2026-10-13 18:39:49 [info     ] pending_drain_completed        group=assessment-pack_extraction
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 18:39:53 [info     ] event_ingested                 event_id=119aaebf-4d7e-5a0d-8054-a6c545938eb4 event_type=memory.belief.stated global_position=2026-10-13T13:09:27.766207000Z/000000/119aaebf-4d7e-5a0d-8054-a6c545938eb4 request_id=f7f3b111-c0f8-45d6-81b6-bce07c930c61 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 18:39:54 [info     ] event_ingested                 event_id=8f5fccfa-6993-5542-8b4e-736016f5686b event_type=memory.belief.confirmed global_position=2026-10-13T13:09:54.193215000Z/000000/8f5fccfa-6993-5542-8b4e-736016f5686b request_id=dc1fdb51-2523-4395-b8e7-45b87fd9a23b status=created
+2026-10-13 18:39:54 [info     ] event_ingested                 event_id=883ea975-ec34-54dc-a111-cbd0aebf7964 event_type=memory.belief.confirmed global_position=2026-10-13T13:09:54.193199000Z/000000/883ea975-ec34-54dc-a111-cbd0aebf7964 request_id=731ffb10-ed60-4e9a-8c3e-a65347a53af6 status=created
+2026-10-13 18:39:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:09:54.193199000Z/000000/883ea975-ec34-54dc-a111-cbd0aebf7964 event_id=883ea975-ec34-54dc-a111-cbd0aebf7964 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:39:54 [debug    ] event_enriched                 event_id=883ea975-ec34-54dc-a111-cbd0aebf7964 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:39:54 [debug    ] event_embedding_stored         event_id=883ea975-ec34-54dc-a111-cbd0aebf7964
+2026-10-13 18:39:55 [debug    ] event_enriched                 event_id=8f5fccfa-6993-5542-8b4e-736016f5686b importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:39:55 [debug    ] event_embedding_stored         event_id=8f5fccfa-6993-5542-8b4e-736016f5686b
+2026-10-13 18:39:56 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:09:54.193215000Z/000000/8f5fccfa-6993-5542-8b4e-736016f5686b event_id=8f5fccfa-6993-5542-8b4e-736016f5686b session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:39:58 [warning  ] memory_action_rejected         event_id=8f5fccfa-6993-5542-8b4e-736016f5686b reason=state_conflict
+2026-10-13 18:40:01 [info     ] consolidation_timer_fired
+2026-10-13 18:40:01 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 18:40:01 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 18:40:01 [info     ] consolidating_session          event_count=3 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:02 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 18:40:02 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:04 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-13 18:40:07 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-13 18:40:08 [info     ] event_ingested                 event_id=246473eb-b3a1-53a0-9194-93c12a8e6831 event_type=memory.belief.confirmed global_position=2026-10-13T13:10:08.381263000Z/000000/246473eb-b3a1-53a0-9194-93c12a8e6831 request_id=3e1cac9f-6dd7-4a88-8e18-a37f2b6cd048 status=created
+2026-10-13 18:40:08 [info     ] event_ingested                 event_id=cbad293c-3177-519a-bba3-561b4f887518 event_type=memory.belief.confirmed global_position=2026-10-13T13:10:08.479407000Z/000000/cbad293c-3177-519a-bba3-561b4f887518 request_id=2715aa85-d539-4539-8d80-9182f6e692c1 status=created
+2026-10-13 18:40:08 [debug    ] event_enriched                 event_id=246473eb-b3a1-53a0-9194-93c12a8e6831 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:40:09 [debug    ] event_embedding_stored         event_id=246473eb-b3a1-53a0-9194-93c12a8e6831
+2026-10-13 18:40:09 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:09 [debug    ] event_enriched                 event_id=cbad293c-3177-519a-bba3-561b4f887518 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:40:10 [debug    ] event_embedding_stored         event_id=cbad293c-3177-519a-bba3-561b4f887518
+2026-10-13 18:40:10 [info     ] agent_summary_created          agent_id=memory-action-agent sessions=1
+2026-10-13 18:40:10 [debug    ] previous_event_from_ledger     event_id=246473eb-b3a1-53a0-9194-93c12a8e6831 previous_event_id=8f5fccfa-6993-5542-8b4e-736016f5686b session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:10 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:08.381263000Z/000000/246473eb-b3a1-53a0-9194-93c12a8e6831 event_id=246473eb-b3a1-53a0-9194-93c12a8e6831 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:10 [debug    ] previous_event_from_ledger     event_id=cbad293c-3177-519a-bba3-561b4f887518 previous_event_id=246473eb-b3a1-53a0-9194-93c12a8e6831 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:10 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:08.479407000Z/000000/cbad293c-3177-519a-bba3-561b4f887518 event_id=cbad293c-3177-519a-bba3-561b4f887518 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:10 [info     ] importance_recomputed_from_centrality updated_count=3
+2026-10-13 18:40:11 [info     ] consolidating_session          event_count=5 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:11 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:12 [warning  ] memory_action_rejected         event_id=cbad293c-3177-519a-bba3-561b4f887518 reason=state_conflict
+2026-10-13 18:40:16 [info     ] consumer_started               consumer=memory-cas-a group=assessment-projection stream=Events
+2026-10-13 18:40:16 [info     ] event_ingested                 event_id=46a1d14b-627e-5280-856a-c3a0a8ffa880 event_type=memory.belief.inferred global_position=2026-10-13T13:10:16.483503000Z/000000/46a1d14b-627e-5280-856a-c3a0a8ffa880 request_id=d671507c-64ac-490a-bd84-cde098b2c587 status=created
+2026-10-13 18:40:17 [debug    ] event_enriched                 event_id=46a1d14b-627e-5280-856a-c3a0a8ffa880 importance_score=5 keywords=['memory', 'belief', 'inferred']
+2026-10-13 18:40:17 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 18:40:17 [debug    ] event_embedding_stored         event_id=46a1d14b-627e-5280-856a-c3a0a8ffa880
+2026-10-13 18:40:17 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:16.483503000Z/000000/46a1d14b-627e-5280-856a-c3a0a8ffa880 event_id=46a1d14b-627e-5280-856a-c3a0a8ffa880 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:20 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:21 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 18:40:23 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 18:40:23 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 18:40:23 [info     ] event_ingested                 event_id=2876d286-744c-5011-8d18-f9064057b286 event_type=memory.belief.corrected global_position=2026-10-13T13:10:23.533935000Z/000000/2876d286-744c-5011-8d18-f9064057b286 request_id=1cb2027d-6a1e-4401-baec-69b9e0160002 status=created
+2026-10-13 18:40:23 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:23.533935000Z/000000/2876d286-744c-5011-8d18-f9064057b286 event_id=2876d286-744c-5011-8d18-f9064057b286 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:24 [debug    ] event_enriched                 event_id=2876d286-744c-5011-8d18-f9064057b286 importance_score=5 keywords=['memory', 'belief', 'corrected']
+2026-10-13 18:40:24 [debug    ] event_embedding_stored         event_id=2876d286-744c-5011-8d18-f9064057b286
+2026-10-13 18:40:35 [info     ] event_ingested                 event_id=0f39f0c6-a5d6-5ff0-92bc-460b15c93f8f event_type=memory.goal.created global_position=2026-10-13T13:10:35.505711000Z/000000/0f39f0c6-a5d6-5ff0-92bc-460b15c93f8f request_id=9b46a362-b60d-4849-94b1-8f4feb66d755 status=created
+2026-10-13 18:40:35 [debug    ] event_enriched                 event_id=0f39f0c6-a5d6-5ff0-92bc-460b15c93f8f importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:40:36 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:35.505711000Z/000000/0f39f0c6-a5d6-5ff0-92bc-460b15c93f8f event_id=0f39f0c6-a5d6-5ff0-92bc-460b15c93f8f session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:36 [debug    ] event_embedding_stored         event_id=0f39f0c6-a5d6-5ff0-92bc-460b15c93f8f
+2026-10-13 18:40:38 [info     ] event_ingested                 event_id=cc0641df-e7ec-5ab7-8dff-cf4fc07d1348 event_type=memory.goal.completed global_position=2026-10-13T13:10:38.515199000Z/000000/cc0641df-e7ec-5ab7-8dff-cf4fc07d1348 request_id=b9796241-158f-4dff-b6e0-581f5960853c status=created
+2026-10-13 18:40:38 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:38.515199000Z/000000/cc0641df-e7ec-5ab7-8dff-cf4fc07d1348 event_id=cc0641df-e7ec-5ab7-8dff-cf4fc07d1348 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:39 [debug    ] event_enriched                 event_id=cc0641df-e7ec-5ab7-8dff-cf4fc07d1348 importance_score=5 keywords=['memory', 'goal', 'completed']
+2026-10-13 18:40:39 [debug    ] event_embedding_stored         event_id=cc0641df-e7ec-5ab7-8dff-cf4fc07d1348
+2026-10-13 18:40:41 [info     ] event_ingested                 event_id=51d8c42a-edba-5ab5-8db1-30097b4cd7fd event_type=memory.goal.created global_position=2026-10-13T13:10:41.519775000Z/000000/51d8c42a-edba-5ab5-8db1-30097b4cd7fd request_id=ed479c06-500c-4123-9599-2c22ab1e045f status=created
+2026-10-13 18:40:41 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:41.519775000Z/000000/51d8c42a-edba-5ab5-8db1-30097b4cd7fd event_id=51d8c42a-edba-5ab5-8db1-30097b4cd7fd session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:42 [debug    ] event_enriched                 event_id=51d8c42a-edba-5ab5-8db1-30097b4cd7fd importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:40:43 [info     ] consolidation_timer_fired
+2026-10-13 18:40:43 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 18:40:43 [debug    ] event_embedding_stored         event_id=51d8c42a-edba-5ab5-8db1-30097b4cd7fd
+2026-10-13 18:40:43 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 18:40:43 [info     ] consolidating_session          event_count=10 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:43 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:45 [info     ] event_ingested                 event_id=34cdbf63-1305-5a3d-87d3-a0178e3d1ad6 event_type=memory.goal.abandoned global_position=2026-10-13T13:10:45.525183000Z/000000/34cdbf63-1305-5a3d-87d3-a0178e3d1ad6 request_id=fd10ec71-acea-4233-9fe7-50e543902666 status=created
+2026-10-13 18:40:45 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:45.525183000Z/000000/34cdbf63-1305-5a3d-87d3-a0178e3d1ad6 event_id=34cdbf63-1305-5a3d-87d3-a0178e3d1ad6 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:45 [debug    ] event_enriched                 event_id=34cdbf63-1305-5a3d-87d3-a0178e3d1ad6 importance_score=5 keywords=['memory', 'goal', 'abandoned']
+2026-10-13 18:40:46 [debug    ] event_embedding_stored         event_id=34cdbf63-1305-5a3d-87d3-a0178e3d1ad6
+2026-10-13 18:40:48 [info     ] event_ingested                 event_id=867796f7-c2c5-59a8-a74d-4eb7f5d4df94 event_type=memory.goal.created global_position=2026-10-13T13:10:48.372815000Z/000000/867796f7-c2c5-59a8-a74d-4eb7f5d4df94 request_id=4bb380ad-b49c-4855-bb25-89d57bfc5606 status=created
+2026-10-13 18:40:48 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:48.372815000Z/000000/867796f7-c2c5-59a8-a74d-4eb7f5d4df94 event_id=867796f7-c2c5-59a8-a74d-4eb7f5d4df94 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:49 [debug    ] event_enriched                 event_id=867796f7-c2c5-59a8-a74d-4eb7f5d4df94 importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:40:49 [debug    ] event_embedding_stored         event_id=867796f7-c2c5-59a8-a74d-4eb7f5d4df94
+2026-10-13 18:40:51 [info     ] event_ingested                 event_id=ae061077-7b05-5bb4-81d8-d6c65fc26063 event_type=memory.goal.created global_position=2026-10-13T13:10:51.303791000Z/000000/ae061077-7b05-5bb4-81d8-d6c65fc26063 request_id=44c44525-7437-4746-b9f6-b2761aa85e41 status=created
+2026-10-13 18:40:51 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:51 [debug    ] event_enriched                 event_id=ae061077-7b05-5bb4-81d8-d6c65fc26063 importance_score=5 keywords=['memory', 'goal', 'created']
+2026-10-13 18:40:51 [debug    ] event_embedding_stored         event_id=ae061077-7b05-5bb4-81d8-d6c65fc26063
+2026-10-13 18:40:51 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:51.303791000Z/000000/ae061077-7b05-5bb4-81d8-d6c65fc26063 event_id=ae061077-7b05-5bb4-81d8-d6c65fc26063 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:52 [info     ] agent_summary_created          agent_id=memory-action-agent sessions=1
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 18:40:53 [info     ] importance_recomputed_from_centrality updated_count=12
+2026-10-13 18:40:53 [info     ] consolidating_session          event_count=13 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:53 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:54 [info     ] event_ingested                 event_id=670b1cae-5651-500d-a474-4001f5824d08 event_type=memory.goal.superseded global_position=2026-10-13T13:10:54.318591000Z/000000/670b1cae-5651-500d-a474-4001f5824d08 request_id=69c28ab9-2df4-460f-babc-4b82f8bf1bb5 status=created
+2026-10-13 18:40:54 [debug    ] event_enriched                 event_id=670b1cae-5651-500d-a474-4001f5824d08 importance_score=5 keywords=['memory', 'goal', 'superseded']
+2026-10-13 18:40:55 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:10:54.318591000Z/000000/670b1cae-5651-500d-a474-4001f5824d08 event_id=670b1cae-5651-500d-a474-4001f5824d08 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:40:55 [debug    ] event_embedding_stored         event_id=670b1cae-5651-500d-a474-4001f5824d08
+2026-10-13 18:41:00 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:02 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 18:41:03 [info     ] event_ingested                 event_id=c736329a-99f8-5a60-97f2-c9a69cd711f2 event_type=memory.belief.stated global_position=2026-10-13T13:11:03.399391000Z/000000/c736329a-99f8-5a60-97f2-c9a69cd711f2 request_id=264bd8da-5f27-407a-98c9-da312932dd6e status=created
+2026-10-13 18:41:03 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 18:41:03 [info     ] consolidation_cycle_completed  source=timer
+2026-10-13 18:41:03 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:11:03.399391000Z/000000/c736329a-99f8-5a60-97f2-c9a69cd711f2 event_id=c736329a-99f8-5a60-97f2-c9a69cd711f2 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:03 [debug    ] event_enriched                 event_id=c736329a-99f8-5a60-97f2-c9a69cd711f2 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:41:04 [debug    ] event_embedding_stored         event_id=c736329a-99f8-5a60-97f2-c9a69cd711f2
+2026-10-13 18:41:06 [info     ] event_ingested                 event_id=7311b635-8ea6-5e0d-af22-2940300f85c5 event_type=memory.belief.stated global_position=2026-10-13T13:11:06.327407000Z/000000/7311b635-8ea6-5e0d-af22-2940300f85c5 request_id=4b910aa6-6658-4106-868b-0460dfcaea36 status=created
+2026-10-13 18:41:06 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:11:06.327407000Z/000000/7311b635-8ea6-5e0d-af22-2940300f85c5 event_id=7311b635-8ea6-5e0d-af22-2940300f85c5 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:06 [debug    ] event_enriched                 event_id=7311b635-8ea6-5e0d-af22-2940300f85c5 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:41:07 [debug    ] event_embedding_stored         event_id=7311b635-8ea6-5e0d-af22-2940300f85c5
+2026-10-13 18:41:17 [info     ] event_ingested                 event_id=eacbfa96-2a79-5eb5-9653-cefd107707e1 event_type=memory.belief.confirmed global_position=2026-10-13T13:11:17.624111000Z/000000/eacbfa96-2a79-5eb5-9653-cefd107707e1 request_id=c4f33bc9-8971-4dbf-87cc-4781e12ea3f2 status=created
+2026-10-13 18:41:17 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:11:17.624111000Z/000000/eacbfa96-2a79-5eb5-9653-cefd107707e1 event_id=eacbfa96-2a79-5eb5-9653-cefd107707e1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:18 [debug    ] event_enriched                 event_id=eacbfa96-2a79-5eb5-9653-cefd107707e1 importance_score=5 keywords=['memory', 'belief', 'confirmed']
+2026-10-13 18:41:18 [debug    ] event_embedding_stored         event_id=eacbfa96-2a79-5eb5-9653-cefd107707e1
+2026-10-13 18:41:20 [info     ] event_ingested                 event_id=659a5f62-0d06-578c-ab6b-9259a3f859c8 event_type=memory.belief.stated global_position=2026-10-13T13:11:20.680655000Z/000000/659a5f62-0d06-578c-ab6b-9259a3f859c8 request_id=e09f2400-0723-4164-bb77-85ddcdd687b0 status=created
+2026-10-13 18:41:21 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:11:20.680655000Z/000000/659a5f62-0d06-578c-ab6b-9259a3f859c8 event_id=659a5f62-0d06-578c-ab6b-9259a3f859c8 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:21 [debug    ] event_enriched                 event_id=659a5f62-0d06-578c-ab6b-9259a3f859c8 importance_score=5 keywords=['memory', 'belief', 'stated']
+2026-10-13 18:41:21 [debug    ] event_embedding_stored         event_id=659a5f62-0d06-578c-ab6b-9259a3f859c8
+2026-10-13 18:41:23 [info     ] consolidation_timer_fired
+2026-10-13 18:41:23 [info     ] consolidation_cycle_started    source=timer
+2026-10-13 18:41:23 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-13 18:41:23 [info     ] consolidating_session          event_count=18 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:24 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:32 [info     ] event_ingested                 event_id=479e4086-02e0-567b-a515-87dce5010f0d event_type=pdlc.change.created global_position=2026-10-13T13:11:32.020015000Z/000000/479e4086-02e0-567b-a515-87dce5010f0d request_id=7df56191-f021-41f4-b1fd-4797b7af78a9 status=created
+2026-10-13 18:41:32 [debug    ] event_projected                edge_count=1 entry_id=2026-10-13T13:11:32.020015000Z/000000/479e4086-02e0-567b-a515-87dce5010f0d event_id=479e4086-02e0-567b-a515-87dce5010f0d session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:32 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:32 [debug    ] event_enriched                 event_id=479e4086-02e0-567b-a515-87dce5010f0d importance_score=5 keywords=['pdlc', 'change', 'created']
+2026-10-13 18:41:32 [debug    ] event_embedding_stored         event_id=479e4086-02e0-567b-a515-87dce5010f0d
+2026-10-13 18:41:33 [info     ] agent_summary_created          agent_id=memory-action-agent sessions=1
+2026-10-13 18:41:33 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-13 18:41:34 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-13 18:41:34 [info     ] consolidating_session          event_count=19 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:34 [info     ] episodes_grouped               episode_count=1 session_id=memory-actions-1013-03:pdlc-memory
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 18:41:43 [info     ] session_consolidated           episode_summaries=1 session_id=memory-actions-1013-03:pdlc-memory
+2026-10-13 18:41:44 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-13 18:41:45 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-13 18:41:45 [info     ] consolidation_cycle_completed  source=timer
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 18:41:57 [info     ] consumer_stopped               consumer=memory-cas-a group=assessment-projection
+2026-10-13 18:41:57 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 18:41:57 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 18:41:57 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 18:41:57 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 18:42:00 [info     ] app_stopped
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

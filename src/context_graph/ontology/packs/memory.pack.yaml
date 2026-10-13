@@ -1,47 +1,100 @@
-# Ontology pack: memory (ADR-0018).
-# Beliefs, goals and episodes (ADR-0009 amendment). Must stay equal to
-# domain/models.py and docker/neo4j/constraints.cypher.
-
+# Memory: explicit, owner-scoped beliefs/goals and temporal Episode snapshots.
 pack:
   name: memory
-  version: 1.1.0
-  requires: [core>=1.0]
+  version: 1.2.0
+  requires:
+  - core>=1.0
   owner: engram
   description: Beliefs, goals and episodes derived from agent sessions.
-
 processing:
-  enabled: [memory.episode.v1]
-  requires: [summary.consolidate.v1]
-
+  enabled:
+  - memory.episode.v1
+  - memory.belief.v1
+  - memory.goal.v1
+  requires:
+  - summary.consolidate.v1
 types:
   nodes:
     Belief:
-      key: [belief_id]
+      key:
+      - belief_id
       id_property: belief_id
       properties:
         belief_id: string
         belief_text: string
         confidence: float
-        category: {enum: [user_model, world_model, capability]}
+        category:
+          enum:
+          - user_model
+          - world_model
+          - capability
         created_at: datetime
         last_confirmed_at: datetime
         confirmation_count: int
         superseded_by: string
-      text_fields: [belief_text]
+        agent_id: string
+        session_id: string
+        scope:
+          enum:
+          - session
+          - agent
+        local_key: string
+        state_revision: int
+        evidence_event_ids: list<string>
+        complete: bool
+        origin:
+          enum:
+          - stated
+          - inferred
+        supporting_event_ids: list<string>
+        source_trust: string
+        contradiction_declared: bool
+      text_fields:
+      - belief_text
     Goal:
-      key: [goal_id]
+      key:
+      - goal_id
       id_property: goal_id
       properties:
         goal_id: string
         description: string
-        status: {enum: [active, completed, abandoned, superseded]}
+        status:
+          enum:
+          - active
+          - completed
+          - abandoned
+          - superseded
         created_at: datetime
         last_active_at: datetime
         priority: int
         evidence_count: int
-      text_fields: [description]
+        agent_id: string
+        session_id: string
+        scope:
+          enum:
+          - session
+          - agent
+        local_key: string
+        state_revision: int
+        evidence_event_ids: list<string>
+        complete: bool
+        superseded_by: string
+        status_changed_at: datetime
+        source_trust: string
+      text_fields:
+      - description
+      lifecycle:
+        initial: active
+        states:
+        - active
+        - completed
+        - abandoned
+        - superseded
+        superseded_states:
+        - superseded
     Episode:
-      key: [episode_id]
+      key:
+      - episode_id
       id_property: episode_id
       properties:
         episode_id: string
@@ -49,23 +102,302 @@ types:
         start_time: datetime
         end_time: datetime
         event_count: int
-        episode_type: {enum: [temporal, causal, thematic]}
+        episode_type:
+          enum:
+          - temporal
+          - causal
+          - thematic
         summary_id: string
         source_event_ids: list<string>
         snapshot_kind: string
         complete: bool
-
   edges:
-    CONTAINS: {from: [Episode], to: ["core:Event"]}
-    PURSUES:  {from: ["core:Entity"], to: [Goal]}
-
+    CONTAINS:
+      from:
+      - Episode
+      to:
+      - core:Event
+    PURSUES:
+      from:
+      - core:Entity
+      to:
+      - Goal
   extends_core_edges:
-    SUMMARIZES: {from: ["core:Summary"], to: [Episode]}
-    DERIVED_FROM: {from: [Episode], to: ["core:Event"]}
-    SUPERSEDES:  {from: [Belief], to: [Belief]}
-    CONTRADICTS: {from: [Belief], to: [Belief]}
-
+    SUMMARIZES:
+      from:
+      - core:Summary
+      to:
+      - Episode
+    DERIVED_FROM:
+      from:
+      - Episode
+      - Belief
+      - Goal
+      to:
+      - core:Event
+    SUPERSEDES:
+      from:
+      - Belief
+      - Goal
+      to:
+      - Belief
+      - Goal
+    CONTRADICTS:
+      from:
+      - Belief
+      to:
+      - Belief
 retrieval:
   core_intent_weights:
-    when: {CONTAINS: 3.0}
-    general: {CONTAINS: 1.0}
+    when:
+      CONTAINS: 3.0
+    general:
+      CONTAINS: 1.0
+  intents:
+    beliefs:
+      description: Recall owner-scoped stated or inferred beliefs with their actual
+        supporting evidence
+      keywords:
+      - belief
+      - beliefs
+      - assumption
+      - assumptions
+      weights:
+        DERIVED_FROM: 3
+        SUPERSEDES: 3
+        CONTRADICTS: 3
+      seed_strategy: general
+    goals:
+      description: Recall owner-scoped goals and explicitly recorded lifecycle evidence
+      keywords:
+      - goal
+      - goals
+      - objective
+      - objectives
+      weights:
+        DERIVED_FROM: 3
+        SUPERSEDES: 3
+        PURSUES: 3
+      seed_strategy: general
+events:
+  memory.belief.stated:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        belief_text:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 8192
+          pattern: \S
+        category:
+          type: string
+          required: true
+          enum:
+          - user_model
+          - world_model
+          - capability
+        confidence:
+          type: number
+          required: true
+          minimum: 0
+          maximum: 1
+  memory.belief.inferred:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        belief_text:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 8192
+          pattern: \S
+        category:
+          type: string
+          required: true
+          enum:
+          - user_model
+          - world_model
+          - capability
+        confidence:
+          type: number
+          required: true
+          minimum: 0
+          maximum: 0.8
+  memory.belief.confirmed:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        expected_revision:
+          type: integer
+          required: true
+          minimum: 0
+          maximum: 2147483647
+  memory.belief.corrected:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        expected_revision:
+          type: integer
+          required: true
+          minimum: 0
+          maximum: 2147483647
+        replacement_key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        contradicts:
+          type: boolean
+  memory.goal.created:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        description:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 8192
+          pattern: \S
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 10
+  memory.goal.completed:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        expected_revision:
+          type: integer
+          required: true
+          minimum: 0
+          maximum: 2147483647
+  memory.goal.abandoned:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        expected_revision:
+          type: integer
+          required: true
+          minimum: 0
+          maximum: 2147483647
+  memory.goal.superseded:
+    handling: processed
+    payload_contract:
+      version: 1
+      additional_fields: forbid
+      properties:
+        key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S
+        scope:
+          type: string
+          enum:
+          - session
+          - agent
+        expected_revision:
+          type: integer
+          required: true
+          minimum: 0
+          maximum: 2147483647
+        replacement_key:
+          type: string
+          required: true
+          min_length: 1
+          max_length: 128
+          pattern: \S

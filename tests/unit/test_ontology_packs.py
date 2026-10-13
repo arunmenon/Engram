@@ -95,6 +95,8 @@ class TestTodaysSchema:
         }
         expected["when"]["CONTAINS"] = 3.0
         expected["general"]["CONTAINS"] = 1.0
+        expected["beliefs"] = {"DERIVED_FROM": 3.0, "SUPERSEDES": 3.0, "CONTRADICTS": 3.0}
+        expected["goals"] = {"DERIVED_FROM": 3.0, "SUPERSEDES": 3.0, "PURSUES": 3.0}
         assert registry.intent_weights() == expected
 
     def test_intent_keywords_and_seeds_equal_the_classifier(
@@ -102,6 +104,11 @@ class TestTodaysSchema:
     ) -> None:
         keywords = {str(k): v for k, v in intent_module._INTENT_KEYWORDS.items()}
         seeds = {str(k): v for k, v in intent_module._SEED_STRATEGIES.items()}
+        keywords.update(
+            beliefs=["belief", "beliefs", "assumption", "assumptions"],
+            goals=["goal", "goals", "objective", "objectives"],
+        )
+        seeds.update(beliefs="general", goals="general")
         assert registry.intent_keywords() == keywords
         assert registry.seed_strategies() == seeds
 
@@ -113,10 +120,10 @@ class TestTodaysSchema:
         assert endpoints("FOLLOWS") == ({"Event"}, {"Event"})
         assert endpoints("REFERENCES") == ({"Event"}, {"Entity"})
         assert endpoints("SUMMARIZES") == ({"Summary"}, {"Event", "Summary", "Episode"})
-        assert endpoints("SUPERSEDES") == ({"Belief"}, {"Belief"})
+        assert endpoints("SUPERSEDES") == ({"Belief", "Goal"}, {"Belief", "Goal"})
         assert endpoints("CONTAINS") == ({"Episode"}, {"Event"})
         assert endpoints("DERIVED_FROM") == (
-            {"Preference", "BehavioralPattern", "Skill", "Workflow", "Episode"},
+            {"Preference", "BehavioralPattern", "Skill", "Workflow", "Episode", "Belief", "Goal"},
             {"Event"},
         )
         assert endpoints("HAS_PROFILE") == ({"Entity"}, {"UserProfile"})

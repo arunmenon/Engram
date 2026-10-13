@@ -105,6 +105,8 @@ async def _build_consumer(
                 if tenant_binding
                 else None,
             )
+            from context_graph.ports.memory_state import MemoryStateStore
+
             stores = await open_stores(settings, **store_options)
             await stores.graph.ensure_pack_schema(projector.registry, settings.embedding.dimensions)
             log.info("ontology_loaded", **projector.registry.summary())
@@ -125,6 +127,9 @@ async def _build_consumer(
                 settings=settings,
                 pack_projector=projector,
                 pack_lookup_limit=settings.ontology.lookup_limit,
+                bundle=bundle,
+                memory_store=stores.graph if isinstance(stores.graph, MemoryStateStore) else None,
+                memory_graph=stores.graph,
             ), stores
 
         if consumer_type == "pack_extraction":
