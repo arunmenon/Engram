@@ -197,3 +197,16 @@ Local verification: [181 targeted tests passed](runs/memory-actions-local/target
 Read [Astra's final independent review](runs/memory-actions-1013-03/astra-final-review.md) before treating this as acceptance. Limits: private bound tenant, sequential configuration reuse, explicit producer assertions, no autonomous natural-language Belief/Goal inference, no live Neo4j verification, no public/concurrent tenant isolation, no original 65-case Spanner baseline rerun. Cloud Monitoring still returns its existing permission error; telemetry export is not verified. The existing user-attachment and enrichment assessment findings remain.
 
 Repeat with the saved runner and a NEW run ID, pointing `--previous-record` at the latest retained record. `--parallel-probe --configurations memory pdlc-memory` enables the reviewed batch-one/two-consumer check. The runner refuses evidence overwrite or owner/fingerprint mismatch. It exports and verifies the dataset before exact-key reset, so do not run it casually against data you intend to keep only in place.
+
+### GitHub reconciliation and stop boundary
+
+Implementation, reviewed verification and preserved attempts were pushed as `69e6b34` on `feature/engram-memory-episodes`.
+
+| Issue | Update | Status after reread |
+|---|---|---|
+| #42 | Body now states current Memory producer completion; [comment](https://github.com/arunmenon/Engram/issues/42#issuecomment-6146405400) links exact scope and remaining user/composition work | OPEN |
+| #34 | [Umbrella progress](https://github.com/arunmenon/Engram/issues/34#issuecomment-6146407944); this Memory slice does not close other buckets | OPEN |
+| #39 | [Exact Memory conformance evidence](https://github.com/arunmenon/Engram/issues/39#issuecomment-6146408629); wider inventory remains | OPEN |
+| #41 | [Real-Spanner extension evidence](https://github.com/arunmenon/Engram/issues/41#issuecomment-6146409319); original baseline/sign-off remain | OPEN |
+
+No new feature bucket is needed for the implemented Memory work. Precommit implementation findings were resolved within #42; the two cloud failures were harness/audit mismatches, retained and independently dispositioned. No unrelated bug is marked fixed. The old broad autonomous goal remains paused. This continuation stops after the bounded Memory work; the developer pilot, user attachment/enrichment fixes and further goals require the agreed next-stage approval.
