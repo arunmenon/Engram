@@ -120,10 +120,23 @@ class TestTodaysSchema:
         assert endpoints("FOLLOWS") == ({"Event"}, {"Event"})
         assert endpoints("REFERENCES") == ({"Event"}, {"Entity"})
         assert endpoints("SUMMARIZES") == ({"Summary"}, {"Event", "Summary", "Episode"})
-        assert endpoints("SUPERSEDES") == ({"Belief", "Goal"}, {"Belief", "Goal"})
+        assert endpoints("SUPERSEDES") == (
+            {"Belief", "Goal", "Preference"},
+            {"Belief", "Goal", "Preference"},
+        )
         assert endpoints("CONTAINS") == ({"Episode"}, {"Event"})
         assert endpoints("DERIVED_FROM") == (
-            {"Preference", "BehavioralPattern", "Skill", "Workflow", "Episode", "Belief", "Goal"},
+            {
+                "Preference",
+                "BehavioralPattern",
+                "Skill",
+                "Workflow",
+                "Episode",
+                "Belief",
+                "Goal",
+                "Entity",
+                "UserProfile",
+            },
             {"Event"},
         )
         assert endpoints("HAS_PROFILE") == ({"Entity"}, {"UserProfile"})

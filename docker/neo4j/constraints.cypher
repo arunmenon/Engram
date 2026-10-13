@@ -16,7 +16,7 @@ CREATE CONSTRAINT entity_pk IF NOT EXISTS FOR (n:Entity) REQUIRE n.entity_id IS 
 CREATE CONSTRAINT summary_pk IF NOT EXISTS FOR (s:Summary) REQUIRE s.summary_id IS UNIQUE;
 
 // UserProfile node — uniqueness (ADR-0012)
-CREATE CONSTRAINT userprofile_pk IF NOT EXISTS FOR (u:UserProfile) REQUIRE u.user_id IS UNIQUE;
+CREATE CONSTRAINT userprofile_pk IF NOT EXISTS FOR (u:UserProfile) REQUIRE u.profile_id IS UNIQUE;
 
 // Preference node — uniqueness (ADR-0012)
 CREATE CONSTRAINT preference_pk IF NOT EXISTS FOR (p:Preference) REQUIRE p.preference_id IS UNIQUE;

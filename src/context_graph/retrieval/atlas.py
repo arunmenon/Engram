@@ -10,7 +10,15 @@ from typing import Any
 
 from context_graph.domain.models import AtlasEdge, AtlasNode, NodeScores, Provenance
 
-_PROVENANCE_KEYS = {"event_id", "global_position", "session_id", "agent_id", "trace_id"}
+_PROVENANCE_KEYS = {
+    "event_id",
+    "global_position",
+    "session_id",
+    "agent_id",
+    "trace_id",
+    "user_extraction_receipt",
+    "user_extraction_owner",
+}
 
 
 def build_atlas_node(

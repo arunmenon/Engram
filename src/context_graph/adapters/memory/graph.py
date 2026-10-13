@@ -44,6 +44,72 @@ class MemoryGraphStore(GraphOperations):
         self.nodes: dict[NodeKey, dict[str, Any]] = {}
         self.edges: dict[EdgeKey, dict[str, Any]] = {}
 
+    async def get_user_extraction(self, trigger: Any) -> dict[str, Any] | None:
+        from context_graph.domain.user_extraction import event_ref, receipt_from_event
+
+        ref = event_ref(trigger)
+        return receipt_from_event(trigger, self.nodes.get((ref.label, ref.key)))
+
+    async def prepare_user_extraction(
+        self, trigger: Any, candidate: dict[str, Any]
+    ) -> dict[str, Any]:
+        from context_graph.domain.user_extraction import (
+            OWNER_FIELD,
+            RECEIPT_FIELD,
+            event_ref,
+            select_prepared_receipt,
+        )
+
+        ref = event_ref(trigger)
+        key = (ref.label, ref.key)
+        winner = select_prepared_receipt(trigger, self.nodes.get(key), candidate)
+        # No await between selection and mutation: reference-event-loop atomic.
+        self.nodes[key] = {**self.nodes[key], RECEIPT_FIELD: winner, OWNER_FIELD: winner["owner"]}
+        from context_graph.domain.user_extraction import receipt_from_event
+
+        result = receipt_from_event(trigger, self.nodes[key])
+        assert result is not None
+        return result
+
+    async def apply_user_extraction(self, trigger: Any) -> str:
+        from context_graph.domain.user_extraction import (
+            event_ref,
+            extraction_refs,
+            plan_user_extraction,
+            receipt_from_event,
+        )
+
+        ref = event_ref(trigger)
+        receipt = receipt_from_event(trigger, self.nodes.get((ref.label, ref.key)))
+        if receipt is None:
+            raise ValueError("User extraction was not prepared")
+        refs = [ref, *extraction_refs(receipt)]
+        stored = {
+            ref: dict(self.nodes[(ref.label, ref.key)])
+            for ref in refs
+            if (ref.label, ref.key) in self.nodes
+        }
+        plan = plan_user_extraction(trigger, stored)
+        updated = {(write.ref.label, write.ref.key): dict(write.properties) for write in plan.nodes}
+        edge_updates = {
+            (
+                (write.source.label, write.source.key),
+                write.edge_type,
+                (write.target.label, write.target.key),
+            ): dict(write.properties)
+            for write in plan.edges
+        }
+        for key in edge_updates:
+            if any(
+                endpoint not in self.nodes and endpoint not in updated
+                for endpoint in (key[0], key[2])
+            ):
+                raise ValueError("User extraction edge endpoint is missing")
+        self.nodes.update(updated)
+        for key, props in edge_updates.items():
+            self.edges.setdefault(key, {}).update(props)
+        return plan.outcome
+
     async def apply_memory_action(self, action: MemoryAction) -> str:
         """Reference atomic action: no await or mutation before the whole plan validates."""
         from context_graph.domain.memory_actions import plan_memory_action

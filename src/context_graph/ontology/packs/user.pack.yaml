@@ -2,13 +2,12 @@
 # Cross-session user profile, preferences, skills, workflows and behavioural
 # patterns. Must stay equal to domain/models.py, settings.INTENT_WEIGHTS,
 # domain/intent.py and docker/neo4j/constraints.cypher.
-# Known inconsistency carried over: constraints.cypher keys UserProfile by
-# user_id while the code MERGEs it by profile_id; the pack follows the frozen
-# constraint file. No pack rule writes UserProfile.
+# UserProfile uses the same profile_id in specialized and composed reads.
+# No declarative pack rule writes UserProfile; user.extract.v1 owns its producer.
 
 pack:
   name: user
-  version: 1.1.0
+  version: 1.2.0
   requires: [core>=1.0]
   owner: engram
   description: Persistent user profile, preferences, skills and behaviour.
@@ -20,10 +19,11 @@ processing:
 types:
   nodes:
     UserProfile:
-      key: [user_id]
-      id_property: user_id
+      key: [profile_id]
+      id_property: profile_id
       properties:
         profile_id: string
+        support_event_ids: list<string>
         user_id: string
         display_name: string
         timezone: string
@@ -37,6 +37,8 @@ types:
       id_property: preference_id
       properties:
         preference_id: string
+        user_id: string
+        support_event_ids: list<string>
         category: {enum: [tool, workflow, communication, domain, environment, style]}
         key: string
         polarity: {enum: [positive, negative, neutral]}
@@ -58,6 +60,8 @@ types:
       id_property: skill_id
       properties:
         skill_id: string
+        user_id: string
+        support_event_ids: list<string>
         name: string
         category: string
         description: string
@@ -102,7 +106,8 @@ types:
     PARENT_SKILL:     {from: [Skill], to: [Skill]}
 
   extends_core_edges:
-    DERIVED_FROM: {from: [Preference, BehavioralPattern, Skill, Workflow], to: ["core:Event"]}
+    DERIVED_FROM: {from: ["core:Entity", UserProfile, Preference, BehavioralPattern, Skill, Workflow], to: ["core:Event"]}
+    SUPERSEDES: {from: [Preference], to: [Preference]}
 
 events:
   user.preference.stated:  {}

@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from neo4j import AsyncDriver
 
     from context_graph.domain.memory_actions import MemoryAction
+    from context_graph.domain.models import Event
     from context_graph.domain.ontology import OntologyRegistry
     from context_graph.ports.pack_graph import (
         Direction,
@@ -100,6 +101,119 @@ class Neo4jPackGraph:
         async with self._driver.session(database=self._database) as session:
             result = await session.run(query, params)
             return [record.data() async for record in result]
+
+    async def get_user_extraction(self, trigger: Event) -> dict[str, Any] | None:
+        from context_graph.domain.user_extraction import event_ref, receipt_from_event
+
+        ref = event_ref(trigger)
+        return receipt_from_event(trigger, (await self.get_nodes([ref])).get(ref))
+
+    async def prepare_user_extraction(
+        self, trigger: Event, candidate: dict[str, Any]
+    ) -> dict[str, Any]:
+        result = await self._user_extraction_transaction(trigger, candidate)
+        assert isinstance(result, dict)
+        return result
+
+    async def apply_user_extraction(self, trigger: Event) -> str:
+        result = await self._user_extraction_transaction(trigger, None)
+        assert isinstance(result, str)
+        return result
+
+    async def _user_extraction_transaction(
+        self, trigger: Event, candidate: dict[str, Any] | None
+    ) -> dict[str, Any] | str:
+        from context_graph.domain.user_extraction import (
+            OWNER_FIELD,
+            RECEIPT_FIELD,
+            event_ref,
+            extraction_refs,
+            plan_user_extraction,
+            receipt_from_event,
+            select_prepared_receipt,
+        )
+
+        async def work(tx: Any) -> dict[str, Any] | str:
+            source = event_ref(trigger)
+            record = await (
+                await tx.run(
+                    "MATCH (n:Event {event_id:$id}) SET n.__user_lock=true "
+                    "REMOVE n.__user_lock RETURN properties(n) AS props",
+                    {"id": source.key},
+                )
+            ).single()
+            props = dict(record["props"]) if record else None
+            if candidate is not None:
+                winner = select_prepared_receipt(trigger, props, candidate)
+                await tx.run(
+                    "MATCH (n:Event {event_id:$id}) SET n += $props",
+                    {
+                        "id": source.key,
+                        "props": _props({RECEIPT_FIELD: winner, OWNER_FIELD: winner["owner"]}),
+                    },
+                )
+                return winner
+            receipt = receipt_from_event(trigger, props)
+            if receipt is None:
+                raise ValueError("User result was not prepared")
+            if receipt["status"] == "applied":
+                return "duplicate"
+            assert props is not None
+            stored = {source: props}
+            creatable = set(extraction_refs({**receipt, "corrections": []}))
+            for ref in extraction_refs(receipt):
+                if ref == source:
+                    continue
+                label, key = _label(ref.label), _property(ref.key_property)
+                if ref.label == "Event" or ref not in creatable:
+                    statement = f"MATCH (n:{label} {{{key}:$key}}) "
+                    if ref.label != "Event":
+                        statement += "SET n.__user_lock=true REMOVE n.__user_lock "
+                    statement += "RETURN properties(n) AS props"
+                else:
+                    statement = (
+                        f"MERGE (n:{label} {{{key}:$key}}) "
+                        "ON CREATE SET n.__user_creation=$event SET n.__user_lock=true "
+                        "REMOVE n.__user_lock RETURN properties(n) AS props"
+                    )
+                row = await (
+                    await tx.run(statement, {"key": ref.key, "event": source.key})
+                ).single()
+                if row:
+                    values = dict(row["props"])
+                    if values.pop("__user_creation", None) != source.key:
+                        stored[ref] = values
+            plan = plan_user_extraction(trigger, stored)
+            for write in plan.nodes:
+                await tx.run(
+                    f"MATCH (n:{_label(write.ref.label)} "
+                    f"{{{_property(write.ref.key_property)}:$key}}) "
+                    "SET n += $props REMOVE n.__user_creation",
+                    {"key": write.ref.key, "props": _props(write.properties)},
+                )
+            for edge_write in plan.edges:
+                row = await (
+                    await tx.run(
+                        f"MATCH (a:{_label(edge_write.source.label)} "
+                        f"{{{_property(edge_write.source.key_property)}:$source}}), "
+                        f"(b:{_label(edge_write.target.label)} "
+                        f"{{{_property(edge_write.target.key_property)}:$target}}) "
+                        f"MERGE (a)-[r:{_edge_type(edge_write.edge_type)}]->(b) "
+                        "SET r += $props RETURN count(r) AS count",
+                        {
+                            "source": edge_write.source.key,
+                            "target": edge_write.target.key,
+                            "props": _props(edge_write.properties),
+                        },
+                    )
+                ).single()
+                if not row or row["count"] != 1:
+                    raise ValueError("User extraction evidence endpoint disappeared")
+            return plan.outcome
+
+        async with self._driver.session(database=self._database) as session:
+            result: dict[str, Any] | str = await session.execute_write(work)
+            return result
 
     async def apply_memory_action(self, action: MemoryAction) -> str:
         """Lock subjects and atomically validate/write state with its evidence."""

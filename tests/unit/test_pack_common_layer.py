@@ -155,7 +155,7 @@ class TestComposition:
         registry = _registry(tmp_path)
         for type_name in ("Deal", "Account", "Change", "Decision"):
             assert registry.allows(PROVENANCE_EDGE, type_name, "Event")
-        assert not registry.allows(PROVENANCE_EDGE, "Entity", "Event")  # core's own types do not
+        assert registry.allows(PROVENANCE_EDGE, "Entity", "Event")  # User interests carry evidence
 
     def test_a_base_pack_cannot_be_replaced(self, tmp_path: Path) -> None:
         core = (BUILTIN_PACK_DIR / "core.pack.yaml").read_text(encoding="utf-8")

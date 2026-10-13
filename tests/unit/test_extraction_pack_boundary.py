@@ -100,8 +100,10 @@ async def test_consumer_drops_unsolicited_user_results_but_writes_core_entities(
 async def test_factory_uses_same_capability_for_prompt_and_user_store(
     monkeypatch, builtins, enabled
 ):
+    from context_graph.adapters.memory.graph import MemoryGraphStore
+
     stores = SimpleNamespace(
-        graph=AsyncMock(), event_log=AsyncMock(), subscription=lambda *_: AsyncMock()
+        graph=MemoryGraphStore(), event_log=AsyncMock(), subscription=lambda *_: AsyncMock()
     )
     monkeypatch.setattr(runner, "open_stores", AsyncMock(return_value=stores))
     monkeypatch.setattr(runner, "_open_embedding_service", lambda *_: None)

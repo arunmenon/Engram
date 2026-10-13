@@ -1112,7 +1112,15 @@ class ArtifactRetriever:
         nodes: dict[str, AtlasNode] = {}
         for key, found in sorted(result.nodes.items(), key=lambda item: -item[1].score):
             attributes = {
-                k: v for k, v in found.props.items() if k not in ("embedding", "_provenance")
+                k: v
+                for k, v in found.props.items()
+                if k
+                not in (
+                    "embedding",
+                    "_provenance",
+                    "user_extraction_receipt",
+                    "user_extraction_owner",
+                )
             }
             event = found.props.get("_provenance")
             nodes[key] = AtlasNode(

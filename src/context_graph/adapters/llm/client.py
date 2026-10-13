@@ -484,6 +484,7 @@ class LLMExtractionClient:
         max_retries: int = 2,
         prompt_version: str = "v1",
         include_user: bool = True,
+        require_success: bool = False,
     ) -> None:
         self._model_id = model_id
         self._temperature = temperature
@@ -492,6 +493,7 @@ class LLMExtractionClient:
         self._max_retries = max_retries
         self._prompt_version = prompt_version
         self._include_user = include_user
+        self._require_success = require_success
 
     async def generate_text(self, prompt: str) -> str | None:
         """Generate text from a prompt. Used for HyDE and other expansions."""
@@ -577,6 +579,11 @@ class LLMExtractionClient:
         )
         raw = response.choices[0].message.content
         return str(raw) if raw is not None else ""
+
+    def _failed_extraction(self, session_id: str, agent_id: str) -> dict[str, Any]:
+        if self._require_success:
+            raise RuntimeError("User extraction provider failed or produced invalid output")
+        return _empty_result(session_id, agent_id)
 
     async def extract_from_session(
         self,
@@ -672,7 +679,7 @@ class LLMExtractionClient:
                     )
                     if attempt < self._max_retries:
                         continue
-                    return _empty_result(session_id, agent_id)
+                    return self._failed_extraction(session_id, agent_id)
 
                 validated = validate_extraction(raw_result, conversation_text)
                 log.info(
@@ -693,7 +700,7 @@ class LLMExtractionClient:
                     attempt=attempt,
                 )
                 if attempt >= self._max_retries:
-                    return _empty_result(session_id, agent_id)
+                    return self._failed_extraction(session_id, agent_id)
             except Exception:
                 log.exception(
                     "extraction_llm_error",
@@ -702,9 +709,9 @@ class LLMExtractionClient:
                     model_id=self._model_id,
                 )
                 if attempt >= self._max_retries:
-                    return _empty_result(session_id, agent_id)
+                    return self._failed_extraction(session_id, agent_id)
 
-        return _empty_result(session_id, agent_id)
+        return self._failed_extraction(session_id, agent_id)
 
 
 def detect_degenerate_output(result: SessionExtractionResult) -> bool:

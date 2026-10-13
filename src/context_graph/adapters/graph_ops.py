@@ -135,6 +135,7 @@ ORPHAN_LABELS = ("Entity", "Preference", "Skill", "Workflow", "BehavioralPattern
 
 # DERIVED_FROM sources allowed by write_derived_from_edge (user_queries allowlist)
 DERIVED_FROM_SOURCES: dict[str, str] = {
+    "entity_id": "Entity",
     "preference_id": "Preference",
     "skill_id": "Skill",
     "pattern_id": "BehavioralPattern",
@@ -1337,6 +1338,17 @@ class GraphOperations:
         await self._update_existing(("Preference", preference_id), {"superseded_by": superseded_by})
 
     async def delete_user_data(self, user_id: str) -> int:
+        # Prepared extraction is User data even before an owner Entity is created.
+        receipts = await self._find_nodes("Event", {"user_extraction_owner": user_id})
+        for receipt in receipts:
+            await self._update_existing(
+                ("Event", receipt["event_id"]),
+                {
+                    "user_extraction_receipt": None,
+                    "user_extraction_owner": None,
+                    "user_extraction_status": "redacted",
+                },
+            )
         user = ("Entity", user_id)
         if await self._node(user) is None:
             return 0
@@ -1345,6 +1357,10 @@ class GraphOperations:
             owned.extend(
                 key[2] for key, _props in await self._edges(sources=[user], edge_type=edge_type)
             )
+        owned.extend(
+            ("Skill", skill["skill_id"])
+            for skill in await self._find_nodes("Skill", {"user_id": user_id})
+        )
         if owned:
             await self._delete_nodes(owned)
         dropped: list[EdgeKey] = []
@@ -1390,6 +1406,11 @@ class GraphOperations:
             "patterns": [dict(p) for p in await self._user_targets(user_id, "EXHIBITS_PATTERN")],
             "interests": await self._interests(user_id),
             "provenance_chains": provenance,
+            "extraction_receipts": [
+                props["user_extraction_receipt"]
+                for props in await self._find_nodes("Event", {"user_extraction_owner": user_id})
+                if props.get("user_extraction_receipt") is not None
+            ],
         }
 
 

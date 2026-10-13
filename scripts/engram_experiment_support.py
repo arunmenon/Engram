@@ -148,9 +148,9 @@ class DemoAuthentication:
     guards. This is not the disabled public multi-tenant dispatcher.
     """
 
-    def __init__(self, app, binding, *, token):
+    def __init__(self, app, binding, *, token, roles=frozenset({"api"})):
         self.app = app
-        principal = Principal("demo.query", binding.tenant_id, frozenset({"api"}), "demo.query")
+        principal = Principal("demo.query", binding.tenant_id, roles, "demo.query")
         self.catalog = TenantCatalog((binding,), (CredentialGrant.from_token(principal, token),))
         self.guarded = TenantResponseGuard(app, child=app, binding=binding)
 

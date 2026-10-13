@@ -412,6 +412,7 @@ class UserProfileNode(BaseModel):
 
     profile_id: str
     user_id: str
+    support_event_ids: list[str] = Field(default_factory=list)
     display_name: str | None = None
     timezone: str | None = None
     language: str | None = None
@@ -425,6 +426,8 @@ class PreferenceNode(BaseModel):
     """Preference node (ADR-0012 §1.2)."""
 
     preference_id: str
+    user_id: str = ""
+    support_event_ids: list[str] = Field(default_factory=list)
     category: PreferenceCategory
     key: str
     polarity: PreferencePolarity
@@ -447,6 +450,8 @@ class SkillNode(BaseModel):
     """Skill node (ADR-0012 §1.3)."""
 
     skill_id: str
+    user_id: str = ""
+    support_event_ids: list[str] = Field(default_factory=list)
     name: str
     # "programming_language" | "tool_proficiency" | "domain_knowledge" | "workflow_skill"
     category: str

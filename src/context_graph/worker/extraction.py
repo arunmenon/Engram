@@ -11,6 +11,7 @@ Source: ADR-0013 Consumer 2
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from functools import partial
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -28,7 +29,8 @@ from context_graph.domain.entity_resolution import (
     resolve_semantic_match,
 )
 from context_graph.domain.models import Event
-from context_graph.ports.errors import RuntimeFencedError
+from context_graph.ports.errors import RuntimeFencedError, UnavailableError
+from context_graph.ports.user_extraction import UserExtractionStore
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
@@ -80,6 +82,9 @@ class ExtractionConsumer(BaseConsumer):
         if bundle is None:
             bundle = configured_bundle(settings.ontology)
         self._user_store = user_store if bundle.enables("user.extract.v1") else None
+        self._user_extraction_store = (
+            self._user_store if isinstance(self._user_store, UserExtractionStore) else None
+        )
 
     async def _fetch_event_doc(self, event_id: str) -> dict[str, Any] | None:
         """Fetch the full event document from the event log."""
@@ -99,11 +104,29 @@ class ExtractionConsumer(BaseConsumer):
         doc = await self._fetch_event_doc(event_id)
         if doc is None:
             log.warning("extraction_event_json_not_found", event_id=event_id)
+            if self._user_extraction_store is not None:
+                raise UnavailableError("User extraction accepted trigger document is unavailable")
             return
 
         event_type = doc.get("event_type", "")
         session_id = doc.get("session_id")
         agent_id = doc.get("agent_id", "unknown")
+
+        if self._user_extraction_store is not None:
+            trigger = Event.model_validate(doc, strict=False)
+            if event_type == "system.session_end":
+                await self._retry_transient(
+                    partial(self._process_user_trigger, trigger), "user_extraction"
+                )
+            elif event_type and not event_type.startswith("system.") and session_id:
+                events, documents = await self._collect_user_window(trigger)
+                turns = sum(not event.event_type.startswith("system.") for event in events)
+                if turns % self._settings.consumer.extraction_mid_session_interval == 0:
+                    await self._retry_transient(
+                        partial(self._process_user_trigger, trigger, (events, documents)),
+                        "user_extraction",
+                    )
+            return
 
         # Track per-session turn counts for mid-session extraction
         if event_type and not event_type.startswith("system.") and session_id:
@@ -173,6 +196,91 @@ class ExtractionConsumer(BaseConsumer):
             interests=len(result.get("interests", [])),
         )
 
+    async def _collect_user_window(
+        self, trigger: Event
+    ) -> tuple[list[Event], list[dict[str, Any]]]:
+        """Freeze accepted owner/session inputs through this trigger, in log order."""
+        from context_graph.domain.user_extraction import MAX_INPUT_EVENTS
+
+        ids = await self._event_log.read_session_ids(trigger.session_id)
+        trigger_id = str(trigger.event_id)
+        if trigger_id not in ids:
+            raise UnavailableError("User extraction trigger is not in its accepted session")
+        ids = ids[: ids.index(trigger_id) + 1]
+        documents = await self._event_log.get_documents(ids)
+        events, selected = [], []
+        for event_id, document in zip(ids, documents, strict=True):
+            if document is None:
+                raise UnavailableError("User extraction input document is unavailable")
+            event = Event.model_validate(document, strict=False)
+            if str(event.event_id) != event_id or event.session_id != trigger.session_id:
+                raise ValueError("User input document identity differs")
+            if event.agent_id == trigger.agent_id:
+                events.append(event)
+                selected.append(dict(document))
+        if len(events) > MAX_INPUT_EVENTS:
+            raise ValueError("User extraction accepted window exceeds supported bound")
+        return events, selected
+
+    async def _process_user_trigger(
+        self, trigger: Event, window: tuple[list[Event], list[dict[str, Any]]] | None = None
+    ) -> None:
+        from context_graph.domain.user_extraction import prepare_extraction_receipt
+
+        store = self._user_extraction_store
+        assert store is not None
+        receipt = await store.get_user_extraction(trigger)
+        if receipt is None:
+            events, documents = (
+                window if window is not None else await self._collect_user_window(trigger)
+            )
+            raw = await self._llm_client.extract_from_session(
+                events=events,
+                session_id=trigger.session_id,
+                agent_id=trigger.agent_id,
+                event_payloads=documents,
+            )
+            # Prior applied receipts prove which explicit corrections already took effect.
+            # Do not require a later model response to repeat those historical outputs.
+            applied_sources: set[str] = set()
+            turns = 0
+            interval = self._settings.consumer.extraction_mid_session_interval
+            for event in events[:-1]:
+                if not event.event_type.startswith("system."):
+                    turns += 1
+                if event.event_type != "system.session_end" and (
+                    event.event_type.startswith("system.") or turns % interval != 0
+                ):
+                    continue
+                prior = await store.get_user_extraction(event)
+                if prior is not None and prior["status"] == "applied":
+                    applied_sources.update(c["source_event_id"] for c in prior["corrections"])
+            candidate = prepare_extraction_receipt(
+                trigger,
+                events,
+                documents,
+                raw,
+                applied_correction_sources=frozenset(applied_sources),
+            )
+            receipt = await store.prepare_user_extraction(trigger, candidate)
+        if receipt["status"] == "applied":
+            return
+        # Existing core Entity behavior remains available; User output is committed separately.
+        await self._write_extraction_results(
+            trigger.session_id,
+            trigger.agent_id,
+            receipt["result"],
+            receipt["input_event_ids"],
+            user_outputs=False,
+        )
+        outcome = await store.apply_user_extraction(trigger)
+        log.info(
+            "user_extraction_applied",
+            event_id=str(trigger.event_id),
+            session_id=trigger.session_id,
+            outcome=outcome,
+        )
+
     async def _collect_session_events(
         self, session_id: str
     ) -> tuple[list[Event], list[dict[str, Any]]]:
@@ -238,9 +346,11 @@ class ExtractionConsumer(BaseConsumer):
         agent_id: str,
         result: dict[str, Any],
         source_event_ids: list[str],
+        *,
+        user_outputs: bool = True,
     ) -> None:
         """Write extraction results to Neo4j via UserStore protocol."""
-        us = self._user_store
+        us = self._user_store if user_outputs else None
         user_entity_id = f"user:{agent_id}"
         now = datetime.now(UTC).isoformat()
 

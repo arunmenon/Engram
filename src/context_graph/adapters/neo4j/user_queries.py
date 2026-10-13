@@ -9,6 +9,7 @@ Source: ADR-0012
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -121,6 +122,7 @@ MERGE (p)-[:ABOUT]->(target)
 # Allowlist: maps source type name -> (label, id_field) for DERIVED_FROM edges.
 # Only these types are permitted — any other value raises ValueError.
 _DERIVED_FROM_SOURCE_TYPES: dict[str, tuple[str, str]] = {
+    "entity_id": ("Entity", "entity_id"),
     "preference_id": ("Preference", "preference_id"),
     "skill_id": ("Skill", "skill_id"),
     "pattern_id": ("BehavioralPattern", "pattern_id"),
@@ -205,6 +207,9 @@ DETACH DELETE pref
 WITH DISTINCT e
 OPTIONAL MATCH (e)-[:EXHIBITS_PATTERN]->(bp:BehavioralPattern)
 DETACH DELETE bp
+WITH DISTINCT e
+OPTIONAL MATCH (skill:Skill {user_id: $user_id})
+DETACH DELETE skill
 WITH DISTINCT e
 OPTIONAL MATCH (e)-[r_skill:HAS_SKILL]->(:Skill)
 DELETE r_skill
@@ -672,6 +677,12 @@ async def delete_user_data(
     async with driver.session(database=database) as session:
 
         async def _delete(tx: Any) -> int:
+            await tx.run(
+                "MATCH (e:Event {user_extraction_owner:$user_id}) "
+                "REMOVE e.user_extraction_receipt, e.user_extraction_owner "
+                "SET e.user_extraction_status='redacted'",
+                {"user_id": user_id},
+            )
             result = await tx.run(_DELETE_USER_DATA, {"user_id": user_id})
             record = await result.single()
             return record["affected"] if record else 0
@@ -702,6 +713,17 @@ async def export_user_data(
     }
 
     async with driver.session(database=database) as session:
+        receipts = await session.run(
+            "MATCH (e:Event {user_extraction_owner:$user_id}) "
+            "RETURN e.user_extraction_receipt AS receipt",
+            {"user_id": user_id},
+        )
+        export["extraction_receipts"] = [
+            json.loads(record["receipt"])
+            if isinstance(record["receipt"], str)
+            else record["receipt"]
+            async for record in receipts
+        ]
         # Profile
         profile_result = await session.run(_EXPORT_USER_PROFILE, {"user_id": user_id})
         profile_record = await profile_result.single()

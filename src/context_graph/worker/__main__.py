@@ -211,6 +211,7 @@ async def _build_consumer(
                 timeout=settings.llm.timeout_seconds,
                 max_retries=settings.llm.max_retries,
                 include_user=bundle.enables("user.extract.v1"),
+                require_success=bundle.enables("user.extract.v1"),
             )
 
             # Tier 2b: Semantic entity matching via embedding service + graph vector index.
@@ -225,6 +226,12 @@ async def _build_consumer(
             if embedding_service is not None:
                 log.info("embedding_service_initialized", model=settings.embedding.model_name)
 
+            from context_graph.ports.user_extraction import UserExtractionStore
+
+            if bundle.enables("user.extract.v1") and not isinstance(
+                stores.graph, UserExtractionStore
+            ):
+                raise ValueError("Selected User extraction requires atomic receipt storage")
             # The graph store also satisfies the UserStore protocol
             return ExtractionConsumer(
                 subscription=stores.subscription(group_name, consumer_name),

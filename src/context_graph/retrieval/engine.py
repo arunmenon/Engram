@@ -307,6 +307,19 @@ class RetrievalEngine:
                     include_history="when" in inferred_intents,
                 )
 
+        user_truncated = False
+        if (
+            self._bundle is not None
+            and self._pack_graph is not None
+            and self._bundle.enables("user.extract.v1")
+            and {"personalize", "who_is"} & inferred_intents.keys()
+        ):
+            from context_graph.retrieval.user_context import add_user_context
+
+            user_truncated = await add_user_context(
+                self._pack_graph, query, nodes, edges, seen_edges, self._provenance_source
+            )
+
         # PPR post-processing (L5)
         self._apply_ppr(nodes, edges, edge_weights, seed_node_ids)
 
@@ -355,7 +368,7 @@ class RetrievalEngine:
         meta = QueryMeta(
             query_ms=elapsed_ms,
             nodes_returned=len(nodes),
-            truncated=has_more_sg or episode_truncated or memory_truncated,
+            truncated=has_more_sg or episode_truncated or memory_truncated or user_truncated,
             inferred_intents=inferred_intents,
             intent_override=str(query.intent) if query.intent is not None else None,
             seed_nodes=seed_node_ids,

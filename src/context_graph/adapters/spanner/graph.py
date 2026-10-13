@@ -62,7 +62,8 @@ if TYPE_CHECKING:
 
     from context_graph.adapters.spanner.tenant_control import TenantFence
     from context_graph.domain.memory_actions import MemoryAction
-    from context_graph.ports.pack_graph import StateChange
+    from context_graph.domain.models import Event
+    from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
 log = structlog.get_logger(__name__)
@@ -327,6 +328,138 @@ class SpannerGraphStore(GraphOperations):
             if all(props.get(name) == value for name, value in conditions.items())
         ]
 
+    def _write_atomic_graph_mutation(
+        self,
+        transaction: Any,
+        nodes: tuple[NodeWrite, ...],
+        edges: tuple[EdgeWrite, ...],
+        existing: dict[NodeKey, dict[str, Any]],
+    ) -> None:
+        """Validate the complete native mutation budget before scheduling writes."""
+        updated = {(write.ref.label, write.ref.key): write.properties for write in nodes}
+        costs = []
+        for key, props in updated.items():
+            mutations, size = node_row_cost(key, props, self._embedding_column(key[0], props))
+            if key in existing:
+                _, old_size = node_row_cost(key, existing[key], existing[key].get("embedding"))
+                size += old_size
+            costs.append((mutations, size))
+        for write in edges:
+            for ref in (write.source, write.target):
+                if (ref.label, ref.key) not in existing and (ref.label, ref.key) not in updated:
+                    raise ValueError("Memory action edge endpoint is missing")
+            costs.append(
+                edge_row_cost(
+                    (
+                        (write.source.label, write.source.key),
+                        write.edge_type,
+                        (write.target.label, write.target.key),
+                    ),
+                    write.properties,
+                )
+            )
+        self._budget.check(costs)
+        if updated:
+            transaction.insert_or_update(
+                "GraphNodes", NODE_COLUMNS, self._node_rows(updated, updated, False, existing)
+            )
+        edge_rows = [
+            [
+                write.source.label,
+                write.source.key,
+                write.edge_type,
+                write.target.label,
+                write.target.key,
+                json_param(write.properties),
+            ]
+            for write in edges
+        ]
+        if edge_rows:
+            transaction.insert_or_update("GraphEdges", EDGE_COLUMNS, edge_rows)
+
+    async def get_user_extraction(self, trigger: Event) -> dict[str, Any] | None:
+        from context_graph.domain.user_extraction import event_ref, receipt_from_event
+
+        ref = event_ref(trigger)
+        return receipt_from_event(trigger, (await self.get_nodes([ref])).get(ref))
+
+    async def prepare_user_extraction(
+        self, trigger: Event, candidate: dict[str, Any]
+    ) -> dict[str, Any]:
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.domain.user_extraction import (
+            OWNER_FIELD,
+            RECEIPT_FIELD,
+            select_prepared_receipt,
+        )
+
+        def work(transaction: Any) -> dict[str, Any]:
+            rows = list(
+                transaction.read(
+                    "GraphNodes", NODE_COLUMNS, KeySet(keys=[["Event", str(trigger.event_id)]])
+                )
+            )
+            props = json_value(rows[0][2]) if rows else None
+            winner = select_prepared_receipt(trigger, props, candidate)
+            assert props is not None
+            from context_graph.ports.pack_graph import NodeRef, NodeWrite
+
+            ref = NodeRef("Event", str(trigger.event_id), "event_id")
+            self._write_atomic_graph_mutation(
+                transaction,
+                (NodeWrite(ref, {**props, RECEIPT_FIELD: winner, OWNER_FIELD: winner["owner"]}),),
+                (),
+                {("Event", ref.key): props},
+            )
+            return winner
+
+        result: dict[str, Any] = await self._transact(work)
+        return result
+
+    async def apply_user_extraction(self, trigger: Event) -> str:
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.domain.user_extraction import (
+            event_ref,
+            extraction_refs,
+            plan_user_extraction,
+            receipt_from_event,
+        )
+
+        def work(transaction: Any) -> str:
+            ref = event_ref(trigger)
+            rows = list(
+                transaction.read("GraphNodes", NODE_COLUMNS, KeySet(keys=[[ref.label, ref.key]]))
+            )
+            receipt = receipt_from_event(trigger, json_value(rows[0][2]) if rows else None)
+            if receipt is None:
+                raise ValueError("User result was not prepared")
+            refs = [ref, *extraction_refs(receipt)]
+            rows = list(
+                transaction.read(
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    KeySet(
+                        keys=[
+                            list(key) for key in sorted({(item.label, item.key) for item in refs})
+                        ]
+                    ),
+                )
+            )
+            existing = {(label, key): json_value(props) or {} for label, key, props, _ in rows}
+            stored = {
+                item: existing[(item.label, item.key)]
+                for item in refs
+                if (item.label, item.key) in existing
+            }
+            plan = plan_user_extraction(trigger, stored)
+            self._write_atomic_graph_mutation(transaction, plan.nodes, plan.edges, existing)
+            return plan.outcome
+
+        result: str = await self._transact(work)
+        return result
+
     async def apply_memory_action(self, action: MemoryAction) -> str:
         """Serialize subject revisions and source evidence in one fenced transaction."""
         from google.cloud.spanner_v1 import KeySet
@@ -348,46 +481,7 @@ class SpannerGraphStore(GraphOperations):
                 if (ref.label, ref.key) in existing
             }
             plan = plan_memory_action(action, stored)
-            updated = {(write.ref.label, write.ref.key): write.properties for write in plan.nodes}
-            costs = []
-            for key, props in updated.items():
-                mutations, size = node_row_cost(key, props, self._embedding_column(key[0], props))
-                if key in existing:
-                    _, old_size = node_row_cost(key, existing[key], existing[key].get("embedding"))
-                    size += old_size
-                costs.append((mutations, size))
-            for write in plan.edges:
-                for ref in (write.source, write.target):
-                    if (ref.label, ref.key) not in existing and (ref.label, ref.key) not in updated:
-                        raise ValueError("Memory action edge endpoint is missing")
-                costs.append(
-                    edge_row_cost(
-                        (
-                            (write.source.label, write.source.key),
-                            write.edge_type,
-                            (write.target.label, write.target.key),
-                        ),
-                        write.properties,
-                    )
-                )
-            self._budget.check(costs)
-            if updated:
-                transaction.insert_or_update(
-                    "GraphNodes", NODE_COLUMNS, self._node_rows(updated, updated, False, existing)
-                )
-            edge_rows = [
-                [
-                    write.source.label,
-                    write.source.key,
-                    write.edge_type,
-                    write.target.label,
-                    write.target.key,
-                    json_param(write.properties),
-                ]
-                for write in plan.edges
-            ]
-            if edge_rows:
-                transaction.insert_or_update("GraphEdges", EDGE_COLUMNS, edge_rows)
+            self._write_atomic_graph_mutation(transaction, plan.nodes, plan.edges, existing)
             return plan.outcome
 
         result: str = await self._transact(work)

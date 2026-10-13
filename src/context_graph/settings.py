@@ -486,6 +486,7 @@ class ConsumerSettings(BaseSettings):
 
     # Projection worker: events per flush (also the number read per poll, so
     # one read fills one flush), and the longest a partial flush waits
+    extraction_mid_session_interval: int = Field(default=50, ge=1)
     projection_batch_size: int = 50
     projection_batch_timeout_ms: int = 100
 
