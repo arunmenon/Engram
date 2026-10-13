@@ -141,6 +141,8 @@ G04 is verified and published with [recorded stakeholder walkthrough](2026-10-08
 
 ## Post-assessment User checkpoint — 13 October
 
-The separately authorized User attachment/profile/retry slice is complete for UA01–UA07; this does not mark G8–G11 or the pilot complete. [Stakeholder verification walkthrough](user-attachment-verification.md) and [Astra final review](user-attachment-review/astra-final-review.md) capture 277 accepted Spanner assertions, retained failures, local verification and epoch29 retained data. Bounded defects #20/#59 are cleared for closure; #34/#42/#39/#41 remain open. New child #60 tracks the observed production consolidation-shutdown defect and remains unresolved.
+The separately authorized User attachment/profile/retry slice is complete for UA01–UA07; this does not mark G8–G11 or the pilot complete. [Stakeholder verification walkthrough](user-attachment-verification.md) and [Astra final review](user-attachment-review/astra-final-review.md) capture 277 accepted Spanner assertions, retained failures, local verification and epoch 29 retained data. Bounded defects #20/#59 are cleared for closure; #34/#42/#39/#41 remain open. New child #60 tracks the observed production consolidation-shutdown defect and remains unresolved.
 
 Stop for stakeholder review here. Enrichment #29, wider combinations, tenant isolation and pilot prerequisites require their own subsequent approval. No historical migration work is added.
+
+Publication reconciled: runtime `782ab1e`, evidence `61475be`, on `feature/engram-memory-episodes`. GitHub #20 and #59 are now CLOSED; #34/#42/#39/#41/#60 remain OPEN. Final parent/state verification and comment links are in the User walkthrough. No subsequent stage was started.

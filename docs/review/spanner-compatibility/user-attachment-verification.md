@@ -79,6 +79,22 @@ PYTHONPATH=src:scripts python scripts/engram_user_attachment_demo.py \
 
 Real-provider extraction and labeled deterministic-provider/fault probes remain separate. The restart probes replace worker/store instances within the harness process; they are not OS-crash or network-partition tests. Stable identities use validated keys and exact context, not semantic deduplication of differently worded independent model results. Existing core Entity resolution remains outside the new User atomic guarantee. No live Neo4j acceptance, mixed User+PDLC journey, public/concurrent tenant isolation, pack-wide evaluation, 65-scenario baseline sweep or pilot-readiness sign-off is claimed. Cloud Monitoring export still returns 403; no telemetry readiness claim is made. Historical migration remains excluded.
 
-## Ticket reconciliation
+## Ticket reconciliation and publication
 
-Independent review cleared bounded closure of #20 (interest attachment) and #59 (missing User personalization); GitHub transitions and publication links are reconciled below after pushing. #34/#42/#39/#41 remain open for broader scope. #60 production consolidation shutdown remains open and separate; no new feature bucket is needed. Enrichment (#29), wider combinations, concurrent tenant isolation and the pilot have not started in this slice.
+| Issue | Final state | Action |
+|---|---|---|
+| [#20](https://github.com/arunmenon/Engram/issues/20) | CLOSED | Interest provenance/worker acceptance met; body updated with current scope, evidence and limits. |
+| [#59](https://github.com/arunmenon/Engram/issues/59) | CLOSED | Personalization defect fixed, rerun and independently reviewed; native child of #34. |
+| [#34](https://github.com/arunmenon/Engram/issues/34#issuecomment-6149368301) | OPEN | Umbrella body and checkpoint updated; original feature buckets remain the owning scope. |
+| [#42](https://github.com/arunmenon/Engram/issues/42) | OPEN | Body updated with completed User cases and remaining broader composition scope. |
+| [#39](https://github.com/arunmenon/Engram/issues/39#issuecomment-6149368941) | OPEN | Exact conformance evidence added; wider coverage remains. |
+| [#41](https://github.com/arunmenon/Engram/issues/41#issuecomment-6149369535) | OPEN | Spanner evidence added without claiming the baseline of 65 scenarios or wider isolation passed. |
+| [#60](https://github.com/arunmenon/Engram/issues/60#issuecomment-6149370234) | OPEN | New native child of #34; production consolidation shutdown is unresolved and a pilot prerequisite. |
+
+GitHub states and parent links were reread after mutation and saved in [reconciliation evidence](user-attachment-review/github-reconciliation.json). No additional feature bucket is needed. Enrichment #29, wider combinations, tenant isolation and the pilot have not started in this slice. Stop here for stakeholder review.
+
+Published on `feature/engram-memory-episodes`:
+
+- `782ab1e` — runtime changes, bounded harness and tests.
+- `61475be` — verification walkthrough, raw accepted/failed runs, independent review, inventory and assessment checkpoint.
+- Subsequent documentation reconciliation records the final GitHub states and comment links; it changes no runtime source.
