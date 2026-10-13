@@ -1,10 +1,10 @@
-# Memory-only goal: produce and retrieve episodic snapshots
+# Memory pack goal: produce and retrieve Episodes, Beliefs and Goals
 
-Status: selected Episode slice implemented and verified; see [stakeholder verification](memory-episodes-verification.md). This is not pilot readiness.
+Status: Episode slice implemented and verified; Belief and Goal producers are now explicitly in scope and pending. The Memory pack goal remains in progress. See [Episode verification](memory-episodes-verification.md); its results do not verify Belief/Goal production. This is not pilot readiness.
 
 ## Observable behavior
 
-A Memory-enabled tenant can ask Engram for a session timeline and receive typed Episode snapshots, their Summary, exact member Events and evidence. Existing consolidation groups events with a gap greater than 30 minutes. Core-only tenants retain Summary behavior and do not produce or return Memory artifacts. Belief and Goal production, #20/#29 fixes, the broader pack audit and public/concurrent tenant readiness are outside this slice.
+A Memory-enabled tenant can ask Engram for a session timeline and receive typed Episode snapshots, their Summary, exact member Events and evidence. Existing consolidation groups events with a gap greater than 30 minutes. Core-only tenants retain Summary behavior and do not produce or return Memory artifacts. Belief and Goal production are required remaining work. #20/#29 fixes, the broader pack audit and public/concurrent tenant readiness remain separate work.
 
 Episodes are immutable membership snapshots, not a claim that a session is permanently closed. Identity depends on session and sorted member event IDs. Repeating the same grouping reuses identities and edges. A later event changing membership creates a new snapshot; earlier snapshots remain history. Retrieval must identify this as history, not silently claim a single latest partition.
 
@@ -37,3 +37,27 @@ Before each live case, preserve raw input, expected literal IDs/membership/prope
 Reuse only `engram-assess-1010a-pdlc`, after verified export and an owner/dataset check; no earlier goal database changes. Sequential combinations do not prove concurrent tenant isolation. Final data stays retained. No historical migration work.
 
 Finish with a stakeholder verification walkthrough, case-by-case PASS/FAIL/BLOCKED and evidence, independent review, #42/#34/#39/#41 reconciliation and assessment of any newly discovered defects. Do not claim completion if a required scenario is missing/blocked. Do not start another goal or the developer pilot without stakeholder approval.
+
+
+## Scope correction: Belief and Goal are required
+
+Stakeholder explicitly included both producers on 13 October. Episode acceptance remains valid, but it does not complete the Memory pack. Do not describe Belief/Goal as excluded from the overall goal or count their schema/storage helpers as implemented production paths.
+
+Before coding these producers, ground the contract in the existing BeliefNode/GoalNode models, Memory pack declarations, extraction/projection workers and public read paths. Define the supported event inputs, stable scope/identity, ownership, evidence, retry behavior, lifecycle and retrieval expectations. Reuse the shared workers and pack contracts; do not turn a PDLC ticket into a Memory Goal merely because both describe work. Distinguish stated beliefs from model inference and evidence-backed confirmation from truth. A test passing is not automatic completion of a user Goal.
+
+Required remaining acceptance journeys:
+
+| Area | Observable behavior to implement and verify |
+|---|---|
+| Belief production | An admitted supported input produces a typed Belief with category, bounded confidence, declared ownership and real source evidence; public retrieval returns it with that evidence |
+| Belief confirmation | A distinct supporting event adds evidence once; redelivery and worker retries do not inflate confirmation_count |
+| Belief correction | A correction targets an exact prior belief; replacement/history and supersedes/contradicts behavior are explicit and retrievable; unrelated beliefs remain unchanged |
+| Goal production | An admitted supported input produces a typed Goal with stable identity, ownership, status and source evidence; public retrieval returns it |
+| Goal lifecycle | Active, completed, abandoned and superseded behavior is defined against existing statuses; state changes require supported evidence, and unrelated PDLC artifacts do not drive transitions implicitly |
+| Recovery | Missing references, late events and interrupted writes have explicit outcomes; incomplete evidence cannot be reported as a fully verified memory |
+| Composition | Core+Memory and core+PDLC+Memory preserve their existing behavior; user pack is not implicitly required; Memory-off processing and reads exclude these capabilities |
+| Boundaries | Cross-session recall scope is explicitly defined; unrelated owners/sessions and any tenant outside the authorized binding do not leak into answers |
+
+Apply the same standard as Episodes: declare exact expected results before execution, write regressions, review with Astra, exercise accepted journeys through authenticated Engram writes, real workers, Spanner and public retrieval, preserve failures, independently audit rows, reconcile #42/#34/#39/#41, and produce the stakeholder walkthrough. Label local fault probes separately from live cloud results. Reuse the authorized assessment database only with its current retained owner/fingerprint record and verified export; retain final data. No historical migration work.
+
+Completion requires Episodes, Beliefs AND Goals to meet their declared acceptance journeys. The pilot stays paused until the remaining Memory work and the other pilot prerequisites are resolved; do not start another goal automatically.

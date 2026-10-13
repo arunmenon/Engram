@@ -1,6 +1,6 @@
 # Memory Episode verification and stakeholder walkthrough
 
-Status: Memory Episode slice accepted after selected live/local verification and independent Astra evidence review. This document does not establish pilot readiness.
+Status: Memory Episode slice accepted after selected live/local verification and independent Astra evidence review. Stakeholder has expanded the overall Memory goal to include Belief and Goal producers; those are pending and are not covered by these results. This document does not establish pilot readiness.
 
 ## What changed and why
 
@@ -131,3 +131,8 @@ Implementation and evidence commit: `acd2a46`, branch `feature/engram-memory-epi
 | #42 | [Scoped Memory Episode progress and evidence](https://github.com/arunmenon/Engram/issues/42#issuecomment-6144940724) | OPEN |
 
 No issue was closed on partial feature coverage. No new feature bucket was needed. The developer pilot and other assessment fixes have not started.
+
+
+## Subsequent scope expansion
+
+On 13 October the stakeholder explicitly required Belief and Goal producers in the overall Memory goal. Earlier exclusions in this document describe the completed Episode implementation scope, not the current overall goal. The [updated Memory goal](memory-episodes-goal.md) records required remaining journeys. Episode verification stays accepted; Memory pack completion and pilot readiness remain unclaimed.
