@@ -1,0 +1,572 @@
+2026-10-13 23:42:07 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 23:42:07 [info     ] llm_client_initialized
+2026-10-13 23:42:10 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0'] ontology_version=sha256:7aa9c7d4db1d5a24 redis_host=localhost
+2026-10-13 23:42:13 [info     ] ontology_loaded                edge_types=10 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=3 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:7aa9c7d4db1d5a24
+2026-10-13 23:42:13 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-13 23:42:16 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 23:42:17 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 23:42:17 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 23:42:20 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-13 23:42:20 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-13 23:42:21 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-13 23:42:22 [info     ] consolidation_llm_client_initialized
+2026-10-13 23:42:22 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-13 23:42:22 [info     ] consolidation_timer_started    interval_hours=6.0
+2026-10-13 23:42:23 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-13 23:42:23 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-13 23:42:26 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-13 23:42:26 [info     ] event_ingested                 event_id=7f14eb83-d072-55db-8b66-300d2204f138 event_type=observation.input global_position=2026-10-13T18:12:26.441551000Z/000000/7f14eb83-d072-55db-8b66-300d2204f138 request_id=9db6cbb6-c795-4a17-ae15-6ff7d2f583fb status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 23:42:26 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-13 23:42:27 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-13 23:42:27 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-13 23:42:28 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=800
+2026-10-13 23:42:29 [error    ] message_processing_failed      consumer=enrichment-1 entry_id=2026-10-13T18:12:26.441551000Z/000000/7f14eb83-d072-55db-8b66-300d2204f138 group=assessment-enrichment
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsumer.py:282 in run                                                         │
+│                                                                              │
+│   279 │   │   │   for delivery in deliveries:                                │
+│   280 │   │   │   │   entry_id = delivery.position                           │
+│   281 │   │   │   │   try:                                                   │
+│ ❱ 282 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   283 │   │   │   │   │   if not self.deferred_ack:                          │
+│   284 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   285 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-13T18:12:26.441551000Z/000000/7f14eb… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  '7f14eb83-d072-55db-8b66-300d2204f138'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-13T18:12:26.441551000Z/000000/7f14eb… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  '7f14eb83-d072-55db-8b66-300d2204f138'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-13T18:12:26.441551000Z/000000/7f14eb83-d072-5… │ │
+│ │ loop_iteration = 38                                                      │ │
+│ │           self = <context_graph.worker.enrichment.EnrichmentConsumer     │ │
+│ │                  object at 0x12fec7110>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/en │
+│ richment.py:84 in process_message                                            │
+│                                                                              │
+│    81 │   │                                                                  │
+│    82 │   │   # Projection and enrichment are independent consumers. An abse │
+│    83 │   │   # is a dependency wait, never a successfully handled delivery. │
+│ ❱  84 │   │   await self._retry_transient(                                   │
+│    85 │   │   │   lambda: self._graph_store.update_event_enrichment(event_id │
+│       importance_score),                                                     │
+│    86 │   │   │   "annotate_projected_event",                                │
+│    87 │   │   )                                                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │             data = {'event_id': '7f14eb83-d072-55db-8b66-300d2204f138'}  │ │
+│ │              doc = {                                                     │ │
+│ │                    │   'agent_id': 'enrichment-owner',                   │ │
+│ │                    │   'ended_at': None,                                 │ │
+│ │                    │   'event_id':                                       │ │
+│ │                    '7f14eb83-d072-55db-8b66-300d2204f138',               │ │
+│ │                    │   'event_type': 'observation.input',                │ │
+│ │                    │   'global_position':                                │ │
+│ │                    '2026-10-13T18:12:26.441551000Z/000000/7f14eb83-d072… │ │
+│ │                    │   'importance_hint': 7,                             │ │
+│ │                    │   'occurred_at': '2026-10-13T18:12:25.993334Z',     │ │
+│ │                    │   'parent_event_id': None,                          │ │
+│ │                    │   'payload': {'content': 'ordering probe EN01'},    │ │
+│ │                    │   'payload_ref': 'enrichment:EN01',                 │ │
+│ │                    │   ... +7                                            │ │
+│ │                    }                                                     │ │
+│ │         entry_id = '2026-10-13T18:12:26.441551000Z/000000/7f14eb83-d072… │ │
+│ │         event_id = '7f14eb83-d072-55db-8b66-300d2204f138'                │ │
+│ │       event_type = 'observation.input'                                   │ │
+│ │  importance_hint = 7                                                     │ │
+│ │ importance_score = 7                                                     │ │
+│ │         keywords = ['observation', 'input', 'race-tool']                 │ │
+│ │             self = <context_graph.worker.enrichment.EnrichmentConsumer   │ │
+│ │                    object at 0x12fec7110>                                │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsumer.py:99 in _retry_transient                                             │
+│                                                                              │
+│    96 │   │   delay_ms = self._transient_backoff_ms                          │
+│    97 │   │   while True:                                                    │
+│    98 │   │   │   try:                                                       │
+│ ❱  99 │   │   │   │   return await operation()                               │
+│   100 │   │   │   except TRANSIENT_ERRORS as exc:                            │
+│   101 │   │   │   │   if self._stopped:                                      │
+│   102 │   │   │   │   │   raise                                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ delay_ms = 1600                                                          │ │
+│ │     self = <context_graph.worker.enrichment.EnrichmentConsumer object at │ │
+│ │            0x12fec7110>                                                  │ │
+│ │     what = 'annotate_projected_event'                                    │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ errors.py:30 in wrapper                                                      │
+│                                                                              │
+│   27 │   @functools.wraps(method)                                            │
+│   28 │   async def wrapper(*args: Any, **kwargs: Any) -> Any:                │
+│   29 │   │   try:                                                            │
+│ ❱ 30 │   │   │   return await method(*args, **kwargs)                        │
+│   31 │   │   except StorageError:                                            │
+│   32 │   │   │   raise                                                       │
+│   33 │   │   except Exception as exc:                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   args = (                                                               │ │
+│ │          │   <context_graph.adapters.spanner.graph.SpannerGraphStore     │ │
+│ │          object at 0x12feea1b0>,                                         │ │
+│ │          │   '7f14eb83-d072-55db-8b66-300d2204f138',                     │ │
+│ │          │   ['observation', 'input', 'race-tool'],                      │ │
+│ │          │   7                                                           │ │
+│ │          )                                                               │ │
+│ │ kwargs = {}                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ graph_ops.py:502 in update_event_enrichment                                  │
+│                                                                              │
+│    499 │   async def update_event_enrichment(                                │
+│    500 │   │   self, event_id: str, keywords: list[str], importance_score: i │
+│    501 │   ) -> None:                                                        │
+│ ❱  502 │   │   await self._update_event_annotations(                         │
+│    503 │   │   │   ("Event", event_id), {"keywords": keywords, "importance_s │
+│        importance_score}                                                     │
+│    504 │   │   )                                                             │
+│    505                                                                       │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │         event_id = '7f14eb83-d072-55db-8b66-300d2204f138'                │ │
+│ │ importance_score = 7                                                     │ │
+│ │         keywords = ['observation', 'input', 'race-tool']                 │ │
+│ │             self = <context_graph.adapters.spanner.graph.SpannerGraphSt… │ │
+│ │                    object at 0x12feea1b0>                                │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:606 in _update_event_annotations                            │
+│                                                                              │
+│   603 │   │   │                                                              │
+│   604 │   │   │   return work                                                │
+│   605 │   │                                                                  │
+│ ❱ 606 │   │   await self._write_in_commits([[(key, updates)]], self._node_es │
+│   607 │                                                                      │
+│   608 │   async def _apply_state_changes(self, changes: list[StateChange]) - │
+│   609 │   │   """Apply transitions in order; one node's transitions share a  │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     key = ('Event', '7f14eb83-d072-55db-8b66-300d2204f138')              │ │
+│ │    self = <context_graph.adapters.spanner.graph.SpannerGraphStore object │ │
+│ │           at 0x12feea1b0>                                                │ │
+│ │ updates = {                                                              │ │
+│ │           │   'keywords': ['observation', 'input', 'race-tool'],         │ │
+│ │           │   'importance_score': 7                                      │ │
+│ │           }                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:236 in _write_in_commits                                    │
+│                                                                              │
+│   233 │   │   │   run = pending.pop(0)                                       │
+│   234 │   │   │   items = [item for group in run for item in group]          │
+│   235 │   │   │   try:                                                       │
+│ ❱ 236 │   │   │   │   results.append(await self._transact(write(items, len(r │
+│   237 │   │   │   except CommitTooLarge:                                     │
+│   238 │   │   │   │   middle = len(run) // 2                                 │
+│   239 │   │   │   │   pending[:0] = [run[:middle], run[middle:]]             │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  groups = [                                                              │ │
+│ │           │   [                                                          │ │
+│ │           │   │   (                                                      │ │
+│ │           │   │   │   (                                                  │ │
+│ │           │   │   │   │   'Event',                                       │ │
+│ │           │   │   │   │   '7f14eb83-d072-55db-8b66-300d2204f138'         │ │
+│ │           │   │   │   ),                                                 │ │
+│ │           │   │   │   {                                                  │ │
+│ │           │   │   │   │   'keywords': [                                  │ │
+│ │           │   │   │   │   │   'observation',                             │ │
+│ │           │   │   │   │   │   'input',                                   │ │
+│ │           │   │   │   │   │   'race-tool'                                │ │
+│ │           │   │   │   │   ],                                             │ │
+│ │           │   │   │   │   'importance_score': 7                          │ │
+│ │           │   │   │   }                                                  │ │
+│ │           │   │   )                                                      │ │
+│ │           │   ]                                                          │ │
+│ │           ]                                                              │ │
+│ │   items = [                                                              │ │
+│ │           │   (                                                          │ │
+│ │           │   │   ('Event', '7f14eb83-d072-55db-8b66-300d2204f138'),     │ │
+│ │           │   │   {                                                      │ │
+│ │           │   │   │   'keywords': [                                      │ │
+│ │           │   │   │   │   'observation',                                 │ │
+│ │           │   │   │   │   'input',                                       │ │
+│ │           │   │   │   │   'race-tool'                                    │ │
+│ │           │   │   │   ],                                                 │ │
+│ │           │   │   │   'importance_score': 7                              │ │
+│ │           │   │   }                                                      │ │
+│ │           │   )                                                          │ │
+│ │           ]                                                              │ │
+│ │ pending = []                                                             │ │
+│ │ results = []                                                             │ │
+│ │     run = [                                                              │ │
+│ │           │   [                                                          │ │
+│ │           │   │   (                                                      │ │
+│ │           │   │   │   (                                                  │ │
+│ │           │   │   │   │   'Event',                                       │ │
+│ │           │   │   │   │   '7f14eb83-d072-55db-8b66-300d2204f138'         │ │
+│ │           │   │   │   ),                                                 │ │
+│ │           │   │   │   {                                                  │ │
+│ │           │   │   │   │   'keywords': [                                  │ │
+│ │           │   │   │   │   │   'observation',                             │ │
+│ │           │   │   │   │   │   'input',                                   │ │
+│ │           │   │   │   │   │   'race-tool'                                │ │
+│ │           │   │   │   │   ],                                             │ │
+│ │           │   │   │   │   'importance_score': 7                          │ │
+│ │           │   │   │   }                                                  │ │
+│ │           │   │   )                                                      │ │
+│ │           │   ]                                                          │ │
+│ │           ]                                                              │ │
+│ │    self = <context_graph.adapters.spanner.graph.SpannerGraphStore object │ │
+│ │           at 0x12feea1b0>                                                │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:212 in _transact                                            │
+│                                                                              │
+│   209 │                                                                      │
+│   210 │   async def _transact(self, fn: Any) -> Any:                         │
+│   211 │   │   if self._tenant_fence is not None:                             │
+│ ❱ 212 │   │   │   return await asyncio.to_thread(                            │
+│   213 │   │   │   │   self._tenant_fence.run, self._database, fn, operation= │
+│   214 │   │   │   )                                                          │
+│   215 │   │   return await asyncio.to_thread(self._database.run_in_transacti │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ self = <context_graph.adapters.spanner.graph.SpannerGraphStore object at │ │
+│ │        0x12feea1b0>                                                      │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versio │
+│ ns/3.12/lib/python3.12/asyncio/threads.py:25 in to_thread                    │
+│                                                                              │
+│   22 │   loop = events.get_running_loop()                                    │
+│   23 │   ctx = contextvars.copy_context()                                    │
+│   24 │   func_call = functools.partial(ctx.run, func, *args, **kwargs)       │
+│ ❱ 25 │   return await loop.run_in_executor(None, func_call)                  │
+│   26                                                                         │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │      args = (                                                            │ │
+│ │             │   <google.cloud.spanner_v1.database.Database object at     │ │
+│ │             0x12fec7f50>,                                                │ │
+│ │             │   <function                                                │ │
+│ │             SpannerGraphStore._update_event_annotations.<locals>.write.… │ │
+│ │             at 0x12ff63920>                                              │ │
+│ │             )                                                            │ │
+│ │       ctx = <_contextvars.Context object at 0x12fee6940>                 │ │
+│ │      func = <bound method TenantFence.run of                             │ │
+│ │             TenantFence(tenant_id='enrichment-core',                     │ │
+│ │             database_resource='projects/portiq-mvp/instances/engram-exp… │ │
+│ │             binding_id='enrichment-ordering-1013-02core', epoch=31,      │ │
+│ │             bundle_digest='sha256:520849e7d72cd7694dc12834b6d00f6b87840… │ │
+│ │ func_call = functools.partial(<built-in method run of                    │ │
+│ │             _contextvars.Context object at 0x12fee6940>, <bound method   │ │
+│ │             TenantFence.run of TenantFence(tenant_id='enrichment-core',  │ │
+│ │             database_resource='projects/portiq-mvp/instances/engram-exp… │ │
+│ │             binding_id='enrichment-ordering-1013-02core', epoch=31,      │ │
+│ │             bundle_digest='sha256:520849e7d72cd7694dc12834b6d00f6b87840… │ │
+│ │             <google.cloud.spanner_v1.database.Database object at         │ │
+│ │             0x12fec7f50>, <function                                      │ │
+│ │             SpannerGraphStore._update_event_annotations.<locals>.write.… │ │
+│ │             at 0x12ff63920>, operation='processing')                     │ │
+│ │    kwargs = {'operation': 'processing'}                                  │ │
+│ │      loop = <_UnixSelectorEventLoop running=True closed=False            │ │
+│ │             debug=False>                                                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versio │
+│ ns/3.12/lib/python3.12/concurrent/futures/thread.py:58 in run                │
+│                                                                              │
+│    55 │   │   │   return                                                     │
+│    56 │   │                                                                  │
+│    57 │   │   try:                                                           │
+│ ❱  58 │   │   │   result = self.fn(*self.args, **self.kwargs)                │
+│    59 │   │   except BaseException as exc:                                   │
+│    60 │   │   │   self.future.set_exception(exc)                             │
+│    61 │   │   │   # Break a reference cycle with the exception 'exc'         │
+│                                                                              │
+│ ╭── locals ───╮                                                              │
+│ │ self = None │                                                              │
+│ ╰─────────────╯                                                              │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/tenant_control.py:157 in run                                         │
+│                                                                              │
+│   154 │   │   │   self.check(transaction, operation=operation)               │
+│   155 │   │   │   return callback(transaction)                               │
+│   156 │   │                                                                  │
+│ ❱ 157 │   │   return database.run_in_transaction(guarded)                    │
+│   158 │                                                                      │
+│   159 │   def check_database(self, database: Any) -> None:                   │
+│   160 │   │   if database.name != self.database_resource:                    │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  database = <google.cloud.spanner_v1.database.Database object at         │ │
+│ │             0x12fec7f50>                                                 │ │
+│ │ operation = 'processing'                                                 │ │
+│ │      self = TenantFence(                                                 │ │
+│ │             │   tenant_id='enrichment-core',                             │ │
+│ │             │                                                            │ │
+│ │             database_resource='projects/portiq-mvp/instances/engram-exp… │ │
+│ │             │   binding_id='enrichment-ordering-1013-02core',            │ │
+│ │             │   epoch=31,                                                │ │
+│ │             │                                                            │ │
+│ │             bundle_digest='sha256:520849e7d72cd7694dc12834b6d00f6b87840… │ │
+│ │             )                                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-p │
+│ ackages/google/cloud/spanner_v1/database.py:1066 in run_in_transaction       │
+│                                                                              │
+│   1063 │   │   │   transaction_type = TransactionType.READ_WRITE             │
+│   1064 │   │   │   session = self._sessions_manager.get_session(transaction_ │
+│   1065 │   │   │   try:                                                      │
+│ ❱ 1066 │   │   │   │   return session.run_in_transaction(func, *args, **kw)  │
+│   1067 │   │   │   finally:                                                  │
+│   1068 │   │   │   │   self._local.transaction_running = False               │
+│   1069 │   │   │   │   self._sessions_manager.put_session(session)           │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │                  args = ()                                               │ │
+│ │      extra_attributes = {}                                               │ │
+│ │                    kw = {}                                               │ │
+│ │ observability_options = {                                                │ │
+│ │                         │   'db_name':                                   │ │
+│ │                         'projects/portiq-mvp/instances/engram-experimen… │ │
+│ │                         }                                                │ │
+│ │                  self = <google.cloud.spanner_v1.database.Database       │ │
+│ │                         object at 0x12fec7f50>                           │ │
+│ │               session = <google.cloud.spanner_v1.session.Session object  │ │
+│ │                         at 0x12feea630>                                  │ │
+│ │       transaction_tag = None                                             │ │
+│ │      transaction_type = <TransactionType.READ_WRITE: 'read/write'>       │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-p │
+│ ackages/google/cloud/spanner_v1/session.py:540 in run_in_transaction         │
+│                                                                              │
+│   537 │   │   │   │   attempts += 1                                          │
+│   538 │   │   │   │   span_attributes = dict(attempt=attempts)               │
+│   539 │   │   │   │   try:                                                   │
+│ ❱ 540 │   │   │   │   │   return_value = CrossSync._Sync_Impl.run_if_async(  │
+│   541 │   │   │   │   │   │   func, txn, *args, **kw                         │
+│   542 │   │   │   │   │   )                                                  │
+│   543 │   │   │   │   except Aborted as exc:                                 │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │                            args = ()                                     │ │
+│ │                        attempts = 1                                      │ │
+│ │                  client_context = None                                   │ │
+│ │          commit_request_options = None                                   │ │
+│ │                        database = <google.cloud.spanner_v1.database.Dat… │ │
+│ │                                   object at 0x12fec7f50>                 │ │
+│ │                        deadline = 1791915178.8814132                     │ │
+│ │             default_retry_delay = None                                   │ │
+│ │ exclude_txn_from_change_streams = None                                   │ │
+│ │                extra_attributes = {}                                     │ │
+│ │                 isolation_level = None                                   │ │
+│ │                              kw = {}                                     │ │
+│ │                log_commit_stats = False                                  │ │
+│ │                max_commit_delay = None                                   │ │
+│ │         previous_transaction_id = None                                   │ │
+│ │                  read_lock_mode = None                                   │ │
+│ │                            self = <google.cloud.spanner_v1.session.Sess… │ │
+│ │                                   object at 0x12feea630>                 │ │
+│ │                            span = NonRecordingSpan(SpanContext(trace_id… │ │
+│ │                                   span_id=0x0000000000000000,            │ │
+│ │                                   trace_flags=0x00, trace_state=[],      │ │
+│ │                                   is_remote=False))                      │ │
+│ │                 span_attributes = {'attempt': 1}                         │ │
+│ │                 transaction_tag = None                                   │ │
+│ │                             txn = <google.cloud.spanner_v1.transaction.… │ │
+│ │                                   object at 0x149091c40>                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-p │
+│ ackages/google/cloud/aio/_cross_sync/cross_sync.py:336 in run_if_async       │
+│                                                                              │
+│   333 │   │   │   """                                                        │
+│   334 │   │   │   Runs a function                                            │
+│   335 │   │   │   """                                                        │
+│ ❱ 336 │   │   │   return func(*args, **kwargs)                               │
+│   337 │   │                                                                  │
+│   338 │   │   @staticmethod                                                  │
+│   339 │   │   def queue_get(queue, block=True, timeout=None):                │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   args = (                                                               │ │
+│ │          │   <google.cloud.spanner_v1.transaction.Transaction object at  │ │
+│ │          0x149091c40>,                                                   │ │
+│ │          )                                                               │ │
+│ │ kwargs = {}                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/tenant_control.py:155 in guarded                                     │
+│                                                                              │
+│   152 │   │                                                                  │
+│   153 │   │   def guarded(transaction: Any) -> Any:                          │
+│   154 │   │   │   self.check(transaction, operation=operation)               │
+│ ❱ 155 │   │   │   return callback(transaction)                               │
+│   156 │   │                                                                  │
+│   157 │   │   return database.run_in_transaction(guarded)                    │
+│   158                                                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   operation = 'processing'                                               │ │
+│ │        self = TenantFence(                                               │ │
+│ │               │   tenant_id='enrichment-core',                           │ │
+│ │               │                                                          │ │
+│ │               database_resource='projects/portiq-mvp/instances/engram-e… │ │
+│ │               │   binding_id='enrichment-ordering-1013-02core',          │ │
+│ │               │   epoch=31,                                              │ │
+│ │               │                                                          │ │
+│ │               bundle_digest='sha256:520849e7d72cd7694dc12834b6d00f6b878… │ │
+│ │               )                                                          │ │
+│ │ transaction = <google.cloud.spanner_v1.transaction.Transaction object at │ │
+│ │               0x149091c40>                                               │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:588 in work                                                 │
+│                                                                              │
+│   585 │   │   │   def work(transaction: Any) -> None:                        │
+│   586 │   │   │   │   rows = list(transaction.read("GraphNodes", NODE_COLUMN │
+│       KeySet(keys=[list(key)])))                                             │
+│   587 │   │   │   │   if not rows:                                           │
+│ ❱ 588 │   │   │   │   │   raise UnavailableError("Event projection is not av │
+│       enrichment")                                                           │
+│   589 │   │   │   │   label, node_id, raw, embedding = rows[0]               │
+│   590 │   │   │   │   previous = json_value(raw)                             │
+│   591 │   │   │   │   props = dict(previous)                                 │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     enforce = False                                                      │ │
+│ │         key = ('Event', '7f14eb83-d072-55db-8b66-300d2204f138')          │ │
+│ │        rows = []                                                         │ │
+│ │        self = <context_graph.adapters.spanner.graph.SpannerGraphStore    │ │
+│ │               object at 0x12feea1b0>                                     │ │
+│ │ transaction = <google.cloud.spanner_v1.transaction.Transaction object at │ │
+│ │               0x149091c40>                                               │ │
+│ │     updates = {                                                          │ │
+│ │               │   'keywords': ['observation', 'input', 'race-tool'],     │ │
+│ │               │   'importance_score': 7                                  │ │
+│ │               }                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+UnavailableError: Event projection is not available for enrichment
+
+2026-10-13 23:42:29 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 23:42:32 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 23:42:33 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 23:42:34 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 23:42:34 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-13 23:42:34 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-13 23:42:34 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 23:42:35 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=800
+2026-10-13 23:42:35 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T18:12:26.441551000Z/000000/7f14eb83-d072-55db-8b66-300d2204f138 event_id=7f14eb83-d072-55db-8b66-300d2204f138 session_id=enrichment-ordering-1013-02coreEN01
+2026-10-13 23:42:36 [debug    ] event_enriched                 event_id=7f14eb83-d072-55db-8b66-300d2204f138 importance_score=7 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:42:36 [debug    ] event_embedding_stored         event_id=7f14eb83-d072-55db-8b66-300d2204f138
+2026-10-13 23:42:37 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 23:42:42 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=56ecb8b6-de4e-4d23-bc53-14303b7abf14
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]I1013 23:42:45.172763 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(44, generation: 1)
+I1013 23:42:45.172813 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(37, generation: 1)
+I1013 23:42:45.172819 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1013 23:42:45.172824 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1013 23:42:45.172828 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1013 23:42:45.172832 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1013 23:42:45.172835 56978536 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6598.75it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-13 23:42:50 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 23:42:51 [info     ] event_ingested                 event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb event_type=observation.input global_position=2026-10-13T18:12:51.124511000Z/000000/76d0086a-ae2b-57bb-8a28-ee98e96107fb request_id=abf52a45-9394-4bb9-bb66-44023c9738bf status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-13 23:42:52 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T18:12:51.124511000Z/000000/76d0086a-ae2b-57bb-8a28-ee98e96107fb event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb session_id=enrichment-ordering-1013-02coreEN03
+2026-10-13 23:42:56 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-13 23:42:57 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-13 23:42:57 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-13 23:42:58 [debug    ] event_enriched                 event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb importance_score=7 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:42:58 [debug    ] event_embedding_stored         event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb
+2026-10-13 23:43:01 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-13 23:43:05 [info     ] event_ingested                 event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb event_type=observation.input global_position=2026-10-13T18:12:51.124511000Z/000000/76d0086a-ae2b-57bb-8a28-ee98e96107fb request_id=4233f1f5-7837-44bf-9cac-32b28be66502 status=duplicate
+2026-10-13 23:43:08 [info     ] ontology_loaded                edge_types=10 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=3 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:7aa9c7d4db1d5a24
+2026-10-13 23:43:08 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T18:12:51.124511000Z/000000/76d0086a-ae2b-57bb-8a28-ee98e96107fb event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb session_id=enrichment-ordering-1013-02coreEN03
+2026-10-13 23:43:09 [debug    ] event_enriched                 event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb importance_score=7 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:43:09 [debug    ] event_embedding_stored         event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb
+2026-10-13 23:43:11 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-13 23:43:11 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-13 23:43:13 [info     ] event_ingested                 event_id=24cbcac3-e683-5370-9e18-57db7b5909b0 event_type=observation.input global_position=2026-10-13T18:13:13.919631000Z/000000/24cbcac3-e683-5370-9e18-57db7b5909b0 request_id=2adfdfb7-929a-404e-91ea-674ad6b9f6a3 status=created
+2026-10-13 23:43:14 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T18:13:13.919631000Z/000000/24cbcac3-e683-5370-9e18-57db7b5909b0 event_id=24cbcac3-e683-5370-9e18-57db7b5909b0 session_id=enrichment-ordering-1013-02coreEN05
+2026-10-13 23:43:14 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-13 23:43:15 [debug    ] event_enriched                 event_id=24cbcac3-e683-5370-9e18-57db7b5909b0 importance_score=5 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:43:18 [info     ] event_ingested                 event_id=6db92122-61da-5bfd-96d2-6aafead706cc event_type=observation.input global_position=2026-10-13T18:13:18.576815000Z/000000/6db92122-61da-5bfd-96d2-6aafead706cc request_id=d0dcdd6e-eed2-4a48-8d0e-413b5adb2010 status=created
+2026-10-13 23:43:19 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T18:13:18.576815000Z/000000/6db92122-61da-5bfd-96d2-6aafead706cc event_id=6db92122-61da-5bfd-96d2-6aafead706cc session_id=enrichment-ordering-1013-02coreEN06
+2026-10-13 23:43:19 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-13 23:43:19 [debug    ] event_enriched                 event_id=6db92122-61da-5bfd-96d2-6aafead706cc importance_score=5 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:43:19 [warning  ] event_embedding_failed         event_id=6db92122-61da-5bfd-96d2-6aafead706cc
+2026-10-13 23:43:23 [debug    ] event_enriched                 event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb importance_score=7 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:43:23 [warning  ] event_embedding_failed         event_id=76d0086a-ae2b-57bb-8a28-ee98e96107fb
+2026-10-13 23:43:26 [info     ] event_ingested                 event_id=c87418ad-0440-5c66-96dd-d578864f2d3d event_type=observation.input global_position=2026-10-13T18:13:25.981615000Z/000000/c87418ad-0440-5c66-96dd-d578864f2d3d request_id=c6571839-cecf-4aad-ad78-0ab12328cd90 status=created
+2026-10-13 23:43:26 [debug    ] event_projected                edge_count=0 entry_id=2026-10-13T18:13:25.981615000Z/000000/c87418ad-0440-5c66-96dd-d578864f2d3d event_id=c87418ad-0440-5c66-96dd-d578864f2d3d session_id=enrichment-ordering-1013-02coreEN07
+2026-10-13 23:43:26 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-13 23:43:26 [debug    ] event_enriched                 event_id=c87418ad-0440-5c66-96dd-d578864f2d3d importance_score=7 keywords=['observation', 'input', 'race-tool']
+2026-10-13 23:43:26 [warning  ] storage_unavailable_retrying   error='controlled vector storage outage after keyword commit' group=assessment-enrichment operation=store_event_embedding retry_in_ms=200
+2026-10-13 23:43:27 [warning  ] storage_unavailable_retrying   error='controlled vector storage outage after keyword commit' group=assessment-enrichment operation=store_event_embedding retry_in_ms=400
+2026-10-13 23:43:27 [warning  ] storage_unavailable_retrying   error='controlled vector storage outage after keyword commit' group=assessment-enrichment operation=store_event_embedding retry_in_ms=800
+2026-10-13 23:43:28 [debug    ] event_embedding_stored         event_id=c87418ad-0440-5c66-96dd-d578864f2d3d
+2026-10-13 23:43:31 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-13 23:43:31 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-13 23:43:31 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-13 23:43:31 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-13 23:43:31 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-13 23:43:37 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_enrichment_ordering_demo.py", line 614, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_enrichment_ordering_demo.py", line 600, in main
+    await run_config(args.run_id, directory, config, bound, db)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_enrichment_ordering_demo.py", line 458, in run_config
+    check(
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_enrichment_ordering_demo.py", line 108, in check
+    raise AssertionError(name)
+AssertionError: exact Event node identities; no extra artifacts
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

@@ -191,3 +191,9 @@ A separate production shutdown defect was discovered and filed as #60, an actual
 The larger #34/#42/#39/#41 scopes remain open. No new feature bucket is needed: #20/#42/#59 cover this User slice, while #60 fits existing worker reliability scope. Next is stakeholder review, then separately approved enrichment ordering (#29), wider pack combinations, isolation and remaining pilot prerequisites. None of those stages or the pilot started here. G8–G11 are not collectively marked complete from this bounded slice.
 
 Publication reconciled: runtime `782ab1e`, evidence `61475be`, on `feature/engram-memory-episodes`. GitHub #20 and #59 are now CLOSED; #34/#42/#39/#41/#60 remain OPEN. Final parent/state verification and comment links are in the User walkthrough. No subsequent stage was started.
+
+## 2026-10-13 — enrichment ordering checkpoint
+
+The separately authorized #29 slice is verified: EN01–EN07 passed for Core, Core+User, Core+User+Memory, Core+PDLC and Core+PDLC+Memory on the reused assessment Spanner database (58 assertions each, 290 total). Missing projection no longer loses enrichment; stale projection and duplicate enrichment preserve derived metadata and adjusted importance. Astra cleared bounded closure. [Verification and stakeholder walkthrough](enrichment-ordering-verification.md) includes failures, exact results and scope limits.
+
+The final epoch36 dataset is retained after verified exports of previous owners. #61 newly tracks UUID subgraph access accounting; cached replay lineage remains #18, shutdown remains #60. No new feature umbrella is needed; these fit #34. Whole-combination producer coverage, concurrent tenant isolation and the controlled pilot are not complete or started by this common-enrichment proof. Next slices still require stakeholder selection; no automatic progression.

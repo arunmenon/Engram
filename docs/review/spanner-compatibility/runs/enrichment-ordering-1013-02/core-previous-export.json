@@ -1,0 +1,3213 @@
+{
+  "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+  "owner": [
+    "enrichment-core",
+    "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+    "enrichment-ordering-1013-01core",
+    30,
+    "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+    "frozen"
+  ],
+  "tables": {
+    "Events": {
+      "columns": [
+        "event_id",
+        "shard",
+        "commit_ts",
+        "batch_index",
+        "session_id",
+        "occurred_at_ms",
+        "session_tag",
+        "agent_tag",
+        "trace_tag",
+        "event_type_tag",
+        "tool_name_tag",
+        "document",
+        "acceptance",
+        "legacy_position",
+        "in_log",
+        "in_session_index",
+        "dedup_active",
+        "summary",
+        "keywords",
+        "search_text"
+      ],
+      "rows": [
+        [
+          "375719a1-e409-57b6-89e9-89ea0730b7db",
+          7,
+          "2026-10-13 18:09:34.310623+00:00",
+          0,
+          "enrichment-ordering-1013-01coreEN01",
+          1791914973923,
+          "enrichment-ordering-1013-01coreen01",
+          "enrichment-owner",
+          "enrichment-ordering-1013-01",
+          "observation.input",
+          "race-tool",
+          {
+            "agent_id": "enrichment-owner",
+            "ended_at": null,
+            "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+            "event_type": "observation.input",
+            "global_position": null,
+            "importance_hint": 7,
+            "occurred_at": "2026-10-13T18:09:33.923263Z",
+            "parent_event_id": null,
+            "payload": {
+              "content": "ordering probe EN01"
+            },
+            "payload_ref": "enrichment:EN01",
+            "schema_version": 1,
+            "search_text": "race-tool ordering probe EN01",
+            "session_id": "enrichment-ordering-1013-01coreEN01",
+            "status": null,
+            "tool_name": "race-tool",
+            "trace_id": "enrichment-ordering-1013-01"
+          },
+          {
+            "accepted_epoch": 30,
+            "binding_id": "enrichment-ordering-1013-01core",
+            "bundle_digest": "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+            "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+            "engine_revision": "enrichment-ordering-v1",
+            "envelope_version": 1,
+            "request_digest": "sha256:json-v1:7c433c52280eea5360df0aa643886fe2bd0bbee68e2335a8153283abc36c7c59",
+            "source_id": "demo.query",
+            "tenant_id": "enrichment-core"
+          },
+          null,
+          true,
+          true,
+          true,
+          null,
+          null,
+          "race-tool ordering probe EN01"
+        ],
+        [
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          11,
+          "2026-10-13 18:10:00.121327+00:00",
+          0,
+          "enrichment-ordering-1013-01coreEN03",
+          1791914999668,
+          "enrichment-ordering-1013-01coreen03",
+          "enrichment-owner",
+          "enrichment-ordering-1013-01",
+          "observation.input",
+          "race-tool",
+          {
+            "agent_id": "enrichment-owner",
+            "ended_at": null,
+            "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+            "event_type": "observation.input",
+            "global_position": null,
+            "importance_hint": 7,
+            "occurred_at": "2026-10-13T18:09:59.668064Z",
+            "parent_event_id": null,
+            "payload": {
+              "content": "ordering probe EN03"
+            },
+            "payload_ref": "enrichment:EN03",
+            "schema_version": 1,
+            "search_text": "race-tool ordering probe EN03",
+            "session_id": "enrichment-ordering-1013-01coreEN03",
+            "status": null,
+            "tool_name": "race-tool",
+            "trace_id": "enrichment-ordering-1013-01"
+          },
+          {
+            "accepted_epoch": 30,
+            "binding_id": "enrichment-ordering-1013-01core",
+            "bundle_digest": "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+            "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+            "engine_revision": "enrichment-ordering-v1",
+            "envelope_version": 1,
+            "request_digest": "sha256:json-v1:83855bde84418243c7cbbac666e9f1f51b18e67dd213175f1cbf16601516b8e6",
+            "source_id": "demo.query",
+            "tenant_id": "enrichment-core"
+          },
+          null,
+          true,
+          true,
+          true,
+          null,
+          null,
+          "race-tool ordering probe EN03"
+        ]
+      ]
+    },
+    "GraphNodes": {
+      "columns": [
+        "label",
+        "node_id",
+        "props",
+        "session_id",
+        "embedding"
+      ],
+      "rows": [
+        [
+          "Event",
+          "375719a1-e409-57b6-89e9-89ea0730b7db",
+          {
+            "access_count": 0,
+            "agent_id": "enrichment-owner",
+            "embedding": [
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              }
+            ],
+            "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+            "event_type": "observation.input",
+            "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+            "importance_score": 7,
+            "keywords": [
+              "observation",
+              "input",
+              "race-tool"
+            ],
+            "last_accessed_at": null,
+            "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+            "session_id": "enrichment-ordering-1013-01coreEN01",
+            "summary": null,
+            "tool_name": "race-tool",
+            "trace_id": "enrichment-ordering-1013-01"
+          },
+          "enrichment-ordering-1013-01coreEN01",
+          null
+        ],
+        [
+          "Event",
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          {
+            "access_count": 0,
+            "agent_id": "enrichment-owner",
+            "embedding": [
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              },
+              {
+                "$float": "0.25"
+              }
+            ],
+            "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+            "event_type": "observation.input",
+            "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+            "importance_score": 8,
+            "keywords": [
+              "observation",
+              "input",
+              "race-tool"
+            ],
+            "last_accessed_at": null,
+            "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+            "session_id": "enrichment-ordering-1013-01coreEN03",
+            "summary": null,
+            "tool_name": "race-tool",
+            "trace_id": "enrichment-ordering-1013-01"
+          },
+          "enrichment-ordering-1013-01coreEN03",
+          null
+        ],
+        [
+          "OntologyState",
+          "OntologyState:active",
+          {
+            "applied": "initial",
+            "eval_pending": [],
+            "node_id": "OntologyState:active",
+            "node_type": "OntologyState",
+            "packs": [
+              "core@1.1.0"
+            ],
+            "packs_json": "[{\"events\":{\"agent.create\":{\"aliases\":{\"otel\":\"create_agent\"}},\"agent.invoke\":{\"aliases\":{\"otel\":\"invoke_agent\"}},\"llm.chat\":{\"aliases\":{\"otel\":\"chat\"}},\"llm.completion\":{\"aliases\":{\"otel\":\"text_completion\"}},\"llm.embed\":{\"aliases\":{\"otel\":\"embeddings\"}},\"llm.generate\":{\"aliases\":{\"otel\":\"generate_content\"}},\"observation.input\":{\"aliases\":{}},\"observation.output\":{\"aliases\":{}},\"system.session_end\":{\"aliases\":{}},\"system.session_start\":{\"aliases\":{}},\"tool.execute\":{\"aliases\":{\"otel\":\"execute_tool\"}}},\"extraction\":{\"derived_proposals\":{},\"never_propose\":[],\"propose\":{},\"sources\":[]},\"interfaces\":{\"Anchored\":{\"edges\":[],\"properties\":{\"anchor_path\":\"string\",\"content_hash\":\"string\",\"source_uri\":\"string\"}},\"Claim\":{\"edges\":[],\"note\":\"a belief, not a fact; never auto-promoted to declared\",\"properties\":{\"confidence\":\"float\",\"method\":\"string\"}},\"Lifecycled\":{\"edges\":[],\"properties\":{\"status\":\"string\",\"status_changed_at\":\"datetime\"}},\"Sourced\":{\"edges\":[],\"note\":\"set from the emitting source's allowlist entry, never from content (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)\",\"properties\":{\"source_trust\":{\"enum\":[\"trusted\",\"untrusted\"]}}},\"Versioned\":{\"edges\":[],\"properties\":{\"version\":\"string\"}}},\"lifecycle\":{\"decay\":{},\"terminal_states_reduce_importance\":[]},\"mappings\":{\"prov\":{\"CAUSED_BY\":\"prov:wasInformedBy\",\"DERIVED_FROM\":\"prov:wasDerivedFrom\",\"Entity\":\"prov:Entity\",\"Event\":\"prov:Activity\",\"SUPERSEDES\":\"prov:wasRevisionOf\",\"Summary\":\"prov:Entity\"}},\"pack\":{\"description\":\"Agent and tool events, entities, summaries and their links, and the interfaces domain packs share.\",\"name\":\"core\",\"owner\":\"engram\",\"requires\":[],\"version\":\"1.1.0\"},\"projection\":[],\"retrieval\":{\"admission\":{},\"core_intent_weights\":{},\"fallback_intent\":\"general\",\"intents\":{\"general\":{\"description\":\"No specific intent\",\"direction\":\"both\",\"examples\":[],\"keywords\":[],\"prefer_types\":[],\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":2.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"how_does\":{\"description\":\"How a process or workflow runs\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"how\",\"process\",\"method\",\"approach\",\"workflow\",\"steps\"],\"prefer_types\":[],\"seed_strategy\":\"workflow_pattern\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":3.0,\"REFERENCES\":2.0,\"RELATED_TO\":2.0,\"SAME_AS\":1.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"related\":{\"description\":\"Similar or associated events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"similar\",\"related\",\"like\",\"compare\",\"associated\"],\"prefer_types\":[],\"seed_strategy\":\"similar_cluster\",\"weights\":{\"CAUSED_BY\":1.5,\"FOLLOWS\":0.5,\"REFERENCES\":2.0,\"SIMILAR_TO\":5.0,\"SUMMARIZES\":1.5}},\"what\":{\"description\":\"What something is or what happened\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"what\",\"describe\",\"explain\",\"definition\",\"meaning\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":1.0,\"REFERENCES\":5.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"when\":{\"description\":\"Order and timing of events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"when\",\"timeline\",\"before\",\"after\",\"sequence\",\"order\",\"time\"],\"prefer_types\":[],\"seed_strategy\":\"temporal_anchors\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":5.0,\"REFERENCES\":1.0,\"SIMILAR_TO\":0.5,\"SUMMARIZES\":0.5}},\"who_is\":{\"description\":\"Who a person, agent or team is\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"who\",\"person\",\"user\",\"team\",\"member\",\"author\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":0.5,\"REFERENCES\":3.0,\"RELATED_TO\":3.0,\"SAME_AS\":4.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"why\":{\"description\":\"Causes and reasons behind an event\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"why\",\"because\",\"caused\",\"reason\",\"root cause\",\"due to\"],\"prefer_types\":[],\"seed_strategy\":\"causal_roots\",\"weights\":{\"CAUSED_BY\":5.0,\"FOLLOWS\":1.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":1.5,\"SUMMARIZES\":1.0}}},\"key_patterns\":{},\"seed_types\":[\"Event\",\"Entity\"]},\"types\":{\"edges\":{\"CAUSED_BY\":{\"from\":[\"Event\"],\"properties\":{\"mechanism\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"CONTRADICTS\":{\"from\":[],\"note\":\"two claims cannot both hold\",\"properties\":{},\"requires\":[],\"to\":[]},\"DERIVED_FROM\":{\"from\":[],\"note\":\"provenance: a derived node links to the events it came from\",\"properties\":{\"evidence_quote\":\"text\",\"extracted_at\":\"datetime\",\"method\":\"string\",\"model_id\":\"string\",\"prompt_version\":\"string\",\"session_id\":\"string\",\"source_turn_index\":\"int\"},\"requires\":[],\"to\":[\"Event\"]},\"FOLLOWS\":{\"from\":[\"Event\"],\"properties\":{\"delta_ms\":\"int\",\"session_id\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"REFERENCES\":{\"from\":[\"Event\"],\"properties\":{\"role\":\"string\"},\"requires\":[],\"to\":[\"Entity\"]},\"RELATED_TO\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SAME_AS\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SIMILAR_TO\":{\"from\":[\"Event\"],\"properties\":{\"similarity_score\":\"float\"},\"requires\":[],\"to\":[\"Event\"]},\"SUMMARIZES\":{\"from\":[\"Summary\"],\"properties\":{},\"requires\":[],\"to\":[\"Event\",\"Summary\"]},\"SUPERSEDES\":{\"from\":[],\"note\":\"a newer version replaces an older one\",\"properties\":{},\"requires\":[],\"to\":[]}},\"extends_core_edges\":{},\"nodes\":{\"Entity\":{\"embed_fields\":[],\"id_property\":\"entity_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"entity_id\"],\"properties\":{\"embedding\":\"list<float>\",\"entity_id\":\"string\",\"entity_type\":{\"enum\":[\"agent\",\"user\",\"service\",\"tool\",\"resource\",\"concept\"]},\"first_seen\":\"datetime\",\"last_seen\":\"datetime\",\"mention_count\":\"int\",\"name\":\"string\"},\"text_fields\":[],\"vector_property\":\"embedding\"},\"Event\":{\"embed_fields\":[],\"id_property\":\"event_id\",\"indexes\":[\"session_id\"],\"interfaces\":[],\"key\":[\"event_id\"],\"properties\":{\"access_count\":\"int\",\"agent_id\":\"string\",\"embedding\":\"list<float>\",\"event_id\":\"string\",\"event_type\":\"string\",\"global_position\":\"string\",\"importance_score\":\"int\",\"keywords\":\"list<string>\",\"last_accessed_at\":\"datetime\",\"occurred_at\":\"datetime\",\"session_id\":\"string\",\"summary\":\"string\",\"tool_name\":\"string\",\"trace_id\":\"string\"},\"text_fields\":[\"summary\",\"keywords\"]},\"Summary\":{\"embed_fields\":[],\"id_property\":\"summary_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"summary_id\"],\"properties\":{\"content\":\"string\",\"created_at\":\"datetime\",\"event_count\":\"int\",\"scope\":\"string\",\"scope_id\":\"string\",\"summary_id\":\"string\",\"time_range\":\"list<datetime>\"},\"text_fields\":[\"content\"]}}}}]",
+            "recorded_at": "2026-10-13T18:09:21.857793+00:00",
+            "replay_failures": [],
+            "replayed_events": 0,
+            "version": "sha256:7aa9c7d4db1d5a24"
+          },
+          null,
+          null
+        ]
+      ]
+    },
+    "GraphEdges": {
+      "columns": [
+        "src_label",
+        "src_id",
+        "edge_type",
+        "dst_label",
+        "dst_id",
+        "props"
+      ],
+      "rows": []
+    },
+    "ConsumerGroups": {
+      "columns": [
+        "group_name",
+        "created_at"
+      ],
+      "rows": [
+        [
+          "assessment-consolidation",
+          "2026-10-13 18:09:31.258574+00:00"
+        ],
+        [
+          "assessment-enrichment",
+          "2026-10-13 18:09:25.165036+00:00"
+        ],
+        [
+          "assessment-extraction",
+          "2026-10-13 18:09:28.304112+00:00"
+        ],
+        [
+          "assessment-pack_extraction",
+          "2026-10-13 18:09:34.097137+00:00"
+        ],
+        [
+          "assessment-projection",
+          "2026-10-13 18:09:43.562585+00:00"
+        ]
+      ]
+    },
+    "ConsumerCursors": {
+      "columns": [
+        "group_name",
+        "shard",
+        "commit_ts",
+        "batch_index",
+        "event_id"
+      ],
+      "rows": [
+        [
+          "assessment-consolidation",
+          0,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          1,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          2,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          3,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          4,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          5,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          6,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          7,
+          "2026-10-13 18:09:34.310623+00:00",
+          0,
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ],
+        [
+          "assessment-consolidation",
+          8,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          9,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          10,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          11,
+          "2026-10-13 18:10:00.121327+00:00",
+          0,
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+        ],
+        [
+          "assessment-consolidation",
+          12,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          13,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          14,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-consolidation",
+          15,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          0,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          1,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          2,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          3,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          4,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          5,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          6,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          7,
+          "2026-10-13 18:09:34.310623+00:00",
+          0,
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ],
+        [
+          "assessment-enrichment",
+          8,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          9,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          10,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          11,
+          "2026-10-13 18:10:00.121327+00:00",
+          0,
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+        ],
+        [
+          "assessment-enrichment",
+          12,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          13,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          14,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-enrichment",
+          15,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          0,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          1,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          2,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          3,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          4,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          5,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          6,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          7,
+          "2026-10-13 18:09:34.310623+00:00",
+          0,
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ],
+        [
+          "assessment-extraction",
+          8,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          9,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          10,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          11,
+          "2026-10-13 18:10:00.121327+00:00",
+          0,
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+        ],
+        [
+          "assessment-extraction",
+          12,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          13,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          14,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-extraction",
+          15,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          0,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          1,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          2,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          3,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          4,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          5,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          6,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          7,
+          "2026-10-13 18:09:34.310623+00:00",
+          0,
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ],
+        [
+          "assessment-pack_extraction",
+          8,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          9,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          10,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          11,
+          "2026-10-13 18:10:00.121327+00:00",
+          0,
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+        ],
+        [
+          "assessment-pack_extraction",
+          12,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          13,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          14,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-pack_extraction",
+          15,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          0,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          1,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          2,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          3,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          4,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          5,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          6,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          7,
+          "2026-10-13 18:09:34.310623+00:00",
+          0,
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ],
+        [
+          "assessment-projection",
+          8,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          9,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          10,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          11,
+          "2026-10-13 18:10:00.121327+00:00",
+          0,
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+        ],
+        [
+          "assessment-projection",
+          12,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          13,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          14,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ],
+        [
+          "assessment-projection",
+          15,
+          "0001-01-01 00:00:00+00:00",
+          -1,
+          ""
+        ]
+      ]
+    },
+    "ConsumerDeliveries": {
+      "columns": [
+        "group_name",
+        "event_id",
+        "consumer",
+        "delivery_count",
+        "last_delivered_at",
+        "commit_ts",
+        "batch_index"
+      ],
+      "rows": []
+    },
+    "ConsumerDeadLetters": {
+      "columns": [
+        "group_name",
+        "event_id",
+        "dead_lettered_at",
+        "fields"
+      ],
+      "rows": []
+    },
+    "TenantControl": {
+      "columns": [
+        "control_id",
+        "tenant_id",
+        "database_resource",
+        "binding_id",
+        "epoch",
+        "bundle_digest",
+        "serving_state"
+      ],
+      "rows": [
+        [
+          "active",
+          "enrichment-core",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+          "enrichment-ordering-1013-01core",
+          30,
+          "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+          "frozen"
+        ]
+      ]
+    }
+  },
+  "fingerprints": {
+    "Events": {
+      "count": 2,
+      "sha256": "c47e4962fda67666bf1e7bb3745e75e46a8f06ee458c220835481846d6c9b88a"
+    },
+    "GraphNodes": {
+      "count": 3,
+      "sha256": "f0cfb238a20a64a9d447f97c41803ace91ca02bd0c1f0f19f8bb2b7d49762ed9"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 5,
+      "sha256": "17a35eaf3cb19d4ff673af9008028509b0807d2ca7dc43cd6ae028ef8d92c55b"
+    },
+    "ConsumerCursors": {
+      "count": 80,
+      "sha256": "96081304511cd534f8dac19cc3b84612cc5637ecd852073fb37747c2ee661682"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

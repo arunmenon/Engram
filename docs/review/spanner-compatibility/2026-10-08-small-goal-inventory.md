@@ -146,3 +146,9 @@ The separately authorized User attachment/profile/retry slice is complete for UA
 Stop for stakeholder review here. Enrichment #29, wider combinations, tenant isolation and pilot prerequisites require their own subsequent approval. No historical migration work is added.
 
 Publication reconciled: runtime `782ab1e`, evidence `61475be`, on `feature/engram-memory-episodes`. GitHub #20 and #59 are now CLOSED; #34/#42/#39/#41/#60 remain OPEN. Final parent/state verification and comment links are in the User walkthrough. No subsequent stage was started.
+
+## 2026-10-13 — enrichment ordering checkpoint
+
+The separately authorized #29 slice is verified: EN01–EN07 passed for Core, Core+User, Core+User+Memory, Core+PDLC and Core+PDLC+Memory on the reused assessment Spanner database (58 assertions each, 290 total). Missing projection no longer loses enrichment; stale projection and duplicate enrichment preserve derived metadata and adjusted importance. Astra cleared bounded closure. [Verification and stakeholder walkthrough](enrichment-ordering-verification.md) includes failures, exact results and scope limits.
+
+The final epoch36 dataset is retained after verified exports of previous owners. #61 newly tracks UUID subgraph access accounting; cached replay lineage remains #18, shutdown remains #60. No new feature umbrella is needed; these fit #34. Whole-combination producer coverage, concurrent tenant isolation and the controlled pilot are not complete or started by this common-enrichment proof. Next slices still require stakeholder selection; no automatic progression.

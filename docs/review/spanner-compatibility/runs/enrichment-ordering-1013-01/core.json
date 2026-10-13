@@ -1,0 +1,6647 @@
+{
+  "state": "failed",
+  "config": "core",
+  "scenarios": {
+    "EN01": "enrichment first: pending without Event, then projection restores exact annotations",
+    "EN02": "stop while projection absent; fresh enrichment worker recovers same pending delivery",
+    "EN03": "projection first then enrichment, with exact vector and supplied importance7",
+    "EN04": "duplicate ingestion and stale projection A/B/A preserve annotations and access state",
+    "EN05": "absent embedding provider: keywords/default5, no invented vector",
+    "EN06": "failed provider: keywords/default5, existing vector preserved on replay",
+    "EN07": "vector storage outage after keyword commit: pending, one provider call, recovery"
+  },
+  "requests": [
+    {
+      "route": "/v1/events",
+      "input": {
+        "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+        "session_id": "enrichment-ordering-1013-01coreEN01",
+        "agent_id": "enrichment-owner",
+        "trace_id": "enrichment-ordering-1013-01",
+        "payload_ref": "enrichment:EN01",
+        "tool_name": "race-tool",
+        "payload": {
+          "content": "ordering probe EN01"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+        "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+        "status": "created"
+      }
+    },
+    {
+      "route": "/v1/query/subgraph",
+      "input": {
+        "query": "event 375719a1-e409-57b6-89e9-89ea0730b7db",
+        "intent": "what",
+        "seed_nodes": [
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ],
+        "session_id": "enrichment-ordering-1013-01coreEN01",
+        "agent_id": "enrichment-owner",
+        "timeout_ms": 30000
+      },
+      "status": 200,
+      "output": {
+        "nodes": {
+          "375719a1-e409-57b6-89e9-89ea0730b7db": {
+            "node_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+            "node_type": "Event",
+            "attributes": {
+              "access_count": 0,
+              "embedding": [
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25
+              ],
+              "event_type": "observation.input",
+              "importance_score": 7,
+              "keywords": [
+                "observation",
+                "input",
+                "race-tool"
+              ],
+              "last_accessed_at": null,
+              "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+              "summary": null,
+              "tool_name": "race-tool"
+            },
+            "provenance": {
+              "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+              "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+              "source": "spanner",
+              "occurred_at": "2026-10-13T18:09:33.923263Z",
+              "session_id": "enrichment-ordering-1013-01coreEN01",
+              "agent_id": "enrichment-owner",
+              "trace_id": "enrichment-ordering-1013-01"
+            },
+            "scores": {
+              "decay_score": 0.485702,
+              "relevance_score": 0.0,
+              "importance_score": 7,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          }
+        },
+        "edges": [],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 11947,
+          "nodes_returned": 1,
+          "truncated": false,
+          "inferred_intents": {
+            "what": 1.0
+          },
+          "intent_override": "what",
+          "seed_nodes": [
+            "375719a1-e409-57b6-89e9-89ea0730b7db"
+          ],
+          "seed_strategy": "entity_hubs",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {
+            "graph": 1,
+            "vector": 0,
+            "bm25": 0
+          },
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 1,
+            "max_depth": 3
+          },
+          "eval_pending": []
+        }
+      }
+    },
+    {
+      "route": "/v1/events",
+      "input": {
+        "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+        "session_id": "enrichment-ordering-1013-01coreEN03",
+        "agent_id": "enrichment-owner",
+        "trace_id": "enrichment-ordering-1013-01",
+        "payload_ref": "enrichment:EN03",
+        "tool_name": "race-tool",
+        "payload": {
+          "content": "ordering probe EN03"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "status": "created"
+      }
+    },
+    {
+      "route": "/v1/query/subgraph",
+      "input": {
+        "query": "event 5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "intent": "what",
+        "seed_nodes": [
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+        ],
+        "session_id": "enrichment-ordering-1013-01coreEN03",
+        "agent_id": "enrichment-owner",
+        "timeout_ms": 30000
+      },
+      "status": 200,
+      "output": {
+        "nodes": {
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b": {
+            "node_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+            "node_type": "Event",
+            "attributes": {
+              "access_count": 0,
+              "embedding": [
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25
+              ],
+              "event_type": "observation.input",
+              "importance_score": 7,
+              "keywords": [
+                "observation",
+                "input",
+                "race-tool"
+              ],
+              "last_accessed_at": null,
+              "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+              "summary": null,
+              "tool_name": "race-tool"
+            },
+            "provenance": {
+              "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+              "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+              "source": "spanner",
+              "occurred_at": "2026-10-13T18:09:59.668064Z",
+              "session_id": "enrichment-ordering-1013-01coreEN03",
+              "agent_id": "enrichment-owner",
+              "trace_id": "enrichment-ordering-1013-01"
+            },
+            "scores": {
+              "decay_score": 0.48571,
+              "relevance_score": 0.0,
+              "importance_score": 7,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          }
+        },
+        "edges": [],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 1349,
+          "nodes_returned": 1,
+          "truncated": false,
+          "inferred_intents": {
+            "what": 1.0
+          },
+          "intent_override": "what",
+          "seed_nodes": [
+            "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+          ],
+          "seed_strategy": "entity_hubs",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {
+            "graph": 1,
+            "vector": 0,
+            "bm25": 0
+          },
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 1,
+            "max_depth": 3
+          },
+          "eval_pending": []
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "verified empty start",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "authenticated HTTP ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "accepted 375719a1-e409-57b6-89e9-89ea0730b7db",
+      "passed": true,
+      "actual": {
+        "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+        "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+        "status": "created"
+      }
+    },
+    {
+      "name": "EN01 no projection, still pending, no partial Event",
+      "passed": true,
+      "actual": {
+        "events": [
+          [
+            "375719a1-e409-57b6-89e9-89ea0730b7db",
+            {
+              "agent_id": "enrichment-owner",
+              "ended_at": null,
+              "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+              "event_type": "observation.input",
+              "global_position": null,
+              "importance_hint": 7,
+              "occurred_at": "2026-10-13T18:09:33.923263Z",
+              "parent_event_id": null,
+              "payload": {
+                "content": "ordering probe EN01"
+              },
+              "payload_ref": "enrichment:EN01",
+              "schema_version": 1,
+              "search_text": "race-tool ordering probe EN01",
+              "session_id": "enrichment-ordering-1013-01coreEN01",
+              "status": null,
+              "tool_name": "race-tool",
+              "trace_id": "enrichment-ordering-1013-01"
+            },
+            {
+              "accepted_epoch": 30,
+              "binding_id": "enrichment-ordering-1013-01core",
+              "bundle_digest": "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+              "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+              "engine_revision": "enrichment-ordering-v1",
+              "envelope_version": 1,
+              "request_digest": "sha256:json-v1:7c433c52280eea5360df0aa643886fe2bd0bbee68e2335a8153283abc36c7c59",
+              "source_id": "demo.query",
+              "tenant_id": "enrichment-core"
+            }
+          ]
+        ],
+        "nodes": [
+          [
+            "OntologyState",
+            "OntologyState:active",
+            {
+              "applied": "initial",
+              "eval_pending": [],
+              "node_id": "OntologyState:active",
+              "node_type": "OntologyState",
+              "packs": [
+                "core@1.1.0"
+              ],
+              "packs_json": "[{\"events\":{\"agent.create\":{\"aliases\":{\"otel\":\"create_agent\"}},\"agent.invoke\":{\"aliases\":{\"otel\":\"invoke_agent\"}},\"llm.chat\":{\"aliases\":{\"otel\":\"chat\"}},\"llm.completion\":{\"aliases\":{\"otel\":\"text_completion\"}},\"llm.embed\":{\"aliases\":{\"otel\":\"embeddings\"}},\"llm.generate\":{\"aliases\":{\"otel\":\"generate_content\"}},\"observation.input\":{\"aliases\":{}},\"observation.output\":{\"aliases\":{}},\"system.session_end\":{\"aliases\":{}},\"system.session_start\":{\"aliases\":{}},\"tool.execute\":{\"aliases\":{\"otel\":\"execute_tool\"}}},\"extraction\":{\"derived_proposals\":{},\"never_propose\":[],\"propose\":{},\"sources\":[]},\"interfaces\":{\"Anchored\":{\"edges\":[],\"properties\":{\"anchor_path\":\"string\",\"content_hash\":\"string\",\"source_uri\":\"string\"}},\"Claim\":{\"edges\":[],\"note\":\"a belief, not a fact; never auto-promoted to declared\",\"properties\":{\"confidence\":\"float\",\"method\":\"string\"}},\"Lifecycled\":{\"edges\":[],\"properties\":{\"status\":\"string\",\"status_changed_at\":\"datetime\"}},\"Sourced\":{\"edges\":[],\"note\":\"set from the emitting source's allowlist entry, never from content (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)\",\"properties\":{\"source_trust\":{\"enum\":[\"trusted\",\"untrusted\"]}}},\"Versioned\":{\"edges\":[],\"properties\":{\"version\":\"string\"}}},\"lifecycle\":{\"decay\":{},\"terminal_states_reduce_importance\":[]},\"mappings\":{\"prov\":{\"CAUSED_BY\":\"prov:wasInformedBy\",\"DERIVED_FROM\":\"prov:wasDerivedFrom\",\"Entity\":\"prov:Entity\",\"Event\":\"prov:Activity\",\"SUPERSEDES\":\"prov:wasRevisionOf\",\"Summary\":\"prov:Entity\"}},\"pack\":{\"description\":\"Agent and tool events, entities, summaries and their links, and the interfaces domain packs share.\",\"name\":\"core\",\"owner\":\"engram\",\"requires\":[],\"version\":\"1.1.0\"},\"projection\":[],\"retrieval\":{\"admission\":{},\"core_intent_weights\":{},\"fallback_intent\":\"general\",\"intents\":{\"general\":{\"description\":\"No specific intent\",\"direction\":\"both\",\"examples\":[],\"keywords\":[],\"prefer_types\":[],\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":2.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"how_does\":{\"description\":\"How a process or workflow runs\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"how\",\"process\",\"method\",\"approach\",\"workflow\",\"steps\"],\"prefer_types\":[],\"seed_strategy\":\"workflow_pattern\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":3.0,\"REFERENCES\":2.0,\"RELATED_TO\":2.0,\"SAME_AS\":1.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"related\":{\"description\":\"Similar or associated events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"similar\",\"related\",\"like\",\"compare\",\"associated\"],\"prefer_types\":[],\"seed_strategy\":\"similar_cluster\",\"weights\":{\"CAUSED_BY\":1.5,\"FOLLOWS\":0.5,\"REFERENCES\":2.0,\"SIMILAR_TO\":5.0,\"SUMMARIZES\":1.5}},\"what\":{\"description\":\"What something is or what happened\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"what\",\"describe\",\"explain\",\"definition\",\"meaning\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":1.0,\"REFERENCES\":5.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"when\":{\"description\":\"Order and timing of events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"when\",\"timeline\",\"before\",\"after\",\"sequence\",\"order\",\"time\"],\"prefer_types\":[],\"seed_strategy\":\"temporal_anchors\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":5.0,\"REFERENCES\":1.0,\"SIMILAR_TO\":0.5,\"SUMMARIZES\":0.5}},\"who_is\":{\"description\":\"Who a person, agent or team is\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"who\",\"person\",\"user\",\"team\",\"member\",\"author\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":0.5,\"REFERENCES\":3.0,\"RELATED_TO\":3.0,\"SAME_AS\":4.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"why\":{\"description\":\"Causes and reasons behind an event\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"why\",\"because\",\"caused\",\"reason\",\"root cause\",\"due to\"],\"prefer_types\":[],\"seed_strategy\":\"causal_roots\",\"weights\":{\"CAUSED_BY\":5.0,\"FOLLOWS\":1.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":1.5,\"SUMMARIZES\":1.0}}},\"key_patterns\":{},\"seed_types\":[\"Event\",\"Entity\"]},\"types\":{\"edges\":{\"CAUSED_BY\":{\"from\":[\"Event\"],\"properties\":{\"mechanism\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"CONTRADICTS\":{\"from\":[],\"note\":\"two claims cannot both hold\",\"properties\":{},\"requires\":[],\"to\":[]},\"DERIVED_FROM\":{\"from\":[],\"note\":\"provenance: a derived node links to the events it came from\",\"properties\":{\"evidence_quote\":\"text\",\"extracted_at\":\"datetime\",\"method\":\"string\",\"model_id\":\"string\",\"prompt_version\":\"string\",\"session_id\":\"string\",\"source_turn_index\":\"int\"},\"requires\":[],\"to\":[\"Event\"]},\"FOLLOWS\":{\"from\":[\"Event\"],\"properties\":{\"delta_ms\":\"int\",\"session_id\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"REFERENCES\":{\"from\":[\"Event\"],\"properties\":{\"role\":\"string\"},\"requires\":[],\"to\":[\"Entity\"]},\"RELATED_TO\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SAME_AS\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SIMILAR_TO\":{\"from\":[\"Event\"],\"properties\":{\"similarity_score\":\"float\"},\"requires\":[],\"to\":[\"Event\"]},\"SUMMARIZES\":{\"from\":[\"Summary\"],\"properties\":{},\"requires\":[],\"to\":[\"Event\",\"Summary\"]},\"SUPERSEDES\":{\"from\":[],\"note\":\"a newer version replaces an older one\",\"properties\":{},\"requires\":[],\"to\":[]}},\"extends_core_edges\":{},\"nodes\":{\"Entity\":{\"embed_fields\":[],\"id_property\":\"entity_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"entity_id\"],\"properties\":{\"embedding\":\"list<float>\",\"entity_id\":\"string\",\"entity_type\":{\"enum\":[\"agent\",\"user\",\"service\",\"tool\",\"resource\",\"concept\"]},\"first_seen\":\"datetime\",\"last_seen\":\"datetime\",\"mention_count\":\"int\",\"name\":\"string\"},\"text_fields\":[],\"vector_property\":\"embedding\"},\"Event\":{\"embed_fields\":[],\"id_property\":\"event_id\",\"indexes\":[\"session_id\"],\"interfaces\":[],\"key\":[\"event_id\"],\"properties\":{\"access_count\":\"int\",\"agent_id\":\"string\",\"embedding\":\"list<float>\",\"event_id\":\"string\",\"event_type\":\"string\",\"global_position\":\"string\",\"importance_score\":\"int\",\"keywords\":\"list<string>\",\"last_accessed_at\":\"datetime\",\"occurred_at\":\"datetime\",\"session_id\":\"string\",\"summary\":\"string\",\"tool_name\":\"string\",\"trace_id\":\"string\"},\"text_fields\":[\"summary\",\"keywords\"]},\"Summary\":{\"embed_fields\":[],\"id_property\":\"summary_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"summary_id\"],\"properties\":{\"content\":\"string\",\"created_at\":\"datetime\",\"event_count\":\"int\",\"scope\":\"string\",\"scope_id\":\"string\",\"summary_id\":\"string\",\"time_range\":\"list<datetime>\"},\"text_fields\":[\"content\"]}}}}]",
+              "recorded_at": "2026-10-13T18:09:21.857793+00:00",
+              "replay_failures": [],
+              "replayed_events": 0,
+              "version": "sha256:7aa9c7d4db1d5a24"
+            }
+          ]
+        ],
+        "edges": [],
+        "pending": [
+          [
+            "assessment-enrichment",
+            "375719a1-e409-57b6-89e9-89ea0730b7db"
+          ]
+        ],
+        "dead_letters": []
+      }
+    },
+    {
+      "name": "EN02 stop retains pending delivery",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "EN02 fresh worker still waits for projection",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "five workers zero lag/pending and no DLQ",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exact annotations 375719a1-e409-57b6-89e9-89ea0730b7db",
+      "passed": true,
+      "actual": {
+        "access_count": 0,
+        "agent_id": "enrichment-owner",
+        "embedding": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+        "event_type": "observation.input",
+        "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+        "importance_score": 7,
+        "keywords": [
+          "observation",
+          "input",
+          "race-tool"
+        ],
+        "last_accessed_at": null,
+        "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+        "session_id": "enrichment-ordering-1013-01coreEN01",
+        "summary": null,
+        "tool_name": "race-tool",
+        "trace_id": "enrichment-ordering-1013-01"
+      }
+    },
+    {
+      "name": "Event retrieved through HTTP 375719a1-e409-57b6-89e9-89ea0730b7db",
+      "passed": true,
+      "actual": {
+        "nodes": {
+          "375719a1-e409-57b6-89e9-89ea0730b7db": {
+            "node_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+            "node_type": "Event",
+            "attributes": {
+              "access_count": 0,
+              "embedding": [
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25
+              ],
+              "event_type": "observation.input",
+              "importance_score": 7,
+              "keywords": [
+                "observation",
+                "input",
+                "race-tool"
+              ],
+              "last_accessed_at": null,
+              "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+              "summary": null,
+              "tool_name": "race-tool"
+            },
+            "provenance": {
+              "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+              "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+              "source": "spanner",
+              "occurred_at": "2026-10-13T18:09:33.923263Z",
+              "session_id": "enrichment-ordering-1013-01coreEN01",
+              "agent_id": "enrichment-owner",
+              "trace_id": "enrichment-ordering-1013-01"
+            },
+            "scores": {
+              "decay_score": 0.485702,
+              "relevance_score": 0.0,
+              "importance_score": 7,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          }
+        },
+        "edges": [],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 11947,
+          "nodes_returned": 1,
+          "truncated": false,
+          "inferred_intents": {
+            "what": 1.0
+          },
+          "intent_override": "what",
+          "seed_nodes": [
+            "375719a1-e409-57b6-89e9-89ea0730b7db"
+          ],
+          "seed_strategy": "entity_hubs",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {
+            "graph": 1,
+            "vector": 0,
+            "bm25": 0
+          },
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 1,
+            "max_depth": 3
+          },
+          "eval_pending": []
+        }
+      }
+    },
+    {
+      "name": "public annotation values/owner 375719a1-e409-57b6-89e9-89ea0730b7db",
+      "passed": true,
+      "actual": {
+        "node_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+        "node_type": "Event",
+        "attributes": {
+          "access_count": 0,
+          "embedding": [
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ],
+          "event_type": "observation.input",
+          "importance_score": 7,
+          "keywords": [
+            "observation",
+            "input",
+            "race-tool"
+          ],
+          "last_accessed_at": null,
+          "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+          "summary": null,
+          "tool_name": "race-tool"
+        },
+        "provenance": {
+          "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+          "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+          "source": "spanner",
+          "occurred_at": "2026-10-13T18:09:33.923263Z",
+          "session_id": "enrichment-ordering-1013-01coreEN01",
+          "agent_id": "enrichment-owner",
+          "trace_id": "enrichment-ordering-1013-01"
+        },
+        "scores": {
+          "decay_score": 0.485702,
+          "relevance_score": 0.0,
+          "importance_score": 7,
+          "ppr_score": 0.0
+        },
+        "retrieval_reason": "direct",
+        "proactive_signal": null
+      }
+    },
+    {
+      "name": "accepted 5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+      "passed": true,
+      "actual": {
+        "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "status": "created"
+      }
+    },
+    {
+      "name": "EN03 projected before enrichment",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "five workers zero lag/pending and no DLQ",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exact annotations 5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+      "passed": true,
+      "actual": {
+        "access_count": 0,
+        "agent_id": "enrichment-owner",
+        "embedding": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "event_type": "observation.input",
+        "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "importance_score": 7,
+        "keywords": [
+          "observation",
+          "input",
+          "race-tool"
+        ],
+        "last_accessed_at": null,
+        "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+        "session_id": "enrichment-ordering-1013-01coreEN03",
+        "summary": null,
+        "tool_name": "race-tool",
+        "trace_id": "enrichment-ordering-1013-01"
+      }
+    },
+    {
+      "name": "Event retrieved through HTTP 5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+      "passed": true,
+      "actual": {
+        "nodes": {
+          "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b": {
+            "node_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+            "node_type": "Event",
+            "attributes": {
+              "access_count": 0,
+              "embedding": [
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25,
+                0.25
+              ],
+              "event_type": "observation.input",
+              "importance_score": 7,
+              "keywords": [
+                "observation",
+                "input",
+                "race-tool"
+              ],
+              "last_accessed_at": null,
+              "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+              "summary": null,
+              "tool_name": "race-tool"
+            },
+            "provenance": {
+              "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+              "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+              "source": "spanner",
+              "occurred_at": "2026-10-13T18:09:59.668064Z",
+              "session_id": "enrichment-ordering-1013-01coreEN03",
+              "agent_id": "enrichment-owner",
+              "trace_id": "enrichment-ordering-1013-01"
+            },
+            "scores": {
+              "decay_score": 0.48571,
+              "relevance_score": 0.0,
+              "importance_score": 7,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          }
+        },
+        "edges": [],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 1349,
+          "nodes_returned": 1,
+          "truncated": false,
+          "inferred_intents": {
+            "what": 1.0
+          },
+          "intent_override": "what",
+          "seed_nodes": [
+            "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b"
+          ],
+          "seed_strategy": "entity_hubs",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {
+            "graph": 1,
+            "vector": 0,
+            "bm25": 0
+          },
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 1,
+            "max_depth": 3
+          },
+          "eval_pending": []
+        }
+      }
+    },
+    {
+      "name": "public annotation values/owner 5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+      "passed": true,
+      "actual": {
+        "node_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "node_type": "Event",
+        "attributes": {
+          "access_count": 0,
+          "embedding": [
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ],
+          "event_type": "observation.input",
+          "importance_score": 7,
+          "keywords": [
+            "observation",
+            "input",
+            "race-tool"
+          ],
+          "last_accessed_at": null,
+          "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+          "summary": null,
+          "tool_name": "race-tool"
+        },
+        "provenance": {
+          "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          "source": "spanner",
+          "occurred_at": "2026-10-13T18:09:59.668064Z",
+          "session_id": "enrichment-ordering-1013-01coreEN03",
+          "agent_id": "enrichment-owner",
+          "trace_id": "enrichment-ordering-1013-01"
+        },
+        "scores": {
+          "decay_score": 0.48571,
+          "relevance_score": 0.0,
+          "importance_score": 7,
+          "ppr_score": 0.0
+        },
+        "retrieval_reason": "direct",
+        "proactive_signal": null
+      }
+    },
+    {
+      "name": "EN04 graph-port importance adjustment applied",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "EN04 positive access and adjusted importance before replay",
+      "passed": false,
+      "actual": {
+        "access_count": 0,
+        "agent_id": "enrichment-owner",
+        "embedding": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "event_type": "observation.input",
+        "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        "importance_score": 8,
+        "keywords": [
+          "observation",
+          "input",
+          "race-tool"
+        ],
+        "last_accessed_at": null,
+        "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+        "session_id": "enrichment-ordering-1013-01coreEN03",
+        "summary": null,
+        "tool_name": "race-tool",
+        "trace_id": "enrichment-ordering-1013-01"
+      }
+    }
+  ],
+  "limitations": [
+    "private bound tenant; sequential configurations only",
+    "scripted external embedding provider; no model quality claim",
+    "existing retry bounds delay, not total wait or repeated-restart DLQ",
+    "healthy quiescence avoids #60; does not fix shutdown"
+  ],
+  "pending_observations": [
+    {
+      "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+      "group": "assessment-enrichment",
+      "rows": [
+        [
+          "assessment-enrichment",
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ]
+      ],
+      "dead_letters": []
+    },
+    {
+      "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+      "group": "assessment-enrichment",
+      "rows": [
+        [
+          "assessment-enrichment",
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ]
+      ],
+      "dead_letters": []
+    },
+    {
+      "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+      "group": "assessment-enrichment",
+      "rows": [
+        [
+          "assessment-enrichment",
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ]
+      ],
+      "dead_letters": []
+    },
+    {
+      "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+      "group": "assessment-enrichment",
+      "rows": [
+        [
+          "assessment-enrichment",
+          "375719a1-e409-57b6-89e9-89ea0730b7db"
+        ]
+      ],
+      "dead_letters": []
+    }
+  ],
+  "error": "AssertionError('EN04 positive access and adjusted importance before replay')",
+  "shutdown_errors": [],
+  "retained_snapshot": {
+    "events": [
+      [
+        "375719a1-e409-57b6-89e9-89ea0730b7db",
+        {
+          "agent_id": "enrichment-owner",
+          "ended_at": null,
+          "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+          "event_type": "observation.input",
+          "global_position": null,
+          "importance_hint": 7,
+          "occurred_at": "2026-10-13T18:09:33.923263Z",
+          "parent_event_id": null,
+          "payload": {
+            "content": "ordering probe EN01"
+          },
+          "payload_ref": "enrichment:EN01",
+          "schema_version": 1,
+          "search_text": "race-tool ordering probe EN01",
+          "session_id": "enrichment-ordering-1013-01coreEN01",
+          "status": null,
+          "tool_name": "race-tool",
+          "trace_id": "enrichment-ordering-1013-01"
+        },
+        {
+          "accepted_epoch": 30,
+          "binding_id": "enrichment-ordering-1013-01core",
+          "bundle_digest": "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+          "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+          "engine_revision": "enrichment-ordering-v1",
+          "envelope_version": 1,
+          "request_digest": "sha256:json-v1:7c433c52280eea5360df0aa643886fe2bd0bbee68e2335a8153283abc36c7c59",
+          "source_id": "demo.query",
+          "tenant_id": "enrichment-core"
+        }
+      ],
+      [
+        "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        {
+          "agent_id": "enrichment-owner",
+          "ended_at": null,
+          "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          "event_type": "observation.input",
+          "global_position": null,
+          "importance_hint": 7,
+          "occurred_at": "2026-10-13T18:09:59.668064Z",
+          "parent_event_id": null,
+          "payload": {
+            "content": "ordering probe EN03"
+          },
+          "payload_ref": "enrichment:EN03",
+          "schema_version": 1,
+          "search_text": "race-tool ordering probe EN03",
+          "session_id": "enrichment-ordering-1013-01coreEN03",
+          "status": null,
+          "tool_name": "race-tool",
+          "trace_id": "enrichment-ordering-1013-01"
+        },
+        {
+          "accepted_epoch": 30,
+          "binding_id": "enrichment-ordering-1013-01core",
+          "bundle_digest": "sha256:520849e7d72cd7694dc12834b6d00f6b878402503904cb942851ba0ab4c9554b",
+          "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+          "engine_revision": "enrichment-ordering-v1",
+          "envelope_version": 1,
+          "request_digest": "sha256:json-v1:83855bde84418243c7cbbac666e9f1f51b18e67dd213175f1cbf16601516b8e6",
+          "source_id": "demo.query",
+          "tenant_id": "enrichment-core"
+        }
+      ]
+    ],
+    "nodes": [
+      [
+        "Event",
+        "375719a1-e409-57b6-89e9-89ea0730b7db",
+        {
+          "access_count": 0,
+          "agent_id": "enrichment-owner",
+          "embedding": [
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            }
+          ],
+          "event_id": "375719a1-e409-57b6-89e9-89ea0730b7db",
+          "event_type": "observation.input",
+          "global_position": "2026-10-13T18:09:34.310623000Z/000000/375719a1-e409-57b6-89e9-89ea0730b7db",
+          "importance_score": 7,
+          "keywords": [
+            "observation",
+            "input",
+            "race-tool"
+          ],
+          "last_accessed_at": null,
+          "occurred_at": "2026-10-13T18:09:33.923263+00:00",
+          "session_id": "enrichment-ordering-1013-01coreEN01",
+          "summary": null,
+          "tool_name": "race-tool",
+          "trace_id": "enrichment-ordering-1013-01"
+        }
+      ],
+      [
+        "Event",
+        "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+        {
+          "access_count": 0,
+          "agent_id": "enrichment-owner",
+          "embedding": [
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            },
+            {
+              "$float": "0.25"
+            }
+          ],
+          "event_id": "5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          "event_type": "observation.input",
+          "global_position": "2026-10-13T18:10:00.121327000Z/000000/5a1bd6f0-24eb-55f1-a1a7-e7213b1b8f8b",
+          "importance_score": 8,
+          "keywords": [
+            "observation",
+            "input",
+            "race-tool"
+          ],
+          "last_accessed_at": null,
+          "occurred_at": "2026-10-13T18:09:59.668064+00:00",
+          "session_id": "enrichment-ordering-1013-01coreEN03",
+          "summary": null,
+          "tool_name": "race-tool",
+          "trace_id": "enrichment-ordering-1013-01"
+        }
+      ],
+      [
+        "OntologyState",
+        "OntologyState:active",
+        {
+          "applied": "initial",
+          "eval_pending": [],
+          "node_id": "OntologyState:active",
+          "node_type": "OntologyState",
+          "packs": [
+            "core@1.1.0"
+          ],
+          "packs_json": "[{\"events\":{\"agent.create\":{\"aliases\":{\"otel\":\"create_agent\"}},\"agent.invoke\":{\"aliases\":{\"otel\":\"invoke_agent\"}},\"llm.chat\":{\"aliases\":{\"otel\":\"chat\"}},\"llm.completion\":{\"aliases\":{\"otel\":\"text_completion\"}},\"llm.embed\":{\"aliases\":{\"otel\":\"embeddings\"}},\"llm.generate\":{\"aliases\":{\"otel\":\"generate_content\"}},\"observation.input\":{\"aliases\":{}},\"observation.output\":{\"aliases\":{}},\"system.session_end\":{\"aliases\":{}},\"system.session_start\":{\"aliases\":{}},\"tool.execute\":{\"aliases\":{\"otel\":\"execute_tool\"}}},\"extraction\":{\"derived_proposals\":{},\"never_propose\":[],\"propose\":{},\"sources\":[]},\"interfaces\":{\"Anchored\":{\"edges\":[],\"properties\":{\"anchor_path\":\"string\",\"content_hash\":\"string\",\"source_uri\":\"string\"}},\"Claim\":{\"edges\":[],\"note\":\"a belief, not a fact; never auto-promoted to declared\",\"properties\":{\"confidence\":\"float\",\"method\":\"string\"}},\"Lifecycled\":{\"edges\":[],\"properties\":{\"status\":\"string\",\"status_changed_at\":\"datetime\"}},\"Sourced\":{\"edges\":[],\"note\":\"set from the emitting source's allowlist entry, never from content (BRIEF E-20261003-01-r2: untrusted items do not reach the agent's action context unless a trusted item corroborates them)\",\"properties\":{\"source_trust\":{\"enum\":[\"trusted\",\"untrusted\"]}}},\"Versioned\":{\"edges\":[],\"properties\":{\"version\":\"string\"}}},\"lifecycle\":{\"decay\":{},\"terminal_states_reduce_importance\":[]},\"mappings\":{\"prov\":{\"CAUSED_BY\":\"prov:wasInformedBy\",\"DERIVED_FROM\":\"prov:wasDerivedFrom\",\"Entity\":\"prov:Entity\",\"Event\":\"prov:Activity\",\"SUPERSEDES\":\"prov:wasRevisionOf\",\"Summary\":\"prov:Entity\"}},\"pack\":{\"description\":\"Agent and tool events, entities, summaries and their links, and the interfaces domain packs share.\",\"name\":\"core\",\"owner\":\"engram\",\"requires\":[],\"version\":\"1.1.0\"},\"projection\":[],\"retrieval\":{\"admission\":{},\"core_intent_weights\":{},\"fallback_intent\":\"general\",\"intents\":{\"general\":{\"description\":\"No specific intent\",\"direction\":\"both\",\"examples\":[],\"keywords\":[],\"prefer_types\":[],\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":2.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"how_does\":{\"description\":\"How a process or workflow runs\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"how\",\"process\",\"method\",\"approach\",\"workflow\",\"steps\"],\"prefer_types\":[],\"seed_strategy\":\"workflow_pattern\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":3.0,\"REFERENCES\":2.0,\"RELATED_TO\":2.0,\"SAME_AS\":1.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"related\":{\"description\":\"Similar or associated events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"similar\",\"related\",\"like\",\"compare\",\"associated\"],\"prefer_types\":[],\"seed_strategy\":\"similar_cluster\",\"weights\":{\"CAUSED_BY\":1.5,\"FOLLOWS\":0.5,\"REFERENCES\":2.0,\"SIMILAR_TO\":5.0,\"SUMMARIZES\":1.5}},\"what\":{\"description\":\"What something is or what happened\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"what\",\"describe\",\"explain\",\"definition\",\"meaning\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":2.0,\"FOLLOWS\":1.0,\"REFERENCES\":5.0,\"SIMILAR_TO\":2.0,\"SUMMARIZES\":2.0}},\"when\":{\"description\":\"Order and timing of events\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"when\",\"timeline\",\"before\",\"after\",\"sequence\",\"order\",\"time\"],\"prefer_types\":[],\"seed_strategy\":\"temporal_anchors\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":5.0,\"REFERENCES\":1.0,\"SIMILAR_TO\":0.5,\"SUMMARIZES\":0.5}},\"who_is\":{\"description\":\"Who a person, agent or team is\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"who\",\"person\",\"user\",\"team\",\"member\",\"author\"],\"prefer_types\":[],\"seed_strategy\":\"entity_hubs\",\"weights\":{\"CAUSED_BY\":1.0,\"FOLLOWS\":0.5,\"REFERENCES\":3.0,\"RELATED_TO\":3.0,\"SAME_AS\":4.0,\"SIMILAR_TO\":1.0,\"SUMMARIZES\":1.0}},\"why\":{\"description\":\"Causes and reasons behind an event\",\"direction\":\"both\",\"examples\":[],\"keywords\":[\"why\",\"because\",\"caused\",\"reason\",\"root cause\",\"due to\"],\"prefer_types\":[],\"seed_strategy\":\"causal_roots\",\"weights\":{\"CAUSED_BY\":5.0,\"FOLLOWS\":1.0,\"REFERENCES\":2.0,\"SIMILAR_TO\":1.5,\"SUMMARIZES\":1.0}}},\"key_patterns\":{},\"seed_types\":[\"Event\",\"Entity\"]},\"types\":{\"edges\":{\"CAUSED_BY\":{\"from\":[\"Event\"],\"properties\":{\"mechanism\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"CONTRADICTS\":{\"from\":[],\"note\":\"two claims cannot both hold\",\"properties\":{},\"requires\":[],\"to\":[]},\"DERIVED_FROM\":{\"from\":[],\"note\":\"provenance: a derived node links to the events it came from\",\"properties\":{\"evidence_quote\":\"text\",\"extracted_at\":\"datetime\",\"method\":\"string\",\"model_id\":\"string\",\"prompt_version\":\"string\",\"session_id\":\"string\",\"source_turn_index\":\"int\"},\"requires\":[],\"to\":[\"Event\"]},\"FOLLOWS\":{\"from\":[\"Event\"],\"properties\":{\"delta_ms\":\"int\",\"session_id\":\"string\"},\"requires\":[],\"to\":[\"Event\"]},\"REFERENCES\":{\"from\":[\"Event\"],\"properties\":{\"role\":\"string\"},\"requires\":[],\"to\":[\"Entity\"]},\"RELATED_TO\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SAME_AS\":{\"from\":[\"Entity\"],\"properties\":{\"confidence\":\"float\",\"justification\":\"text\",\"resolved_at\":\"datetime\"},\"requires\":[],\"to\":[\"Entity\"]},\"SIMILAR_TO\":{\"from\":[\"Event\"],\"properties\":{\"similarity_score\":\"float\"},\"requires\":[],\"to\":[\"Event\"]},\"SUMMARIZES\":{\"from\":[\"Summary\"],\"properties\":{},\"requires\":[],\"to\":[\"Event\",\"Summary\"]},\"SUPERSEDES\":{\"from\":[],\"note\":\"a newer version replaces an older one\",\"properties\":{},\"requires\":[],\"to\":[]}},\"extends_core_edges\":{},\"nodes\":{\"Entity\":{\"embed_fields\":[],\"id_property\":\"entity_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"entity_id\"],\"properties\":{\"embedding\":\"list<float>\",\"entity_id\":\"string\",\"entity_type\":{\"enum\":[\"agent\",\"user\",\"service\",\"tool\",\"resource\",\"concept\"]},\"first_seen\":\"datetime\",\"last_seen\":\"datetime\",\"mention_count\":\"int\",\"name\":\"string\"},\"text_fields\":[],\"vector_property\":\"embedding\"},\"Event\":{\"embed_fields\":[],\"id_property\":\"event_id\",\"indexes\":[\"session_id\"],\"interfaces\":[],\"key\":[\"event_id\"],\"properties\":{\"access_count\":\"int\",\"agent_id\":\"string\",\"embedding\":\"list<float>\",\"event_id\":\"string\",\"event_type\":\"string\",\"global_position\":\"string\",\"importance_score\":\"int\",\"keywords\":\"list<string>\",\"last_accessed_at\":\"datetime\",\"occurred_at\":\"datetime\",\"session_id\":\"string\",\"summary\":\"string\",\"tool_name\":\"string\",\"trace_id\":\"string\"},\"text_fields\":[\"summary\",\"keywords\"]},\"Summary\":{\"embed_fields\":[],\"id_property\":\"summary_id\",\"indexes\":[],\"interfaces\":[],\"key\":[\"summary_id\"],\"properties\":{\"content\":\"string\",\"created_at\":\"datetime\",\"event_count\":\"int\",\"scope\":\"string\",\"scope_id\":\"string\",\"summary_id\":\"string\",\"time_range\":\"list<datetime>\"},\"text_fields\":[\"content\"]}}}}]",
+          "recorded_at": "2026-10-13T18:09:21.857793+00:00",
+          "replay_failures": [],
+          "replayed_events": 0,
+          "version": "sha256:7aa9c7d4db1d5a24"
+        }
+      ]
+    ],
+    "edges": [],
+    "pending": [],
+    "dead_letters": []
+  }
+}
