@@ -62,7 +62,7 @@ The runner refuses to overwrite evidence. Only the authorized assessment databas
 
 Local affected regression suite: **134 passing tests**, including **22 Memory-specific cases**. Ruff passes and mypy passes for all seven modified/new production Python files. The broader unit run returned **2,746 passed, 15 skipped and one failure**: `test_webhooks_build_a_pdlc_graph[memory]` fails its existing PDLC evaluation gate on the unchanged baseline as well. Baseline proof and complete output are saved under `runs/memory-episodes-local/`; this failure is not counted as fixed or hidden. A pre-existing stale PDLC assertion omitted the already existing `incident` intent; baseline failure was established separately before updating that expectation. This is not a new Memory intent.
 
-The scoped results below do not close an umbrella or establish pilot readiness. #42/#34/#39/#41 progress reconciliation will link this document after publication.
+The scoped results below do not close an umbrella or establish pilot readiness. #42/#34/#39/#41 progress reconciliation is published below; all four issues were reread and remain OPEN.
 
 ## Attempts and exact-source follow-up
 
@@ -117,3 +117,17 @@ No new feature umbrella is required for this bounded slice: Episode production a
 Astra found **no remaining blocker for the scoped Memory Episode slice**. It independently checked 24 Episode appearances across the two final configurations, their exact source memberships and Summary edges, all nine source hashes, export digests/table-row hashes and both M04 cycle proofs. Final PDLC rows contain exactly five Episodes with member counts 1, 1, 2, 4 and 5. The Change API supplies source provenance; its Change-to-Event DERIVED_FROM relationship is independently checked in stored rows, not claimed as an edge returned by that API. No Episode-to-Change relationship exists. Final shutdown is clean.
 
 This verdict does not establish live fault-injection coverage, public/concurrent tenant readiness, Belief/Goal producers or feature-umbrella closure. The retained database owner and all seven table fingerprints were independently reread after shutdown and match the saved retained record.
+
+
+## Published issue reconciliation
+
+Implementation and evidence commit: `acd2a46`, branch `feature/engram-memory-episodes`.
+
+| Issue | Update | State |
+|---|---|---|
+| #34 | [Scoped Memory Episode progress and evidence](https://github.com/arunmenon/Engram/issues/34#issuecomment-6144942355) | OPEN |
+| #39 | [Scoped Memory Episode progress and evidence](https://github.com/arunmenon/Engram/issues/39#issuecomment-6144943621) | OPEN |
+| #41 | [Scoped Memory Episode progress and evidence](https://github.com/arunmenon/Engram/issues/41#issuecomment-6144944952) | OPEN |
+| #42 | [Scoped Memory Episode progress and evidence](https://github.com/arunmenon/Engram/issues/42#issuecomment-6144940724) | OPEN |
+
+No issue was closed on partial feature coverage. No new feature bucket was needed. The developer pilot and other assessment fixes have not started.
