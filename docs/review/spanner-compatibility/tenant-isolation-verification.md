@@ -98,3 +98,17 @@ PYTHONPATH=src:scripts /Users/arunmenon/projects/Engram-foundation-gate/.venv/bi
 This proves the selected two-tenant public-dispatcher path and pack/database isolation with frozen external model outputs. It does not prove prose/model quality, all pack combinations, general pending recovery, durable draining mode, forced process termination, hierarchy policies, all admin operations, public native webhook routing, streaming imports/cursors, ANN/load performance or the original65-scenario compatibility baseline. The unevaluated experimental-pack gate is explicitly enabled. Cloud Monitoring export still returns403; no monitoring-readiness claim. Administrative stats event counts were independently checked against each tenant's own main9/12events; this is not complete optional-type statistics coverage. #43 and the larger umbrellas remain open. Pilot execution requires separate approval.
 
 Independent final review: [Astra accepted the bounded slice](tenant-isolation-review/astra-final-review.md), with no remaining blocker. This does not close #43 or authorize the pilot.
+
+## GitHub reconciliation and next gate
+
+[Recorded reconciliation](tenant-isolation-review/github-reconciliation.json) rereads every published comment and verifies each issue remains open:
+
+| Issue | Update |
+|---|---|
+| [#43](https://github.com/arunmenon/Engram/issues/43#issuecomment-6164326747) | Public two-tenant checkpoint, supported/fail-closed boundary, retained evidence and remaining scope; body refreshed |
+| [#34](https://github.com/arunmenon/Engram/issues/34#issuecomment-6164327222) | Umbrella progress checkpoint; body refreshed |
+| [#39](https://github.com/arunmenon/Engram/issues/39#issuecomment-6164327718) | Conformance evidence and explicit limitations |
+| [#41](https://github.com/arunmenon/Engram/issues/41#issuecomment-6164328166) | Actual two-database Spanner evidence; no baseline/load claim |
+| [#42](https://github.com/arunmenon/Engram/issues/42#issuecomment-6164328647) | Different optional-pack choices across simultaneous tenants |
+
+GitHub's native parent endpoint confirms #43 is a child of #34. No issue was closed and no new feature bucket was needed. The three run corrections were harness expectations/waiting problems, retained with dispositions; no newly discovered live runtime failure required a separate bug ticket. Implementation, tests, raw evidence and reviews were pushed in commit `4bd47dd` on `feature/engram-memory-episodes`. The original broad goal remains paused. Stop here for stakeholder walkthrough and explicit approval of the next stage; the developer pilot and #49 remain unstarted.
