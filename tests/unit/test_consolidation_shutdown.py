@@ -19,9 +19,11 @@ from tests.fixtures.events import make_event
 class HeldSummaryStorage:
     """Model an uncancellable synchronous SDK operation, not a worker mock."""
 
-    def __init__(self, graph, failure=None):
+    def __init__(self, graph, failure=None, fail_once=False):
         self.graph = graph
         self.failure = failure
+        self.fail_once = fail_once
+        self.failures = 0
         self.entered = threading.Event()
         self.release = threading.Event()
         self.finished = threading.Event()
@@ -36,7 +38,11 @@ class HeldSummaryStorage:
             raise TimeoutError("Test did not release its SDK operation")
         try:
             if self.failure:
-                raise self.failure
+                failure = self.failure
+                self.failures += 1
+                if self.fail_once:
+                    self.failure = None
+                raise failure
             self.committed.append(values)
         finally:
             self.finished.set()
@@ -46,14 +52,14 @@ class HeldSummaryStorage:
         await self.graph.write_summary_with_edges(**values)
 
 
-async def make_worker(*, failure=None, interval=0.01):
+async def make_worker(*, failure=None, interval=0.01, fail_once=False):
     graph, ledger = MemoryGraphStore(), MemoryEventLog()
     event = make_event(event_type="observation.input")
     position = await ledger.append(event, {})
     await graph.merge_event_node(
         event_to_node(event.model_copy(update={"global_position": position}))
     )
-    storage = HeldSummaryStorage(graph, failure)
+    storage = HeldSummaryStorage(graph, failure, fail_once)
     settings = Settings()
     settings.consumer.block_timeout_ms = 10
     settings.decay.reflection_threshold = 5
@@ -203,5 +209,28 @@ async def test_subscription_failure_drains_active_timer_before_error_escapes(fen
         assert len(storage.committed) == 3
     finally:
         storage.release.set()
+        worker.stop()
+        await asyncio.gather(task, return_exceptions=True)
+
+
+async def test_timer_continues_after_a_logged_storage_failure(capsys):
+    """Preserve the old ordinary-failure retry contract at the public seam."""
+    worker, storage, graph, ledger = await make_worker(
+        failure=UnavailableError("one controlled failure"), fail_once=True, interval=0.03
+    )
+    storage.release.set()
+    task = asyncio.create_task(worker.run())
+    try:
+        for _ in range(200):
+            if len(storage.committed) >= 3:
+                break
+            await asyncio.sleep(0.01)
+        assert not task.done(), "An ordinary cycle failure must not kill the timer"
+        assert storage.failures == 1
+        assert {entry["scope"] for entry in storage.committed} == {"episode", "session", "agent"}
+        worker.stop()
+        await asyncio.wait_for(asyncio.shield(task), 3)
+        assert "consolidation_cycle_failed" in capsys.readouterr().out
+    finally:
         worker.stop()
         await asyncio.gather(task, return_exceptions=True)

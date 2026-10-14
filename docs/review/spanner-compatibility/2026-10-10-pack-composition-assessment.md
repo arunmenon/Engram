@@ -197,3 +197,9 @@ Publication reconciled: runtime `782ab1e`, evidence `61475be`, on `feature/engra
 The separately authorized #29 slice is verified: EN01–EN07 passed for Core, Core+User, Core+User+Memory, Core+PDLC and Core+PDLC+Memory on the reused assessment Spanner database (58 assertions each, 290 total). Missing projection no longer loses enrichment; stale projection and duplicate enrichment preserve derived metadata and adjusted importance. Astra cleared bounded closure. [Verification and stakeholder walkthrough](enrichment-ordering-verification.md) includes failures, exact results and scope limits.
 
 The final epoch36 dataset is retained after verified exports of previous owners. #61 newly tracks UUID subgraph access accounting; cached replay lineage remains #18, shutdown remains #60. No new feature umbrella is needed; these fit #34. Whole-combination producer coverage, concurrent tenant isolation and the controlled pilot are not complete or started by this common-enrichment proof. Next slices still require stakeholder selection; no automatic progression.
+
+## 2026-10-14 — consolidation shutdown checkpoint
+
+The separately authorized #60 slice is verified: seven lifecycle cases, 109 live Spanner assertions, real SDK-held stop/cancellation/fencing and fresh-worker recovery, with exact Summary/Episode/public-read evidence. Astra cleared bounded closure. [Verification and stakeholder walkthrough](consolidation-shutdown-verification.md). Shutdown now joins the complete admitted cycle and wakes an idle timer; no external consolidation-lock workaround was used for acceptance.
+
+The final assessment dataset is retained at epoch37 after a verified export of the previous enrichment dataset. #34/#39/#41 remain open; #18/#61 and broader composition/tenant proofs are not resolved by this slice. No new feature umbrella is needed. No next slice or controlled pilot started.

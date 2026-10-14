@@ -1,0 +1,28 @@
+# Independent #60 consolidation shutdown preflight
+
+2026-10-14. Read-only review of issue #60 and current `worker/consolidation.py` / `worker/consumer.py`, using the smallest-complete-fix guidance. **The proposed local supervisor + stop event is sufficient in scope; no new service, storage protocol or BaseConsumer rewrite is warranted.** Implementation and live acceptance remain unreviewed.
+
+## Required semantics and concrete risks
+
+1. **Protect children from parent cancellation at every await.** Initial `asyncio.wait` does not cancel children. Do not subsequently await a still-running child directly: cancellation there propagates into its SDK await. Create one gather/drain future with `return_exceptions=True`, keep a strong reference, and repeatedly shield that same future until it actually finishes. Repeated parent cancellation must record the cancellation and continue draining; it must not cancel/recreate the gather or swallow cancellation permanently. Re-raise the original cancellation after drain.
+
+2. **Stop both loops when either exits.** A child that exits successfully must also trigger cooperative stop of its sibling. Override stop to call the existing base stop and set the timer wake event. The timer may use a timeout around the event wait; cancellation of that event waiter is harmless, unlike cancellation of a storage cycle. Recheck stopped immediately after waking/timeout before admitting another timer cycle. Repeated stop and stop-before-run should be harmless. Instances remain one-shot; restart uses a fresh worker.
+
+3. **Inspect both results after drain.** `return_exceptions=True` is cleanup, not permission to return success. Preserve a child RuntimeFencedError or unexpected failure even if the other child completes normally. Define precedence when parent cancellation coincides with a child failure: preserving parent cancellation is reasonable, but log/retain the child failure so cleanup does not hide fencing. Do not label the worker healthy merely because the gather completed.
+
+4. **Preserve current cycle error policy explicitly.** `_run_consolidation_cycle_guarded` currently catches ordinary storage exceptions and logs them, while fencing escapes after stop. Changing `run` alone cannot make an already swallowed cycle exception propagate. Keep that existing policy unless intentionally amended; test/document a completed failed cycle separately from a fatal child failure. A swallowed ordinary storage error must still leave no detached SDK call and must not be counted as successful Summary production.
+
+5. **Drain the admitted cycle, not merely its current transaction.** The cycle may perform further Summary writes, importance updates, forgetting and trimming after the blocked write completes. Joining the complete timer coroutine before closing stores provides the needed guarantee. This can take longer than one SDK request or the timer interval; do not impose a cancellation timeout and then declare drained. Sleeping timer stop can be prompt, but active-cycle stop has no fixed latency independent of its dependencies. The existing base subscription read may also take its configured blocking timeout.
+
+6. **Guarantee boundary.** This handles cooperative stop and cancellation of the public parent `run` task while it owns its children. It cannot retroactively join SDK work detached by a caller directly cancelling a child, process termination or an already-cancelled lower-level operation. Keep uncertain-shutdown reuse prohibited. Do not claim process-kill durability or general cancellation safety for all workers.
+
+## Minimum decisive proofs
+
+- Sleeping timer with a long configured interval: stop returns without waiting that interval; repeated stop and stop-before-run produce no cycle.
+- Hold a real SDK transaction inside the actual timer-cycle write, request stop, and assert parent remains unfinished while held. Release it, observe the commit and complete cycle, join, then show stable application-table fingerprints. Holding before the SDK call would not reproduce #60.
+- Repeat with parent task cancellation and at least two cancellation requests during drain. The SDK operation must complete, child tasks must finish, and the parent must finally propagate CancelledError. A shielded top-level harness wait alone is not proof that production run handles cancellation.
+- Both child exit directions, including subscription RuntimeFencedError while the timer is writing and timer fencing while the consumer is reading; all started children terminate before the error escapes. Preserve fatal error identity.
+- Ordinary cycle storage failure follows the existing logged-cycle policy; no orphaned write remains. A fresh worker can retry/consolidate without extra Summary identities or memberships. Metadata such as updated_at may legitimately change across fresh cycles, so compare exact artifact identity/evidence rather than demanding every row be immutable across restart.
+- Authenticated HTTP admission, all five real workers, actual Spanner and public reads for the bounded acceptance journey. Stop other writing workers and join them before the final whole-database no-late-write oracle. Capture exact source/Summary/edge state and ownership, not only row counts.
+
+Use the retained epoch36 dataset only after the existing verified export and owner/fingerprint fence. Remove the external consolidation-lock acquisition from the new acceptance shutdown path so production shutdown is exercised. Keep saved fault-boundary instrumentation explicit, retain failed attempts, and take post-process retention fingerprints before accepting reuse. No #18/#61, retry scheduler, scoring, pilot or broader feature work is required for this slice.

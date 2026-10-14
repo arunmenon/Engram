@@ -1,0 +1,47 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_stop_waits_for_inflight_sdk_work_before_worker_reports_finished _____
+
+    async def test_stop_waits_for_inflight_sdk_work_before_worker_reports_finished():
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        event = make_event(event_type="observation.input")
+        position = await ledger.append(event, {})
+        await graph.merge_event_node(event_to_node(event.model_copy(update={"global_position": position})))
+        storage = HeldSummaryStorage(graph)
+        settings = Settings()
+        settings.consumer.block_timeout_ms = 10
+        settings.decay.reflection_threshold = 5
+        settings.decay.reconsolidation_interval_hours = 0.01 / 3600
+        worker = ConsolidationConsumer(
+            MemorySubscription(ledger.stream, "consolidation", "consolidation-1"),
+            ledger, storage, settings,
+        )
+        task = asyncio.create_task(worker.run())
+        try:
+            for _ in range(200):
+                if storage.entered.is_set():
+                    break
+                await asyncio.sleep(0.01)
+            assert storage.entered.is_set(), "A real timer cycle must reach the SDK boundary"
+            worker.stop()
+            await asyncio.sleep(0.05)
+>           assert not task.done(), "Shutdown must wait for the SDK operation, not cancel its await"
+E           AssertionError: Shutdown must wait for the SDK operation, not cancel its await
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x10632a8c0>()
+E            +    where <built-in method done of _asyncio.Task object at 0x10632a8c0> = <Task finished name='Task-2' coro=<ConsolidationConsumer.run() done, defined at /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/consolidation.py:85> result=None>.done
+
+tests/unit/test_consolidation_shutdown.py:63: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 07:15:13 [info     ] consolidation_timer_started    interval_hours=2.777777777777778e-06
+2026-10-14 07:15:13 [info     ] consumer_started               consumer=consolidation-1 group=consolidation stream=events
+2026-10-14 07:15:13 [info     ] pending_drain_completed        group=consolidation
+2026-10-14 07:15:13 [info     ] consolidation_timer_fired
+2026-10-14 07:15:13 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:15:13 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:15:13 [info     ] consolidating_session          event_count=1 session_id=test-session
+2026-10-14 07:15:13 [info     ] episodes_grouped               episode_count=1 session_id=test-session
+2026-10-14 07:15:13 [info     ] consumer_stopped               consumer=consolidation-1 group=consolidation
+=========================== short test summary info ============================
+FAILED tests/unit/test_consolidation_shutdown.py::test_stop_waits_for_inflight_sdk_work_before_worker_reports_finished
+1 failed in 0.31s

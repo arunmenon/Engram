@@ -1,0 +1,122 @@
+{
+  "scenarios": {
+    "SS01": "stop inside a real SDK Summary transaction; wait for the entire cycle",
+    "SS02": "stop a sleeping timer promptly, without admitting a cycle",
+    "SS03": "three parent cancellations during SDK work; drain then propagate cancellation",
+    "SS04": "SDK callback storage failure rolls back under existing logged-cycle policy",
+    "SS05": "SDK callback fencing rolls back; fatal fence escapes only after both children join",
+    "SS06": "subscription fencing while timer writes; admitted cycle drains before fence escapes",
+    "SS07": "fresh worker retry/restart retains exact summary/Episode identities and evidence"
+  },
+  "fixtures": {
+    "events": [
+      {
+        "event_id": "076c843c-167f-5a4a-aa49-93ecd4520e99",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-14T02:02:29.509709+00:00",
+        "session_id": "consolidation-shutdown-1014-01-session",
+        "agent_id": "shutdown-owner",
+        "trace_id": "consolidation-shutdown-1014-01",
+        "payload_ref": "shutdown:0",
+        "tool_name": "shutdown-tool",
+        "importance_hint": 7,
+        "payload": {
+          "content": "Shutdown verification source 0"
+        }
+      },
+      {
+        "event_id": "ac33b11b-7f90-5caf-b9a3-9f260d347f01",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-14T02:02:30.509709+00:00",
+        "session_id": "consolidation-shutdown-1014-01-session",
+        "agent_id": "shutdown-owner",
+        "trace_id": "consolidation-shutdown-1014-01",
+        "payload_ref": "shutdown:1",
+        "tool_name": "shutdown-tool",
+        "importance_hint": 7,
+        "payload": {
+          "content": "Shutdown verification source 1"
+        }
+      }
+    ],
+    "session_id": "consolidation-shutdown-1014-01-session",
+    "owner": "shutdown-owner",
+    "episode": "episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d",
+    "summaries": {
+      "episode": "summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d-c12984c42616",
+      "session": "summary-consolidation-shutdown-1014-01-session-c12984c42616",
+      "agent": "summary-shutdown-owner-c12984c42616"
+    },
+    "expected_edges": [
+      [
+        "ac33b11b-7f90-5caf-b9a3-9f260d347f01",
+        "FOLLOWS",
+        "076c843c-167f-5a4a-aa49-93ecd4520e99"
+      ],
+      [
+        "episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d",
+        "CONTAINS",
+        "076c843c-167f-5a4a-aa49-93ecd4520e99"
+      ],
+      [
+        "episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d",
+        "CONTAINS",
+        "ac33b11b-7f90-5caf-b9a3-9f260d347f01"
+      ],
+      [
+        "episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d",
+        "DERIVED_FROM",
+        "076c843c-167f-5a4a-aa49-93ecd4520e99"
+      ],
+      [
+        "episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d",
+        "DERIVED_FROM",
+        "ac33b11b-7f90-5caf-b9a3-9f260d347f01"
+      ],
+      [
+        "summary-consolidation-shutdown-1014-01-session-c12984c42616",
+        "SUMMARIZES",
+        "076c843c-167f-5a4a-aa49-93ecd4520e99"
+      ],
+      [
+        "summary-consolidation-shutdown-1014-01-session-c12984c42616",
+        "SUMMARIZES",
+        "ac33b11b-7f90-5caf-b9a3-9f260d347f01"
+      ],
+      [
+        "summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d-c12984c42616",
+        "SUMMARIZES",
+        "076c843c-167f-5a4a-aa49-93ecd4520e99"
+      ],
+      [
+        "summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d-c12984c42616",
+        "SUMMARIZES",
+        "ac33b11b-7f90-5caf-b9a3-9f260d347f01"
+      ],
+      [
+        "summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d-c12984c42616",
+        "SUMMARIZES",
+        "episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924bc1a1f286d"
+      ],
+      [
+        "summary-shutdown-owner-c12984c42616",
+        "SUMMARIZES",
+        "076c843c-167f-5a4a-aa49-93ecd4520e99"
+      ],
+      [
+        "summary-shutdown-owner-c12984c42616",
+        "SUMMARIZES",
+        "ac33b11b-7f90-5caf-b9a3-9f260d347f01"
+      ]
+    ],
+    "summary_provider": "Two accepted events describe bounded shutdown verification."
+  },
+  "target": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+  "timer_seconds": 5,
+  "threshold": 5,
+  "packs": [
+    "core",
+    "pdlc",
+    "memory"
+  ]
+}

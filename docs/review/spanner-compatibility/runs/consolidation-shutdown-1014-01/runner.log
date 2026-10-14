@@ -1,0 +1,1218 @@
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-14 07:32:31 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-14 07:32:34 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 07:32:34 [info     ] llm_client_initialized
+2026-10-14 07:32:38 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'pdlc@5.0.0'] ontology_version=sha256:b5b9857af719ffe2 redis_host=localhost
+2026-10-14 07:32:41 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-14 07:32:41 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-14 07:32:42 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-14 07:32:42 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-14 07:32:45 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-14 07:32:45 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-14 07:32:46 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-14 07:32:48 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 07:32:48 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-14 07:32:48 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-14 07:32:49 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-14 07:32:51 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-14 07:32:52 [info     ] event_ingested                 event_id=076c843c-167f-5a4a-aa49-93ecd4520e99 event_type=observation.input global_position=2026-10-14T02:02:52.002991000Z/000000/076c843c-167f-5a4a-aa49-93ecd4520e99 request_id=cb4b292b-7193-4c54-af80-1d46ea6a43e9 status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-14 07:32:52 [info     ] event_ingested                 event_id=ac33b11b-7f90-5caf-b9a3-9f260d347f01 event_type=observation.input global_position=2026-10-14T02:02:52.420111000Z/000000/ac33b11b-7f90-5caf-b9a3-9f260d347f01 request_id=c03a8736-990f-4fd9-82ff-89c15c994151 status=created
+2026-10-14 07:32:52 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 07:32:52 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-14 07:32:52 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T02:02:52.002991000Z/000000/076c843c-167f-5a4a-aa49-93ecd4520e99 event_id=076c843c-167f-5a4a-aa49-93ecd4520e99 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:32:52 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 07:32:53 [debug    ] event_enriched                 event_id=076c843c-167f-5a4a-aa49-93ecd4520e99 importance_score=7 keywords=['observation', 'input', 'shutdown-tool']
+2026-10-14 07:32:58 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1014 07:33:01.263271 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1014 07:33:01.263629 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1014 07:33:01.263706 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(32, generation: 1)
+I1014 07:33:01.263769 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1014 07:33:01.263922 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1014 07:33:01.263988 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1014 07:33:01.263993 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1014 07:33:01.263998 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1014 07:33:01.264003 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1014 07:33:01.264007 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1014 07:33:01.264010 57120233 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7003.54it/s]
+2026-10-14 07:33:04 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T02:02:52.420111000Z/000000/ac33b11b-7f90-5caf-b9a3-9f260d347f01 event_id=ac33b11b-7f90-5caf-b9a3-9f260d347f01 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:05 [debug    ] event_embedding_stored         event_id=076c843c-167f-5a4a-aa49-93ecd4520e99
+I1014 07:33:05.526620 57120019 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1014 07:33:05.541359 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1014 07:33:05.541628 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1014 07:33:05.541653 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(32, generation: 1)
+I1014 07:33:05.541657 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1014 07:33:05.541660 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(26, generation: 1)
+I1014 07:33:05.541663 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1014 07:33:05.541666 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1014 07:33:05.541669 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1014 07:33:05.541671 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1014 07:33:05.541674 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1014 07:33:05.541677 57120357 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1014 07:33:05.574615 57120019 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I1014 07:33:05.587665 57120400 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1014 07:33:05.587774 57120400 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(22, generation: 1)
+I1014 07:33:05.587778 57120400 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1014 07:33:05.587782 57120400 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(16, generation: 1)
+I1014 07:33:05.587785 57120400 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+2026-10-14 07:33:06 [debug    ] event_enriched                 event_id=ac33b11b-7f90-5caf-b9a3-9f260d347f01 importance_score=7 keywords=['observation', 'input', 'shutdown-tool']
+2026-10-14 07:33:06 [debug    ] event_embedding_stored         event_id=ac33b11b-7f90-5caf-b9a3-9f260d347f01
+2026-10-14 07:33:09 [info     ] pack_extraction_applied        edges_written=0 event_id=076c843c-167f-5a4a-aa49-93ecd4520e99 links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-14 07:33:12 [info     ] pack_extraction_applied        edges_written=0 event_id=ac33b11b-7f90-5caf-b9a3-9f260d347f01 links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-14 07:33:16 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:33:16 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:33:16 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:33:16 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:33:16 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 07:33:21 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:33:21 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:33:21 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:33:22 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:33:26 [info     ] consolidation_timer_fired
+2026-10-14 07:33:26 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:33:26 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:33:26 [info     ] consolidating_session          event_count=2 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:26 [info     ] episodes_grouped               episode_count=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:27 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 07:33:29 [info     ] session_consolidated           episode_summaries=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:30 [info     ] agent_summary_created          agent_id=shutdown-owner sessions=1
+2026-10-14 07:33:31 [info     ] importance_recomputed_from_centrality updated_count=2
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-14 07:33:32 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:33:34 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:33:34 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 07:33:39 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:33:39 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:33:39 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:33:40 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:33:44 [info     ] consolidation_timer_fired
+2026-10-14 07:33:44 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:33:44 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:33:44 [info     ] consolidating_session          event_count=2 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:44 [info     ] episodes_grouped               episode_count=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:45 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 07:33:47 [info     ] session_consolidated           episode_summaries=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:33:48 [info     ] agent_summary_created          agent_id=shutdown-owner sessions=1
+2026-10-14 07:33:49 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-14 07:33:50 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:33:51 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:33:51 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 07:33:57 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:33:57 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:33:57 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:33:58 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:34:02 [info     ] consolidation_timer_fired
+2026-10-14 07:34:02 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:34:02 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:34:02 [info     ] consolidating_session          event_count=2 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:02 [info     ] episodes_grouped               episode_count=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:03 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 07:34:03 [error    ] consolidation_cycle_failed     source=timer
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsolidation.py:170 in _run_consolidation_cycle_guarded                       │
+│                                                                              │
+│   167 │   │   async with self._consolidation_lock:                           │
+│   168 │   │   │   log.info("consolidation_cycle_started", source=source)     │
+│   169 │   │   │   try:                                                       │
+│ ❱ 170 │   │   │   │   await self._run_consolidation_cycle()                  │
+│   171 │   │   │   except RuntimeFencedError:                                 │
+│   172 │   │   │   │   self.stop()                                            │
+│   173 │   │   │   │   raise                                                  │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   self = <context_graph.worker.consolidation.ConsolidationConsumer       │ │
+│ │          object at 0x169980680>                                          │ │
+│ │ source = 'timer'                                                         │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsolidation.py:203 in _run_consolidation_cycle                               │
+│                                                                              │
+│   200 │   │                                                                  │
+│   201 │   │   # Step 2: Consolidate qualifying sessions                      │
+│   202 │   │   for session_id, event_count in sessions_to_consolidate.items() │
+│ ❱ 203 │   │   │   await self._consolidate_session(session_id, event_count)   │
+│   204 │   │                                                                  │
+│   205 │   │   # Step 2b: Create agent-level summaries                        │
+│   206 │   │   agent_sessions: dict[str, list[str]] = {}                      │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │             event_count = 2                                              │ │
+│ │                      gm = <context_graph.adapters.spanner.graph.Spanner… │ │
+│ │                           object at 0x1693e6900>                         │ │
+│ │                    self = <context_graph.worker.consolidation.Consolida… │ │
+│ │                           object at 0x169980680>                         │ │
+│ │          session_counts = {'consolidation-shutdown-1014-01-session': 2}  │ │
+│ │              session_id = 'consolidation-shutdown-1014-01-session'       │ │
+│ │ sessions_to_consolidate = {'consolidation-shutdown-1014-01-session': 2}  │ │
+│ │               threshold = 5                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsolidation.py:294 in _consolidate_session                                   │
+│                                                                              │
+│   291 │   │   │   event_ids = [e.get("event_id", "") for e in episode if e.g │
+│   292 │   │   │                                                              │
+│   293 │   │   │   # Write summary + SUMMARIZES edges to Neo4j                │
+│ ❱ 294 │   │   │   await gm.write_summary_with_edges(                         │
+│   295 │   │   │   │   summary_id=summary.summary_id,                         │
+│   296 │   │   │   │   scope=summary.scope,                                   │
+│   297 │   │   │   │   scope_id=summary.scope_id,                             │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │          episode = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'shutdown-owner',                 │ │
+│ │                    │   │   'embedding': [                                │ │
+│ │                    │   │   │   -0.024169521406292915,                    │ │
+│ │                    │   │   │   -0.02890152297914028,                     │ │
+│ │                    │   │   │   -0.02773563377559185,                     │ │
+│ │                    │   │   │   0.03121490404009819,                      │ │
+│ │                    │   │   │   0.038592685014009476,                     │ │
+│ │                    │   │   │   0.03149940446019173,                      │ │
+│ │                    │   │   │   0.040050700306892395,                     │ │
+│ │                    │   │   │   -0.021990947425365448,                    │ │
+│ │                    │   │   │   0.039551880210638046,                     │ │
+│ │                    │   │   │   0.03957780823111534,                      │ │
+│ │                    │   │   │   ... +374                                  │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '076c843c-167f-5a4a-aa49-93ecd4520e99',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-14T02:02:52.002991000Z/000000/076c843c-167f… │ │
+│ │                    │   │   'importance_score': 8,                        │ │
+│ │                    │   │   'keywords': [                                 │ │
+│ │                    │   │   │   'observation',                            │ │
+│ │                    │   │   │   'input',                                  │ │
+│ │                    │   │   │   'shutdown-tool'                           │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'last_accessed_at': None,                     │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-14T02:02:29.509709+00:00',                   │ │
+│ │                    │   │   ... +4                                        │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'shutdown-owner',                 │ │
+│ │                    │   │   'embedding': [                                │ │
+│ │                    │   │   │   -0.024169521406292915,                    │ │
+│ │                    │   │   │   -0.02890152297914028,                     │ │
+│ │                    │   │   │   -0.02773563377559185,                     │ │
+│ │                    │   │   │   0.03121490404009819,                      │ │
+│ │                    │   │   │   0.038592685014009476,                     │ │
+│ │                    │   │   │   0.03149940446019173,                      │ │
+│ │                    │   │   │   0.040050700306892395,                     │ │
+│ │                    │   │   │   -0.021990947425365448,                    │ │
+│ │                    │   │   │   0.039551880210638046,                     │ │
+│ │                    │   │   │   0.03957780823111534,                      │ │
+│ │                    │   │   │   ... +374                                  │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    'ac33b11b-7f90-5caf-b9a3-9f260d347f01',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-14T02:02:52.420111000Z/000000/ac33b11b-7f90… │ │
+│ │                    │   │   'importance_score': 8,                        │ │
+│ │                    │   │   'keywords': [                                 │ │
+│ │                    │   │   │   'observation',                            │ │
+│ │                    │   │   │   'input',                                  │ │
+│ │                    │   │   │   'shutdown-tool'                           │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'last_accessed_at': None,                     │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-14T02:02:30.509709+00:00',                   │ │
+│ │                    │   │   ... +4                                        │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │         episodes = [                                                     │ │
+│ │                    │   [                                                 │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'access_count': 0,                        │ │
+│ │                    │   │   │   'agent_id': 'shutdown-owner',             │ │
+│ │                    │   │   │   'embedding': [                            │ │
+│ │                    │   │   │   │   -0.024169521406292915,                │ │
+│ │                    │   │   │   │   -0.02890152297914028,                 │ │
+│ │                    │   │   │   │   -0.02773563377559185,                 │ │
+│ │                    │   │   │   │   0.03121490404009819,                  │ │
+│ │                    │   │   │   │   0.038592685014009476,                 │ │
+│ │                    │   │   │   │   0.03149940446019173,                  │ │
+│ │                    │   │   │   │   0.040050700306892395,                 │ │
+│ │                    │   │   │   │   -0.021990947425365448,                │ │
+│ │                    │   │   │   │   0.039551880210638046,                 │ │
+│ │                    │   │   │   │   0.03957780823111534,                  │ │
+│ │                    │   │   │   │   ... +374                              │ │
+│ │                    │   │   │   ],                                        │ │
+│ │                    │   │   │   'event_id':                               │ │
+│ │                    '076c843c-167f-5a4a-aa49-93ecd4520e99',               │ │
+│ │                    │   │   │   'event_type': 'observation.input',        │ │
+│ │                    │   │   │   'global_position':                        │ │
+│ │                    '2026-10-14T02:02:52.002991000Z/000000/076c843c-167f… │ │
+│ │                    │   │   │   'importance_score': 8,                    │ │
+│ │                    │   │   │   'keywords': [                             │ │
+│ │                    │   │   │   │   'observation',                        │ │
+│ │                    │   │   │   │   'input',                              │ │
+│ │                    │   │   │   │   'shutdown-tool'                       │ │
+│ │                    │   │   │   ],                                        │ │
+│ │                    │   │   │   'last_accessed_at': None,                 │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-14T02:02:29.509709+00:00',                   │ │
+│ │                    │   │   │   ... +4                                    │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'access_count': 0,                        │ │
+│ │                    │   │   │   'agent_id': 'shutdown-owner',             │ │
+│ │                    │   │   │   'embedding': [                            │ │
+│ │                    │   │   │   │   -0.024169521406292915,                │ │
+│ │                    │   │   │   │   -0.02890152297914028,                 │ │
+│ │                    │   │   │   │   -0.02773563377559185,                 │ │
+│ │                    │   │   │   │   0.03121490404009819,                  │ │
+│ │                    │   │   │   │   0.038592685014009476,                 │ │
+│ │                    │   │   │   │   0.03149940446019173,                  │ │
+│ │                    │   │   │   │   0.040050700306892395,                 │ │
+│ │                    │   │   │   │   -0.021990947425365448,                │ │
+│ │                    │   │   │   │   0.039551880210638046,                 │ │
+│ │                    │   │   │   │   0.03957780823111534,                  │ │
+│ │                    │   │   │   │   ... +374                              │ │
+│ │                    │   │   │   ],                                        │ │
+│ │                    │   │   │   'event_id':                               │ │
+│ │                    'ac33b11b-7f90-5caf-b9a3-9f260d347f01',               │ │
+│ │                    │   │   │   'event_type': 'observation.input',        │ │
+│ │                    │   │   │   'global_position':                        │ │
+│ │                    '2026-10-14T02:02:52.420111000Z/000000/ac33b11b-7f90… │ │
+│ │                    │   │   │   'importance_score': 8,                    │ │
+│ │                    │   │   │   'keywords': [                             │ │
+│ │                    │   │   │   │   'observation',                        │ │
+│ │                    │   │   │   │   'input',                              │ │
+│ │                    │   │   │   │   'shutdown-tool'                       │ │
+│ │                    │   │   │   ],                                        │ │
+│ │                    │   │   │   'last_accessed_at': None,                 │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-14T02:02:30.509709+00:00',                   │ │
+│ │                    │   │   │   ... +4                                    │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ]                                                 │ │
+│ │                    ]                                                     │ │
+│ │      event_count = 2                                                     │ │
+│ │        event_ids = [                                                     │ │
+│ │                    │   '076c843c-167f-5a4a-aa49-93ecd4520e99',           │ │
+│ │                    │   'ac33b11b-7f90-5caf-b9a3-9f260d347f01'            │ │
+│ │                    ]                                                     │ │
+│ │           events = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'shutdown-owner',                 │ │
+│ │                    │   │   'embedding': [                                │ │
+│ │                    │   │   │   -0.024169521406292915,                    │ │
+│ │                    │   │   │   -0.02890152297914028,                     │ │
+│ │                    │   │   │   -0.02773563377559185,                     │ │
+│ │                    │   │   │   0.03121490404009819,                      │ │
+│ │                    │   │   │   0.038592685014009476,                     │ │
+│ │                    │   │   │   0.03149940446019173,                      │ │
+│ │                    │   │   │   0.040050700306892395,                     │ │
+│ │                    │   │   │   -0.021990947425365448,                    │ │
+│ │                    │   │   │   0.039551880210638046,                     │ │
+│ │                    │   │   │   0.03957780823111534,                      │ │
+│ │                    │   │   │   ... +374                                  │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '076c843c-167f-5a4a-aa49-93ecd4520e99',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-14T02:02:52.002991000Z/000000/076c843c-167f… │ │
+│ │                    │   │   'importance_score': 8,                        │ │
+│ │                    │   │   'keywords': [                                 │ │
+│ │                    │   │   │   'observation',                            │ │
+│ │                    │   │   │   'input',                                  │ │
+│ │                    │   │   │   'shutdown-tool'                           │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'last_accessed_at': None,                     │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-14T02:02:29.509709+00:00',                   │ │
+│ │                    │   │   ... +4                                        │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'shutdown-owner',                 │ │
+│ │                    │   │   'embedding': [                                │ │
+│ │                    │   │   │   -0.024169521406292915,                    │ │
+│ │                    │   │   │   -0.02890152297914028,                     │ │
+│ │                    │   │   │   -0.02773563377559185,                     │ │
+│ │                    │   │   │   0.03121490404009819,                      │ │
+│ │                    │   │   │   0.038592685014009476,                     │ │
+│ │                    │   │   │   0.03149940446019173,                      │ │
+│ │                    │   │   │   0.040050700306892395,                     │ │
+│ │                    │   │   │   -0.021990947425365448,                    │ │
+│ │                    │   │   │   0.039551880210638046,                     │ │
+│ │                    │   │   │   0.03957780823111534,                      │ │
+│ │                    │   │   │   ... +374                                  │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    'ac33b11b-7f90-5caf-b9a3-9f260d347f01',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-14T02:02:52.420111000Z/000000/ac33b11b-7f90… │ │
+│ │                    │   │   'importance_score': 8,                        │ │
+│ │                    │   │   'keywords': [                                 │ │
+│ │                    │   │   │   'observation',                            │ │
+│ │                    │   │   │   'input',                                  │ │
+│ │                    │   │   │   'shutdown-tool'                           │ │
+│ │                    │   │   ],                                            │ │
+│ │                    │   │   'last_accessed_at': None,                     │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-14T02:02:30.509709+00:00',                   │ │
+│ │                    │   │   ... +4                                        │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │               gm = <context_graph.adapters.spanner.graph.SpannerGraphSt… │ │
+│ │                    object at 0x1693e6900>                                │ │
+│ │              idx = 0                                                     │ │
+│ │ llm_summary_text = 'Two accepted events describe bounded shutdown        │ │
+│ │                    verification.'                                        │ │
+│ │           prompt = 'Summarize the following sequence of agent events     │ │
+│ │                    into a concise episode descript'+253                  │ │
+│ │         scope_id = 'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d2… │ │
+│ │             self = <context_graph.worker.consolidation.ConsolidationCon… │ │
+│ │                    object at 0x169980680>                                │ │
+│ │       session_id = 'consolidation-shutdown-1014-01-session'              │ │
+│ │          summary = SummaryNode(                                          │ │
+│ │                    │                                                     │ │
+│ │                    summary_id='summary-episode-852565bcf2f65c420d2d1fb0… │ │
+│ │                    │   scope='episode',                                  │ │
+│ │                    │                                                     │ │
+│ │                    scope_id='episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                    │   content='Two accepted events describe bounded     │ │
+│ │                    shutdown verification.',                              │ │
+│ │                    │   created_at=datetime.datetime(2026, 10, 14, 2, 4,  │ │
+│ │                    2, 875149, tzinfo=datetime.timezone.utc),             │ │
+│ │                    │   event_count=2,                                    │ │
+│ │                    │   time_range=[                                      │ │
+│ │                    │   │   datetime.datetime(2026, 10, 14, 2, 2, 29,     │ │
+│ │                    509709, tzinfo=datetime.timezone.utc),                │ │
+│ │                    │   │   datetime.datetime(2026, 10, 14, 2, 2, 30,     │ │
+│ │                    509709, tzinfo=datetime.timezone.utc)                 │ │
+│ │                    │   ]                                                 │ │
+│ │                    )                                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ errors.py:30 in wrapper                                                      │
+│                                                                              │
+│   27 │   @functools.wraps(method)                                            │
+│   28 │   async def wrapper(*args: Any, **kwargs: Any) -> Any:                │
+│   29 │   │   try:                                                            │
+│ ❱ 30 │   │   │   return await method(*args, **kwargs)                        │
+│   31 │   │   except StorageError:                                            │
+│   32 │   │   │   raise                                                       │
+│   33 │   │   except Exception as exc:                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   args = (                                                               │ │
+│ │          │   <context_graph.adapters.spanner.graph.SpannerGraphStore     │ │
+│ │          object at 0x1693e6900>,                                         │ │
+│ │          )                                                               │ │
+│ │ kwargs = {                                                               │ │
+│ │          │   'summary_id':                                               │ │
+│ │          'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f… │ │
+│ │          │   'scope': 'episode',                                         │ │
+│ │          │   'scope_id':                                                 │ │
+│ │          'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b292… │ │
+│ │          │   'content': 'Two accepted events describe bounded shutdown   │ │
+│ │          verification.',                                                 │ │
+│ │          │   'created_at': '2026-10-14T02:04:02.875149+00:00',           │ │
+│ │          │   'event_count': 2,                                           │ │
+│ │          │   'time_range': [                                             │ │
+│ │          │   │   '2026-10-14T02:02:29.509709+00:00',                     │ │
+│ │          │   │   '2026-10-14T02:02:30.509709+00:00'                      │ │
+│ │          │   ],                                                          │ │
+│ │          │   'event_ids': [                                              │ │
+│ │          │   │   '076c843c-167f-5a4a-aa49-93ecd4520e99',                 │ │
+│ │          │   │   'ac33b11b-7f90-5caf-b9a3-9f260d347f01'                  │ │
+│ │          │   ]                                                           │ │
+│ │          }                                                               │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ graph_ops.py:921 in write_summary_with_edges                                 │
+│                                                                              │
+│    918 │   │   time_range: list[str],                                        │
+│    919 │   │   event_ids: list[str],                                         │
+│    920 │   ) -> None:                                                        │
+│ ❱  921 │   │   await self._merge_node(                                       │
+│    922 │   │   │   "Summary",                                                │
+│    923 │   │   │   summary_id,                                               │
+│    924 │   │   │   {                                                         │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     content = 'Two accepted events describe bounded shutdown             │ │
+│ │               verification.'                                             │ │
+│ │  created_at = '2026-10-14T02:04:02.875149+00:00'                         │ │
+│ │ event_count = 2                                                          │ │
+│ │   event_ids = [                                                          │ │
+│ │               │   '076c843c-167f-5a4a-aa49-93ecd4520e99',                │ │
+│ │               │   'ac33b11b-7f90-5caf-b9a3-9f260d347f01'                 │ │
+│ │               ]                                                          │ │
+│ │       scope = 'episode'                                                  │ │
+│ │    scope_id = 'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f263… │ │
+│ │        self = <context_graph.adapters.spanner.graph.SpannerGraphStore    │ │
+│ │               object at 0x1693e6900>                                     │ │
+│ │  summary_id = 'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │  time_range = [                                                          │ │
+│ │               │   '2026-10-14T02:02:29.509709+00:00',                    │ │
+│ │               │   '2026-10-14T02:02:30.509709+00:00'                     │ │
+│ │               ]                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ graph_ops.py:299 in _merge_node                                              │
+│                                                                              │
+│    296 │   │   return (await self._get_nodes([key])).get(key)                │
+│    297 │                                                                     │
+│    298 │   async def _merge_node(self, label: str, node_id: str, updates: di │
+│        None:                                                                 │
+│ ❱  299 │   │   await self._upsert_nodes([((label, node_id), updates)])       │
+│    300 │                                                                     │
+│    301 │   async def _merge_edge(                                            │
+│    302 │   │   self, source: NodeKey, edge_type: str, target: NodeKey, updat │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   label = 'Summary'                                                      │ │
+│ │ node_id = 'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23… │ │
+│ │    self = <context_graph.adapters.spanner.graph.SpannerGraphStore object │ │
+│ │           at 0x1693e6900>                                                │ │
+│ │ updates = {                                                              │ │
+│ │           │   'scope': 'episode',                                        │ │
+│ │           │   'scope_id':                                                │ │
+│ │           'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b29… │ │
+│ │           │   'content': 'Two accepted events describe bounded shutdown  │ │
+│ │           verification.',                                                │ │
+│ │           │   'created_at': '2026-10-14T02:04:02.875149+00:00',          │ │
+│ │           │   'event_count': 2,                                          │ │
+│ │           │   'time_range': [                                            │ │
+│ │           │   │   '2026-10-14T02:02:29.509709+00:00',                    │ │
+│ │           │   │   '2026-10-14T02:02:30.509709+00:00'                     │ │
+│ │           │   ]                                                          │ │
+│ │           }                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:524 in _upsert_nodes                                        │
+│                                                                              │
+│   521 │   │   │                                                              │
+│   522 │   │   │   return work                                                │
+│   523 │   │                                                                  │
+│ ❱ 524 │   │   await self._write_in_commits(                                  │
+│   525 │   │   │   group_by_key(items, lambda item: item[0]), self._node_esti │
+│   526 │   │   )                                                              │
+│   527                                                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ items = [                                                                │ │
+│ │         │   (                                                            │ │
+│ │         │   │   (                                                        │ │
+│ │         │   │   │   'Summary',                                           │ │
+│ │         │   │   │                                                        │ │
+│ │         'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2… │ │
+│ │         │   │   ),                                                       │ │
+│ │         │   │   {                                                        │ │
+│ │         │   │   │   'scope': 'episode',                                  │ │
+│ │         │   │   │   'scope_id':                                          │ │
+│ │         'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b2924… │ │
+│ │         │   │   │   'content': 'Two accepted events describe bounded     │ │
+│ │         shutdown verification.',                                         │ │
+│ │         │   │   │   'created_at': '2026-10-14T02:04:02.875149+00:00',    │ │
+│ │         │   │   │   'event_count': 2,                                    │ │
+│ │         │   │   │   'time_range': [                                      │ │
+│ │         │   │   │   │   '2026-10-14T02:02:29.509709+00:00',              │ │
+│ │         │   │   │   │   '2026-10-14T02:02:30.509709+00:00'               │ │
+│ │         │   │   │   ]                                                    │ │
+│ │         │   │   }                                                        │ │
+│ │         │   )                                                            │ │
+│ │         ]                                                                │ │
+│ │  self = <context_graph.adapters.spanner.graph.SpannerGraphStore object   │ │
+│ │         at 0x1693e6900>                                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:236 in _write_in_commits                                    │
+│                                                                              │
+│   233 │   │   │   run = pending.pop(0)                                       │
+│   234 │   │   │   items = [item for group in run for item in group]          │
+│   235 │   │   │   try:                                                       │
+│ ❱ 236 │   │   │   │   results.append(await self._transact(write(items, len(r │
+│   237 │   │   │   except CommitTooLarge:                                     │
+│   238 │   │   │   │   middle = len(run) // 2                                 │
+│   239 │   │   │   │   pending[:0] = [run[:middle], run[middle:]]             │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  groups = [                                                              │ │
+│ │           │   [                                                          │ │
+│ │           │   │   (                                                      │ │
+│ │           │   │   │   (                                                  │ │
+│ │           │   │   │   │   'Summary',                                     │ │
+│ │           │   │   │   │                                                  │ │
+│ │           'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23… │ │
+│ │           │   │   │   ),                                                 │ │
+│ │           │   │   │   {                                                  │ │
+│ │           │   │   │   │   'scope': 'episode',                            │ │
+│ │           │   │   │   │   'scope_id':                                    │ │
+│ │           'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b29… │ │
+│ │           │   │   │   │   'content': 'Two accepted events describe       │ │
+│ │           bounded shutdown verification.',                               │ │
+│ │           │   │   │   │   'created_at':                                  │ │
+│ │           '2026-10-14T02:04:02.875149+00:00',                            │ │
+│ │           │   │   │   │   'event_count': 2,                              │ │
+│ │           │   │   │   │   'time_range': [                                │ │
+│ │           │   │   │   │   │   '2026-10-14T02:02:29.509709+00:00',        │ │
+│ │           │   │   │   │   │   '2026-10-14T02:02:30.509709+00:00'         │ │
+│ │           │   │   │   │   ]                                              │ │
+│ │           │   │   │   }                                                  │ │
+│ │           │   │   )                                                      │ │
+│ │           │   ]                                                          │ │
+│ │           ]                                                              │ │
+│ │   items = [                                                              │ │
+│ │           │   (                                                          │ │
+│ │           │   │   (                                                      │ │
+│ │           │   │   │   'Summary',                                         │ │
+│ │           │   │   │                                                      │ │
+│ │           'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23… │ │
+│ │           │   │   ),                                                     │ │
+│ │           │   │   {                                                      │ │
+│ │           │   │   │   'scope': 'episode',                                │ │
+│ │           │   │   │   'scope_id':                                        │ │
+│ │           'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b29… │ │
+│ │           │   │   │   'content': 'Two accepted events describe bounded   │ │
+│ │           shutdown verification.',                                       │ │
+│ │           │   │   │   'created_at': '2026-10-14T02:04:02.875149+00:00',  │ │
+│ │           │   │   │   'event_count': 2,                                  │ │
+│ │           │   │   │   'time_range': [                                    │ │
+│ │           │   │   │   │   '2026-10-14T02:02:29.509709+00:00',            │ │
+│ │           │   │   │   │   '2026-10-14T02:02:30.509709+00:00'             │ │
+│ │           │   │   │   ]                                                  │ │
+│ │           │   │   }                                                      │ │
+│ │           │   )                                                          │ │
+│ │           ]                                                              │ │
+│ │ pending = []                                                             │ │
+│ │ results = []                                                             │ │
+│ │     run = [                                                              │ │
+│ │           │   [                                                          │ │
+│ │           │   │   (                                                      │ │
+│ │           │   │   │   (                                                  │ │
+│ │           │   │   │   │   'Summary',                                     │ │
+│ │           │   │   │   │                                                  │ │
+│ │           'summary-episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23… │ │
+│ │           │   │   │   ),                                                 │ │
+│ │           │   │   │   {                                                  │ │
+│ │           │   │   │   │   'scope': 'episode',                            │ │
+│ │           │   │   │   │   'scope_id':                                    │ │
+│ │           'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d23f2631b29… │ │
+│ │           │   │   │   │   'content': 'Two accepted events describe       │ │
+│ │           bounded shutdown verification.',                               │ │
+│ │           │   │   │   │   'created_at':                                  │ │
+│ │           '2026-10-14T02:04:02.875149+00:00',                            │ │
+│ │           │   │   │   │   'event_count': 2,                              │ │
+│ │           │   │   │   │   'time_range': [                                │ │
+│ │           │   │   │   │   │   '2026-10-14T02:02:29.509709+00:00',        │ │
+│ │           │   │   │   │   │   '2026-10-14T02:02:30.509709+00:00'         │ │
+│ │           │   │   │   │   ]                                              │ │
+│ │           │   │   │   }                                                  │ │
+│ │           │   │   )                                                      │ │
+│ │           │   ]                                                          │ │
+│ │           ]                                                              │ │
+│ │    self = <context_graph.adapters.spanner.graph.SpannerGraphStore object │ │
+│ │           at 0x1693e6900>                                                │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:212 in _transact                                            │
+│                                                                              │
+│   209 │                                                                      │
+│   210 │   async def _transact(self, fn: Any) -> Any:                         │
+│   211 │   │   if self._tenant_fence is not None:                             │
+│ ❱ 212 │   │   │   return await asyncio.to_thread(                            │
+│   213 │   │   │   │   self._tenant_fence.run, self._database, fn, operation= │
+│   214 │   │   │   )                                                          │
+│   215 │   │   return await asyncio.to_thread(self._database.run_in_transacti │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ self = <context_graph.adapters.spanner.graph.SpannerGraphStore object at │ │
+│ │        0x1693e6900>                                                      │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versio │
+│ ns/3.12/lib/python3.12/asyncio/threads.py:25 in to_thread                    │
+│                                                                              │
+│   22 │   loop = events.get_running_loop()                                    │
+│   23 │   ctx = contextvars.copy_context()                                    │
+│   24 │   func_call = functools.partial(ctx.run, func, *args, **kwargs)       │
+│ ❱ 25 │   return await loop.run_in_executor(None, func_call)                  │
+│   26                                                                         │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │      args = (                                                            │ │
+│ │             │   <__main__.SDKGate object at 0x168dc3140>,                │ │
+│ │             │   <function                                                │ │
+│ │             SpannerGraphStore._upsert_nodes.<locals>.write.<locals>.work │ │
+│ │             at 0x1690fb880>                                              │ │
+│ │             )                                                            │ │
+│ │       ctx = <_contextvars.Context object at 0x1692225c0>                 │ │
+│ │      func = <bound method TenantFence.run of                             │ │
+│ │             TenantFence(tenant_id='shutdown-assessment',                 │ │
+│ │             database_resource='projects/portiq-mvp/instances/engram-exp… │ │
+│ │             binding_id='consolidation-shutdown-1014-01', epoch=37,       │ │
+│ │             bundle_digest='sha256:dcf3f366dec6d3ae7ef8cb5f3e142fab26a2c… │ │
+│ │ func_call = functools.partial(<built-in method run of                    │ │
+│ │             _contextvars.Context object at 0x1692225c0>, <bound method   │ │
+│ │             TenantFence.run of                                           │ │
+│ │             TenantFence(tenant_id='shutdown-assessment',                 │ │
+│ │             database_resource='projects/portiq-mvp/instances/engram-exp… │ │
+│ │             binding_id='consolidation-shutdown-1014-01', epoch=37,       │ │
+│ │             bundle_digest='sha256:dcf3f366dec6d3ae7ef8cb5f3e142fab26a2c… │ │
+│ │             <__main__.SDKGate object at 0x168dc3140>, <function          │ │
+│ │             SpannerGraphStore._upsert_nodes.<locals>.write.<locals>.work │ │
+│ │             at 0x1690fb880>, operation='processing')                     │ │
+│ │    kwargs = {'operation': 'processing'}                                  │ │
+│ │      loop = <_UnixSelectorEventLoop running=True closed=False            │ │
+│ │             debug=False>                                                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versio │
+│ ns/3.12/lib/python3.12/concurrent/futures/thread.py:58 in run                │
+│                                                                              │
+│    55 │   │   │   return                                                     │
+│    56 │   │                                                                  │
+│    57 │   │   try:                                                           │
+│ ❱  58 │   │   │   result = self.fn(*self.args, **self.kwargs)                │
+│    59 │   │   except BaseException as exc:                                   │
+│    60 │   │   │   self.future.set_exception(exc)                             │
+│    61 │   │   │   # Break a reference cycle with the exception 'exc'         │
+│                                                                              │
+│ ╭── locals ───╮                                                              │
+│ │ self = None │                                                              │
+│ ╰─────────────╯                                                              │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/tenant_control.py:157 in run                                         │
+│                                                                              │
+│   154 │   │   │   self.check(transaction, operation=operation)               │
+│   155 │   │   │   return callback(transaction)                               │
+│   156 │   │                                                                  │
+│ ❱ 157 │   │   return database.run_in_transaction(guarded)                    │
+│   158 │                                                                      │
+│   159 │   def check_database(self, database: Any) -> None:                   │
+│   160 │   │   if database.name != self.database_resource:                    │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  database = <__main__.SDKGate object at 0x168dc3140>                     │ │
+│ │ operation = 'processing'                                                 │ │
+│ │      self = TenantFence(                                                 │ │
+│ │             │   tenant_id='shutdown-assessment',                         │ │
+│ │             │                                                            │ │
+│ │             database_resource='projects/portiq-mvp/instances/engram-exp… │ │
+│ │             │   binding_id='consolidation-shutdown-1014-01',             │ │
+│ │             │   epoch=37,                                                │ │
+│ │             │                                                            │ │
+│ │             bundle_digest='sha256:dcf3f366dec6d3ae7ef8cb5f3e142fab26a2c… │ │
+│ │             )                                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_consolidatio │
+│ n_shutdown_demo.py:156 in run_in_transaction                                 │
+│                                                                              │
+│   153 │   │   │   return operation(Transaction(tx), *a, **kw)                │
+│   154 │   │                                                                  │
+│   155 │   │   try:                                                           │
+│ ❱ 156 │   │   │   result = self.database.run_in_transaction(wrapped, *args,  │
+│   157 │   │   │   with self.lock:                                            │
+│   158 │   │   │   │   self.record["summary_commits"].extend(attempt_summarie │
+│   159 │   │   │   │   if tagged:                                             │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │              args = ()                                                   │ │
+│ │ attempt_summaries = [                                                    │ │
+│ │                     │   {                                                │ │
+│ │                     │   │   'summary_id':                                │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   │   'scope': 'episode',                          │ │
+│ │                     │   │   'scope_id':                                  │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     │   │   'event_count': 2,                            │ │
+│ │                     │   │   'time_range': [                              │ │
+│ │                     │   │   │   '2026-10-14T02:02:29.509709+00:00',      │ │
+│ │                     │   │   │   '2026-10-14T02:02:30.509709+00:00'       │ │
+│ │                     │   │   ]                                            │ │
+│ │                     │   }                                                │ │
+│ │                     ]                                                    │ │
+│ │              gate = <__main__.SDKGate object at 0x168dc3140>             │ │
+│ │            kwargs = {}                                                   │ │
+│ │              self = <__main__.SDKGate object at 0x168dc3140>             │ │
+│ │            tagged = True                                                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-p │
+│ ackages/google/cloud/spanner_v1/database.py:1066 in run_in_transaction       │
+│                                                                              │
+│   1063 │   │   │   transaction_type = TransactionType.READ_WRITE             │
+│   1064 │   │   │   session = self._sessions_manager.get_session(transaction_ │
+│   1065 │   │   │   try:                                                      │
+│ ❱ 1066 │   │   │   │   return session.run_in_transaction(func, *args, **kw)  │
+│   1067 │   │   │   finally:                                                  │
+│   1068 │   │   │   │   self._local.transaction_running = False               │
+│   1069 │   │   │   │   self._sessions_manager.put_session(session)           │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │                  args = ()                                               │ │
+│ │      extra_attributes = {}                                               │ │
+│ │                    kw = {}                                               │ │
+│ │ observability_options = {                                                │ │
+│ │                         │   'db_name':                                   │ │
+│ │                         'projects/portiq-mvp/instances/engram-experimen… │ │
+│ │                         }                                                │ │
+│ │                  self = <google.cloud.spanner_v1.database.Database       │ │
+│ │                         object at 0x16960cdd0>                           │ │
+│ │               session = <google.cloud.spanner_v1.session.Session object  │ │
+│ │                         at 0x169b735c0>                                  │ │
+│ │       transaction_tag = None                                             │ │
+│ │      transaction_type = <TransactionType.READ_WRITE: 'read/write'>       │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-p │
+│ ackages/google/cloud/spanner_v1/session.py:540 in run_in_transaction         │
+│                                                                              │
+│   537 │   │   │   │   attempts += 1                                          │
+│   538 │   │   │   │   span_attributes = dict(attempt=attempts)               │
+│   539 │   │   │   │   try:                                                   │
+│ ❱ 540 │   │   │   │   │   return_value = CrossSync._Sync_Impl.run_if_async(  │
+│   541 │   │   │   │   │   │   func, txn, *args, **kw                         │
+│   542 │   │   │   │   │   )                                                  │
+│   543 │   │   │   │   except Aborted as exc:                                 │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │                            args = ()                                     │ │
+│ │                        attempts = 1                                      │ │
+│ │                  client_context = None                                   │ │
+│ │          commit_request_options = None                                   │ │
+│ │                        database = <google.cloud.spanner_v1.database.Dat… │ │
+│ │                                   object at 0x16960cdd0>                 │ │
+│ │                        deadline = 1791943472.875533                      │ │
+│ │             default_retry_delay = None                                   │ │
+│ │ exclude_txn_from_change_streams = None                                   │ │
+│ │                extra_attributes = {}                                     │ │
+│ │                 isolation_level = None                                   │ │
+│ │                              kw = {}                                     │ │
+│ │                log_commit_stats = False                                  │ │
+│ │                max_commit_delay = None                                   │ │
+│ │         previous_transaction_id = None                                   │ │
+│ │                  read_lock_mode = None                                   │ │
+│ │                            self = <google.cloud.spanner_v1.session.Sess… │ │
+│ │                                   object at 0x169b735c0>                 │ │
+│ │                            span = NonRecordingSpan(SpanContext(trace_id… │ │
+│ │                                   span_id=0x0000000000000000,            │ │
+│ │                                   trace_flags=0x00, trace_state=[],      │ │
+│ │                                   is_remote=False))                      │ │
+│ │                 span_attributes = {'attempt': 1}                         │ │
+│ │                 transaction_tag = None                                   │ │
+│ │                             txn = <google.cloud.spanner_v1.transaction.… │ │
+│ │                                   object at 0x169cbbec0>                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-p │
+│ ackages/google/cloud/aio/_cross_sync/cross_sync.py:336 in run_if_async       │
+│                                                                              │
+│   333 │   │   │   """                                                        │
+│   334 │   │   │   Runs a function                                            │
+│   335 │   │   │   """                                                        │
+│ ❱ 336 │   │   │   return func(*args, **kwargs)                               │
+│   337 │   │                                                                  │
+│   338 │   │   @staticmethod                                                  │
+│   339 │   │   def queue_get(queue, block=True, timeout=None):                │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   args = (                                                               │ │
+│ │          │   <google.cloud.spanner_v1.transaction.Transaction object at  │ │
+│ │          0x169cbbec0>,                                                   │ │
+│ │          )                                                               │ │
+│ │ kwargs = {}                                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_consolidatio │
+│ n_shutdown_demo.py:153 in wrapped                                            │
+│                                                                              │
+│   150 │   │   │   # The SDK can retry an aborted callback. Only its final at │
+│   151 │   │   │   # belongs to the committed transaction's write set.        │
+│   152 │   │   │   attempt_summaries = []                                     │
+│ ❱ 153 │   │   │   return operation(Transaction(tx), *a, **kw)                │
+│   154 │   │                                                                  │
+│   155 │   │   try:                                                           │
+│   156 │   │   │   result = self.database.run_in_transaction(wrapped, *args,  │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │                 a = ()                                                   │ │
+│ │ attempt_summaries = [                                                    │ │
+│ │                     │   {                                                │ │
+│ │                     │   │   'summary_id':                                │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   │   'scope': 'episode',                          │ │
+│ │                     │   │   'scope_id':                                  │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     │   │   'event_count': 2,                            │ │
+│ │                     │   │   'time_range': [                              │ │
+│ │                     │   │   │   '2026-10-14T02:02:29.509709+00:00',      │ │
+│ │                     │   │   │   '2026-10-14T02:02:30.509709+00:00'       │ │
+│ │                     │   │   ]                                            │ │
+│ │                     │   }                                                │ │
+│ │                     ]                                                    │ │
+│ │                kw = {}                                                   │ │
+│ │                tx = <google.cloud.spanner_v1.transaction.Transaction     │ │
+│ │                     object at 0x169cbbec0>                               │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/tenant_control.py:155 in guarded                                     │
+│                                                                              │
+│   152 │   │                                                                  │
+│   153 │   │   def guarded(transaction: Any) -> Any:                          │
+│   154 │   │   │   self.check(transaction, operation=operation)               │
+│ ❱ 155 │   │   │   return callback(transaction)                               │
+│   156 │   │                                                                  │
+│   157 │   │   return database.run_in_transaction(guarded)                    │
+│   158                                                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   operation = 'processing'                                               │ │
+│ │        self = TenantFence(                                               │ │
+│ │               │   tenant_id='shutdown-assessment',                       │ │
+│ │               │                                                          │ │
+│ │               database_resource='projects/portiq-mvp/instances/engram-e… │ │
+│ │               │   binding_id='consolidation-shutdown-1014-01',           │ │
+│ │               │   epoch=37,                                              │ │
+│ │               │                                                          │ │
+│ │               bundle_digest='sha256:dcf3f366dec6d3ae7ef8cb5f3e142fab26a… │ │
+│ │               )                                                          │ │
+│ │ transaction = <__main__.SDKGate.run_in_transaction.<locals>.Transaction  │ │
+│ │               object at 0x169cbb800>                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/adapters/ │
+│ spanner/graph.py:516 in work                                                 │
+│                                                                              │
+│   513 │   │   │   │   for (label, node_id), updates in run:                  │
+│   514 │   │   │   │   │   props = current.setdefault((label, node_id), {key_ │
+│       node_id})                                                              │
+│   515 │   │   │   │   │   apply_set(props, updates)                          │
+│ ❱ 516 │   │   │   │   transaction.insert_or_update(                          │
+│   517 │   │   │   │   │   "GraphNodes",                                      │
+│   518 │   │   │   │   │   NODE_COLUMNS,                                      │
+│   519 │   │   │   │   │   self._node_rows(current, current, enforce, previou │
+│       previous_embeddings),                                                  │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │             current = {                                                  │ │
+│ │                       │   ('Summary',                                    │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       {                                                  │ │
+│ │                       │   │   'content': 'Two accepted events describe   │ │
+│ │                       bounded shutdown verification.',                   │ │
+│ │                       │   │   'created_at':                              │ │
+│ │                       '2026-10-14T02:04:02.875149+00:00',                │ │
+│ │                       │   │   'event_count': 2,                          │ │
+│ │                       │   │   'scope': 'episode',                        │ │
+│ │                       │   │   'scope_id':                                │ │
+│ │                       'episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │                       │   │   'summary_id':                              │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       │   │   'time_range': [                            │ │
+│ │                       │   │   │   '2026-10-14T02:02:29.509709+00:00',    │ │
+│ │                       │   │   │   '2026-10-14T02:02:30.509709+00:00'     │ │
+│ │                       │   │   ]                                          │ │
+│ │                       │   }                                              │ │
+│ │                       }                                                  │ │
+│ │             enforce = False                                              │ │
+│ │                keys = [                                                  │ │
+│ │                       │   (                                              │ │
+│ │                       │   │   'Summary',                                 │ │
+│ │                       │   │                                              │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       │   )                                              │ │
+│ │                       ]                                                  │ │
+│ │               label = 'Summary'                                          │ │
+│ │             node_id = 'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │            previous = {                                                  │ │
+│ │                       │   ('Summary',                                    │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       {                                                  │ │
+│ │                       │   │   'content': 'Two accepted events describe   │ │
+│ │                       bounded shutdown verification.',                   │ │
+│ │                       │   │   'created_at':                              │ │
+│ │                       '2026-10-14T02:03:44.761901+00:00',                │ │
+│ │                       │   │   'event_count': 2,                          │ │
+│ │                       │   │   'scope': 'episode',                        │ │
+│ │                       │   │   'scope_id':                                │ │
+│ │                       'episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │                       │   │   'summary_id':                              │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       │   │   'time_range': [                            │ │
+│ │                       │   │   │   '2026-10-14T02:02:29.509709+00:00',    │ │
+│ │                       │   │   │   '2026-10-14T02:02:30.509709+00:00'     │ │
+│ │                       │   │   ]                                          │ │
+│ │                       │   }                                              │ │
+│ │                       }                                                  │ │
+│ │ previous_embeddings = {                                                  │ │
+│ │                       │   ('Summary',                                    │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       None                                               │ │
+│ │                       }                                                  │ │
+│ │               props = {                                                  │ │
+│ │                       │   'content': 'Two accepted events describe       │ │
+│ │                       bounded shutdown verification.',                   │ │
+│ │                       │   'created_at':                                  │ │
+│ │                       '2026-10-14T02:04:02.875149+00:00',                │ │
+│ │                       │   'event_count': 2,                              │ │
+│ │                       │   'scope': 'episode',                            │ │
+│ │                       │   'scope_id':                                    │ │
+│ │                       'episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │                       │   'summary_id':                                  │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       │   'time_range': [                                │ │
+│ │                       │   │   '2026-10-14T02:02:29.509709+00:00',        │ │
+│ │                       │   │   '2026-10-14T02:02:30.509709+00:00'         │ │
+│ │                       │   ]                                              │ │
+│ │                       }                                                  │ │
+│ │                 run = [                                                  │ │
+│ │                       │   (                                              │ │
+│ │                       │   │   (                                          │ │
+│ │                       │   │   │   'Summary',                             │ │
+│ │                       │   │   │                                          │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       │   │   ),                                         │ │
+│ │                       │   │   {                                          │ │
+│ │                       │   │   │   'scope': 'episode',                    │ │
+│ │                       │   │   │   'scope_id':                            │ │
+│ │                       'episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │                       │   │   │   'content': 'Two accepted events        │ │
+│ │                       describe bounded shutdown verification.',          │ │
+│ │                       │   │   │   'created_at':                          │ │
+│ │                       '2026-10-14T02:04:02.875149+00:00',                │ │
+│ │                       │   │   │   'event_count': 2,                      │ │
+│ │                       │   │   │   'time_range': [                        │ │
+│ │                       │   │   │   │                                      │ │
+│ │                       '2026-10-14T02:02:29.509709+00:00',                │ │
+│ │                       │   │   │   │   '2026-10-14T02:02:30.509709+00:00' │ │
+│ │                       │   │   │   ]                                      │ │
+│ │                       │   │   }                                          │ │
+│ │                       │   )                                              │ │
+│ │                       ]                                                  │ │
+│ │                self = <context_graph.adapters.spanner.graph.SpannerGrap… │ │
+│ │                       object at 0x1693e6900>                             │ │
+│ │              stored = [                                                  │ │
+│ │                       │   [                                              │ │
+│ │                       │   │   'Summary',                                 │ │
+│ │                       │   │                                              │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       │   │   {'content': 'Two accepted events describe  │ │
+│ │                       bounded shutdown verification.', 'created_at':     │ │
+│ │                       '2026-10-14T02:03:44.761901+00:00', 'event_count': │ │
+│ │                       2, 'scope': 'episode', 'scope_id':                 │ │
+│ │                       'episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │                       'summary_id':                                      │ │
+│ │                       'summary-episode-852565bcf2f65c420d2d1fb0c8813603… │ │
+│ │                       'time_range': ['2026-10-14T02:02:29.509709+00:00', │ │
+│ │                       '2026-10-14T02:02:30.509709+00:00']},              │ │
+│ │                       │   │   None                                       │ │
+│ │                       │   ]                                              │ │
+│ │                       ]                                                  │ │
+│ │         transaction = <__main__.SDKGate.run_in_transaction.<locals>.Tra… │ │
+│ │                       object at 0x169cbb800>                             │ │
+│ │             updates = {                                                  │ │
+│ │                       │   'scope': 'episode',                            │ │
+│ │                       │   'scope_id':                                    │ │
+│ │                       'episode-852565bcf2f65c420d2d1fb0c8813603610c433b… │ │
+│ │                       │   'content': 'Two accepted events describe       │ │
+│ │                       bounded shutdown verification.',                   │ │
+│ │                       │   'created_at':                                  │ │
+│ │                       '2026-10-14T02:04:02.875149+00:00',                │ │
+│ │                       │   'event_count': 2,                              │ │
+│ │                       │   'time_range': [                                │ │
+│ │                       │   │   '2026-10-14T02:02:29.509709+00:00',        │ │
+│ │                       │   │   '2026-10-14T02:02:30.509709+00:00'         │ │
+│ │                       │   ]                                              │ │
+│ │                       }                                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_consolidatio │
+│ n_shutdown_demo.py:144 in insert_or_update                                   │
+│                                                                              │
+│   141 │   │   │   │   if not gate.release.wait(30):                          │
+│   142 │   │   │   │   │   raise TimeoutError("Harness did not release its re │
+│       transaction")                                                          │
+│   143 │   │   │   │   if gate.mode == "storage-failure":                     │
+│ ❱ 144 │   │   │   │   │   raise UnavailableError("controlled SDK callback st │
+│   145 │   │   │   │   if gate.mode == "timer-fence":                         │
+│   146 │   │   │   │   │   raise RuntimeFencedError("controlled SDK callback  │
+│   147                                                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ attempt_summaries = [                                                    │ │
+│ │                     │   {                                                │ │
+│ │                     │   │   'summary_id':                                │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   │   'scope': 'episode',                          │ │
+│ │                     │   │   'scope_id':                                  │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     │   │   'event_count': 2,                            │ │
+│ │                     │   │   'time_range': [                              │ │
+│ │                     │   │   │   '2026-10-14T02:02:29.509709+00:00',      │ │
+│ │                     │   │   │   '2026-10-14T02:02:30.509709+00:00'       │ │
+│ │                     │   │   ]                                            │ │
+│ │                     │   }                                                │ │
+│ │                     ]                                                    │ │
+│ │           columns = ['label', 'node_id', 'props', 'embedding']           │ │
+│ │              gate = <__main__.SDKGate object at 0x168dc3140>             │ │
+│ │            labels = 0                                                    │ │
+│ │             props = {                                                    │ │
+│ │                     │   'content': 'Two accepted events describe bounded │ │
+│ │                     shutdown verification.',                             │ │
+│ │                     │   'created_at':                                    │ │
+│ │                     '2026-10-14T02:04:02.875149+00:00',                  │ │
+│ │                     │   'event_count': 2,                                │ │
+│ │                     │   'scope': 'episode',                              │ │
+│ │                     │   'scope_id':                                      │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     │   'summary_id':                                    │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   'time_range': [                                  │ │
+│ │                     │   │   '2026-10-14T02:02:29.509709+00:00',          │ │
+│ │                     │   │   '2026-10-14T02:02:30.509709+00:00'           │ │
+│ │                     │   ]                                                │ │
+│ │                     }                                                    │ │
+│ │               row = [                                                    │ │
+│ │                     │   'Summary',                                       │ │
+│ │                     │                                                    │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   {'content': 'Two accepted events describe        │ │
+│ │                     bounded shutdown verification.', 'created_at':       │ │
+│ │                     '2026-10-14T02:04:02.875149+00:00', 'event_count':   │ │
+│ │                     2, 'scope': 'episode', 'scope_id':                   │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     'summary_id':                                        │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     'time_range': ['2026-10-14T02:02:29.509709+00:00',   │ │
+│ │                     '2026-10-14T02:02:30.509709+00:00']},                │ │
+│ │                     │   None                                             │ │
+│ │                     ]                                                    │ │
+│ │              rows = [                                                    │ │
+│ │                     │   [                                                │ │
+│ │                     │   │   'Summary',                                   │ │
+│ │                     │   │                                                │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   │   {'content': 'Two accepted events describe    │ │
+│ │                     bounded shutdown verification.', 'created_at':       │ │
+│ │                     '2026-10-14T02:04:02.875149+00:00', 'event_count':   │ │
+│ │                     2, 'scope': 'episode', 'scope_id':                   │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     'summary_id':                                        │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     'time_range': ['2026-10-14T02:02:29.509709+00:00',   │ │
+│ │                     '2026-10-14T02:02:30.509709+00:00']},                │ │
+│ │                     │   │   None                                         │ │
+│ │                     │   ]                                                │ │
+│ │                     ]                                                    │ │
+│ │              self = <__main__.SDKGate.run_in_transaction.<locals>.Trans… │ │
+│ │                     object at 0x169cbb800>                               │ │
+│ │         summaries = [                                                    │ │
+│ │                     │                                                    │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     ]                                                    │ │
+│ │             table = 'GraphNodes'                                         │ │
+│ │            tagged = True                                                 │ │
+│ │            values = [                                                    │ │
+│ │                     │   [                                                │ │
+│ │                     │   │   'Summary',                                   │ │
+│ │                     │   │                                                │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     │   │   {'content': 'Two accepted events describe    │ │
+│ │                     bounded shutdown verification.', 'created_at':       │ │
+│ │                     '2026-10-14T02:04:02.875149+00:00', 'event_count':   │ │
+│ │                     2, 'scope': 'episode', 'scope_id':                   │ │
+│ │                     'episode-852565bcf2f65c420d2d1fb0c8813603610c433b6d… │ │
+│ │                     'summary_id':                                        │ │
+│ │                     'summary-episode-852565bcf2f65c420d2d1fb0c881360361… │ │
+│ │                     'time_range': ['2026-10-14T02:02:29.509709+00:00',   │ │
+│ │                     '2026-10-14T02:02:30.509709+00:00']},                │ │
+│ │                     │   │   None                                         │ │
+│ │                     │   ]                                                │ │
+│ │                     ]                                                    │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+UnavailableError: controlled SDK callback storage failure
+
+2026-10-14 07:34:09 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:34:09 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:34:09 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:34:10 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:34:14 [info     ] consolidation_timer_fired
+2026-10-14 07:34:14 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:34:14 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:34:14 [info     ] consolidating_session          event_count=2 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:14 [info     ] episodes_grouped               episode_count=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:15 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 07:34:15 [error    ] consolidation_child_failed     error_type=RuntimeFencedError
+2026-10-14 07:34:21 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:34:21 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:34:21 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:34:22 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:34:26 [info     ] consolidation_timer_fired
+2026-10-14 07:34:26 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:34:26 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:34:26 [info     ] consolidating_session          event_count=2 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:26 [info     ] episodes_grouped               episode_count=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:29 [info     ] session_consolidated           episode_summaries=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:30 [info     ] agent_summary_created          agent_id=shutdown-owner sessions=1
+2026-10-14 07:34:31 [info     ] importance_recomputed_from_centrality updated_count=2
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-14 07:34:32 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:34:34 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:34:34 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 07:34:34 [error    ] consolidation_child_failed     error_type=RuntimeFencedError
+2026-10-14 07:34:39 [info     ] consolidation_llm_client_initialized
+2026-10-14 07:34:39 [info     ] consolidation_timer_started    interval_hours=0.001388888888888889
+2026-10-14 07:34:40 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 07:34:40 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 07:34:44 [info     ] consolidation_timer_fired
+2026-10-14 07:34:44 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 07:34:45 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:34:45 [info     ] consolidating_session          event_count=2 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:45 [info     ] episodes_grouped               episode_count=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:45 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 07:34:47 [info     ] session_consolidated           episode_summaries=1 session_id=consolidation-shutdown-1014-01-session
+2026-10-14 07:34:48 [info     ] agent_summary_created          agent_id=shutdown-owner sessions=1
+2026-10-14 07:34:49 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-14 07:34:50 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:34:52 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:34:52 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 07:34:54 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=18ec713c-5135-4dc1-8ef2-624e3132d7b9
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12647.13it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-14 07:35:05 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-14 07:35:05 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-14 07:35:06 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-14 07:35:06 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-14 07:35:15 [info     ] app_stopped
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
