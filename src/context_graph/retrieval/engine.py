@@ -351,7 +351,7 @@ class RetrievalEngine:
         edges = [edge for edge in edges if edge.source in keep_set and edge.target in keep_set]
 
         # Bump access counts for event nodes only
-        event_ids = [nid for nid in nodes if nid.startswith("evt")]
+        event_ids = [nid for nid, node in nodes.items() if node.node_type == "Event"]
         await self._bump_access_counts(event_ids)
 
         # Build next cursor (offset-based)

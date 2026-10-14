@@ -203,3 +203,9 @@ The final epoch36 dataset is retained after verified exports of previous owners.
 The separately authorized #60 slice is verified: seven lifecycle cases, 109 live Spanner assertions, real SDK-held stop/cancellation/fencing and fresh-worker recovery, with exact Summary/Episode/public-read evidence. Astra cleared bounded closure. [Verification and stakeholder walkthrough](consolidation-shutdown-verification.md). Shutdown now joins the complete admitted cycle and wakes an idle timer; no external consolidation-lock workaround was used for acceptance.
 
 The final assessment dataset is retained at epoch37 after a verified export of the previous enrichment dataset. #34/#39/#41 remain open; #18/#61 and broader composition/tenant proofs are not resolved by this slice. No new feature umbrella is needed. No next slice or controlled pilot started.
+
+## 2026-10-14 — UUID subgraph access accounting (#61)
+
+The selected follow-up fixes UUID Event access accounting: subgraph retrieval now chooses returned Events by validated type after pagination. Core and Core+PDLC+Memory passed228 real-Spanner assertions through authenticated ingestion, all five real workers and the subgraph API. Entity/Episode/Summary and unreturned Event properties remained unchanged; repeated returned Events incremented once per read. Final owner epoch39, all table fingerprints, snapshot and217 source hashes matched fresh-process readback. Data retained in the same assessment database.
+
+[Verification and stakeholder walkthrough](subgraph-access-verification.md). Independent closure disposition and actual GitHub reconciliation are recorded there. This is not concurrent counter, public tenant-dispatcher, full pack-combination or pilot sign-off. The next broader assessment/isolation stage still needs explicit user approval.

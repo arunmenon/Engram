@@ -307,3 +307,50 @@ async def test_neighbor_identity_uses_validated_label_not_stale_properties(
     assert set(nodes) == {"good"}
     assert nodes["good"].node_type == label
     assert [(e.source, e.target, e.edge_type) for e in edges] == [("seed", "good", edge_type)]
+
+
+async def test_subgraph_access_uses_event_type_with_uuid_and_entity_id_collision():
+    from datetime import UTC, datetime
+
+    from context_graph.ports.pack_graph import EdgeWrite
+
+    graph = MemoryGraphStore()
+    event_id = "b3904ad4-50ea-4544-9091-3425362a25ba"
+    event = NodeRef("Event", event_id, "event_id")
+    # Same key in another label must not receive Event metadata; a legacy-looking
+    # Entity key must not trigger the old prefix test either.
+    same_key_entity = NodeRef("Entity", event_id, "entity_id")
+    prefixed_entity = NodeRef("Entity", "evt-not-an-event", "entity_id")
+    await graph.upsert_nodes(
+        [
+            NodeWrite(
+                event,
+                {
+                    "session_id": "s",
+                    "agent_id": "a",
+                    "event_type": "observation.input",
+                    "occurred_at": datetime.now(UTC).isoformat(),
+                    "access_count": 0,
+                },
+            ),
+            NodeWrite(same_key_entity, {"name": "same key", "entity_type": "tool"}),
+            NodeWrite(prefixed_entity, {"name": "prefixed", "entity_type": "tool"}),
+        ]
+    )
+    await graph.upsert_edges([EdgeWrite("REFERENCES", event, prefixed_entity)])
+    selected, bundle = view(graph)
+    engine = RetrievalEngine(
+        ComposedGraphReads(selected), decay=DecaySettings(), bundle=bundle, pack_graph=selected
+    )
+    response = await engine.get_subgraph(
+        SubgraphQuery(
+            query="event", intent="what", session_id="s", agent_id="a", seed_nodes=[event_id]
+        )
+    )
+    assert response.nodes[event_id].node_type == "Event"
+    assert response.nodes["evt-not-an-event"].node_type == "Entity"
+    found = await graph.get_nodes([event, same_key_entity, prefixed_entity])
+    assert found[event]["access_count"] == 1
+    assert found[event]["last_accessed_at"]
+    assert "access_count" not in found[same_key_entity]
+    assert "access_count" not in found[prefixed_entity]

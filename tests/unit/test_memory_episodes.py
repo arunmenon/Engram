@@ -138,7 +138,11 @@ async def test_consolidation_keeps_core_summaries_and_gates_episodes(memory_enab
 
 
 async def test_session_timeline_retrieves_episode_members_summary_and_evidence():
-    from context_graph.adapters.composed_reads import ComposedReadView, ReadScope
+    from context_graph.adapters.composed_reads import (
+        ComposedGraphReads,
+        ComposedReadView,
+        ReadScope,
+    )
     from context_graph.domain.models import SubgraphQuery
     from context_graph.domain.pack_bundle import resolve_bundle
     from context_graph.domain.pack_intents import RegistryIntents
@@ -183,7 +187,7 @@ async def test_session_timeline_retrieves_episode_members_summary_and_evidence()
     bundle = resolve_bundle(load_registry([], builtin_packs=["memory"]))
     selected = ComposedReadView(graph, ReadScope.from_bundle(bundle))
     engine = RetrievalEngine(
-        selected.reads,
+        ComposedGraphReads(selected),
         decay=DecaySettings(),
         bundle=bundle,
         intents=RegistryIntents.for_events(bundle.registry),
@@ -281,7 +285,11 @@ async def test_interrupted_evidence_write_stays_incomplete_and_retry_converges()
 
 
 def selected_engine(graph, memory_enabled=True):
-    from context_graph.adapters.composed_reads import ComposedReadView, ReadScope
+    from context_graph.adapters.composed_reads import (
+        ComposedGraphReads,
+        ComposedReadView,
+        ReadScope,
+    )
     from context_graph.domain.pack_bundle import resolve_bundle
     from context_graph.domain.pack_intents import RegistryIntents
     from context_graph.ontology.loader import load_registry
@@ -291,7 +299,7 @@ def selected_engine(graph, memory_enabled=True):
     bundle = resolve_bundle(load_registry([], builtin_packs=["memory"] if memory_enabled else []))
     selected = ComposedReadView(graph, ReadScope.from_bundle(bundle))
     return RetrievalEngine(
-        selected.reads,
+        ComposedGraphReads(selected),
         decay=DecaySettings(),
         bundle=bundle,
         intents=RegistryIntents.for_events(bundle.registry),

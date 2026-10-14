@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/docs/review/spanner-compatibility/subgraph-access-review/post-process-audit.py", line 66, in <module>
+    assert actual["last_accessed_at"] >= props.get("last_accessed_at", "")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'str' and 'NoneType'

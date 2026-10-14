@@ -751,7 +751,11 @@ async def test_cross_context_correction_rejects_without_half_written_replacement
 
 
 def _user_engine(graph, enabled=True):
-    from context_graph.adapters.composed_reads import ComposedReadView, ReadScope
+    from context_graph.adapters.composed_reads import (
+        ComposedGraphReads,
+        ComposedReadView,
+        ReadScope,
+    )
     from context_graph.domain.pack_bundle import resolve_bundle
     from context_graph.domain.pack_intents import RegistryIntents
     from context_graph.ontology.loader import load_registry
@@ -761,7 +765,7 @@ def _user_engine(graph, enabled=True):
     bundle = resolve_bundle(load_registry([], builtin_packs=["user"] if enabled else []))
     selected = ComposedReadView(graph, ReadScope.from_bundle(bundle))
     return RetrievalEngine(
-        selected.reads,
+        ComposedGraphReads(selected),
         decay=DecaySettings(),
         bundle=bundle,
         intents=RegistryIntents.for_events(bundle.registry),

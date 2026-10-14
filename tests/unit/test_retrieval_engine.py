@@ -138,6 +138,23 @@ class TestSubgraph:
         assert sorted(graph.accessed) == ["evt-1", "evt-2", "evt-3"]
 
     @pytest.mark.asyncio()
+    async def test_uuid_events_record_access_only_on_returned_page(self) -> None:
+        first = "b3904ad4-50ea-4544-9091-3425362a25ba"
+        second = "a62cf989-512a-439c-8af9-4399063899ea"
+        graph = FakeGraphReads([_event(first), _event(second, 2), _event("outside", 0, "other")])
+        graph.edges.append((first, second, "FOLLOWS"))
+        engine = _engine(graph)
+        query = SubgraphQuery(query="what happened", session_id="s1", agent_id="a1", max_nodes=1)
+        response = await engine.get_subgraph(query)
+        assert set(response.nodes) == {second}
+        assert graph.accessed == [second]
+        await engine.get_subgraph(query)
+        assert graph.accessed == [second, second]
+        assert response.pagination.cursor is not None
+        await engine.get_subgraph(query.model_copy(update={"cursor": response.pagination.cursor}))
+        assert graph.accessed == [second, second, first]
+
+    @pytest.mark.asyncio()
     async def test_strategy_without_results_falls_back_to_general(self) -> None:
         graph = FakeGraphReads([_event("evt-1")])
         engine = _engine(graph)

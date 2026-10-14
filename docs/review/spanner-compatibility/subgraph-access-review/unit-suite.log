@@ -1,0 +1,2172 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+...................................s.................................... [  7%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 35%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+.....................................................FF...FF.....F..FF.F [ 48%]
+FFFFFFFFFF.............................................................. [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 63%]
+........................................................ss.............. [ 65%]
+........................................................................ [ 68%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................ssssssssss...................................... [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+...................................FFFFF................................ [ 98%]
+.......................................                                  [100%]
+=================================== FAILURES ===================================
+____ test_subgraph_api_engine_returns_belief_with_actual_source_and_counter ____
+
+    async def test_subgraph_api_engine_returns_belief_with_actual_source_and_counter():
+        from context_graph.domain.memory_actions import MemoryAction
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.projection import event_to_node
+        from tests.unit.test_memory_episodes import selected_engine
+    
+        graph = MemoryGraphStore()
+        event = Event(
+            event_id=UUID("00000000-0000-0000-0000-000000000071"),
+            event_type="memory.belief.stated",
+            occurred_at=datetime(2026, 10, 13, tzinfo=UTC),
+            session_id="s",
+            agent_id="agent-a",
+            trace_id="t",
+            payload_ref="memory:read",
+            global_position="1000-71",
+        )
+        await graph.merge_event_node(event_to_node(event))
+        action = MemoryAction.from_event(
+            event,
+            {
+                "key": "recall",
+                "belief_text": "Expiry is fifteen minutes.",
+                "category": "world_model",
+                "confidence": 0.8,
+            },
+        )
+        await graph.apply_memory_action(action)
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="What beliefs do we have?", session_id="s", agent_id="agent-a", intent="beliefs"
+            )
+        )
+
+tests/unit/test_memory_actions.py:426: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x107a8a720>
+items = [(('Event', '00000000-0000-0000-0000-000000000071'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:13.868895+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+______ test_recall_suppresses_unsolicited_history_between_current_beliefs ______
+
+    async def test_recall_suppresses_unsolicited_history_between_current_beliefs():
+        from context_graph.domain.memory_actions import MemoryAction
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.projection import event_to_node
+        from context_graph.ports.pack_graph import EdgeWrite
+        from tests.unit.test_memory_episodes import selected_engine
+    
+        graph = MemoryGraphStore()
+        subjects = []
+        for i in (81, 82):
+            event = Event(
+                event_id=UUID(int=i),
+                event_type="memory.belief.stated",
+                occurred_at=datetime(2026, 10, 13, tzinfo=UTC),
+                session_id="s",
+                agent_id="agent-a",
+                trace_id="t",
+                payload_ref="memory:read",
+                global_position=f"1000-{i}",
+            )
+            await graph.merge_event_node(event_to_node(event))
+            action = MemoryAction.from_event(
+                event,
+                dict(
+                    key=str(i), belief_text="A declared belief.", category="world_model", confidence=0.8
+                ),
+            )
+            await graph.apply_memory_action(action)
+            subjects.append(action.subject)
+        # Corrupt the reference backend only: not an acceptance write or cloud repair.
+        await graph.upsert_edges(
+            [EdgeWrite("CONTRADICTS", subjects[0], subjects[1], {"source_event_id": "nonexistent"})]
+        )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="beliefs", session_id="s", agent_id="agent-a", intent="beliefs")
+        )
+
+tests/unit/test_memory_actions.py:473: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x117a62120>
+items = [(('Event', '00000000-0000-0000-0000-000000000051'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.2028... '00000000-0000-0000-0000-000000000052'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.202838+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_____ test_memory_recall_rejects_unrelated_same_owner_confirmation_receipt _____
+
+    async def test_memory_recall_rejects_unrelated_same_owner_confirmation_receipt():
+        from context_graph.domain.memory_actions import MemoryAction
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.projection import event_to_node
+        from context_graph.ports.pack_graph import EdgeWrite, NodeWrite
+        from tests.unit.test_memory_episodes import selected_engine
+    
+        graph = MemoryGraphStore()
+        actions = []
+        for number, key in [(121, "target"), (122, "unrelated")]:
+            event = Event(
+                event_id=UUID(int=number),
+                event_type="memory.belief.stated",
+                occurred_at=datetime(2026, 10, 13, tzinfo=UTC),
+                session_id="s",
+                agent_id="agent-a",
+                trace_id="t",
+                payload_ref="memory:evidence",
+                global_position=f"1000-{number}",
+            )
+            await graph.merge_event_node(event_to_node(event))
+            action = MemoryAction.from_event(
+                event,
+                dict(key=key, belief_text="A declared belief.", confidence=0.7, category="world_model"),
+            )
+            await graph.apply_memory_action(action)
+            actions.append(action)
+        # Coordinated state+edge corruption cannot substitute a source bound to another subject.
+        target = (await graph.get_nodes([actions[0].subject]))[actions[0].subject]
+        wrong = str(actions[1].event.event_id)
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    actions[0].subject,
+                    {**target, "evidence_event_ids": [wrong], "supporting_event_ids": [wrong]},
+                )
+            ]
+        )
+        graph.edges.pop(
+            (
+                ("Belief", actions[0].subject.key),
+                "DERIVED_FROM",
+                ("Event", str(actions[0].event.event_id)),
+            )
+        )
+        await graph.upsert_edges(
+            [
+                EdgeWrite(
+                    "DERIVED_FROM",
+                    actions[0].subject,
+                    NodeRef("Event", wrong, "event_id"),
+                    {"evidence_role": "support"},
+                )
+            ]
+        )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="beliefs", session_id="s", agent_id="agent-a", intent="beliefs")
+        )
+
+tests/unit/test_memory_actions.py:683: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x1300e52b0>
+items = [(('Event', '00000000-0000-0000-0000-000000000079'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.3331... '00000000-0000-0000-0000-00000000007a'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.333101+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_____ test_disabled_memory_read_excludes_already_stored_beliefs_and_goals ______
+
+    async def test_disabled_memory_read_excludes_already_stored_beliefs_and_goals():
+        from context_graph.domain.memory_actions import MemoryAction
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.projection import event_to_node
+        from tests.unit.test_memory_episodes import selected_engine
+    
+        graph = MemoryGraphStore()
+        for number, kind, payload in [
+            (
+                131,
+                "memory.belief.stated",
+                dict(
+                    key="disabled",
+                    belief_text="A stored belief.",
+                    confidence=0.7,
+                    category="world_model",
+                ),
+            ),
+            (132, "memory.goal.created", dict(key="disabled", description="A stored goal.")),
+        ]:
+            event = Event(
+                event_id=UUID(int=number),
+                event_type=kind,
+                occurred_at=datetime(2026, 10, 13, tzinfo=UTC),
+                session_id="s",
+                agent_id="agent-a",
+                trace_id="t",
+                payload_ref="memory:disabled",
+                global_position=f"1000-{number}",
+            )
+            await graph.merge_event_node(event_to_node(event))
+            await graph.apply_memory_action(MemoryAction.from_event(event, payload))
+>       answer = await selected_engine(graph, memory_enabled=False).get_subgraph(
+            SubgraphQuery(query="Show the timeline", session_id="s", agent_id="agent-a", intent="when")
+        )
+
+tests/unit/test_memory_actions.py:722: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133e291c0>
+items = [(('Event', '00000000-0000-0000-0000-000000000083'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.3811... '00000000-0000-0000-0000-000000000084'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.381140+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_____ test_session_timeline_retrieves_episode_members_summary_and_evidence _____
+
+    async def test_session_timeline_retrieves_episode_members_summary_and_evidence():
+        from context_graph.adapters.composed_reads import ComposedReadView, ReadScope
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.pack_bundle import resolve_bundle
+        from context_graph.domain.pack_intents import RegistryIntents
+        from context_graph.ontology.loader import load_registry
+        from context_graph.retrieval.engine import RetrievalEngine
+        from context_graph.settings import DecaySettings
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "event-a",
+                "session_id": "session-a",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "position-a",
+                "agent_id": "agent-a",
+            },
+            {
+                "event_id": "event-b",
+                "session_id": "session-a",
+                "occurred_at": "2026-10-10T10:05:00+00:00",
+                "global_position": "position-b",
+                "agent_id": "agent-a",
+            },
+        ]
+        await graph.upsert_nodes(
+            [NodeWrite(NodeRef("Event", e["event_id"], "event_id"), e) for e in events]
+        )
+        summary = create_summary_from_events(
+            events, "episode", episode_identity("session-a", [e["event_id"] for e in events])
+        )
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            summary.event_count,
+            [dt.isoformat() for dt in summary.time_range],
+            [e["event_id"] for e in events],
+        )
+        identity = await materialize_episode_snapshot(graph, "session-a", summary, events)
+        bundle = resolve_bundle(load_registry([], builtin_packs=["memory"]))
+        selected = ComposedReadView(graph, ReadScope.from_bundle(bundle))
+        engine = RetrievalEngine(
+            selected.reads,
+            decay=DecaySettings(),
+            bundle=bundle,
+            intents=RegistryIntents.for_events(bundle.registry),
+            pack_graph=selected,
+        )
+>       answer = await engine.get_subgraph(
+            SubgraphQuery(
+                query="Show the session timeline",
+                session_id="session-a",
+                agent_id="agent-a",
+                intent="when",
+            )
+        )
+
+tests/unit/test_memory_episodes.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x13476a4e0>
+items = [(('Event', 'event-a'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.525332+00:00'}), (('Event', 'event-b'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.525332+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_ test_read_is_session_bound_selection_gated_and_honest_about_limits[True-100] _
+
+memory_enabled = True, max_nodes = 100
+
+    @pytest.mark.parametrize("memory_enabled,max_nodes", [(True, 100), (False, 100), (True, 1)])
+    async def test_read_is_session_bound_selection_gated_and_honest_about_limits(
+        memory_enabled, max_nodes
+    ):
+        from context_graph.domain.models import SubgraphQuery
+    
+        graph = MemoryGraphStore()
+        for sid in ["session-a", "session-b"]:
+            events = [
+                {
+                    "event_id": sid + "-event",
+                    "session_id": sid,
+                    "occurred_at": "2026-10-10T10:00:00+00:00",
+                    "global_position": "position-" + sid,
+                }
+            ]
+            await graph.upsert_nodes(
+                [NodeWrite(NodeRef("Event", events[0]["event_id"], "event_id"), events[0])]
+            )
+            summary = create_summary_from_events(
+                events, "episode", episode_identity(sid, [e["event_id"] for e in events])
+            )
+            await graph.write_summary_with_edges(
+                summary.summary_id,
+                summary.scope,
+                summary.scope_id,
+                summary.content,
+                summary.created_at.isoformat(),
+                1,
+                [dt.isoformat() for dt in summary.time_range],
+                [events[0]["event_id"]],
+            )
+            await materialize_episode_snapshot(graph, sid, summary, events)
+>       answer = await selected_engine(graph, memory_enabled).get_subgraph(
+            SubgraphQuery(
+                query="Show the session timeline",
+                session_id="session-a",
+                agent_id="agent",
+                intent="when",
+                max_nodes=max_nodes,
+            )
+        )
+
+tests/unit/test_memory_episodes.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x10836e690>
+items = [(('Event', 'session-a-event'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.616320+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_ test_read_is_session_bound_selection_gated_and_honest_about_limits[False-100] _
+
+memory_enabled = False, max_nodes = 100
+
+    @pytest.mark.parametrize("memory_enabled,max_nodes", [(True, 100), (False, 100), (True, 1)])
+    async def test_read_is_session_bound_selection_gated_and_honest_about_limits(
+        memory_enabled, max_nodes
+    ):
+        from context_graph.domain.models import SubgraphQuery
+    
+        graph = MemoryGraphStore()
+        for sid in ["session-a", "session-b"]:
+            events = [
+                {
+                    "event_id": sid + "-event",
+                    "session_id": sid,
+                    "occurred_at": "2026-10-10T10:00:00+00:00",
+                    "global_position": "position-" + sid,
+                }
+            ]
+            await graph.upsert_nodes(
+                [NodeWrite(NodeRef("Event", events[0]["event_id"], "event_id"), events[0])]
+            )
+            summary = create_summary_from_events(
+                events, "episode", episode_identity(sid, [e["event_id"] for e in events])
+            )
+            await graph.write_summary_with_edges(
+                summary.summary_id,
+                summary.scope,
+                summary.scope_id,
+                summary.content,
+                summary.created_at.isoformat(),
+                1,
+                [dt.isoformat() for dt in summary.time_range],
+                [events[0]["event_id"]],
+            )
+            await materialize_episode_snapshot(graph, sid, summary, events)
+>       answer = await selected_engine(graph, memory_enabled).get_subgraph(
+            SubgraphQuery(
+                query="Show the session timeline",
+                session_id="session-a",
+                agent_id="agent",
+                intent="when",
+                max_nodes=max_nodes,
+            )
+        )
+
+tests/unit/test_memory_episodes.py:335: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133af0620>
+items = [(('Event', 'session-a-event'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.664077+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+____________ test_corrupt_snapshot_evidence_is_not_retrieved[scope] ____________
+
+corruption = 'scope'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x117f5b410>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.797153+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+____________ test_corrupt_snapshot_evidence_is_not_retrieved[count] ____________
+
+corruption = 'count'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133dca870>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.882681+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+____________ test_corrupt_snapshot_evidence_is_not_retrieved[owner] ____________
+
+corruption = 'owner'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133c2f800>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:14.968985+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+____________ test_corrupt_snapshot_evidence_is_not_retrieved[range] ____________
+
+corruption = 'range'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x134934bc0>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.054931+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+______ test_corrupt_snapshot_evidence_is_not_retrieved[missing-evidence] _______
+
+corruption = 'missing-evidence'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133e12b70>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.140405+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+________ test_corrupt_snapshot_evidence_is_not_retrieved[extra-member] _________
+
+corruption = 'extra-member'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x1353cc380>
+items = [(('Event', 'other'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.222590+00:00'}), (('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.222590+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+________ test_corrupt_snapshot_evidence_is_not_retrieved[episode-range] ________
+
+corruption = 'episode-range'
+
+    @pytest.mark.parametrize(
+        "corruption",
+        ["scope", "count", "owner", "range", "missing-evidence", "extra-member", "episode-range"],
+    )
+    async def test_corrupt_snapshot_evidence_is_not_retrieved(corruption):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite
+    
+        graph = MemoryGraphStore()
+        events = [
+            {
+                "event_id": "source",
+                "session_id": "s",
+                "occurred_at": "2026-10-10T10:00:00+00:00",
+                "global_position": "p",
+            }
+        ]
+        await graph.upsert_nodes([NodeWrite(NodeRef("Event", "source", "event_id"), events[0])])
+        summary = create_summary_from_events(events, "episode", episode_identity("s", ["source"]))
+        await graph.write_summary_with_edges(
+            summary.summary_id,
+            summary.scope,
+            summary.scope_id,
+            summary.content,
+            summary.created_at.isoformat(),
+            1,
+            [dt.isoformat() for dt in summary.time_range],
+            ["source"],
+        )
+        identity = await materialize_episode_snapshot(graph, "s", summary, events)
+        summary_ref = NodeRef("Summary", summary.summary_id, "summary_id")
+        updates = {
+            "scope": {"scope": "agent"},
+            "count": {"event_count": 999},
+            "owner": {"scope_id": "other"},
+            "range": {"time_range": []},
+        }
+        if corruption in updates:
+            await graph.upsert_nodes([NodeWrite(summary_ref, updates[corruption])])
+        elif corruption == "missing-evidence":
+            # Fault injection at the reference-storage boundary, never live acceptance.
+            graph.edges.pop((("Summary", summary.summary_id), "SUMMARIZES", ("Event", "source")))
+        elif corruption == "episode-range":
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Episode", identity, "episode_id"),
+                        {"start_time": "2000-01-01T00:00:00+00:00"},
+                    )
+                ]
+            )
+        else:
+            other = NodeRef("Event", "other", "event_id")
+            await graph.upsert_nodes([NodeWrite(other, {**events[0], "event_id": "other"})])
+            await graph.upsert_edges(
+                [EdgeWrite("CONTAINS", NodeRef("Episode", identity, "episode_id"), other)]
+            )
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show session timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x1353f4d10>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.308768+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+____ test_public_worker_preserves_history_when_a_late_event_bridges_groups _____
+
+    async def test_public_worker_preserves_history_when_a_late_event_bridges_groups():
+        from datetime import timedelta
+    
+        from context_graph.adapters.memory.log import MemoryEventLog
+        from context_graph.adapters.memory.stream import MemoryStream
+        from context_graph.adapters.memory.subscription import MemorySubscription
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.pack_bundle import resolve_bundle
+        from context_graph.ontology.loader import load_registry
+        from context_graph.settings import Settings
+        from context_graph.worker.consolidation import ConsolidationConsumer
+    
+        graph = MemoryGraphStore()
+        now = datetime.now(UTC)
+    
+        async def add(key, minute):
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        NodeRef("Event", key, "event_id"),
+                        {
+                            "session_id": "s",
+                            "occurred_at": (now + timedelta(minutes=minute)).isoformat(),
+                            "global_position": key,
+                            "importance_score": 5,
+                        },
+                    )
+                ]
+            )
+    
+        await add("a", -60)
+        await add("b", -20)
+        settings = Settings()
+        settings.decay.reflection_threshold = 5
+        settings.archive.enabled = False
+        bundle = resolve_bundle(load_registry([], builtin_packs=["memory"]))
+        worker = ConsolidationConsumer(
+            MemorySubscription(MemoryStream("events"), "consolidation", "test"),
+            MemoryEventLog(),
+            graph,
+            settings,
+            bundle=bundle,
+            episode_graph=graph,
+        )
+        await worker.process_message("first", {"message_type": "consolidation_trigger"})
+        assert {tuple(p["source_event_ids"]) for p in await graph.find_nodes("Episode", {}, 10)} == {
+            ("a",),
+            ("b",),
+        }
+        await add("bridge", -40)
+        await worker.process_message("late", {"message_type": "consolidation_trigger"})
+        await worker.process_message("retry", {"message_type": "consolidation_trigger"})
+        snapshots = await graph.find_nodes("Episode", {}, 10)
+        assert {tuple(p["source_event_ids"]) for p in snapshots} == {
+            ("a",),
+            ("b",),
+            ("a", "b", "bridge"),
+        }
+        assert all(p["complete"] and p["snapshot_kind"] == "membership" for p in snapshots)
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(query="Show timeline", session_id="s", agent_id="a", intent="when")
+        )
+
+tests/unit/test_memory_episodes.py:484: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x1352751c0>
+items = [(('Event', 'a'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.459820+00:00'}), (('Event', 'b'), {'acc...15.459820+00:00'}), (('Event', 'bridge'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.459820+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 07:50:15 [info     ] consolidation_trigger_received entry_id=first
+2026-10-14 07:50:15 [info     ] consolidation_cycle_started    source=stream
+2026-10-14 07:50:15 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:50:15 [info     ] consolidating_session          event_count=2 session_id=s
+2026-10-14 07:50:15 [info     ] episodes_grouped               episode_count=2 session_id=s
+2026-10-14 07:50:15 [info     ] session_consolidated           episode_summaries=2 session_id=s
+2026-10-14 07:50:15 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-14 07:50:15 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:50:15 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:50:15 [info     ] consolidation_cycle_completed  source=stream
+2026-10-14 07:50:15 [info     ] consolidation_trigger_received entry_id=late
+2026-10-14 07:50:15 [info     ] consolidation_cycle_started    source=stream
+2026-10-14 07:50:15 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:50:15 [info     ] consolidating_session          event_count=3 session_id=s
+2026-10-14 07:50:15 [info     ] episodes_grouped               episode_count=1 session_id=s
+2026-10-14 07:50:15 [info     ] session_consolidated           episode_summaries=1 session_id=s
+2026-10-14 07:50:15 [info     ] importance_recomputed_from_centrality updated_count=3
+2026-10-14 07:50:15 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:50:15 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:50:15 [info     ] consolidation_cycle_completed  source=stream
+2026-10-14 07:50:15 [info     ] consolidation_trigger_received entry_id=retry
+2026-10-14 07:50:15 [info     ] consolidation_cycle_started    source=stream
+2026-10-14 07:50:15 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:50:15 [info     ] consolidating_session          event_count=3 session_id=s
+2026-10-14 07:50:15 [info     ] episodes_grouped               episode_count=1 session_id=s
+2026-10-14 07:50:15 [info     ] session_consolidated           episode_summaries=1 session_id=s
+2026-10-14 07:50:15 [info     ] importance_recomputed_from_centrality updated_count=3
+2026-10-14 07:50:15 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 07:50:15 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 07:50:15 [info     ] consolidation_cycle_completed  source=stream
+____ test_public_worker_retry_repairs_partial_snapshot_before_read_exposure ____
+
+    async def test_public_worker_retry_repairs_partial_snapshot_before_read_exposure():
+        from context_graph.adapters.memory.log import MemoryEventLog
+        from context_graph.adapters.memory.stream import MemoryStream
+        from context_graph.adapters.memory.subscription import MemorySubscription
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.domain.pack_bundle import resolve_bundle
+        from context_graph.ontology.loader import load_registry
+        from context_graph.settings import Settings
+        from context_graph.worker.consolidation import ConsolidationConsumer
+    
+        class InterruptedGraph(MemoryGraphStore):
+            failed = False
+    
+            async def upsert_edges(self, writes):
+                if not self.failed and any(write.edge_type == "CONTAINS" for write in writes):
+                    self.failed = True
+                    await super().upsert_edges(writes[:1])
+                    raise OSError("Storage boundary interruption")
+                return await super().upsert_edges(writes)
+    
+        graph = InterruptedGraph()
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    NodeRef("Event", "source", "event_id"),
+                    {
+                        "session_id": "s",
+                        "occurred_at": datetime.now(UTC).isoformat(),
+                        "global_position": "p",
+                        "importance_score": 5,
+                    },
+                )
+            ]
+        )
+        settings = Settings()
+        settings.decay.reflection_threshold = 5
+        settings.archive.enabled = False
+        bundle = resolve_bundle(load_registry([], builtin_packs=["memory"]))
+        worker = ConsolidationConsumer(
+            MemorySubscription(MemoryStream("events"), "consolidation", "test"),
+            MemoryEventLog(),
+            graph,
+            settings,
+            bundle=bundle,
+            episode_graph=graph,
+        )
+        await worker.process_message("first", {"message_type": "consolidation_trigger"})
+        assert graph.failed
+        assert await graph.find_nodes("Episode", {"complete": True}, 10) == []
+        query = SubgraphQuery(query="Show timeline", session_id="s", agent_id="a", intent="when")
+>       answer = await selected_engine(graph).get_subgraph(query)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_memory_episodes.py:540: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x1303564b0>
+items = [(('Event', 'source'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:15.914035+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 07:50:15 [info     ] consolidation_trigger_received entry_id=first
+2026-10-14 07:50:15 [info     ] consolidation_cycle_started    source=stream
+2026-10-14 07:50:15 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 07:50:15 [info     ] consolidating_session          event_count=1 session_id=s
+2026-10-14 07:50:15 [info     ] episodes_grouped               episode_count=1 session_id=s
+2026-10-14 07:50:15 [error    ] consolidation_cycle_failed     source=stream
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsolidation.py:170 in _run_consolidation_cycle_guarded                       │
+│                                                                              │
+│   167 │   │   async with self._consolidation_lock:                           │
+│   168 │   │   │   log.info("consolidation_cycle_started", source=source)     │
+│   169 │   │   │   try:                                                       │
+│ ❱ 170 │   │   │   │   await self._run_consolidation_cycle()                  │
+│   171 │   │   │   except RuntimeFencedError:                                 │
+│   172 │   │   │   │   self.stop()                                            │
+│   173 │   │   │   │   raise                                                  │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   self = <context_graph.worker.consolidation.ConsolidationConsumer       │ │
+│ │          object at 0x133e13920>                                          │ │
+│ │ source = 'stream'                                                        │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsolidation.py:203 in _run_consolidation_cycle                               │
+│                                                                              │
+│   200 │   │                                                                  │
+│   201 │   │   # Step 2: Consolidate qualifying sessions                      │
+│   202 │   │   for session_id, event_count in sessions_to_consolidate.items() │
+│ ❱ 203 │   │   │   await self._consolidate_session(session_id, event_count)   │
+│   204 │   │                                                                  │
+│   205 │   │   # Step 2b: Create agent-level summaries                        │
+│   206 │   │   agent_sessions: dict[str, list[str]] = {}                      │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │             event_count = 1                                              │ │
+│ │                      gm = <tests.unit.test_memory_episodes.test_public_… │ │
+│ │                           object at 0x1354c1970>                         │ │
+│ │                    self = <context_graph.worker.consolidation.Consolida… │ │
+│ │                           object at 0x133e13920>                         │ │
+│ │          session_counts = {'s': 1}                                       │ │
+│ │              session_id = 's'                                            │ │
+│ │ sessions_to_consolidate = {'s': 1}                                       │ │
+│ │               threshold = 5                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/worker/co │
+│ nsolidation.py:305 in _consolidate_session                                   │
+│                                                                              │
+│   302 │   │   │   │   event_ids=event_ids,                                   │
+│   303 │   │   │   )                                                          │
+│   304 │   │   │   if self._episode_graph is not None:                        │
+│ ❱ 305 │   │   │   │   await materialize_episode_snapshot(                    │
+│   306 │   │   │   │   │   self._episode_graph, session_id, summary, episode  │
+│   307 │   │   │   │   )                                                      │
+│   308                                                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │          episode = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'event_id': 'source',                         │ │
+│ │                    │   │   'session_id': 's',                            │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-14T02:20:15.501089+00:00',                   │ │
+│ │                    │   │   'global_position': 'p',                       │ │
+│ │                    │   │   'importance_score': 5                         │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │         episodes = [                                                     │ │
+│ │                    │   [                                                 │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'event_id': 'source',                     │ │
+│ │                    │   │   │   'session_id': 's',                        │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-14T02:20:15.501089+00:00',                   │ │
+│ │                    │   │   │   'global_position': 'p',                   │ │
+│ │                    │   │   │   'importance_score': 5                     │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ]                                                 │ │
+│ │                    ]                                                     │ │
+│ │      event_count = 1                                                     │ │
+│ │        event_ids = ['source']                                            │ │
+│ │           events = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'event_id': 'source',                         │ │
+│ │                    │   │   'session_id': 's',                            │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-14T02:20:15.501089+00:00',                   │ │
+│ │                    │   │   'global_position': 'p',                       │ │
+│ │                    │   │   'importance_score': 5                         │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │               gm = <tests.unit.test_memory_episodes.test_public_worker_… │ │
+│ │                    object at 0x1354c1970>                                │ │
+│ │              idx = 0                                                     │ │
+│ │ llm_summary_text = None                                                  │ │
+│ │         scope_id = 'episode-3d208040010fc47f84a750622e9ccc62d79051827c4… │ │
+│ │             self = <context_graph.worker.consolidation.ConsolidationCon… │ │
+│ │                    object at 0x133e13920>                                │ │
+│ │       session_id = 's'                                                   │ │
+│ │          summary = SummaryNode(                                          │ │
+│ │                    │                                                     │ │
+│ │                    summary_id='summary-episode-3d208040010fc47f84a75062… │ │
+│ │                    │   scope='episode',                                  │ │
+│ │                    │                                                     │ │
+│ │                    scope_id='episode-3d208040010fc47f84a750622e9ccc62d7… │ │
+│ │                    │   content='1 events (unknown) from                  │ │
+│ │                    2026-10-14T02:20:15.501089+00:00 to                   │ │
+│ │                    2026-10-14T02:20:15.'+12,                             │ │
+│ │                    │   created_at=datetime.datetime(2026, 10, 14, 2, 20, │ │
+│ │                    15, 560341, tzinfo=datetime.timezone.utc),            │ │
+│ │                    │   event_count=1,                                    │ │
+│ │                    │   time_range=[                                      │ │
+│ │                    │   │   datetime.datetime(2026, 10, 14, 2, 20, 15,    │ │
+│ │                    501089, tzinfo=datetime.timezone.utc),                │ │
+│ │                    │   │   datetime.datetime(2026, 10, 14, 2, 20, 15,    │ │
+│ │                    501089, tzinfo=datetime.timezone.utc)                 │ │
+│ │                    │   ]                                                 │ │
+│ │                    )                                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/domain/ep │
+│ isodes.py:95 in materialize_episode_snapshot                                 │
+│                                                                              │
+│   92 │   │   for kind in ("CONTAINS", "DERIVED_FROM")                        │
+│   93 │   ]                                                                   │
+│   94 │   links.append(EdgeWrite("SUMMARIZES", summary_ref, episode))         │
+│ ❱ 95 │   if await graph.upsert_edges(links) != len(links):                   │
+│   96 │   │   raise ValueError("Episode evidence is incomplete; retry after s │
+│      projection")                                                            │
+│   97 │   await graph.upsert_nodes([NodeWrite(episode, {"complete": True})])  │
+│   98 │   return identity                                                     │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │         episode = NodeRef(                                               │ │
+│ │                   │   label='Episode',                                   │ │
+│ │                   │                                                      │ │
+│ │                   key='episode-3d208040010fc47f84a750622e9ccc62d7905182… │ │
+│ │                   │   key_property='episode_id'                          │ │
+│ │                   )                                                      │ │
+│ │          events = [                                                      │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'event_id': 'source',                          │ │
+│ │                   │   │   'session_id': 's',                             │ │
+│ │                   │   │   'occurred_at':                                 │ │
+│ │                   '2026-10-14T02:20:15.501089+00:00',                    │ │
+│ │                   │   │   'global_position': 'p',                        │ │
+│ │                   │   │   'importance_score': 5                          │ │
+│ │                   │   }                                                  │ │
+│ │                   ]                                                      │ │
+│ │        evidence = {                                                      │ │
+│ │                   │   'method': 'temporal_consolidation',                │ │
+│ │                   │   'session_id': 's'                                  │ │
+│ │                   }                                                      │ │
+│ │           found = {                                                      │ │
+│ │                   │   NodeRef(label='Event', key='source',               │ │
+│ │                   key_property='event_id'): {                            │ │
+│ │                   │   │   'event_id': 'source',                          │ │
+│ │                   │   │   'session_id': 's',                             │ │
+│ │                   │   │   'occurred_at':                                 │ │
+│ │                   '2026-10-14T02:20:15.501089+00:00',                    │ │
+│ │                   │   │   'global_position': 'p',                        │ │
+│ │                   │   │   'importance_score': 5                          │ │
+│ │                   │   },                                                 │ │
+│ │                   │   NodeRef(label='Summary',                           │ │
+│ │                   key='summary-episode-3d208040010fc47f84a750622e9ccc62… │ │
+│ │                   key_property='summary_id'): {                          │ │
+│ │                   │   │   'summary_id':                                  │ │
+│ │                   'summary-episode-3d208040010fc47f84a750622e9ccc62d790… │ │
+│ │                   │   │   'scope': 'episode',                            │ │
+│ │                   │   │   'scope_id':                                    │ │
+│ │                   'episode-3d208040010fc47f84a750622e9ccc62d79051827c41… │ │
+│ │                   │   │   'content': '1 events (unknown) from            │ │
+│ │                   2026-10-14T02:20:15.501089+00:00 to                    │ │
+│ │                   2026-10-14T02:20:15.'+12,                              │ │
+│ │                   │   │   'created_at':                                  │ │
+│ │                   '2026-10-14T02:20:15.560341+00:00',                    │ │
+│ │                   │   │   'event_count': 1,                              │ │
+│ │                   │   │   'time_range': [                                │ │
+│ │                   │   │   │   '2026-10-14T02:20:15.501089+00:00',        │ │
+│ │                   │   │   │   '2026-10-14T02:20:15.501089+00:00'         │ │
+│ │                   │   │   ]                                              │ │
+│ │                   │   }                                                  │ │
+│ │                   }                                                      │ │
+│ │           graph = <tests.unit.test_memory_episodes.test_public_worker_r… │ │
+│ │                   object at 0x1354c1970>                                 │ │
+│ │        identity = 'episode-3d208040010fc47f84a750622e9ccc62d79051827c41… │ │
+│ │           links = [                                                      │ │
+│ │                   │   EdgeWrite(                                         │ │
+│ │                   │   │   edge_type='CONTAINS',                          │ │
+│ │                   │   │   source=NodeRef(                                │ │
+│ │                   │   │   │   label='Episode',                           │ │
+│ │                   │   │   │                                              │ │
+│ │                   key='episode-3d208040010fc47f84a750622e9ccc62d7905182… │ │
+│ │                   │   │   │   key_property='episode_id'                  │ │
+│ │                   │   │   ),                                             │ │
+│ │                   │   │   target=NodeRef(                                │ │
+│ │                   │   │   │   label='Event',                             │ │
+│ │                   │   │   │   key='source',                              │ │
+│ │                   │   │   │   key_property='event_id'                    │ │
+│ │                   │   │   ),                                             │ │
+│ │                   │   │   properties={                                   │ │
+│ │                   │   │   │   'method': 'temporal_consolidation',        │ │
+│ │                   │   │   │   'session_id': 's'                          │ │
+│ │                   │   │   },                                             │ │
+│ │                   │   │   create_only=False,                             │ │
+│ │                   │   │   remove_properties=()                           │ │
+│ │                   │   ),                                                 │ │
+│ │                   │   EdgeWrite(                                         │ │
+│ │                   │   │   edge_type='DERIVED_FROM',                      │ │
+│ │                   │   │   source=NodeRef(                                │ │
+│ │                   │   │   │   label='Episode',                           │ │
+│ │                   │   │   │                                              │ │
+│ │                   key='episode-3d208040010fc47f84a750622e9ccc62d7905182… │ │
+│ │                   │   │   │   key_property='episode_id'                  │ │
+│ │                   │   │   ),                                             │ │
+│ │                   │   │   target=NodeRef(                                │ │
+│ │                   │   │   │   label='Event',                             │ │
+│ │                   │   │   │   key='source',                              │ │
+│ │                   │   │   │   key_property='event_id'                    │ │
+│ │                   │   │   ),                                             │ │
+│ │                   │   │   properties={                                   │ │
+│ │                   │   │   │   'method': 'temporal_consolidation',        │ │
+│ │                   │   │   │   'session_id': 's'                          │ │
+│ │                   │   │   },                                             │ │
+│ │                   │   │   create_only=False,                             │ │
+│ │                   │   │   remove_properties=()                           │ │
+│ │                   │   ),                                                 │ │
+│ │                   │   EdgeWrite(                                         │ │
+│ │                   │   │   edge_type='SUMMARIZES',                        │ │
+│ │                   │   │   source=NodeRef(                                │ │
+│ │                   │   │   │   label='Summary',                           │ │
+│ │                   │   │   │                                              │ │
+│ │                   key='summary-episode-3d208040010fc47f84a750622e9ccc62… │ │
+│ │                   │   │   │   key_property='summary_id'                  │ │
+│ │                   │   │   ),                                             │ │
+│ │                   │   │   target=NodeRef(                                │ │
+│ │                   │   │   │   label='Episode',                           │ │
+│ │                   │   │   │                                              │ │
+│ │                   key='episode-3d208040010fc47f84a750622e9ccc62d7905182… │ │
+│ │                   │   │   │   key_property='episode_id'                  │ │
+│ │                   │   │   ),                                             │ │
+│ │                   │   │   properties={},                                 │ │
+│ │                   │   │   create_only=False,                             │ │
+│ │                   │   │   remove_properties=()                           │ │
+│ │                   │   )                                                  │ │
+│ │                   ]                                                      │ │
+│ │         members = ['source']                                             │ │
+│ │            refs = [                                                      │ │
+│ │                   │   NodeRef(                                           │ │
+│ │                   │   │   label='Event',                                 │ │
+│ │                   │   │   key='source',                                  │ │
+│ │                   │   │   key_property='event_id'                        │ │
+│ │                   │   )                                                  │ │
+│ │                   ]                                                      │ │
+│ │      session_id = 's'                                                    │ │
+│ │         summary = SummaryNode(                                           │ │
+│ │                   │                                                      │ │
+│ │                   summary_id='summary-episode-3d208040010fc47f84a750622… │ │
+│ │                   │   scope='episode',                                   │ │
+│ │                   │                                                      │ │
+│ │                   scope_id='episode-3d208040010fc47f84a750622e9ccc62d79… │ │
+│ │                   │   content='1 events (unknown) from                   │ │
+│ │                   2026-10-14T02:20:15.501089+00:00 to                    │ │
+│ │                   2026-10-14T02:20:15.'+12,                              │ │
+│ │                   │   created_at=datetime.datetime(2026, 10, 14, 2, 20,  │ │
+│ │                   15, 560341, tzinfo=datetime.timezone.utc),             │ │
+│ │                   │   event_count=1,                                     │ │
+│ │                   │   time_range=[                                       │ │
+│ │                   │   │   datetime.datetime(2026, 10, 14, 2, 20, 15,     │ │
+│ │                   501089, tzinfo=datetime.timezone.utc),                 │ │
+│ │                   │   │   datetime.datetime(2026, 10, 14, 2, 20, 15,     │ │
+│ │                   501089, tzinfo=datetime.timezone.utc)                  │ │
+│ │                   │   ]                                                  │ │
+│ │                   )                                                      │ │
+│ │     summary_ref = NodeRef(                                               │ │
+│ │                   │   label='Summary',                                   │ │
+│ │                   │                                                      │ │
+│ │                   key='summary-episode-3d208040010fc47f84a750622e9ccc62… │ │
+│ │                   │   key_property='summary_id'                          │ │
+│ │                   )                                                      │ │
+│ │ summary_sources = [                                                      │ │
+│ │                   │   {                                                  │ │
+│ │                   │   │   'edge_type': 'SUMMARIZES',                     │ │
+│ │                   │   │   'properties': {                                │ │
+│ │                   │   │   │   'created_at':                              │ │
+│ │                   '2026-10-14T02:20:15.560341+00:00'                     │ │
+│ │                   │   │   },                                             │ │
+│ │                   │   │   'source_label': 'Summary',                     │ │
+│ │                   │   │   'source_key':                                  │ │
+│ │                   'summary-episode-3d208040010fc47f84a750622e9ccc62d790… │ │
+│ │                   │   │   'target_label': 'Event',                       │ │
+│ │                   │   │   'target_key': 'source',                        │ │
+│ │                   │   │   'node_label': 'Event',                         │ │
+│ │                   │   │   'node': {                                      │ │
+│ │                   │   │   │   'event_id': 'source',                      │ │
+│ │                   │   │   │   'session_id': 's',                         │ │
+│ │                   │   │   │   'occurred_at':                             │ │
+│ │                   '2026-10-14T02:20:15.501089+00:00',                    │ │
+│ │                   │   │   │   'global_position': 'p',                    │ │
+│ │                   │   │   │   'importance_score': 5                      │ │
+│ │                   │   │   }                                              │ │
+│ │                   │   }                                                  │ │
+│ │                   ]                                                      │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram-memory-episodes/tests/unit/test_memory_epis │
+│ odes.py:507 in upsert_edges                                                  │
+│                                                                              │
+│   504 │   │   │   if not self.failed and any(write.edge_type == "CONTAINS" f │
+│       writes):                                                               │
+│   505 │   │   │   │   self.failed = True                                     │
+│   506 │   │   │   │   await super().upsert_edges(writes[:1])                 │
+│ ❱ 507 │   │   │   │   raise OSError("Storage boundary interruption")         │
+│   508 │   │   │   return await super().upsert_edges(writes)                  │
+│   509 │                                                                      │
+│   510 │   graph = InterruptedGraph()                                         │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   self = <tests.unit.test_memory_episodes.test_public_worker_retry_repa… │ │
+│ │          object at 0x1354c1970>                                          │ │
+│ │ writes = [                                                               │ │
+│ │          │   EdgeWrite(                                                  │ │
+│ │          │   │   edge_type='CONTAINS',                                   │ │
+│ │          │   │   source=NodeRef(                                         │ │
+│ │          │   │   │   label='Episode',                                    │ │
+│ │          │   │   │                                                       │ │
+│ │          key='episode-3d208040010fc47f84a750622e9ccc62d79051827c414eb3a… │ │
+│ │          │   │   │   key_property='episode_id'                           │ │
+│ │          │   │   ),                                                      │ │
+│ │          │   │   target=NodeRef(                                         │ │
+│ │          │   │   │   label='Event',                                      │ │
+│ │          │   │   │   key='source',                                       │ │
+│ │          │   │   │   key_property='event_id'                             │ │
+│ │          │   │   ),                                                      │ │
+│ │          │   │   properties={                                            │ │
+│ │          │   │   │   'method': 'temporal_consolidation',                 │ │
+│ │          │   │   │   'session_id': 's'                                   │ │
+│ │          │   │   },                                                      │ │
+│ │          │   │   create_only=False,                                      │ │
+│ │          │   │   remove_properties=()                                    │ │
+│ │          │   ),                                                          │ │
+│ │          │   EdgeWrite(                                                  │ │
+│ │          │   │   edge_type='DERIVED_FROM',                               │ │
+│ │          │   │   source=NodeRef(                                         │ │
+│ │          │   │   │   label='Episode',                                    │ │
+│ │          │   │   │                                                       │ │
+│ │          key='episode-3d208040010fc47f84a750622e9ccc62d79051827c414eb3a… │ │
+│ │          │   │   │   key_property='episode_id'                           │ │
+│ │          │   │   ),                                                      │ │
+│ │          │   │   target=NodeRef(                                         │ │
+│ │          │   │   │   label='Event',                                      │ │
+│ │          │   │   │   key='source',                                       │ │
+│ │          │   │   │   key_property='event_id'                             │ │
+│ │          │   │   ),                                                      │ │
+│ │          │   │   properties={                                            │ │
+│ │          │   │   │   'method': 'temporal_consolidation',                 │ │
+│ │          │   │   │   'session_id': 's'                                   │ │
+│ │          │   │   },                                                      │ │
+│ │          │   │   create_only=False,                                      │ │
+│ │          │   │   remove_properties=()                                    │ │
+│ │          │   ),                                                          │ │
+│ │          │   EdgeWrite(                                                  │ │
+│ │          │   │   edge_type='SUMMARIZES',                                 │ │
+│ │          │   │   source=NodeRef(                                         │ │
+│ │          │   │   │   label='Summary',                                    │ │
+│ │          │   │   │                                                       │ │
+│ │          key='summary-episode-3d208040010fc47f84a750622e9ccc62d79051827… │ │
+│ │          │   │   │   key_property='summary_id'                           │ │
+│ │          │   │   ),                                                      │ │
+│ │          │   │   target=NodeRef(                                         │ │
+│ │          │   │   │   label='Episode',                                    │ │
+│ │          │   │   │                                                       │ │
+│ │          key='episode-3d208040010fc47f84a750622e9ccc62d79051827c414eb3a… │ │
+│ │          │   │   │   key_property='episode_id'                           │ │
+│ │          │   │   ),                                                      │ │
+│ │          │   │   properties={},                                          │ │
+│ │          │   │   create_only=False,                                      │ │
+│ │          │   │   remove_properties=()                                    │ │
+│ │          │   )                                                           │ │
+│ │          ]                                                               │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+OSError: Storage boundary interruption
+
+________________ test_episode_storage_bounds_are_explicit[11-1] ________________
+
+snapshots = 11, members_per_snapshot = 1
+
+    @pytest.mark.parametrize("snapshots,members_per_snapshot", [(11, 1), (1, 501)])
+    async def test_episode_storage_bounds_are_explicit(snapshots, members_per_snapshot):
+        from context_graph.domain.models import SubgraphQuery
+    
+        graph = MemoryGraphStore()
+        for group in range(snapshots):
+            events = [
+                {
+                    "event_id": f"e-{group}-{index}",
+                    "session_id": "s",
+                    "occurred_at": "2026-10-10T10:00:00+00:00",
+                    "global_position": f"p-{group}-{index}",
+                }
+                for index in range(members_per_snapshot)
+            ]
+            await graph.upsert_nodes(
+                [NodeWrite(NodeRef("Event", e["event_id"], "event_id"), e) for e in events]
+            )
+            summary = create_summary_from_events(
+                events, "episode", episode_identity("s", [e["event_id"] for e in events])
+            )
+            await graph.write_summary_with_edges(
+                summary.summary_id,
+                summary.scope,
+                summary.scope_id,
+                summary.content,
+                summary.created_at.isoformat(),
+                len(events),
+                [dt.isoformat() for dt in summary.time_range],
+                [e["event_id"] for e in events],
+            )
+            await materialize_episode_snapshot(graph, "s", summary, events)
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="Show session timeline",
+                session_id="s",
+                agent_id="a",
+                intent="when",
+                max_nodes=100,
+            )
+        )
+
+tests/unit/test_memory_episodes.py:579: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x117deb200>
+items = [(('Event', 'e-0-0'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:16.006038+00:00'}), (('Event', 'e-1-0'...06038+00:00'}), (('Event', 'e-4-0'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:16.006038+00:00'}), ...]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_______________ test_episode_storage_bounds_are_explicit[1-501] ________________
+
+snapshots = 1, members_per_snapshot = 501
+
+    @pytest.mark.parametrize("snapshots,members_per_snapshot", [(11, 1), (1, 501)])
+    async def test_episode_storage_bounds_are_explicit(snapshots, members_per_snapshot):
+        from context_graph.domain.models import SubgraphQuery
+    
+        graph = MemoryGraphStore()
+        for group in range(snapshots):
+            events = [
+                {
+                    "event_id": f"e-{group}-{index}",
+                    "session_id": "s",
+                    "occurred_at": "2026-10-10T10:00:00+00:00",
+                    "global_position": f"p-{group}-{index}",
+                }
+                for index in range(members_per_snapshot)
+            ]
+            await graph.upsert_nodes(
+                [NodeWrite(NodeRef("Event", e["event_id"], "event_id"), e) for e in events]
+            )
+            summary = create_summary_from_events(
+                events, "episode", episode_identity("s", [e["event_id"] for e in events])
+            )
+            await graph.write_summary_with_edges(
+                summary.summary_id,
+                summary.scope,
+                summary.scope_id,
+                summary.content,
+                summary.created_at.isoformat(),
+                len(events),
+                [dt.isoformat() for dt in summary.time_range],
+                [e["event_id"] for e in events],
+            )
+            await materialize_episode_snapshot(graph, "s", summary, events)
+>       answer = await selected_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="Show session timeline",
+                session_id="s",
+                agent_id="a",
+                intent="when",
+                max_nodes=100,
+            )
+        )
+
+tests/unit/test_memory_episodes.py:579: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133626690>
+items = [(('Event', 'e-0-0'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:16.108254+00:00'}), (('Event', 'e-0-1'...254+00:00'}), (('Event', 'e-0-102'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:20:16.108254+00:00'}), ...]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+___ test_personalization_returns_owned_profile_preference_and_exact_evidence ___
+
+    async def test_personalization_returns_owned_profile_preference_and_exact_evidence():
+        from context_graph.domain.models import SubgraphQuery
+    
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(
+            graph,
+            151,
+            {"content": "My name is Alice. I prefer short answers"},
+            {
+                "persona": {"name": "Alice", "source_quote": "My name is Alice"},
+                "preferences": [_preference()],
+            },
+        )
+        await graph.apply_user_extraction(trigger)
+        other, _, _ = await _prepared(
+            graph,
+            153,
+            {"content": "My name is Bob"},
+            {"persona": {"name": "Bob", "source_quote": "My name is Bob"}},
+            owner="bob",
+        )
+        await graph.apply_user_extraction(other)
+        query = SubgraphQuery(
+            query="How does Alice prefer answers?",
+            session_id="bounded",
+            agent_id="alice",
+            intent="personalize",
+        )
+>       answer = await _user_engine(graph).get_subgraph(query)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_user_attachment_retry.py:800: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x1347674d0>
+items = [(('Event', '00000000-0000-0000-0000-000000000097'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:07.9246... '00000000-0000-0000-0000-00000000009a'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:07.924694+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_ test_personalization_excludes_incomplete_or_foreign_user_evidence[missing-evidence] _
+
+fault = 'missing-evidence'
+
+    @pytest.mark.parametrize("fault", ["missing-evidence", "foreign-source", "wrong-count"])
+    async def test_personalization_excludes_incomplete_or_foreign_user_evidence(fault):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import NodeWrite
+    
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(
+            graph, 161, {"content": "short answers"}, {"preferences": [_preference()]}
+        )
+        await graph.apply_user_extraction(trigger)
+        pref = receipt["result"]["preferences"][0]["preference_id"]
+        source_id = str(UUID(int=161))
+        # Reference-backend fault injection only, never an acceptance repair.
+        if fault == "missing-evidence":
+            graph.edges.pop((("Preference", pref), "DERIVED_FROM", ("Event", source_id)))
+        else:
+            ref = (
+                NodeRef("Event", source_id, "event_id")
+                if fault == "foreign-source"
+                else NodeRef("Preference", pref, "preference_id")
+            )
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        ref,
+                        {"agent_id": "bob"}
+                        if fault == "foreign-source"
+                        else {"observation_count": 999},
+                    )
+                ]
+            )
+>       answer = await _user_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="My preferences", session_id="bounded", agent_id="alice", intent="personalize"
+            )
+        )
+
+tests/unit/test_user_attachment_retry.py:847: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x133fef770>
+items = [(('Event', '00000000-0000-0000-0000-0000000000a1'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:07.9870... '00000000-0000-0000-0000-0000000000a2'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:07.987063+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_ test_personalization_excludes_incomplete_or_foreign_user_evidence[foreign-source] _
+
+fault = 'foreign-source'
+
+    @pytest.mark.parametrize("fault", ["missing-evidence", "foreign-source", "wrong-count"])
+    async def test_personalization_excludes_incomplete_or_foreign_user_evidence(fault):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import NodeWrite
+    
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(
+            graph, 161, {"content": "short answers"}, {"preferences": [_preference()]}
+        )
+        await graph.apply_user_extraction(trigger)
+        pref = receipt["result"]["preferences"][0]["preference_id"]
+        source_id = str(UUID(int=161))
+        # Reference-backend fault injection only, never an acceptance repair.
+        if fault == "missing-evidence":
+            graph.edges.pop((("Preference", pref), "DERIVED_FROM", ("Event", source_id)))
+        else:
+            ref = (
+                NodeRef("Event", source_id, "event_id")
+                if fault == "foreign-source"
+                else NodeRef("Preference", pref, "preference_id")
+            )
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        ref,
+                        {"agent_id": "bob"}
+                        if fault == "foreign-source"
+                        else {"observation_count": 999},
+                    )
+                ]
+            )
+>       answer = await _user_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="My preferences", session_id="bounded", agent_id="alice", intent="personalize"
+            )
+        )
+
+tests/unit/test_user_attachment_retry.py:847: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x134024d40>
+items = [(('Event', '00000000-0000-0000-0000-0000000000a1'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:08.0506... '00000000-0000-0000-0000-0000000000a2'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:08.050602+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_ test_personalization_excludes_incomplete_or_foreign_user_evidence[wrong-count] _
+
+fault = 'wrong-count'
+
+    @pytest.mark.parametrize("fault", ["missing-evidence", "foreign-source", "wrong-count"])
+    async def test_personalization_excludes_incomplete_or_foreign_user_evidence(fault):
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import NodeWrite
+    
+        graph = MemoryGraphStore()
+        trigger, receipt, _ = await _prepared(
+            graph, 161, {"content": "short answers"}, {"preferences": [_preference()]}
+        )
+        await graph.apply_user_extraction(trigger)
+        pref = receipt["result"]["preferences"][0]["preference_id"]
+        source_id = str(UUID(int=161))
+        # Reference-backend fault injection only, never an acceptance repair.
+        if fault == "missing-evidence":
+            graph.edges.pop((("Preference", pref), "DERIVED_FROM", ("Event", source_id)))
+        else:
+            ref = (
+                NodeRef("Event", source_id, "event_id")
+                if fault == "foreign-source"
+                else NodeRef("Preference", pref, "preference_id")
+            )
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        ref,
+                        {"agent_id": "bob"}
+                        if fault == "foreign-source"
+                        else {"observation_count": 999},
+                    )
+                ]
+            )
+>       answer = await _user_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="My preferences", session_id="bounded", agent_id="alice", intent="personalize"
+            )
+        )
+
+tests/unit/test_user_attachment_retry.py:847: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x13460ca10>
+items = [(('Event', '00000000-0000-0000-0000-0000000000a1'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:08.1075... '00000000-0000-0000-0000-0000000000a2'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:08.107510+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+_ test_personalization_rejects_noncanonical_profile_even_with_valid_owned_evidence _
+
+    async def test_personalization_rejects_noncanonical_profile_even_with_valid_owned_evidence():
+        from context_graph.domain.models import SubgraphQuery
+        from context_graph.ports.pack_graph import EdgeWrite, NodeWrite
+    
+        graph = MemoryGraphStore()
+        trigger, _, _ = await _prepared(
+            graph,
+            171,
+            {"content": "My name is Alice"},
+            {"persona": {"name": "Alice", "source_quote": "My name is Alice"}},
+        )
+        await graph.apply_user_extraction(trigger)
+        # Deliberately inconsistent reference-backend data, not a cloud repair.
+        wrong = NodeRef("UserProfile", "profile:wrong", "profile_id")
+        source = NodeRef("Event", str(UUID(int=171)), "event_id")
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    wrong,
+                    {
+                        "user_id": "user:alice",
+                        "display_name": "Wrong",
+                        "support_event_ids": [source.key],
+                    },
+                )
+            ]
+        )
+        await graph.upsert_edges(
+            [
+                EdgeWrite("HAS_PROFILE", NodeRef("Entity", "user:alice", "entity_id"), wrong),
+                EdgeWrite("DERIVED_FROM", wrong, source),
+            ]
+        )
+>       answer = await _user_engine(graph).get_subgraph(
+            SubgraphQuery(
+                query="Who is Alice?", session_id="bounded", agent_id="alice", intent="personalize"
+            )
+        )
+
+tests/unit/test_user_attachment_retry.py:888: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/retrieval/engine.py:355: in get_subgraph
+    await self._bump_access_counts(event_ids)
+src/context_graph/retrieval/engine.py:739: in _bump_access_counts
+    await self._graph.record_access(event_ids, datetime.now(UTC).isoformat())
+src/context_graph/adapters/graph_ops.py:1731: in record_access
+    await ops._upsert_nodes(updates)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.composed_reads.ComposedReadView object at 0x135ecee40>
+items = [(('Event', '00000000-0000-0000-0000-0000000000ab'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:08.1660... '00000000-0000-0000-0000-0000000000ac'), {'access_count': 1, 'last_accessed_at': '2026-10-14T02:21:08.166010+00:00'})]
+
+    async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
+>       raise PermissionError("Composed graph view is read-only")
+E       PermissionError: Composed graph view is read-only
+
+src/context_graph/adapters/composed_reads.py:118: PermissionError
+=============================== warnings summary ===============================
+tests/unit/test_metrics.py:18
+  /Users/arunmenon/projects/Engram-memory-episodes/tests/unit/test_metrics.py:18: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+tests/unit/test_admin_pruning_scores.py: 2 warnings
+tests/unit/test_api_admin.py: 13 warnings
+tests/unit/test_api_auth.py: 5 warnings
+tests/unit/test_api_events.py: 16 warnings
+tests/unit/test_api_health.py: 14 warnings
+tests/unit/test_api_import.py: 1 warning
+tests/unit/test_api_ingest.py: 6 warnings
+tests/unit/test_api_users.py: 15 warnings
+tests/unit/test_artifact_route.py: 3 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_event_input_contract.py: 20 warnings
+tests/unit/test_explicit_runtime_settings.py: 1 warning
+tests/unit/test_feedback.py: 3 warnings
+tests/unit/test_goal07_harness_transport.py: 1 warning
+tests/unit/test_metrics.py: 3 warnings
+tests/unit/test_pack_toy_end_to_end.py: 2 warnings
+tests/unit/test_pdlc_opendal_eval.py: 1 warning
+tests/unit/test_spanner_event_acceptance.py: 1 warning
+tests/unit/test_spanner_pack_admission.py: 1 warning
+tests/unit/test_webhooks.py: 18 warnings
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_self_referential_parent
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_ended_at_before_occurred_at
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[UnavailableError]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[StorageTimeoutError]
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+tests/unit/test_api_ingest.py::TestBodies::test_a_body_that_is_not_an_object_is_a_client_error
+tests/unit/test_api_ingest.py::TestBodies::test_unknown_encodings_are_refused
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/events.py:200: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestBodies::test_size_is_bounded_before_and_after_decompression
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/events.py:281: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestEventQuota::test_batches_are_charged_per_event
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/events.py:302: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    if checked.events and (limited := _quota_exceeded(request, len(checked.events))) is not None:
+
+tests/unit/test_api_query.py: 14 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_metrics.py: 1 warning
+tests/unit/test_middleware_rate_limit.py: 6 warnings
+tests/unit/test_tenant_responses.py: 1 warning
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body0]
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/artifacts.py:53: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid("query is empty")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body2]
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/artifacts.py:55: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body3]
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/artifacts.py:57: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body4]
+  /Users/arunmenon/projects/Engram-memory-episodes/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_standard_endpoint_returns_429_after_exceeding_limit
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_429_response_has_proper_headers
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_admin_endpoint_has_separate_limit
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/starlette/middleware/base.py:197: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await self.dispatch_func(request, call_next)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_memory_actions.py::test_subgraph_api_engine_returns_belief_with_actual_source_and_counter
+FAILED tests/unit/test_memory_actions.py::test_recall_suppresses_unsolicited_history_between_current_beliefs
+FAILED tests/unit/test_memory_actions.py::test_memory_recall_rejects_unrelated_same_owner_confirmation_receipt
+FAILED tests/unit/test_memory_actions.py::test_disabled_memory_read_excludes_already_stored_beliefs_and_goals
+FAILED tests/unit/test_memory_episodes.py::test_session_timeline_retrieves_episode_members_summary_and_evidence
+FAILED tests/unit/test_memory_episodes.py::test_read_is_session_bound_selection_gated_and_honest_about_limits[True-100]
+FAILED tests/unit/test_memory_episodes.py::test_read_is_session_bound_selection_gated_and_honest_about_limits[False-100]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[scope]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[count]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[owner]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[range]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[missing-evidence]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[extra-member]
+FAILED tests/unit/test_memory_episodes.py::test_corrupt_snapshot_evidence_is_not_retrieved[episode-range]
+FAILED tests/unit/test_memory_episodes.py::test_public_worker_preserves_history_when_a_late_event_bridges_groups
+FAILED tests/unit/test_memory_episodes.py::test_public_worker_retry_repairs_partial_snapshot_before_read_exposure
+FAILED tests/unit/test_memory_episodes.py::test_episode_storage_bounds_are_explicit[11-1]
+FAILED tests/unit/test_memory_episodes.py::test_episode_storage_bounds_are_explicit[1-501]
+FAILED tests/unit/test_user_attachment_retry.py::test_personalization_returns_owned_profile_preference_and_exact_evidence
+FAILED tests/unit/test_user_attachment_retry.py::test_personalization_excludes_incomplete_or_foreign_user_evidence[missing-evidence]
+FAILED tests/unit/test_user_attachment_retry.py::test_personalization_excludes_incomplete_or_foreign_user_evidence[foreign-source]
+FAILED tests/unit/test_user_attachment_retry.py::test_personalization_excludes_incomplete_or_foreign_user_evidence[wrong-count]
+FAILED tests/unit/test_user_attachment_retry.py::test_personalization_rejects_noncanonical_profile_even_with_valid_owned_evidence
+23 failed, 2811 passed, 13 skipped, 168 warnings in 88.44s (0:01:28)

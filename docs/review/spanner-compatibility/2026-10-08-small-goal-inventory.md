@@ -158,3 +158,9 @@ The final epoch36 dataset is retained after verified exports of previous owners.
 The separately authorized #60 slice is verified: seven lifecycle cases, 109 live Spanner assertions, real SDK-held stop/cancellation/fencing and fresh-worker recovery, with exact Summary/Episode/public-read evidence. Astra cleared bounded closure. [Verification and stakeholder walkthrough](consolidation-shutdown-verification.md). Shutdown now joins the complete admitted cycle and wakes an idle timer; no external consolidation-lock workaround was used for acceptance.
 
 The final assessment dataset is retained at epoch37 after a verified export of the previous enrichment dataset. #34/#39/#41 remain open; #18/#61 and broader composition/tenant proofs are not resolved by this slice. No new feature umbrella is needed. No next slice or controlled pilot started.
+
+## 2026-10-14 — bounded #61 follow-up
+
+User selected UUID Event subgraph access accounting after #60. Runtime change is a type check on returned nodes after pagination; no new infrastructure. Core and Core+PDLC+Memory passed228 live assertions, with all real workers joined and epoch39 assessment data retained. The final broad local run passed2834 tests with13 skips, excluding the previously documented PDLC evaluation-gate file. Fresh-process readback matched217 source hashes, owner, table fingerprints and retained snapshot.
+
+[Verification, review and issue reconciliation](subgraph-access-verification.md). This does not activate the old broad goal or authorize the next composition/isolation/pilot stage. Stop after this slice for stakeholder walkthrough and selection.

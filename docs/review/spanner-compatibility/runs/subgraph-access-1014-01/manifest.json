@@ -1,0 +1,136 @@
+{
+  "scenarios": {
+    "AC01": "UUID Event read twice: exactly one increment per returned Event per read",
+    "AC02": "mixed Entity and optional Episode/Summary: non-Events unchanged",
+    "AC03": "one-node page: unreturned Events unchanged",
+    "AC04": "empty cursor page: no access writes; unrelated owner/session unchanged"
+  },
+  "fixtures": {
+    "core": {
+      "events": [
+        {
+          "event_id": "c91978cb-c5f2-595c-a683-27ba0baaafe4",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:20:05.961351+00:00",
+          "session_id": "subgraph-access-1014-01core",
+          "agent_id": "access-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:0",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        },
+        {
+          "event_id": "b813ac9d-31eb-5a2e-adbe-a2ace22cf9cc",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:20:06.961351+00:00",
+          "session_id": "subgraph-access-1014-01core",
+          "agent_id": "access-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:1",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        },
+        {
+          "event_id": "51c5c412-e2c3-5d71-a0d2-dcd60facb6f2",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:20:07.961351+00:00",
+          "session_id": "subgraph-access-1014-01core",
+          "agent_id": "access-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:2",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        },
+        {
+          "event_id": "1fc09006-c9f5-5dc1-bf6f-d53a18c8e161",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:20:08.961351+00:00",
+          "session_id": "subgraph-access-1014-01core-unrelated",
+          "agent_id": "unrelated-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:3",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        }
+      ],
+      "session": "subgraph-access-1014-01core",
+      "owner": "access-owner",
+      "entity": "entity:evt-access-probe",
+      "episode": "episode-a9889910bddd2fcec8297235b3f56bc03771941ae9e046a9d6db312849f01758"
+    },
+    "pdlc-memory": {
+      "events": [
+        {
+          "event_id": "7b3bcb8a-a1e1-5a23-90ed-45ea447b32e0",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:20:05.961420+00:00",
+          "session_id": "subgraph-access-1014-01pdlc-memory",
+          "agent_id": "access-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:0",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        },
+        {
+          "event_id": "89cf963f-0d38-59b7-a702-85204910c9f0",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:20:06.961420+00:00",
+          "session_id": "subgraph-access-1014-01pdlc-memory",
+          "agent_id": "access-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:1",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        },
+        {
+          "event_id": "c81f36b4-50b2-506e-82bd-8775f6a4e94d",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:20:07.961420+00:00",
+          "session_id": "subgraph-access-1014-01pdlc-memory",
+          "agent_id": "access-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:2",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        },
+        {
+          "event_id": "b6047bcc-8afe-5e7b-ab8f-119baf66211e",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:20:08.961420+00:00",
+          "session_id": "subgraph-access-1014-01pdlc-memory-unrelated",
+          "agent_id": "unrelated-owner",
+          "trace_id": "subgraph-access-1014-01",
+          "payload_ref": "access:3",
+          "importance_hint": 7,
+          "payload": {
+            "content": "evt-access-probe"
+          }
+        }
+      ],
+      "session": "subgraph-access-1014-01pdlc-memory",
+      "owner": "access-owner",
+      "entity": "entity:evt-access-probe",
+      "episode": "episode-00e6da4edc582fa29f19ec0d7d1d5c74d767f1fdd0ae65379b2e28f463b6860d"
+    }
+  },
+  "target": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+  "configurations": [
+    "core",
+    "pdlc-memory"
+  ],
+  "expected_effect": "only returned Events access_count +1 and request-time last_accessed_at; everything else unchanged"
+}

@@ -1,0 +1,25 @@
+.F........                                                               [100%]
+=================================== FAILURES ===================================
+______ TestSubgraph.test_uuid_events_record_access_only_on_returned_page _______
+
+self = <tests.unit.test_retrieval_engine.TestSubgraph object at 0x105cb8a10>
+
+    @pytest.mark.asyncio()
+    async def test_uuid_events_record_access_only_on_returned_page(self) -> None:
+        first = "b3904ad4-50ea-4544-9091-3425362a25ba"
+        second = "a62cf989-512a-439c-8af9-4399063899ea"
+        graph = FakeGraphReads([_event(first), _event(second, 2), _event("outside", 0, "other")])
+        engine = _engine(graph)
+        query = SubgraphQuery(query="what happened", session_id="s1", agent_id="a1", max_nodes=1)
+        response = await engine.get_subgraph(query)
+        assert set(response.nodes) == {first}
+>       assert graph.accessed == [first]
+E       AssertionError: assert [] == ['b3904ad4-50...3425362a25ba']
+E         
+E         Right contains one more item: 'b3904ad4-50ea-4544-9091-3425362a25ba'
+E         Use -v to get more diff
+
+tests/unit/test_retrieval_engine.py:149: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_retrieval_engine.py::TestSubgraph::test_uuid_events_record_access_only_on_returned_page
+1 failed, 9 passed in 0.21s
