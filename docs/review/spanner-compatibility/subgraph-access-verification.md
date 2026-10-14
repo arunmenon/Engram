@@ -59,10 +59,23 @@ Run: [subgraph-access-1014-01](runs/subgraph-access-1014-01/manifest.json), 2026
 
 AC04's empty cursor page did not change any count. Both configurations returned an Event on the first one-node page, so the bounded fallback pagination loop was not needed. Each unrelated Event remained at baseline. Multiple Memory snapshots reflect consolidation as the session grew; this test checks their access metadata remains unchanged, not a new assertion that the full Memory lifecycle has been reevaluated.
 
-Evidence: [Core](runs/subgraph-access-1014-01/core.json), [composed](runs/subgraph-access-1014-01/pdlc-memory.json), [retained owner/fingerprints](runs/subgraph-access-1014-01/pdlc-memory-retained.json). Prior epoch37 data was exported and verified before reset to38; Core data was exported and verified before reset to39. Final composed data is retained.
+Evidence: [Core](runs/subgraph-access-1014-01/core.json), [composed](runs/subgraph-access-1014-01/pdlc-memory.json), [retained owner/fingerprints](runs/subgraph-access-1014-01/pdlc-memory-retained.json). Prior epoch 37 data was exported and verified before reset to 38; Core data was exported and verified before reset to 39. Final composed data is retained.
 
-Local targeted regression: 25 passed; affected Memory/User/engine tests: 89 passed. The first broad run exposed23 test-helper failures: those helpers passed `selected.reads`, a read-only GraphOperationReads, instead of the production `ComposedGraphReads(selected)` wrapper that deliberately permits access accounting. The old UUID omission masked this setup error. Only the three test construction sites were corrected; no Memory/User expected behaviors were removed. Both broad logs are retained. Final broad rerun: **2834 passed, 13 skipped**, excluding the previously documented `test_pdlc_end_to_end.py` evaluation-gate file. Ruff and runtime mypy passed.
+Local targeted regression: 25 passed; affected Memory/User/engine tests: 89 passed. The first broad run exposed 23 test-helper failures: those helpers passed `selected.reads`, a read-only GraphOperationReads, instead of the production `ComposedGraphReads(selected)` wrapper that deliberately permits access accounting. The old UUID omission masked this setup error. Only the three test construction sites were corrected; no Memory/User expected behaviors were removed. Both broad logs are retained. Final broad rerun: **2834 passed, 13 skipped**, excluding the previously documented `test_pdlc_end_to_end.py` evaluation-gate file. Ruff and runtime mypy passed.
 
 The fresh-process audit initially hit an audit-script-only None comparison for the baseline last_accessed_at; the comparator was corrected, with the failed audit log retained. It did not require data repair, changes to runtime or a new cloud run. Monitoring export still reports403; no monitoring readiness claim.
 
-Fresh-process readback matched retained owner epoch39, every application-table fingerprint and the full retained snapshot. All217 runtime/YAML/script hashes matched the frozen run. The audit independently checked both export digests and every saved read's Event deltas/non-Event preservation: [post-process audit](runs/subgraph-access-1014-01/post-process-recheck.json). Final independent verdict and GitHub reconciliation follow below.
+Fresh-process readback matched retained owner epoch 39, every application-table fingerprint and the full retained snapshot. All 217 runtime/YAML/script hashes matched the frozen run. The audit independently checked both export digests and every saved read's Event deltas/non-Event preservation: [post-process audit](runs/subgraph-access-1014-01/post-process-recheck.json). Astra independently accepted bounded #61 closure: [final review](subgraph-access-review/astra-final-review.md).
+
+
+### Actual GitHub reconciliation
+
+| Issue | Action | State after update |
+|---|---|---|
+| [#61](https://github.com/arunmenon/Engram/issues/61#issuecomment-6159500441) | Fixed, reviewed and closed; original report retained as history | CLOSED |
+| [#34](https://github.com/arunmenon/Engram/issues/34#issuecomment-6159501091) | Progress evidence and remaining scope recorded | OPEN |
+| [#39](https://github.com/arunmenon/Engram/issues/39#issuecomment-6159501985) | Progress evidence and remaining scope recorded | OPEN |
+| [#41](https://github.com/arunmenon/Engram/issues/41#issuecomment-6159502251) | Progress evidence and remaining scope recorded | OPEN |
+| [#42](https://github.com/arunmenon/Engram/issues/42#issuecomment-6159502512) | Progress evidence and remaining scope recorded | OPEN |
+
+Native parent link #61 → #34 was re-read and verified. #34's body also has the current closure checkpoint. No new issue or feature bucket was required. Implementation/evidence commit: `08cf908` on `feature/engram-memory-episodes`. Original broad goal remains paused; no next slice or pilot started.
