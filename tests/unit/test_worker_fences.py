@@ -127,28 +127,42 @@ async def test_consolidation_does_not_report_fenced_cycle_as_success():
 
 
 @pytest.mark.asyncio
-async def test_background_fence_cancels_and_joins_blocked_subscription_loop():
-    consumer = ConsolidationConsumer(subscription(), AsyncMock(), AsyncMock(), Settings())
-    base_started = asyncio.Event()
-    base_terminated = asyncio.Event()
+async def test_background_fence_waits_for_inflight_subscription_read_before_exit():
+    port = subscription()
+    gm = AsyncMock()
+    settings = Settings()
+    settings.decay.reconsolidation_interval_hours = 0.01 / 3600
+    consumer = ConsolidationConsumer(port, AsyncMock(), gm, settings)
+    read_started = asyncio.Event()
+    release_read = asyncio.Event()
+    read_finished = asyncio.Event()
     failure = RuntimeFencedError("changed")
 
-    async def base_run(self):
-        base_started.set()
-        try:
-            await asyncio.Event().wait()
-        finally:
-            base_terminated.set()
+    async def read_new(*args):
+        read_started.set()
+        await release_read.wait()
+        read_finished.set()
+        return []
 
-    async def timer():
-        await base_started.wait()
+    async def fenced_counts():
+        await read_started.wait()
         raise failure
 
-    with (
-        patch.object(BaseConsumer, "run", base_run),
-        patch.object(consumer, "_timer_loop", timer),
-        pytest.raises(RuntimeFencedError) as caught,
-    ):
-        await asyncio.wait_for(consumer.run(), timeout=1)
-    assert caught.value is failure
-    assert base_terminated.is_set()
+    port.read_new.side_effect = read_new
+    gm.get_session_event_counts.side_effect = fenced_counts
+    task = asyncio.create_task(consumer.run())
+    try:
+        await asyncio.wait_for(read_started.wait(), 1)
+        await asyncio.sleep(0.05)
+        assert consumer._stopped
+        assert not task.done(), "Fencing must not detach the in-flight subscription read"
+        assert not read_finished.is_set()
+        release_read.set()
+        with pytest.raises(RuntimeFencedError) as caught:
+            await asyncio.wait_for(asyncio.shield(task), 1)
+        assert caught.value is failure
+        assert read_finished.is_set()
+    finally:
+        release_read.set()
+        consumer.stop()
+        await asyncio.gather(task, return_exceptions=True)

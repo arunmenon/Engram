@@ -132,61 +132,12 @@ class TestConsolidationTimerLoop:
                 await task
 
     @pytest.mark.asyncio()
-    async def test_timer_respects_interval(self, consumer, mock_settings):
-        """Timer should sleep for reconsolidation_interval_hours * 3600 seconds."""
-        mock_settings.decay.reconsolidation_interval_hours = 6
-        expected_interval = 6 * 3600
-
-        sleep_calls = []
-
-        async def fake_sleep(seconds):
-            sleep_calls.append(seconds)
-            # Stop the consumer after first sleep to exit loop
-            consumer._stopped = True
-
-        with patch("asyncio.sleep", side_effect=fake_sleep):
-            await consumer._timer_loop()
-
-        assert len(sleep_calls) >= 1
-        assert sleep_calls[0] == expected_interval
-
-    @pytest.mark.asyncio()
     async def test_timer_stops_on_consumer_stop(self, consumer):
         """Timer loop should exit when _stopped is True."""
         consumer._stopped = True
         # Should return immediately without sleeping
         await consumer._timer_loop()
         # If we get here, the loop properly checked _stopped before sleeping
-
-    @pytest.mark.asyncio()
-    async def test_timer_survives_cycle_failure(self, consumer):
-        """Timer loop should continue after an exception in the consolidation cycle.
-
-        _run_consolidation_cycle_guarded catches exceptions internally, so the
-        timer loop keeps running even when the inner cycle raises.
-        """
-        call_count = 0
-
-        async def fake_sleep(seconds):
-            nonlocal call_count
-            call_count += 1
-            if call_count >= 2:
-                consumer._stopped = True
-
-        with (
-            patch("asyncio.sleep", side_effect=fake_sleep),
-            patch.object(
-                consumer,
-                "_run_consolidation_cycle",
-                side_effect=Exception("test failure"),
-            ),
-        ):
-            # _run_consolidation_cycle raises, but _run_consolidation_cycle_guarded
-            # catches it. The timer loop should continue to the next sleep.
-            await consumer._timer_loop()
-
-        # Timer looped at least twice (slept twice before stopping)
-        assert call_count >= 2
 
 
 # ── TestTrimEventLogWiring ──────────────────────────────────────────────

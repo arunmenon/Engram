@@ -16,6 +16,7 @@ Source: ADR-0008 Stage 3, ADR-0013 Consumer 4, ADR-0014
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -79,24 +80,45 @@ class ConsolidationConsumer(BaseConsumer):
         if bundle is not None and bundle.enables("memory.episode.v1") and episode_graph is None:
             raise ValueError("Selected Memory Episodes require a graph producer")
         self._consolidation_lock = asyncio.Lock()
+        self._stop_requested = asyncio.Event()
 
     # -- lifecycle ----------------------------------------------------------
 
     async def run(self) -> None:
-        """Start the timer loop alongside the base consumer loop."""
+        """Run both loops; shutdown joins work without cancelling SDK awaits."""
         timer_task = asyncio.create_task(self._timer_loop())
         consumer_task = asyncio.create_task(super().run())
+        cancelled = False
         try:
-            done, _ = await asyncio.wait(
-                (timer_task, consumer_task), return_when=asyncio.FIRST_COMPLETED
-            )
-            if timer_task in done:
-                await timer_task  # Propagate a fenced background cycle immediately.
-            await consumer_task
+            await asyncio.wait((timer_task, consumer_task), return_when=asyncio.FIRST_COMPLETED)
+        except asyncio.CancelledError:
+            cancelled = True
         finally:
-            timer_task.cancel()
-            consumer_task.cancel()
-            await asyncio.gather(timer_task, consumer_task, return_exceptions=True)
+            self.stop()
+            # Cancelling a to_thread await does not stop its SDK thread. Keep
+            # one drain future alive even if the supervisor is cancelled again.
+            drained = asyncio.gather(timer_task, consumer_task, return_exceptions=True)
+            while True:
+                try:
+                    results = await asyncio.shield(drained)
+                    break
+                except asyncio.CancelledError:
+                    cancelled = True
+        failures = [result for result in results if isinstance(result, BaseException)]
+        for failure in failures:
+            log.error("consolidation_child_failed", error_type=type(failure).__name__)
+        if failures:
+            raise next(
+                (failure for failure in failures if isinstance(failure, RuntimeFencedError)),
+                failures[0],
+            )
+        if cancelled:
+            raise asyncio.CancelledError
+
+    def stop(self) -> None:
+        """Wake an idle timer; an admitted cycle must finish before run joins."""
+        super().stop()
+        self._stop_requested.set()
 
     async def _timer_loop(self) -> None:
         """Periodically trigger consolidation cycles (ADR-0014)."""
@@ -109,7 +131,8 @@ class ConsolidationConsumer(BaseConsumer):
         )
 
         while not self._stopped:
-            await asyncio.sleep(interval_seconds)
+            with suppress(TimeoutError):
+                await asyncio.wait_for(self._stop_requested.wait(), timeout=interval_seconds)
             if self._stopped:
                 break
             log.info("consolidation_timer_fired")
