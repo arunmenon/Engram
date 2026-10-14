@@ -1,6 +1,6 @@
 # Consolidation shutdown — issue #60
 
-Status: bounded implementation and live verification complete; Astra cleared issue #60 closure. Git publication/reconciliation follows below. This document provides the recorded stakeholder walkthrough; no live stakeholder attendance or sign-off is inferred.
+Status: complete for the bounded shutdown slice, independently reviewed, published and reconciled in GitHub. Issue #60 is closed; larger feature/verification scopes remain open. This document provides the recorded stakeholder walkthrough; no live stakeholder attendance or sign-off is inferred.
 
 ## What this slice is for
 
@@ -101,3 +101,19 @@ The three summaries are existing behavior: episode summarizes the temporal group
 The initial local fixture counted only episode and agent summaries; inspection confirmed the existing session summary and corrected the local expected count to three before the cloud manifest was frozen. The cloud oracle did not change during execution.
 
 No new feature bucket is warranted. #60 fits #34 worker reliability; #39/#41 receive bounded evidence. #18 cached predecessor/replay and #61 UUID subgraph access remain separate, as do broader pack-composition and tenant-isolation proofs. The controlled pilot and next slice are not started.
+
+## Published GitHub reconciliation
+
+Runtime/harness: `9e3ff0a`. Reviewed verification, raw evidence and final test-only coverage: `cf8bec8`. Pushed on `feature/engram-memory-episodes`.
+
+| Issue | Before → after | What changed | GitHub update |
+|---|---|---|---|
+| [#60](https://github.com/arunmenon/Engram/issues/60) | OPEN → CLOSED | Bounded acceptance complete; resolved body and closure published | [Comment](https://github.com/arunmenon/Engram/issues/60#issuecomment-6159328178) |
+| [#34](https://github.com/arunmenon/Engram/issues/34) | OPEN → OPEN | Bounded evidence/progress recorded; broader scope remains | [Comment](https://github.com/arunmenon/Engram/issues/34#issuecomment-6159329556) |
+| [#39](https://github.com/arunmenon/Engram/issues/39) | OPEN → OPEN | Bounded evidence/progress recorded; broader scope remains | [Comment](https://github.com/arunmenon/Engram/issues/39#issuecomment-6159330193) |
+| [#41](https://github.com/arunmenon/Engram/issues/41) | OPEN → OPEN | Bounded evidence/progress recorded; broader scope remains | [Comment](https://github.com/arunmenon/Engram/issues/41#issuecomment-6159330736) |
+| [#42](https://github.com/arunmenon/Engram/issues/42) | OPEN → OPEN | Bounded evidence/progress recorded; broader scope remains | [Comment](https://github.com/arunmenon/Engram/issues/42#issuecomment-6159331400) |
+| [#18](https://github.com/arunmenon/Engram/issues/18) | OPEN → OPEN | Unchanged; outside this slice | No new closure/update claimed |
+| [#61](https://github.com/arunmenon/Engram/issues/61) | OPEN → OPEN | Unchanged; outside this slice | No new closure/update claimed |
+
+The native #34→#60 sub-issue link and final states were re-read after mutation. Full recorded actions are in [GitHub reconciliation](consolidation-shutdown-review/github-reconciliation.json). No new umbrella is needed. The next slice and controlled pilot remain unstarted.
