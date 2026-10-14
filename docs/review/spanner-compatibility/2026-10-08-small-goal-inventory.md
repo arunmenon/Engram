@@ -164,3 +164,12 @@ The final assessment dataset is retained at epoch 37 after a verified export of 
 User selected UUID Event subgraph access accounting after #60. Runtime change is a type check on returned nodes after pagination; no new infrastructure. Core and Core+PDLC+Memory passed 228 live assertions, with all real workers joined and epoch 39 assessment data retained. The final broad local run passed 2834 tests with 13 skips, excluding the previously documented PDLC evaluation-gate file. Fresh-process readback matched 217 source hashes, owner, table fingerprints and retained snapshot.
 
 [Verification, review and issue reconciliation](subgraph-access-verification.md). This does not activate the old broad goal or authorize the next composition/isolation/pilot stage. Stop after this slice for stakeholder walkthrough and selection.
+
+
+## 2026-10-14 — Selected five-combination checkpoint complete
+
+The stakeholder selected the bounded combination verification before isolation/pilot. Core; Core+User; Core+User+Memory; Core+PDLC; Core+PDLC+Memory passed793 real-Spanner assertions across39 accepted Events,19 rejections and9 duplicates. Authenticated ingress, all five production workers and the three relevant read API families were used. Fixed external provider outputs make this a composition/validation/write/read proof, not LLM quality evaluation.
+
+The first attempt exposed #62: repeated Entity resolution reconstructed a normalized name as a different storage key, dropping later REFERENCES. Astra confirmed the cause. The correction carries and validates the existing Entity ID through exact/fuzzy/semantic resolution and uses it for evidence endpoints. Fourteen new regressions and117 affected tests passed; the broad suite passed2848/13 skipped with the documented PDLC evaluation-gate exclusion. The deficient first run and artifact API oracle correction remain retained.
+
+Astra accepted the full corrected five-configuration checkpoint and bounded #62 closure. All218 source hashes, every export digest, epoch48 owner/fingerprints and retained graph matched fresh readback. Final PDLC+Memory data is retained; earlier stage datasets are verified exports. [Stakeholder walkthrough, evidence, review and actual GitHub reconciliation](pack-combination-verification.md). No new feature bucket is needed; umbrella34/39/41/42 remain open. Original broad goal remains paused. Stop here: two-tenant isolation and controlled pilot require the stakeholder's next selection.

@@ -88,6 +88,7 @@ class EntityResolutionResult:
     entity_type: str
     confidence: float
     justification: str
+    canonical_entity_id: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +117,7 @@ def resolve_exact_match(
                 return EntityResolutionResult(
                     action=EntityResolutionAction.MERGE,
                     canonical_name=existing_name if canonical == existing_name else existing_alias,
+                    canonical_entity_id=entity.get("entity_id"),
                     entity_type=entity_type,
                     confidence=1.0,
                     justification=f"Exact match after normalization: '{canonical}'",
@@ -123,6 +125,7 @@ def resolve_exact_match(
             return EntityResolutionResult(
                 action=EntityResolutionAction.SAME_AS,
                 canonical_name=existing_name if canonical == existing_name else existing_alias,
+                canonical_entity_id=entity.get("entity_id"),
                 entity_type=entity.get("entity_type", entity_type),
                 confidence=0.9,
                 justification=(
@@ -189,6 +192,7 @@ def resolve_close_match(
         return EntityResolutionResult(
             action=action,
             canonical_name=existing_canonical,
+            canonical_entity_id=best_entity.get("entity_id"),
             entity_type=best_entity.get("entity_type", entity_type),
             confidence=round(best_score, 4),
             justification=(
@@ -263,6 +267,7 @@ def resolve_semantic_match(
     return EntityResolutionResult(
         action=action,
         canonical_name=best.name,
+        canonical_entity_id=best.entity_id,
         entity_type=best.entity_type,
         confidence=round(best.similarity, 4),
         justification=(

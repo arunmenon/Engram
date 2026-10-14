@@ -401,8 +401,15 @@ class ExtractionConsumer(BaseConsumer):
                     entity_name, entity_type
                 )
 
+            canonical_id = ""
+            if resolution is not None:
+                matched_id = resolution.canonical_entity_id
+                if not isinstance(matched_id, str) or not matched_id.strip():
+                    raise ValueError("Matched Entity has no valid storage identity")
+                canonical_id = matched_id
+
             if resolution is not None and resolution.action == EntityResolutionAction.MERGE:
-                entity_id = f"entity:{resolution.canonical_name}"
+                entity_id = canonical_id
                 mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
                 log.debug(
                     "entity_resolved_merge",
@@ -422,7 +429,6 @@ class ExtractionConsumer(BaseConsumer):
                     now=now,
                     embedding=embedding,
                 )
-                canonical_id = f"entity:{resolution.canonical_name}"
                 await self._merge_resolution_edge(
                     source_id=entity_id,
                     target_id=canonical_id,

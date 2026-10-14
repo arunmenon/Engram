@@ -1,0 +1,1240 @@
+{
+  "scenarios": {
+    "PC01": "common Event, extracted Entity, enrichment and core summaries",
+    "PC02": "User profile/preference; overlapping trigger and explicit correction",
+    "PC03": "structured Belief confirmation and Goal completion with exact evidence",
+    "PC04": "PDLC PR created/merged; same PR number in unrelated repo stays separate",
+    "PC05": "PDLC prose extraction Decision; no implicit Belief/Goal conversion",
+    "PC06": "Memory Episodes over user and (with PDLC) domain activity",
+    "PC07": "HTTP duplicates and fresh User worker receipt replay do not double-count",
+    "PC08": "disabled capabilities and malformed enabled contracts reject without writes",
+    "PC09": "read APIs return expected artifacts, lifecycle and source evidence"
+  },
+  "fixtures": {
+    "core": {
+      "events": {
+        "preference": {
+          "event_id": "da298c9e-a354-59b7-b35d-3dfc7fec7945",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:24.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "841ee1df-a755-587a-8a0c-07ca186103f4",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:25.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "7ba54d28-7e15-5ec3-891d-a6c72ee5b7b7",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:26.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "11f603a6-6037-54a3-9073-158d277a299a",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:27.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "06f915a1-a908-53f5-b930-c20b6df51f6c",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:28.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "c813ddbb-c61c-5981-8777-8669473c0e51",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T02:39:29.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Reset tokens expire in fifteen minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "df771e75-77f9-5bd1-acf5-1593d03adaf4",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:30.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "22ac882b-6e6d-5695-83f5-5c0e679928ac",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T02:39:31.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Implement reset expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "ed54026c-984f-5479-890a-130b83ad1c1b",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T02:39:32.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "81cd700f-99d2-5a63-a1cd-e90c4b3856f0",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:33.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "12803205-0f6c-5579-add1-37802f98dfda",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T02:39:34.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "15fec45a-2d3d-5045-9049-2e46c05b6a35",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:35.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:unrelated",
+          "agent_id": "bob",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "8efa3722-641e-57d5-a897-abaf66835c4e",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:36.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "d15e2c63-8f6d-5241-9a2e-dd23c723a9b7",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:37.590706+00:00",
+          "session_id": "pack-combination-1014-01:core:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end"
+      ],
+      "user": false,
+      "memory": false,
+      "pdlc": false,
+      "user_session": "pack-combination-1014-01:core:user",
+      "memory_session": "pack-combination-1014-01:core:memory",
+      "pdlc_session": "pack-combination-1014-01:core:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-796a296ffb4f390812522dd42f44249e092919d87693e2caf2ce1e6889803e5c",
+        "goal": "goal-18015327faf9dcb82b53066c0e0b8db35bcc9e35d3fcd7eb1ebdc0827a2762fe",
+        "user_summary": "summary-pack-combination-1014-01:core:user-c38d08377c8d",
+        "user_episode": "episode-edc46edeae4d4622702ced614bc6625329b2278280915eba6d1be00e856b5114",
+        "pdlc_episode": "episode-5ae19390079fe81350d0383cf44d0fe44bc8c3c047262ce66e0000a84df71b8c",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      }
+    },
+    "user": {
+      "events": {
+        "preference": {
+          "event_id": "b6fa65f5-a383-5e75-acc6-0bc1015d6855",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:24.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "5a6fa999-356b-5d0b-8d1b-a903284e6b11",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:25.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "643df8ca-6280-550b-a87d-01ea33342cd6",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:26.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "ddc261ed-d8e7-5fa5-9669-54c64f596ef9",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:27.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "711aa1f6-0e37-5218-98c5-6aab0c8a5168",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:28.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "b70d27d3-1251-59e2-9eb2-0b1ad5adab08",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T02:39:29.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Reset tokens expire in fifteen minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "9dcaa0f6-fe3f-5104-8292-e35c5d68f1b4",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:30.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "843f2154-7ccd-5fa7-bbe2-21e5fd79802f",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T02:39:31.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Implement reset expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "c9ff26f0-07b5-50cf-8f07-26205d323e23",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T02:39:32.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "066fe2fe-40e4-5f5c-98df-a13f243d5e0d",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:33.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "0b4a5d73-6b2e-580e-ad60-07c7a62836bf",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T02:39:34.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "a26ce018-ba99-53e7-b33c-ecd43791bd4f",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:35.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:unrelated",
+          "agent_id": "bob",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "33a8eee7-9a4e-557d-b5eb-dca4666079d2",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:36.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "a5ed6432-7b45-5363-bd49-53ddbadb1ba9",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:37.590833+00:00",
+          "session_id": "pack-combination-1014-01:user:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end"
+      ],
+      "user": true,
+      "memory": false,
+      "pdlc": false,
+      "user_session": "pack-combination-1014-01:user:user",
+      "memory_session": "pack-combination-1014-01:user:memory",
+      "pdlc_session": "pack-combination-1014-01:user:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-0b96dba8cbb178be47aa8481e4ea431e88867704b71ca1fc8119b282d17e54b4",
+        "goal": "goal-df170d918a0963bac8ab5b711c734e0df9d7bd5da17b51ebec35bd21c3ac4219",
+        "user_summary": "summary-pack-combination-1014-01:user:user-a48bd73d4241",
+        "user_episode": "episode-3020875d26b81b3b2da04a3d2d26742d7f1f3aceb0587c70406abce9cedf1f11",
+        "pdlc_episode": "episode-42cb08f752dd4f7066420a8d727eebdd32be0898713db764b61da56eb2fd72bf",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      }
+    },
+    "user-memory": {
+      "events": {
+        "preference": {
+          "event_id": "eba9963f-9fcf-5f1a-ad17-ac02b586f060",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:24.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "9e94323a-fa59-5604-ad5e-e552e160c821",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:25.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "34218e3a-5fa2-58d0-9cac-4a2755487e93",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:26.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "57d77c18-8df4-541e-8de1-8427ccfcd236",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:27.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "784c4bb8-8ef4-5fe7-8db6-c590f82ab5b4",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:28.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "a0e521e0-f549-5cfe-8fa2-9f15c726a227",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T02:39:29.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Reset tokens expire in fifteen minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "ae917d0f-384b-5585-a1af-5bd9b7187564",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:30.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "f9b46211-92bf-5543-a236-5eec9aa20cf1",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T02:39:31.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Implement reset expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "78574560-c2a6-50fb-bd96-7f4a83726d78",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T02:39:32.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "4b089170-3f57-5a54-bd00-a1fcd000f791",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:33.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "d9f93286-02bf-5b71-9577-7526ce7dc4bf",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T02:39:34.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "56773f06-5bb3-57e6-a5ff-5101aff08907",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:35.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:unrelated",
+          "agent_id": "bob",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "535a7ca8-c301-56f4-a935-4cd62f0ebe9a",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:36.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "28c0166f-4776-5951-95ec-5a2e8810ca61",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:37.590920+00:00",
+          "session_id": "pack-combination-1014-01:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end",
+        "belief",
+        "confirmation",
+        "goal",
+        "completion"
+      ],
+      "user": true,
+      "memory": true,
+      "pdlc": false,
+      "user_session": "pack-combination-1014-01:user-memory:user",
+      "memory_session": "pack-combination-1014-01:user-memory:memory",
+      "pdlc_session": "pack-combination-1014-01:user-memory:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-f976dd5accb1243c88fa9f1e16b24529477932c0420e5314dae9153426704e52",
+        "goal": "goal-7dc2212b4a5e56cb40665e136ab44bad905aa80219d602514f1707d92e78ad20",
+        "user_summary": "summary-pack-combination-1014-01:user-memory:user-820d1581b408",
+        "user_episode": "episode-59fddda8c17f6f398c4cf339eed85b6bd7b36c8a2d42a1242c4e8c43549fff54",
+        "pdlc_episode": "episode-b95f47adb0ff3755a5415fe93ebe7c45c347c7b4598865881f952aa6b60e97c6",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      }
+    },
+    "pdlc": {
+      "events": {
+        "preference": {
+          "event_id": "599017c2-da0f-5129-9a0c-834eff1e664c",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:24.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "00c8beef-d59b-5c97-8ee0-2899e5a13dce",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:25.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "4d2cac6d-ea23-596d-b45e-267a7feee85e",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:26.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "99a76d61-e305-503e-80a5-301626eed069",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:27.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "37435ffd-a379-59c8-889a-e0b41a6a930f",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:28.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "6fb70f9d-6720-53d6-8a29-25a6e102749c",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T02:39:29.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Reset tokens expire in fifteen minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "0915b8dc-625c-5534-af9e-4d8d5c9664ed",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:30.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "23b8c107-2205-5ab1-9e6d-7a7ebd1ef802",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T02:39:31.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Implement reset expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "98ee8a72-6d3e-5637-abed-9cdb4dcc451c",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T02:39:32.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "260e0c72-ee98-57e0-a516-6085ec84aadf",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:33.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "ae44a5d7-48d0-5277-b9b5-eab88cb5fa1e",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T02:39:34.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "25caf800-975c-54c6-8418-03785864d0af",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:35.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:unrelated",
+          "agent_id": "bob",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "3e5fe9c4-04a7-583f-b06c-b7653622e42c",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:36.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "e8b6d592-3640-5a56-a455-6d1cde1342c7",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:37.591005+00:00",
+          "session_id": "pack-combination-1014-01:pdlc:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end",
+        "pr",
+        "merge",
+        "unrelated-pr"
+      ],
+      "user": false,
+      "memory": false,
+      "pdlc": true,
+      "user_session": "pack-combination-1014-01:pdlc:user",
+      "memory_session": "pack-combination-1014-01:pdlc:memory",
+      "pdlc_session": "pack-combination-1014-01:pdlc:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-b1dd9651ada91882a762f35f32eb1dde397bde648802d26d1d9e93222c60686e",
+        "goal": "goal-dd18c4f8eaf945a5de816f3b63c07f352f29a36c9581fff154f094b3f5349f10",
+        "user_summary": "summary-pack-combination-1014-01:pdlc:user-924f04ee0eae",
+        "user_episode": "episode-bd7f3c605773e318d083a4731772900039cc5b2698278eb2f7df968a96168f9c",
+        "pdlc_episode": "episode-7ad902b6fb471f6ead3e7b49f2bde767ce2d7b781c15ac433046a609156c1f8f",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      }
+    },
+    "pdlc-memory": {
+      "events": {
+        "preference": {
+          "event_id": "fb378f19-3d31-5fab-9cb9-2687e29dee81",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:24.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "8a6b38ad-a87a-5b7b-950b-7af43a2f75bf",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:25.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "69f0678b-b0d7-5634-97cf-c4cfabcd4987",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:26.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "6a006a51-44ac-5a64-bdb9-ea6698299f92",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T02:39:27.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "685684d1-db5c-58e4-86c2-422dbe6f3407",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T02:39:28.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:user",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "4d57e7ba-ab8d-5807-b220-62f0c2e8a465",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T02:39:29.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Reset tokens expire in fifteen minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "cb13615e-5d8e-51d1-bc59-c18e03fba91a",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:30.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "15ed3d4e-dc94-5370-b6ce-3dc4628c69e6",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T02:39:31.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Implement reset expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "c46a289c-27bb-5a71-a6cc-6684181ab505",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T02:39:32.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "e366b42d-da5e-5753-9280-845985f04457",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:33.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "aeb3fd41-885b-51c2-b9b8-5f41931e4e9a",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T02:39:34.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "9b0c6db0-5426-558a-bc5f-c4f7ec7c0ac8",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:35.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:unrelated",
+          "agent_id": "bob",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "2011de15-00b3-5d8c-922d-5a4c612c1007",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T02:39:36.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "017e5836-22b2-5864-8dde-5093ef6f1774",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T02:39:37.591083+00:00",
+          "session_id": "pack-combination-1014-01:pdlc-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "pack-combination-1014-01",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end",
+        "belief",
+        "confirmation",
+        "goal",
+        "completion",
+        "pr",
+        "merge",
+        "unrelated-pr"
+      ],
+      "user": false,
+      "memory": true,
+      "pdlc": true,
+      "user_session": "pack-combination-1014-01:pdlc-memory:user",
+      "memory_session": "pack-combination-1014-01:pdlc-memory:memory",
+      "pdlc_session": "pack-combination-1014-01:pdlc-memory:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-f70b411224f3b7f68847ed9affba5fe3d03ad132c7840315393b25af3b803202",
+        "goal": "goal-f4583d073596517352c3f8bb35b6db28a2c9c1eb1b5c5a575a34deaf3ac8b47a",
+        "user_summary": "summary-pack-combination-1014-01:pdlc-memory:user-508fa2d400dd",
+        "user_episode": "episode-aef2eddd257da7809114b0004210f170138b55ab6792df75a72f7d5615ed7e4d",
+        "pdlc_episode": "episode-d4c785fe6ba46b2f54c2010fe5fc08b05dfc49166127a7fca3335d487eebada6",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      }
+    }
+  },
+  "target": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+  "configurations": [
+    "core",
+    "user",
+    "user-memory",
+    "pdlc",
+    "pdlc-memory"
+  ],
+  "providers": {
+    "positive": {
+      "entities": [
+        {
+          "name": "ResetToken",
+          "entity_type": "concept",
+          "confidence": 1.0,
+          "source_quote": "ResetToken"
+        }
+      ],
+      "persona": {
+        "name": "Alice",
+        "source_quote": "My name is Alice"
+      },
+      "preferences": [
+        {
+          "category": "communication",
+          "key": "answer-length",
+          "polarity": "positive",
+          "strength": 0.8,
+          "confidence": 0.9,
+          "source": "explicit",
+          "context": "support",
+          "source_quote": "short answers"
+        }
+      ]
+    },
+    "negative": {
+      "entities": [
+        {
+          "name": "ResetToken",
+          "entity_type": "concept",
+          "confidence": 1.0,
+          "source_quote": "ResetToken"
+        }
+      ],
+      "persona": null,
+      "preferences": [
+        {
+          "category": "communication",
+          "key": "answer-length",
+          "polarity": "negative",
+          "strength": 0.8,
+          "confidence": 0.9,
+          "source": "explicit",
+          "context": "support",
+          "source_quote": "I no longer prefer short answers"
+        }
+      ]
+    },
+    "summary": "Accepted activity describes reset token work and Alice's preference correction.",
+    "decision": "Expire reset tokens after fifteen minutes."
+  }
+}

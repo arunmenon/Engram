@@ -1,0 +1,9 @@
+src/context_graph/worker/extraction.py:411: error: Invalid index type "str | None" for "dict[str, int]"; expected type "str"  [index]
+src/context_graph/worker/extraction.py:411: error: Argument 1 to "get" of "dict" has incompatible type "str | None"; expected "str"  [arg-type]
+src/context_graph/worker/extraction.py:432: error: Argument "target_id" to "_merge_resolution_edge" of "ExtractionConsumer" has incompatible type "str | None"; expected "str"  [arg-type]
+src/context_graph/worker/extraction.py:438: error: Argument 1 to "append" of "list" has incompatible type "tuple[str, str | None]"; expected "tuple[str, str]"  [arg-type]
+src/context_graph/worker/extraction.py:440: error: Invalid index type "str | None" for "dict[str, int]"; expected type "str"  [index]
+src/context_graph/worker/extraction.py:440: error: Argument 1 to "get" of "dict" has incompatible type "str | None"; expected "str"  [arg-type]
+src/context_graph/worker/extraction.py:466: error: Argument "entity_id" to "_merge_references_edge" of "ExtractionConsumer" has incompatible type "str | None"; expected "str"  [arg-type]
+pyproject.toml: note: unused section(s): module = ['context_graph.adapters.gcs.*', 'context_graph.adapters.spanner.*', 'google.api_core.*', 'neo4j.*', 'sentence_transformers', 'sentence_transformers.*']
+Found 7 errors in 1 file (checked 2 source files)

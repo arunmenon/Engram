@@ -1,0 +1,408 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_repeated_entity_resolution_retains_id_and_all_session_references[ResetToken-ResetToken-False] _
+
+user = False, first = 'ResetToken', second = 'ResetToken'
+
+    @pytest.mark.parametrize("user", [False, True])
+    @pytest.mark.parametrize("first,second", [("ResetToken", "ResetToken"), ("JavaScript", "JS")])
+    async def test_repeated_entity_resolution_retains_id_and_all_session_references(
+        user, first, second
+    ):
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        settings = Settings(ontology=OntologySettings(builtin_packs=["user"] if user else []))
+        subscription = MemorySubscription(ledger.stream, "extraction", "identity-test")
+        await subscription.ensure_group()
+        worker = ExtractionConsumer(
+            subscription, ledger, Provider(first, second), settings, graph_store=graph, user_store=graph
+        )
+        ids = []
+        for index, (kind, name) in enumerate(
+            [
+                ("observation.input", first),
+                ("system.session_end", ""),
+                ("observation.input", second),
+                ("system.session_end", ""),
+            ]
+        ):
+            event = Event(
+                event_id=UUID(int=9000 + index),
+                event_type=kind,
+                occurred_at=datetime(2026, 10, 14, tzinfo=UTC) + timedelta(seconds=index),
+                session_id="identity-session",
+                agent_id="alice",
+                trace_id="identity",
+                payload_ref="identity:" + str(index),
+            )
+            position = await ledger.append(event, {"content": name} if name else {})
+            await graph.merge_event_node(
+                event_to_node(event.model_copy(update={"global_position": position}))
+            )
+            ids.append(str(event.event_id))
+            if kind == "system.session_end":
+                await worker.process_message(position, {"event_id": str(event.event_id)})
+        entity = NodeRef("Entity", "entity:" + first, "entity_id")
+        assert entity in await graph.get_nodes([entity])
+        links = await graph.neighbors([entity], ["REFERENCES"], "in", 20)
+>       assert {row["source_key"] for row in links} == set(ids)
+E       AssertionError: assert {'00000000-00...000000002329'} == {'00000000-00...00000000232b'}
+E         
+E         Extra items in the right set:
+E         '00000000-0000-0000-0000-00000000232b'
+E         '00000000-0000-0000-0000-00000000232a'
+E         Use -v to get more diff
+
+tests/unit/test_extraction_entity_identity.py:71: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-14 08:21:21 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-14 08:21:21 [info     ] extraction_triggered           agent_id=alice entry_id=1791946281937-1 session_id=identity-session
+2026-10-14 08:21:21 [debug    ] session_events_collected       event_count=2 session_id=identity-session
+2026-10-14 08:21:21 [debug    ] entity_created                 entity_id=entity:ResetToken name=ResetToken
+2026-10-14 08:21:21 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:21 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=identity-session skills=0
+2026-10-14 08:21:21 [info     ] extraction_triggered           agent_id=alice entry_id=1791946281937-3 session_id=identity-session
+2026-10-14 08:21:21 [debug    ] session_events_collected       event_count=4 session_id=identity-session
+2026-10-14 08:21:21 [debug    ] entity_resolved_merge          canonical=resettoken name=ResetToken
+2026-10-14 08:21:21 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:21 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=identity-session skills=0
+_ test_repeated_entity_resolution_retains_id_and_all_session_references[ResetToken-ResetToken-True] _
+
+user = True, first = 'ResetToken', second = 'ResetToken'
+
+    @pytest.mark.parametrize("user", [False, True])
+    @pytest.mark.parametrize("first,second", [("ResetToken", "ResetToken"), ("JavaScript", "JS")])
+    async def test_repeated_entity_resolution_retains_id_and_all_session_references(
+        user, first, second
+    ):
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        settings = Settings(ontology=OntologySettings(builtin_packs=["user"] if user else []))
+        subscription = MemorySubscription(ledger.stream, "extraction", "identity-test")
+        await subscription.ensure_group()
+        worker = ExtractionConsumer(
+            subscription, ledger, Provider(first, second), settings, graph_store=graph, user_store=graph
+        )
+        ids = []
+        for index, (kind, name) in enumerate(
+            [
+                ("observation.input", first),
+                ("system.session_end", ""),
+                ("observation.input", second),
+                ("system.session_end", ""),
+            ]
+        ):
+            event = Event(
+                event_id=UUID(int=9000 + index),
+                event_type=kind,
+                occurred_at=datetime(2026, 10, 14, tzinfo=UTC) + timedelta(seconds=index),
+                session_id="identity-session",
+                agent_id="alice",
+                trace_id="identity",
+                payload_ref="identity:" + str(index),
+            )
+            position = await ledger.append(event, {"content": name} if name else {})
+            await graph.merge_event_node(
+                event_to_node(event.model_copy(update={"global_position": position}))
+            )
+            ids.append(str(event.event_id))
+            if kind == "system.session_end":
+                await worker.process_message(position, {"event_id": str(event.event_id)})
+        entity = NodeRef("Entity", "entity:" + first, "entity_id")
+        assert entity in await graph.get_nodes([entity])
+        links = await graph.neighbors([entity], ["REFERENCES"], "in", 20)
+>       assert {row["source_key"] for row in links} == set(ids)
+E       AssertionError: assert {'00000000-00...000000002329'} == {'00000000-00...00000000232b'}
+E         
+E         Extra items in the right set:
+E         '00000000-0000-0000-0000-00000000232b'
+E         '00000000-0000-0000-0000-00000000232a'
+E         Use -v to get more diff
+
+tests/unit/test_extraction_entity_identity.py:71: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-14 08:21:22 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-14 08:21:22 [debug    ] entity_created                 entity_id=entity:ResetToken name=ResetToken
+2026-10-14 08:21:22 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:22 [info     ] user_extraction_applied        event_id=00000000-0000-0000-0000-000000002329 outcome=applied session_id=identity-session
+2026-10-14 08:21:22 [debug    ] entity_resolved_merge          canonical=resettoken name=ResetToken
+2026-10-14 08:21:22 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:22 [info     ] user_extraction_applied        event_id=00000000-0000-0000-0000-00000000232b outcome=applied session_id=identity-session
+_ test_repeated_entity_resolution_retains_id_and_all_session_references[JavaScript-JS-False] _
+
+user = False, first = 'JavaScript', second = 'JS'
+
+    @pytest.mark.parametrize("user", [False, True])
+    @pytest.mark.parametrize("first,second", [("ResetToken", "ResetToken"), ("JavaScript", "JS")])
+    async def test_repeated_entity_resolution_retains_id_and_all_session_references(
+        user, first, second
+    ):
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        settings = Settings(ontology=OntologySettings(builtin_packs=["user"] if user else []))
+        subscription = MemorySubscription(ledger.stream, "extraction", "identity-test")
+        await subscription.ensure_group()
+        worker = ExtractionConsumer(
+            subscription, ledger, Provider(first, second), settings, graph_store=graph, user_store=graph
+        )
+        ids = []
+        for index, (kind, name) in enumerate(
+            [
+                ("observation.input", first),
+                ("system.session_end", ""),
+                ("observation.input", second),
+                ("system.session_end", ""),
+            ]
+        ):
+            event = Event(
+                event_id=UUID(int=9000 + index),
+                event_type=kind,
+                occurred_at=datetime(2026, 10, 14, tzinfo=UTC) + timedelta(seconds=index),
+                session_id="identity-session",
+                agent_id="alice",
+                trace_id="identity",
+                payload_ref="identity:" + str(index),
+            )
+            position = await ledger.append(event, {"content": name} if name else {})
+            await graph.merge_event_node(
+                event_to_node(event.model_copy(update={"global_position": position}))
+            )
+            ids.append(str(event.event_id))
+            if kind == "system.session_end":
+                await worker.process_message(position, {"event_id": str(event.event_id)})
+        entity = NodeRef("Entity", "entity:" + first, "entity_id")
+        assert entity in await graph.get_nodes([entity])
+        links = await graph.neighbors([entity], ["REFERENCES"], "in", 20)
+>       assert {row["source_key"] for row in links} == set(ids)
+E       AssertionError: assert {'00000000-00...000000002329'} == {'00000000-00...00000000232b'}
+E         
+E         Extra items in the right set:
+E         '00000000-0000-0000-0000-00000000232b'
+E         '00000000-0000-0000-0000-00000000232a'
+E         Use -v to get more diff
+
+tests/unit/test_extraction_entity_identity.py:71: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 08:21:22 [info     ] extraction_triggered           agent_id=alice entry_id=1791946282174-1 session_id=identity-session
+2026-10-14 08:21:22 [debug    ] session_events_collected       event_count=2 session_id=identity-session
+2026-10-14 08:21:22 [debug    ] entity_created                 entity_id=entity:JavaScript name=JavaScript
+2026-10-14 08:21:22 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:22 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=identity-session skills=0
+2026-10-14 08:21:22 [info     ] extraction_triggered           agent_id=alice entry_id=1791946282174-3 session_id=identity-session
+2026-10-14 08:21:22 [debug    ] session_events_collected       event_count=4 session_id=identity-session
+2026-10-14 08:21:22 [debug    ] entity_resolved_merge          canonical=javascript name=JS
+2026-10-14 08:21:22 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:22 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=identity-session skills=0
+_ test_repeated_entity_resolution_retains_id_and_all_session_references[JavaScript-JS-True] _
+
+user = True, first = 'JavaScript', second = 'JS'
+
+    @pytest.mark.parametrize("user", [False, True])
+    @pytest.mark.parametrize("first,second", [("ResetToken", "ResetToken"), ("JavaScript", "JS")])
+    async def test_repeated_entity_resolution_retains_id_and_all_session_references(
+        user, first, second
+    ):
+        graph, ledger = MemoryGraphStore(), MemoryEventLog()
+        settings = Settings(ontology=OntologySettings(builtin_packs=["user"] if user else []))
+        subscription = MemorySubscription(ledger.stream, "extraction", "identity-test")
+        await subscription.ensure_group()
+        worker = ExtractionConsumer(
+            subscription, ledger, Provider(first, second), settings, graph_store=graph, user_store=graph
+        )
+        ids = []
+        for index, (kind, name) in enumerate(
+            [
+                ("observation.input", first),
+                ("system.session_end", ""),
+                ("observation.input", second),
+                ("system.session_end", ""),
+            ]
+        ):
+            event = Event(
+                event_id=UUID(int=9000 + index),
+                event_type=kind,
+                occurred_at=datetime(2026, 10, 14, tzinfo=UTC) + timedelta(seconds=index),
+                session_id="identity-session",
+                agent_id="alice",
+                trace_id="identity",
+                payload_ref="identity:" + str(index),
+            )
+            position = await ledger.append(event, {"content": name} if name else {})
+            await graph.merge_event_node(
+                event_to_node(event.model_copy(update={"global_position": position}))
+            )
+            ids.append(str(event.event_id))
+            if kind == "system.session_end":
+                await worker.process_message(position, {"event_id": str(event.event_id)})
+        entity = NodeRef("Entity", "entity:" + first, "entity_id")
+        assert entity in await graph.get_nodes([entity])
+        links = await graph.neighbors([entity], ["REFERENCES"], "in", 20)
+>       assert {row["source_key"] for row in links} == set(ids)
+E       AssertionError: assert {'00000000-00...000000002329'} == {'00000000-00...00000000232b'}
+E         
+E         Extra items in the right set:
+E         '00000000-0000-0000-0000-00000000232b'
+E         '00000000-0000-0000-0000-00000000232a'
+E         Use -v to get more diff
+
+tests/unit/test_extraction_entity_identity.py:71: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 08:21:22 [debug    ] entity_created                 entity_id=entity:JavaScript name=JavaScript
+2026-10-14 08:21:22 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:22 [info     ] user_extraction_applied        event_id=00000000-0000-0000-0000-000000002329 outcome=applied session_id=identity-session
+2026-10-14 08:21:22 [debug    ] entity_resolved_merge          canonical=javascript name=JS
+2026-10-14 08:21:22 [info     ] extraction_results_written     session_id=identity-session user_entity_id=user:alice
+2026-10-14 08:21:22 [info     ] user_extraction_applied        event_id=00000000-0000-0000-0000-00000000232b outcome=applied session_id=identity-session
+_ test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[exact] _
+
+tier = 'exact'
+
+    @pytest.mark.parametrize("tier", ["exact", "same-name-other-type", "fuzzy", "semantic"])
+    def test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name(tier):
+        from context_graph.domain.entity_resolution import (
+            SemanticCandidate,
+            resolve_close_match,
+            resolve_exact_match,
+            resolve_semantic_match,
+        )
+    
+        stored = {"name": "ResetToken", "entity_type": "tool", "entity_id": "entity:stable-key"}
+        if tier == "exact":
+            result = resolve_exact_match("resettoken", "tool", [stored])
+        elif tier == "same-name-other-type":
+            result = resolve_exact_match("resettoken", "concept", [stored])
+        elif tier == "fuzzy":
+            result = resolve_close_match("ResetTokens", "tool", [stored])
+        else:
+            result = resolve_semantic_match(
+                "expiry", "tool", [SemanticCandidate("ResetToken", "tool", "entity:stable-key", 0.95)]
+            )
+        assert result is not None
+>       assert result.canonical_entity_id == "entity:stable-key"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'EntityResolutionResult' object has no attribute 'canonical_entity_id'
+
+tests/unit/test_extraction_entity_identity.py:97: AttributeError
+_ test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[same-name-other-type] _
+
+tier = 'same-name-other-type'
+
+    @pytest.mark.parametrize("tier", ["exact", "same-name-other-type", "fuzzy", "semantic"])
+    def test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name(tier):
+        from context_graph.domain.entity_resolution import (
+            SemanticCandidate,
+            resolve_close_match,
+            resolve_exact_match,
+            resolve_semantic_match,
+        )
+    
+        stored = {"name": "ResetToken", "entity_type": "tool", "entity_id": "entity:stable-key"}
+        if tier == "exact":
+            result = resolve_exact_match("resettoken", "tool", [stored])
+        elif tier == "same-name-other-type":
+            result = resolve_exact_match("resettoken", "concept", [stored])
+        elif tier == "fuzzy":
+            result = resolve_close_match("ResetTokens", "tool", [stored])
+        else:
+            result = resolve_semantic_match(
+                "expiry", "tool", [SemanticCandidate("ResetToken", "tool", "entity:stable-key", 0.95)]
+            )
+        assert result is not None
+>       assert result.canonical_entity_id == "entity:stable-key"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'EntityResolutionResult' object has no attribute 'canonical_entity_id'
+
+tests/unit/test_extraction_entity_identity.py:97: AttributeError
+_ test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[fuzzy] _
+
+tier = 'fuzzy'
+
+    @pytest.mark.parametrize("tier", ["exact", "same-name-other-type", "fuzzy", "semantic"])
+    def test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name(tier):
+        from context_graph.domain.entity_resolution import (
+            SemanticCandidate,
+            resolve_close_match,
+            resolve_exact_match,
+            resolve_semantic_match,
+        )
+    
+        stored = {"name": "ResetToken", "entity_type": "tool", "entity_id": "entity:stable-key"}
+        if tier == "exact":
+            result = resolve_exact_match("resettoken", "tool", [stored])
+        elif tier == "same-name-other-type":
+            result = resolve_exact_match("resettoken", "concept", [stored])
+        elif tier == "fuzzy":
+            result = resolve_close_match("ResetTokens", "tool", [stored])
+        else:
+            result = resolve_semantic_match(
+                "expiry", "tool", [SemanticCandidate("ResetToken", "tool", "entity:stable-key", 0.95)]
+            )
+        assert result is not None
+>       assert result.canonical_entity_id == "entity:stable-key"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'EntityResolutionResult' object has no attribute 'canonical_entity_id'
+
+tests/unit/test_extraction_entity_identity.py:97: AttributeError
+_ test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[semantic] _
+
+tier = 'semantic'
+
+    @pytest.mark.parametrize("tier", ["exact", "same-name-other-type", "fuzzy", "semantic"])
+    def test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name(tier):
+        from context_graph.domain.entity_resolution import (
+            SemanticCandidate,
+            resolve_close_match,
+            resolve_exact_match,
+            resolve_semantic_match,
+        )
+    
+        stored = {"name": "ResetToken", "entity_type": "tool", "entity_id": "entity:stable-key"}
+        if tier == "exact":
+            result = resolve_exact_match("resettoken", "tool", [stored])
+        elif tier == "same-name-other-type":
+            result = resolve_exact_match("resettoken", "concept", [stored])
+        elif tier == "fuzzy":
+            result = resolve_close_match("ResetTokens", "tool", [stored])
+        else:
+            result = resolve_semantic_match(
+                "expiry", "tool", [SemanticCandidate("ResetToken", "tool", "entity:stable-key", 0.95)]
+            )
+        assert result is not None
+>       assert result.canonical_entity_id == "entity:stable-key"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'EntityResolutionResult' object has no attribute 'canonical_entity_id'
+
+tests/unit/test_extraction_entity_identity.py:97: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_extraction_entity_identity.py::test_repeated_entity_resolution_retains_id_and_all_session_references[ResetToken-ResetToken-False]
+FAILED tests/unit/test_extraction_entity_identity.py::test_repeated_entity_resolution_retains_id_and_all_session_references[ResetToken-ResetToken-True]
+FAILED tests/unit/test_extraction_entity_identity.py::test_repeated_entity_resolution_retains_id_and_all_session_references[JavaScript-JS-False]
+FAILED tests/unit/test_extraction_entity_identity.py::test_repeated_entity_resolution_retains_id_and_all_session_references[JavaScript-JS-True]
+FAILED tests/unit/test_extraction_entity_identity.py::test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[exact]
+FAILED tests/unit/test_extraction_entity_identity.py::test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[same-name-other-type]
+FAILED tests/unit/test_extraction_entity_identity.py::test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[fuzzy]
+FAILED tests/unit/test_extraction_entity_identity.py::test_resolution_keeps_authoritative_storage_id_instead_of_reconstructing_name[semantic]
+8 failed in 0.63s

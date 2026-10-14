@@ -1,0 +1,76 @@
+{
+  "accepted": false,
+  "reason": "Missing later Entity REFERENCES independently found; additionally artifact evidence-edge oracle exceeded artifact API contract",
+  "source_hashes_checked": 218,
+  "changed_sources": [],
+  "results": {
+    "core": {
+      "recorded_state": "passed",
+      "exact_entity_references": false,
+      "expected": [
+        "06f915a1-a908-53f5-b930-c20b6df51f6c",
+        "11f603a6-6037-54a3-9073-158d277a299a",
+        "7ba54d28-7e15-5ec3-891d-a6c72ee5b7b7",
+        "841ee1df-a755-587a-8a0c-07ca186103f4",
+        "da298c9e-a354-59b7-b35d-3dfc7fec7945"
+      ],
+      "actual": [
+        "841ee1df-a755-587a-8a0c-07ca186103f4",
+        "da298c9e-a354-59b7-b35d-3dfc7fec7945"
+      ],
+      "error": null,
+      "shutdown_errors": []
+    },
+    "user": {
+      "recorded_state": "passed",
+      "exact_entity_references": false,
+      "expected": [
+        "5a6fa999-356b-5d0b-8d1b-a903284e6b11",
+        "643df8ca-6280-550b-a87d-01ea33342cd6",
+        "711aa1f6-0e37-5218-98c5-6aab0c8a5168",
+        "b6fa65f5-a383-5e75-acc6-0bc1015d6855",
+        "ddc261ed-d8e7-5fa5-9669-54c64f596ef9"
+      ],
+      "actual": [
+        "5a6fa999-356b-5d0b-8d1b-a903284e6b11",
+        "b6fa65f5-a383-5e75-acc6-0bc1015d6855"
+      ],
+      "error": null,
+      "shutdown_errors": []
+    },
+    "user-memory": {
+      "recorded_state": "passed",
+      "exact_entity_references": false,
+      "expected": [
+        "34218e3a-5fa2-58d0-9cac-4a2755487e93",
+        "57d77c18-8df4-541e-8de1-8427ccfcd236",
+        "784c4bb8-8ef4-5fe7-8db6-c590f82ab5b4",
+        "9e94323a-fa59-5604-ad5e-e552e160c821",
+        "eba9963f-9fcf-5f1a-ad17-ac02b586f060"
+      ],
+      "actual": [
+        "9e94323a-fa59-5604-ad5e-e552e160c821",
+        "eba9963f-9fcf-5f1a-ad17-ac02b586f060"
+      ],
+      "error": null,
+      "shutdown_errors": []
+    },
+    "pdlc": {
+      "recorded_state": "failed",
+      "exact_entity_references": false,
+      "expected": [
+        "00c8beef-d59b-5c97-8ee0-2899e5a13dce",
+        "37435ffd-a379-59c8-889a-e0b41a6a930f",
+        "4d2cac6d-ea23-596d-b45e-267a7feee85e",
+        "599017c2-da0f-5129-9a0c-834eff1e664c",
+        "99a76d61-e305-503e-80a5-301626eed069"
+      ],
+      "actual": [
+        "00c8beef-d59b-5c97-8ee0-2899e5a13dce",
+        "599017c2-da0f-5129-9a0c-834eff1e664c"
+      ],
+      "error": "AssertionError('public Change exact evidence edges Change:packmatrix/main|7')",
+      "shutdown_errors": []
+    }
+  }
+}
