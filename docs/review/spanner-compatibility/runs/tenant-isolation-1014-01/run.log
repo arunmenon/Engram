@@ -1,0 +1,332 @@
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-14 13:43:15 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-14 13:43:19 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:43:19 [info     ] llm_client_initialized
+2026-10-14 13:43:22 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'user@1.2.0'] ontology_version=sha256:e861b87f989b1869 redis_host=localhost
+2026-10-14 13:43:22 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:43:22 [info     ] llm_client_initialized
+2026-10-14 13:43:25 [info     ] app_stopped
+2026-10-14 13:43:26 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:43:26 [info     ] llm_client_initialized
+2026-10-14 13:43:29 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'user@1.2.0'] ontology_version=sha256:e861b87f989b1869 redis_host=localhost
+2026-10-14 13:43:29 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:43:29 [info     ] llm_client_initialized
+2026-10-14 13:43:32 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'pdlc@5.0.0'] ontology_version=sha256:b5b9857af719ffe2 redis_host=localhost
+2026-10-14 13:43:35 [info     ] ontology_loaded                edge_types=20 event_types=23 intents=['beliefs', 'general', 'goals', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=11 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:e861b87f989b1869
+2026-10-14 13:43:35 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-14 13:43:35 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-14 13:43:36 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-14 13:43:38 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-14 13:43:38 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-14 13:43:38 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-14 13:43:40 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:43:41 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-14 13:43:41 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-14 13:43:43 [info     ] consolidation_llm_client_initialized
+2026-10-14 13:43:43 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-14 13:43:43 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-14 13:43:43 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 13:43:44 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 13:43:46 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-14 13:43:46 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-14 13:43:49 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-14 13:43:49 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-14 13:43:49 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-14 13:43:50 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-14 13:43:52 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-14 13:43:52 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-14 13:43:53 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-14 13:43:55 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:43:55 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-14 13:43:55 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-14 13:43:58 [info     ] consolidation_llm_client_initialized
+2026-10-14 13:43:58 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-14 13:43:58 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-14 13:43:58 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 13:43:58 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 13:44:01 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-14 13:44:01 [info     ] event_ingested                 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 event_type=observation.input global_position=2026-10-14T08:14:01.199919000Z/000000/a715de1f-cb24-581b-8b9b-f1e22f5938e6 request_id=d7dbac14-3cf8-4c9a-b124-50c02e91ee9c status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-14 13:44:01 [info     ] event_ingested                 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 event_type=observation.input global_position=2026-10-14T08:14:01.259471000Z/000000/a715de1f-cb24-581b-8b9b-f1e22f5938e6 request_id=ea03db57-2183-4892-affa-da03cd8ff1e1 status=created
+2026-10-14 13:44:01 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:01 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-14 13:44:01 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:01.199919000Z/000000/a715de1f-cb24-581b-8b9b-f1e22f5938e6 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:01 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 13:44:01 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:02 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:01.259471000Z/000000/a715de1f-cb24-581b-8b9b-f1e22f5938e6 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:02 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 13:44:02 [debug    ] event_enriched                 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 importance_score=7 keywords=['observation', 'input']
+2026-10-14 13:44:08 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+I1014 13:44:10.273629 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(65, generation: 1)
+I1014 13:44:10.274033 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(64, generation: 1)
+I1014 13:44:10.274090 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(63, generation: 1)
+I1014 13:44:10.274110 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(42, generation: 1)
+I1014 13:44:10.274118 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(39, generation: 1)
+I1014 13:44:10.274122 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(38, generation: 1)
+I1014 13:44:10.274125 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1014 13:44:10.274175 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(36, generation: 1)
+I1014 13:44:10.274367 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1014 13:44:10.274541 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1014 13:44:10.274595 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1014 13:44:10.274634 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1014 13:44:10.274647 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1014 13:44:10.274696 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1014 13:44:10.274724 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(20, generation: 1)
+I1014 13:44:10.274742 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1014 13:44:10.274748 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+I1014 13:44:10.274772 57501618 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6742.52it/s]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-14 13:44:13 [info     ] consolidation_timer_fired
+2026-10-14 13:44:13 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 13:44:13 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 13:44:13 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:13 [debug    ] event_enriched                 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 importance_score=7 keywords=['observation', 'input']
+2026-10-14 13:44:13 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7535.42it/s]
+2026-10-14 13:44:19 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:19 [debug    ] event_embedding_stored         event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6
+2026-10-14 13:44:19 [info     ] consolidation_timer_fired
+2026-10-14 13:44:19 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 13:44:19 [info     ] sessions_qualifying_for_consolidation count=1 threshold=5
+2026-10-14 13:44:19 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:19 [debug    ] event_embedding_stored         event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6
+2026-10-14 13:44:19 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:19 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-14 13:44:19 [info     ] pack_extraction_applied        edges_written=1 event_id=a715de1f-cb24-581b-8b9b-f1e22f5938e6 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-14 13:44:20 [info     ] event_ingested                 event_id=d20bf324-1029-5d60-8c78-f3742779decc event_type=system.session_end global_position=2026-10-14T08:14:20.610063000Z/000000/d20bf324-1029-5d60-8c78-f3742779decc request_id=bdf50d50-c087-4f0f-b836-54603b382d3f status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-14 13:44:20 [info     ] event_ingested                 event_id=d20bf324-1029-5d60-8c78-f3742779decc event_type=system.session_end global_position=2026-10-14T08:14:20.608351000Z/000000/d20bf324-1029-5d60-8c78-f3742779decc request_id=fd4880c5-e237-4a16-8ae8-5046e29586a9 status=created
+2026-10-14 13:44:20 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:20.608351000Z/000000/d20bf324-1029-5d60-8c78-f3742779decc event_id=d20bf324-1029-5d60-8c78-f3742779decc session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:20 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:20.610063000Z/000000/d20bf324-1029-5d60-8c78-f3742779decc event_id=d20bf324-1029-5d60-8c78-f3742779decc session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:20 [info     ] extraction_triggered           agent_id=alice entry_id=2026-10-14T08:14:20.608351000Z/000000/d20bf324-1029-5d60-8c78-f3742779decc session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:20 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-14 13:44:20 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:21 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:21 [debug    ] session_events_collected       event_count=2 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:21 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6477.06it/s]
+2026-10-14 13:44:26 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:26 [debug    ] event_enriched                 event_id=d20bf324-1029-5d60-8c78-f3742779decc importance_score=7 keywords=['system', 'session_end']
+2026-10-14 13:44:26 [debug    ] event_enriched                 event_id=d20bf324-1029-5d60-8c78-f3742779decc importance_score=7 keywords=['system', 'session_end']
+2026-10-14 13:44:27 [debug    ] event_embedding_stored         event_id=d20bf324-1029-5d60-8c78-f3742779decc
+2026-10-14 13:44:27 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:27 [debug    ] entity_created                 entity_id=entity:ResetToken name=ResetToken
+2026-10-14 13:44:27 [debug    ] event_embedding_stored         event_id=d20bf324-1029-5d60-8c78-f3742779decc
+2026-10-14 13:44:27 [info     ] agent_summary_created          agent_id=alice sessions=1
+2026-10-14 13:44:27 [info     ] extraction_results_written     session_id=tenant-isolation-1014-01:user-memory:user user_entity_id=user:alice
+2026-10-14 13:44:27 [info     ] extraction_completed           entities=1 interests=0 preferences=1 session_id=tenant-isolation-1014-01:user-memory:user skills=0
+2026-10-14 13:44:27 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 9376.31it/s]
+2026-10-14 13:44:33 [info     ] agent_summary_created          agent_id=alice sessions=1
+2026-10-14 13:44:33 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-14 13:44:33 [debug    ] entity_created                 entity_id=entity:ResetToken name=ResetToken
+2026-10-14 13:44:33 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-14 13:44:33 [info     ] extraction_results_written     session_id=tenant-isolation-1014-01:user-memory:user user_entity_id=user:alice
+2026-10-14 13:44:34 [info     ] user_extraction_applied        event_id=d20bf324-1029-5d60-8c78-f3742779decc outcome=applied session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:34 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 13:44:35 [info     ] event_ingested                 event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f event_type=system.session_end global_position=2026-10-14T08:14:35.069071000Z/000000/bc6bc097-38a3-51a7-8a2c-d3505d66096f request_id=feca1089-1d89-4d32-aed7-37ed9221953e status=created
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-14 13:44:35 [info     ] event_ingested                 event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f event_type=system.session_end global_position=2026-10-14T08:14:35.077087000Z/000000/bc6bc097-38a3-51a7-8a2c-d3505d66096f request_id=fc80e274-c115-4a1c-9ca4-1c09175f0128 status=created
+2026-10-14 13:44:35 [info     ] extraction_triggered           agent_id=alice entry_id=2026-10-14T08:14:35.077087000Z/000000/bc6bc097-38a3-51a7-8a2c-d3505d66096f session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:35 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 13:44:35 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-14 13:44:35 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:35 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:35 [debug    ] session_events_collected       event_count=3 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:35 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:35.077087000Z/000000/bc6bc097-38a3-51a7-8a2c-d3505d66096f event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:35 [debug    ] entity_resolved_merge          canonical=resettoken name=ResetToken
+2026-10-14 13:44:35 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=400
+2026-10-14 13:44:35 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:35.069071000Z/000000/bc6bc097-38a3-51a7-8a2c-d3505d66096f event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:35 [debug    ] event_enriched                 event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f importance_score=7 keywords=['system', 'session_end']
+2026-10-14 13:44:35 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 13:44:35 [debug    ] event_embedding_stored         event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f
+2026-10-14 13:44:36 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 13:44:36 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 13:44:36 [info     ] extraction_results_written     session_id=tenant-isolation-1014-01:user-memory:user user_entity_id=user:alice
+2026-10-14 13:44:36 [info     ] extraction_completed           entities=1 interests=0 preferences=1 session_id=tenant-isolation-1014-01:user-memory:user skills=0
+2026-10-14 13:44:36 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 13:44:36 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 13:44:36 [debug    ] event_enriched                 event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f importance_score=7 keywords=['system', 'session_end']
+2026-10-14 13:44:37 [debug    ] event_embedding_stored         event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f
+2026-10-14 13:44:37 [debug    ] entity_resolved_merge          canonical=resettoken name=ResetToken
+2026-10-14 13:44:38 [info     ] extraction_results_written     session_id=tenant-isolation-1014-01:user-memory:user user_entity_id=user:alice
+2026-10-14 13:44:38 [info     ] user_extraction_applied        event_id=bc6bc097-38a3-51a7-8a2c-d3505d66096f outcome=applied session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:39 [info     ] event_ingested                 event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f event_type=observation.input global_position=2026-10-14T08:14:39.973791000Z/000000/d6db1c75-8d43-5a73-9de4-15d77a74986f request_id=f3d8bc9a-80a7-4b73-88ca-6578e3be1672 status=created
+2026-10-14 13:44:40 [info     ] event_ingested                 event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f event_type=observation.input global_position=2026-10-14T08:14:40.033967000Z/000000/d6db1c75-8d43-5a73-9de4-15d77a74986f request_id=24360686-007a-4e5c-b012-2ebfb11b5c28 status=created
+2026-10-14 13:44:40 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:40 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:40 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:40.033967000Z/000000/d6db1c75-8d43-5a73-9de4-15d77a74986f event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:41 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:39.973791000Z/000000/d6db1c75-8d43-5a73-9de4-15d77a74986f event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:41 [debug    ] event_enriched                 event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f importance_score=7 keywords=['observation', 'input']
+2026-10-14 13:44:41 [info     ] pack_extraction_applied        edges_written=0 event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-14 13:44:41 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 13:44:41 [debug    ] event_embedding_stored         event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f
+2026-10-14 13:44:41 [debug    ] event_enriched                 event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f importance_score=7 keywords=['observation', 'input']
+2026-10-14 13:44:41 [debug    ] event_embedding_stored         event_id=d6db1c75-8d43-5a73-9de4-15d77a74986f
+2026-10-14 13:44:42 [info     ] event_ingested                 event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e event_type=system.session_end global_position=2026-10-14T08:14:42.413919000Z/000000/1b3e0a89-e522-5d61-aab2-8822f8f17a9e request_id=988958e0-2a49-4b60-b09c-3b3b606eab61 status=created
+2026-10-14 13:44:42 [info     ] event_ingested                 event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e event_type=system.session_end global_position=2026-10-14T08:14:42.448015000Z/000000/1b3e0a89-e522-5d61-aab2-8822f8f17a9e request_id=93c52d5d-ef51-4ba5-b835-b9bc6a66b7b3 status=created
+2026-10-14 13:44:42 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:42.413919000Z/000000/1b3e0a89-e522-5d61-aab2-8822f8f17a9e event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:42 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:42.448015000Z/000000/1b3e0a89-e522-5d61-aab2-8822f8f17a9e event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:42 [info     ] extraction_triggered           agent_id=alice entry_id=2026-10-14T08:14:42.448015000Z/000000/1b3e0a89-e522-5d61-aab2-8822f8f17a9e session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:42 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-14 13:44:42 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:42 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:42 [debug    ] session_events_collected       event_count=5 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:42 [debug    ] entity_resolved_merge          canonical=resettoken name=ResetToken
+2026-10-14 13:44:43 [debug    ] event_enriched                 event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e importance_score=7 keywords=['system', 'session_end']
+2026-10-14 13:44:43 [debug    ] event_enriched                 event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e importance_score=7 keywords=['system', 'session_end']
+2026-10-14 13:44:43 [debug    ] event_embedding_stored         event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e
+2026-10-14 13:44:43 [debug    ] event_embedding_stored         event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e
+2026-10-14 13:44:43 [debug    ] entity_resolved_merge          canonical=resettoken name=ResetToken
+2026-10-14 13:44:44 [info     ] extraction_results_written     session_id=tenant-isolation-1014-01:user-memory:user user_entity_id=user:alice
+2026-10-14 13:44:44 [info     ] extraction_completed           entities=1 interests=0 preferences=1 session_id=tenant-isolation-1014-01:user-memory:user skills=0
+2026-10-14 13:44:44 [info     ] extraction_results_written     session_id=tenant-isolation-1014-01:user-memory:user user_entity_id=user:alice
+2026-10-14 13:44:44 [info     ] user_extraction_applied        event_id=1b3e0a89-e522-5d61-aab2-8822f8f17a9e outcome=applied session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:45 [info     ] event_ingested                 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 event_type=memory.belief.stated global_position=2026-10-14T08:14:45.976159000Z/000000/fbcf2397-8f93-5da5-85fc-5335aee53910 request_id=2f12b938-97d7-438a-bead-48e750158417 status=created
+2026-10-14 13:44:46 [info     ] event_ingested                 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 event_type=memory.belief.stated global_position=2026-10-14T08:14:46.023679000Z/000000/fbcf2397-8f93-5da5-85fc-5335aee53910 request_id=2f0e6846-531a-41d2-b7ed-f9d6a51ad834 status=created
+2026-10-14 13:44:46 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:46 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:46.023679000Z/000000/fbcf2397-8f93-5da5-85fc-5335aee53910 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:46 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:46 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:45.976159000Z/000000/fbcf2397-8f93-5da5-85fc-5335aee53910 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:47 [debug    ] event_enriched                 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 importance_score=7 keywords=['memory', 'belief', 'stated']
+2026-10-14 13:44:47 [debug    ] event_enriched                 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 importance_score=7 keywords=['memory', 'belief', 'stated']
+2026-10-14 13:44:47 [debug    ] event_embedding_stored         event_id=fbcf2397-8f93-5da5-85fc-5335aee53910
+2026-10-14 13:44:47 [debug    ] event_embedding_stored         event_id=fbcf2397-8f93-5da5-85fc-5335aee53910
+2026-10-14 13:44:49 [info     ] event_ingested                 event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da event_type=memory.belief.confirmed global_position=2026-10-14T08:14:49.067679000Z/000000/8ee0956c-42fd-511c-b95e-c957cb2b75da request_id=96794ec5-ad4e-458b-94f6-cf2369483e0b status=created
+2026-10-14 13:44:49 [info     ] event_ingested                 event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da event_type=memory.belief.confirmed global_position=2026-10-14T08:14:49.072303000Z/000000/8ee0956c-42fd-511c-b95e-c957cb2b75da request_id=f1e5432e-d133-41c5-8cbb-dd2d11290775 status=created
+2026-10-14 13:44:49 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:49 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:49.067679000Z/000000/8ee0956c-42fd-511c-b95e-c957cb2b75da event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:49 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:49.072303000Z/000000/8ee0956c-42fd-511c-b95e-c957cb2b75da event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:49 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:49 [debug    ] event_enriched                 event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da importance_score=7 keywords=['memory', 'belief', 'confirmed']
+2026-10-14 13:44:49 [debug    ] event_embedding_stored         event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da
+2026-10-14 13:44:50 [debug    ] event_enriched                 event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da importance_score=7 keywords=['memory', 'belief', 'confirmed']
+2026-10-14 13:44:50 [debug    ] event_embedding_stored         event_id=8ee0956c-42fd-511c-b95e-c957cb2b75da
+2026-10-14 13:44:51 [info     ] event_ingested                 event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c event_type=memory.goal.created global_position=2026-10-14T08:14:51.898031000Z/000000/accd0b93-8685-5d39-aa2d-0a5bebbaed3c request_id=59c856b7-3604-406b-a0b8-379ed541dc0c status=created
+2026-10-14 13:44:51 [info     ] event_ingested                 event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c event_type=memory.goal.created global_position=2026-10-14T08:14:51.935007000Z/000000/accd0b93-8685-5d39-aa2d-0a5bebbaed3c request_id=1e95a36f-3348-41f6-8c37-d82772326417 status=created
+2026-10-14 13:44:52 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:51.898031000Z/000000/accd0b93-8685-5d39-aa2d-0a5bebbaed3c event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:52 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:52 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:51.935007000Z/000000/accd0b93-8685-5d39-aa2d-0a5bebbaed3c event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:52 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:52 [debug    ] event_enriched                 event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c importance_score=7 keywords=['memory', 'goal', 'created']
+2026-10-14 13:44:53 [debug    ] event_embedding_stored         event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c
+2026-10-14 13:44:53 [debug    ] event_enriched                 event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c importance_score=7 keywords=['memory', 'goal', 'created']
+2026-10-14 13:44:53 [debug    ] event_embedding_stored         event_id=accd0b93-8685-5d39-aa2d-0a5bebbaed3c
+2026-10-14 13:44:54 [info     ] event_ingested                 event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 event_type=memory.goal.completed global_position=2026-10-14T08:14:54.895903000Z/000000/37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 request_id=1dc41c3d-4b78-4656-8a9c-e091fa713b42 status=created
+2026-10-14 13:44:54 [info     ] event_ingested                 event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 event_type=memory.goal.completed global_position=2026-10-14T08:14:54.901855000Z/000000/37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 request_id=d038bab3-462c-4511-a05b-6576f402e4db status=created
+2026-10-14 13:44:55 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:54.901855000Z/000000/37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:55 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:55 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:55 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:54.895903000Z/000000/37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:55 [debug    ] event_enriched                 event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 importance_score=7 keywords=['memory', 'goal', 'completed']
+2026-10-14 13:44:56 [info     ] consolidation_timer_fired
+2026-10-14 13:44:56 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 13:44:56 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-14 13:44:56 [info     ] consolidating_session          event_count=5 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:56 [debug    ] event_enriched                 event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49 importance_score=7 keywords=['memory', 'goal', 'completed']
+2026-10-14 13:44:56 [info     ] consolidation_timer_fired
+2026-10-14 13:44:56 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 13:44:56 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:56 [debug    ] event_embedding_stored         event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49
+2026-10-14 13:44:56 [debug    ] event_embedding_stored         event_id=37a3cb6d-dd9b-5422-adcd-7aa2177e5d49
+2026-10-14 13:44:56 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-14 13:44:56 [info     ] consolidating_session          event_count=5 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:56 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:57 [info     ] event_ingested                 event_id=1bdb20b5-06b3-5c71-ab71-1f25ce4bd64f event_type=pdlc.change.created global_position=2026-10-14T08:14:57.640655000Z/000000/1bdb20b5-06b3-5c71-ab71-1f25ce4bd64f request_id=02450246-f807-473f-af34-a981bc5fd400 status=created
+2026-10-14 13:44:58 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:44:58 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:14:57.640655000Z/000000/1bdb20b5-06b3-5c71-ab71-1f25ce4bd64f event_id=1bdb20b5-06b3-5c71-ab71-1f25ce4bd64f session_id=tenant-isolation-1014-01:user-memory:pdlc
+2026-10-14 13:44:58 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 13:44:58 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:58 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:58 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:58 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:44:58 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:58 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:44:58 [debug    ] event_enriched                 event_id=1bdb20b5-06b3-5c71-ab71-1f25ce4bd64f importance_score=7 keywords=['pdlc', 'change', 'created']
+2026-10-14 13:44:58 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-14 13:44:59 [debug    ] event_embedding_stored         event_id=1bdb20b5-06b3-5c71-ab71-1f25ce4bd64f
+2026-10-14 13:44:59 [info     ] event_ingested                 event_id=c7455a8d-1f65-5b46-9203-68fe7427a795 event_type=pdlc.change.merged global_position=2026-10-14T08:14:59.682143000Z/000000/c7455a8d-1f65-5b46-9203-68fe7427a795 request_id=724a36a8-ee8b-41da-aa89-28a1eb8640bc status=created
+2026-10-14 13:45:00 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:45:00 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:14:59.682143000Z/000000/c7455a8d-1f65-5b46-9203-68fe7427a795 event_id=c7455a8d-1f65-5b46-9203-68fe7427a795 session_id=tenant-isolation-1014-01:user-memory:pdlc
+2026-10-14 13:45:00 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:45:00 [debug    ] event_enriched                 event_id=c7455a8d-1f65-5b46-9203-68fe7427a795 importance_score=7 keywords=['pdlc', 'change', 'merged']
+2026-10-14 13:45:00 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:memory
+2026-10-14 13:45:00 [debug    ] event_embedding_stored         event_id=c7455a8d-1f65-5b46-9203-68fe7427a795
+2026-10-14 13:45:01 [debug    ] pack_plans_applied             edges=1 events=1 nodes=6 states=1
+2026-10-14 13:45:01 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-14 13:45:01 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-14 13:45:01 [info     ] importance_recomputed_from_centrality updated_count=11
+2026-10-14 13:45:01 [info     ] event_ingested                 event_id=6c91277f-b367-509e-8bbf-ec1af23a15dd event_type=pdlc.change.created global_position=2026-10-14T08:15:01.915359000Z/000000/6c91277f-b367-509e-8bbf-ec1af23a15dd request_id=fbf39d1f-ab68-4472-9603-68124e5f3860 status=created
+2026-10-14 13:45:02 [info     ] consolidating_session          event_count=5 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:45:02 [info     ] importance_recomputed_from_centrality updated_count=9
+2026-10-14 13:45:02 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:45:02 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 13:45:02 [info     ] consolidating_session          event_count=5 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:45:02 [debug    ] event_projected                edge_count=0 entry_id=2026-10-14T08:15:01.915359000Z/000000/6c91277f-b367-509e-8bbf-ec1af23a15dd event_id=6c91277f-b367-509e-8bbf-ec1af23a15dd session_id=tenant-isolation-1014-01:user-memory:unrelated
+2026-10-14 13:45:02 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:45:02 [debug    ] event_enriched                 event_id=6c91277f-b367-509e-8bbf-ec1af23a15dd importance_score=7 keywords=['pdlc', 'change', 'created']
+2026-10-14 13:45:02 [debug    ] event_embedding_stored         event_id=6c91277f-b367-509e-8bbf-ec1af23a15dd
+2026-10-14 13:45:03 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-14 13:45:04 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:45:04 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-01:user-memory:user
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 13:45:05 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-14 13:45:05 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 13:45:06 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 13:45:06 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 13:45:06 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 13:45:07 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 13:45:07 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 13:45:07 [info     ] event_ingested                 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 event_type=memory.belief.stated global_position=2026-10-14T08:14:45.976159000Z/000000/fbcf2397-8f93-5da5-85fc-5335aee53910 request_id=ce7ff7e8-5b41-4eec-beda-8f0b56d88813 status=duplicate
+2026-10-14 13:45:08 [info     ] event_ingested                 event_id=fbcf2397-8f93-5da5-85fc-5335aee53910 event_type=memory.belief.stated global_position=2026-10-14T08:14:46.023679000Z/000000/fbcf2397-8f93-5da5-85fc-5335aee53910 request_id=cb3d9885-6496-41a2-9e44-aa4350f8e377 status=duplicate
+2026-10-14 13:45:11 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=f06b05d2-8449-4b45-a9ec-80142bc49a23
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 13034.83it/s]
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-14 13:45:26 [info     ] app_stopped
+2026-10-14 13:45:27 [info     ] app_stopped
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_tenant_isolation_demo.py", line 988, in <module>
+    asyncio.run(main())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_tenant_isolation_demo.py", line 911, in main
+    await execute(directory, bindings, databases, plans)
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_tenant_isolation_demo.py", line 435, in execute
+    check(
+  File "/Users/arunmenon/projects/Engram-memory-episodes/scripts/engram_tenant_isolation_demo.py", line 107, in check
+    raise AssertionError(name)
+AssertionError: a public Belief source authority
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

@@ -1,0 +1,47 @@
+..............................................................F.......   [100%]
+=================================== FAILURES ===================================
+_________ test_private_bound_api_child_passes_exact_binding_to_stores __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11c5af860>
+
+    @pytest.mark.asyncio
+    async def test_private_bound_api_child_passes_exact_binding_to_stores(monkeypatch):
+        module = importlib.import_module("context_graph.api.app")
+        providers(monkeypatch)
+        binding = bind()
+        captured = []
+    
+        async def recording_open(settings, **kwargs):
+            captured.append((settings, kwargs))
+            return await reference_open(memory_settings(), bundle=kwargs["bundle"])
+    
+        monkeypatch.setattr(module, "open_stores", recording_open)
+        child = _create_bound_child(binding)
+        monkeypatch.setenv("CG_STORAGE_GRAPH", "invalid-ambient")
+        async with module.lifespan(child):
+            assert child.state.bundle is binding.bundle
+            assert child.state.tenant_binding is binding
+            assert child.state.settings.model_dump() == binding.settings().model_dump()
+        assert captured[0][1]["tenant_binding"] is binding
+        assert captured[0][1]["bundle"] is binding.bundle
+        assert captured[0][1]["prepare_ingest"] is True
+        assert captured[0][1].get("tenant_read_operation", "read") == "read"
+>       with pytest.raises(TenantServiceNotReadyError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE TenantServiceNotReadyError
+
+tests/unit/test_runtime_tenant_binding.py:63: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-14 13:32:51 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:32:51 [info     ] llm_client_initialized
+2026-10-14 13:32:51 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0'] ontology_version=sha256:7aa9c7d4db1d5a24 redis_host=localhost
+2026-10-14 13:32:51 [info     ] app_stopped
+=============================== warnings summary ===============================
+tests/unit/test_tenant_responses.py::test_real_bound_fastapi_middleware_chunks_are_materialized_then_authorized
+  /Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_runtime_tenant_binding.py::test_private_bound_api_child_passes_exact_binding_to_stores
+1 failed, 69 passed, 1 warning in 5.80s

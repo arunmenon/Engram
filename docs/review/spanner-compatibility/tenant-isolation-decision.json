@@ -1,6 +1,6 @@
 {
   "updated_at": "2026-10-07T16:05:56.064370+00:00",
-  "status": "product_direction_confirmed_partial_implementation_and_scoped_cloud_verification",
+  "status": "bounded_two_database_public_dispatcher_checkpoint_accepted",
   "decision": "One Spanner database per tenant; shared Spanner instance permitted; separate Engram deployment not required by this decision.",
   "tenant_identity": "Authenticated and server-resolved; bind ingress, handshake, database, active pack bundle and durable worker routing.",
   "required_failure": "Reject unknown/unauthorized tenant or incompatible database; never silently fall back to a shared/default tenant database.",
@@ -12,8 +12,8 @@
     41
   ],
   "acceptance": "At least two isolated disposable tenant databases with colliding IDs, pack choices, workers, retrieval, replay and cleanup isolation; explicit tracked Spanner runs.",
-  "goal_status": "Active combined goal #34 and #41; tenant runtime implementation and real two-database acceptance remain pending",
-  "implementation_status": "Pinned API/store/all-five-worker bundles and private authenticated dispatcher implemented; public tenant factory remains disabled pending complete durable fencing and scoped operations.",
+  "goal_status": "Original broad goal remains paused. Explicitly authorized tenant-isolation slice accepted; pilot requires separate approval.",
+  "implementation_status": "Public create_tenant_app uses existing pinned, durably fenced child APIs. Actual two-database HTTP/ten-worker/read/freeze/restart checkpoint accepted; unsupported channels remain fail-closed.",
   "architecture_review": "2026-10-07-astra-tenant-routing-design-review.md",
   "architecture_direction": "Authenticated ASGI dispatcher owns explicit-settings per-tenant child lifespans, trusted principals and catalog. Dedicated durable ownership/epoch fences required before production tenant-mode startup.",
   "factory_run": "runs/20261007-local-explicit-runtime-settings-01",
@@ -245,5 +245,38 @@
     "primitive_result": "123passed10integration-skipped; Ruffclean; unchanged runtime selectedmypy4clean inrun01",
     "remaining": "Strict pack syntax/presence evaluator/coercion/static capability and own-pack protection; realSpanner; ordering/authority/effect attribution",
     "primitive_review": "2026-10-08-astra-pack-removal-primitive-review.md"
+  },
+  "historical_fields_note": "Older dated run/status fields preserve October7-8 history; checkpoint_2026_10_14 describes current accepted scope.",
+  "checkpoint_2026_10_14": {
+    "targets": [
+      "engram-assess-1010a-pdlc",
+      "engram-g07-target"
+    ],
+    "main_run": "tenant-isolation-1014-03",
+    "restart_continuation": "tenant-isolation-1014-restart-01",
+    "main_assertions": 184,
+    "restart_assertions": 12,
+    "final_owners": {
+      "a": 52,
+      "b": 6
+    },
+    "review": "tenant-isolation-review/astra-final-review.md",
+    "verification": "tenant-isolation-verification.md",
+    "unsupported": [
+      "tenant native webhooks",
+      "global metrics dispatch",
+      "streaming import",
+      "query-string and JSON cursors",
+      "tenant prune/replay/reconsolidate"
+    ],
+    "unclaimed": [
+      "general pending recovery",
+      "durable draining mode",
+      "forced termination",
+      "hierarchy authorization",
+      "all admin operations",
+      "pilot readiness"
+    ],
+    "issue_43": "open; bounded progress only"
   }
 }

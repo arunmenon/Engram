@@ -1,0 +1,507 @@
+{
+  "targets": {
+    "a": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+    "b": "projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target"
+  },
+  "plans": {
+    "a": {
+      "events": {
+        "preference": {
+          "event_id": "55e2fc22-ce2d-5afc-a135-1cc259ea9b71",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T08:16:03.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "bf9ede03-f330-5545-b1bf-5c4ffcfb96b3",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T08:16:04.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "dfc77796-66b6-5b83-88fb-b7d0eea8b5f3",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T08:16:05.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "e9d0b747-ef38-55c3-b37f-d0b67bac2463",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T08:16:06.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "e07b4397-7e84-5501-9495-6335b4b20dec",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T08:16:07.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "09fec129-4aff-54b4-8c12-cf9c087f4cce",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T08:16:08.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Reset tokens expire in fifteen minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "d4b9f99c-1d4c-597e-afbd-e552384caae9",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T08:16:09.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "828cc7bf-355d-59df-8acf-131868386247",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T08:16:10.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Implement reset expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "c6704170-e247-5245-95f2-601334857374",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T08:16:11.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "2203a00c-c015-5b3a-b333-51346b8fbd58",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T08:16:12.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "04fcd1e3-7e70-58a1-a179-e0568c5d1413",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T08:16:13.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "1a5cb281-61aa-5a34-b138-8e9e3e36c5e4",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T08:16:14.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:unrelated",
+          "agent_id": "bob",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "cf72c0ba-0183-50a0-aaec-d69238a7b9e2",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T08:16:15.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "51df3114-ef80-59f7-95ab-f10e7d34ce8f",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T08:16:16.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end",
+        "belief",
+        "confirmation",
+        "goal",
+        "completion"
+      ],
+      "user": true,
+      "memory": true,
+      "pdlc": false,
+      "user_session": "tenant-isolation-1014-03:user-memory:user",
+      "memory_session": "tenant-isolation-1014-03:user-memory:memory",
+      "pdlc_session": "tenant-isolation-1014-03:user-memory:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-ba6ad73abb0c4f4c42d4e7a22a38cc6c3cc0cf556dcbabbcd3b69ed14cc33f93",
+        "goal": "goal-9fa305323687db0fc1cc1d3071b6244ae721479cee92aba7ec3c84f5f5fa67d3",
+        "user_summary": "summary-tenant-isolation-1014-03:user-memory:user-91e31c8e2b89",
+        "user_episode": "episode-f67499e6437a5cbbf801f64e3fc454a157a2b282e58f46b03116a4286a4f6721",
+        "pdlc_episode": "episode-3efa6266aba41f591430a358b27330161333b6fd729d70c33f9f8b2afa8e94b2",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      },
+      "restart_event": {
+        "event_id": "0e067abf-cbe3-5a93-9833-ed280e06f010",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-14T08:24:50.217304+00:00",
+        "session_id": "tenant-isolation-1014-03:user-memory:user",
+        "agent_id": "alice",
+        "trace_id": "tenant-isolation-1014-restart-01",
+        "payload_ref": "pack-combination:preference",
+        "importance_hint": 7,
+        "payload": {
+          "content": "Fresh restarted tenant a event"
+        }
+      }
+    },
+    "b": {
+      "events": {
+        "preference": {
+          "event_id": "55e2fc22-ce2d-5afc-a135-1cc259ea9b71",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T08:16:03.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:preference",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I prefer short answers. We decide: Expire reset tokens after fifteen minutes."
+          }
+        },
+        "end": {
+          "event_id": "bf9ede03-f330-5545-b1bf-5c4ffcfb96b3",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T08:16:04.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "overlap": {
+          "event_id": "dfc77796-66b6-5b83-88fb-b7d0eea8b5f3",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T08:16:05.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:overlap",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "correction": {
+          "event_id": "e9d0b747-ef38-55c3-b37f-d0b67bac2463",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-14T08:16:06.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:correction",
+          "importance_hint": 7,
+          "payload": {
+            "content": "My name is Alice. I use ResetToken. I no longer prefer short answers.",
+            "preference_corrections": [
+              {
+                "previous_preference_id": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+                "replacement_key": "answer-length",
+                "replacement_polarity": "negative",
+                "context": "support"
+              }
+            ]
+          }
+        },
+        "correction-end": {
+          "event_id": "e07b4397-7e84-5501-9495-6335b4b20dec",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-14T08:16:07.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:user",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:correction-end",
+          "importance_hint": 7,
+          "payload": {}
+        },
+        "belief": {
+          "event_id": "09fec129-4aff-54b4-8c12-cf9c087f4cce",
+          "event_type": "memory.belief.stated",
+          "occurred_at": "2026-10-14T08:16:08.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:belief",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "belief_text": "Tenant B tokens expire in thirty minutes.",
+            "confidence": 0.7,
+            "category": "world_model"
+          }
+        },
+        "confirmation": {
+          "event_id": "d4b9f99c-1d4c-597e-afbd-e552384caae9",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T08:16:09.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:confirmation",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": 0
+          }
+        },
+        "goal": {
+          "event_id": "828cc7bf-355d-59df-8acf-131868386247",
+          "event_type": "memory.goal.created",
+          "occurred_at": "2026-10-14T08:16:10.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:goal",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "description": "Tenant B implements thirty-minute expiry.",
+            "priority": 5
+          }
+        },
+        "completion": {
+          "event_id": "c6704170-e247-5245-95f2-601334857374",
+          "event_type": "memory.goal.completed",
+          "occurred_at": "2026-10-14T08:16:11.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:completion",
+          "importance_hint": 7,
+          "payload": {
+            "key": "implement",
+            "expected_revision": 0
+          }
+        },
+        "pr": {
+          "event_id": "2203a00c-c015-5b3a-b333-51346b8fbd58",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T08:16:12.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry"
+          }
+        },
+        "merge": {
+          "event_id": "04fcd1e3-7e70-58a1-a179-e0568c5d1413",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-10-14T08:16:13.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:merge",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main",
+            "number": 7,
+            "title": "Reset expiry",
+            "merge_sha": "abc123"
+          }
+        },
+        "unrelated-pr": {
+          "event_id": "1a5cb281-61aa-5a34-b138-8e9e3e36c5e4",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T08:16:14.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:unrelated",
+          "agent_id": "bob",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:unrelated-pr",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/unrelated",
+            "number": 7,
+            "title": "Newsletter"
+          }
+        },
+        "bad-memory": {
+          "event_id": "cf72c0ba-0183-50a0-aaec-d69238a7b9e2",
+          "event_type": "memory.belief.confirmed",
+          "occurred_at": "2026-10-14T08:16:15.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:memory",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:bad-memory",
+          "importance_hint": 7,
+          "payload": {
+            "key": "expiry",
+            "expected_revision": "bad"
+          }
+        },
+        "bad-pdlc": {
+          "event_id": "51df3114-ef80-59f7-95ab-f10e7d34ce8f",
+          "event_type": "pdlc.change.created",
+          "occurred_at": "2026-10-14T08:16:16.435354+00:00",
+          "session_id": "tenant-isolation-1014-03:user-memory:pdlc",
+          "agent_id": "alice",
+          "trace_id": "tenant-isolation-1014-03",
+          "payload_ref": "pack-combination:bad-pdlc",
+          "importance_hint": 7,
+          "payload": {
+            "repo": "packmatrix/main"
+          }
+        }
+      },
+      "accepted": [
+        "preference",
+        "end",
+        "overlap",
+        "correction",
+        "correction-end",
+        "belief",
+        "confirmation",
+        "goal",
+        "completion",
+        "pr",
+        "merge",
+        "unrelated-pr"
+      ],
+      "user": false,
+      "memory": true,
+      "pdlc": true,
+      "user_session": "tenant-isolation-1014-03:user-memory:user",
+      "memory_session": "tenant-isolation-1014-03:user-memory:memory",
+      "pdlc_session": "tenant-isolation-1014-03:user-memory:pdlc",
+      "ids": {
+        "profile": "profile:user:alice",
+        "positive": "preference:b28ae31d08698bfb12f4a194b898e89a0ea350e87c10a9b92372c296ee6c97bd",
+        "negative": "preference:9a2b0fdb47b78a7a723ccfa43fdd5ddde30f2e73b23186e75f8c6b33ecbd5e90",
+        "entity": "entity:ResetToken",
+        "belief": "belief-ba6ad73abb0c4f4c42d4e7a22a38cc6c3cc0cf556dcbabbcd3b69ed14cc33f93",
+        "goal": "goal-9fa305323687db0fc1cc1d3071b6244ae721479cee92aba7ec3c84f5f5fa67d3",
+        "user_summary": "summary-tenant-isolation-1014-03:user-memory:user-91e31c8e2b89",
+        "user_episode": "episode-f67499e6437a5cbbf801f64e3fc454a157a2b282e58f46b03116a4286a4f6721",
+        "pdlc_episode": "episode-3efa6266aba41f591430a358b27330161333b6fd729d70c33f9f8b2afa8e94b2",
+        "change": "Change:packmatrix/main|7",
+        "unrelated": "Change:packmatrix/unrelated|7",
+        "decision": "Decision:1d8f6eb77705b8cc46d2acc9d649fac871bfed6b01d1e0e1a94c58bb195a1c55"
+      },
+      "restart_event": {
+        "event_id": "bf877eef-8919-5d71-aa1e-e9091bfdbc65",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-14T08:24:50.217304+00:00",
+        "session_id": "tenant-isolation-1014-03:user-memory:user",
+        "agent_id": "alice",
+        "trace_id": "tenant-isolation-1014-restart-01",
+        "payload_ref": "pack-combination:preference",
+        "importance_hint": 7,
+        "payload": {
+          "content": "Fresh restarted tenant b event"
+        }
+      }
+    }
+  },
+  "scope": "public dispatcher, ten workers; no direct artifact writes",
+  "restart_only": true
+}

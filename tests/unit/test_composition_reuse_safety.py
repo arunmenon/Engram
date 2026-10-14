@@ -10,7 +10,7 @@ import pytest
 @pytest.mark.parametrize("target", ["engram", "engram-g06-target", "engram-g07-target"])
 def test_reuse_refuses_retained_databases(target):
     database = SimpleNamespace(name=reuse.TARGET.rsplit("/", 1)[0] + "/" + target)
-    with pytest.raises(ValueError, match="exact assessment database"):
+    with pytest.raises(ValueError, match="exact explicitly authorized database"):
         reuse.verify_target(database)
 
 
@@ -36,3 +36,15 @@ def test_freeze_refuses_owner_drift_without_update(tmp_path):
 def test_export_hash_survives_json_datetime_normalization():
     when = datetime(2026, 10, 10, tzinfo=UTC)
     assert reuse.row_hash([["key", when]]) == reuse.row_hash([["key", str(when)]])
+
+
+def test_g07_requires_explicit_new_target_authority():
+    target = reuse.TARGET.rsplit("/", 1)[0] + "/engram-g07-target"
+    reuse.verify_target(SimpleNamespace(name=target), authorized_target=target)
+
+
+@pytest.mark.parametrize("name", ["engram", "engram-g06-target", "engram-compat-target"])
+def test_explicit_argument_cannot_authorize_protected_targets(name):
+    target = reuse.TARGET.rsplit("/", 1)[0] + "/" + name
+    with pytest.raises(ValueError):
+        reuse.verify_target(SimpleNamespace(name=target), authorized_target=target)

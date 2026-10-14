@@ -77,6 +77,11 @@ class TenantResponseGuard:
                 scope, receive, send
             )
             return
+        if path in {"/v1/admin/prune", "/v1/admin/replay", "/v1/admin/reconsolidate"}:
+            await JSONResponse({"detail": "Tenant maintenance operation unavailable"}, 503)(
+                scope, receive, send
+            )
+            return
         if "cursor" in parse_qs(
             scope.get("query_string", b"").decode("latin1"), keep_blank_values=True
         ):

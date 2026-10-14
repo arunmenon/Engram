@@ -1,0 +1,18 @@
+{
+  "accepted": true,
+  "scope": "Bounded between-tenant public-dispatcher/database/pack/cooperative-freeze/restart verification",
+  "main_run": "tenant-isolation-1014-03",
+  "main_assertions": 184,
+  "restart_assertions": 12,
+  "independent_audit": "independent-post-process-audit.json",
+  "astra_review": "../../tenant-isolation-review/astra-final-review.md",
+  "failed_attempts_retained": [
+    "tenant-isolation-1014-01",
+    "tenant-isolation-1014-02",
+    "tenant-isolation-1014-03/restart-results.json"
+  ],
+  "databases_retained": true,
+  "pilot_started": false,
+  "hierarchy_scope": "parked #49",
+  "issue43_closed": false
+}

@@ -1,0 +1,21 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________ test_bound_tenant_rejects_body_cursor_before_retrieval ____________
+
+    @pytest.mark.asyncio
+    async def test_bound_tenant_rejects_body_cursor_before_retrieval():
+        app = FastAPI()
+        app.include_router(router, prefix="/v1")
+        app.state.tenant_binding = SimpleNamespace(tenant_id="a")
+        retrieval = SimpleNamespace(get_subgraph=AsyncMock())
+        app.dependency_overrides[get_retrieval] = lambda: retrieval
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/v1/query/subgraph", json={"query": "find events", "cursor": "foreign-cursor"})
+>       assert response.status_code == 400
+E       assert 422 == 400
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests/unit/test_tenant_query_cursor.py:22: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_tenant_query_cursor.py::test_bound_tenant_rejects_body_cursor_before_retrieval
+1 failed in 0.30s

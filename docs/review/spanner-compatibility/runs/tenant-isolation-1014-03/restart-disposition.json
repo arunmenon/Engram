@@ -1,0 +1,10 @@
+{
+  "accepted": false,
+  "main_phase_passed": 184,
+  "restart_passed_before_failure": 8,
+  "cause": "Restart wait used lag alone. Cursor could advance before projection completion; assertion ran early. Both fresh Events existed after cooperative drain. Fix requires zero lag, zero pending and both exact predeclared Event nodes. No runtime code or expected outputs changed.",
+  "shutdown_errors": [],
+  "next_run": "tenant-isolation-1014-restart-01",
+  "strategy": "Targeted restart-only continuation, exact saved owner/fingerprint checks, new frozen Event identities, no reset/rebinding",
+  "review": "../../tenant-isolation-review/astra-design-and-implementation.md"
+}

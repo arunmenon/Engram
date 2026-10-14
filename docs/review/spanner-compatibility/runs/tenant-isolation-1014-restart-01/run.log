@@ -1,0 +1,157 @@
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-14 13:59:39 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-14 13:59:42 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:59:42 [info     ] llm_client_initialized
+2026-10-14 13:59:44 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'user@1.2.0'] ontology_version=sha256:e861b87f989b1869 redis_host=localhost
+2026-10-14 13:59:44 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:59:44 [info     ] llm_client_initialized
+2026-10-14 13:59:47 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'pdlc@5.0.0'] ontology_version=sha256:b5b9857af719ffe2 redis_host=localhost
+2026-10-14 13:59:50 [info     ] ontology_loaded                edge_types=20 event_types=23 intents=['beliefs', 'general', 'goals', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=11 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:e861b87f989b1869
+2026-10-14 13:59:50 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-14 13:59:51 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-14 13:59:53 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-14 13:59:53 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-14 13:59:54 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-14 13:59:56 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 13:59:56 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-14 13:59:56 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-14 13:59:59 [info     ] consolidation_llm_client_initialized
+2026-10-14 13:59:59 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-14 13:59:59 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-14 13:59:59 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 14:00:00 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 14:00:02 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-14 14:00:03 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-14 14:00:05 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-14 14:00:06 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-14 14:00:06 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-14 14:00:09 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-14 14:00:09 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-14 14:00:10 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-14 14:00:12 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-14 14:00:12 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-14 14:00:13 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-14 14:00:15 [info     ] consolidation_llm_client_initialized
+2026-10-14 14:00:15 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-14 14:00:15 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-14 14:00:15 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-14 14:00:16 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-14 14:00:23 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=14fb7c13-9a79-453a-b8dd-334d2aec4e81
+I1014 14:00:26.151978 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(61, generation: 1)
+I1014 14:00:26.152076 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(47, generation: 1)
+I1014 14:00:26.152083 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(46, generation: 1)
+I1014 14:00:26.152088 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(58, generation: 1)
+I1014 14:00:26.152094 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(51, generation: 1)
+I1014 14:00:26.152100 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(53, generation: 1)
+I1014 14:00:26.152104 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(48, generation: 1)
+I1014 14:00:26.152109 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(34, generation: 1)
+I1014 14:00:26.152113 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(33, generation: 1)
+I1014 14:00:26.152117 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(30, generation: 1)
+I1014 14:00:26.152120 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(29, generation: 1)
+I1014 14:00:26.152124 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(25, generation: 1)
+I1014 14:00:26.152127 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(24, generation: 1)
+I1014 14:00:26.152131 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(21, generation: 1)
+I1014 14:00:26.152134 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(20, generation: 1)
+I1014 14:00:26.152153 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(17, generation: 1)
+I1014 14:00:26.152156 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(14, generation: 1)
+I1014 14:00:26.152158 57577558 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 7196.26it/s]
+2026-10-14 14:00:29 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-14 14:00:29 [info     ] consolidation_timer_fired
+2026-10-14 14:00:29 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 14:00:30 [info     ] sessions_qualifying_for_consolidation count=2 threshold=5
+2026-10-14 14:00:30 [info     ] consolidating_session          event_count=6 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:30 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:30 [info     ] pending_drain_completed        group=assessment-pack_extraction
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-14 14:00:32 [info     ] event_ingested                 event_id=09fec129-4aff-54b4-8c12-cf9c087f4cce event_type=memory.belief.stated global_position=2026-10-14T08:22:58.850895000Z/000000/09fec129-4aff-54b4-8c12-cf9c087f4cce request_id=a3696ea9-0316-43da-9c18-eb3cb70eec6e status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-14 14:00:33 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2 request_id=c142024c-9787-437f-b9ce-7f59e5a808dd
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10702.41it/s]
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-14 14:00:38 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:38 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-14 14:00:38 [info     ] consolidation_timer_fired
+2026-10-14 14:00:38 [info     ] consolidation_cycle_started    source=timer
+2026-10-14 14:00:38 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-14 14:00:39 [info     ] sessions_qualifying_for_consolidation count=4 threshold=5
+2026-10-14 14:00:39 [info     ] consolidating_session          event_count=6 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:39 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:144: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-14 14:00:41 [info     ] event_ingested                 event_id=09fec129-4aff-54b4-8c12-cf9c087f4cce event_type=memory.belief.stated global_position=2026-10-14T08:22:58.856191000Z/000000/09fec129-4aff-54b4-8c12-cf9c087f4cce request_id=e075ffdc-d960-489a-88b1-b028f42afb94 status=duplicate
+/Users/arunmenon/projects/Engram-foundation-gate/.venv/lib/python3.12/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-14 14:00:41 [info     ] event_ingested                 event_id=0e067abf-cbe3-5a93-9833-ed280e06f010 event_type=observation.input global_position=2026-10-14T08:30:41.560767000Z/000000/0e067abf-cbe3-5a93-9833-ed280e06f010 request_id=bb66e792-f39b-4991-b645-5e30d6a97dd2 status=created
+2026-10-14 14:00:41 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-14 14:00:41 [info     ] event_ingested                 event_id=bf877eef-8919-5d71-aa1e-e9091bfdbc65 event_type=observation.input global_position=2026-10-14T08:30:41.864047000Z/000000/bf877eef-8919-5d71-aa1e-e9091bfdbc65 request_id=50e0ded0-894e-42c4-bc86-1938e37a6a3a status=created
+2026-10-14 14:00:41 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 14:00:41 [debug    ] previous_event_from_ledger     event_id=0e067abf-cbe3-5a93-9833-ed280e06f010 previous_event_id=14f074c2-cf59-5db8-aeab-b6e73e4e4276 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:41 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:30:41.560767000Z/000000/0e067abf-cbe3-5a93-9833-ed280e06f010 event_id=0e067abf-cbe3-5a93-9833-ed280e06f010 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:42 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:42 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-14 14:00:42 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-14 14:00:42 [debug    ] event_enriched                 event_id=0e067abf-cbe3-5a93-9833-ed280e06f010 importance_score=7 keywords=['observation', 'input']
+2026-10-14 14:00:42 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 9782.47it/s]
+2026-10-14 14:00:47 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-14 14:00:48 [debug    ] event_embedding_stored         event_id=0e067abf-cbe3-5a93-9833-ed280e06f010
+2026-10-14 14:00:48 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-14 14:00:48 [debug    ] previous_event_from_ledger     event_id=bf877eef-8919-5d71-aa1e-e9091bfdbc65 previous_event_id=d1572601-1df4-505a-a0b7-6171865ce528 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:48 [debug    ] event_projected                edge_count=1 entry_id=2026-10-14T08:30:41.864047000Z/000000/bf877eef-8919-5d71-aa1e-e9091bfdbc65 event_id=bf877eef-8919-5d71-aa1e-e9091bfdbc65 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:48 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-14 14:00:49 [info     ] pack_extraction_applied        edges_written=0 event_id=bf877eef-8919-5d71-aa1e-e9091bfdbc65 links=0 nodes=0 pack=pdlc rejected=[]
+2026-10-14 14:00:49 [debug    ] event_enriched                 event_id=bf877eef-8919-5d71-aa1e-e9091bfdbc65 importance_score=7 keywords=['observation', 'input']
+2026-10-14 14:00:49 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11833.71it/s]
+2026-10-14 14:00:54 [debug    ] event_embedding_stored         event_id=bf877eef-8919-5d71-aa1e-e9091bfdbc65
+2026-10-14 14:00:55 [info     ] importance_recomputed_from_centrality updated_count=11
+2026-10-14 14:00:55 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:55 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:56 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-14 14:00:56 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-14 14:00:56 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-14 14:00:57 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-14 14:00:58 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:00:59 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-14 14:00:59 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-14 14:00:59 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-14 14:01:01 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 14:01:02 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-14 14:01:02 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 14:01:02 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 14:01:03 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-14 14:01:04 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-14 14:01:05 [info     ] importance_recomputed_from_centrality updated_count=14
+2026-10-14 14:01:05 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:01:05 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:01:08 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-14 14:01:10 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-14 14:01:11 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-14 14:01:11 [info     ] consolidation_cycle_completed  source=timer
+2026-10-14 14:01:16 [info     ] app_stopped
+2026-10-14 14:01:17 [info     ] app_stopped
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

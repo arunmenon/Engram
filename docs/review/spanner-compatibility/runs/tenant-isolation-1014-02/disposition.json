@@ -1,0 +1,13 @@
+{
+  "accepted": false,
+  "passed_assertions": 147,
+  "failed_assertions": [
+    "a artifact query status"
+  ],
+  "cause": "Harness expected trace200 on User+Memory tenant, but artifact trace is supplied by disabled PDLC. Actual422 is correct. Keep original request as explicit negative with no-effects; add foreign-only PR Event UUID positive lookup on B and non-leakage on A.",
+  "shutdown_errors": [],
+  "original_source_hashes_verified": true,
+  "original_runner": "runner-original.py",
+  "review": "../../tenant-isolation-review/astra-design-and-implementation.md",
+  "next_attempt": "tenant-isolation-1014-03"
+}

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from context_graph.api.dependencies import get_retrieval
 from context_graph.domain.models import (  # noqa: TCH001 — runtime: type annotation + response_model
@@ -28,12 +28,15 @@ RetrievalDep = Annotated[Retrieval, Depends(get_retrieval)]
 async def query_subgraph(
     query: SubgraphQuery,
     retrieval: RetrievalDep,
+    request: Request,
 ) -> AtlasResponse:
     """Execute intent-aware subgraph query.
 
     The system infers intent from query text. Optionally accepts
     explicit intent override and seed nodes.
     """
+    if getattr(request.app.state, "tenant_binding", None) is not None and query.cursor is not None:
+        raise HTTPException(status_code=400, detail="Tenant cursor unavailable")
     try:
         return await retrieval.get_subgraph(query)
     except UnsupportedIntentError as exc:

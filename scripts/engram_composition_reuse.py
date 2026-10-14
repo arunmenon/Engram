@@ -43,9 +43,13 @@ RUN_ID = "1010r"
 CONFIGURATIONS = ("core", "user", "user-memory", "pdlc-memory")
 
 
-def verify_target(database):
-    if database.name != TARGET:
-        raise ValueError("Reuse is authorized only for the exact assessment database")
+def verify_target(database, authorized_target=TARGET):
+    allowed = {
+        TARGET,
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target",
+    }
+    if authorized_target not in allowed or database.name != authorized_target:
+        raise ValueError("Reuse requires the exact explicitly authorized database")
 
 
 def owner_at(transaction):
@@ -60,8 +64,10 @@ def row_hash(rows):
     return hashlib.sha256(json.dumps(canonical).encode()).hexdigest()
 
 
-def freeze_and_export(database, expected_owner, expected_fingerprints, path):
-    verify_target(database)
+def freeze_and_export(
+    database, expected_owner, expected_fingerprints, path, *, authorized_target=TARGET
+):
+    verify_target(database, authorized_target)
     if path.exists():
         raise ValueError("Export already exists; reconcile instead of overwrite")
     assert expected_owner[-1] == "active"
@@ -69,7 +75,7 @@ def freeze_and_export(database, expected_owner, expected_fingerprints, path):
     intent = {
         "previous_owner": expected_owner,
         "frozen_owner": frozen,
-        "target": TARGET,
+        "target": authorized_target,
         "authority": "Stakeholder approved assessment DB reuse",
     }
     durable_json(path.with_suffix(".intent.json"), intent)
@@ -95,7 +101,12 @@ def freeze_and_export(database, expected_owner, expected_fingerprints, path):
             if table != "TenantControl"
         }
     assert hashes == expected_fingerprints, "Dataset drift; retain frozen target for inspection"
-    payload = {"database": TARGET, "owner": frozen, "tables": tables, "fingerprints": hashes}
+    payload = {
+        "database": authorized_target,
+        "owner": frozen,
+        "tables": tables,
+        "fingerprints": hashes,
+    }
     # JSON normalizes SDK datetime values. The hash is over that same representation.
     normalized = json.loads(json.dumps(payload, default=str))
     durable_json(path, normalized)
@@ -111,12 +122,12 @@ def freeze_and_export(database, expected_owner, expected_fingerprints, path):
     return frozen, normalized, digest
 
 
-def reset_to(database, frozen, exported, digest, export_path, binding):
-    verify_target(database)
+def reset_to(database, frozen, exported, digest, export_path, binding, *, authorized_target=TARGET):
+    verify_target(database, authorized_target)
     if hashlib.sha256(export_path.read_bytes()).hexdigest() != digest:
         raise ValueError("Export changed; refuse deletion")
     intended = [*TenantFence.from_binding(binding)._identity(), "active"]
-    assert intended[1] == TARGET and intended[3] == frozen[3] + 1
+    assert intended[1] == authorized_target and intended[3] == frozen[3] + 1
     intent_path = export_path.with_suffix(".reset.json")
     durable_json(
         intent_path,
@@ -177,14 +188,14 @@ def main():
     if args.resume:
         results = json.loads((directory / "results.json").read_text())["configurations"]
         completed = tuple(result["configuration"] for result in results)
-        if not completed or completed != CONFIGURATIONS[:len(completed)]:
+        if not completed or completed != CONFIGURATIONS[: len(completed)]:
             raise ValueError("Resume requires a recorded configuration prefix")
         if any(result.get("shutdown_errors") or result.get("snapshot_error") for result in results):
             raise ValueError("Resume refuses unsettled workers or missing snapshots")
         prior = json.loads((directory / (completed[-1] + "-retained.json")).read_text())
         expected_owner = prior["owner"][0]
         expected_fingerprints = prior["fingerprints"]
-        configurations = CONFIGURATIONS[len(completed):]
+        configurations = CONFIGURATIONS[len(completed) :]
     with Path("/private/tmp/engram-composition-reuse.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         for config in configurations:

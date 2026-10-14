@@ -1,8 +1,4 @@
-"""Authenticated dispatch substrate, deliberately not a production entry point.
-
-The private dispatcher supports recording-port conformance. The public factory
-refuses service until durable ownership and epoch fences are implemented.
-"""
+"""Authenticated tenant dispatch with pinned, durably fenced child lifespans."""
 
 from __future__ import annotations
 
@@ -12,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from starlette.responses import JSONResponse
 
-from context_graph.tenancy import TenantAuthorizationError
+from context_graph.tenancy import TenantAuthorizationError, TenantCatalog, TenantConfigurationError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -21,21 +17,22 @@ if TYPE_CHECKING:
     from starlette.requests import Request
     from starlette.types import Receive, Scope, Send
 
-    from context_graph.tenancy import TenantBinding, TenantCatalog
-
-
-class TenantServiceNotReadyError(RuntimeError):
-    """Production tenant service cannot start without durable fencing."""
+    from context_graph.tenancy import TenantBinding
 
 
 def create_tenant_app(catalog: TenantCatalog) -> _TenantDispatcher:
-    raise TenantServiceNotReadyError(
-        "Durable tenant database ownership and epoch fences are required"
-    )
+    """Build the ASGI service; startup verifies every bound database owner.
+
+    Ownership must be provisioned explicitly before startup. Workers are started
+    separately with the same bindings; this factory owns only API lifespans.
+    """
+    if not isinstance(catalog, TenantCatalog):
+        raise TenantConfigurationError("An explicit tenant catalog is required")
+    return _TenantDispatcher(catalog, _create_bound_child)
 
 
 def _create_bound_child(binding: TenantBinding) -> FastAPI:
-    """Internal conformance factory; production dispatcher remains disabled."""
+    """Create an independently configured, authenticated and fenced tenant API."""
     from context_graph.api.app import create_app
 
     child = create_app(binding.settings(), bundle=binding.bundle)
@@ -52,7 +49,7 @@ def _create_bound_child(binding: TenantBinding) -> FastAPI:
 
 
 class _TenantDispatcher:
-    """Internal conformance substrate; child factory must use the pinned bundle."""
+    """ASGI dispatch and draining; child factory must use the pinned bundle."""
 
     def __init__(
         self, catalog: TenantCatalog, child_factory: Callable[[TenantBinding], FastAPI]

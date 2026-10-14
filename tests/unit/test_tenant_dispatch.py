@@ -12,7 +12,6 @@ from fastapi import Depends, FastAPI, Request
 
 from context_graph.api.dependencies import require_admin_key, require_api_key
 from context_graph.api.tenants import (
-    TenantServiceNotReadyError,
     _TenantDispatcher,
     create_tenant_app,
 )
@@ -70,9 +69,8 @@ def children(events, calls, *, fail=None, gate=None):
     return factory
 
 
-def test_production_tenant_entrypoint_refuses_without_fences():
-    with pytest.raises(TenantServiceNotReadyError):
-        create_tenant_app(catalog())
+def test_tenant_entrypoint_constructs_without_opening_database_connections():
+    assert callable(create_tenant_app(catalog()))
 
 
 @pytest.mark.asyncio

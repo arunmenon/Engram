@@ -9,7 +9,6 @@ import pytest
 
 from context_graph.adapters.registry import open_stores as reference_open
 from context_graph.api.tenants import (
-    TenantServiceNotReadyError,
     _create_bound_child,
     create_tenant_app,
 )
@@ -60,8 +59,8 @@ async def test_private_bound_api_child_passes_exact_binding_to_stores(monkeypatc
     assert captured[0][1]["bundle"] is binding.bundle
     assert captured[0][1]["prepare_ingest"] is True
     assert captured[0][1].get("tenant_read_operation", "read") == "read"
-    with pytest.raises(TenantServiceNotReadyError):
-        create_tenant_app(None)  # Public production path remains unavailable.
+    with pytest.raises(TenantConfigurationError):
+        create_tenant_app(None)  # No ambient/default catalog is allowed.
 
 
 @pytest.mark.asyncio

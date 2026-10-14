@@ -1,0 +1,23 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_tenant_entrypoint_constructs_without_opening_database_connections ____
+
+    def test_tenant_entrypoint_constructs_without_opening_database_connections():
+>       assert callable(create_tenant_app(catalog()))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_tenant_dispatch.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+catalog = TenantCatalog(bindings=(TenantBinding(tenant_id='a', binding_id='binding-a', epoch=1, engine_revision='test-engine-rev...Principal(credential_id='rotation-a', tenant_id='a', roles=frozenset({'api'}), source_id='source-a'))), max_tenants=32)
+
+    def create_tenant_app(catalog: TenantCatalog) -> _TenantDispatcher:
+>       raise TenantServiceNotReadyError(
+            "Durable tenant database ownership and epoch fences are required"
+        )
+E       context_graph.api.tenants.TenantServiceNotReadyError: Durable tenant database ownership and epoch fences are required
+
+src/context_graph/api/tenants.py:32: TenantServiceNotReadyError
+=========================== short test summary info ============================
+FAILED tests/unit/test_tenant_dispatch.py::test_tenant_entrypoint_constructs_without_opening_database_connections
+1 failed in 0.52s
