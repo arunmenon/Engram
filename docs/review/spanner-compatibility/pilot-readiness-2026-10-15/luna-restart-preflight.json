@@ -1,0 +1,20 @@
+{
+  "scope": "offline configuration preflight against saved final snapshots; no fresh live DB audit or worker start",
+  "tenants": [
+    {
+      "tenant": "a",
+      "requested_model": "gpt-6-luna",
+      "retained_digest": "sha256:1d2d80fd4136db0f8147cb7851af8f8da08ad4d97bf9777efbc18153280b55ba",
+      "requested_digest": "sha256:87cd078edd4fb0e513cd6d7f8e809ba8cf641650615b32db6d266d280d85bc6c",
+      "owner_match": false
+    },
+    {
+      "tenant": "b",
+      "requested_model": "gpt-6-luna",
+      "retained_digest": "sha256:02783138ac5425ef220f382e9a68158d3bb6f489f4377d52c925c5270fdc8f11",
+      "requested_digest": "sha256:3116b765d2b18a5901ead43f6c088c20115f69c86a44016357a947bc70dd6cea",
+      "owner_match": false
+    }
+  ],
+  "outcome": "blocked: model changes exact processing interpretation"
+}
