@@ -1,0 +1,114 @@
+{
+  "operation": "fresh live read-only readiness audit; no API/worker start or database mutation",
+  "observed_at": "2026-10-15T08:24:21.801165+00:00",
+  "targets": {
+    "a": {
+      "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+      "owner_matches_saved": true,
+      "fingerprints_match_saved": true,
+      "counts": {
+        "Events": 15,
+        "GraphNodes": 57,
+        "GraphEdges": 197,
+        "ConsumerGroups": 5,
+        "ConsumerCursors": 80,
+        "ConsumerDeliveries": 1,
+        "ConsumerDeadLetters": 0
+      },
+      "owner": [
+        [
+          "isolation-a",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+          "tenant-isolation-1014-03-a",
+          52,
+          "sha256:1d2d80fd4136db0f8147cb7851af8f8da08ad4d97bf9777efbc18153280b55ba",
+          "active"
+        ]
+      ],
+      "fingerprints": {
+        "Events": {
+          "count": 15,
+          "sha256": "d6916d1485f6e37c0a9f2dd5d972e8c3e2fb0ed3639b298c28672ce67d081a2e"
+        },
+        "GraphNodes": {
+          "count": 57,
+          "sha256": "c96aebc12b21bb370764b312fe452671c23935c5bf6ed66a905d67bbfb372cb9"
+        },
+        "GraphEdges": {
+          "count": 197,
+          "sha256": "5989efcdeccfef951b8cb3f3e2f9341b385f8ae42033de1b45ad280aa057f932"
+        },
+        "ConsumerGroups": {
+          "count": 5,
+          "sha256": "36e61493c2f5aa1b42c9e9a5a379ed46e8d8aeb58c3ab45ab0c23c98c8f020a0"
+        },
+        "ConsumerCursors": {
+          "count": 80,
+          "sha256": "268382ba5facf324418db24fe1cfd97577c4c2d4c44615c8573ed032c7c0e0dd"
+        },
+        "ConsumerDeliveries": {
+          "count": 1,
+          "sha256": "648f8ea7c4b4b53cada51d54605289c763dd27ae46333ae2503184de2474e492"
+        },
+        "ConsumerDeadLetters": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    },
+    "b": {
+      "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target",
+      "owner_matches_saved": true,
+      "fingerprints_match_saved": true,
+      "counts": {
+        "Events": 19,
+        "GraphNodes": 85,
+        "GraphEdges": 308,
+        "ConsumerGroups": 5,
+        "ConsumerCursors": 80,
+        "ConsumerDeliveries": 0,
+        "ConsumerDeadLetters": 0
+      },
+      "owner": [
+        [
+          "isolation-b",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target",
+          "tenant-isolation-1014-03-b",
+          6,
+          "sha256:02783138ac5425ef220f382e9a68158d3bb6f489f4377d52c925c5270fdc8f11",
+          "active"
+        ]
+      ],
+      "fingerprints": {
+        "Events": {
+          "count": 19,
+          "sha256": "dd00174ab686af2d626312f269651a94c4a5be4d58cb1c47e0a62bef9ac00fa7"
+        },
+        "GraphNodes": {
+          "count": 85,
+          "sha256": "421680fbc7db362ffde98df81fe49e6b08e9a705a147aead5142e98a6f2a1b66"
+        },
+        "GraphEdges": {
+          "count": 308,
+          "sha256": "10005020cce3d4242792f3171e235246fd12963513e43c30a68df8d6302d7d37"
+        },
+        "ConsumerGroups": {
+          "count": 5,
+          "sha256": "6efc35275e320c593190768ef350612ce31261be00d7f689cf86188cfcc4f2d9"
+        },
+        "ConsumerCursors": {
+          "count": 80,
+          "sha256": "497824be298f22b517e761eb32a20c3157d6749d05fb96f6c6e81a998fc93e3a"
+        },
+        "ConsumerDeliveries": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "ConsumerDeadLetters": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    }
+  }
+}
