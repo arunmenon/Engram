@@ -1,0 +1,110 @@
+{
+  "model": "gpt-6-luna",
+  "scope": "provider compatibility smoke only; no Spanner or pilot acceptance",
+  "calls": [
+    {
+      "requested_model": "gpt-6-luna",
+      "returned_model": "gpt-6-luna",
+      "reasoning_effort": "none",
+      "usage": {
+        "completion_tokens": 6,
+        "prompt_tokens": 13,
+        "total_tokens": 19,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      }
+    },
+    {
+      "requested_model": "gpt-6-luna",
+      "returned_model": "gpt-6-luna",
+      "reasoning_effort": "none",
+      "usage": {
+        "completion_tokens": 46,
+        "prompt_tokens": 137,
+        "total_tokens": 183,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      }
+    },
+    {
+      "requested_model": "gpt-6-luna",
+      "returned_model": "gpt-6-luna",
+      "reasoning_effort": "none",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 465,
+        "total_tokens": 487,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      }
+    }
+  ],
+  "text": "LUNA_OK",
+  "structured": {
+    "entities": [
+      {
+        "name": "Arun",
+        "entity_type": "person",
+        "source_quote": "Arun uses Python"
+      },
+      {
+        "name": "Python",
+        "entity_type": "tool",
+        "source_quote": "Arun uses Python"
+      }
+    ]
+  },
+  "intent": {
+    "why": 1.0,
+    "what": 0.3333
+  },
+  "passed": true
+}

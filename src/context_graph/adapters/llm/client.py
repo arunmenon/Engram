@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 import orjson
 import structlog
 
+from context_graph.adapters.llm.request_options import chat_options
 from context_graph.domain.extraction import (
     ExtractedEntity,
     ExtractedInterest,
@@ -477,7 +478,7 @@ class LLMExtractionClient:
 
     def __init__(
         self,
-        model_id: str = "gpt-5.2-2025-12-11",
+        model_id: str = "gpt-6-luna",
         temperature: float = 0.1,
         max_tokens: int = 4096,
         timeout: int = 60,
@@ -503,8 +504,7 @@ class LLMExtractionClient:
             response = await litellm.acompletion(
                 model=self._model_id,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=self._temperature,
-                max_tokens=self._max_tokens,
+                **chat_options(self._model_id, self._temperature, self._max_tokens),
                 timeout=self._timeout,
                 num_retries=self._max_retries,
             )
@@ -572,8 +572,7 @@ class LLMExtractionClient:
                 },
             ],
             response_format={"type": "json_object"},
-            temperature=self._temperature,
-            max_tokens=self._max_tokens,
+            **chat_options(self._model_id, self._temperature, self._max_tokens),
             timeout=self._timeout,
             num_retries=self._max_retries,
         )

@@ -1,5 +1,7 @@
 # Controlled pilot entry checkpoint — 15 October 2026
 
+Current model decision: [Luna switch and removal of the artificial call ceiling](luna-switch.md). Earlier run settings below describe the retained failed attempts; they are not the next-run configuration.
+
 The stakeholder approved updating the guide and starting the pilot. Start with a bounded real-provider entry checkpoint, then review its actual results before expanding to the diverse journey families. This does not reduce the catalog of 49 candidates or mark them all run.
 
 ## Frozen first-stage scope

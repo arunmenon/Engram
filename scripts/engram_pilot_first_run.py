@@ -266,8 +266,6 @@ async def execute(args):
     original_completion = litellm.acompletion
 
     async def observed_completion(*a, **kw):
-        if len(record["provider_calls"]) >= args.max_model_calls:
-            raise RuntimeError("Declared pilot model-call ceiling reached")
         row = {"model": kw.get("model"), "started_at": datetime.now(UTC).isoformat()}
         record["provider_calls"].append(row)
         save()
@@ -850,12 +848,9 @@ def main():
     parser.add_argument(
         "--service-account", default="engram-experiment-sa@portiq-mvp.iam.gserviceaccount.com"
     )
-    parser.add_argument("--max-model-calls", type=int, default=12)
     args = parser.parse_args()
     if not args.run_id.replace("-", "").isalnum():
         parser.error("run ID must be alphanumeric/hyphen")
-    if args.max_model_calls < 1:
-        parser.error("model-call ceiling must be positive")
     asyncio.run(execute(args))
 
 

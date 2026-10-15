@@ -325,7 +325,7 @@ class LLMSettings(BaseSettings):
 
     model_config = {"env_prefix": "CG_LLM_"}
 
-    model_id: str = "gpt-5.2-2025-12-11"
+    model_id: str = "gpt-6-luna"
     temperature: float = 0.1
     max_tokens: int = 4096
     timeout_seconds: int = 60

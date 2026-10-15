@@ -15,6 +15,7 @@ from typing import Any
 import orjson
 import structlog
 
+from context_graph.adapters.llm.request_options import chat_options
 from context_graph.domain.intent import classify_intent
 from context_graph.domain.models import IntentType
 
@@ -80,7 +81,7 @@ class LLMIntentClassifier:
 
     def __init__(
         self,
-        model_id: str = "gpt-5.2-2025-12-11",
+        model_id: str = "gpt-6-luna",
         timeout_seconds: int = 5,
         fallback_on_error: bool = True,
     ) -> None:
@@ -123,8 +124,7 @@ class LLMIntentClassifier:
             model=self._model_id,
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
-            temperature=0.0,
-            max_tokens=256,
+            **chat_options(self._model_id, 0.0, 256),
             timeout=self._timeout_seconds,
         )
 
