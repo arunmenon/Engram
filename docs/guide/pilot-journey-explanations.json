@@ -1,0 +1,247 @@
+{
+  "A-01": {
+    "story": "Alice introduces her role, interest in Rust and preference for short answers.",
+    "question": "What should the assistant remember about Alice?",
+    "meaning": "The profile, preference and interest should point to the actual introduction; the session-ending signal is not their source."
+  },
+  "A-02": {
+    "story": "Alice wants terse actions during incidents but detailed explanations during design review.",
+    "question": "Which style applies in each context?",
+    "meaning": "Keep both preferences and test context selection separately from merely storing them."
+  },
+  "A-03": {
+    "story": "Alice changes only her incident-support preference.",
+    "question": "What changed, and does her design-review preference remain?",
+    "meaning": "Return the intended replacement and correction evidence without changing the other context."
+  },
+  "A-04": {
+    "story": "Alice is beginning Rust but reports five years of professional Python use.",
+    "question": "What is she interested in, and what skill did she actually declare?",
+    "meaning": "Do not turn a learning interest into expert proficiency or treat a declaration as an independently tested credential."
+  },
+  "A-05": {
+    "story": "Mercury names both an internal project and the planet in one research conversation.",
+    "question": "Which statements concern the project?",
+    "meaning": "Inspect real disambiguation; shared spelling must not silently merge unrelated meanings. Reliable resolution is not yet promised."
+  },
+  "A-06": {
+    "story": "Bob and Alice share an interest but prefer different answer styles; Alice also mentions Bob.",
+    "question": "Whose preference belongs to whom?",
+    "meaning": "Positively retrieve each owner and check attribution. Mentioning another person must not silently transfer their facts."
+  },
+  "A-07": {
+    "story": "Alice returns to an investigation discussed in an earlier session.",
+    "question": "What context from yesterday is available?",
+    "meaning": "Separate supported explicit-session recall from discovering the earlier session automatically."
+  },
+  "A-08": {
+    "story": "Morning work and later afternoon activity form separate time groups.",
+    "question": "What happened in each period?",
+    "meaning": "Episodes must contain the exact qualifying Events, not an arbitrary set of nearby records."
+  },
+  "A-09": {
+    "story": "A late mobile note falls between two previously separated activity groups.",
+    "question": "How does the remembered timeline change?",
+    "meaning": "A new membership snapshot may bridge the groups; preserve earlier snapshots rather than pretending they never existed."
+  },
+  "A-10": {
+    "story": "Similar phrases occur in unrelated sessions.",
+    "question": "Which session actually supports this recollection?",
+    "meaning": "Relevant wording must not pull unrelated session history into the evidence."
+  },
+  "A-11": {
+    "story": "A work session contains progress, uncertainty and an unresolved problem.",
+    "question": "Does the summary preserve the useful facts and uncertainty?",
+    "meaning": "Inspect actual model text and its sources; a Summary node alone is not proof of a useful summary."
+  },
+  "A-12": {
+    "story": "Alice reports that late meetings reduce her focused coding time as a structured Belief.",
+    "question": "What assumption did Alice state, and what supports it?",
+    "meaning": "Keep it as her attributed assertion, not a verified universal fact."
+  },
+  "A-13": {
+    "story": "A research producer submits an uncertain inferred hypothesis explicitly.",
+    "question": "What is proposed, with what confidence and source?",
+    "meaning": "An explicit inferred assertion remains distinguishable from confirmed knowledge; arbitrary prose is not the producer."
+  },
+  "A-14": {
+    "story": "A Belief is confirmed, then a competing stale confirmation arrives.",
+    "question": "Which actions apply to the current state?",
+    "meaning": "Preserve valid lifecycle evidence and refuse or explicitly handle stale actions without silently rewriting history."
+  },
+  "A-15": {
+    "story": "A travel assumption changes after new information.",
+    "question": "What replaced the earlier assumption?",
+    "meaning": "Show the explicit revision and supporting Events; do not invent an additional contradiction relationship."
+  },
+  "A-16": {
+    "story": "A general capability assumption and a session-specific hypothesis coexist.",
+    "question": "Which assertion applies to this scope?",
+    "meaning": "Keep owner and scope boundaries visible; local evidence must not become a global claim."
+  },
+  "A-17": {
+    "story": "A study Goal is created, discussed and later explicitly completed.",
+    "question": "Which event establishes completion?",
+    "meaning": "Progress conversation alone must not complete the Goal; return the explicit action evidence."
+  },
+  "A-18": {
+    "story": "A household task is abandoned rather than finished.",
+    "question": "What happened to the commitment?",
+    "meaning": "Return abandoned state and its source; abandonment is not success."
+  },
+  "A-19": {
+    "story": "One plan is replaced by another.",
+    "question": "What is the current plan and what did it replace?",
+    "meaning": "Retain the superseded alternative and exact replacement evidence."
+  },
+  "A-20": {
+    "story": "A commitment continues into a later session while another owner has a similar task.",
+    "question": "Which commitment is still active for this person?",
+    "meaning": "Preserve cross-session identity without changing someone else's Goal."
+  },
+  "A-21": {
+    "story": "A conversation never states a preference or commitment.",
+    "question": "Do we have evidence that one exists?",
+    "meaning": "Return only qualifying evidence; silence is not a hidden preference or promise."
+  },
+  "A-22": {
+    "story": "One referenced parent arrives late; another never arrives.",
+    "question": "Which relationships are actually supported now?",
+    "meaning": "Distinguish delayed availability from permanently missing evidence and report bounded handling."
+  },
+  "A-23": {
+    "story": "The producer retries a request, conflicts with its identity, then sends malformed or disabled input.",
+    "question": "Did any unintended knowledge get created?",
+    "meaning": "Unchanged retry is safe; conflicts/rejections must not add support or forbidden outputs."
+  },
+  "A-24": {
+    "story": "A history exceeds the read budget.",
+    "question": "How much evidence was examined, and what was omitted?",
+    "meaning": "Expose bounds/truncation; a partial answer cannot establish exhaustive absence."
+  },
+  "A-25": {
+    "story": "Alice expresses a preference indirectly and later asks using different wording.",
+    "question": "Can the actual model and read flow recover the intended evidence?",
+    "meaning": "Judge interpretation and discovery separately; exact-ID success cannot substitute for a useful paraphrase result."
+  },
+  "B01": {
+    "story": "A product request becomes an approved audit-export specification and explicit requirement.",
+    "question": "Which planning artifacts refine this request?",
+    "meaning": "Return the declared chain and source Events without inventing a completed request."
+  },
+  "B02": {
+    "story": "An export high-level design (HLD) and low-level design (LLD) explicitly reference requirements and each other.",
+    "question": "Which designs address this exact requirement?",
+    "meaning": "Follow declared versioned links in both directions; exclude similar unrelated designs."
+  },
+  "B03": {
+    "story": "Design version one is approved, then version two replaces it.",
+    "question": "Which exact revision was approved?",
+    "meaning": "Preserve version-one approval; version two needs its own approval event."
+  },
+  "B04": {
+    "story": "The team changes from synchronous exports to queued jobs.",
+    "question": "What decision is current and why did it replace the earlier one?",
+    "meaning": "Return explicit decision supersession and rationale without inventing extra lifecycle actions."
+  },
+  "B05": {
+    "story": "Privacy review narrows an export requirement in a new specification revision.",
+    "question": "Which work and tests reference each revision?",
+    "meaning": "Keep distinct requirement identities; earlier implementation and coverage do not automatically transfer."
+  },
+  "B06": {
+    "story": "Design prose describes a choice and constraint before explicit acceptance.",
+    "question": "What proposals can be extracted, and what is actually accepted?",
+    "meaning": "Inspect the real model and validation; proposed knowledge and producer-confirmed decisions remain distinct."
+  },
+  "B07": {
+    "story": "Tickets and a pull request name the requirement and design they implement.",
+    "question": "Which work implements this design?",
+    "meaning": "Return only explicitly linked work with evidence, not a plausible association based on wording."
+  },
+  "B08": {
+    "story": "One reviewer requests changes and another later approves.",
+    "question": "Who reviewed the code and what did each say?",
+    "meaning": "Keep distinct historical reviews and verdicts; reviewed does not automatically mean approved."
+  },
+  "B09": {
+    "story": "A prototype is abandoned, reopened and later merged.",
+    "question": "What is the actual change history?",
+    "meaning": "Keep lifecycle evidence and merged-state protection; abandonment must not look like successful delivery."
+  },
+  "B10": {
+    "story": "A tooling commit arrives without an associated pull request.",
+    "question": "What do we know about this commit?",
+    "meaning": "The supported result may be only ledger/Event evidence; do not invent a domain Change artifact."
+  },
+  "B11": {
+    "story": "A regression test fails, passes on rerun, and another execution is skipped.",
+    "question": "What verification outcomes exist for this change?",
+    "meaning": "Preserve distinct outcomes and sources; coverage is not a passing test and skipped is not success."
+  },
+  "B12": {
+    "story": "An urgent production hotfix has explicit work and operational records.",
+    "question": "Which work fixed the issue and what verification exists?",
+    "meaning": "Operational and work claims need their own supported references; urgency is not proof."
+  },
+  "B13": {
+    "story": "A library version is published without deploying a service.",
+    "question": "What shipped, and was anything deployed?",
+    "meaning": "Return the Release and included changes; publishing must not create an invented Deployment."
+  },
+  "B14": {
+    "story": "Production deployment fails, then a separate attempt succeeds; staging is separate.",
+    "question": "Which exact attempt reached each environment?",
+    "meaning": "Retain each deployment identity and outcome; a later success must not erase failure."
+  },
+  "B15": {
+    "story": "A regression triggers rollback of one specified deployment attempt.",
+    "question": "What was rolled back?",
+    "meaning": "Link the rollback to the exact attempt, not every deployment of a similar version."
+  },
+  "B16": {
+    "story": "An incident is observed after a service upgrade.",
+    "question": "What changed and what incident was observed?",
+    "meaning": "Time order alone must not create a causal claim."
+  },
+  "B17": {
+    "story": "References are received before the artifacts they name.",
+    "question": "What is known before and after the real artifacts arrive?",
+    "meaning": "Identity-only placeholders stay visibly incomplete until supported observations fill them."
+  },
+  "B18": {
+    "story": "One requirement has missing coverage, another proposed coverage, and another a failed execution.",
+    "question": "What verification is actually established?",
+    "meaning": "Do not equate absence, a proposal, a coverage link and a passing run."
+  },
+  "B19": {
+    "story": "Different repositories reuse PR numbers and deployment fields.",
+    "question": "Which project and deployment does this result belong to?",
+    "meaning": "Use full scoped identities and exclude sibling-project contamination."
+  },
+  "B20": {
+    "story": "An incident gets explicit remediation, resolution and a lesson cited later.",
+    "question": "What was learned, and where was it reused?",
+    "meaning": "Keep these separate claims and their declared links; a lesson does not establish its own truth."
+  },
+  "B21": {
+    "story": "An engineering assumption is explicitly stated, confirmed and corrected.",
+    "question": "What assumption is current and what changed?",
+    "meaning": "Use Memory lifecycle evidence alongside PDLC; no implicit domain-to-Belief link."
+  },
+  "B22": {
+    "story": "A delivery Goal exists while implementation and tests progress.",
+    "question": "What actually establishes Goal completion?",
+    "meaning": "Only its explicit supported action completes it; passing tests do not automatically do so."
+  },
+  "B23": {
+    "story": "An abandoned delivery plan is replaced.",
+    "question": "Which plan is active and what alternatives remain in history?",
+    "meaning": "Preserve explicit abandoned/superseded state and its sources."
+  },
+  "B24": {
+    "story": "Planning and operations sessions accumulate activity over time.",
+    "question": "What happened in those sessions?",
+    "meaning": "Inspect actual Episode membership and sources; domain and Memory views meet through supporting Events, not an invented semantic edge."
+  }
+}

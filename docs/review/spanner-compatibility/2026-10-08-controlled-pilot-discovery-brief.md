@@ -4,6 +4,12 @@
 
 This section supersedes the historical prerequisite/status descriptions below. It is a scope proposal, not approval to run the pilot. No pilot run, deployment, database reset or new feature work is started by this review.
 
+### Guide and execution entry — 15 October 2026
+
+The stakeholder approved the eight-page pilot chapter and starting execution through readiness checks. [Open the versioned architecture/pilot guide](../../guide/engram-architecture.html): pilot pages20–27 include the49journey catalog,18shared probes, worker/read explanations and reproduction requirements. Source is docs/guide/engram-architecture.html; pilot content template and plain-language journey explanations live beside it. Rebuild embedded catalogs/navigation with `python3 scripts/build_pilot_guide.py` from the repository root. The HTML template is not a standalone guide.
+
+The [first checkpoint specification](pilot-readiness-2026-10-15/entry-checkpoint.md) records exact approved targets, retained-state safeguards, real-provider limits, review and repeat instructions. It is an entry stage, not completion of the49-journey pilot. External cohort onboarding and independent developer reproduction remain required later.
+
 ### What the recent projection work changes
 
 The pilot asks whether developers can submit realistic activity, obtain the right knowledge and retrieve its evidence through supported Engram entry points. We reuse the verified foundation rather than repeat an open-ended assessment.
