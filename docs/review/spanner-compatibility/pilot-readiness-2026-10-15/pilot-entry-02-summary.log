@@ -1,0 +1,615 @@
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-15 12:17:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-15 12:17:58 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-15 12:17:58 [info     ] llm_client_initialized
+2026-10-15 12:18:01 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'user@1.2.0'] ontology_version=sha256:e861b87f989b1869 redis_host=localhost
+2026-10-15 12:18:01 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-15 12:18:01 [info     ] llm_client_initialized
+2026-10-15 12:18:04 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.2.0', 'pdlc@5.0.0'] ontology_version=sha256:b5b9857af719ffe2 redis_host=localhost
+2026-10-15 12:18:07 [info     ] ontology_loaded                edge_types=20 event_types=23 intents=['beliefs', 'general', 'goals', 'how_does', 'personalize', 'related', 'what', 'when', 'who_is', 'why'] node_types=11 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.2.0', 'owner': 'engram'}] version=sha256:e861b87f989b1869
+2026-10-15 12:18:07 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-15 12:18:08 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-15 12:18:10 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-15 12:18:10 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-15 12:18:10 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-15 12:18:12 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-15 12:18:13 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-15 12:18:13 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-15 12:18:15 [info     ] consolidation_llm_client_initialized
+2026-10-15 12:18:15 [info     ] pack_extraction_profiles       packs=[] sources=[]
+2026-10-15 12:18:15 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-15 12:18:15 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-15 12:18:16 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-15 12:18:18 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-15 12:18:18 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-15 12:18:21 [info     ] ontology_loaded                edge_types=39 event_types=47 intents=['beliefs', 'completeness', 'general', 'goals', 'how_does', 'impact', 'incident', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=25 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.2.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '5.0.0', 'owner': 'TBD'}] version=sha256:b5b9857af719ffe2
+2026-10-15 12:18:21 [info     ] consumer_started               consumer=projection-1 group=assessment-projection stream=Events
+2026-10-15 12:18:21 [info     ] pending_drain_completed        group=assessment-projection
+2026-10-15 12:18:23 [info     ] enrichment_embedding_service_initialized model=all-MiniLM-L6-v2
+2026-10-15 12:18:24 [info     ] consumer_started               consumer=enrichment-1 group=assessment-enrichment stream=Events
+2026-10-15 12:18:24 [info     ] pending_drain_completed        group=assessment-enrichment
+2026-10-15 12:18:26 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-15 12:18:26 [info     ] consumer_started               consumer=extraction-1 group=assessment-extraction stream=Events
+2026-10-15 12:18:27 [info     ] pending_drain_completed        group=assessment-extraction
+2026-10-15 12:18:29 [info     ] consolidation_llm_client_initialized
+2026-10-15 12:18:29 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-15 12:18:29 [info     ] consolidation_timer_started    interval_hours=0.005555555555555556
+2026-10-15 12:18:29 [info     ] consumer_started               consumer=consolidation-1 group=assessment-consolidation stream=Events
+2026-10-15 12:18:30 [info     ] pending_drain_completed        group=assessment-consolidation
+2026-10-15 12:18:32 [info     ] consumer_started               consumer=pack-extraction-1 group=assessment-pack_extraction stream=Events
+2026-10-15 12:18:32 [info     ] event_ingested                 event_id=ccd53f01-6020-5562-8951-ad568f638050 event_type=observation.input global_position=2026-10-15T06:48:32.797695000Z/000000/ccd53f01-6020-5562-8951-ad568f638050 request_id=6dd2bafb-02e0-4b15-9978-b1c467476b00 status=created
+2026-10-15 12:18:33 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-15 12:18:33 [info     ] event_ingested                 event_id=ee275af1-c57b-5a2b-9a85-19e45536ecda event_type=system.session_end global_position=2026-10-15T06:48:33.054271000Z/000000/ee275af1-c57b-5a2b-9a85-19e45536ecda request_id=65b4928d-d92e-46a0-b165-d961f78bc0d8 status=created
+2026-10-15 12:18:33 [info     ] pending_drain_completed        group=assessment-pack_extraction
+2026-10-15 12:18:33 [debug    ] event_projected                edge_count=0 entry_id=2026-10-15T06:48:32.797695000Z/000000/ccd53f01-6020-5562-8951-ad568f638050 event_id=ccd53f01-6020-5562-8951-ad568f638050 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:18:33 [info     ] event_ingested                 event_id=ac55478b-c8d4-5f8d-8ff3-78b46574ff26 event_type=observation.input global_position=2026-10-15T06:48:33.286319000Z/000000/ac55478b-c8d4-5f8d-8ff3-78b46574ff26 request_id=eb669c14-7868-4690-acba-1b3f6017f9af status=created
+2026-10-15 12:18:33 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-15 12:18:33 [info     ] event_ingested                 event_id=35be2485-9686-5c4f-9bac-856fef19c570 event_type=system.session_end global_position=2026-10-15T06:48:33.543839000Z/000000/35be2485-9686-5c4f-9bac-856fef19c570 request_id=c3cb3224-2fe7-4136-aa61-e43cf4103c39 status=created
+2026-10-15 12:18:33 [debug    ] event_projected                edge_count=1 entry_id=2026-10-15T06:48:33.054271000Z/000000/ee275af1-c57b-5a2b-9a85-19e45536ecda event_id=ee275af1-c57b-5a2b-9a85-19e45536ecda session_id=pilot-1015-entry-02:alice
+2026-10-15 12:18:33 [debug    ] event_enriched                 event_id=ccd53f01-6020-5562-8951-ad568f638050 importance_score=7 keywords=['observation', 'input']
+2026-10-15 12:18:39 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+2026-10-15 12:18:45 [warning  ] storage_unavailable_retrying   error='User extraction awaits trigger projection' group=assessment-extraction operation=user_extraction retry_in_ms=200
+2026-10-15 12:18:45 [info     ] event_ingested                 event_id=56ed399e-4818-59c7-841c-359ee56d7396 event_type=pdlc.spec.changed global_position=2026-10-15T06:48:33.915711000Z/000000/56ed399e-4818-59c7-841c-359ee56d7396 request_id=0e165ff2-9620-4f8a-8d20-9f679ce5b65c status=created
+2026-10-15 12:18:45 [info     ] consolidation_timer_fired
+2026-10-15 12:18:45 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:18:46 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-15 12:18:46 [debug    ] event_embedding_stored         event_id=ccd53f01-6020-5562-8951-ad568f638050
+2026-10-15 12:18:46 [debug    ] event_projected                edge_count=0 entry_id=2026-10-15T06:48:33.915711000Z/000000/56ed399e-4818-59c7-841c-359ee56d7396 event_id=56ed399e-4818-59c7-841c-359ee56d7396 session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:46 [info     ] event_ingested                 event_id=ac27aef7-cafa-5b15-bcd2-417672d74f84 event_type=pdlc.requirement.changed global_position=2026-10-15T06:48:46.221391000Z/000000/ac27aef7-cafa-5b15-bcd2-417672d74f84 request_id=3f92cbce-324f-49c2-81c5-2865e13e2bc3 status=created
+2026-10-15 12:18:46 [info     ] sessions_qualifying_for_consolidation count=3 threshold=5
+2026-10-15 12:18:46 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:18:46 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:18:46 [debug    ] event_enriched                 event_id=56ed399e-4818-59c7-841c-359ee56d7396 importance_score=7 keywords=['pdlc', 'spec', 'changed']
+2026-10-15 12:18:46 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+2026-10-15 12:18:52 [info     ] event_ingested                 event_id=237e7c07-3ac5-5161-af40-ee953daf91a5 event_type=pdlc.design.section_changed global_position=2026-10-15T06:48:46.556831000Z/000000/237e7c07-3ac5-5161-af40-ee953daf91a5 request_id=469f86f8-d007-4558-837b-e9e8ee7b21d0 status=created
+2026-10-15 12:18:52 [debug    ] event_enriched                 event_id=ee275af1-c57b-5a2b-9a85-19e45536ecda importance_score=7 keywords=['system', 'session_end']
+2026-10-15 12:18:52 [info     ] consolidation_timer_fired
+2026-10-15 12:18:52 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:18:52 [debug    ] event_projected                edge_count=0 entry_id=2026-10-15T06:48:33.286319000Z/000000/ac55478b-c8d4-5f8d-8ff3-78b46574ff26 event_id=ac55478b-c8d4-5f8d-8ff3-78b46574ff26 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:18:52 [debug    ] event_embedding_stored         event_id=ee275af1-c57b-5a2b-9a85-19e45536ecda
+2026-10-15 12:18:52 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-15 12:18:52 [debug    ] event_embedding_stored         event_id=56ed399e-4818-59c7-841c-359ee56d7396
+2026-10-15 12:18:52 [info     ] event_ingested                 event_id=a6a83f78-3e57-572c-ae50-2a5bb28bba91 event_type=observation.input global_position=2026-10-15T06:48:52.708639000Z/000000/a6a83f78-3e57-572c-ae50-2a5bb28bba91 request_id=4c05850d-93dd-4276-bef2-8f3da5ad0c01 status=created
+2026-10-15 12:18:52 [info     ] sessions_qualifying_for_consolidation count=5 threshold=5
+2026-10-15 12:18:52 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:18:52 [debug    ] event_enriched                 event_id=ac55478b-c8d4-5f8d-8ff3-78b46574ff26 importance_score=7 keywords=['observation', 'input']
+2026-10-15 12:18:52 [debug    ] event_projected                edge_count=1 entry_id=2026-10-15T06:48:46.221391000Z/000000/ac27aef7-cafa-5b15-bcd2-417672d74f84 event_id=ac27aef7-cafa-5b15-bcd2-417672d74f84 session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:52 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:18:53 [debug    ] event_embedding_stored         event_id=ac55478b-c8d4-5f8d-8ff3-78b46574ff26
+2026-10-15 12:18:53 [info     ] event_ingested                 event_id=b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec event_type=system.session_end global_position=2026-10-15T06:48:53.013599000Z/000000/b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec request_id=64f91bfd-18f1-4f56-b171-954ab4db6daa status=created
+2026-10-15 12:18:53 [debug    ] event_projected                edge_count=1 entry_id=2026-10-15T06:48:33.543839000Z/000000/35be2485-9686-5c4f-9bac-856fef19c570 event_id=35be2485-9686-5c4f-9bac-856fef19c570 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:18:53 [debug    ] event_enriched                 event_id=ac27aef7-cafa-5b15-bcd2-417672d74f84 importance_score=7 keywords=['pdlc', 'requirement', 'changed']
+2026-10-15 12:18:53 [info     ] event_ingested                 event_id=ccd53f01-6020-5562-8951-ad568f638050 event_type=observation.input global_position=2026-10-15T06:48:32.797695000Z/000000/ccd53f01-6020-5562-8951-ad568f638050 request_id=204c907d-3334-42f4-aae5-ff6c423cf93c status=duplicate
+2026-10-15 12:18:53 [debug    ] event_embedding_stored         event_id=ac27aef7-cafa-5b15-bcd2-417672d74f84
+2026-10-15 12:18:53 [debug    ] event_enriched                 event_id=35be2485-9686-5c4f-9bac-856fef19c570 importance_score=7 keywords=['system', 'session_end']
+2026-10-15 12:18:53 [debug    ] event_embedding_stored         event_id=35be2485-9686-5c4f-9bac-856fef19c570
+2026-10-15 12:18:53 [info     ] extraction_triggered           agent_id=pilot-1015-entry-02:publisher entry_id=2026-10-15T06:48:53.013599000Z/000000/b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:53 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-15 12:18:53 [debug    ] session_events_collected       event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:53 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=200
+2026-10-15 12:18:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-15T06:48:46.556831000Z/000000/237e7c07-3ac5-5161-af40-ee953daf91a5 event_id=237e7c07-3ac5-5161-af40-ee953daf91a5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:54 [warning  ] storage_unavailable_retrying   error='Event projection is not available for enrichment' group=assessment-enrichment operation=annotate_projected_event retry_in_ms=400
+2026-10-15 12:18:54 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-15 12:18:54 [debug    ] event_enriched                 event_id=237e7c07-3ac5-5161-af40-ee953daf91a5 importance_score=7 keywords=['pdlc', 'design', 'section_changed']
+2026-10-15 12:18:54 [debug    ] event_embedding_stored         event_id=237e7c07-3ac5-5161-af40-ee953daf91a5
+2026-10-15 12:18:55 [debug    ] event_projected                edge_count=1 entry_id=2026-10-15T06:48:52.708639000Z/000000/a6a83f78-3e57-572c-ae50-2a5bb28bba91 event_id=a6a83f78-3e57-572c-ae50-2a5bb28bba91 session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:55 [debug    ] event_enriched                 event_id=a6a83f78-3e57-572c-ae50-2a5bb28bba91 importance_score=7 keywords=['observation', 'input']
+2026-10-15 12:18:55 [debug    ] event_embedding_stored         event_id=a6a83f78-3e57-572c-ae50-2a5bb28bba91
+2026-10-15 12:18:56 [debug    ] event_projected                edge_count=1 entry_id=2026-10-15T06:48:53.013599000Z/000000/b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec event_id=b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec session_id=pilot-1015-entry-02:work
+2026-10-15 12:18:56 [debug    ] event_enriched                 event_id=b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec importance_score=7 keywords=['system', 'session_end']
+2026-10-15 12:18:56 [debug    ] event_embedding_stored         event_id=b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec
+2026-10-15 12:18:57 [debug    ] pack_plans_applied             edges=2 events=1 nodes=2 states=0
+2026-10-15 12:18:57 [info     ] pack_extraction_applied        edges_written=2 event_id=237e7c07-3ac5-5161-af40-ee953daf91a5 links=0 nodes=2 pack=pdlc rejected=['links[0]: APPLIES_TO may not link Decision to Spec']
+2026-10-15 12:18:59 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:18:59 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:18:59 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:18:59 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:18:59 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:18:59 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:19:01 [info     ] extraction_llm_success         entities=16 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=pilot-1015-entry-02:work skills=0
+2026-10-15 12:19:01 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+2026-10-15 12:19:07 [info     ] extraction_llm_success         entities=4 interests=2 model_id=gpt-5.2-2025-12-11 preferences=3 session_id=pilot-1015-entry-02:alice skills=2
+2026-10-15 12:19:07 [debug    ] entity_resolved_merge          canonical=alice name=Alice
+2026-10-15 12:19:07 [debug    ] entity_created                 entity_id=entity:pilot-1015-entry-02:publisher name=pilot-1015-entry-02:publisher
+2026-10-15 12:19:08 [debug    ] pack_plans_applied             edges=3 events=1 nodes=2 states=0
+2026-10-15 12:19:08 [info     ] pack_extraction_applied        edges_written=3 event_id=a6a83f78-3e57-572c-ae50-2a5bb28bba91 links=1 nodes=2 pack=pdlc rejected=[]
+2026-10-15 12:19:08 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+2026-10-15 12:19:14 [debug    ] entity_created                 entity_id=entity:Rust name=Rust
+2026-10-15 12:19:14 [debug    ] entity_created                 entity_id=entity:pdlc.spec.changed name=pdlc.spec.changed
+2026-10-15 12:19:15 [debug    ] entity_resolved_link           action=RELATED_TO canonical=Rust name='Rust language development'
+2026-10-15 12:19:16 [debug    ] entity_created                 entity_id=entity:pilot-1015-entry-02:alice name=pilot-1015-entry-02:alice
+2026-10-15 12:19:16 [debug    ] entity_resolved_link           action=RELATED_TO canonical=pilot-1015-entry-02:publisher name=pilot:spec
+2026-10-15 12:19:16 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:19:16 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:16 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:19:16 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:19:16 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:16 [error    ] generate_text_failed
+2026-10-15 12:19:16 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:19:16 [error    ] generate_text_failed
+2026-10-15 12:19:17 [info     ] extraction_results_written     session_id=pilot-1015-entry-02:alice user_entity_id=user:pilot-1015-entry-02:alice
+2026-10-15 12:19:17 [info     ] user_extraction_applied        event_id=ee275af1-c57b-5a2b-9a85-19e45536ecda outcome=applied session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:18 [debug    ] entity_resolved_link           action=SAME_AS canonical=pdlc.spec.changed name=pdlc.requirement.changed
+2026-10-15 12:19:18 [error    ] generate_text_failed
+2026-10-15 12:19:18 [error    ] generate_text_failed
+2026-10-15 12:19:19 [error    ] extraction_llm_error           attempt=0 model_id=gpt-5.2-2025-12-11 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:19:19 [error    ] message_processing_failed      consumer=extraction-1 entry_id=2026-10-15T06:48:33.543839000Z/000000/35be2485-9686-5c4f-9bac-856fef19c570 group=assessment-extraction
+2026-10-15 12:19:19 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:20 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:19:20 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:19:20 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:19:20 [error    ] generate_text_failed
+2026-10-15 12:19:21 [debug    ] entity_resolved_link           action=RELATED_TO canonical=pilot:spec name=pilot:requirement
+2026-10-15 12:19:21 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-15 12:19:21 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:alice sessions=1
+2026-10-15 12:19:21 [error    ] generate_text_failed
+2026-10-15 12:19:22 [info     ] importance_recomputed_from_centrality updated_count=14
+2026-10-15 12:19:22 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:19:22 [info     ] consolidating_session          event_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:22 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:22 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:22 [error    ] generate_text_failed
+2026-10-15 12:19:23 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:23 [error    ] generate_text_failed
+2026-10-15 12:19:23 [debug    ] entity_resolved_link           action=RELATED_TO canonical=pdlc.spec.changed name=pdlc.design.section_changed
+2026-10-15 12:19:24 [error    ] generate_text_failed
+2026-10-15 12:19:24 [error    ] generate_text_failed
+2026-10-15 12:19:25 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:25 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:25 [debug    ] entity_resolved_link           action=RELATED_TO canonical=pilot:requirement name=pilot:design
+2026-10-15 12:19:26 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-15 12:19:26 [debug    ] entity_created                 entity_id=entity:observation.input name=observation.input
+2026-10-15 12:19:27 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:19:27 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-15 12:19:27 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:publisher sessions=1
+2026-10-15 12:19:28 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:19:28 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:19:28 [debug    ] entity_resolved_link           action=RELATED_TO canonical=pilot:design name=pilot:prose
+2026-10-15 12:19:28 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-15 12:19:28 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:28 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:28 [error    ] generate_text_failed
+2026-10-15 12:19:30 [debug    ] entity_created                 entity_id='entity:export jobs' name='export jobs'
+2026-10-15 12:19:30 [error    ] generate_text_failed
+2026-10-15 12:19:31 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:31 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:31 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:31 [error    ] generate_text_failed
+2026-10-15 12:19:31 [debug    ] entity_created                 entity_id='entity:bounded batches' name='bounded batches'
+2026-10-15 12:19:32 [error    ] generate_text_failed
+2026-10-15 12:19:33 [debug    ] entity_created                 entity_id='entity:memory is limited' name='memory is limited'
+2026-10-15 12:19:33 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:34 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:19:34 [debug    ] entity_created                 entity_id='entity:buffering whole workspaces' name='buffering whole workspaces'
+2026-10-15 12:19:35 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:19:35 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:19:36 [debug    ] entity_created                 entity_id='entity:production deployment' name='production deployment'
+2026-10-15 12:19:37 [debug    ] entity_created                 entity_id=entity:system.session_end name=system.session_end
+2026-10-15 12:19:39 [debug    ] entity_resolved_link           action=RELATED_TO canonical=pilot:design name=pilot:end
+2026-10-15 12:19:40 [info     ] transitive_closure_applied     cluster_count=1 edge_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:40 [info     ] extraction_results_written     session_id=pilot-1015-entry-02:work user_entity_id=user:pilot-1015-entry-02:publisher
+2026-10-15 12:19:40 [info     ] extraction_completed           entities=16 interests=0 preferences=0 session_id=pilot-1015-entry-02:work skills=0
+2026-10-15 12:19:48 [info     ] consolidation_timer_fired
+2026-10-15 12:19:48 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:19:48 [info     ] sessions_qualifying_for_consolidation count=4 threshold=5
+2026-10-15 12:19:48 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:48 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:48 [error    ] generate_text_failed
+2026-10-15 12:19:50 [error    ] generate_text_failed
+2026-10-15 12:19:50 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:50 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:19:50 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:19:50 [error    ] generate_text_failed
+2026-10-15 12:19:52 [error    ] generate_text_failed
+2026-10-15 12:19:53 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:19:53 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:19:53 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:19:53 [error    ] generate_text_failed
+2026-10-15 12:19:54 [error    ] generate_text_failed
+2026-10-15 12:19:55 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:19:55 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:55 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:55 [error    ] generate_text_failed
+2026-10-15 12:19:56 [info     ] consolidation_timer_fired
+2026-10-15 12:19:56 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:19:56 [info     ] sessions_qualifying_for_consolidation count=5 threshold=5
+2026-10-15 12:19:56 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:56 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:56 [error    ] generate_text_failed
+2026-10-15 12:19:57 [error    ] generate_text_failed
+2026-10-15 12:19:58 [error    ] generate_text_failed
+2026-10-15 12:19:58 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:19:58 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:19:58 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:58 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:19:58 [error    ] generate_text_failed
+2026-10-15 12:19:59 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-15 12:20:00 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:bob sessions=1
+2026-10-15 12:20:00 [error    ] generate_text_failed
+2026-10-15 12:20:01 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:alice sessions=1
+2026-10-15 12:20:01 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:01 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:01 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:01 [error    ] generate_text_failed
+2026-10-15 12:20:01 [info     ] importance_recomputed_from_centrality updated_count=15
+2026-10-15 12:20:01 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:01 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:01 [error    ] generate_text_failed
+2026-10-15 12:20:03 [error    ] generate_text_failed
+2026-10-15 12:20:03 [error    ] generate_text_failed
+2026-10-15 12:20:04 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:04 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:20:04 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:20:04 [error    ] generate_text_failed
+2026-10-15 12:20:04 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:05 [error    ] generate_text_failed
+2026-10-15 12:20:06 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:20:06 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:20:06 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:20:06 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:20:06 [error    ] generate_text_failed
+2026-10-15 12:20:07 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:20:07 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:20:08 [error    ] generate_text_failed
+2026-10-15 12:20:08 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:20:10 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-15 12:20:10 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:publisher sessions=1
+2026-10-15 12:20:11 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-15 12:20:11 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-15 12:20:12 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:12 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:12 [error    ] generate_text_failed
+2026-10-15 12:20:13 [error    ] generate_text_failed
+2026-10-15 12:20:14 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:14 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:14 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:14 [error    ] generate_text_failed
+2026-10-15 12:20:16 [error    ] generate_text_failed
+2026-10-15 12:20:17 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:18 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:20:19 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:20:19 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:20:27 [info     ] consolidation_timer_fired
+2026-10-15 12:20:27 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:20:27 [info     ] sessions_qualifying_for_consolidation count=4 threshold=5
+2026-10-15 12:20:27 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:27 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:27 [error    ] generate_text_failed
+2026-10-15 12:20:29 [error    ] generate_text_failed
+2026-10-15 12:20:30 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:30 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:30 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:30 [error    ] generate_text_failed
+2026-10-15 12:20:31 [error    ] generate_text_failed
+2026-10-15 12:20:32 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:32 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:20:32 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:20:32 [error    ] generate_text_failed
+2026-10-15 12:20:34 [error    ] generate_text_failed
+2026-10-15 12:20:34 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:20:34 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:20:34 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:20:34 [error    ] generate_text_failed
+2026-10-15 12:20:36 [error    ] generate_text_failed
+2026-10-15 12:20:37 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:20:38 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-15 12:20:38 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:bob sessions=1
+2026-10-15 12:20:39 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:alice sessions=1
+2026-10-15 12:20:39 [info     ] consolidation_timer_fired
+2026-10-15 12:20:39 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:20:39 [info     ] importance_recomputed_from_centrality updated_count=15
+2026-10-15 12:20:39 [info     ] sessions_qualifying_for_consolidation count=5 threshold=5
+2026-10-15 12:20:39 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:39 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:39 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:39 [error    ] generate_text_failed
+2026-10-15 12:20:39 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:39 [error    ] generate_text_failed
+2026-10-15 12:20:41 [error    ] generate_text_failed
+2026-10-15 12:20:41 [error    ] generate_text_failed
+2026-10-15 12:20:42 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:42 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:42 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:42 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:42 [error    ] generate_text_failed
+2026-10-15 12:20:44 [error    ] generate_text_failed
+2026-10-15 12:20:44 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:20:44 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:44 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:44 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:44 [error    ] generate_text_failed
+2026-10-15 12:20:45 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:20:45 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:20:46 [error    ] generate_text_failed
+2026-10-15 12:20:47 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:20:47 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:20:47 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:20:47 [error    ] generate_text_failed
+2026-10-15 12:20:49 [error    ] generate_text_failed
+2026-10-15 12:20:49 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:20:49 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:20:49 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:20:49 [error    ] generate_text_failed
+2026-10-15 12:20:51 [error    ] generate_text_failed
+2026-10-15 12:20:52 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:20:53 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-15 12:20:54 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:publisher sessions=1
+2026-10-15 12:20:54 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-15 12:20:55 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-15 12:20:55 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:55 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:55 [error    ] generate_text_failed
+2026-10-15 12:20:57 [error    ] generate_text_failed
+2026-10-15 12:20:57 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:20:57 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:58 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:20:58 [error    ] generate_text_failed
+2026-10-15 12:21:00 [error    ] generate_text_failed
+2026-10-15 12:21:00 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:01 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:21:02 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:21:02 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:21:05 [info     ] consolidation_timer_fired
+2026-10-15 12:21:05 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:21:05 [info     ] sessions_qualifying_for_consolidation count=4 threshold=5
+2026-10-15 12:21:05 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:05 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:05 [error    ] generate_text_failed
+2026-10-15 12:21:07 [error    ] generate_text_failed
+2026-10-15 12:21:08 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:08 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:08 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:08 [error    ] generate_text_failed
+2026-10-15 12:21:09 [error    ] generate_text_failed
+2026-10-15 12:21:10 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:10 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:21:10 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:21:10 [error    ] generate_text_failed
+2026-10-15 12:21:12 [error    ] generate_text_failed
+2026-10-15 12:21:12 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:21:12 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:21:12 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:21:12 [error    ] generate_text_failed
+2026-10-15 12:21:14 [error    ] generate_text_failed
+2026-10-15 12:21:15 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:21:16 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-15 12:21:16 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:bob sessions=1
+2026-10-15 12:21:17 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:alice sessions=1
+2026-10-15 12:21:17 [info     ] importance_recomputed_from_centrality updated_count=15
+2026-10-15 12:21:17 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:17 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:17 [error    ] generate_text_failed
+2026-10-15 12:21:19 [error    ] generate_text_failed
+2026-10-15 12:21:20 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:21 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:21:22 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:21:22 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:21:22 [info     ] consolidation_timer_fired
+2026-10-15 12:21:22 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:21:23 [info     ] sessions_qualifying_for_consolidation count=5 threshold=5
+2026-10-15 12:21:23 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:23 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:23 [error    ] generate_text_failed
+2026-10-15 12:21:24 [error    ] generate_text_failed
+2026-10-15 12:21:25 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:25 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:25 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:25 [error    ] generate_text_failed
+2026-10-15 12:21:27 [error    ] generate_text_failed
+2026-10-15 12:21:28 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:28 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:28 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:28 [error    ] generate_text_failed
+2026-10-15 12:21:29 [error    ] generate_text_failed
+2026-10-15 12:21:30 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:30 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:21:30 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:21:30 [error    ] generate_text_failed
+2026-10-15 12:21:32 [error    ] generate_text_failed
+2026-10-15 12:21:33 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:21:33 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:21:33 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:21:33 [error    ] generate_text_failed
+2026-10-15 12:21:34 [error    ] generate_text_failed
+2026-10-15 12:21:35 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:21:36 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-15 12:21:37 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:publisher sessions=1
+2026-10-15 12:21:37 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-15 12:21:38 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-15 12:21:38 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:38 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:38 [error    ] generate_text_failed
+2026-10-15 12:21:40 [error    ] generate_text_failed
+2026-10-15 12:21:41 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:41 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:41 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:41 [error    ] generate_text_failed
+2026-10-15 12:21:42 [info     ] consolidation_timer_fired
+2026-10-15 12:21:42 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:21:42 [info     ] sessions_qualifying_for_consolidation count=4 threshold=5
+2026-10-15 12:21:42 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:43 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:43 [error    ] generate_text_failed
+2026-10-15 12:21:43 [error    ] generate_text_failed
+2026-10-15 12:21:43 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:21:44 [error    ] generate_text_failed
+2026-10-15 12:21:45 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:21:45 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:45 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:45 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:45 [error    ] generate_text_failed
+2026-10-15 12:21:46 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:21:46 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:21:47 [error    ] generate_text_failed
+2026-10-15 12:21:48 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:21:48 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:21:48 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:21:48 [error    ] generate_text_failed
+2026-10-15 12:21:49 [error    ] generate_text_failed
+2026-10-15 12:21:50 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:21:50 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:21:50 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:21:50 [error    ] generate_text_failed
+2026-10-15 12:21:52 [error    ] generate_text_failed
+2026-10-15 12:21:52 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:21:53 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-15 12:21:54 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:bob sessions=1
+2026-10-15 12:21:54 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:alice sessions=1
+2026-10-15 12:21:55 [info     ] importance_recomputed_from_centrality updated_count=15
+2026-10-15 12:21:55 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:55 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:55 [error    ] generate_text_failed
+2026-10-15 12:21:57 [error    ] generate_text_failed
+2026-10-15 12:21:58 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:21:59 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:22:00 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:22:00 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:22:06 [info     ] consolidation_timer_fired
+2026-10-15 12:22:06 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:22:06 [info     ] sessions_qualifying_for_consolidation count=5 threshold=5
+2026-10-15 12:22:06 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:06 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:06 [error    ] generate_text_failed
+2026-10-15 12:22:08 [error    ] generate_text_failed
+2026-10-15 12:22:09 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:09 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:09 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:09 [error    ] generate_text_failed
+2026-10-15 12:22:11 [error    ] generate_text_failed
+2026-10-15 12:22:11 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:11 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:11 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:11 [error    ] generate_text_failed
+2026-10-15 12:22:13 [error    ] generate_text_failed
+2026-10-15 12:22:14 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:14 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:22:14 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:22:14 [error    ] generate_text_failed
+2026-10-15 12:22:15 [error    ] generate_text_failed
+2026-10-15 12:22:16 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:22:16 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:22:16 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:22:16 [error    ] generate_text_failed
+2026-10-15 12:22:18 [error    ] generate_text_failed
+2026-10-15 12:22:19 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:22:20 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-15 12:22:20 [info     ] consolidation_timer_fired
+2026-10-15 12:22:20 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:22:20 [info     ] sessions_qualifying_for_consolidation count=4 threshold=5
+2026-10-15 12:22:20 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:21 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:21 [error    ] generate_text_failed
+2026-10-15 12:22:21 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:publisher sessions=1
+2026-10-15 12:22:21 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-15 12:22:22 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-15 12:22:22 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:22 [error    ] generate_text_failed
+2026-10-15 12:22:23 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:23 [error    ] generate_text_failed
+2026-10-15 12:22:23 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:23 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:23 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:23 [error    ] generate_text_failed
+2026-10-15 12:22:25 [error    ] generate_text_failed
+2026-10-15 12:22:25 [error    ] generate_text_failed
+2026-10-15 12:22:25 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:25 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:26 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:26 [error    ] generate_text_failed
+2026-10-15 12:22:26 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:26 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:22:26 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:22:26 [error    ] generate_text_failed
+2026-10-15 12:22:28 [error    ] generate_text_failed
+2026-10-15 12:22:28 [error    ] generate_text_failed
+2026-10-15 12:22:28 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:29 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:bob
+2026-10-15 12:22:29 [info     ] consolidating_session          event_count=2 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:22:29 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:22:29 [error    ] generate_text_failed
+2026-10-15 12:22:30 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:22:30 [error    ] generate_text_failed
+2026-10-15 12:22:31 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:22:31 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:22:31 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:alice
+2026-10-15 12:22:32 [info     ] agent_summary_created          agent_id=alice sessions=2
+2026-10-15 12:22:33 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:bob sessions=1
+2026-10-15 12:22:33 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:alice sessions=1
+2026-10-15 12:22:34 [info     ] importance_recomputed_from_centrality updated_count=15
+2026-10-15 12:22:34 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:34 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:34 [error    ] generate_text_failed
+2026-10-15 12:22:36 [error    ] generate_text_failed
+2026-10-15 12:22:36 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:38 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:22:39 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:22:39 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:22:51 [info     ] consolidation_timer_fired
+2026-10-15 12:22:51 [info     ] consolidation_cycle_started    source=timer
+2026-10-15 12:22:51 [info     ] sessions_qualifying_for_consolidation count=5 threshold=5
+2026-10-15 12:22:51 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:51 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:51 [error    ] generate_text_failed
+2026-10-15 12:22:53 [error    ] generate_text_failed
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=enrichment-1 group=assessment-enrichment
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=projection-1 group=assessment-projection
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=extraction-1 group=assessment-extraction
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=pack-extraction-1 group=assessment-pack_extraction
+2026-10-15 12:22:53 [info     ] consumer_stopped               consumer=consolidation-1 group=assessment-consolidation
+2026-10-15 12:22:53 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:22:53 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:54 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:54 [error    ] generate_text_failed
+2026-10-15 12:22:55 [error    ] generate_text_failed
+2026-10-15 12:22:56 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:22:56 [info     ] consolidating_session          event_count=4 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:56 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:56 [error    ] generate_text_failed
+2026-10-15 12:22:58 [error    ] generate_text_failed
+2026-10-15 12:22:58 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:memory
+2026-10-15 12:22:58 [info     ] consolidating_session          event_count=2 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:22:58 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:22:58 [error    ] generate_text_failed
+2026-10-15 12:23:00 [error    ] generate_text_failed
+2026-10-15 12:23:01 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:pdlc
+2026-10-15 12:23:01 [info     ] consolidating_session          event_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:23:01 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:23:01 [error    ] generate_text_failed
+2026-10-15 12:23:03 [error    ] generate_text_failed
+2026-10-15 12:23:03 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:unrelated
+2026-10-15 12:23:04 [info     ] agent_summary_created          agent_id=alice sessions=3
+2026-10-15 12:23:05 [info     ] agent_summary_created          agent_id=pilot-1015-entry-02:publisher sessions=1
+2026-10-15 12:23:06 [info     ] agent_summary_created          agent_id=bob sessions=1
+2026-10-15 12:23:06 [info     ] importance_recomputed_from_centrality updated_count=19
+2026-10-15 12:23:06 [info     ] consolidating_session          event_count=7 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:23:06 [info     ] episodes_grouped               episode_count=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:23:06 [error    ] generate_text_failed
+2026-10-15 12:23:08 [error    ] generate_text_failed
+2026-10-15 12:23:09 [info     ] session_consolidated           episode_summaries=1 session_id=tenant-isolation-1014-03:user-memory:user
+2026-10-15 12:23:09 [info     ] consolidating_session          event_count=5 session_id=pilot-1015-entry-02:work
+2026-10-15 12:23:09 [info     ] episodes_grouped               episode_count=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:23:09 [error    ] generate_text_failed
+2026-10-15 12:23:10 [error    ] generate_text_failed
+2026-10-15 12:23:11 [info     ] session_consolidated           episode_summaries=1 session_id=pilot-1015-entry-02:work
+2026-10-15 12:23:12 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-15 12:23:13 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-15 12:23:13 [info     ] consolidation_cycle_completed  source=timer
+2026-10-15 12:23:20 [info     ] app_stopped
+2026-10-15 12:23:20 [info     ] app_stopped

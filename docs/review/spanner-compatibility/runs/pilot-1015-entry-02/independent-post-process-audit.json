@@ -1,0 +1,50 @@
+{
+  "operation": "fresh-process read-only audit",
+  "source_hashes_match": true,
+  "targets": {
+    "a": {
+      "matches_saved_final": true,
+      "counts": {
+        "Events": 15,
+        "GraphNodes": 57,
+        "GraphEdges": 197,
+        "ConsumerGroups": 5,
+        "ConsumerCursors": 80,
+        "ConsumerDeliveries": 1,
+        "ConsumerDeadLetters": 0
+      },
+      "owner": [
+        [
+          "isolation-a",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+          "tenant-isolation-1014-03-a",
+          52,
+          "sha256:1d2d80fd4136db0f8147cb7851af8f8da08ad4d97bf9777efbc18153280b55ba",
+          "active"
+        ]
+      ]
+    },
+    "b": {
+      "matches_saved_final": true,
+      "counts": {
+        "Events": 19,
+        "GraphNodes": 85,
+        "GraphEdges": 308,
+        "ConsumerGroups": 5,
+        "ConsumerCursors": 80,
+        "ConsumerDeliveries": 0,
+        "ConsumerDeadLetters": 0
+      },
+      "owner": [
+        [
+          "isolation-b",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target",
+          "tenant-isolation-1014-03-b",
+          6,
+          "sha256:02783138ac5425ef220f382e9a68158d3bb6f489f4377d52c925c5270fdc8f11",
+          "active"
+        ]
+      ]
+    }
+  }
+}

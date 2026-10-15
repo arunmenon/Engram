@@ -1,0 +1,893 @@
+{
+  "state": "failed",
+  "scope": [
+    "A-01",
+    "A-06 owner control",
+    "B02 declared chain",
+    "B06 prose proposals",
+    "C02",
+    "C06",
+    "C07",
+    "C17"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "alice admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "alice-end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "bob admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "bob-end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "spec admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "requirement admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "design admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "prose admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "unchanged retry accepted without new identity",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "exact events, extraction receipts, matching pack outcomes and drained work",
+      "passed": false,
+      "actual": null
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior material graph preserved",
+      "passed": false
+    },
+    {
+      "name": "a final pending/DLQ empty",
+      "passed": false
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior material graph preserved",
+      "passed": false
+    },
+    {
+      "name": "b final pending/DLQ empty",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "ccd53f01-6020-5562-8951-ad568f638050",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-15T06:44:54.265026+00:00",
+        "session_id": "pilot-1015-entry-02:alice",
+        "agent_id": "pilot-1015-entry-02:alice",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "ccd53f01-6020-5562-8951-ad568f638050",
+        "global_position": "2026-10-15T06:48:32.797695000Z/000000/ccd53f01-6020-5562-8951-ad568f638050",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "ee275af1-c57b-5a2b-9a85-19e45536ecda",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-15T06:44:55.265026+00:00",
+        "session_id": "pilot-1015-entry-02:alice",
+        "agent_id": "pilot-1015-entry-02:alice",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:alice-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "ee275af1-c57b-5a2b-9a85-19e45536ecda",
+        "global_position": "2026-10-15T06:48:33.054271000Z/000000/ee275af1-c57b-5a2b-9a85-19e45536ecda",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "ac55478b-c8d4-5f8d-8ff3-78b46574ff26",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-15T06:44:56.265026+00:00",
+        "session_id": "pilot-1015-entry-02:bob",
+        "agent_id": "pilot-1015-entry-02:bob",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:bob",
+        "payload": {
+          "content": "My name is Bob. I am a software engineer. I prefer detailed examples. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "ac55478b-c8d4-5f8d-8ff3-78b46574ff26",
+        "global_position": "2026-10-15T06:48:33.286319000Z/000000/ac55478b-c8d4-5f8d-8ff3-78b46574ff26",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "35be2485-9686-5c4f-9bac-856fef19c570",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-15T06:44:57.265026+00:00",
+        "session_id": "pilot-1015-entry-02:bob",
+        "agent_id": "pilot-1015-entry-02:bob",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:bob-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "35be2485-9686-5c4f-9bac-856fef19c570",
+        "global_position": "2026-10-15T06:48:33.543839000Z/000000/35be2485-9686-5c4f-9bac-856fef19c570",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "56ed399e-4818-59c7-841c-359ee56d7396",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-15T06:44:58.265026+00:00",
+        "session_id": "pilot-1015-entry-02:work",
+        "agent_id": "pilot-1015-entry-02:publisher",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:spec",
+        "payload": {
+          "doc_id": "pilot-1015-entry-02-export",
+          "version": "1",
+          "title": "Audit CSV export",
+          "scope": "Export authorized workspace rows",
+          "acceptance_criteria": "Only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "56ed399e-4818-59c7-841c-359ee56d7396",
+        "global_position": "2026-10-15T06:48:33.915711000Z/000000/56ed399e-4818-59c7-841c-359ee56d7396",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "ac27aef7-cafa-5b15-bcd2-417672d74f84",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-15T06:44:59.265026+00:00",
+        "session_id": "pilot-1015-entry-02:work",
+        "agent_id": "pilot-1015-entry-02:publisher",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:requirement",
+        "payload": {
+          "spec_id": "pilot-1015-entry-02-export",
+          "spec_version": "1",
+          "local_id": "authorization",
+          "statement": "Export only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "ac27aef7-cafa-5b15-bcd2-417672d74f84",
+        "global_position": "2026-10-15T06:48:46.221391000Z/000000/ac27aef7-cafa-5b15-bcd2-417672d74f84",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "237e7c07-3ac5-5161-af40-ee953daf91a5",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-15T06:45:00.265026+00:00",
+        "session_id": "pilot-1015-entry-02:work",
+        "agent_id": "pilot-1015-entry-02:publisher",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:design",
+        "payload": {
+          "doc_id": "pilot-1015-entry-02-hld",
+          "section_path": "streaming",
+          "version": "1",
+          "kind": "hld",
+          "title": "Bounded export streaming",
+          "body": "We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory. Constraint: never buffer an entire workspace.",
+          "requirements": [
+            {
+              "spec_id": "pilot-1015-entry-02-export",
+              "spec_version": "1",
+              "local_id": "authorization"
+            }
+          ]
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "237e7c07-3ac5-5161-af40-ee953daf91a5",
+        "global_position": "2026-10-15T06:48:46.556831000Z/000000/237e7c07-3ac5-5161-af40-ee953daf91a5",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "a6a83f78-3e57-572c-ae50-2a5bb28bba91",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-15T06:45:01.265026+00:00",
+        "session_id": "pilot-1015-entry-02:work",
+        "agent_id": "pilot-1015-entry-02:publisher",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:prose",
+        "payload": {
+          "content": "For export jobs we choose bounded batches because memory is limited; avoid buffering whole workspaces. This is a proposed design choice, not evidence of a production deployment."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "a6a83f78-3e57-572c-ae50-2a5bb28bba91",
+        "global_position": "2026-10-15T06:48:52.708639000Z/000000/a6a83f78-3e57-572c-ae50-2a5bb28bba91",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-15T06:45:02.265026+00:00",
+        "session_id": "pilot-1015-entry-02:work",
+        "agent_id": "pilot-1015-entry-02:publisher",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec",
+        "global_position": "2026-10-15T06:48:53.013599000Z/000000/b9e3d61e-0ed0-5de9-9bcd-a2bbaeb4acec",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "ccd53f01-6020-5562-8951-ad568f638050",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-15T06:44:54.265026+00:00",
+        "session_id": "pilot-1015-entry-02:alice",
+        "agent_id": "pilot-1015-entry-02:alice",
+        "trace_id": "pilot-1015-entry-02",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "ccd53f01-6020-5562-8951-ad568f638050",
+        "global_position": "2026-10-15T06:48:32.797695000Z/000000/ccd53f01-6020-5562-8951-ad568f638050",
+        "status": "duplicate"
+      }
+    }
+  ],
+  "provider_calls": [
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:46.440357+00:00",
+      "usage": {
+        "completion_tokens": 769,
+        "prompt_tokens": 1486,
+        "total_tokens": 2255,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "{\n  \"persona\": {\n    \"name\": \"Alice\",\n    \"role\": \"Software engineer\",\n    \"tech_level\": \"advanced\",\n    \"communication_style\": \"Direct, concise\",\n    \"source_quote\": \"My name is Alice. I am a software engineer.\"\n  },\n  \"entities\": [\n    {\n      \"name\": \"Alice\",\n      \"entity_type\": \"user\",\n      \"confidence\": 0.99,\n      \"source_quote\": \"My name is Alice.\"\n    },\n    {\n      \"name\": \"Rust\",\n      \"entity_type\": \"tool\",\n      \"confidence\": 0.9,\n      \"source_quote\": \"interested in Rust language development\"\n    },\n    {\n      \"name\": \"Rust language development\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.85,\n      \"source_quote\": \"interested in Rust language development\"\n    },\n    {\n      \"name\": \"pilot-1015-entry-02:alice\",\n      \"entity_type\": \"agent\",\n      \"confidence\": 0.7,\n      \"source_quote\": \"agent=pilot-1015-entry-02:alice\"\n    }\n  ],\n  \"preferences\": [\n    {\n      \"category\": \"communication\",\n      \"key\": \"short_answers\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.95,\n      \"confidence\": 0.95,\n      \"source\": \"explicit\",\n      \"context\": \"User states a preference for brevity in responses.\",\n      \"about_entity\": null,\n      \"source_quote\": \"I prefer short answers.\"\n    },\n    {\n      \"category\": \"style\",\n      \"key\": \"direct_concise_communication\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.7,\n      \"confidence\": 0.65,\n      \"source\": \"implicit_intentional\",\n      \"context\": \"User explicitly requests short answers, implying a concise communication style preference.\",\n      \"about_entity\": null,\n      \"source_quote\": \"I prefer short answers.\"\n    },\n    {\n      \"category\": \"domain\",\n      \"key\": \"rust_development_focus\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.75,\n      \"confidence\": 0.75,\n      \"source\": \"explicit\",\n      \"context\": \"User indicates interest in Rust development, implying preference toward that domain.\",\n      \"about_entity\": \"Rust language development\",\n      \"source_quote\": \"I am interested in Rust language development.\"\n    }\n  ],\n  \"skills\": [\n    {\n      \"name\": \"Software engineering\",\n      \"category\": \"domain_knowledge\",\n      \"proficiency\": 0.7,\n      \"confidence\": 0.6,\n      \"source\": \"declared\",\n      \"source_quote\": \"I am a software engineer.\"\n    },\n    {\n      \"name\": \"Rust\",\n      \"category\": \"programming_language\",\n      \"proficiency\": 0.45,\n      \"confidence\": 0.4,\n      \"source\": \"inferred\",\n      \"source_quote\": \"interested in Rust language development\"\n    }\n  ],\n  \"interests\": [\n    {\n      \"entity_name\": \"Rust\",\n      \"entity_type\": \"tool\",\n      \"weight\": 0.9,\n      \"source\": \"explicit\",\n      \"source_quote\": \"I am interested in Rust language development.\"\n    },\n    {\n      \"entity_name\": \"Rust language development\",\n      \"entity_type\": \"concept\",\n      \"weight\": 0.85,\n      \"source\": \"explicit\",\n      \"source_quote\": \"I am interested in Rust language development.\"\n    }\n  ]\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "ccd53f01-6020-5562-8951-ad568f638050"
+      ]
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:46.702402+00:00",
+      "usage": {
+        "completion_tokens": 54,
+        "prompt_tokens": 222,
+        "total_tokens": 276,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "Episode summary: The agent received several user inputs (`observation.input`) across multiple short-lived sessions that ended immediately (`system.session_end`). No tools were invoked and no substantive actions or outputs were recorded; the episode ended without a completed task or observable outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:52.981531+00:00",
+      "usage": {
+        "completion_tokens": 54,
+        "prompt_tokens": 222,
+        "total_tokens": 276,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "Episode summary: The agent received several user inputs (`observation.input`) across multiple short-lived sessions that ended immediately (`system.session_end`). No tools were invoked and no substantive actions or outputs were recorded; the episode ended without a completed task or observable outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:53.358451+00:00",
+      "usage": {
+        "completion_tokens": 249,
+        "prompt_tokens": 1549,
+        "total_tokens": 1798,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "{\n  \"nodes\": [\n    {\n      \"ref\": \"n1\",\n      \"type\": \"Decision\",\n      \"confidence\": 0.8,\n      \"statement\": \"Stream authorized rows in bounded batches for workspace exports.\",\n      \"rationale\": \"Workspace exports must not exhaust memory.\",\n      \"alternatives\": \"Buffer an entire workspace export in memory.\",\n      \"evidence\": \"We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory.\"\n    },\n    {\n      \"ref\": \"n2\",\n      \"type\": \"Constraint\",\n      \"confidence\": 0.8,\n      \"statement\": \"Never buffer an entire workspace during export.\",\n      \"scope\": \"Workspace export streaming\",\n      \"severity\": \"must-not\",\n      \"evidence\": \"Constraint: never buffer an entire workspace.\"\n    }\n  ],\n  \"links\": [\n    {\n      \"type\": \"APPLIES_TO\",\n      \"from\": \"n1\",\n      \"to\": \"Spec:pilot-1015-entry-02-export|1\",\n      \"confidence\": 0.75,\n      \"evidence\": \"stream authorized rows in bounded batches ... workspace exports\"\n    }\n  ]\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "237e7c07-3ac5-5161-af40-ee953daf91a5"
+      ]
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:53.797216+00:00",
+      "usage": {
+        "completion_tokens": 712,
+        "prompt_tokens": 446,
+        "total_tokens": 1158,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "{\n  \"entities\": [\n    {\n      \"name\": \"pilot-1015-entry-02:publisher\",\n      \"entity_type\": \"agent\",\n      \"confidence\": 0.93,\n      \"source_quote\": \"agent=pilot-1015-entry-02:publisher\"\n    },\n    {\n      \"name\": \"pdlc.spec.changed\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.74,\n      \"source_quote\": \"pdlc.spec.changed\"\n    },\n    {\n      \"name\": \"pilot:spec\",\n      \"entity_type\": \"resource\",\n      \"confidence\": 0.78,\n      \"source_quote\": \"payload_ref: pilot:spec\"\n    },\n    {\n      \"name\": \"pdlc.requirement.changed\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.74,\n      \"source_quote\": \"pdlc.requirement.changed\"\n    },\n    {\n      \"name\": \"pilot:requirement\",\n      \"entity_type\": \"resource\",\n      \"confidence\": 0.78,\n      \"source_quote\": \"payload_ref: pilot:requirement\"\n    },\n    {\n      \"name\": \"pdlc.design.section_changed\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.74,\n      \"source_quote\": \"pdlc.design.section_changed\"\n    },\n    {\n      \"name\": \"pilot:design\",\n      \"entity_type\": \"resource\",\n      \"confidence\": 0.78,\n      \"source_quote\": \"payload_ref: pilot:design\"\n    },\n    {\n      \"name\": \"observation.input\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.7,\n      \"source_quote\": \"observation.input\"\n    },\n    {\n      \"name\": \"pilot:prose\",\n      \"entity_type\": \"resource\",\n      \"confidence\": 0.78,\n      \"source_quote\": \"payload_ref: pilot:prose\"\n    },\n    {\n      \"name\": \"export jobs\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.72,\n      \"source_quote\": \"For export jobs we choose bounded batches\"\n    },\n    {\n      \"name\": \"bounded batches\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.76,\n      \"source_quote\": \"we choose bounded batches\"\n    },\n    {\n      \"name\": \"memory is limited\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.68,\n      \"source_quote\": \"because memory is limited\"\n    },\n    {\n      \"name\": \"buffering whole workspaces\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.66,\n      \"source_quote\": \"avoid buffering whole workspaces\"\n    },\n    {\n      \"name\": \"production deployment\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.6,\n      \"source_quote\": \"not evidence of a production deployment\"\n    },\n    {\n      \"name\": \"system.session_end\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.62,\n      \"source_quote\": \"system.session_end\"\n    },\n    {\n      \"name\": \"pilot:end\",\n      \"entity_type\": \"resource\",\n      \"confidence\": 0.75,\n      \"source_quote\": \"payload_ref: pilot:end\"\n    }\n  ]\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "a6a83f78-3e57-572c-ae50-2a5bb28bba91"
+      ]
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:57.070110+00:00",
+      "usage": {
+        "completion_tokens": 64,
+        "prompt_tokens": 222,
+        "total_tokens": 286,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "Episode summary: The agent received several user inputs (`observation.input`) across multiple short-lived sessions that repeatedly ended (`system.session_end`). No tools were invoked and no intermediate actions or outputs are recorded. Outcome: the interaction ended without any completed task or produced result beyond capturing the inputs and session terminations.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:57.371176+00:00",
+      "usage": {
+        "completion_tokens": 54,
+        "prompt_tokens": 222,
+        "total_tokens": 276,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "Episode summary: The agent received several user inputs (`observation.input`) across multiple short-lived sessions that ended immediately (`system.session_end`). No tools were invoked and no substantive actions or outputs were recorded; the episode ended without a completed task or observable outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:58.657357+00:00",
+      "usage": {
+        "completion_tokens": 257,
+        "prompt_tokens": 1528,
+        "total_tokens": 1785,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "{\n  \"nodes\": [\n    {\n      \"ref\": \"n1\",\n      \"type\": \"Decision\",\n      \"confidence\": 0.8,\n      \"statement\": \"For export jobs, use bounded batches.\",\n      \"rationale\": \"Memory is limited; avoid buffering whole workspaces.\",\n      \"alternatives\": \"Buffer whole workspaces during export streaming.\",\n      \"evidence\": \"\u201cFor export jobs we choose bounded batches because memory is limited; avoid buffering whole workspaces.\u201d\"\n    },\n    {\n      \"ref\": \"n2\",\n      \"type\": \"Constraint\",\n      \"confidence\": 0.75,\n      \"statement\": \"Export jobs must avoid buffering whole workspaces.\",\n      \"scope\": \"export jobs\",\n      \"severity\": \"should\",\n      \"evidence\": \"\u201cavoid buffering whole workspaces.\u201d\"\n    }\n  ],\n  \"links\": [\n    {\n      \"type\": \"APPLIES_TO\",\n      \"from\": \"n1\",\n      \"to\": \"DesignElement:pilot-1015-entry-02-hld|streaming|1\",\n      \"confidence\": 0.7,\n      \"evidence\": \"\u201cFor export jobs we choose bounded batches\u2026\u201d\"\n    }\n  ]\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "a6a83f78-3e57-572c-ae50-2a5bb28bba91"
+      ]
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:59.511076+00:00",
+      "usage": {
+        "completion_tokens": 52,
+        "prompt_tokens": 154,
+        "total_tokens": 206,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "The agent stated a belief and then confirmed it using its memory system, created a new goal based on that context, and subsequently marked the goal as completed. Outcome: the belief was validated and the goal lifecycle was successfully executed from creation to completion.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:48:59.870783+00:00",
+      "usage": {
+        "completion_tokens": 53,
+        "prompt_tokens": 154,
+        "total_tokens": 207,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "The agent stated a belief and then confirmed it, created a new goal based on that belief, and subsequently completed the goal. All actions were handled via the agent\u2019s memory system (belief and goal memory events), resulting in the goal being successfully achieved.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:49:13.987655+00:00",
+      "usage": {
+        "completion_tokens": 52,
+        "prompt_tokens": 154,
+        "total_tokens": 206,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "The agent stated a belief and then confirmed it using its memory system, created a new goal based on that context, and subsequently marked the goal as completed. Outcome: the belief was validated and the goal lifecycle was successfully executed from creation to completion.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "started_at": "2026-10-15T06:49:14.376112+00:00",
+      "usage": {
+        "completion_tokens": 52,
+        "prompt_tokens": 154,
+        "total_tokens": 206,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        }
+      },
+      "output": "The agent stated a belief and then confirmed it using its memory system, created a new goal based on that context, and subsequently marked the goal as completed. Outcome: the belief was validated and the goal lifecycle was successfully executed from creation to completion.",
+      "state": "returned",
+      "input_event_candidates": []
+    }
+  ],
+  "worker_outcomes": [
+    {
+      "event_id": "237e7c07-3ac5-5161-af40-ee953daf91a5",
+      "pack": "pdlc",
+      "nodes": 2,
+      "links": 0,
+      "edges_written": 2,
+      "rejected": [
+        "links[0]: APPLIES_TO may not link Decision to Spec"
+      ],
+      "event": "pack_extraction_applied"
+    },
+    {
+      "event_id": "a6a83f78-3e57-572c-ae50-2a5bb28bba91",
+      "pack": "pdlc",
+      "nodes": 2,
+      "links": 1,
+      "edges_written": 3,
+      "rejected": [],
+      "event": "pack_extraction_applied"
+    },
+    {
+      "event_id": "ee275af1-c57b-5a2b-9a85-19e45536ecda",
+      "session_id": "pilot-1015-entry-02:alice",
+      "outcome": "applied",
+      "event": "user_extraction_applied"
+    }
+  ],
+  "limitations": [
+    "All other candidate journeys/probes remain unexecuted. This first checkpoint is not complete pilot acceptance.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "No Episode schedule/summary or ANN quality proof in this first checkpoint",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-5.2-2025-12-11",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 52,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-5.2-2025-12-11",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 6,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "workers": [
+    {
+      "tenant": "a",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "a",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "a",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "a",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "a",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "b",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "b",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "b",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    }
+  ],
+  "error": {
+    "type": "AssertionError",
+    "message": "exact events, extraction receipts, matching pack outcomes and drained work"
+  },
+  "shutdown_errors": []
+}

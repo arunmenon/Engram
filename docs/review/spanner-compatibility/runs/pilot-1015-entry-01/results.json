@@ -1,0 +1,66 @@
+{
+  "state": "failed",
+  "scope": [
+    "A-01",
+    "A-06 owner control",
+    "B02 declared chain",
+    "B06 prose proposals",
+    "C02",
+    "C06",
+    "C07",
+    "C17"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": false,
+      "actual": null
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior material graph preserved",
+      "passed": true
+    },
+    {
+      "name": "a final pending/DLQ empty",
+      "passed": true
+    }
+  ],
+  "requests": [],
+  "provider_calls": [],
+  "worker_outcomes": [],
+  "limitations": [
+    "All other candidate journeys/probes remain unexecuted. This first checkpoint is not complete pilot acceptance.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "No Episode schedule/summary or ANN quality proof in this first checkpoint",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "error": {
+    "type": "AssertionError",
+    "message": "a selected bundle matches retained owner"
+  },
+  "shutdown_errors": []
+}

@@ -10,6 +10,8 @@ The stakeholder approved the eight-page pilot chapter and starting execution thr
 
 The [first checkpoint specification](pilot-readiness-2026-10-15/entry-checkpoint.md) records exact approved targets, retained-state safeguards, real-provider limits, review and repeat instructions. It is an entry stage, not completion of the49-journey pilot. External cohort onboarding and independent developer reproduction remain required later.
 
+15 October execution: the [entry checkpoint failed and stopped](pilot-readiness-2026-10-15/verification.md). Nine Events were accepted with actual providers, but the runner's completion-call ceiling and retained accelerated consolidation prevented full processing/retrieval verification. Original ledger/owners survived; older derived Summary content changed, failing the preservation oracle. A pending extraction remains retained. Reconcile the bounded consolidation/preservation/budget policy before recovery or retry; this is not a complete pilot result.
+
 ### What the recent projection work changes
 
 The pilot asks whether developers can submit realistic activity, obtain the right knowledge and retrieve its evidence through supported Engram entry points. We reuse the verified foundation rather than repeat an open-ended assessment.
