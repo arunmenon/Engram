@@ -55,6 +55,19 @@ The catalog maps all 28 declared PDLC events. That does not establish every sche
 
 Engram returns graph/context evidence. A downstream generated answer, if included, needs a separate verdict. Source assertion, model proposal and independently verified fact remain distinguishable.
 
+## Reproducible and extensible pilot — stakeholder requirement
+
+The pilot must leave a reusable suite that another developer can run and extend. This is an acceptance requirement, not a claim that the tooling already exists.
+
+- **Versioned journey definitions:** stable ID, purpose, tenant/required packs, prerequisites, ordered input fixtures, supported queries, independently declared expected and forbidden outputs/evidence, worker applicability and provider mode. Add a journey using the same format; reuse existing launch, ingestion, waiting, retrieval and reporting helpers rather than copying a script.
+- **Reproduction guide:** clean-checkout commands, pinned code/packs, required credentials/roles, safe database ownership and preservation rules, provider settings/cost bounds, consolidation timing, selected-journey execution and report location. No private machine paths, hidden helper dependencies or manual graph repairs.
+- **Two clearly labeled modes:** deterministic fixtures for repeatable regression checks; actual providers for extraction/summary/retrieval usefulness. Exact model prose need not match across runs, but predefined evidence, attribution, lifecycle and quality criteria must. Report provider/model/configuration and retain original failures.
+- **Independent developer proof:** someone other than the author follows the guide, runs a representative journey from each tenant plus an isolation probe, and produces the standard results without undocumented intervention. Record any missing instruction or prerequisite as a failure to fix.
+- **Extension proof:** add one further journey through the documented format and existing helpers without changing engine code solely to accommodate the test. A genuinely unsupported capability must be reported and scoped separately, not hidden in fixture setup.
+- **Safe retained data:** repeatability does not authorize resetting a shared database. Use approved namespaces/targets and verified preservation/ownership checks; document how to inspect and retain each run. Any cleanup remains explicit and scoped.
+
+Reuse existing demo/runtime machinery first. A new orchestration service or general test framework is not implied. Freeze the smallest concrete reusable structure in the pilot specification and verify both reproduction and extension before claiming the pilot complete.
+
 ## Proposed order
 
 1. **Freeze scope and prerequisites:** select required journeys explicitly, provider budget, roles/owner mapping, launch/access, consolidation cadence and retained-data preservation. Priority must not silently remove diversity.
