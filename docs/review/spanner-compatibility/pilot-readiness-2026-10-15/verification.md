@@ -37,3 +37,7 @@ Rust-interest usefulness, the complete A01/A06/B02/B06 journeys, the remaining49
 - [Verified raw-log archives](log-archives.json), compressed original logs and bounded timestamp summaries in this directory. The raw14.7MB second log was losslessly compressed to0.81MB; original uncompressed log is retained locally. Configured API-key values were checked absent before archiving.
 
 The architecture/pilot guide is versioned under docs/guide; pages20–27 teach the plan and distinguish examples from measured evidence. Its live tab remains open; its local documentation server is separate from the stopped pilot APIs/workers.
+
+## GitHub reconciliation
+
+[Follow-up #63](https://github.com/arunmenon/Engram/issues/63) is an open native child of [#39](https://github.com/arunmenon/Engram/issues/39), within umbrella [#34](https://github.com/arunmenon/Engram/issues/34). Both #39 and #34 received actual failure/evidence updates and remain open. No issue was closed. Parent relationship and states were reread; exact comment links are in [the reconciliation record](github-reconciliation.json).
