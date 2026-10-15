@@ -64,7 +64,7 @@ def main():
     }
     assert [len(entries[x]) for x in ("a", "b", "c")] == [25, 24, 18]
     teaching = json.loads((GUIDE.parent / "pilot-journey-explanations.json").read_text())
-    for key in ("a", "b"):
+    for key in ("a", "b", "c"):
         for row in entries[key]:
             row.update(teaching[row["id"]])
     template = (GUIDE.parent / "pilot-chapter.html").read_text()

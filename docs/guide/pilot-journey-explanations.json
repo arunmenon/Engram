@@ -243,5 +243,95 @@
     "story": "Planning and operations sessions accumulate activity over time.",
     "question": "What happened in those sessions?",
     "meaning": "Inspect actual Episode membership and sources; domain and Memory views meet through supporting Events, not an invented semantic edge."
+  },
+  "C01": {
+    "story": "A new developer starts from a clean checkout with a normal API role; an operator uses separate admin access.",
+    "question": "Can they launch, write and read using the documented roles?",
+    "meaning": "Record missing setup steps and explicit permission refusals; do not grant admin merely to obtain a pass."
+  },
+  "C02": {
+    "story": "Alice supplies personal context while the development tenant supplies eligible design prose, using actual model services.",
+    "question": "When is each accepted input ready to retrieve as useful knowledge?",
+    "meaning": "Separate ledger acceptance, model output, validation, graph persistence and retrieval; each requires its own evidence."
+  },
+  "C03": {
+    "story": "Ask about the same stored knowledge by exact ID, domain wording and a paraphrase without the expected ID.",
+    "question": "Which discovery methods actually find the evidence?",
+    "meaning": "Report each result separately. Returning a supplied ID does not prove wording-based discovery worked."
+  },
+  "C04": {
+    "story": "Introduce an Entity, then ask a related question without repeating its exact name.",
+    "question": "Did vector similarity contribute a useful, evidenced candidate?",
+    "meaning": "Require actual embedding and search-channel evidence; a word match alone cannot prove vector search participated."
+  },
+  "C05": {
+    "story": "Alice and Bob have different preferences across their own sessions and contexts.",
+    "question": "Does each supported owner-scoped read return the right person’s information?",
+    "meaning": "Read both owners positively, then check exclusions. Owner selection inside one tenant differs from isolation between tenants."
+  },
+  "C06": {
+    "story": "Both tenant databases deliberately reuse identifiers but contain different content. One item exists only in the second tenant.",
+    "question": "Can either tenant see the other tenant’s records or source evidence?",
+    "meaning": "First retrieve the item in its rightful tenant, then check the other tenant excludes it. Refusing a disabled pack alone is not enough."
+  },
+  "C07": {
+    "story": "Resend identical content with the same Event ID, then reuse that ID with changed content and submit invalid input.",
+    "question": "Do retries and refusals leave the expected records and support counts?",
+    "meaning": "An unchanged retry must not add another observation. Conflicting or invalid input must not create unintended knowledge."
+  },
+  "C08": {
+    "story": "Correct one preference, revise an explicit Belief and replace an approved design revision.",
+    "question": "Which state is current, and what earlier evidence remains?",
+    "meaning": "Keep each kind of correction/version rule distinct; a new design revision must not inherit approval automatically."
+  },
+  "C09": {
+    "story": "Explicit Goal actions complete or abandon a commitment; separately, a test passes without a Goal action.",
+    "question": "Which input actually changes the Goal state?",
+    "meaning": "Only the supported explicit action establishes completion. Passing a test does not automatically complete a Goal."
+  },
+  "C10": {
+    "story": "A late Event falls between two previously separated time groups.",
+    "question": "What new Episode snapshot is produced, and are the earlier memberships still inspectable?",
+    "meaning": "Check exact members and time rules; do not rewrite old membership or claim that a partial read contains all history."
+  },
+  "C11": {
+    "story": "One artifact has only a proposed link, another has a non-approving review, and another has no qualifying evidence.",
+    "question": "What can the stored sources actually establish?",
+    "meaning": "Distinguish a proposal, a recorded non-approval and missing evidence. No qualifying evidence in a bounded read is not proof nothing happened in the real world."
+  },
+  "C12": {
+    "story": "Read the same graph with a sufficient limit and then a deliberately small node/depth limit.",
+    "question": "Does the answer explain what was left out?",
+    "meaning": "Check truncation and valid returned source references; missing from a limited response must not become an exhaustive absence claim."
+  },
+  "C13": {
+    "story": "Both tenants write and read while one processing stage is briefly held by a labeled test barrier.",
+    "question": "Does the pilot wait for applicable outputs rather than declare success on early delivery progress?",
+    "meaning": "Inspect graph and source evidence plus pending/failed work. Zero delivery lag does not prove useful output is ready."
+  },
+  "C14": {
+    "story": "A separately configured real-provider call is deliberately denied using a predeclared failure/recovery procedure.",
+    "question": "Is failed extraction visible without fabricating a successful answer?",
+    "meaning": "Keep secrets out of evidence, distinguish accepted input from failed processing and do not assume automatic recovery."
+  },
+  "C15": {
+    "story": "A controlled test delays Event projection while enrichment receives work, or delays a Memory action’s required parent.",
+    "question": "Does processing wait for its prerequisite and converge when it becomes available?",
+    "meaning": "Inspect pending work and final outputs. This bounded ordering test does not prove every permanently missing dependency recovers."
+  },
+  "C16": {
+    "story": "Stop workers cooperatively during activity, wait for them to finish and restart the same authorized configuration.",
+    "question": "Are final writes stable, and are stale runtime generations refused?",
+    "meaning": "Check work termination and ownership guards. A cooperative restart does not establish forced-crash or network-partition recovery."
+  },
+  "C17": {
+    "story": "Try spoofed database hints, insufficient roles and documented unsupported tenant operations.",
+    "question": "Are requests refused before unintended effects or information disclosure?",
+    "meaning": "Routing must come from authorized credentials and bindings, not body hints; refusals need unchanged-state evidence after unrelated work is accounted for."
+  },
+  "C18": {
+    "story": "A fresh process audits saved evidence, and another developer repeats supported reads using the documented role.",
+    "question": "Can someone independently explain and repeat what the pilot proved?",
+    "meaning": "Reconcile inputs, exact outputs, source references and retained failures. A table match alone does not establish model usefulness or a complete pilot pass."
   }
 }
