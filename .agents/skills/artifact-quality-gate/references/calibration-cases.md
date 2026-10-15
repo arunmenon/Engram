@@ -1,0 +1,17 @@
+# Behavioral calibration cases
+
+Use when changing the rubric. These are invented test inputs, not measured system results. Evaluate the artifact against the supplied purpose/evidence before comparing the expected disposition. A successful desk check is not a validated detector or independent assessment.
+
+| Case | Artifact and evidence | Expected reviewer behavior |
+|---|---|---|
+| Polished but false | Report: “All optional packs work end to end.” Evidence: declarations load; one Core-only unit test passes. | REVISE the material overclaim. Cite the mismatch in coverage, not writing style. Preserve the true declaration-loading result. |
+| Legitimate depth | Expert runbook defines terms once, includes required failure/rollback cases, exact commands and validation evidence. It is long and has repeated warnings at distinct irreversible boundaries. | Do not flag length/repetition alone. PASS the reviewed quality scope if evidence and usability hold; distinguish specialist execution validation. |
+| Missing authority | Document claims a new model supports a feature; the authoritative specification and account access evidence are unavailable. | BLOCKED for that required verification, not “false because unverified.” Do not infer the feature works from a model name. |
+| Wrong runtime branch | Source includes an unused legacy writer that drops quotes; the selected startup requires a newer writer that persists them. Document describes the new writer's preserved quotes. | Trace construction/callers. Do not demand that the accurate document adopt the legacy bug. Report scoped uncertainty if selection cannot be established. |
+| Diagram implies a guarantee | Guide draws five independent workers as sequential mandatory steps with no conditions. Source shows independent groups and conditional triggers. | REVISE the implied sequence and universal work claim; retain the five responsibilities and show actual conditions. |
+| Simplification breaks a safeguard | Code review asks to remove a wrapper because it has one caller. The wrapper enforces tenant fencing inside each database transaction. | Preserve the invariant. A single caller is not enough evidence of bloat; require an equally correct simpler alternative before recommending removal. |
+| Self-fulfilling test | Test derives expected artifact IDs/outcomes from the response being checked, then asserts equality. Completion report calls this independent verification. | REVISE the oracle and claim. Specify independent expected inputs/results; do not accept a higher passing test count as correction. |
+| Unsupported style accusation | Reviewer sees formal prose, em dashes, common AI-associated words or non-native phrasing but no observed quality defect. | No authorship or slop inference. Optional style suggestions require audience/readability benefit and cannot alone fail the gate. |
+| Broken initial visual | HTML contains all nodes in source but initial controls reveal no intended content. The handoff claims an intuitive rendered walkthrough. | Inspect rendering before PASS. Correct placement/state wiring and recheck initial/changed states; source presence alone is insufficient. |
+
+A useful review must also name scope, missing evidence, smallest correction and the recheck. Do not optimize the rubric merely to reproduce these labels; add cases when real use exposes false positives or missed consequential defects.
