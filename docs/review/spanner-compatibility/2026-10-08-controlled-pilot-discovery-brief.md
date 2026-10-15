@@ -1,5 +1,97 @@
 # Controlled developer pilot: requested scope and prerequisite assessment
 
+## Current pilot scope for stakeholder review — 15 October 2026
+
+This section supersedes the historical prerequisite/status descriptions below. It is a scope proposal, not approval to run the pilot. No pilot run, deployment, database reset or new feature work is started by this review.
+
+### What the recent projection work changes
+
+The pilot asks whether developers can submit realistic activity, obtain the right knowledge and retrieve its evidence through supported Engram entry points. We reuse the verified foundation rather than repeat an open-ended assessment.
+
+| Capability now established for bounded cases | Evidence | What the pilot still needs to establish |
+|---|---|---|
+| Typed Memory Episodes, Beliefs and Goals are produced and retrievable | [Memory verification](memory-episodes-verification.md), later Belief/Goal sections | Use them in connected developer journeys; keep explicit producer assertions separate from prose inference |
+| User identity, profile/personalization consistency, corrections and retry receipts | [User verification](user-attachment-verification.md) | Realistic multi-session and multi-person examples using actual configured extraction, with visible sources and honest failures |
+| Enrichment survives projection ordering and preserves later adjustments | [Enrichment verification](enrichment-ordering-verification.md) | Confirm annotations and processing visibility for the actual pilot inputs; no claim of smarter keyword/importance inference |
+| Shared workers respect five selected configurations; Entity links preserve canonical IDs | [Composition verification](pack-combination-verification.md) | Meaningful combined journeys, correct enabled outputs and absence of disabled outputs |
+| One public authenticated dispatcher serves two pinned databases with distinct packs | [Tenant isolation verification](tenant-isolation-verification.md) | Developer-facing configuration, launch/onboarding and simultaneous realistic use; bounded isolation evidence is not a complete hosted-service release |
+
+### Pilot participants and selected configurations
+
+Propose a small controlled cohort using two simultaneous tenants. Participant names, hosting location and access duration remain to be chosen in the final specification.
+
+| Tenant | Selected packs | Existing approved target | Purpose |
+|---|---|---|---|
+| A | Core + User + Memory | engram-assess-1010a-pdlc | Personal context, preferences, explicit beliefs/goals and session recall |
+| B | Core + PDLC + Memory | engram-g07-target | Connected development artifacts plus explicit memory and session recall; User stays disabled |
+
+Core-only, Core+User and Core+PDLC remain targeted controls from the completed matrix. Do not change a live tenant's packs to simulate these controls or erase retained data. Any additional configuration run needs its own declared scope and safe dataset preparation. Both current targets contain retained verification data; preserve it by the existing verified export/ownership process before any approved replacement. Other databases remain protected.
+
+### What each worker contributes
+
+These are five shared worker loops, not one worker per pack. Applicability comes from selected capabilities and matching inputs. An acknowledgement can mean no applicable work; it is not proof an artifact was created.
+
+| Worker | Why it is there | Pilot proof |
+|---|---|---|
+| Graph projection | Builds common Event/evidence graph; applies PDLC rules and explicit Memory Belief/Goal actions | Exact types, stable identities, properties and source links for submitted events |
+| Session extraction | Extracts core Entities; adds User profiles/preferences/skills when User is selected | Actual configured model, canonical Entity links, correct User owner/supports; no User outputs for B |
+| Enrichment | Annotates Events with event-type/tool keywords, hint/default importance and optional embeddings | Eventually stored annotations despite ordering; distinguish metadata from semantic inference |
+| Consolidation | Builds Summaries and, with Memory, exact Episode membership snapshots | Documented schedule/threshold, complete stored evidence, timeline retrieval and safe cooperative stop |
+| Pack extraction | Uses selected prose extraction profiles, such as supported PDLC decisions/design content | A matching profile actually ran and its validated result/evidence is retrievable; unmatched inputs produce no claimed extraction |
+
+Episode creation is scheduled; small pilot fixtures need explicitly recorded cadence/threshold settings. Memory does not automatically convert a PR or ticket into a Goal. PDLC artifacts and Episodes meet through their supporting Events; additional semantic links require declared, tested rules. Beliefs/Goals use explicit supported event contracts. A stated or confirmed belief is an attributed assertion, not verified truth.
+
+### Tenant A journeys and retrieval checks
+
+1. Introduce Alice, her role, interest and short-answer preference. Retrieve the profile/current preference with actual supporting observation evidence.
+2. Introduce Bob with overlapping interests and a different preference. Positively retrieve Bob, then verify Alice's reads exclude Bob's facts. This is logical owner scoping inside one tenant, not hierarchy authorization.
+3. Continue Alice's activity across sessions. Retrieve relevant earlier context with attributable source Events.
+4. Correct Alice's preference in one context. Retrieve the current value and correction/history; another context remains unchanged. The authorized correction target must be explicit; do not claim arbitrary prose always infers it correctly.
+5. State, confirm and correct a Belief using the supported Memory contracts. Retrieve exact support, revision/history and confidence semantics; retries do not increase support.
+6. Create a Goal and explicitly complete or abandon it. Retrieve the declared state and evidence; do not infer completion merely because a test passed.
+7. Build temporal Episodes and Summaries. Retrieve exact membership; deliver a late bridging observation and show the new snapshot alongside preserved history.
+8. Retry unchanged input, submit changed content under the same identity and send malformed input. Check duplicate/conflict/rejection behavior and absence of unintended effects.
+
+Example questions: "What is Alice's current answer-length preference, and why?", "What changed?", "What goal was completed and which event says so?", "What happened in the earlier session?" Map each question to the actual supported endpoint and intent; require a defined answer or honest unsupported response. These are proposed questions, not claims of unrestricted natural-language understanding.
+
+### Tenant B journeys and retrieval checks
+
+1. Rebuild a coherent password-reset feature through Engram: product request, PRD and requirements, with an unrelated feature as a control.
+2. Add HLD/LLD, version-specific approval and a revision that does not inherit approval.
+3. Link explicit work tickets and PRs; include same PR numbers in different repositories.
+4. Record requested changes and approval separately; record passing, failing and skipped test runs without treating coverage as passing.
+5. Record release, failed/successful deployment and rollback using actual supported contracts.
+6. Record an incident, explicit remediation/resolution and a lesson cited by a later specification.
+7. Ask connected questions across the chain in both directions, with exact returned artifacts and evidence and no unrelated-feature leakage.
+8. Add explicit Memory Belief/Goal events and time-based Episodes. Retrieve both domain and memory views; never invent an automatic requirement-to-belief or PR-to-goal relationship.
+
+Example questions: "Which PR implements the expiry requirement?", "Who reviewed it and what test outcomes exist?", "Where was that change deployed?", "Which incident was explicitly remediated?", "Which later specification cites its lesson?" Freeze supported queries and expected answers before execution. Include natural-language discovery separately from exact-ID traversal so one cannot conceal a failure in the other.
+
+### Shared operational and isolation cases
+
+Use colliding identifiers/wording on both tenants, foreign-only positive/negative read controls, invalid credentials/roles and spoofed routing attempts. Keep both tenants active during representative interleaved journeys. Check duplicate processing, bounded cooperative worker interruption/restart, a provider failure and honest truncation relevant to the actual journeys. Required probes must name exact failure injection, expected effects and recovery; general crash/pending recovery is not inherited from the earlier bounded proof.
+
+### Prerequisites before starting
+
+- Select the exact code commit, frozen pack versions, supported event inventory, participants and deployment topology. The verification APIs/workers are stopped; there is no assumed running pilot endpoint.
+- Provide a documented clean-checkout launch path for the catalog, tenant-bound APIs and all five workers per tenant; verify a developer can follow it without private harness knowledge or graph repair.
+- Configure reachable endpoints, transport/access controls, credentials, trusted producer/source mapping, provider credentials and permitted costs. Spanner runtime permission is already evidenced; new deployment/provider credentials are not assumed available.
+- Define per-person/application mapping to agent_id. It is not automatically authenticated human identity. Define api/admin roles explicitly: direct User endpoints currently require admin; do not grant broad admin merely to obtain a passing pilot.
+- Record Episode schedule/threshold, timeouts, query bounds, processing-completion criteria and supported failure responses.
+- Expose sufficient pilot diagnostics for accepted/processed/pending/failed outcomes. Cloud Monitoring export currently fails403; either establish a bounded operational alternative or treat required monitoring as a readiness blocker.
+- Inspect relevant open correctness issues against the selected journeys. Identify demonstrated pilot blockers; do not queue the entire backlog or infer all reliability work is complete.
+- Freeze expected/forbidden outputs, provider behavior and exact evidence before inputs. Preserve retained datasets, prepare approved targets safely and publish repeat instructions.
+
+### Verification and approval gates
+
+Each required journey follows authenticated Engram HTTP writes -> actual Spanner ledger -> actual applicable workers -> Spanner graph -> Engram reads. Use actual configured providers where extraction/summary quality is being tested; scripted provider/fault cases remain separately labeled and cannot replace the real-provider journey. Read-only storage audits supplement API proof. No direct artifact inserts or manual repair count.
+
+Deliver per-scenario expected/actual results, payloads/responses, worker outcomes, exact graph/evidence, repeat commands, retained failures/data, Astra review, stakeholder demo and actual GitHub reconciliation. Review retrieval usefulness separately from lifecycle/storage correctness. Missing required evidence or a required failed case blocks that readiness claim. New scope goes into a bounded ticket rather than silently expanding the pilot.
+
+Next gate: stakeholder reviews this scope; then prepare the detailed pilot specification/tickets and prerequisite readiness check. Execution and developer onboarding require explicit approval. Hierarchy policies (#49), ANN/load benchmarks (#48), migration, hot pack switching, unimplemented tenant maintenance/import/cursors/native webhook routing, every possible pack combination and forced-termination guarantees remain outside this proposal. Reassess separately if a pilot developer needs one of them.
+
+## Historical assessment and planning record — superseded where noted
+
 13 October follow-up: the bounded [Memory remediation](memory-episodes-verification.md) now implements and verifies Episodes, Beliefs and Goals. Belief/Goal acceptance passed 138 live checks across core-only, core+Memory and core+PDLC+Memory; earlier Episode acceptance remains separately recorded. Astra found no remaining blocker for this scoped implementation. Original no-producer findings below are historical and superseded by that evidence. User attachment, enrichment ordering and public/concurrent tenant readiness remain separate pilot prerequisites; the pilot has not started.
 
 Status update, 10 October 2026: stakeholder confirmed G7 complete and authorized the pack-composition assessment, including reuse of only the assessment database after verified exports. The [local and live assessment](2026-10-10-pack-composition-assessment.md) now records all five configurations attempted: enrichment persistence failed in core/PDLC cases, both user-enabled runs failed on Entity-interest provenance, and useful Memory production remains blocked. Sequential reuse does not prove concurrent tenant isolation. No runtime fixes or developer pilot have started. Historical planning below is preserved.
@@ -12,7 +104,7 @@ runs were performed. The coordinating agent spot-checked the pack bundle, memory
 manifest, public tenant factory and profile-key/read-filter references. Source
 inspection is not reproduction of the suspected runtime failures.
 
-### Current implementation facts to carry into the assessment
+### Historical implementation facts from the 8 October assessment
 
 - Explicit optional pack selection and immutable active bundles exist. Core stays
   mandatory; specialized user extraction has an actual enable/disable gate. Older
