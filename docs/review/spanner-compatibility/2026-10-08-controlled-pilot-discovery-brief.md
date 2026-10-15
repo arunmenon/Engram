@@ -41,6 +41,10 @@ These are five shared worker loops, not one worker per pack. Applicability comes
 
 Episode creation is scheduled; small pilot fixtures need explicitly recorded cadence/threshold settings. Memory does not automatically convert a PR or ticket into a Goal. PDLC artifacts and Episodes meet through their supporting Events; additional semantic links require declared, tested rules. Beliefs/Goals use explicit supported event contracts. A stated or confirmed belief is an attributed assertion, not verified truth.
 
+### Expanded parallel discovery — 15 October 2026
+
+The [expanded discovery inventory](pilot-discovery-2026-10-15/README.md) supersedes the starter lists below as candidate coverage: **25 Tenant A journeys, 24 Tenant B journeys and 18 separately counted shared probes**. It maps diverse stories to inputs, workers, supported reads, evidence and prerequisites, distinguishing prior representative proof, new pilot proof, gaps and product decisions. The short lists below remain introductory examples. Discovery authorizes no execution or implementation; detailed scope/specification is the next review gate.
+
 ### Tenant A journeys and retrieval checks
 
 1. Introduce Alice, her role, interest and short-answer preference. Retrieve the profile/current preference with actual supporting observation evidence.
