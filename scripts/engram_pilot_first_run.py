@@ -255,6 +255,16 @@ def build_plan(args):
     selected_only = getattr(args, "journeys_only", False)
     if selected_only and not groups:
         raise ValueError("--journeys-only requires nonempty selected journey groups")
+    from engram_pilot_completion_fixtures import load_retained_negative
+
+    for group in groups:
+        if "retained_negative_deliveries" in group:
+            raise ValueError("Retained deliveries must be loaded from frozen verified proofs")
+        proofs = group.get("retained_negative_proofs", [])
+        if proofs:
+            group["retained_negative_deliveries"] = [
+                load_retained_negative(p, ROOT) for p in proofs
+            ]
     names = set()
     for group in groups:
         if group["name"] in names or group["tenant"] not in TARGETS:
@@ -326,10 +336,15 @@ async def execute(args):
     verified_groups = [g for g in selected_groups if g.get("verify_user_inputs")]
     source_inputs = (
         plan["events"]
-        + [{"event": step["request"]} for step in spectrum_steps]
-        + [{"event": r} for g in recovery_groups for r in g["recover_user_inputs"]]
+        + [{"tenant": step["tenant"], "event": step["request"]} for step in spectrum_steps]
+        + [
+            {"tenant": g["tenant"], "event": r}
+            for g in recovery_groups
+            for r in g["recover_user_inputs"]
+        ]
     )
     retained_reads_only = plan["execution_mode"] == "selected-retained-reads"
+    active_tenants = {r["tenant"] for r in source_inputs}
 
     durable_json(directory / "fixtures.json", plan)
     source_paths = [*ROOT.joinpath("src").rglob("*.py"), *ROOT.joinpath("src").rglob("*.yaml")]
@@ -515,7 +530,16 @@ async def execute(args):
             )
             check(
                 t + " baseline has no undeclared retained dead letters",
-                not previous["snapshot"]["dead_letters"],
+                declared_dead_letters(
+                    previous["snapshot"],
+                    [{**g, "steps": []} for g in selected_groups],
+                    t,
+                    require_all=True,
+                ),
+            )
+            check(
+                t + " inactive tenant has no pending work",
+                t in active_tenants or not previous["snapshot"]["pending"],
             )
             durable_json(directory / (t + "-before.json"), previous)
             for group in recovery_groups:
@@ -637,7 +661,9 @@ async def execute(args):
                 raise RuntimeError("API startup failed")
             await asyncio.sleep(0.1)
         check("public dispatcher ready", server.started)
-        for _t, b in () if retained_reads_only else bindings.items():
+        for _t, b in bindings.items():
+            if retained_reads_only or _t not in active_tenants:
+                continue
             for kind in VALID_CONSUMERS:
                 worker, store = await _build_consumer(kind, b.settings(), tenant_binding=b)
                 consumers.append(worker)
@@ -1032,8 +1058,11 @@ async def execute(args):
             )
         else:
             check(
-                "ten worker identities and final zero lag",
-                len(record["workers"]) == 10 and not any(record["final_worker_lags"]),
+                "exact selected-tenant worker identities and final zero lag",
+                {(w["tenant"], w["type"]) for w in record["workers"]}
+                == {(t, kind) for t in active_tenants for kind in VALID_CONSUMERS}
+                and len(record["workers"]) == len(active_tenants) * len(VALID_CONSUMERS)
+                and not any(record["final_worker_lags"]),
             )
         record["state"] = "pending-final-verification"
         save()

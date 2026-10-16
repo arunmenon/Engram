@@ -1438,6 +1438,27 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                         for oid in observed
                     ),
                 )
+            if step.get("public_memory_guard"):
+                guard = step["public_memory_guard"]
+                guard_query = dict(
+                    query="Show the delivery Goal and its evidence",
+                    intent="when",
+                    session_id=step["request"]["session_id"],
+                    agent_id=step["request"]["agent_id"],
+                    max_nodes=100,
+                    timeout_ms=30000,
+                )
+                guard_code, guard_answer = await request(tenant, "/v1/query/subgraph", guard_query)
+                props = (
+                    guard_answer.get("nodes", {}).get(guard["node_id"], {}).get("attributes", {})
+                )
+                check(
+                    label + " public Memory state unchanged by PDLC",
+                    guard_code == 200
+                    and not guard_answer.get("meta", {}).get("truncated")
+                    and all(props.get(k) == v for k, v in guard["attributes"].items()),
+                )
+                assert_public_sources(guard_answer, {guard["node_id"]}, state)
             entry["queries"].append({"scenario": label, "route": route, "required": key})
             save()
             for query_case in group["queries"]:
@@ -1508,7 +1529,11 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             }
             save()
         for query_case in group.get("final_queries", []):
-            body = {k: v for k, v in query_case.items() if k not in {"required", "forbidden"}}
+            body = {
+                k: v
+                for k, v in query_case.items()
+                if k not in {"required", "forbidden", "expected_edges", "forbidden_edges"}
+            }
             body.update(max_nodes=100, timeout_ms=30000)
             code, answer = await request(tenant, "/v1/query/subgraph", body)
             check(
@@ -1516,6 +1541,14 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                 code == 200
                 and set(query_case["required"]) <= answer.get("nodes", {}).keys()
                 and not set(query_case["forbidden"]) & answer.get("nodes", {}).keys(),
+            )
+            public_edges = {
+                (e["edge_type"], e["source"], e["target"]) for e in answer.get("edges", [])
+            }
+            check(
+                group["name"] + ":" + body["intent"] + " public Memory lifecycle links",
+                {tuple(e) for e in query_case.get("expected_edges", [])} <= public_edges
+                and not {tuple(e) for e in query_case.get("forbidden_edges", [])} & public_edges,
             )
             if group.get("source_expectations"):
                 state = await asyncio.to_thread(snapshot, databases[tenant])

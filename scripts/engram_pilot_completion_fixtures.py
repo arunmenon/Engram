@@ -691,6 +691,77 @@ def correction_expected_updates(before, after, group):
     return updates, receipt
 
 
+def p04_negative_proof():
+    """Explicit prerequisite for later milestones; never inspect a live baseline."""
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    directory = "docs/review/spanner-compatibility/runs/pilot-p04-1016-01"
+    names = ["results.json", "recorded-source-audit.json", "stale-action-audit.json"]
+    return dict(
+        directory=directory,
+        tenant="a",
+        sha256={name: sha256((root / directory / name).read_bytes()).hexdigest() for name in names},
+    )
+
+
+def load_retained_negative(proof, root):
+    """Admit one explicitly named, successful prior negative-test record."""
+    directory = (root / proof["directory"]).resolve()
+    if not directory.is_relative_to(root.resolve()):
+        raise ValueError("Retained negative proof must be inside the checkout")
+    expected_files = {"results.json", "recorded-source-audit.json", "stale-action-audit.json"}
+    if set(proof["sha256"]) != expected_files:
+        raise ValueError("Retained negative proof must pin its complete evidence set")
+    data = {}
+    for name, digest in proof["sha256"].items():
+        raw = (directory / name).read_bytes()
+        if sha256(raw).hexdigest() != digest:
+            raise ValueError("Retained negative evidence hash mismatch")
+        data[name] = json.loads(raw)
+    result, audit, negative = (
+        data[name]
+        for name in ("results.json", "recorded-source-audit.json", "stale-action-audit.json")
+    )
+    if (
+        result.get("state") != "passed-selected-journeys"
+        or not result.get("checks")
+        or not all(c["passed"] for c in result["checks"])
+        or result.get("shutdown_errors") != []
+        or any(result.get("final_worker_lags", [1]))
+        or not audit.get("all_match")
+        or not audit.get("files")
+        or not all(row["matches"] for row in audit["files"])
+    ):
+        raise ValueError("Retained negative prerequisite was not successfully verified")
+    request = negative["frozen_request"]
+    event = negative["event_diagnostic"]
+    fields = negative["dead_letter_fields"]
+    before = negative["subject_unchanged_public_before"]
+    after = negative["subject_unchanged_public_after"]
+    if (
+        proof["tenant"] != "a"
+        or fields.get("tenant_id") != "isolation-a"
+        or fields.get("group") != "assessment-projection"
+        or fields.get("event_id") != request["event_id"]
+        or event.get("memory_status") != "conflict"
+        or event.get("memory_reason") != "state_conflict"
+        or before["attributes"] != after["attributes"]
+        or before["incident_edges"] != after["incident_edges"]
+    ):
+        raise ValueError("Retained negative proof does not establish its claimed conflict")
+    return dict(
+        tenant=proof["tenant"],
+        request=request,
+        fields=fields,
+        expected_worker_rejection=dict(
+            group=fields["group"],
+            reason="state_conflict",
+            disposition_epoch=int(fields["disposition_epoch"]),
+        ),
+    )
+
+
 def declared_dead_letters(state, groups, tenant, *, require_all=False):
     """Only frozen negative deliveries are allowed; validate their bound source.
 
@@ -705,8 +776,22 @@ def declared_dead_letters(state, groups, tenant, *, require_all=False):
         for step in group["steps"]
         if step.get("expected_worker_rejection")
     }
+    retained = {}
+    for group in groups:
+        for item in group.get("retained_negative_deliveries", []):
+            if item["tenant"] != tenant:
+                continue
+            key = (item["expected_worker_rejection"]["group"], item["request"]["event_id"])
+            if key in expected or key in retained:
+                raise ValueError("Retained negative identity is declared more than once")
+            retained[key] = item
+    expected.update(retained)
     actual = {tuple(row) for row in state["dead_letters"]}
-    if not actual <= expected.keys() or (require_all and actual != expected.keys()):
+    if (
+        not retained.keys() <= actual
+        or not actual <= expected.keys()
+        or (require_all and actual != expected.keys())
+    ):
         return False
     if len(actual) != len(state["dead_letters"]):
         return False
@@ -721,6 +806,13 @@ def declared_dead_letters(state, groups, tenant, *, require_all=False):
         node = nodes.get(eid, {})
         if eid not in ledger or len(ledger[eid]) < 3:
             return False
+        if key in retained:
+            if fields != retained[key]["fields"]:
+                return False
+            try:
+                recovery_documents(state, [retained[key]["request"]])
+            except (KeyError, ValueError):
+                return False
         accepted = decoded_snapshot_cell(ledger[eid][2])
         acceptance = fields.get("acceptance")
         try:
@@ -920,5 +1012,156 @@ def p04_memory(run_id):
             )
     return dict(
         coverage="P04 explicit Memory lifecycle, conflict, owner and session/agent scope",
+        groups=[group],
+    )
+
+
+def p05_memory(run_id):
+    """Coexistence, not an invented cross-pack semantic link or Goal inference."""
+    from copy import deepcopy
+
+    from engram_memory_actions_demo import identity
+    from engram_pilot_spectrum import freeze
+
+    group = next(g for g in freeze(run_id)["groups"] if g["name"] == "b-memory")
+    steps = group["steps"]
+    correction = next(s for s in steps if s["scenario"] == "belief-corrected")
+    correction["request"]["payload"]["contradicts"] = False
+    correction["expected_props"]["contradiction_declared"] = False
+    correction["expected_edges"] = [e for e in correction["expected_edges"] if e[0] == "SUPERSEDES"]
+    correction["expected_edge_properties"] = [
+        e for e in correction["expected_edge_properties"] if e[0] == "SUPERSEDES"
+    ]
+    old, new = correction["expected_node"], correction["expected_props"]["superseded_by"]
+    correction["forbidden_edge_types"] = ["CONTRADICTS"]
+    group["final_queries"][1].update(
+        expected_edges=[["SUPERSEDES", new, old]], forbidden_edges=[["CONTRADICTS", new, old]]
+    )
+    owner, session = steps[0]["request"]["agent_id"], steps[0]["request"]["session_id"]
+    goal = identity("Goal", owner, "session", session, "ship-expiry")
+    repo = "pilot/" + run_id + "/payments"
+    change, case, run = (
+        "Change:" + repo + "|7",
+        "TestCase:" + repo + "|expiry",
+        "TestRun:" + run_id + "-success",
+    )
+
+    def add(key, kind, payload, node, props, edges=(), extra=None):
+        request = deepcopy(steps[0]["request"])
+        request.update(
+            event_id=str(uuid5(NAMESPACE_URL, run_id + ":" + key)),
+            event_type=kind,
+            payload=payload,
+            payload_ref="pilot-p05:" + key,
+        )
+        step = dict(
+            scenario=key,
+            request=request,
+            expected_status=201,
+            expected_node=node,
+            expected_props=props,
+            expected_edges=list(edges),
+            extra_nodes=extra or {},
+        )
+        if kind.startswith("memory."):
+            step["memory_intent"] = "when"
+        steps.append(step)
+        return step
+
+    active = dict(status="active", state_revision=0, evidence_count=1)
+    add(
+        "delivery-goal-created",
+        "memory.goal.created",
+        dict(key="ship-expiry", description="Ship and verify the password-reset expiry fix"),
+        goal,
+        active,
+    )
+    created = add(
+        "expiry-change-created",
+        "pdlc.change.created",
+        dict(repo=repo, number=7, title="Reject expired reset tokens", head_sha="abc123"),
+        change,
+        dict(status="open", head_sha="abc123"),
+    )
+    merged = add(
+        "expiry-change-merged",
+        "pdlc.change.merged",
+        dict(
+            repo=repo,
+            number=7,
+            title="Reject expired reset tokens",
+            body="Password-reset expiry fix",
+            merge_sha="abc123",
+        ),
+        change,
+        dict(status="merged", merge_sha="abc123"),
+    )
+    passed = add(
+        "expiry-test-passed",
+        "pdlc.testcaserun.finished",
+        dict(
+            repo=repo,
+            test_id="expiry",
+            run_id=run_id + "-success",
+            outcome="success",
+            name="Reject expired reset token",
+            path="tests/test_expiry.py",
+            commit_sha="abc123",
+            change_number=7,
+        ),
+        run,
+        dict(outcome="success", commit_sha="abc123"),
+        edges=[["EXECUTES", run, case], ["RAN_AGAINST", run, change]],
+        extra={case: dict(name="Reject expired reset token", path="tests/test_expiry.py")},
+    )
+    passed["expected_edge_properties"] = [["RAN_AGAINST", run, change, dict(commit_sha="abc123")]]
+    for step in (created, merged, passed):
+        step["unchanged_subject"] = goal
+        step["public_memory_guard"] = dict(node_id=goal, attributes=active)
+    add(
+        "explicit-delivery-completion",
+        "memory.goal.completed",
+        dict(key="ship-expiry", expected_revision=0),
+        goal,
+        dict(status="completed", state_revision=1, evidence_count=2),
+    )
+    for i, step in enumerate(steps):
+        step["request"]["occurred_at"] = (
+            datetime.now(UTC) - timedelta(minutes=5) + timedelta(seconds=i)
+        ).isoformat()
+    group["queries"] = [
+        dict(
+            scenario="merged-change-and-passing-test",
+            text="Show this test run and the code it ran against",
+            intent="trace",
+            seeds=[run],
+            required=[run, case, change],
+            forbidden=[goal],
+            expected_edges=[["EXECUTES", run, case], ["RAN_AGAINST", run, change]],
+        )
+    ]
+    group["final_queries"].append(
+        dict(
+            query="Show delivery and assumption history",
+            intent="when",
+            session_id=session,
+            agent_id=owner,
+            required=[goal, old, new],
+            forbidden=[],
+        )
+    )
+    group["source_expectations"] = {}
+    for step in steps:
+        observed = fixture_observations(step)
+        for node in observed:
+            if node in {change, case, run}:
+                group["source_expectations"].setdefault(node, []).append(
+                    step["request"]["event_id"]
+                )
+            else:
+                group["source_expectations"].setdefault(node, [step["request"]["event_id"]])
+    group["retained_negative_proofs"] = [p04_negative_proof()]
+    return dict(
+        coverage="P05 Memory alongside PDLC; explicit completion and noncontradictory correction",
         groups=[group],
     )
