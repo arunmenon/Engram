@@ -10,6 +10,8 @@ An HTTP success establishes acceptance, not completed projection. The runner wai
 
 The entry checkpoint passed 58 checks in [entry06](../review/spanner-compatibility/runs/pilot-1016-entry-06/results.json). It covers attributed User preferences, owner separation, PDLC declared records and model proposals, denied requests, tenant separation and retention of prior records. It is not full pilot acceptance. The broader [spectrum run](../review/spanner-compatibility/runs/pilot-1016-spectrum-01/results.json) has a separate verdict; inspect its `state`, failed checks, per-group results and limitations before sharing a completion claim.
 
+Entry06 is historical evidence, not an exact checkout-only reproduction package: its manifest was captured with uncommitted harness/model-request changes, so its recorded Git revision alone is insufficient to reconstruct it. Do not advertise that commit as an exact replay. Spectrum01 was started from committed code; its source hashes match the pinned revision. The commands below run that improved suite with fresh Event identities, not a byte-identical replay of the earlier provider responses.
+
 ## Journeys in the broader stage
 
 | Tenant | Inputs | What the reads must show |
@@ -31,7 +33,7 @@ The catalog stage uses normalized HTTP Event inputs, including independently aut
 
 Prerequisites must be satisfied before a write run:
 
-- This branch and the exact code revision recorded by the chosen run's `reproduction-manifest.json`; Python 3.12+, project dependencies and local embedding-model availability.
+- This branch at commit `7c1c9d5760406280c8f8d9c2c908953014d1ab7a` for spectrum01 (or the later recorded revision for a later run); Python 3.12+, project dependencies and local embedding-model availability. Verify source hashes before execution as shown below.
 - `gcloud` installed and authenticated with permission to impersonate `engram-experiment-sa@portiq-mvp.iam.gserviceaccount.com`.
 - Access to project `portiq-mvp`, instance `engram-experiment`, databases `engram-assess-1010a-pdlc` (A) and `engram-g07-target` (B). These are retained targets; do not reset or use unrelated databases.
 - `OPENAI_API_KEY` supplied through your local secret mechanism. Never commit it. The account must have access to `gpt-6-luna`.
@@ -39,12 +41,26 @@ Prerequisites must be satisfied before a write run:
 - Current model-transition binding records, available [here](../review/spanner-compatibility/runs/pilot-1016-model-transition-01/). They pin which historical acceptance epochs are valid. This operator does not grant generic cross-version compatibility.
 - Network access to Google Cloud and the model provider. The local dispatcher binds loopback; this is not a deployed remote service for an external cohort.
 
-From the repository root:
+Check out the pinned revision in a separate clean clone/worktree; do not overwrite local changes. From that repository root:
 
 ```sh
 python3.12 -m venv .venv
 .venv/bin/pip install -e '.[dev,embedding,spanner]'
 export PYTHONPATH=src:scripts
+```
+
+Verify the execution sources against spectrum01's manifest before a reproduction. The manifest itself is evidence added after the source commit, so obtain it from this branch's run directory:
+
+```sh
+.venv/bin/python - <<'PY'
+import hashlib, json
+from pathlib import Path
+manifest = json.loads(Path('docs/review/spanner-compatibility/runs/pilot-1016-spectrum-01/reproduction-manifest.json').read_text())
+mismatches = [p for p, expected in manifest['source_sha256'].items()
+              if hashlib.sha256(Path(p).read_bytes()).hexdigest() != expected]
+assert not mismatches, mismatches
+print('Recorded execution source hashes match')
+PY
 ```
 
 Choose a NEW alphanumeric/hyphen run ID and NEW output directories. The following names are examples; replace them if already present. Inspection reads the current baseline, including retained data:

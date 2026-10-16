@@ -336,3 +336,23 @@ class TestShouldReconsolidateImportanceSum:
 
     def test_float_threshold(self):
         assert should_reconsolidate(149.9, threshold=150.0) is False
+
+
+def test_summary_prompt_preserves_contrasting_source_and_marks_truncation():
+    base = {
+        "event_id": "source",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T00:00:00Z",
+    }
+    forward = build_summary_prompt(
+        [{**base, "summary_source": {"content": "Investigation completed; rollout uncertain"}}]
+    )
+    inverse = build_summary_prompt(
+        [{**base, "summary_source": {"content": "Investigation incomplete; rollout completed"}}]
+    )
+    assert "Investigation completed; rollout uncertain" in forward
+    assert "Investigation incomplete; rollout completed" in inverse
+    assert forward != inverse
+    bounded = build_summary_prompt([{**base, "summary_source": {"content": "x" * 6000}}])
+    assert "source content truncated" in bounded
+    assert "x" * 5000 not in bounded

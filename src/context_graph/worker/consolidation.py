@@ -283,6 +283,25 @@ class ConsolidationConsumer(BaseConsumer):
         if not events:
             return
 
+        if self._llm_client is not None:
+            ids = [str(event["event_id"]) for event in events]
+            documents = await self._event_log.get_documents(ids)
+            if len(documents) != len(events) or any(
+                document is None
+                or str(document.get("event_id")) != str(event["event_id"])
+                or document.get("session_id") != session_id
+                or (event.get("agent_id") and document.get("agent_id") != event["agent_id"])
+                for event, document in zip(events, documents, strict=True)
+            ):
+                log.warning("consolidation_source_unavailable", session_id=session_id)
+                return
+            # Keep graph-selected membership and metadata; hydrate only source content.
+            events = [
+                {**event, "summary_source": document.get("payload", {})}
+                for event, document in zip(events, documents, strict=True)
+                if document is not None
+            ]
+
         # Group into episodes
         episodes = group_events_into_episodes(events, gap_minutes=30)
 

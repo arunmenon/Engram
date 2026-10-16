@@ -123,9 +123,48 @@ def freeze(run_id):
             query_case.setdefault("required", query_case.get("required_nodes", []))
             query_case.setdefault("forbidden", [])
             query_case.setdefault("max_depth", explicit.get("max_depth", 5))
+            if query_case["scenario"] == "CQ6-text-discovery":
+                # The unchanged seedless question searches all retained features.
+                # An empty-database exact-set oracle is invalid in this pilot.
+                query_case["exact"] = False
+                query_case["global_discovery"] = {
+                    "matching_terms": ["fifteen", "minute"],
+                    "allowed_edges": [
+                        "REFINES",
+                        "APPROVES",
+                        "SUPERSEDES",
+                        "IMPLEMENTS",
+                        "REVIEWS",
+                        "VERIFIES",
+                        "EXECUTES",
+                        "RAN_AGAINST",
+                        "INCLUDES",
+                        "DEPLOYS",
+                        "DEPLOYED_TO",
+                    ],
+                }
+
+        source_expectations = {}
+        for step in data["steps"]:
+            if step["expected_status"] < 400:
+                for nid in fixture_observations(step):
+                    source_expectations.setdefault(nid, []).append(step["request"]["event_id"])
+        if name in {"planning", "connected"}:
+            for query_case in data["queries"]:
+                required = set(query_case["required"])
+                query_case["expected_edges"] = sorted(
+                    {
+                        tuple(edge)
+                        for step in data["steps"]
+                        if step["expected_status"] < 400
+                        for edge in step["expected_edges"]
+                        if edge[1] in required and edge[2] in required
+                    }
+                )
         groups.append(
             {
                 "name": name,
+                "source_expectations": source_expectations,
                 "tenant": "b",
                 "steps": data["steps"],
                 "queries": data.get("queries", []),
@@ -441,6 +480,73 @@ def freeze(run_id):
                 source_kind="Actual model interpretation of distinct application context",
             )
         )
+    for tenant in ("a", "b"):
+        for outcome, content in (
+            ("forward", "Investigation completed; rollout uncertain."),
+            ("inverse", "Investigation incomplete; rollout completed."),
+        ):
+            session = run_id + ":" + tenant + ":summary:" + outcome
+            agent = run_id + ":" + tenant + ":summary-owner"
+            start = datetime.now(UTC) - timedelta(minutes=4)
+            rows = []
+            for i, text in enumerate(
+                (content, "This is a progress record, not a request to change those outcomes.")
+            ):
+                rows.append(
+                    dict(
+                        scenario="source-" + str(i),
+                        expected_status=201,
+                        request=dict(
+                            event_id=str(uuid5(NAMESPACE_URL, session + ":" + str(i))),
+                            event_type="observation.input",
+                            occurred_at=(start + timedelta(seconds=i)).isoformat(),
+                            session_id=session,
+                            agent_id=agent,
+                            trace_id=run_id,
+                            payload_ref="pilot:summary:" + outcome,
+                            payload={"content": text},
+                        ),
+                    )
+                )
+            members = sorted(step["request"]["event_id"] for step in rows)
+            episode = (
+                "episode-"
+                + hashlib.sha256(
+                    json.dumps([session, members], separators=(",", ":")).encode()
+                ).hexdigest()
+            )
+            summary = (
+                "summary-"
+                + episode
+                + "-"
+                + hashlib.sha256("|".join(members).encode()).hexdigest()[:12]
+            )
+            groups.append(
+                dict(
+                    name=tenant + "-summary-" + outcome,
+                    tenant=tenant,
+                    steps=rows,
+                    queries=[],
+                    temporal_story=True,
+                    session=session,
+                    owner=agent,
+                    episode=episode,
+                    summary=summary,
+                    members=members,
+                    expected_source=content,
+                    contrast=outcome,
+                    source_kind="Contrasting prose outcomes through actual summary provider",
+                )
+            )
+    for group in groups:
+        if "source_expectations" not in group:
+            group["source_expectations"] = {}
+            for step in group["steps"]:
+                if step["expected_status"] < 400:
+                    for nid in fixture_observations(step):
+                        group["source_expectations"].setdefault(nid, []).append(
+                            step["request"]["event_id"]
+                        )
     return {
         "groups": groups,
         "coverage": (
@@ -454,6 +560,69 @@ def freeze(run_id):
             "are not repeated here.",
         ],
     }
+
+
+def summary_contrast_matches(text, outcome):
+    """Narrow probe oracle; no cross-clause or negated completion matches."""
+    clauses = re.split(r"[;,.!?\n]|\b(?:and|while|but)\b", text.lower())
+    complete = re.compile(r"\b(?:complete|completed|finished|done)\b")
+    negative = re.compile(r"\b(?:not|never|no|incomplete|unfinished|ongoing|uncertain|pending)\b")
+
+    def subject_matches(subject, state):
+        selected = [clause for clause in clauses if re.search(r"\b" + subject + r"\b", clause)]
+        if state == "completed":
+            return (
+                bool(selected)
+                and any(complete.search(c) for c in selected)
+                and not any(negative.search(c) for c in selected)
+            )
+        if state == "incomplete":
+            return any(
+                re.search(r"\b(?:incomplete|unfinished|ongoing)\b|\bnot\b.{0,15}\bcompleted?\b", c)
+                and not re.search(r"\bnot\b.{0,15}\b(?:incomplete|unfinished|ongoing)\b", c)
+                for c in selected
+            ) and not any(complete.search(c) and not negative.search(c) for c in selected)
+        return any(
+            re.search(r"\b(?:uncertain|pending|unresolved|unknown)\b", c)
+            and not re.search(r"\bnot\b.{0,15}\b(?:uncertain|pending|unresolved|unknown)\b", c)
+            for c in selected
+        ) and not any(complete.search(c) and not negative.search(c) for c in selected)
+
+    return subject_matches(
+        "investigation", "completed" if outcome == "forward" else "incomplete"
+    ) and subject_matches("rollout", "uncertain" if outcome == "forward" else "completed")
+
+
+def discovery_eligibility(state, policy, depth):
+    """Independent pre-query relevance oracle, not a whitelist of returned IDs."""
+    nodes = {
+        r[1]: json_value(r[2])
+        for r in state["nodes"]
+        if r[0]
+        not in {"Event", "Entity", "Summary", "Episode", "UserProfile", "Preference", "Skill"}
+    }
+    matching = set()
+    for nid, props in nodes.items():
+        words = re.findall(r"[a-z]+", json.dumps(props).lower())
+        if all(any(word.startswith(term) for word in words) for term in policy["matching_terms"]):
+            matching.add(nid)
+    adjacency = {}
+    for _, source, kind, _, target, raw in state["edges"]:
+        if (
+            kind in policy["allowed_edges"]
+            and source in nodes
+            and target in nodes
+            and json_value(raw).get("method") not in {"extracted", "inferred"}
+        ):
+            adjacency.setdefault(source, set()).add(target)
+            adjacency.setdefault(target, set()).add(source)
+    eligible, frontier = set(matching), set(matching)
+    for _ in range(depth):
+        frontier = {
+            target for source in frontier for target in adjacency.get(source, ())
+        } - eligible
+        eligible.update(frontier)
+    return matching, eligible
 
 
 async def execute(plan, *, request, check, databases, record, save, consumers):
@@ -543,6 +712,27 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
         }
         save()
 
+        def assert_public_sources(answer, required, state, group=group):
+            events = {r[1]: json_value(r[2]) for r in state["nodes"] if r[0] == "Event"}
+            for nid in required:
+                expected = set(group.get("source_expectations", {}).get(nid, [])) & events.keys()
+                if not expected:
+                    continue  # Unobserved placeholders are checked by the authored query policy.
+                newest = max(datetime.fromisoformat(events[e]["occurred_at"]) for e in expected)
+                allowed = {
+                    e
+                    for e in expected
+                    if datetime.fromisoformat(events[e]["occurred_at"]) == newest
+                }
+                provenance = answer["nodes"][nid].get("provenance") or {}
+                eid = provenance.get("event_id")
+                check(
+                    group["name"] + " exact public source " + nid,
+                    eid in allowed
+                    and provenance.get("source") == "spanner"
+                    and provenance.get("global_position") == events[eid]["global_position"],
+                )
+
         async def execute_query(query_case, tenant=tenant, group=group, entry=entry):
             body = dict(
                 query=query_case["text"],
@@ -552,6 +742,17 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 max_nodes=100,
                 max_depth=query_case.get("max_depth", 6),
             )
+            prior = await asyncio.to_thread(snapshot, databases[tenant])
+            if query_case.get("global_discovery"):
+                matching, eligible = discovery_eligibility(
+                    prior, query_case["global_discovery"], body["max_depth"]
+                )
+                entry.setdefault("discovery_preconditions", {})[query_case["scenario"]] = {
+                    "matching": sorted(matching),
+                    "eligible": sorted(eligible),
+                    "rules": query_case["global_discovery"],
+                }
+                save()
             code, answer = await request(tenant, "/v1/query/artifacts", body)
             required = set(query_case["required"])
             actual = set(answer.get("nodes", {}))
@@ -568,12 +769,101 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 group["name"] + ":" + query_case["scenario"] + " directed links",
                 {tuple(e) for e in query_case.get("expected_edges", [])} <= edges,
             )
+            if query_case.get("global_discovery"):
+                check(group["name"] + " global discovery relevance", actual <= eligible)
+                events = {r[0] for r in prior["events"]}
+                positions = {
+                    r[1]: json_value(r[2]).get("global_position")
+                    for r in prior["nodes"]
+                    if r[0] == "Event"
+                }
+                for nid in actual - required:
+                    provenance = answer["nodes"][nid].get("provenance") or {}
+                    eid = provenance.get("event_id")
+                    check(
+                        group["name"] + " extra artifact accepted-source proof " + nid,
+                        eid in events
+                        and provenance.get("source") == "spanner"
+                        and provenance.get("global_position") == positions.get(eid)
+                        and any(
+                            r[1] == nid and r[2] == "DERIVED_FROM" and r[4] == eid
+                            for r in prior["edges"]
+                        ),
+                    )
+            assert_public_sources(answer, required, prior)
             assert_retrieval_policy(answer, query_case)
             entry["queries"].append(
                 {"scenario": query_case["scenario"], "required": sorted(required)}
             )
             save()
 
+        if group.get("temporal_story"):
+            for step in group["steps"]:
+                status, _ = await request(tenant, "/v1/events", step["request"])
+                check(group["name"] + " source admitted", status == 201)
+                entry["steps"].append(
+                    {"scenario": step["scenario"], "event_id": step["request"]["event_id"]}
+                )
+            await settle()
+            deadline = time.monotonic() + 240
+            while time.monotonic() < deadline:
+                state = await asyncio.to_thread(snapshot, databases[tenant])
+                nodes = {r[1]: json_value(r[2]) for r in state["nodes"]}
+                if group["episode"] in nodes and group["summary"] in nodes:
+                    break
+                await asyncio.sleep(0.5)
+            check(
+                group["name"] + " scheduled Episode and Summary",
+                group["episode"] in nodes and group["summary"] in nodes,
+            )
+            members = {
+                r[4] for r in state["edges"] if r[1] == group["episode"] and r[2] == "CONTAINS"
+            }
+            derived = {
+                r[4] for r in state["edges"] if r[1] == group["episode"] and r[2] == "DERIVED_FROM"
+            }
+            check(group["name"] + " exact membership", members == derived == set(group["members"]))
+            calls = [
+                call
+                for call in record["provider_calls"]
+                if group["expected_source"] in json.dumps(call.get("input_messages", []))
+                and all(e in json.dumps(call.get("input_messages", [])) for e in group["members"])
+            ]
+            check(group["name"] + " actual provider saw matching source content", bool(calls))
+            body = dict(
+                query="What happened in this session, and what remains uncertain?",
+                intent="when",
+                session_id=group["session"],
+                agent_id=group["owner"],
+                max_nodes=100,
+                timeout_ms=30000,
+            )
+            code, answer = await request(tenant, "/v1/query/subgraph", body)
+            check(
+                group["name"] + " temporal public read",
+                code == 200
+                and {group["episode"], group["summary"], *group["members"]}
+                <= answer.get("nodes", {}).keys()
+                and not answer.get("meta", {}).get("truncated"),
+            )
+            text = answer["nodes"][group["summary"]]["attributes"]["content"]
+            check(
+                group["name"] + " preserved opposing outcomes",
+                summary_contrast_matches(text, group["contrast"]),
+            )
+            check(
+                group["name"] + " persisted text matches returned provider output",
+                any(
+                    call.get("state") == "returned" and call.get("output") == text for call in calls
+                ),
+            )
+            entry.update(
+                state="passed exact source and contrast checks",
+                summary_text=text,
+                provider_calls=len(calls),
+            )
+            save()
+            continue
         if group.get("user_story"):
             for step in group["steps"]:
                 status, _ = await request(tenant, "/v1/events", step["request"])
@@ -879,6 +1169,7 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
             key = nid or step["request"]["event_id"]
             check(label + " public read", code == 200 and key in answer.get("nodes", {}))
             if nid:
+                assert_public_sources(answer, {nid}, state)
                 check(
                     label + " public properties",
                     all(

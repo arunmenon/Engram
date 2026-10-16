@@ -335,6 +335,15 @@ async def execute(args):
             row["output"] = answer.choices[0].message.content
             row["state"] = "returned"
             prompt = json.dumps(kw.get("messages", []))
+            probe_ids = {
+                step["request"]["event_id"]
+                for group in plan.get("spectrum", {}).get("groups", [])
+                if group.get("temporal_story")
+                for step in group["steps"]
+            }
+            if "source_content" in prompt and any(eid in prompt for eid in probe_ids):
+                row["input_messages"] = kw.get("messages", [])
+
             row["input_event_candidates"] = [
                 r["event"]["event_id"]
                 for r in source_inputs

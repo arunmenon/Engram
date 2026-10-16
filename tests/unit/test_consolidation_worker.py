@@ -344,6 +344,14 @@ class TestLLMConsolidationWiring:
         ]
         gm.write_summary_with_edges.return_value = None
 
+        consumer_with_llm._event_log.get_documents.return_value = [
+            {
+                **event,
+                "session_id": "sess-1",
+                "payload": {"content": "Investigation completed; rollout uncertain"},
+            }
+            for event in gm.session_events.return_value
+        ]
         await consumer_with_llm._consolidate_session("sess-1", 2)
 
         # generate_text called for episode + session summaries
@@ -370,6 +378,14 @@ class TestLLMConsolidationWiring:
         ]
         gm.write_summary_with_edges.return_value = None
 
+        consumer_with_llm._event_log.get_documents.return_value = [
+            {
+                **event,
+                "session_id": "sess-1",
+                "payload": {"content": "Investigation incomplete; rollout completed"},
+            }
+            for event in gm.session_events.return_value
+        ]
         await consumer_with_llm._consolidate_session("sess-1", 1)
 
         # Should still write summaries, using template content
@@ -428,3 +444,51 @@ async def test_summary_failure_or_empty_answer_is_not_reused(consumer_with_llm):
     assert await consumer._summary_text("episode", "s", events) == "valid"
     assert await consumer._summary_text("episode", "s", events) == "valid"
     assert consumer._llm_client.generate_text.await_count == 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "documents",
+    [
+        [None],
+        [{"event_id": "other", "session_id": "s"}],
+        [{"event_id": "e", "session_id": "foreign"}],
+    ],
+)
+async def test_missing_or_mismatched_summary_source_defers_writes(consumer_with_llm, documents):
+    consumer = consumer_with_llm
+    consumer._graph_maintenance.session_events.return_value = [
+        {"event_id": "e", "occurred_at": "2026-10-16T00:00:00Z"}
+    ]
+    consumer._event_log.get_documents.return_value = documents
+    await consumer._consolidate_session("s", 1)
+    consumer._llm_client.generate_text.assert_not_awaited()
+    consumer._graph_maintenance.write_summary_with_edges.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_summary_provider_receives_matching_source_content(consumer_with_llm):
+    consumer = consumer_with_llm
+    consumer._graph_maintenance.session_events.return_value = [
+        {
+            "event_id": "e",
+            "session_id": "s",
+            "agent_id": "a",
+            "occurred_at": "2026-10-16T00:00:00Z",
+            "event_type": "observation.input",
+        }
+    ]
+    consumer._event_log.get_documents.return_value = [
+        {
+            "event_id": "e",
+            "session_id": "s",
+            "agent_id": "a",
+            "payload": {"content": "Investigation completed; rollout uncertain"},
+        }
+    ]
+    consumer._llm_client.generate_text.return_value = "Investigation completed; rollout uncertain"
+    await consumer._consolidate_session("s", 1)
+    prompts = [call.args[0] for call in consumer._llm_client.generate_text.await_args_list]
+    assert len(prompts) == 2
+    assert all("Investigation completed; rollout uncertain" in prompt for prompt in prompts)
+    assert all('"event_id": "e"' in prompt for prompt in prompts)

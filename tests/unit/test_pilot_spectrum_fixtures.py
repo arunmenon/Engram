@@ -54,3 +54,57 @@ def test_frozen_oracles_include_required_inputs_and_intermediate_queries():
         q["required"] for q in catalog["queries"] if q["scenario"] == "CQ1-exact-outcomes"
     )
     assert {s["expected_node"] for s in normalized} <= set(required)
+
+
+def test_global_discovery_oracle_is_frozen_and_does_not_whitelist_answers():
+    from engram_pilot_spectrum import discovery_eligibility
+
+    state = {
+        "nodes": [
+            ["Requirement", "old", {"statement": "Expires in fifteen minutes"}],
+            ["DesignElement", "linked", {"title": "Token storage"}],
+            ["Requirement", "unrelated", {"statement": "Newsletter signup"}],
+            ["Decision", "proposal", {"statement": "Other topic", "method": "extracted"}],
+        ],
+        "edges": [
+            ["DesignElement", "linked", "REFINES", "Requirement", "old", {"method": "declared"}],
+            ["Decision", "proposal", "APPLIES_TO", "Requirement", "old", {"method": "inferred"}],
+        ],
+    }
+    matching, eligible = discovery_eligibility(
+        state,
+        {"matching_terms": ["fifteen", "minute"], "allowed_edges": ["REFINES", "APPLIES_TO"]},
+        6,
+    )
+    assert matching == {"old"}
+    assert eligible == {"old", "linked"}
+
+
+def test_summary_contrast_oracle_rejects_negations_and_opposite_outcomes():
+    from engram_pilot_spectrum import summary_contrast_matches
+
+    assert summary_contrast_matches("Investigation completed; rollout uncertain.", "forward")
+    assert summary_contrast_matches("Investigation incomplete; rollout completed.", "inverse")
+    for wrong in (
+        "Investigation incomplete; rollout uncertain.",
+        "Investigation not completed; rollout uncertain.",
+        "Investigation completed; rollout completed.",
+        "Investigation completed; rollout not uncertain.",
+        "Investigation pending; rollout completed.",
+    ):
+        assert not summary_contrast_matches(wrong, "forward")
+    assert not summary_contrast_matches(
+        "Investigation incomplete; rollout not completed.", "inverse"
+    )
+    assert not summary_contrast_matches("Investigation completed; rollout incomplete.", "inverse")
+
+
+def test_summary_inverse_rejects_negated_and_conflicting_incompleteness():
+    from engram_pilot_spectrum import summary_contrast_matches
+
+    assert not summary_contrast_matches(
+        "Investigation not incomplete; rollout completed.", "inverse"
+    )
+    assert not summary_contrast_matches(
+        "Investigation completed. Investigation incomplete; rollout completed.", "inverse"
+    )
