@@ -409,14 +409,79 @@
       ],
       "source_kind": "Actual model interpretation of distinct application context",
       "source_expectations": {}
+    },
+    {
+      "name": "user-explicit-correction",
+      "tenant": "a",
+      "user_correction": true,
+      "owner": "pilot-p03-1016-01:owner:contexts",
+      "session": "pilot-p03-1016-05:context-correction",
+      "steps": [
+        {
+          "scenario": "explicit-correction-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "13d4e563-949b-59b7-9e36-67ea5b41e0aa",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T10:43:13.957158+00:00",
+            "session_id": "pilot-p03-1016-05:context-correction",
+            "agent_id": "pilot-p03-1016-01:owner:contexts",
+            "trace_id": "pilot-p03-1016-05",
+            "payload_ref": "pilot:explicit-preference-correction",
+            "payload": {
+              "content": "My name is Ishan. I no longer prefer short bullet-point actions during incident response. This explicitly reverses that incident preference; my design-review preference is unchanged. The producer identifies the replacement preference with these canonical fields: {\"about_entity\": \"incident response communication\", \"category\": \"communication\", \"context\": \"For incident response, prefers concise action-oriented bullet points.\", \"key\": \"short_bullet_point_actions_during_incident_response\", \"polarity\": \"negative\", \"scope\": \"global\", \"scope_id\": null}. The positive wording inside the old context label is an identity label, not a reaffirmation. The negative statement above is the evidence for this correction.",
+              "preference_corrections": [
+                {
+                  "previous_preference_id": "preference:41b4d9a70176b45833e26ea1d8ed12bd336faa7904804158b59e56ed8c2a8b82",
+                  "replacement_key": "short_bullet_point_actions_during_incident_response",
+                  "replacement_polarity": "negative",
+                  "context": "For incident response, prefers concise action-oriented bullet points."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "scenario": "explicit-correction-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "db53073a-125c-5b55-83f2-03ab18c61bb5",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T10:43:14.957158+00:00",
+            "session_id": "pilot-p03-1016-05:context-correction",
+            "agent_id": "pilot-p03-1016-01:owner:contexts",
+            "trace_id": "pilot-p03-1016-05",
+            "payload_ref": "pilot:explicit-preference-correction",
+            "payload": {}
+          }
+        }
+      ],
+      "queries": [],
+      "expected_previous": "preference:41b4d9a70176b45833e26ea1d8ed12bd336faa7904804158b59e56ed8c2a8b82",
+      "expected_replacement": "preference:bed422c1dd0926b54379310238bbf1d74d4e9ed69b3b7d1ff8813ba34446ace7",
+      "identity_fields": {
+        "category": "communication",
+        "key": "short_bullet_point_actions_during_incident_response",
+        "context": "For incident response, prefers concise action-oriented bullet points.",
+        "about_entity": "incident response communication",
+        "polarity": "negative",
+        "scope": "global",
+        "scope_id": null
+      },
+      "unrelated_preference": "preference:db6b7bb32412c451a0caf5a47d36da4fe6a4166ac1064219408cc4616b2e138b",
+      "required_negative_quote": "no longer prefer short bullet-point actions during incident response",
+      "question": "What are my current incident-response and design-review preferences?"
     }
   ],
   "coverage": [
-    "P03 eight stories/16 inputs: thirdparty refusal; Mercury diagnostic; Rust origin preservation; neutral indifference; owner preference about another person; absence; coding and paraphrase regressions under corrected prompt."
+    "P03 eight stories/16 inputs: thirdparty refusal; Mercury diagnostic; Rust origin preservation; neutral indifference; owner preference about another person; absence; coding and paraphrase regressions under corrected prompt.",
+    "Then execute frozen05 explicit canonical correction as the last group in the same worker run; separate per-group acceptance, total18inputs."
   ],
   "limits": [
     "Failed04 false preferences remain saved as failed-test data; no manual deletion or immutable receipt replacement.",
     "Prompt examples use different names/topics from these actual-model cases; negative oracle unchanged.",
-    "Observed attribution cases, not deterministic semantic authorization. Correction remains separately required."
+    "Not automatic natural-language correction detection. Canonical identifiers explicitly supplied by producer.",
+    "No source editing or repeated wording adjustment to chase a model output.",
+    "Profile changes allowed only exact supported receipt-derived values and membership, not broad field exemptions."
   ]
 }
