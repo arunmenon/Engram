@@ -98,8 +98,8 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 
 | Goal | Initial status | Evidence |
 |---|---|---|
-| P01 | Active; continuation06 partial failure retained, selected P01 continuation07 prepared | runs/pilot-1016-continuation-06; pilot-p01-1016-07 |
-| P02 | Approved; queued | This inventory |
+| P01 | Complete: bounded composite verdict; Astra accepted final evidence | [Verification](completion-verification.md); continuation06 remains failed; continuation07 passed243checks |
+| P02 | Active: frozen19-input/seven-read plan; fresh retained-baseline inspection | pilot-p02-1016-01-journeys.json; #71 live proof pending |
 | P03 | Approved; queued | This inventory |
 | P04 | Approved; queued | This inventory |
 | P05 | Approved; queued | This inventory |

@@ -89,3 +89,10 @@ Astra reviewed --journeys-only implementation and frozen P01 continuation plan: 
 ## P01 final preflight dispositions
 
 Astra confirmed the original Change-seeded CQ1 cannot establish a no-reference run: sibling-drift correctly prevents Change→linkedTestRun→TestCase→otherTestRun expansion. Preserve Change-linked outcomes with explicit no-reference exclusion; add TestCase-seeded all-execution query and assert absent RAN_AGAINST on the no-reference run. Applied to fresh and retained verification groups; original local oracle failure retained. No retriever change. Fresh mixed-verification and P02 preflight now pass actual projection/retriever checks;13retained queries also pass a separately labeled local reconstruction from archived Spanner snapshot (not live acceptance). The continuation has12fresh inputs and15final reads.
+
+
+## P01 final composite evidence review
+
+Astra accepted the bounded P01 composite evidence with no technical blocker. Continuation07 passed243checks, all166observed provider calls returned and shutdown was clean. A appended0Events; B appended9. Both owners, old source rows/material graph and exact oldEpisode memberships remained intact; pending/DLQ empty. All176source audit checks match1536ed0. The crosswalk records169matched step admissions across28event types, not169journeys.
+
+Continuation06 remains failed; its157individually completed steps/three intermediate reads are reused alongside the selected07 proof. Distinct Change/TestCaseCQ1 scopes and AQ06 retained-global discovery remain explicit. No unchanged161-input, native-webhook, whole-pilot or independent-human-reproduction pass follows. Bounded issues69/70/72 may close after evidence/dispositions are pushed; umbrellas stay open.

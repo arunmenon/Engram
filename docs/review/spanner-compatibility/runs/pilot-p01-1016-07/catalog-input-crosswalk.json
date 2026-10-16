@@ -1,0 +1,1244 @@
+{
+  "scope": "Per-type recorded inputs; individual matching admissions are not a replacement for projection/read/preservation verdicts in the results. Continuation06 remains failed.",
+  "event_types": {
+    "pdlc.change.abandoned": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B03-abandon",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B03-late-abandon",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E04-change.abandoned",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E04-change.abandoned-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E04-change.abandoned-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E04-change.abandoned-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.change.committed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B04-commit",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B05-no-pr",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B06-reviewer-text",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E06-change.committed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E06-change.committed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E06-change.committed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E06-change.committed-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.change.created": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B03-open",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B03-reopen",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C01-change",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E01-change.created",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E01-change.created-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E01-change.created-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E01-change.created-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C01-change",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.change.merged": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B03-merged",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E03-change.merged",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E03-change.merged-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E03-change.merged-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E03-change.merged-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.change.reviewed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E05-change.reviewed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E05-change.reviewed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E05-change.reviewed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E05-change.reviewed-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.change.updated": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E02-change.updated",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E02-change.updated-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E02-change.updated-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E02-change.updated-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.decision.recorded": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A03-scoped-decision",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A04-replacement",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A05-similar-invalid-and-unknown-references",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E23-decision.recorded",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E23-decision.recorded-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E23-decision.recorded-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E23-decision.recorded-invalid-statement-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.design.approval_recorded": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E25-design.approval_recorded",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E25-design.approval_recorded-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E25-design.approval_recorded-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E25-design.approval_recorded-invalid-approval_id-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.design.section_changed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A03-design",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E22-design.section_changed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E22-design.section_changed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E22-design.section_changed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E22-design.section_changed-invalid-doc_id-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.incident.detected": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E13-incident.detected",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E13-incident.detected-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E13-incident.detected-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E13-incident.detected-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.incident.lesson_recorded": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E28-incident.lesson_recorded",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E28-incident.lesson_recorded-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E28-incident.lesson_recorded-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E28-incident.lesson_recorded-invalid-statement-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.incident.remediation_recorded": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E27-incident.remediation_recorded",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E27-incident.remediation_recorded-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E27-incident.remediation_recorded-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E27-incident.remediation_recorded-invalid-change-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.incident.reported": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E15-incident.reported",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E15-incident.reported-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E15-incident.reported-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E15-incident.reported-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.incident.resolved": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E14-incident.resolved",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E14-incident.resolved-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E14-incident.resolved-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E14-incident.resolved-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.release.published": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E07-release.published",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E07-release.published-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E07-release.published-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E07-release.published-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.request.created": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A01-request",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A01-request-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A01-request-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A02-source-collision",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A05-minimal",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A05-source_system-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E19-request.created",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E19-request.created-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E19-request.created-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.requirement.changed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A03-requirement",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E21-requirement.changed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E21-requirement.changed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E21-requirement.changed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E21-requirement.changed-invalid-spec_id-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.service.deployed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D01-A",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D01-B",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D03-late-original-B",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D03-collision-repo",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D03-collision-service",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D03-collision-environment",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D04-late-fill",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E10-service.deployed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E10-service.deployed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E10-service.deployed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E10-service.deployed-invalid-service-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.service.deployment_failed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E26-service.deployment_failed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E26-service.deployment_failed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E26-service.deployment_failed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E26-service.deployment_failed-invalid-service-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.service.rolledback": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D02-rollback-B",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D04-unknown",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D06-invalid-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E11-service.rolledback",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E11-service.rolledback-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E11-service.rolledback-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.service.upgraded": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D05-upgrade",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "D06-upgrade-no-changes",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E12-service.upgraded",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E12-service.upgraded-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E12-service.upgraded-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E12-service.upgraded-invalid-service-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.spec.approved": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "A02-approved-spec",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E20-spec.approved",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E20-spec.approved-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E20-spec.approved-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E20-spec.approved-invalid-doc_id-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.spec.changed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E24-spec.changed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E24-spec.changed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E24-spec.changed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E24-spec.changed-invalid-doc_id-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.testcaserun.finished": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C04-success",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C04-failure",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C04-cancel",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C04-error",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E08-testcaserun.finished",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E08-testcaserun.finished-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E08-testcaserun.finished-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E08-testcaserun.finished-invalid-repo-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C04-success",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C04-failure",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C04-cancel",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C04-error",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.testcaserun.skipped": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C01-skipped",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C01-skipped-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C01-skipped-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C03-no-reference",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "C03-invalid-repo",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E09-testcaserun.skipped",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E09-testcaserun.skipped-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E09-testcaserun.skipped-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C01-skipped",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C03-no-reference",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C02-webhook-skipped",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C02-webhook-skipped-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C02-webhook-neutral",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C02-webhook-neutral-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-p01-1016-07",
+        "scenario": "C02-reserved-actor-refused",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.ticket.closed": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B02-done",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B02-cancelled",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E18-ticket.closed",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E18-ticket.closed-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E18-ticket.closed-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E18-ticket.closed-invalid-tracker-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.ticket.created": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B01-parent",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B01-child",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E16-ticket.created",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E16-ticket.created-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E16-ticket.created-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E16-ticket.created-invalid-tracker-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ],
+    "pdlc.ticket.updated": [
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B01-update",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "B01-update-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E17-ticket.updated",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E17-ticket.updated-retry",
+        "expected_status": 201,
+        "actual_status": 201,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E17-ticket.updated-conflict",
+        "expected_status": 409,
+        "actual_status": 409,
+        "matched_admission": true
+      },
+      {
+        "run": "pilot-1016-continuation-06",
+        "scenario": "E17-ticket.updated-invalid-tracker-missing",
+        "expected_status": 422,
+        "actual_status": 422,
+        "matched_admission": true
+      }
+    ]
+  }
+}
