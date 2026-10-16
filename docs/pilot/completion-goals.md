@@ -1,6 +1,6 @@
 # Controlled pilot completion goals
 
-Draft for Arun's scope review, 16 October 2026. These IDs are pilot milestones, not replacements for the original G01–G18 inventory. Defining them does not activate new native goal tasks. The already-authorized continuation06 remains running.
+Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 is the active execution at approval.
 
 ## Purpose and current evidence
 
@@ -10,9 +10,9 @@ Already established selected evidence: entry06; planning in spectrum01; connecte
 
 Existing targets: A `engram-assess-1010a-pdlc`; B `engram-g07-target`. Keep exact tenant ownership, source data and prior Episode memberships. Actual `gpt-6-luna`, no artificial model-call/spend ceiling. Approved derived Summary/importance refresh remains recorded separately. No historical migration, hierarchy authorization (#49), ANN/load benchmark (#48), forced-crash guarantee or remote cohort deployment enters this scope.
 
-## Execution agreement to approve with this inventory
+## Approved execution agreement
 
-After batch approval, execute P01–P12 in order without requesting approval after every goal. Reuse a goal's completed evidence from the active run where its exact acceptance criteria are satisfied; rerun affected checks only when changes or failures require it. Do not reset databases or repeatedly rerun unrelated completed journey families.
+Execute P01–P12 in order without requesting approval after every goal. Reuse a goal's completed evidence from the active run where its exact acceptance criteria are satisfied; rerun affected checks only when changes or failures require it. Do not reset databases or repeatedly rerun unrelated completed journey families.
 
 For each goal: freeze concrete inputs/questions and expected/forbidden results before execution; implement only necessary bounded corrections; run through real API/workers/Spanner/read APIs; review applicable code and final evidence with Astra, reusing unchanged prior reviews; append a goal section to the verification walkthrough; reconcile affected GitHub issues; commit and push to `feature/engram-memory-episodes`. Report a checkpoint without waiting for acknowledgement before the next approved goal.
 
@@ -38,13 +38,13 @@ Verify: exact version identities and links, lifecycle states and source evidence
 
 Objective: run the eight frozen User stories (coding, contexts, research, travel, work journal, household, paraphrase, absence). Add one explicit supported preference correction in a named context, preserving a second context, and one third-person attribution control.
 
-Verify: correct owner and source quote, correct meaning/polarity, Python experience distinct from beginner Rust interest, context labels retained, correction/history correct, other owner's information excluded, and absence story creates no preference or commitment. Report automatic context selection and ambiguous-name behavior as separate observed capability/limitation; returning both preferences does not prove selection.
+Verify: correct owner and source quote, correct meaning/polarity, Python experience distinct from beginner Rust interest, context labels retained, correction/history correct, other owner's information excluded, and absence story creates no preference or commitment. Run two diagnostic questions for the incident/design-review contexts and one same-name Mercury project/planet example. Record which preference/Entity is actually returned and whether the interface supports disambiguation; a source-grounded unsupported result is a diagnostic verdict, not a pass for context selection. Returning both preferences does not prove selection.
 
 ### P04 — Verify Tenant A Memory lifecycle and scope
 
 Objective: execute the frozen A Memory sequence, plus stale-confirmation refusal, agent-versus-session scope and another-owner controls. Include an ordinary progress Event while an existing Goal stays active, followed by its explicit completion action.
 
-Verify: stated/inferred Beliefs and confidence are attributed assertions, confirmation/correction revisions and exact evidence are retained, stale actions make no material writes, scope follows the documented contract, and progress alone never completes a Goal. Completion, abandonment and replacement remain distinct. Include malformed/disabled-action controls relevant to A.
+Verify: stated/inferred Beliefs and confidence are attributed assertions, confirmation/correction revisions and exact evidence are retained, stale actions make no material writes, scope follows the documented contract, and progress alone never completes a Goal. Completion, abandonment and replacement remain distinct. Explicitly reuse one agent-scoped Goal across two sessions, with a second owner holding a similar Goal; verify identity continuity and owner exclusions. Include malformed/disabled-action controls relevant to A.
 
 ### P05 — Verify Tenant B Memory alongside PDLC
 
@@ -68,7 +68,7 @@ Verify: actual provider input contains the accepted source content/IDs; the stor
 
 Objective: retrieve selected retained knowledge by exact identity, ordinary wording and a paraphrase; compare a sufficient read budget with deliberately small node/depth budgets. Run a targeted Entity similarity query with actual embedding/vector-channel evidence.
 
-Verify: relevant source-backed answers, unrelated controls excluded, exact versus wording discovery reported separately, truncation disclosed and returned edges/sources internally valid. Demonstrate actual vector contribution rather than inferring it from a successful answer. If the supported interface cannot expose/provide that proof, report a concrete unresolved capability gate; ANN stress/performance remains #48.
+Verify: relevant source-backed answers, unrelated controls excluded, exact versus wording discovery reported separately, truncation disclosed and returned edges/sources internally valid. Add nonexistent-claim reads on both tenants and a trusted-versus-untrusted source contrast, using explicit authenticated source grants and predeclared trust semantics. Demonstrate actual vector contribution rather than inferring it from a successful answer. If the supported interface cannot expose/provide that proof, report a concrete unresolved capability gate; ANN stress/performance remains #48.
 
 ### P09 — Verify two-tenant routing and identity collisions
 
@@ -78,7 +78,7 @@ Verify: rightful positive reads work; no foreign data/evidence appears; authenti
 
 ### P10 — Verify delayed work and visible failure
 
-Objective: use labeled test barriers to delay Event projection before enrichment, and delay a Memory parent before its dependent action. Separately use an isolated, predeclared real-provider failure and show the other tenant remains usable. Stop/restart workers cooperatively with the same binding; probe stale-generation refusal using existing guards.
+Objective: use labeled test barriers to delay Event projection before enrichment, and delay a Memory parent before its dependent action. For one marked A extraction request only, pass a known-invalid test credential to the real provider from the test observer; record the actual rejection and remove the override in finally. Keep the configured model/binding and all other provider calls unchanged; prove B remains usable. Stop/restart workers cooperatively with the current binding. Probe stale startup using the recorded predecessor binding from the model-transition evidence: require RuntimeFencedError before effects and unchanged owner/table fingerprints. Do not run the older isolation operator that advances TenantControl or introduce an owner transition solely for this probe.
 
 Verify: pending work is visible, delayed prerequisites converge without lost annotations or duplicate observations, missing prerequisites follow documented bounded handling, failed provider work is not represented as successful extraction, unaffected tenant reads succeed, and completed writes remain stable after cooperative restart. Record exact supported recovery; no forced-crash/network-partition guarantee.
 
@@ -99,6 +99,16 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 | Goal | Initial status | Evidence |
 |---|---|---|
 | P01 | Active work already authorized; continuation06 running | runs/pilot-1016-continuation-06 |
-| P02–P12 | Draft scope awaiting batch review | This inventory |
+| P02 | Approved; queued | This inventory |
+| P03 | Approved; queued | This inventory |
+| P04 | Approved; queued | This inventory |
+| P05 | Approved; queued | This inventory |
+| P06 | Approved; queued | This inventory |
+| P07 | Approved; queued | This inventory |
+| P08 | Approved; queued | This inventory |
+| P09 | Approved; queued | This inventory |
+| P10 | Approved; queued | This inventory |
+| P11 | Approved; queued | This inventory |
+| P12 | Approved; queued | This inventory |
 
-Do not label a row complete from the plan alone. At execution, replace each grouped draft row with its own actual status, source/evidence links and issue disposition.
+Update each row with actual status, source/evidence links and issue disposition. Plan approval alone is not completion evidence.
