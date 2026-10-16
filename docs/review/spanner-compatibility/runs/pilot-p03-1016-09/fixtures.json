@@ -1,0 +1,183 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    [
+      "P03 worker-free applied correction public acceptance plus two natural questions;0newEvents/workers/providers. Actual correction application belongs to failed08."
+    ]
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "groups": [
+      {
+        "name": "user-explicit-correction-retained-public",
+        "tenant": "a",
+        "user_correction": true,
+        "owner": "pilot-p03-1016-01:owner:contexts",
+        "session": "pilot-p03-1016-05:context-correction",
+        "steps": [],
+        "queries": [],
+        "expected_previous": "preference:41b4d9a70176b45833e26ea1d8ed12bd336faa7904804158b59e56ed8c2a8b82",
+        "expected_replacement": "preference:bed422c1dd0926b54379310238bbf1d74d4e9ed69b3b7d1ff8813ba34446ace7",
+        "identity_fields": {
+          "category": "communication",
+          "key": "short_bullet_point_actions_during_incident_response",
+          "context": "For incident response, prefers concise action-oriented bullet points.",
+          "about_entity": "incident response communication",
+          "polarity": "negative",
+          "scope": "global",
+          "scope_id": null
+        },
+        "unrelated_preference": "preference:db6b7bb32412c451a0caf5a47d36da4fe6a4166ac1064219408cc4616b2e138b",
+        "required_negative_quote": "no longer prefer short bullet-point actions during incident response",
+        "question": "What are my current incident-response and design-review preferences?",
+        "recovery_input_hash": "e146365754428dbacac338bfb3c87eab71953ba4b0b48e203fe8f9579ace6eea",
+        "verify_user_inputs": [
+          {
+            "event_id": "13d4e563-949b-59b7-9e36-67ea5b41e0aa",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T10:43:13.957158+00:00",
+            "session_id": "pilot-p03-1016-05:context-correction",
+            "agent_id": "pilot-p03-1016-01:owner:contexts",
+            "trace_id": "pilot-p03-1016-05",
+            "payload_ref": "pilot:explicit-preference-correction",
+            "payload": {
+              "content": "My name is Ishan. I no longer prefer short bullet-point actions during incident response. This explicitly reverses that incident preference; my design-review preference is unchanged. The producer identifies the replacement preference with these canonical fields: {\"about_entity\": \"incident response communication\", \"category\": \"communication\", \"context\": \"For incident response, prefers concise action-oriented bullet points.\", \"key\": \"short_bullet_point_actions_during_incident_response\", \"polarity\": \"negative\", \"scope\": \"global\", \"scope_id\": null}. The positive wording inside the old context label is an identity label, not a reaffirmation. The negative statement above is the evidence for this correction.",
+              "preference_corrections": [
+                {
+                  "previous_preference_id": "preference:41b4d9a70176b45833e26ea1d8ed12bd336faa7904804158b59e56ed8c2a8b82",
+                  "replacement_key": "short_bullet_point_actions_during_incident_response",
+                  "replacement_polarity": "negative",
+                  "context": "For incident response, prefers concise action-oriented bullet points."
+                }
+              ]
+            }
+          },
+          {
+            "event_id": "db53073a-125c-5b55-83f2-03ab18c61bb5",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T10:43:14.957158+00:00",
+            "session_id": "pilot-p03-1016-05:context-correction",
+            "agent_id": "pilot-p03-1016-01:owner:contexts",
+            "trace_id": "pilot-p03-1016-05",
+            "payload_ref": "pilot:explicit-preference-correction",
+            "payload": {}
+          }
+        ]
+      },
+      {
+        "name": "user-explicit-indifference-natural-read",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [],
+        "owner": "pilot-p03-1016-06:owner:explicit-indifference",
+        "session": "pilot-p03-1016-06:story:explicit-indifference",
+        "question": "What did I say about coffee versus tea?",
+        "expect_user": true,
+        "expected_name": "Noor",
+        "preference_semantics": [
+          [
+            "neutral",
+            [
+              "coffee",
+              "tea"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {},
+        "verify_user_inputs": [
+          {
+            "event_id": "0c6bd103-a8db-5c21-828f-04a31174a325",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+            "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+            "agent_id": "pilot-p03-1016-06:owner:explicit-indifference",
+            "trace_id": "pilot-p03-1016-06",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {
+              "content": "My name is Noor. I have no preference between coffee and tea; either is equally acceptable to me."
+            }
+          },
+          {
+            "event_id": "427cd587-1567-5961-ade0-ff0c4e6236a2",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+            "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+            "agent_id": "pilot-p03-1016-06:owner:explicit-indifference",
+            "trace_id": "pilot-p03-1016-06",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {}
+          }
+        ],
+        "recovery_input_hash": "eb8a7d54f36efc05073443e204cd5ded128cfaa3309a24506aec74ac6e7cd5f2"
+      },
+      {
+        "name": "user-owner-preference-about-person-natural-read",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [],
+        "owner": "pilot-p03-1016-06:owner:owner-preference-about-person",
+        "session": "pilot-p03-1016-06:story:owner-preference-about-person",
+        "question": "What did I say about working with Omar?",
+        "expect_user": true,
+        "expected_name": "Ada",
+        "preference_semantics": [
+          [
+            "positive",
+            [
+              "omar",
+              "work|collaborat"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {},
+        "verify_user_inputs": [
+          {
+            "event_id": "40fb32c3-a5ea-595b-a110-ddd6431cd506",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+            "session_id": "pilot-p03-1016-06:story:owner-preference-about-person",
+            "agent_id": "pilot-p03-1016-06:owner:owner-preference-about-person",
+            "trace_id": "pilot-p03-1016-06",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {
+              "content": "My name is Ada. I prefer working with Omar because his code reviews are thorough. This is my own preference about working with Omar."
+            }
+          },
+          {
+            "event_id": "871d6fd8-c28d-5026-baaa-600b730fdf44",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+            "session_id": "pilot-p03-1016-06:story:owner-preference-about-person",
+            "agent_id": "pilot-p03-1016-06:owner:owner-preference-about-person",
+            "trace_id": "pilot-p03-1016-06",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {}
+          }
+        ],
+        "recovery_input_hash": "617bf42317398fe6084acfa36ac914cf479888f3ea2c0b78e9be86f7509d67aa"
+      }
+    ],
+    "coverage": [
+      "P03 worker-free applied correction public acceptance plus two natural questions;0newEvents/workers/providers. Actual correction application belongs to failed08."
+    ],
+    "limits": [
+      "Original08 unauthorized403 and failedverdict retained; preferences/export now use existingauthorizedadmin. No permission policy change.",
+      "No mutable baseline exemptions. Exact originalsource/receipt/negativeidentity/lifecycle and naturalpreference meanings unchanged.",
+      "No second application/modelcall or retroactive alternative-question pass."
+    ]
+  },
+  "execution_mode": "selected-retained-reads"
+}

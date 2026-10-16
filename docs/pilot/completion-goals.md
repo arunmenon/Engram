@@ -2,6 +2,8 @@
 
 Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 is the active execution at approval.
 
+Current checkpoint: P01, P02 and P03 are complete with bounded composite evidence and Astra acceptance. P04 is next; P05–P12 remain queued. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
+
 ## Purpose and current evidence
 
 Finish a reproducible two-tenant pilot: A uses Core+User+Memory; B uses Core+PDLC+Memory. All business inputs and acceptance reads go through the authenticated Engram public API, real workers and retained Spanner databases. Snapshots support diagnosis and preservation checks; they do not replace API acceptance.

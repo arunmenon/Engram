@@ -113,3 +113,35 @@ Frozen08 recovers the exact original correction through ordinary startup, with z
 Attempt08 at `5c2fc7e` recovered the original correction through ordinary startup with zero new Events. Exact negative receipt identity, stored fields/evidence and permitted predecessor/profile updates passed. Final source/owner/material graph/old Episode preservation and empty pending/DLQ passed, with clean shutdown. It remains failed because the harness called the admin-protected preferences route with an API-only credential and correctly received403. #78 tracks this caller error; authorization policy is unchanged. Actual application belongs to08, not the later read checkpoint.
 
 The read-only verifier separates already-applied correction validation from mutation-baseline checks, uses the existing authorized admin credential for protected User routes, retains ordinary API personalization, and applies no mutable baseline exceptions. Frozen09 combines that correction read with the two natural-question reads. It submits no Events and starts no workers/providers. Source quotes, exact identity, negative fields, lifecycle/source links, active/history and owner exclusions remain required. Astra cleared the bounded verifier; final public acceptance remains pending.
+
+
+### P03 final stakeholder walkthrough — complete as composite evidence
+
+This slice asks whether Engram can remember the right person's stated information, retrieve it with its actual sources, and apply an explicit preference correction without losing another context or its history. It uses Tenant A (Core+User+Memory), real Luna, authenticated HTTP, ordinary workers and retained Spanner. Tenant B is preserved alongside it.
+
+| What we sent | What was verified |
+|---|---|
+| Maya: professional Python use, beginning Rust, explicitly not a Rust expert | Python skill is recorded without claiming Rust expertise. Repeated under the corrected prompt. |
+| Ishan: short incident actions, detailed design reviews | Two distinct preference contexts and source evidence. Context-specific questions are diagnostic; automatic context selection is not claimed. |
+| Nila: research answers should distinguish evidence/speculation and cite sources | Source-backed preferences are stored and returned for Nila. |
+| Omar: train travel and connection-time needs | His stated travel preferences are retrievable for his owner identity. |
+| Priya: work-journal guidance | Her stated preference is retained with its source. |
+| Sam: household preferences and activity | Preferences do not silently become Memory Goals or Beliefs. |
+| Tara: long text is difficult; two or three practical steps work better | Two distinct paraphrased preferences, exact source/owner, public retrieval. Original pending delivery was recovered; a fresh regression also passed. |
+| No stated personal preference | No preference, skill or interest invented. |
+| Leela describes Omar's preference and explicitly says it is not hers | No preference, skill or interest transferred to Leela. Mentioned people may remain Entities. |
+| Dev describes a project and planet named Mercury | No personal preference/skill/interest inferred. Related-query behavior remains a recorded diagnostic, not a general disambiguation guarantee. |
+| Noor explicitly accepts coffee or tea equally | A genuine neutral preference survives. The natural coffee/tea question is checked separately. |
+| Ada prefers working with Omar | Ada's own positive preference survives with her source/owner; the natural working-with-Omar question is checked separately. |
+| Ravi reobserves Rust | Actual extraction and new REFERENCES evidence, with exact prior name/type/first_seen/stored count preserved. |
+| Ishan explicitly reverses his incident preference | One negative replacement, exact canonical identity and evidence; old positive revision superseded; design preference unchanged; active and historical public reads agree. |
+
+The correction is a normalized producer action. Its metadata identifies the exact predecessor and canonical context; Luna supplies the supported negative assertion. The context label is an identity label, not the polarity of the current claim. We do not claim automatic correction detection from arbitrary prose.
+
+The final public reads use the ordinary API role for personalization and the existing admin role for protected User preferences/export. Current preferences contain the negative incident preference and the unchanged design preference. Export retains the original positive preference, its successor and their source chains. The composed read excludes the superseded preference and returns exact source positions. No direct graph insert, source resubmission, reset or manual repair supplied a pass.
+
+Attempt 09 at `3ab001b` passed 60 checks, with zero new Events, workers and provider calls, clean shutdown and both tenants' conservation/checks that old Episode memberships remain intact and pending/dead-letter deliveries are empty. Its [frozen plan](pilot-p03-1016-09-journeys.json), [results](../review/spanner-compatibility/runs/pilot-p03-1016-09/results.json) and [176-file source audit](../review/spanner-compatibility/runs/pilot-p03-1016-09/recorded-source-audit.json) make the read checkpoint repeatable. Actual extraction/application comes from the linked earlier worker runs, including 08; 09 is not another application.
+
+Astra independently accepted bounded P03 completion and closure of #65/#76/#77/#78 for the exercised defect scopes. #74/#75 were accepted and closed earlier. Original attempts 01, 02, 04, 06 and 08 remain failed; their individual successful cases and later checkpoints form the composite evidence. The first attempt's overwritten Rust origin/self-link metadata remains retained and documented; no claim of unchanged original metadata across that failed attempt is made. Confidence/proficiency values are attributed model assertions, not calibrated measurements or verified qualifications.
+
+To repeat: pin the recorded source, satisfy the common cloud/model/binding prerequisites in the team instructions, stop competing workers, inspect a fresh retained baseline, then use the frozen selected plan with `--journeys-only`. A write reproduction needs fresh Event/owner/session identities; retained verification intentionally uses already-applied inputs and starts no workers. Failed source records and exact hashes are kept. Independent human reproduction and the overall pilot remain incomplete. P04 is next.
