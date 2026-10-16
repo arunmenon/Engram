@@ -1,0 +1,44 @@
+{
+  "original_verdict": "failed",
+  "cause": "Harness used PDLC artifact intent route for Core/User/Memory tenant; expected200 received422",
+  "source_revision": "75380a86e37cd3d043ca350af3760a9193e68dc5",
+  "source_hashes": 182,
+  "provider_calls": 4,
+  "all_provider_calls_returned": true,
+  "shutdown_errors": [],
+  "preservation": [
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final zero pending and exactly declared DLQ",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final zero pending and exactly declared DLQ",
+      "passed": true
+    }
+  ],
+  "correction": "Use supported session/agent-scoped subgraph Memory read, same collision/foreign/refusal oracles. No runtime change."
+}

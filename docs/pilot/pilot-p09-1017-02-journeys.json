@@ -1,0 +1,90 @@
+{
+  "run_id": "pilot-p09-1017-02",
+  "coverage": "P09 public two-tenant collision, authenticated binding, roles and refused probes; no internal hierarchy policy",
+  "groups": [
+    {
+      "name": "p09-a",
+      "tenant": "a",
+      "tenant_proof": true,
+      "steps": [
+        {
+          "scenario": "collision",
+          "expected_status": 201,
+          "request": {
+            "event_id": "9d50b1fd-36d2-5963-bab0-2de4ee166a6f",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T19:10:22.618957+00:00",
+            "session_id": "pilot-p09-1017-02:same-session",
+            "agent_id": "pilot-p09-1017-02:same-owner",
+            "trace_id": "pilot-p09-1017-02",
+            "payload_ref": "pilot-p09:collision",
+            "payload": {
+              "key": "delivery",
+              "description": "Prepare the user research workshop"
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "goal": "goal-e3fbdcd4dc328d9848b4d712e0371746d271d234a9df9306db93ab5c75754b96",
+      "text": "Prepare the user research workshop",
+      "retained_negative_proofs": [
+        {
+          "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+          "tenant": "a",
+          "sha256": {
+            "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+            "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+            "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "p09-b",
+      "tenant": "b",
+      "tenant_proof": true,
+      "steps": [
+        {
+          "scenario": "collision",
+          "expected_status": 201,
+          "request": {
+            "event_id": "9d50b1fd-36d2-5963-bab0-2de4ee166a6f",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T19:10:22.618957+00:00",
+            "session_id": "pilot-p09-1017-02:same-session",
+            "agent_id": "pilot-p09-1017-02:same-owner",
+            "trace_id": "pilot-p09-1017-02",
+            "payload_ref": "pilot-p09:collision",
+            "payload": {
+              "key": "delivery",
+              "description": "Prepare the payment settlement release"
+            }
+          }
+        },
+        {
+          "scenario": "foreign-only",
+          "expected_status": 201,
+          "request": {
+            "event_id": "6231b957-595b-5933-8d89-a3e76fe6c5a0",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T19:10:22.618957+00:00",
+            "session_id": "pilot-p09-1017-02:same-session",
+            "agent_id": "pilot-p09-1017-02:same-owner",
+            "trace_id": "pilot-p09-1017-02",
+            "payload_ref": "pilot-p09:collision",
+            "payload": {
+              "key": "foreign",
+              "description": "Only Tenant B has this reconciliation follow-up"
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "goal": "goal-e3fbdcd4dc328d9848b4d712e0371746d271d234a9df9306db93ab5c75754b96",
+      "text": "Prepare the payment settlement release",
+      "retained_negative_proofs": [],
+      "foreign": "goal-c8ac050024486b20bd43caec04f4b508edd011fb9464b6ede9739fd954913052"
+    }
+  ]
+}

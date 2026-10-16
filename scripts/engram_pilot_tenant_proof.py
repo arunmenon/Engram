@@ -21,7 +21,7 @@ from engram_pilot_retrieval_proof import closed_response
 def freeze(run_id):
     owner, session = run_id + ":same-owner", run_id + ":same-session"
     event_id = str(uuid5(NAMESPACE_URL, run_id + ":collision"))
-    goal = "Goal:" + identity("Goal", owner, "session", session, "delivery")
+    goal = identity("Goal", owner, "session", session, "delivery")
     occurred = (datetime.now(UTC) - timedelta(minutes=3)).isoformat()
     groups = []
     for t, text in [
@@ -57,7 +57,7 @@ def freeze(run_id):
         key="foreign", description="Only Tenant B has this reconciliation follow-up"
     )
     groups[1]["steps"].append(foreign)
-    groups[1]["foreign"] = "Goal:" + identity("Goal", owner, "session", session, "foreign")
+    groups[1]["foreign"] = identity("Goal", owner, "session", session, "foreign")
     return dict(
         run_id=run_id,
         coverage=(
@@ -65,6 +65,18 @@ def freeze(run_id):
             "no internal hierarchy policy"
         ),
         groups=groups,
+    )
+
+
+def memory_read_request(group):
+    source = group["steps"][0]["request"]
+    return dict(
+        query="Inspect this explicit Memory state",
+        intent="when",
+        session_id=source["session_id"],
+        agent_id=source["agent_id"],
+        max_nodes=50,
+        timeout_ms=30000,
     )
 
 
@@ -156,10 +168,8 @@ async def execute(plan, *, request, check, record, save, settle, databases, evid
         )
 
     async def read(g, node, label, **kw):
-        body = dict(
-            query="Inspect this artifact", intent="when", seed_node_ids=[node], max_nodes=50
-        )
-        code, out = await request(g["tenant"], "/v1/query/artifacts", body, **kw)
+        body = memory_read_request(g)
+        code, out = await request(g["tenant"], "/v1/query/subgraph", body, **kw)
         check(label + " public200", code == 200, code)
         states = await settle()
         check(label + " provenance closure", closed_response(out, states[g["tenant"]]))
@@ -293,11 +303,9 @@ async def execute(plan, *, request, check, record, save, settle, databases, evid
         check(name + " both databases unchanged", unchanged)
     code, out = await request("a", "/v1/admin/stats", None, method="GET", role="admin")
     check("rightful admin role works", code == 200, code)
-    body = dict(
-        query="Inspect this artifact", intent="when", seed_node_ids=[a["goal"]], max_nodes=50
-    )
+    body = memory_read_request(a)
     code, out = await request(
-        "a", "/v1/query/artifacts?tenant_id=isolation-b&database_id=engram-g07-target", body
+        "a", "/v1/query/subgraph?tenant_id=isolation-b&database_id=engram-g07-target", body
     )
     check(
         "query hints do not override credential binding",

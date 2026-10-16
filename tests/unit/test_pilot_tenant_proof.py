@@ -8,7 +8,7 @@ from context_graph.domain.memory_actions import MemoryAction
 from context_graph.domain.models import Event
 
 
-def test_same_identity_different_source_and_correct_typed_goal():
+def test_same_identity_different_source_and_correct_subgraph_goal():
     p = freeze("unit-p09")
     a, b = p["groups"]
     x, y = a["steps"][0]["request"], b["steps"][0]["request"]
@@ -20,7 +20,7 @@ def test_same_identity_different_source_and_correct_typed_goal():
             e = Event.model_validate_json(json.dumps(step["request"]))
             action = MemoryAction.from_event(e, step["request"]["payload"], trusted=True)
             expected = g["foreign"] if step["scenario"] == "foreign-only" else g["goal"]
-            assert expected == "Goal:" + action.subject.key
+            assert expected == action.subject.key
 
 
 def state():
@@ -98,3 +98,45 @@ def test_forbidden_probe_effects_rejected(tamper):
     if tamper == "dlq":
         after["dead_letter_fields"][0][2]["reason"] = "other"
     assert not retained_state_preserved(before, after)
+
+
+def test_tenant_memory_reads_use_supported_session_query_contract():
+    from engram_pilot_tenant_proof import memory_read_request
+
+    from context_graph.domain.models import SubgraphQuery
+
+    for group in freeze("unit-supported-read")["groups"]:
+        body = memory_read_request(group)
+        parsed = SubgraphQuery.model_validate_json(json.dumps(body))
+        assert str(parsed.intent) == "when"
+        assert parsed.agent_id == group["steps"][0]["request"]["agent_id"]
+        assert parsed.session_id == group["steps"][0]["request"]["session_id"]
+        assert "seed_node_ids" not in body
+
+
+@pytest.mark.parametrize("tenant", ["a", "b"])
+async def test_actual_memory_subgraph_matches_frozen_public_goal_identity(tenant):
+    from engram_pilot_tenant_proof import memory_read_request
+
+    from context_graph.adapters.memory.graph import MemoryGraphStore
+    from context_graph.domain.models import SubgraphQuery
+    from context_graph.domain.projection import event_to_node
+    from tests.unit.test_memory_episodes import selected_engine
+
+    group = next(g for g in freeze("unit-real-memory-read")["groups"] if g["tenant"] == tenant)
+    source = group["steps"][0]["request"]
+    event = Event.model_validate_json(json.dumps(source)).model_copy(
+        update={"global_position": "unit-position"}
+    )
+    graph = MemoryGraphStore()
+    await graph.merge_event_node(event_to_node(event))
+    await graph.apply_memory_action(MemoryAction.from_event(event, source["payload"], trusted=True))
+    body = memory_read_request(group)
+    answer = await selected_engine(graph).get_subgraph(
+        SubgraphQuery.model_validate_json(json.dumps(body))
+    )
+    node = answer.nodes[group["goal"]]
+    assert node.node_type == "Goal"
+    assert node.attributes["description"] == group["text"]
+    assert node.provenance.event_id == source["event_id"]
+    assert node.provenance.global_position == "unit-position"

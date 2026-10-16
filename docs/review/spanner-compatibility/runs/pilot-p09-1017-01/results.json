@@ -1,0 +1,557 @@
+{
+  "state": "failed",
+  "execution_mode": "selected-journeys",
+  "scope": [
+    "P09 public two-tenant collision, authenticated binding, roles and refused probes; no internal hierarchy policy"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a baseline has no undeclared retained dead letters",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a inactive tenant has no pending work",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b baseline has no undeclared retained dead letters",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b inactive tenant has no pending work",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "acollision admitted",
+      "passed": true,
+      "actual": {
+        "event_id": "f2e202dc-39c8-54e3-b3fd-6e978c480ce4",
+        "global_position": "2026-10-16T19:09:01.685775000Z/000000/f2e202dc-39c8-54e3-b3fd-6e978c480ce4",
+        "status": "created"
+      }
+    },
+    {
+      "name": "A before B write public200",
+      "passed": false,
+      "actual": 422
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": true
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final zero pending and exactly declared DLQ",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final zero pending and exactly declared DLQ",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "f2e202dc-39c8-54e3-b3fd-6e978c480ce4",
+        "event_type": "memory.goal.created",
+        "occurred_at": "2026-10-16T19:03:36.366310+00:00",
+        "session_id": "pilot-p09-1017-01:same-session",
+        "agent_id": "pilot-p09-1017-01:same-owner",
+        "trace_id": "pilot-p09-1017-01",
+        "payload_ref": "pilot-p09:collision",
+        "payload": {
+          "key": "delivery",
+          "description": "Prepare the user research workshop"
+        }
+      },
+      "auth_mode": "normal",
+      "tenant_hints": [],
+      "status": 201,
+      "output": {
+        "event_id": "f2e202dc-39c8-54e3-b3fd-6e978c480ce4",
+        "global_position": "2026-10-16T19:09:01.685775000Z/000000/f2e202dc-39c8-54e3-b3fd-6e978c480ce4",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/query/artifacts",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "query": "Inspect this artifact",
+        "intent": "when",
+        "seed_node_ids": [
+          "Goal:goal-cd41fb2be7c2b509263e7829653e66c179621cf58c4ede65c0bb22eeac1c7561"
+        ],
+        "max_nodes": 50
+      },
+      "auth_mode": "normal",
+      "tenant_hints": [],
+      "status": 422,
+      "output": {
+        "detail": "intent must be one of []"
+      }
+    }
+  ],
+  "provider_calls": [
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T19:09:02.329301+00:00",
+      "prompt_sha256": "dc07c1e645d9c949c7a3b6f2126fc0f7ab56c0acc315cf04c9083fc2afc1f77d",
+      "summary_request_id": "summary-0",
+      "usage": {
+        "completion_tokens": 89,
+        "prompt_tokens": 1067,
+        "total_tokens": 1156,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 1064,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated its memory records: it initially recorded with moderate confidence that reset tokens expire after 15 minutes, then inferred a conflicting 10-minute expiry after policy review and marked the original belief as contradicted. It created a \u201cFinish study\u201d goal and marked it complete, created \u201cFinish household\u201d and abandoned it, and created \u201cFinish delivery\u201d before superseding it with \u201cUse revised plan.\u201d No external tools are shown.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T19:09:17.665049+00:00",
+      "prompt_sha256": "dc07c1e645d9c949c7a3b6f2126fc0f7ab56c0acc315cf04c9083fc2afc1f77d",
+      "summary_request_id": "summary-1",
+      "usage": {
+        "completion_tokens": 87,
+        "prompt_tokens": 1067,
+        "total_tokens": 1154,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 1064,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated its stored beliefs about reset-token expiry: it recorded a 15-minute expiry, then inferred a conflicting rule\u201410 minutes after policy review\u2014and marked the original belief as contradicted in favor of the replacement. It also managed several goals: \u201cFinish study\u201d was completed, \u201cFinish household\u201d was abandoned, and \u201cFinish delivery\u201d was superseded by \u201cUse revised plan.\u201d No external tools are shown.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T19:09:18.974073+00:00",
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "summary_request_id": "summary-2",
+      "usage": {
+        "completion_tokens": 113,
+        "prompt_tokens": 3217,
+        "total_tokens": 3330,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 3214,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A high-severity production incident involving expired password-reset tokens being accepted was detected and reported amid several deployments of the affected artifact across different services and repositories; those deployment events do not establish that the issue was fixed. Two changes with the same title were created, and change 8 was recorded as remediation, merged, and linked to the incident. A lesson about checking token expiry server-side was confirmed for the incident, and a future token-expiry specification was approved. The incident was ultimately marked resolved with a summary stating that server-side expiry enforcement was verified.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T19:09:23.411418+00:00",
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "summary_request_id": "summary-3",
+      "usage": {
+        "completion_tokens": 155,
+        "prompt_tokens": 3217,
+        "total_tokens": 3372,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 3214,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A high-severity production issue was detected: expired password-reset tokens were being accepted. Several deployment events referenced the affected artifact across different repositories and services, but the events do not confirm those deployments fixed the issue.\n\nFor incident INC-RESET-51 in the auth reset service, two changes with the same title and head SHA were created; change 8 was recorded as remediation and merged as `reset-fix-sha`. A lesson, \u201cCheck token expiry server-side,\u201d was confirmed for that incident, and a future token-expiry specification was approved. The incident was later marked resolved with the summary \u201cVerified server-side expiry enforcement.\u201d Other incident and lesson records in the sequence were associated with different or uncertain service references; their relationship to the resolved incident is unclear.",
+      "state": "returned",
+      "input_event_candidates": []
+    }
+  ],
+  "worker_outcomes": [],
+  "workers": [
+    {
+      "tenant": "a",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "a",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "a",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "a",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "a",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "b",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "b",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "b",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    }
+  ],
+  "limitations": [
+    "Selected groups only; entry business paths are not executed or certified by this attempt.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "Episode/summary/vector claims require corresponding selected-scenario evidence",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 53,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 7,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "spectrum": [],
+  "tenant_proof": [],
+  "summary_cache_observations": [
+    {
+      "id": "summary-0",
+      "tenant": "a",
+      "scope": "episode",
+      "scope_id": "episode-24388b4719094ae1f0045689abfc837c43cf383513b3f253043fe09b63482068",
+      "source_event_ids": [
+        "0b7b0324-3ae8-5119-966a-afb21f535bac",
+        "1552c182-1762-5fa3-bc96-5da4d6450a3e",
+        "1b64c685-4f48-567e-983f-1e78dcc26bc2",
+        "3d01cd35-81eb-5c29-ab44-fe5213281d22",
+        "699ac80a-69a5-5f1d-abb3-2171243e3550",
+        "86d20aa5-6e28-50e7-b194-ea727468d1ff",
+        "8a87e154-bc58-5feb-8626-2ec63c41185f",
+        "c425d5c6-afe4-5f96-b71a-2c32503add54",
+        "cd7d91af-5217-54eb-96aa-6e24a5e1c3bf",
+        "cef2fd2b-8c3f-5c7f-940c-f5acb0663862",
+        "d7e190a4-2915-543e-9e56-a1b28b2e23a6",
+        "dc1c59b9-2e0f-515f-896e-fa87f37a29a7"
+      ],
+      "prompt_sha256": "dc07c1e645d9c949c7a3b6f2126fc0f7ab56c0acc315cf04c9083fc2afc1f77d",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": "d929a63e379a85a04cc7aa4edece91dded88c412254318ac6cb5de66528ec1a9",
+      "cache_present_after": true
+    },
+    {
+      "id": "summary-1",
+      "tenant": "a",
+      "scope": "session",
+      "scope_id": "pilot-p04-1016-01:a:memory",
+      "source_event_ids": [
+        "0b7b0324-3ae8-5119-966a-afb21f535bac",
+        "1552c182-1762-5fa3-bc96-5da4d6450a3e",
+        "1b64c685-4f48-567e-983f-1e78dcc26bc2",
+        "3d01cd35-81eb-5c29-ab44-fe5213281d22",
+        "699ac80a-69a5-5f1d-abb3-2171243e3550",
+        "86d20aa5-6e28-50e7-b194-ea727468d1ff",
+        "8a87e154-bc58-5feb-8626-2ec63c41185f",
+        "c425d5c6-afe4-5f96-b71a-2c32503add54",
+        "cd7d91af-5217-54eb-96aa-6e24a5e1c3bf",
+        "cef2fd2b-8c3f-5c7f-940c-f5acb0663862",
+        "d7e190a4-2915-543e-9e56-a1b28b2e23a6",
+        "dc1c59b9-2e0f-515f-896e-fa87f37a29a7"
+      ],
+      "prompt_sha256": "dc07c1e645d9c949c7a3b6f2126fc0f7ab56c0acc315cf04c9083fc2afc1f77d",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": "01a646a9a3b133623f8a4302887f0522f656dbfd41665c2a860394e376f4a45d",
+      "cache_present_after": true
+    },
+    {
+      "id": "summary-2",
+      "tenant": "b",
+      "scope": "episode",
+      "scope_id": "episode-cd7142c4c3e0fafb7d4ea43728aa0bfd1e6db3a36bf256c331ddd5a8b570bb32",
+      "source_event_ids": [
+        "03269414-326c-5f17-a05d-38f372a38580",
+        "17f0f65b-5bd4-59ad-8a7f-80ca82bc1d82",
+        "2079605c-b099-551d-bf7f-c03daaaf7143",
+        "227913aa-42c3-58f0-8a79-5bf6b02ab357",
+        "254436d3-07ff-5cdf-9d29-9804ae389dd7",
+        "424f1ecc-e45f-5bb9-8564-dc3062c3aa05",
+        "453e429f-7d21-578f-a875-2ffb9db15a86",
+        "46de3ce5-28e4-511a-9f23-8f09d9b8c534",
+        "5354c4f9-4a4d-5805-9da1-4067e19b3565",
+        "635394b2-526e-5791-b13a-5d02e5797264",
+        "89a6d3ae-c797-5647-98b6-ef31e78b14ad",
+        "8ab75ba4-d1b1-5c53-889a-c10275714784",
+        "8b10c5c6-7ddb-52f8-b0af-245278eca6c7",
+        "b088a4b6-04dc-51ee-b70a-d203ec40c1d7",
+        "b4804a33-0177-5024-bdc0-7ae832d8577d",
+        "b6a3de65-6452-5e3c-bcda-2a0cfe0e33dd",
+        "c28860ef-43f8-5bd6-9557-c33dc5397b2f",
+        "c5a02d03-f975-520a-8a48-73fcae777dc5",
+        "cb2396dc-78a8-5e9a-b6cd-fd97df82fb48",
+        "dc60607d-011f-5bde-a74d-8149d9a4bef0",
+        "e1df1cea-5094-51cc-b7ac-7401049dbbd5",
+        "eb7dc1e2-b5ca-5532-8b69-19f30a29b1c6",
+        "f857e972-76c2-520a-a416-2edf9a0ba104",
+        "ffc94518-5b21-5406-a502-7909e3cb611e"
+      ],
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": "464402a2a1e69bf28333f6282de25c0557424e25cd54639f737cbdb9081909e0",
+      "cache_present_after": true
+    },
+    {
+      "id": "summary-3",
+      "tenant": "b",
+      "scope": "session",
+      "scope_id": "g06/pilot-1016-continuation-03-incident",
+      "source_event_ids": [
+        "03269414-326c-5f17-a05d-38f372a38580",
+        "17f0f65b-5bd4-59ad-8a7f-80ca82bc1d82",
+        "2079605c-b099-551d-bf7f-c03daaaf7143",
+        "227913aa-42c3-58f0-8a79-5bf6b02ab357",
+        "254436d3-07ff-5cdf-9d29-9804ae389dd7",
+        "424f1ecc-e45f-5bb9-8564-dc3062c3aa05",
+        "453e429f-7d21-578f-a875-2ffb9db15a86",
+        "46de3ce5-28e4-511a-9f23-8f09d9b8c534",
+        "5354c4f9-4a4d-5805-9da1-4067e19b3565",
+        "635394b2-526e-5791-b13a-5d02e5797264",
+        "89a6d3ae-c797-5647-98b6-ef31e78b14ad",
+        "8ab75ba4-d1b1-5c53-889a-c10275714784",
+        "8b10c5c6-7ddb-52f8-b0af-245278eca6c7",
+        "b088a4b6-04dc-51ee-b70a-d203ec40c1d7",
+        "b4804a33-0177-5024-bdc0-7ae832d8577d",
+        "b6a3de65-6452-5e3c-bcda-2a0cfe0e33dd",
+        "c28860ef-43f8-5bd6-9557-c33dc5397b2f",
+        "c5a02d03-f975-520a-8a48-73fcae777dc5",
+        "cb2396dc-78a8-5e9a-b6cd-fd97df82fb48",
+        "dc60607d-011f-5bde-a74d-8149d9a4bef0",
+        "e1df1cea-5094-51cc-b7ac-7401049dbbd5",
+        "eb7dc1e2-b5ca-5532-8b69-19f30a29b1c6",
+        "f857e972-76c2-520a-a416-2edf9a0ba104",
+        "ffc94518-5b21-5406-a502-7909e3cb611e"
+      ],
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": "877930abea6b2da1b22699a9d2f16e527a9de9e7de092ae2b12dd17d47fb325e",
+      "cache_present_after": true
+    }
+  ],
+  "error": {
+    "type": "AssertionError",
+    "message": "A before B write public200"
+  },
+  "shutdown_errors": []
+}
