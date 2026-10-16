@@ -19,3 +19,7 @@ Live entry03 failed owner exclusion and preservation checks; it remains failed. 
 #65 tracks repeated Entity observation overwriting first_seen/classification and resetting mention metadata. Core GraphOperations.merge_entity_node now uses existing atomic create-only defaults for origin/classification/count fields, updating last_seen/embedding separately. Astra verified Spanner's inherited implementation remains processing-fenced and transactional; no critical gap found. Name ambiguity and deliberate reclassification remain separate.
 
 The old pending Bob delivery was completed under Luna, adding its previously absent prepared/applied User receipt; this is retained recovery evidence, not an exemption retroactively added to entry03. Fresh corrective-run baselines include that completed state. The review accepted rerun subject to root's tests; no live-result endorsement yet.
+
+## Provider observation timing
+
+Entry04's primary checks passed, but its pre-shutdown provider-return assertion ran while consolidation still had an invocation in flight. Its final record contains 41 returned calls and no failed/incomplete call; the failed verdict remains. Astra reviewed moving the unchanged provider-return requirement after stop_demo awaits consumer tasks: this permits ordinary in-flight work to finish, while failures, incomplete calls, shutdown errors and preservation violations still fail. No blocker found in that bounded correction. A fresh-namespace entry05 provides separate acceptance evidence; it does not relabel entry04.

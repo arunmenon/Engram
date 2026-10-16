@@ -716,11 +716,6 @@ async def execute(args):
                 sum(r.get("nodes", 0) for r in applied) > 0,
                 applied,
             )
-            check(
-                "actual provider calls returned",
-                bool(record["provider_calls"])
-                and all(c.get("state") == "returned" for c in record["provider_calls"]),
-            )
         record["final_worker_lags"] = await asyncio.gather(
             *(w._subscription.lag() for w in consumers)
         )
@@ -742,6 +737,11 @@ async def execute(args):
             except Exception as exc:
                 errors = [type(exc).__name__]
             record["shutdown_errors"] = errors
+            record["checks"].append({
+                "name": "actual provider calls returned after cooperative shutdown",
+                "passed": bool(record["provider_calls"])
+                and all(c.get("state") == "returned" for c in record["provider_calls"]),
+            })
             if errors:
                 record["state"] = "failed"
             for t, db in databases.items():
