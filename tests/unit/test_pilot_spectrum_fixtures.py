@@ -125,3 +125,43 @@ def test_namespaced_commit_projects_only_the_declared_ticket_identity():
     }
     assert actual == expected
     assert all(target != "WorkItem:jira|RESET-17" for _, _, target in actual)
+
+
+def test_catalog_edge_property_oracles_match_real_projection_contracts():
+    from context_graph.domain.pack_projection import PackProjector
+    from context_graph.ontology import load_registry
+
+    group = next(g for g in freeze("catalog-contract-test")["groups"] if g["name"] == "catalog")
+    projector = PackProjector(load_registry(["pdlc"]), frozenset())
+    checked = set()
+    for step in group["steps"]:
+        if step["expected_status"] >= 400 or step.get("duplicate"):
+            continue
+        event = Event.model_validate_json(json.dumps(step["request"]))
+        plan = projector.plan(event, step["request"])
+        actual = {(e.edge_type, e.source.key, e.target.key): e.properties for e in plan.edges}
+        for kind, source, target, props in step.get("expected_edge_properties", []):
+            # Authority controls link metadata separately; these fixtures run trusted.
+            if kind in {"REFINES", "APPLIES_TO"}:
+                continue
+            checked.add(step["scenario"])
+            assert all(actual[(kind, source, target)].get(k) == v for k, v in props.items())
+        if step["request"]["event_type"] in {
+            "pdlc.testcaserun.skipped",
+            "pdlc.testcaserun.finished",
+        }:
+            from engram_goal03_implementation_demo import fixture_observations
+
+            observed = fixture_observations(step)
+            derived = {
+                e.source.key
+                for e in plan.edges
+                if e.edge_type == "DERIVED_FROM" and e.target.key == str(event.event_id)
+            }
+            assert observed <= derived
+            assert all(
+                k not in props
+                for *_, props in step.get("expected_edge_properties", [])
+                for k in ("source_event_id", "pinned_position")
+            )
+    assert {"C01-skipped", "C02-webhook-skipped", "C02-webhook-neutral", "C04-success"} <= checked

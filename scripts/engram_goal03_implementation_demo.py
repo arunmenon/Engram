@@ -124,17 +124,10 @@ def http_steps(data):
                 kind,
                 source,
                 target,
-                dict(
-                    source_event_id=event_id,
-                    pinned_position="$receipt",
-                    **(
-                        {"commit_sha": case["expected_payload"]["commit_sha"]}
-                        if kind == "RAN_AGAINST"
-                        else {}
-                    ),
-                ),
+                {"commit_sha": case["expected_payload"]["commit_sha"]},
             ]
             for kind, source, target in step["expected_edges"]
+            if kind == "RAN_AGAINST"
         ]
         steps.append(step)
         retry = deepcopy(step)

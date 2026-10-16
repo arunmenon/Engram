@@ -46,13 +46,10 @@ def fixtures(run_id, *, start=None):
                     kind,
                     source,
                     target,
-                    dict(
-                        source_event_id=request["event_id"],
-                        pinned_position="$receipt",
-                        **({"commit_sha": "reset-sha"} if kind == "RAN_AGAINST" else {}),
-                    ),
+                    {"commit_sha": "reset-sha"},
                 ]
                 for kind, source, target in edges
+                if kind == "RAN_AGAINST"
             ]
         steps.append(step)
         return step
