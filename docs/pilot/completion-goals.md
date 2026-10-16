@@ -2,7 +2,7 @@
 
 Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 is the active execution at approval.
 
-Current checkpoint: P01, P02 and P03 are complete with bounded composite evidence and Astra acceptance. P04 is next; P05–P12 remain queued. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
+Current checkpoint: P01–P04 are complete with bounded evidence and Astra acceptance. P05 is next; P06–P12 remain queued. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
 
 ## Purpose and current evidence
 

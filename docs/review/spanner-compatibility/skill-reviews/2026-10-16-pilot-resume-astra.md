@@ -93,7 +93,7 @@ Astra confirmed the original Change-seeded CQ1 cannot establish a no-reference r
 
 ## P01 final composite evidence review
 
-Astra accepted the bounded P01 composite evidence with no technical blocker. Continuation07 passed243checks, all166observed provider calls returned and shutdown was clean. A appended0Events; B appended9. Both owners, old source rows/material graph and exact oldEpisode memberships remained intact; pending/DLQ empty. All176source audit checks match1536ed0. The crosswalk records169matched step admissions across28event types, not169journeys.
+Astra accepted the bounded P01 composite evidence with no technical blocker. Continuation07 passed243checks, all166observed provider calls returned and shutdown was clean. A appended0Events; B appended9. Both owners, old source rows/material graph and exact oldEpisode memberships remained intact; pending/DLQ empty. All 176source audit checks match1536ed0. The crosswalk records169matched step admissions across28event types, not169journeys.
 
 Continuation06 remains failed; its157individually completed steps/three intermediate reads are reused alongside the selected07 proof. Distinct Change/TestCaseCQ1 scopes and AQ06 retained-global discovery remain explicit. No unchanged161-input, native-webhook, whole-pilot or independent-human-reproduction pass follows. Bounded issues69/70/72 may close after evidence/dispositions are pushed; umbrellas stay open.
 
@@ -176,3 +176,7 @@ This supports closure of #65 for the observed typed/raw Entity origin and self-e
 ### P04 design and prepared harness
 
 Astra low: no design or launch blocker. Require unchanged stale-action subject and all incident edges, exact bound acceptance/position/consumer and Event conflict diagnostic, exact declared DLQ set with zero pending/lag, intermediate progress-before-completion read, cross-session identity and other-owner/session exclusions, and malformed admission no-write proof. Current harness satisfies these bounded checks. Acceptance epoch and disposition epoch are distinct; bound DLQ metadata does not retain arbitrary `memory_reason`, so reason is checked on the Event. Future runs must explicitly admit this verified retained negative from immutable proof; baseline emptiness currently prevents accidental acceptance. No runtime policy changes.
+
+### P04 final evidence acceptance
+
+Astra low: P04 can be marked complete for its bounded scope. Saved evidence confirms 260 passing checks,208 returned actual provider calls, clean shutdown, ten zero-lag workers and final preservation for both tenants. Progress audit shows unchanged active Goal state/evidence before explicit completion; stale action records conflict/state_conflict and its retained expected DLQ. All 176 recorded source hashes match 8dd7903. No acceptance blocker. Keep explicit-action/no-prose-inference limits and require proof-backed admission of this negative before future retained runs. Overall pilot remains open.

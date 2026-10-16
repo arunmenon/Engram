@@ -1,0 +1,109 @@
+{
+  "agent-goal-created": {
+    "request": {
+      "query": "Show this explicit Memory action and its history",
+      "intent": "when",
+      "session_id": "pilot-p04-1016-01:scope:first",
+      "agent_id": "pilot-p04-1016-01:a:memory-owner",
+      "max_nodes": 100,
+      "timeout_ms": 30000
+    },
+    "status": 200,
+    "attributes": {
+      "agent_id": "pilot-p04-1016-01:a:memory-owner",
+      "complete": true,
+      "created_at": "2026-10-16T12:09:08.087573Z",
+      "description": "Finish the reliability course",
+      "evidence_count": 1,
+      "evidence_event_ids": [
+        "d5971e28-3fb9-525f-8240-c40bad2bc163"
+      ],
+      "goal_id": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+      "last_active_at": "2026-10-16T12:09:08.087573Z",
+      "local_key": "study",
+      "priority": null,
+      "scope": "agent",
+      "session_id": "pilot-p04-1016-01:scope:first",
+      "source_trust": "trusted",
+      "state_revision": 0,
+      "status": "active",
+      "status_changed_at": "2026-10-16T12:09:08.087573+00:00",
+      "superseded_by": null
+    },
+    "incident_edges": [
+      "{\"edge_type\": \"DERIVED_FROM\", \"properties\": {\"action\": \"memory.goal.created\", \"evidence_role\": \"lifecycle\"}, \"source\": \"goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6\", \"target\": \"d5971e28-3fb9-525f-8240-c40bad2bc163\"}"
+    ]
+  },
+  "ordinary-progress": {
+    "request": {
+      "query": "Show this explicit Memory action and its history",
+      "intent": "when",
+      "session_id": "pilot-p04-1016-01:scope:second",
+      "agent_id": "pilot-p04-1016-01:a:memory-owner",
+      "max_nodes": 100,
+      "timeout_ms": 30000
+    },
+    "status": 200,
+    "attributes": {
+      "agent_id": "pilot-p04-1016-01:a:memory-owner",
+      "complete": true,
+      "created_at": "2026-10-16T12:09:08.087573Z",
+      "description": "Finish the reliability course",
+      "evidence_count": 1,
+      "evidence_event_ids": [
+        "d5971e28-3fb9-525f-8240-c40bad2bc163"
+      ],
+      "goal_id": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+      "last_active_at": "2026-10-16T12:09:08.087573Z",
+      "local_key": "study",
+      "priority": null,
+      "scope": "agent",
+      "session_id": "pilot-p04-1016-01:scope:first",
+      "source_trust": "trusted",
+      "state_revision": 0,
+      "status": "active",
+      "status_changed_at": "2026-10-16T12:09:08.087573+00:00",
+      "superseded_by": null
+    },
+    "incident_edges": [
+      "{\"edge_type\": \"DERIVED_FROM\", \"properties\": {\"action\": \"memory.goal.created\", \"evidence_role\": \"lifecycle\"}, \"source\": \"goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6\", \"target\": \"d5971e28-3fb9-525f-8240-c40bad2bc163\"}"
+    ]
+  },
+  "agent-goal-completed-second-session": {
+    "request": {
+      "query": "Show this explicit Memory action and its history",
+      "intent": "when",
+      "session_id": "pilot-p04-1016-01:scope:second",
+      "agent_id": "pilot-p04-1016-01:a:memory-owner",
+      "max_nodes": 100,
+      "timeout_ms": 30000
+    },
+    "status": 200,
+    "attributes": {
+      "agent_id": "pilot-p04-1016-01:a:memory-owner",
+      "complete": true,
+      "created_at": "2026-10-16T12:09:08.087573Z",
+      "description": "Finish the reliability course",
+      "evidence_count": 2,
+      "evidence_event_ids": [
+        "d5971e28-3fb9-525f-8240-c40bad2bc163",
+        "fd4033a2-f608-539a-9f2c-8b1125c86bd8"
+      ],
+      "goal_id": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+      "last_active_at": "2026-10-16T12:09:12.087580+00:00",
+      "local_key": "study",
+      "priority": null,
+      "scope": "agent",
+      "session_id": "pilot-p04-1016-01:scope:first",
+      "source_trust": "trusted",
+      "state_revision": 1,
+      "status": "completed",
+      "status_changed_at": "2026-10-16T12:09:12.087580+00:00",
+      "superseded_by": null
+    },
+    "incident_edges": [
+      "{\"edge_type\": \"DERIVED_FROM\", \"properties\": {\"action\": \"memory.goal.completed\", \"evidence_role\": \"lifecycle\"}, \"source\": \"goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6\", \"target\": \"fd4033a2-f608-539a-9f2c-8b1125c86bd8\"}",
+      "{\"edge_type\": \"DERIVED_FROM\", \"properties\": {\"action\": \"memory.goal.created\", \"evidence_role\": \"lifecycle\"}, \"source\": \"goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6\", \"target\": \"d5971e28-3fb9-525f-8240-c40bad2bc163\"}"
+    ]
+  }
+}

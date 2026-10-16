@@ -77,7 +77,7 @@ Astra accepted the four bounded scenarios as composite proof, with no remaining 
 Replay requires the common credentials/binding prerequisites, a pinned clean source checkout, fresh baseline and fresh fixture identities for write journeys. `--journeys-only` selects the frozen plan. A plan containing only retained reads produces the distinct `passed-retained-read-checkpoint` verdict and does not repeat original ingestion/model proof. See each run's manifest and frozen fixtures; do not rerun old Event identities and call that fresh creation.
 
 
-## P03 — User stories: in progress
+## P03 — User stories: retained attempts and recovery history
 
 The first Spanner attempt, `pilot-p03-1016-01` at `3d5a2e7`, remains failed. Six stories passed (coding, context-specific preferences, research, travel, work journal and household). Tara's paraphrased preference did not produce an applied receipt; the last three stories were not submitted. There were 101 recorded checks and 193 returned provider calls, with clean shutdown. One extraction delivery remains pending and no dead letter exists.
 
@@ -103,7 +103,7 @@ The bounded correction changes the User prompt: owner-specific personal facts, g
 The explicit canonical correction plan separately checks actual negative source evidence, all frozen identity fields including about_entity, exact replacement identity, stored properties and ABOUT/DERIVED_FROM/SUPERSEDES evidence, current public preferences and historical export, unchanged other context and exact receipt-derived profile changes. No broad profile-field exemption is allowed. Astra reviewed the prepared implementation; live results remain pending.
 
 
-Attempt06 at `36623ca` passed eight individual stories: third-party/absence/descriptive controls, explicit indifference, owner preference about another person, Rust preservation, coding and paraphrase. It remains failed at the final explicit correction: the actual model returned the correct negative assertion and quote but changed its descriptive context naturally. The domain incorrectly required that description to equal the producer's old positive identity label. #77 tracks this conflation. The correction trigger remains pending with no prepared receipt; its original source is unchanged. A final conservation did not finish because correction validation failed; do not infer a clean final pass from individual checks. Shutdown was clean and all176 recorded source hashes match the executed commit.
+Attempt06 at `36623ca` passed eight individual stories: third-party/absence/descriptive controls, explicit indifference, owner preference about another person, Rust preservation, coding and paraphrase. It remains failed at the final explicit correction: the actual model returned the correct negative assertion and quote but changed its descriptive context naturally. The domain incorrectly required that description to equal the producer's old positive identity label. #77 tracks this conflation. The correction trigger remains pending with no prepared receipt; its original source is unchanged. A final conservation did not finish because correction validation failed; do not infer a clean final pass from individual checks. Shutdown was clean and all 176 recorded source hashes match the executed commit.
 
 The bounded fix preserves exact-context selection; only an unambiguous supported candidate may fall back to the explicit producer canonical context. Metadata types/conflicting assignments are checked, all selection uses immutable original descriptions, and canonicalization precedes IDs/references. Normal undeclared preferences and prepared receipts retain their behavior; graph application still checks owner/category/key/scope/context and successor state. Raw model output retains its descriptive wording; no new artifact property or source repair is introduced. Targeted regressions plus Ruff/mypy pass; Astra cleared implementation and recovery harness.
 
@@ -146,7 +146,7 @@ Astra independently accepted bounded P03 completion and closure of #65/#76/#77/#
 
 To repeat: pin the recorded source, satisfy the common cloud/model/binding prerequisites in the team instructions, stop competing workers, inspect a fresh retained baseline, then use the frozen selected plan with `--journeys-only`. A write reproduction needs fresh Event/owner/session identities; retained verification intentionally uses already-applied inputs and starts no workers. Failed source records and exact hashes are kept. Independent human reproduction and the overall pilot remain incomplete. P04 is next.
 
-## P04 — Tenant A Memory: execution prepared
+## P04 — Tenant A Memory: predeclared execution contract
 
 Frozen plan: [18 authored inputs](pilot-p04-1016-01-journeys.json), plus public current/history and cross-session/owner reads. It reuses the eleven Memory lifecycle actions and adds a stale confirmation, agent-scoped Goal creation, other-owner and session-scoped counterparts, ordinary progress, explicit completion in the second session, and malformed completion. All writes and acceptance reads use the public authenticated dispatcher, ordinary workers and retained Spanner; no database reset or source repair is allowed.
 
@@ -155,3 +155,40 @@ The stale confirmation is expected to be admitted (201), then fail projection wi
 Completed Goals remain visible in `goals` context with their actual status; source inspection shows only superseded state is excluded from current Memory context. Public provenance anchors the original creation/stated Event, while directed evidence links retain subsequent actions. Cross-session reads must return the same agent-scoped identity and exclude the other owner's Goal; the first-session read must exclude the second-session-only Goal. Ordinary progress is read before completion and must leave Goal state and evidence unchanged.
 
 Astra's bounded design and harness reviews found no launch blocker. Forty targeted local tests passed before the final additional public-edge/source checks; local checks do not certify Spanner. Live results are not yet available.
+
+### P04 stakeholder walkthrough — complete
+
+**Question:** does Memory keep the right belief/goal state, owner, scope and source history when explicit actions arrive, including a stale action and ordinary progress?
+
+[Run `pilot-p04-1016-01`](../review/spanner-compatibility/runs/pilot-p04-1016-01/results.json), executing source `8dd7903`, passed **260 checks**. Eighteen inputs went through the authenticated public HTTP dispatcher: seventeen accepted Events and one malformed completion rejected with 422 and no material write. All ten ordinary workers ran against real Spanner; all final lags and pending sets were zero. All 208 actual `gpt-6-luna` calls returned and cooperative shutdown was clean. These background model calls are not evidence of automatic Memory inference: the tested Memory actions are explicit producer assertions.
+
+| Input sequence | Actual result through storage and public reads |
+|---|---|
+| State, then confirm a belief | Stated origin, asserted confidence 0.7, confirmation count 1→2 and revision 0→1; exact source evidence retained. |
+| Confirm using stale revision 0 | API201 records the audit Event; projection records `conflict/state_conflict` and the exact expected dead letter. Belief properties and all incident links remain unchanged. |
+| Record an inferred replacement and explicit contradictory correction | Replacement keeps inferred origin and zero confirmations; old belief reaches revision 2 and is superseded. Declared SUPERSEDES/CONTRADICTS links cite the correction Event. Current belief reads omit the old assertion; history retains both. |
+| Complete, abandon and replace three separate goals | Distinct completed/abandoned/superseded states with exact evidence; replacement is its own active Goal. |
+| Same-key goals for one agent across sessions, a session-only counterpart, and another owner | Agent-scoped identity is reused across sessions; the session counterpart stays distinct. Both session reads exclude the other owner's Goal; the first excludes the second-session-only Goal. |
+| Ordinary progress, then explicit completion in session two | Public progress read still shows the exact original active Goal, revision 0 and evidence count 1. Only the explicit completion changes it to completed/revision 1/count 2. Other owner/session goals stay active. |
+| Malformed completion missing expected revision | API422; ledger and material graph unchanged after unrelated work settles. |
+
+The [stale-action audit](../review/spanner-compatibility/runs/pilot-p04-1016-01/stale-action-audit.json) includes actual before/after public properties and incident edges, the immutable accepted delivery, its exact position and Event diagnostic. The [progress audit](../review/spanner-compatibility/runs/pilot-p04-1016-01/goal-progress-audit.json) shows creation, ordinary progress and explicit completion separately. The private storage comparisons additionally checked all subject properties and incident edges, rather than only selected status fields. Public reads checked directed lifecycle/action evidence and exact creation-source provenance positions.
+
+Tenant A appended exactly 17 source Events; Tenant B appended none. Both tenants retained their ownership, all earlier source documents, material graph except the separately approved Summary/importance refresh, and exact old Episode membership. A retains exactly one negative-test delivery, `assessment-projection/dc1c59b9-2e0f-515f-896e-fa87f37a29a7`; B has no dead letters. This retained record is expected evidence, not unfinished successful work and not permission to ignore other failures. Subsequent goals need an explicit proof-backed declaration before startup. No runtime code, pack schema, database ownership or source repair changed for P04.
+
+[The source audit](../review/spanner-compatibility/runs/pilot-p04-1016-01/recorded-source-audit.json) matches all 176 recorded file hashes to committed source `8dd7903`. Forty targeted local tests and Ruff passed; the cloud checks supply end-to-end acceptance. Astra independently reviewed the prepared harness and final evidence and found no blocker for this bounded scope. Broader pilot/feature issues remain open; see [issue reconciliation](../review/spanner-compatibility/runs/pilot-p04-1016-01/github-reconciliation.json).
+
+Executed commands, from the pinned checkout with cloud impersonation, OpenAI credentials and both retained bindings available:
+
+```sh
+PYTHONPATH=src:scripts python scripts/engram_pilot_model_transition.py inspect \
+  --binding-record docs/review/spanner-compatibility/runs/pilot-1016-model-transition-01 \
+  --output docs/review/spanner-compatibility/runs/pilot-p04-1016-01-preflight
+PYTHONPATH=src:scripts python scripts/engram_pilot_first_run.py \
+  --run-id pilot-p04-1016-01 \
+  --predecessor docs/review/spanner-compatibility/runs/pilot-p04-1016-01-preflight \
+  --output docs/review/spanner-compatibility/runs/pilot-p04-1016-01 \
+  --journey-file docs/pilot/pilot-p04-1016-01-journeys.json --journeys-only
+```
+
+These are the executed coordinates, not an instruction to submit the same identities again. A new write reproduction needs fresh run/Event/owner/session identities, a fresh baseline and explicit admission of the preserved negative-test proof. The runner currently rejects preexisting dead letters; that intentional guard must be extended before the next retained run. Independent human reproduction remains a later milestone. Cloud Monitoring export still reports 403; this run does not establish monitoring export, automatic prose inference, calibrated confidence or full pilot readiness.
