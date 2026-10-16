@@ -412,6 +412,7 @@ def _open_spanner_log(
             tenant_fence=tenant_fence,
             tenant_read_operation=tenant_read_operation,
             tenant_engine_revision=tenant_engine_revision,
+            tenant_binding=tenant_binding,
         )
 
     return spanner_log, open_subscription

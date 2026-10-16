@@ -42,14 +42,7 @@ class SourceTrustPolicy:
     @classmethod
     def from_binding(cls, binding: TenantBinding) -> SourceTrustPolicy:
         return cls(
-            EventInterpretation(
-                binding.tenant_id,
-                binding.database_resource,
-                binding.binding_id,
-                binding.epoch,
-                binding.bundle_digest,
-                binding.engine_revision,
-            ),
+            binding.interpretation(),
             frozenset(binding.settings().ontology.trusted_source_ids),
             binding.bundle.registry.version,
         )

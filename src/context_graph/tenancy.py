@@ -21,7 +21,7 @@ from context_graph.ontology.loader import load_registry
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
-    from context_graph.domain.event_acceptance import AdmissionContext
+    from context_graph.domain.event_acceptance import AdmissionContext, EventInterpretation
 
 
 class TenantConfigurationError(ValueError):
@@ -84,6 +84,8 @@ class TenantBinding:
     database_resource: str = field(init=False)
     bundle_digest: str = field(init=False)
     archive_namespace: tuple[str, ...] | None = field(init=False)
+    predecessor: TenantBinding | None = field(default=None, repr=False)
+    predecessor_epochs: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if not _identifier(self.tenant_id) or not _identifier(self.binding_id):
@@ -119,6 +121,52 @@ class TenantBinding:
             "processing": self.bundle.processing,
             "policy": policy,
         }
+        if self.predecessor is None and self.predecessor_epochs:
+            raise TenantConfigurationError("Epoch grants require a predecessor")
+        if self.predecessor is not None:
+            old = self.predecessor
+            # Recompute both contracts: a caller-supplied digest is not a grant.
+            from dataclasses import replace
+
+            old = replace(old)
+            if old.bundle_digest != self.predecessor.bundle_digest:
+                raise TenantConfigurationError("Predecessor contract changed after binding")
+            epochs = self.predecessor_epochs or (old.epoch,)
+            if (
+                not isinstance(epochs, tuple)
+                or any(type(epoch) is not int or not 1 <= epoch <= old.epoch for epoch in epochs)
+                or tuple(sorted(set(epochs))) != epochs
+            ):
+                raise TenantConfigurationError("Predecessor epochs must be explicitly enumerated")
+            expected = old.settings()
+            expected.llm.model_id = settings.llm.model_id
+            if (
+                old.predecessor is not None
+                or self.tenant_id != old.tenant_id
+                or self.binding_id != old.binding_id
+                or self.epoch != old.epoch + 1
+                or self.engine_revision != old.engine_revision
+                or settings.llm.model_id == old.settings().llm.model_id
+                or settings.model_dump() != expected.model_dump()
+                or digest_input["packs"]
+                != [
+                    pack.canonical_json()
+                    for pack in sorted(old.bundle.registry.packs, key=lambda pack: pack.name)
+                ]
+                or self.bundle.processing != old.bundle.processing
+            ):
+                raise TenantConfigurationError("Transition must change only the model, once")
+            digest_input["predecessor_grant"] = {
+                "version": 1,
+                "purpose": "read-and-complete-under-successor-model",
+                "tenant_id": old.tenant_id,
+                "database_resource": old.database_resource,
+                "binding_id": old.binding_id,
+                "epoch": old.epoch,
+                "accepted_epochs": epochs,
+                "bundle_digest": old.bundle_digest,
+                "engine_revision": old.engine_revision,
+            }
         digest = hashlib.sha256(json.dumps(digest_input, sort_keys=True).encode()).hexdigest()
         object.__setattr__(self, "database_resource", _database(settings))
         object.__setattr__(self, "archive_namespace", _archive(settings))
@@ -133,6 +181,8 @@ class TenantBinding:
         settings: Settings,
         *,
         engine_revision: str,
+        predecessor: TenantBinding | None = None,
+        predecessor_epochs: tuple[int, ...] = (),
     ) -> TenantBinding:
         snapshot = settings.model_copy(deep=True)
         if snapshot.archive.enabled and snapshot.storage.archive == "fs":
@@ -154,6 +204,24 @@ class TenantBinding:
             engine_revision,
             json.dumps(_secret_json(snapshot.model_dump(mode="python")), sort_keys=True),
             bundle,
+            predecessor=predecessor,
+            predecessor_epochs=predecessor_epochs,
+        )
+
+    def interpretation(self) -> EventInterpretation:
+        """Current authority plus one owner-pinned model-only completion grant."""
+        from context_graph.domain.event_acceptance import EventInterpretation
+
+        old = self.predecessor
+        return EventInterpretation(
+            self.tenant_id,
+            self.database_resource,
+            self.binding_id,
+            self.epoch,
+            self.bundle_digest,
+            self.engine_revision,
+            predecessor=old.interpretation() if old is not None else None,
+            predecessor_epochs=(self.predecessor_epochs or (old.epoch,)) if old else (),
         )
 
     def settings(self) -> Settings:

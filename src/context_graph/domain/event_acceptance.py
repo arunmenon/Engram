@@ -62,6 +62,8 @@ class EventInterpretation:
     epoch: int
     bundle_digest: str
     engine_revision: str
+    predecessor: EventInterpretation | None = None
+    predecessor_epochs: tuple[int, ...] = ()
 
 
 class AdmissionContext(BaseModel):
@@ -118,6 +120,13 @@ class EventAcceptance(AdmissionContext):
             authority.engine_revision,
         )
         if accepted != current or self.accepted_epoch > authority.epoch:
+            old = getattr(authority, "predecessor", None)
+            if old is not None and self.accepted_epoch in getattr(
+                authority, "predecessor_epochs", ()
+            ):
+                # The successor owner digest pins this exact model-only grant.
+                self.require_interpretation(old)
+                return
             raise EventInterpretationError(
                 "Accepted event contract is not authorized for processing"
             )

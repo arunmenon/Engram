@@ -199,6 +199,46 @@ class TenantFence:
         database.run_in_transaction(initialize)
 
 
+def activate_model_successor(database: Any, binding: TenantBinding) -> bool:
+    """Explicit model-only cutover; existing acceptance and graph rows stay intact.
+
+    The successor digest pins its one predecessor read/completion grant. All
+    runtime effects still check the successor fence. Caller must stop workers
+    cooperatively and retain before/after evidence; this does not launch them.
+    Returns false for an already committed exact successor (retry safety).
+    """
+    from dataclasses import replace
+
+    from google.cloud.spanner_v1 import KeySet
+
+    checked = replace(binding)
+    if checked.bundle_digest != binding.bundle_digest:
+        raise TenantFenceError("Successor contract changed after binding")
+    if checked.predecessor is None:
+        raise TenantFenceError("Model transition requires a validated predecessor")
+    before = TenantFence.from_binding(checked.predecessor)
+    after = TenantFence.from_binding(checked)
+    after.check_database(database)
+
+    def transition(transaction: Any) -> bool:
+        rows = list(transaction.read("TenantControl", _COLUMNS, KeySet(keys=[["active"]])))
+        if len(rows) != 1:
+            raise TenantFenceError("Exact predecessor owner is required")
+        observed = tuple(rows[0])
+        if observed == (*after._identity(), "active"):
+            return False
+        if observed != (*before._identity(), "active"):
+            raise TenantFenceError("Model transition predecessor owner differs")
+        transaction.update(
+            "TenantControl",
+            ("control_id", *_COLUMNS),
+            [("active", *after._identity(), "active")],
+        )
+        return True
+
+    return bool(database.run_in_transaction(transition))
+
+
 @contextmanager
 def tenant_snapshot(
     database: Any, fence: TenantFence | None, *, operation: Literal["read", "processing"] = "read"

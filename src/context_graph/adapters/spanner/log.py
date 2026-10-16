@@ -246,6 +246,7 @@ class SpannerEventLog:
         self._tenant_fence = tenant_fence
         self._tenant_engine_revision = tenant_engine_revision
         self._admission_policy = None
+        self._interpretation = None
         if tenant_binding is not None:
             from context_graph.adapters.spanner.tenant_control import TenantFence
 
@@ -257,6 +258,7 @@ class SpannerEventLog:
             ):
                 raise RuntimeFencedError("Admission binding differs from ledger authority")
             self._admission_policy = compile_admission_policy(checked_binding.bundle)
+            self._interpretation = checked_binding.interpretation()
         if tenant_read_operation not in ("read", "processing"):
             raise ValueError("Unknown tenant read operation")
         self._tenant_read_operation: Literal["read", "processing"] = (
@@ -715,7 +717,7 @@ class SpannerEventLog:
         fence = self._tenant_fence
         if self._tenant_engine_revision is None:
             raise RuntimeFencedError("Bound ledger interpretation is not configured")
-        authority = EventInterpretation(
+        authority = self._interpretation or EventInterpretation(
             fence.tenant_id,
             fence.database_resource,
             fence.binding_id,

@@ -83,6 +83,7 @@ class SpannerSubscription:
         tenant_fence: TenantFence | None = None,
         tenant_read_operation: str = "read",
         tenant_engine_revision: str | None = None,
+        tenant_binding: Any = None,
     ) -> None:
         self._database = database
         self._tenant_fence = tenant_fence
@@ -104,6 +105,18 @@ class SpannerSubscription:
                 tenant_fence.bundle_digest,
                 tenant_engine_revision,
             )
+        if tenant_binding is not None:
+            from dataclasses import replace
+
+            from context_graph.adapters.spanner.tenant_control import TenantFence
+
+            checked = replace(tenant_binding)
+            if (
+                tenant_fence != TenantFence.from_binding(checked)
+                or tenant_engine_revision != checked.engine_revision
+            ):
+                raise RuntimeFencedError("Subscription binding differs from its fence")
+            self._interpretation = checked.interpretation()
         self._group_name = group_name
         self._consumer_name = consumer_name
         self._shards = shards

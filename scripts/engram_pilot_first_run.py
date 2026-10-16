@@ -25,8 +25,8 @@ import httpx
 import litellm
 import structlog
 import uvicorn
-from engram_composition_assessment import settings_for
 from engram_experiment_support import durable_json, fingerprint, read_owner, snapshot, stop_demo
+from engram_pilot_model_transition import binding_from_baseline
 from google.cloud import spanner
 from google.cloud.spanner_v1.pool import BurstyPool
 from google.oauth2.credentials import Credentials
@@ -35,11 +35,20 @@ from context_graph.adapters.spanner.lifecycle import close_database, prepare_cle
 from context_graph.api.routes.artifacts import ArtifactQueryRequest
 from context_graph.api.tenants import create_tenant_app
 from context_graph.domain.models import Event, SubgraphQuery
-from context_graph.tenancy import CredentialGrant, Principal, TenantBinding, TenantCatalog
+from context_graph.tenancy import CredentialGrant, Principal, TenantCatalog
 from context_graph.worker.__main__ import VALID_CONSUMERS, _build_consumer
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGETS = {"a": "engram-assess-1010a-pdlc", "b": "engram-g07-target"}
+
+
+def episode_membership_edges(state, episode_ids):
+    """Exact membership, including detection of newly added old-Episode edges."""
+    return sorted(
+        json.dumps(row, sort_keys=True)
+        for row in state["edges"]
+        if row[0] == "Episode" and row[1] in episode_ids and row[2] in {"CONTAINS", "DERIVED_FROM"}
+    )
 
 
 def fixtures(run_id):
@@ -348,17 +357,11 @@ async def execute(args):
                 groups == {"assessment-" + k for k in VALID_CONSUMERS},
             )
 
-            owner = previous["owner"][0]
-            settings = settings_for(
-                args.run_id, "user-memory" if t == "a" else "pdlc-memory", target_database=dbid
+            bound = binding_from_baseline(args.run_id, t, previous)
+            check(
+                t + " selected bundle matches retained owner",
+                bound.bundle_digest == previous["owner"][0][4],
             )
-            # Reconstruct the exact retained policy; any mismatch still refuses startup.
-            settings.decay.reflection_threshold = 5
-            settings.decay.reconsolidation_interval_hours = 20 / 3600
-            bound = TenantBinding.from_settings(
-                owner[0], owner[2], owner[3], settings, engine_revision="tenant-isolation-v1"
-            )
-            check(t + " selected bundle matches retained owner", bound.bundle_digest == owner[4])
             bindings[t] = bound
         record["settings"] = {
             t: {
@@ -773,8 +776,9 @@ async def execute(args):
                         }
                     )
                     mutable = {
-                        "Event": {"access_count", "last_accessed_at"},
+                        "Event": {"access_count", "last_accessed_at", "importance_score"},
                         "Entity": {"last_seen", "mention_count"},
+                        "Summary": {"content", "created_at"},
                     }
 
                     def material(row, mutable=mutable):
@@ -783,18 +787,47 @@ async def execute(args):
                         }
 
                     after_nodes = {(r[0], r[1]): material(r) for r in final["snapshot"]["nodes"]}
-                    after_edges = {tuple(r[:5]): r[5] for r in final["snapshot"]["edges"]}
+
+                    def material_edge(row):
+                        allowed = (
+                            {"created_at"}
+                            if row[0] == "Summary" and row[2] == "SUMMARIZES"
+                            else set()
+                        )
+                        return {k: v for k, v in row[5].items() if k not in allowed}
+
+                    after_edges = {
+                        tuple(r[:5]): material_edge(r) for r in final["snapshot"]["edges"]
+                    }
+                    durable_json(
+                        directory / (t + "-derived-refresh.json"),
+                        {
+                            "approved": "Summary content/created_at and Event importance refresh",
+                            "before_nodes": before["snapshot"]["nodes"],
+                            "after_nodes": final["snapshot"]["nodes"],
+                            "before_edges": before["snapshot"]["edges"],
+                            "after_edges": final["snapshot"]["edges"],
+                        },
+                    )
                     record["checks"].append(
                         {
-                            "name": t + " prior material graph preserved",
+                            "name": t + " prior graph preserved except approved derived refresh",
                             "passed": all(
                                 after_nodes.get((r[0], r[1])) == material(r)
                                 for r in before["snapshot"]["nodes"]
                             )
                             and all(
-                                after_edges.get(tuple(r[:5])) == r[5]
+                                after_edges.get(tuple(r[:5])) == material_edge(r)
                                 for r in before["snapshot"]["edges"]
                             ),
+                        }
+                    )
+                    old_episodes = {r[1] for r in before["snapshot"]["nodes"] if r[0] == "Episode"}
+                    record["checks"].append(
+                        {
+                            "name": t + " exact prior Episode membership retained",
+                            "passed": episode_membership_edges(before["snapshot"], old_episodes)
+                            == episode_membership_edges(final["snapshot"], old_episodes),
                         }
                     )
                     record["checks"].append(

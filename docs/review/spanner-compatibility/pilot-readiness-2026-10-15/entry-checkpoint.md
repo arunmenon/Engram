@@ -40,3 +40,11 @@ Attempt01 failed before API startup or provider calls because proposed timeout/d
 ## Attempt02 — failed checkpoint, stopped
 
 See [the verification walkthrough](verification.md) for actual outcomes, retained data and the next gate. The currently documented repeat command is a historical execution record: its predecessor fingerprints are now stale and must refuse another mutating run. Both attempts are retained. No recovery/retry is authorized by this report.
+
+## Authorized completion work — 16 October 2026
+
+The stakeholder authorized finishing the pilot and preparing the work for team sharing. Execution remains on the two retained assessment targets. Current checkpoints are: (1) validated model-only Luna cutover with exact predecessor grants and stale-worker fencing; (2) repeat the real-provider entry checkpoint, including the pending User delivery and public reads; (3) execute and reconcile the diverse journey families and shared probes, recording unsupported capabilities honestly; (4) deliver repeatable setup, extension instructions, verification/demo evidence, guide corrections and GitHub reconciliation. The entry checkpoint alone does not establish pilot completion. Independent developer reproduction remains a distinct acceptance requirement; an agent's own rerun must not be described as a team member's reproduction.
+
+The user approved Summary content and derived Event importance refresh with before/after evidence. Summary refresh timestamps and their existing SUMMARIZES edge timestamps may change as part of that operation; source documents/acceptance, prior node/edge identities and Episode membership remain protected. Old failed attempts retain their original verdicts.
+
+The bounded transition changes only llm.model_id, pins an explicitly enumerated predecessor epoch grant in the successor digest, and advances the exact owner by one through a supported compare-and-swap operation. It authorizes reading and completing old accepted events under Luna, retaining original acceptance and prepared User outputs. It does not claim durable prepared pack-extraction receipts, general pack upgrades or arbitrary historical reinterpretation. Both transition plans are validated/saved before either owner changes; interruption resumes only the same saved plan with unchanged application fingerprints.
