@@ -81,6 +81,10 @@ def freeze(run_id):
                     "RESET-18",
                 )
             }
+            # A slash prefix leaves a trailing RESET-N token that commit-text
+            # rules still recognize. Keep ticket identities valid Jira keys.
+            ticket_project = "P" + hashlib.sha256(run_id.encode()).hexdigest()[:10].upper()
+            replacements.update({f"RESET-{n}": f"{ticket_project}-{n}" for n in (1, 17, 18)})
             for step in data["steps"]:
                 if (
                     step["scenario"].startswith("A")

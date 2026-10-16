@@ -108,3 +108,20 @@ def test_summary_inverse_rejects_negated_and_conflicting_incompleteness():
     assert not summary_contrast_matches(
         "Investigation completed. Investigation incomplete; rollout completed.", "inverse"
     )
+
+
+def test_namespaced_commit_projects_only_the_declared_ticket_identity():
+    from context_graph.domain.pack_projection import PackProjector
+    from context_graph.ontology import load_registry
+
+    group = next(g for g in freeze("retained-ticket-test")["groups"] if g["name"] == "catalog")
+    step = next(s for s in group["steps"] if s["scenario"] == "B04-commit")
+    request = step["request"]
+    event = Event.model_validate_json(json.dumps(request))
+    plan = PackProjector(load_registry(["pdlc"]), frozenset({event.agent_id})).plan(event, request)
+    expected = {tuple(e) for e in step["expected_edges"]}
+    actual = {
+        (e.edge_type, e.source.key, e.target.key) for e in plan.edges if e.edge_type == "IMPLEMENTS"
+    }
+    assert actual == expected
+    assert all(target != "WorkItem:jira|RESET-17" for _, _, target in actual)
