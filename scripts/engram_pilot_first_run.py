@@ -402,6 +402,7 @@ async def execute(args):
             "engram_pilot_episode_bridge.py",
             "engram_pilot_summary_proof.py",
             "engram_pilot_episode_history.py",
+            "engram_pilot_retrieval_proof.py",
         )
     )
     revision = subprocess.run(
@@ -675,6 +676,7 @@ async def execute(args):
         save()
         tokens = {t: secrets.token_urlsafe(32) for t in bindings}
         admin = {t: secrets.token_urlsafe(32) for t in bindings}
+        untrusted = {t: secrets.token_urlsafe(32) for t in bindings}
         grants = []
         for t, b in bindings.items():
             grants.extend(
@@ -696,6 +698,19 @@ async def execute(args):
                     ),
                 ]
             )
+        if any(g.get("retrieval_proof") for g in selected_groups):
+            for t, b in bindings.items():
+                grants.append(
+                    CredentialGrant.from_token(
+                        Principal(
+                            "pilot-untrusted-" + t,
+                            b.tenant_id,
+                            frozenset({"api"}),
+                            source_id="demo.untrusted",
+                        ),
+                        untrusted[t],
+                    )
+                )
         app = create_tenant_app(TenantCatalog(tuple(bindings.values()), tuple(grants)))
         with socket.socket() as sock:
             sock.bind(("127.0.0.1", 0))
@@ -712,6 +727,11 @@ async def execute(args):
                 raise RuntimeError("API startup failed")
             await asyncio.sleep(0.1)
         check("public dispatcher ready", server.started)
+        if any(g.get("retrieval_proof") for g in selected_groups):
+            from engram_pilot_retrieval_proof import observe_vectors
+
+            for t, b in bindings.items():
+                observe_vectors(app._children[b.tenant_id], t, record, save)
         for _t, b in bindings.items():
             if retained_reads_only or _t not in active_tenants:
                 continue
@@ -737,7 +757,9 @@ async def execute(args):
         ) as http:
 
             async def request(t, path, body=None, *, method="POST", role="api"):
-                token = (admin if role == "admin" else tokens)[t]
+                if role not in {"api", "admin", "untrusted"}:
+                    raise ValueError("Unknown explicit pilot credential role")
+                token = {"admin": admin, "api": tokens, "untrusted": untrusted}[role][t]
                 row = {"tenant": t, "path": path, "method": method, "role": role, "input": body}
                 record["requests"].append(row)
                 save()
