@@ -52,6 +52,19 @@ def episode_membership_edges(state, episode_ids):
     )
 
 
+def sourced_proposals(state, source_ids):
+    """Content-keyed proposals may exist already; evidence belongs to each delivery."""
+    keys = {
+        (edge[0], edge[1])
+        for edge in state["edges"]
+        if edge[2] == "DERIVED_FROM" and edge[3] == "Event" and edge[4] in source_ids
+    }
+    return [
+        row for row in state["nodes"]
+        if row[0] in {"Decision", "Constraint", "Lesson"} and (row[0], row[1]) in keys
+    ]
+
+
 def fixtures(run_id):
     start = datetime.now(UTC) - timedelta(minutes=3)
     rows = []
@@ -604,10 +617,13 @@ async def execute(args):
                     for row in fresh_b
                 ),
             )
-            proposals = [row for row in fresh_b if row[0] in {"Decision", "Constraint", "Lesson"}]
+            proposals = sourced_proposals(states["b"], b_prose)
+            fresh_proposals = [
+                row for row in fresh_b if row[0] in {"Decision", "Constraint", "Lesson"}
+            ]
             check(
                 "model proposals stored with actual source evidence",
-                bool(proposals)
+                all(sourced_proposals(states["b"], {source}) for source in b_prose)
                 and all(
                     any(
                         edge[:3] == [row[0], row[1], "DERIVED_FROM"]
@@ -615,7 +631,7 @@ async def execute(args):
                         and edge[4] in b_prose
                         for edge in states["b"]["edges"]
                     )
-                    for row in proposals
+                    for row in fresh_proposals
                 ),
             )
             owner_reads = {}
