@@ -357,6 +357,7 @@ async def execute(args):
             "engram_composition_assessment.py",
             "engram_pilot_spectrum.py",
             "engram_pilot_completion_fixtures.py",
+            "engram_pilot_episode_bridge.py",
         )
     )
     revision = subprocess.run(

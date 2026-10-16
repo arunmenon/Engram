@@ -713,6 +713,20 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             await asyncio.sleep(0.3)
         raise TimeoutError("Spectrum projection missing: " + step["scenario"])
 
+    if any(g.get("episode_bridge") for g in plan["groups"]):
+        from engram_pilot_episode_bridge import execute as execute_bridges
+
+        await execute_bridges(
+            plan,
+            request=request,
+            check=check,
+            databases=databases,
+            record=record,
+            save=save,
+            settle=settle,
+        )
+        return
+
     for group in plan["groups"]:
         tenant = group["tenant"]
         entry = {"group": group["name"], "tenant": tenant, "steps": [], "queries": []}

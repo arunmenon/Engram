@@ -188,3 +188,9 @@ Astra low: no launch blocker. Proof-backed retained-DLQ admission checks success
 ### P05 final evidence acceptance
 
 Astra low: P05 can be marked complete for its bounded scope. Goal state/evidence stays exactly unchanged after Change creation, merge and passing test; only explicit completion changes it. Correction records SUPERSEDES without CONTRADICTS. P04's negative fields and all A fingerprints remain identical. All 246 checks pass, five B workers have zero lag, all 126 calls returned, shutdown is clean, and both tenants' preservation checks pass. All 176 recorded hashes match fa0b9d4. No blocker. This proves coexistence, not automatic cross-pack semantic inference; overall pilot remains open.
+
+### P06 design and harness acceptance
+
+Astra low grounded the30-minute membership grouping, count×5 reflection qualification and staged-publication barrier: both initial singleton snapshots must be publicly evidenced before either late Event. New merged membership must preserve both earlier Episodes; retrieval returns membership history. Require exact bounds, Summary linkage and admitted positions. Keep unrelated Episode-context exclusion separate from general Event recall. A bounded600-second phase wait is appropriate; no P07 quality-oracle changes.
+
+Prepared review found two gaps: unexpected Episode/Summary context could pass, and public Summary SUMMARIZES edges were checked only as a subset. Both are corrected: immediate exclusion during convergence, exact final context sets and exact outgoing Summary targets. Five adversarial regressions cover the cases;46 targeted tests pass. Astra rechecked those corrections and found no remaining launch blocker. Live staged evidence remains required.
