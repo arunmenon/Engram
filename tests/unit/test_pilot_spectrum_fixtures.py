@@ -169,6 +169,7 @@ def test_catalog_edge_property_oracles_match_real_projection_contracts():
 
 def test_normalized_check_inputs_pass_generic_ingestion_actor_guard():
     from types import SimpleNamespace
+
     from context_graph.api.routes.events import _undeclared
 
     request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(tenant_binding=object())))

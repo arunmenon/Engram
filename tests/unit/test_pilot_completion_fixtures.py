@@ -7,7 +7,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from engram_goal03_implementation_demo import assert_retrieval_policy, fixture_observations
 from engram_pilot_completion_fixtures import p02_history
 
