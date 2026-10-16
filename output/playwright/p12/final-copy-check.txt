@@ -1,0 +1,6 @@
+### Result
+{"final_copy_rendered":true}
+### Ran Playwright code
+```js
+await (async (page) => {await page.reload();await page.setViewportSize({width:1440,height:1000});await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption('19');if(!(await page.locator('#pilot-purpose').innerText()).includes('passed 69 checks'))throw Error('stale source');await page.screenshot({path:'output/playwright/p12/purpose-desktop.png',fullPage:true});return {final_copy_rendered:true};})(page);
+```
