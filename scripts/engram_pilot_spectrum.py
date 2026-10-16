@@ -642,6 +642,9 @@ async def execute(
     consumers,
     baselines=None,
     evidence_directory=None,
+    recovery_hooks=None,
+    restart=None,
+    stale_probe=None,
 ):
     """Run frozen expectations; never derive an expected artifact from output."""
     from engram_pilot_completion_fixtures import declared_dead_letters, memory_subject_snapshot
@@ -723,6 +726,23 @@ async def execute(
                 return state
             await asyncio.sleep(0.3)
         raise TimeoutError("Spectrum projection missing: " + step["scenario"])
+
+    if any(g.get("recovery_proof") for g in plan["groups"]):
+        from engram_pilot_recovery_proof import execute as execute_recovery
+
+        return await execute_recovery(
+            plan,
+            request=request,
+            check=check,
+            record=record,
+            save=save,
+            databases=databases,
+            evidence_directory=evidence_directory,
+            hooks=recovery_hooks,
+            restart=restart,
+            stale_probe=stale_probe,
+            settle=settle,
+        )
 
     if any(g.get("tenant_proof") for g in plan["groups"]):
         from engram_pilot_tenant_proof import execute as execute_tenants

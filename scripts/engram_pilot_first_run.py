@@ -404,6 +404,7 @@ async def execute(args):
             "engram_pilot_episode_history.py",
             "engram_pilot_retrieval_proof.py",
             "engram_pilot_tenant_proof.py",
+            "engram_pilot_recovery_proof.py",
         )
     )
     revision = subprocess.run(
@@ -489,6 +490,11 @@ async def execute(args):
     server = server_task = None
     original_completion = litellm.acompletion
     summary_context: ContextVar[str | None] = ContextVar("pilot_summary_request", default=None)
+    recovery_hooks = None
+    if any(g.get("recovery_proof") for g in selected_groups):
+        from engram_pilot_recovery_proof import RecoveryHooks
+
+        recovery_hooks = RecoveryHooks(plan["spectrum"], record, save)
 
     async def observed_completion(*a, **kw):
         row = {"model": kw.get("model"), "started_at": datetime.now(UTC).isoformat()}
@@ -497,6 +503,18 @@ async def execute(args):
         ).hexdigest()
         if summary_context.get() is not None:
             row["summary_request_id"] = summary_context.get()
+        if recovery_hooks is not None:
+            from engram_pilot_recovery_proof import PROVIDER_REJECTION
+
+            if (marker := PROVIDER_REJECTION.get()) is not None:
+                row.update(
+                    recovery_extraction_session=marker["session_id"],
+                    worker_generation=marker["generation"],
+                    input_messages=kw.get("messages", []),
+                )
+                if marker["inject"]:
+                    row["test_injection"] = "p10-known-invalid-credential"
+                    kw = {**kw, "api_key": "invalid-pilot-test-credential"}
         record["provider_calls"].append(row)
         save()
         try:
@@ -559,6 +577,9 @@ async def execute(args):
                 "pack_extraction_answer_invalid",
                 "consumer_processing_failed",
                 "user_extraction",
+                "message_processing_failed",
+                "event_enriched",
+                "consolidation_cycle_stopped",
             )
         ):
             record["worker_outcomes"].append(dict(event))
@@ -740,12 +761,118 @@ async def execute(args):
                 worker, store = await _build_consumer(kind, b.settings(), tenant_binding=b)
                 if kind == "consolidation":
                     observe_summary_cache(worker, _t, record, save, summary_context)
+                if recovery_hooks is not None:
+                    recovery_hooks.install(_t, kind, worker)
                 consumers.append(worker)
                 stores.append(store)
                 tasks.append(asyncio.create_task(worker.run()))
                 record.setdefault("workers", []).append(
                     {"tenant": _t, "type": kind, "group": "assessment-" + kind}
                 )
+
+        async def stop_current_workers():
+            for worker in consumers:
+                worker.stop()
+            finished = await asyncio.gather(*tasks, return_exceptions=True)
+            check(
+                "recovery worker stop completed without errors",
+                not any(isinstance(r, BaseException) for r in finished),
+            )
+
+        async def restart_workers():
+            await stop_current_workers()
+            snapshots = {t: await asyncio.to_thread(snapshot, db) for t, db in databases.items()}
+            end = plan["spectrum"]["groups"][0]["steps"][-1]["request"]
+            props = next(
+                (
+                    r[2]
+                    for r in snapshots["a"]["nodes"]
+                    if r[0] == "Event" and r[1] == end["event_id"]
+                ),
+                {},
+            )
+            durable_json(directory / "before-restart-pending-proof.json", snapshots)
+            check(
+                "old workers stopped with marked extraction still pending and unapplied",
+                ["assessment-extraction", end["event_id"]] in snapshots["a"]["pending"]
+                and props.get("user_extraction_status") != "applied",
+            )
+            for store in stores:
+                await store.close()
+            consumers.clear()
+            tasks.clear()
+            stores.clear()
+            recovery_hooks.generation += 1
+            generation = []
+            for tenant, binding in bindings.items():
+                for kind in VALID_CONSUMERS:
+                    worker, store = await _build_consumer(
+                        kind, binding.settings(), tenant_binding=binding
+                    )
+                    if kind == "consolidation":
+                        observe_summary_cache(worker, tenant, record, save, summary_context)
+                    recovery_hooks.install(tenant, kind, worker)
+                    consumers.append(worker)
+                    stores.append(store)
+                    tasks.append(asyncio.create_task(worker.run()))
+                    generation.append(
+                        dict(
+                            tenant=tenant,
+                            type=kind,
+                            group="assessment-" + kind,
+                            epoch=binding.epoch,
+                        )
+                    )
+            record.setdefault("recovery_worker_generations", []).append(generation)
+            check(
+                "restarted generation has exact tenant worker set and current epochs",
+                {(r["tenant"], r["type"], r["epoch"]) for r in generation}
+                == {(t, k, b.epoch) for t, b in bindings.items() for k in VALID_CONSUMERS}
+                and len(consumers) == len(generation) == 10
+                and sorted(w._group_name for w in consumers)
+                == sorted(r["group"] for r in generation),
+            )
+            save()
+
+        async def probe_stale_binding():
+            from context_graph.ports.errors import RuntimeFencedError
+
+            await stop_current_workers()
+            before = {
+                t: dict(
+                    owner=await asyncio.to_thread(read_owner, db),
+                    fingerprints=await asyncio.to_thread(fingerprint, db),
+                )
+                for t, db in databases.items()
+            }
+            for tenant, binding in bindings.items():
+                predecessor = binding.predecessor
+                check(tenant + " recorded predecessor available", predecessor is not None)
+                try:
+                    unexpected, opened = await _build_consumer(
+                        "projection", predecessor.settings(), tenant_binding=predecessor
+                    )
+                except RuntimeFencedError:
+                    check(tenant + " stale startup fenced before processing", True)
+                else:
+                    unexpected.stop()
+                    await opened.close()
+                    check(tenant + " stale startup fenced before processing", False)
+            after = {
+                t: dict(
+                    owner=await asyncio.to_thread(read_owner, db),
+                    fingerprints=await asyncio.to_thread(fingerprint, db),
+                )
+                for t, db in databases.items()
+            }
+            durable_json(
+                directory / "stale-startup-owner-table-proof.json", dict(before=before, after=after)
+            )
+            check(
+                "stale startup leaves exact owners and all table fingerprints unchanged",
+                before == after,
+            )
+
         record["state"] = "running"
         save()
         # Each request gets a fresh loopback connection. Long Spanner/model waits
@@ -1117,6 +1244,9 @@ async def execute(args):
                 await execute_spectrum(
                     plan["spectrum"],
                     evidence_directory=directory,
+                    recovery_hooks=recovery_hooks,
+                    restart=restart_workers,
+                    stale_probe=probe_stale_binding,
                     request=request,
                     check=check,
                     databases=databases,
@@ -1180,17 +1310,40 @@ async def execute(args):
     finally:
         try:
             try:
+                if recovery_hooks is not None:
+                    recovery_hooks.release_all()
                 errors = await stop_demo(consumers, tasks, stores, server, server_task)
             except Exception as exc:
                 errors = [type(exc).__name__]
             record["shutdown_errors"] = errors
             record["checks"].append(
                 {
-                    "name": "actual provider calls returned after cooperative shutdown",
+                    "name": (
+                        "actual provider outcomes match declared recovery contract after shutdown"
+                        if recovery_hooks is not None
+                        else "actual provider calls returned after cooperative shutdown"
+                    ),
                     "passed": (
                         bool(record["provider_calls"]) or getattr(args, "journeys_only", False)
                     )
-                    and all(c.get("state") == "returned" for c in record["provider_calls"]),
+                    and all(
+                        (
+                            c.get("state") == "failed"
+                            and c.get("error_type") == "AuthenticationError"
+                        )
+                        if recovery_hooks is not None
+                        and c.get("test_injection") == "p10-known-invalid-credential"
+                        else c.get("state") == "returned"
+                        for c in record["provider_calls"]
+                    )
+                    and (
+                        recovery_hooks is None
+                        or sum(
+                            c.get("test_injection") == "p10-known-invalid-credential"
+                            for c in record["provider_calls"]
+                        )
+                        == 1
+                    ),
                 }
             )
             if errors:

@@ -438,3 +438,21 @@ Issue #84 fixes routine rematerialization: existing source/session/Summary valid
 **Boundaries:** requests were deliberately interleaved while workers ran concurrently; this is not a simultaneous admission-burst or load benchmark. Internal domain/team/repo hierarchy policy remains parked in #49. The dispatcher ran on loopback, not an external cohort deployment. Attempts 01 and 02 remain failed. Separate reads in the Episode fast path do not promise transactional immunity against concurrent repair or deletion.
 
 **Demo evidence and repeat:** `docs/review/spanner-compatibility/runs/pilot-p09-1017-03/` contains public replies, exact receipts, worker outcomes, state snapshots, compressed refusal/replay proofs, source audit and issue reconciliation. Freeze fresh identities with `engram_pilot_tenant_proof.freeze`, run the documented retained-binding preflight, then `engram_pilot_first_run.py --journeys-only --journey-file <frozen JSON>`. Do not reset either database or reinterpret replayed IDs as fresh admissions.
+
+
+### P10 — frozen recovery verification plan (not yet run)
+
+Six fresh inputs are frozen in `docs/pilot/pilot-p10-1017-01-journeys.json`. All admission and acceptance reads remain authenticated HTTP on retained Spanner; instance-only scheduling controls are explicitly recorded as test interventions.
+
+| Probe | Observable pending/failure state | Required recovery |
+|---|---|---|
+| A Event projection held before processing | Accepted ledger record, enrichment pending, no Event node | Release projection; ordinary enrichment eventually writes the expected keywords |
+| B Goal completion delivered before creation | Explicit `reference_missing` diagnostic, pending child, no Goal | Admit parent normally; observe active parent while child remains pending, then allow pending retry and require completed Goal |
+| One marked A session extraction | Actual provider AuthenticationError from a known-invalid test credential; no applied receipt, delivery pending | B's positive read still works; old workers must join with A still pending/unapplied; fresh generation-1 extraction must succeed with the configured credential and exact original source window |
+| Cooperative consolidation stop | One session job held at an explicit test barrier | Stop waits for release; current job completes, no later stopped-worker session begins; restart the same bindings |
+| Stale startup | Recorded predecessor binding, not a new ownership transition | RuntimeFencedError before processing; exact owners and all table fingerprints unchanged |
+| Recovered replays and reads | Exact accepted positions and recovered User receipt | A source Event/B completed Goal publicly present with exact provenance; User export contains the verified receipt and remains unchanged across duplicate replays |
+
+Only the marked actual AuthenticationError is an expected provider failure; every other call must return. The configured model remains `gpt-6-luna`, with no artificial call/spend cap and no global credential change. Context is restored in `finally`. Pending retries are temporarily skipped by returning control so B can process its parent; delivery counts are not edited and the child is not acknowledged early. All barriers release on failure. The consolidation barrier proves cooperative completion of a held session job, not interruption of network I/O. Final conservation, exact P04 negative, zero pending/lag, source audit, Astra evidence review and issue reconciliation remain mandatory.
+
+The bounded harness/source review is accepted; 43 focused tests and 11 existing harness tests passed, with six final control tests passing after integration. These local counts overlap and are not live recovery evidence.
