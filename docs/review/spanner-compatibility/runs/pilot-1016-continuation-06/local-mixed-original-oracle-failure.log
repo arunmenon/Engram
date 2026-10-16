@@ -1,0 +1,39 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_completion_contracts_projection_and_independent_read_expectations[mixed-verification] _
+tests/unit/test_pilot_completion_fixtures.py:111: in test_completion_contracts_projection_and_independent_read_expectations
+    await query(q)
+tests/unit/test_pilot_completion_fixtures.py:54: in query
+    assert set(q["required"]) <= actual, (q["scenario"], set(q["required"]) - actual)
+E   AssertionError: ('CQ1-exact-outcomes', {'TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference'})
+E   assert {'Change:g07/...ference', ...} <= {'Change:g07/...-cancel', ...}
+E     
+E     Extra items in the left set:
+E     'TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference'
+----------------------------- Captured stdout call -----------------------------
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-16 15:03:14 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=1 events=1 nodes=2 states=1
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=3 events=1 nodes=4 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=7 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=7 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=7 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=7 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=0
+2026-10-16 15:03:14 [debug    ] pack_plans_applied             edges=4 events=1 nodes=6 states=0
+=========================== short test summary info ============================
+FAILED tests/unit/test_pilot_completion_fixtures.py::test_completion_contracts_projection_and_independent_read_expectations[mixed-verification]
+1 failed in 2.37s

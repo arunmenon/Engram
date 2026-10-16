@@ -112,6 +112,8 @@ def freeze(run_id):
         for step in data["steps"]:
             if step.get("webhook"):
                 step["expected_status"] = 201
+                step["request"]["agent_id"] = "pilot.normalized-github"
+                step.pop("expected_authority", None)
                 step["source_kind"] = (
                     "Authored normalized GitHub check payload; not webhook-route proof"
                 )
@@ -782,6 +784,23 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 )
             if query_case.get("global_discovery"):
                 check(group["name"] + " global discovery relevance", actual <= eligible)
+                for kind, count in query_case.get("minimum_types", {}).items():
+                    check(
+                        group["name"] + " global discovery minimum " + kind,
+                        sum(nid.startswith(kind + ":") for nid in actual) >= count,
+                    )
+                for kind, source_type, target_type in query_case.get("required_link_shapes", []):
+                    check(
+                        group["name"] + " global discovery linked " + kind,
+                        any(
+                            edge_kind == kind
+                            and source in actual
+                            and target in actual
+                            and source.startswith(source_type + ":")
+                            and target.startswith(target_type + ":")
+                            for edge_kind, source, target in edges
+                        ),
+                    )
                 events = {r[0] for r in prior["events"]}
                 positions = {
                     r[1]: json_value(r[2]).get("global_position")

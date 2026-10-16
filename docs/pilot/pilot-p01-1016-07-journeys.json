@@ -1,0 +1,1874 @@
+{
+  "groups": [
+    {
+      "name": "p01-mixed-verification",
+      "tenant": "b",
+      "steps": [
+        {
+          "scenario": "C01-change",
+          "request": {
+            "event_id": "af1a5861-62f8-5a39-a344-50ae4148a91b",
+            "event_type": "pdlc.change.created",
+            "occurred_at": "2026-10-16T08:37:43+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C01-change",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "number": 56,
+              "title": "Reset verifier"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+          "expected_props": {
+            "status": "open"
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ]
+        },
+        {
+          "scenario": "C01-skipped",
+          "request": {
+            "event_id": "974eba4a-66d5-589b-979e-d8d11813cf0b",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:37:44+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C01-skipped",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "Reset tests",
+              "path": "tests/reset.py",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "run_id": "g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "outcome": "skipped"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+          "expected_props": {
+            "outcome": "skipped",
+            "commit_sha": "reset-sha",
+            "finished_at": "2026-10-16T08:37:44+00:00"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {
+              "path": "tests/reset.py",
+              "name": "Reset tests"
+            }
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C03-no-reference",
+          "request": {
+            "event_id": "b83578d9-ccce-5088-84f2-6766de2cdc2b",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:37:47+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C03-no-reference",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "Reset tests",
+              "path": "tests/reset.py",
+              "run_id": "g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference",
+              "outcome": "skipped"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference",
+          "expected_props": {
+            "outcome": "skipped",
+            "finished_at": "2026-10-16T08:37:47+00:00"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {
+              "path": "tests/reset.py",
+              "name": "Reset tests"
+            }
+          },
+          "forbidden_edge_types": [
+            "VERIFIES",
+            "RAN_AGAINST"
+          ],
+          "expected_edge_properties": []
+        },
+        {
+          "scenario": "C04-success",
+          "request": {
+            "event_id": "8e188be9-4448-5860-a86d-cb7e882c4a7b",
+            "event_type": "pdlc.testcaserun.finished",
+            "occurred_at": "2026-10-16T08:37:48+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C04-success",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "Reset tests",
+              "path": "tests/reset.py",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "run_id": "g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "outcome": "success"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+          "expected_props": {
+            "outcome": "success",
+            "commit_sha": "reset-sha",
+            "finished_at": "2026-10-16T08:37:48+00:00"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {
+              "path": "tests/reset.py",
+              "name": "Reset tests"
+            }
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C04-failure",
+          "request": {
+            "event_id": "e7de528f-8c8e-52ee-8d22-3ed26d03c602",
+            "event_type": "pdlc.testcaserun.finished",
+            "occurred_at": "2026-10-16T08:37:49+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C04-failure",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "Reset tests",
+              "path": "tests/reset.py",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "run_id": "g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "outcome": "failure"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+          "expected_props": {
+            "outcome": "failure",
+            "commit_sha": "reset-sha",
+            "finished_at": "2026-10-16T08:37:49+00:00"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {
+              "path": "tests/reset.py",
+              "name": "Reset tests"
+            }
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C04-cancel",
+          "request": {
+            "event_id": "e740be5d-ec16-5a91-8266-7a65bbf73da4",
+            "event_type": "pdlc.testcaserun.finished",
+            "occurred_at": "2026-10-16T08:37:50+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C04-cancel",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "Reset tests",
+              "path": "tests/reset.py",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "run_id": "g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "outcome": "cancel"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+          "expected_props": {
+            "outcome": "cancel",
+            "commit_sha": "reset-sha",
+            "finished_at": "2026-10-16T08:37:50+00:00"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {
+              "path": "tests/reset.py",
+              "name": "Reset tests"
+            }
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C04-error",
+          "request": {
+            "event_id": "7d67f86d-1bdb-5e91-9592-b3cc060fa609",
+            "event_type": "pdlc.testcaserun.finished",
+            "occurred_at": "2026-10-16T08:37:51+00:00",
+            "session_id": "g07/pilot-p01-1016-07-catalog/skipped",
+            "agent_id": "verification.publisher",
+            "trace_id": "pilot-p01-1016-07-catalog",
+            "payload_ref": "synthetic:g07/pilot-p01-1016-07-catalog/skipped:C04-error",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "Reset tests",
+              "path": "tests/reset.py",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "run_id": "g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "outcome": "error"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+          "expected_props": {
+            "outcome": "error",
+            "commit_sha": "reset-sha",
+            "finished_at": "2026-10-16T08:37:51+00:00"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {
+              "path": "tests/reset.py",
+              "name": "Reset tests"
+            }
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C02-webhook-skipped",
+          "source_kind": "Authored normalized GitHub check payload; not webhook-route proof",
+          "event": "check_run",
+          "body": {
+            "action": "completed",
+            "repository": {
+              "full_name": "g07/pilot-p01-1016-07-catalog/skipped/auth"
+            },
+            "check_run": {
+              "id": 1432468801182914586,
+              "name": "reset-tests",
+              "conclusion": "skipped",
+              "head_sha": "reset-sha",
+              "completed_at": "2026-10-16T08:38:13+00:00",
+              "pull_requests": [
+                {
+                  "number": 56
+                }
+              ]
+            }
+          },
+          "expected_event_type": "pdlc.testcaserun.skipped",
+          "expected_payload": {
+            "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "test_id": "reset-tests",
+            "name": "reset-tests",
+            "path": null,
+            "run_id": "1432468801182914586",
+            "outcome": "skipped",
+            "commit_sha": "reset-sha",
+            "change_number": 56
+          },
+          "expected_node": "TestRun:1432468801182914586",
+          "expected_props": {
+            "outcome": "skipped",
+            "commit_sha": "reset-sha"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:1432468801182914586",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:1432468801182914586",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {}
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "webhook": true,
+          "request": {
+            "event_id": "7870a9c7-fa37-5620-b230-b83400aff2fa",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:38:13+00:00",
+            "session_id": "pdlc:g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "agent_id": "pilot.normalized-github",
+            "trace_id": "bb9c62994e27c7085fa28a63d15777f3aa91b2f61d739dca93ff60b987b2fcaa",
+            "payload_ref": "webhook:github:bb9c62994e27c7085fa28a63d15777f3aa91b2f61d739dca93ff60b987b2fcaa",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "reset-tests",
+              "path": null,
+              "run_id": "1432468801182914586",
+              "outcome": "skipped",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "cdevents_type": "dev.cdevents.testcaserun.skipped"
+            }
+          },
+          "expected_status": 201,
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:1432468801182914586",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C02-webhook-skipped-retry",
+          "source_kind": "Authored normalized GitHub check payload; not webhook-route proof",
+          "event": "check_run",
+          "body": {
+            "action": "completed",
+            "repository": {
+              "full_name": "g07/pilot-p01-1016-07-catalog/skipped/auth"
+            },
+            "check_run": {
+              "id": 1432468801182914586,
+              "name": "reset-tests",
+              "conclusion": "skipped",
+              "head_sha": "reset-sha",
+              "completed_at": "2026-10-16T08:38:13+00:00",
+              "pull_requests": [
+                {
+                  "number": 56
+                }
+              ]
+            }
+          },
+          "expected_event_type": "pdlc.testcaserun.skipped",
+          "expected_payload": {
+            "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "test_id": "reset-tests",
+            "name": "reset-tests",
+            "path": null,
+            "run_id": "1432468801182914586",
+            "outcome": "skipped",
+            "commit_sha": "reset-sha",
+            "change_number": 56
+          },
+          "expected_node": "TestRun:1432468801182914586",
+          "expected_props": {
+            "outcome": "skipped",
+            "commit_sha": "reset-sha"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:1432468801182914586",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:1432468801182914586",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {}
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "webhook": true,
+          "request": {
+            "event_id": "7870a9c7-fa37-5620-b230-b83400aff2fa",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:38:13+00:00",
+            "session_id": "pdlc:g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "agent_id": "pilot.normalized-github",
+            "trace_id": "bb9c62994e27c7085fa28a63d15777f3aa91b2f61d739dca93ff60b987b2fcaa",
+            "payload_ref": "webhook:github:bb9c62994e27c7085fa28a63d15777f3aa91b2f61d739dca93ff60b987b2fcaa",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "reset-tests",
+              "path": null,
+              "run_id": "1432468801182914586",
+              "outcome": "skipped",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "cdevents_type": "dev.cdevents.testcaserun.skipped"
+            }
+          },
+          "expected_status": 201,
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:1432468801182914586",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ],
+          "duplicate": true
+        },
+        {
+          "scenario": "C02-webhook-neutral",
+          "source_kind": "Authored normalized GitHub check payload; not webhook-route proof",
+          "event": "check_run",
+          "body": {
+            "action": "completed",
+            "repository": {
+              "full_name": "g07/pilot-p01-1016-07-catalog/skipped/auth"
+            },
+            "check_run": {
+              "id": 4288404577966314422,
+              "name": "reset-tests",
+              "conclusion": "neutral",
+              "head_sha": "reset-sha",
+              "completed_at": "2026-10-16T08:38:13+00:00",
+              "pull_requests": [
+                {
+                  "number": 56
+                }
+              ]
+            }
+          },
+          "expected_event_type": "pdlc.testcaserun.skipped",
+          "expected_payload": {
+            "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "test_id": "reset-tests",
+            "name": "reset-tests",
+            "path": null,
+            "run_id": "4288404577966314422",
+            "outcome": "skipped",
+            "commit_sha": "reset-sha",
+            "change_number": 56
+          },
+          "expected_node": "TestRun:4288404577966314422",
+          "expected_props": {
+            "outcome": "skipped",
+            "commit_sha": "reset-sha"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:4288404577966314422",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:4288404577966314422",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {}
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "webhook": true,
+          "request": {
+            "event_id": "000172b7-2e9c-523d-a504-6a9bc8fcee2a",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:38:13+00:00",
+            "session_id": "pdlc:g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "agent_id": "pilot.normalized-github",
+            "trace_id": "848dd220249c29f26745621a5e5396e6e75800942155e8ba87ce624ee1a3cfa4",
+            "payload_ref": "webhook:github:848dd220249c29f26745621a5e5396e6e75800942155e8ba87ce624ee1a3cfa4",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "reset-tests",
+              "path": null,
+              "run_id": "4288404577966314422",
+              "outcome": "skipped",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "cdevents_type": "dev.cdevents.testcaserun.skipped"
+            }
+          },
+          "expected_status": 201,
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:4288404577966314422",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "C02-webhook-neutral-retry",
+          "source_kind": "Authored normalized GitHub check payload; not webhook-route proof",
+          "event": "check_run",
+          "body": {
+            "action": "completed",
+            "repository": {
+              "full_name": "g07/pilot-p01-1016-07-catalog/skipped/auth"
+            },
+            "check_run": {
+              "id": 4288404577966314422,
+              "name": "reset-tests",
+              "conclusion": "neutral",
+              "head_sha": "reset-sha",
+              "completed_at": "2026-10-16T08:38:13+00:00",
+              "pull_requests": [
+                {
+                  "number": 56
+                }
+              ]
+            }
+          },
+          "expected_event_type": "pdlc.testcaserun.skipped",
+          "expected_payload": {
+            "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "test_id": "reset-tests",
+            "name": "reset-tests",
+            "path": null,
+            "run_id": "4288404577966314422",
+            "outcome": "skipped",
+            "commit_sha": "reset-sha",
+            "change_number": 56
+          },
+          "expected_node": "TestRun:4288404577966314422",
+          "expected_props": {
+            "outcome": "skipped",
+            "commit_sha": "reset-sha"
+          },
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:4288404577966314422",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:4288404577966314422",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ],
+          "extra_nodes": {
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": {}
+          },
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "webhook": true,
+          "request": {
+            "event_id": "000172b7-2e9c-523d-a504-6a9bc8fcee2a",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:38:13+00:00",
+            "session_id": "pdlc:g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "agent_id": "pilot.normalized-github",
+            "trace_id": "848dd220249c29f26745621a5e5396e6e75800942155e8ba87ce624ee1a3cfa4",
+            "payload_ref": "webhook:github:848dd220249c29f26745621a5e5396e6e75800942155e8ba87ce624ee1a3cfa4",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "reset-tests",
+              "path": null,
+              "run_id": "4288404577966314422",
+              "outcome": "skipped",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "cdevents_type": "dev.cdevents.testcaserun.skipped"
+            }
+          },
+          "expected_status": 201,
+          "expected_edge_properties": [
+            [
+              "RAN_AGAINST",
+              "TestRun:4288404577966314422",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+              {
+                "commit_sha": "reset-sha"
+              }
+            ]
+          ],
+          "duplicate": true
+        },
+        {
+          "scenario": "C02-reserved-actor-refused",
+          "source_kind": "Authored normalized GitHub check payload; not webhook-route proof",
+          "event": "check_run",
+          "body": {
+            "action": "completed",
+            "repository": {
+              "full_name": "g07/pilot-p01-1016-07-catalog/skipped/auth"
+            },
+            "check_run": {
+              "id": 1432468801182914586,
+              "name": "reset-tests",
+              "conclusion": "skipped",
+              "head_sha": "reset-sha",
+              "completed_at": "2026-10-16T08:38:13+00:00",
+              "pull_requests": [
+                {
+                  "number": 56
+                }
+              ]
+            }
+          },
+          "expected_event_type": "pdlc.testcaserun.skipped",
+          "expected_payload": {
+            "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "test_id": "reset-tests",
+            "name": "reset-tests",
+            "path": null,
+            "run_id": "1432468801182914586",
+            "outcome": "skipped",
+            "commit_sha": "reset-sha",
+            "change_number": 56
+          },
+          "expected_node": null,
+          "expected_props": {},
+          "expected_edges": [],
+          "extra_nodes": {},
+          "forbidden_edge_types": [
+            "VERIFIES"
+          ],
+          "webhook": true,
+          "request": {
+            "event_id": "2d8bd689-e310-57ff-aded-028cd03f3218",
+            "event_type": "pdlc.testcaserun.skipped",
+            "occurred_at": "2026-10-16T08:38:13+00:00",
+            "session_id": "pdlc:g07/pilot-p01-1016-07-catalog/skipped/auth",
+            "agent_id": "webhook:github",
+            "trace_id": "bb9c62994e27c7085fa28a63d15777f3aa91b2f61d739dca93ff60b987b2fcaa",
+            "payload_ref": "webhook:github:bb9c62994e27c7085fa28a63d15777f3aa91b2f61d739dca93ff60b987b2fcaa",
+            "payload": {
+              "repo": "g07/pilot-p01-1016-07-catalog/skipped/auth",
+              "test_id": "reset-tests",
+              "name": "reset-tests",
+              "path": null,
+              "run_id": "1432468801182914586",
+              "outcome": "skipped",
+              "commit_sha": "reset-sha",
+              "change_number": 56,
+              "cdevents_type": "dev.cdevents.testcaserun.skipped"
+            }
+          },
+          "expected_status": 422,
+          "expected_edge_properties": []
+        }
+      ],
+      "queries": [
+        {
+          "scenario": "CQ1-change-linked-outcomes",
+          "seed": "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+          "seeds": [
+            "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+          ],
+          "intent": "trace",
+          "text": "trace the reset verification outcomes",
+          "required": [
+            "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+            "TestRun:1432468801182914586",
+            "TestRun:4288404577966314422"
+          ],
+          "forbidden": [
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference"
+          ],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:1432468801182914586",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:1432468801182914586",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:4288404577966314422",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:4288404577966314422",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ]
+        },
+        {
+          "scenario": "CQ1-testcase-all-outcomes",
+          "seed": "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests",
+          "seeds": [
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+          ],
+          "intent": "trace",
+          "text": "trace the reset verification outcomes",
+          "required": [
+            "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56",
+            "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+            "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+            "TestRun:1432468801182914586",
+            "TestRun:4288404577966314422"
+          ],
+          "forbidden": [],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:1432468801182914586",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:1432468801182914586",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:4288404577966314422",
+              "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:4288404577966314422",
+              "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56"
+            ]
+          ]
+        }
+      ],
+      "source_expectations": {
+        "Change:g07/pilot-p01-1016-07-catalog/skipped/auth|56": [
+          "af1a5861-62f8-5a39-a344-50ae4148a91b"
+        ],
+        "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C01-skipped": [
+          "974eba4a-66d5-589b-979e-d8d11813cf0b"
+        ],
+        "TestCase:g07/pilot-p01-1016-07-catalog/skipped/auth|reset-tests": [
+          "974eba4a-66d5-589b-979e-d8d11813cf0b",
+          "b83578d9-ccce-5088-84f2-6766de2cdc2b",
+          "8e188be9-4448-5860-a86d-cb7e882c4a7b",
+          "e7de528f-8c8e-52ee-8d22-3ed26d03c602",
+          "e740be5d-ec16-5a91-8266-7a65bbf73da4",
+          "7d67f86d-1bdb-5e91-9592-b3cc060fa609",
+          "7870a9c7-fa37-5620-b230-b83400aff2fa",
+          "7870a9c7-fa37-5620-b230-b83400aff2fa",
+          "000172b7-2e9c-523d-a504-6a9bc8fcee2a",
+          "000172b7-2e9c-523d-a504-6a9bc8fcee2a"
+        ],
+        "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C03-no-reference": [
+          "b83578d9-ccce-5088-84f2-6766de2cdc2b"
+        ],
+        "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-success": [
+          "8e188be9-4448-5860-a86d-cb7e882c4a7b"
+        ],
+        "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-failure": [
+          "e7de528f-8c8e-52ee-8d22-3ed26d03c602"
+        ],
+        "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-cancel": [
+          "e740be5d-ec16-5a91-8266-7a65bbf73da4"
+        ],
+        "TestRun:g07/pilot-p01-1016-07-catalog/skipped/C04-error": [
+          "7d67f86d-1bdb-5e91-9592-b3cc060fa609"
+        ],
+        "TestRun:1432468801182914586": [
+          "7870a9c7-fa37-5620-b230-b83400aff2fa",
+          "7870a9c7-fa37-5620-b230-b83400aff2fa"
+        ],
+        "TestRun:4288404577966314422": [
+          "000172b7-2e9c-523d-a504-6a9bc8fcee2a",
+          "000172b7-2e9c-523d-a504-6a9bc8fcee2a"
+        ]
+      },
+      "source_kind": "Fresh mixed finished/skipped and normalized-check inputs; native webhook route excluded"
+    },
+    {
+      "name": "p01-retained-catalog-queries",
+      "tenant": "b",
+      "steps": [],
+      "queries": [
+        {
+          "scenario": "AQ01-request-forward",
+          "seed": "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+          "seeds": [
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST"
+          ],
+          "intent": "trace",
+          "text": "Which specification addresses this request?",
+          "max_depth": 1,
+          "required": [
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+          ],
+          "forbidden": [
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/MINIMAL",
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry"
+          ],
+          "exact": true,
+          "expected_edges": [
+            [
+              "REFINES",
+              "Spec:pilot-1016-continuation-06/RESET-PRD|1",
+              "Request:product|pilot-1016-continuation-06/RESET-REQUEST"
+            ]
+          ]
+        },
+        {
+          "scenario": "AQ02-spec-reverse",
+          "seed": "Spec:pilot-1016-continuation-06/RESET-PRD|1",
+          "seeds": [
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+          ],
+          "intent": "trace",
+          "text": "Which request does this specification address?",
+          "max_depth": 1,
+          "required": [
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry"
+          ],
+          "forbidden": [
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/MINIMAL",
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST"
+          ],
+          "exact": true,
+          "expected_edges": [
+            [
+              "REFINES",
+              "Spec:pilot-1016-continuation-06/RESET-PRD|1",
+              "Request:product|pilot-1016-continuation-06/RESET-REQUEST"
+            ],
+            [
+              "REFINES",
+              "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry",
+              "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+            ]
+          ]
+        },
+        {
+          "scenario": "AQ03-decision-history",
+          "seed": "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+          "seeds": [
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1"
+          ],
+          "intent": "status",
+          "text": "What decision applies to this design, and which decision did it replace?",
+          "max_depth": 2,
+          "required": [
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf"
+          ],
+          "forbidden": [
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/MINIMAL",
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry",
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+          ],
+          "exact": true,
+          "expected_edges": [
+            [
+              "APPLIES_TO",
+              "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+              "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1"
+            ],
+            [
+              "APPLIES_TO",
+              "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+              "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1"
+            ],
+            [
+              "SUPERSEDES",
+              "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+              "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36"
+            ]
+          ],
+          "expected_retrieval_reasons": {
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36": "superseded"
+          }
+        },
+        {
+          "scenario": "AQ04-source-separation",
+          "seed": "Request:support|pilot-1016-continuation-06/RESET-REQUEST",
+          "seeds": [
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST"
+          ],
+          "intent": "trace",
+          "text": "trace Request:support|pilot-1016-continuation-06/RESET-REQUEST",
+          "max_depth": 1,
+          "required": [
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST"
+          ],
+          "forbidden": [
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/MINIMAL",
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry",
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+          ],
+          "exact": true,
+          "expected_edges": []
+        },
+        {
+          "scenario": "AQ05-titleless-exact-id",
+          "seed": "Request:product|pilot-1016-continuation-06/MINIMAL",
+          "seeds": [
+            "Request:product|pilot-1016-continuation-06/MINIMAL"
+          ],
+          "intent": "trace",
+          "text": "trace Request:product|pilot-1016-continuation-06/MINIMAL",
+          "max_depth": 1,
+          "required": [
+            "Request:product|pilot-1016-continuation-06/MINIMAL"
+          ],
+          "forbidden": [
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry",
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+          ],
+          "exact": true,
+          "expected_edges": []
+        },
+        {
+          "scenario": "AQ06-retained-global-request-discovery",
+          "seed": null,
+          "seeds": [],
+          "intent": "trace",
+          "text": "Prevent expired token use",
+          "max_depth": 1,
+          "required": [],
+          "forbidden": [
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/MINIMAL",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry"
+          ],
+          "exact": false,
+          "expected_edges": [],
+          "global_discovery": {
+            "matching_terms": [
+              "prevent",
+              "expired",
+              "token",
+              "use"
+            ],
+            "allowed_edges": [
+              "REFINES"
+            ]
+          },
+          "minimum_types": {
+            "Request": 1,
+            "Spec": 1
+          },
+          "required_link_shapes": [
+            [
+              "REFINES",
+              "Spec",
+              "Request"
+            ]
+          ]
+        },
+        {
+          "scenario": "AQ07-similar-no-implicit-links",
+          "seed": "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+          "seeds": [
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9"
+          ],
+          "intent": "status",
+          "text": "status Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9",
+          "max_depth": 1,
+          "required": [
+            "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9"
+          ],
+          "forbidden": [
+            "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36",
+            "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf",
+            "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1",
+            "DesignElement:pilot-1016-continuation-06/UNKNOWN-HLD|tokens|1",
+            "Request:product|pilot-1016-continuation-06/MINIMAL",
+            "Request:product|pilot-1016-continuation-06/RESET-REQUEST",
+            "Request:support|pilot-1016-continuation-06/RESET-REQUEST",
+            "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry",
+            "Spec:pilot-1016-continuation-06/RESET-PRD|1"
+          ],
+          "exact": true,
+          "expected_edges": []
+        },
+        {
+          "scenario": "BQ1-ticket-trace",
+          "seed": "WorkItem:jira|P5C6868881B-1",
+          "seeds": [
+            "WorkItem:jira|P5C6868881B-1"
+          ],
+          "intent": "trace",
+          "text": "trace reset ticket implementation",
+          "required": [
+            "WorkItem:jira|P5C6868881B-1",
+            "WorkItem:jira|P5C6868881B-17",
+            "Requirement:g07/pilot-1016-continuation-06-catalog/requirements|1|expiry",
+            "DesignElement:g07/pilot-1016-continuation-06-catalog/design|tokens|1",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|17"
+          ],
+          "forbidden": [
+            "WorkItem:jira|P5C6868881B-18",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|18",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|19",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Bo <b@x>"
+          ],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": [
+            [
+              "DECOMPOSES_INTO",
+              "WorkItem:jira|P5C6868881B-1",
+              "WorkItem:jira|P5C6868881B-17"
+            ],
+            [
+              "IMPLEMENTS",
+              "WorkItem:jira|P5C6868881B-17",
+              "Requirement:g07/pilot-1016-continuation-06-catalog/requirements|1|expiry"
+            ],
+            [
+              "IMPLEMENTS",
+              "WorkItem:jira|P5C6868881B-17",
+              "DesignElement:g07/pilot-1016-continuation-06-catalog/design|tokens|1"
+            ],
+            [
+              "IMPLEMENTS",
+              "Change:g07/pilot-1016-continuation-06-catalog/auth|17",
+              "WorkItem:jira|P5C6868881B-17"
+            ]
+          ]
+        },
+        {
+          "scenario": "BQ2-cancelled",
+          "seed": "WorkItem:jira|P5C6868881B-18",
+          "seeds": [
+            "WorkItem:jira|P5C6868881B-18"
+          ],
+          "intent": "trace",
+          "text": "trace cancelled alternative",
+          "required": [
+            "WorkItem:jira|P5C6868881B-18"
+          ],
+          "forbidden": [
+            "WorkItem:jira|P5C6868881B-1",
+            "WorkItem:jira|P5C6868881B-17",
+            "Requirement:g07/pilot-1016-continuation-06-catalog/requirements|1|expiry",
+            "DesignElement:g07/pilot-1016-continuation-06-catalog/design|tokens|1",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|17",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|18",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|19",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Bo <b@x>"
+          ],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": []
+        },
+        {
+          "scenario": "BQ3-merged-guard",
+          "seed": "Change:g07/pilot-1016-continuation-06-catalog/auth|18",
+          "seeds": [
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|18"
+          ],
+          "intent": "trace",
+          "text": "trace merged control",
+          "required": [
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|18"
+          ],
+          "forbidden": [
+            "WorkItem:jira|P5C6868881B-1",
+            "WorkItem:jira|P5C6868881B-17",
+            "Requirement:g07/pilot-1016-continuation-06-catalog/requirements|1|expiry",
+            "DesignElement:g07/pilot-1016-continuation-06-catalog/design|tokens|1",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|17",
+            "WorkItem:jira|P5C6868881B-18",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|19",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Bo <b@x>"
+          ],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": []
+        },
+        {
+          "scenario": "BQ4-reviewer-text-is-disconnected",
+          "seed": "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>",
+          "seeds": [
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>"
+          ],
+          "intent": "trace",
+          "text": "trace reviewer text",
+          "required": [
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>"
+          ],
+          "forbidden": [
+            "WorkItem:jira|P5C6868881B-1",
+            "WorkItem:jira|P5C6868881B-17",
+            "Requirement:g07/pilot-1016-continuation-06-catalog/requirements|1|expiry",
+            "DesignElement:g07/pilot-1016-continuation-06-catalog/design|tokens|1",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|17",
+            "WorkItem:jira|P5C6868881B-18",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|18",
+            "Change:g07/pilot-1016-continuation-06-catalog/auth|19",
+            "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Bo <b@x>"
+          ],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": []
+        },
+        {
+          "scenario": "CQ1-partial-retained-change-linked-outcomes",
+          "seed": "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56",
+          "seeds": [
+            "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+          ],
+          "intent": "trace",
+          "text": "trace the reset verification outcomes",
+          "required": [
+            "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56",
+            "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error"
+          ],
+          "forbidden": [
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C03-no-reference"
+          ],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ]
+          ]
+        },
+        {
+          "scenario": "CQ1-partial-retained-testcase-all-outcomes",
+          "seed": "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests",
+          "seeds": [
+            "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+          ],
+          "intent": "trace",
+          "text": "trace the reset verification outcomes",
+          "required": [
+            "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56",
+            "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C03-no-reference",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel",
+            "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error"
+          ],
+          "forbidden": [],
+          "exact": true,
+          "max_depth": 3,
+          "expected_edges": [
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C03-no-reference",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ],
+            [
+              "EXECUTES",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error",
+              "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests"
+            ],
+            [
+              "RAN_AGAINST",
+              "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error",
+              "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56"
+            ]
+          ]
+        }
+      ],
+      "source_expectations": {
+        "Request:product|pilot-1016-continuation-06/RESET-REQUEST": [
+          "2a0aaa31-0344-553e-8ce7-ed27c4066e12",
+          "2a0aaa31-0344-553e-8ce7-ed27c4066e12"
+        ],
+        "Request:support|pilot-1016-continuation-06/RESET-REQUEST": [
+          "70e70e7c-216d-5a50-ac12-20d4ef1d0cfd"
+        ],
+        "Spec:pilot-1016-continuation-06/RESET-PRD|1": [
+          "5234cce9-4e1e-5897-bd5b-fbba1ea44c0a"
+        ],
+        "Requirement:pilot-1016-continuation-06/RESET-PRD|1|expiry": [
+          "89019067-c753-5621-b361-ecf6419544b8"
+        ],
+        "DesignElement:pilot-1016-continuation-06/RESET-HLD|tokens|1": [
+          "3ea079ed-e73b-51ca-b357-1701a7ea809f"
+        ],
+        "Decision:761e986053f920f24d94c65e9ac072077b9cbaf3909d050786628a66bd684b36": [
+          "7f3c8153-a39d-54ea-8b17-8fe44e3eb875"
+        ],
+        "Decision:b46931625c34b826dfe274bc5f2960740b4bf1aad7a1f10fbbc2db9fa7c6b2cf": [
+          "fd8e3db2-dfe1-59be-b468-15fcea777715"
+        ],
+        "Decision:6e9699c341c60e25077f4b71efba7d4329db77376bb76e3e1a8a90f44d0760a9": [
+          "6af4f5b0-ba9a-5706-89a3-2a32ac96c901"
+        ],
+        "Request:product|pilot-1016-continuation-06/MINIMAL": [
+          "6834b083-1a69-5079-8b29-e63179194a7e"
+        ],
+        "WorkItem:jira|P5C6868881B-1": [
+          "f46889cb-add2-5560-a03c-02fdc84ea845"
+        ],
+        "WorkItem:jira|P5C6868881B-17": [
+          "72beeb73-1d1d-5bb9-bb2e-8d850c072cd9",
+          "72f32d52-ff00-5f0c-a1c0-11a3b7c929d5",
+          "72f32d52-ff00-5f0c-a1c0-11a3b7c929d5",
+          "b3cc3e7b-ff80-5fab-9cd2-2083352f398a"
+        ],
+        "WorkItem:jira|P5C6868881B-18": [
+          "7fbccbc7-fd98-56af-9723-b41b0d8d01da"
+        ],
+        "Change:g07/pilot-1016-continuation-06-catalog/auth|17": [
+          "53720576-1ce0-5953-b3cc-a104b16c9d0e",
+          "0aac765b-6e9b-55b9-985e-f46ba768a519",
+          "f65c1c84-a7c4-5750-851d-deb4842f4dbc",
+          "95055300-5aaf-5aa5-88a8-770ca54ca119"
+        ],
+        "Change:g07/pilot-1016-continuation-06-catalog/auth|18": [
+          "77ab74c4-8797-53af-a0f7-de1354ba5488",
+          "35d47aeb-daea-55f5-b533-a34d18bb5e37"
+        ],
+        "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Bo <b@x>": [
+          "45942e40-6812-5abc-830e-195af0e853e8"
+        ],
+        "Change:g07/pilot-1016-continuation-06-catalog/auth|19": [
+          "45942e40-6812-5abc-830e-195af0e853e8"
+        ],
+        "Review:g07/pilot-1016-continuation-06-catalog/auth|19|Ann <a@x>": [
+          "45942e40-6812-5abc-830e-195af0e853e8"
+        ],
+        "Change:g07/pilot-1016-continuation-06-catalog/skipped/auth|56": [
+          "91934725-e690-5efa-96bb-3399781469a0"
+        ],
+        "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C01-skipped": [
+          "24d5ebd4-c0b7-563a-baf8-b4ad1ddb44e6",
+          "24d5ebd4-c0b7-563a-baf8-b4ad1ddb44e6"
+        ],
+        "TestCase:g07/pilot-1016-continuation-06-catalog/skipped/auth|reset-tests": [
+          "24d5ebd4-c0b7-563a-baf8-b4ad1ddb44e6",
+          "24d5ebd4-c0b7-563a-baf8-b4ad1ddb44e6",
+          "1706fc8c-f4ac-5743-80d4-a6f9ad79de37",
+          "1038ef67-a909-55e8-a0be-3f745af156ab",
+          "a8a545aa-5c07-5273-ab45-3c432b060f19",
+          "6c65ae85-f421-5c0b-b550-a398d2b5c9fe",
+          "b260dea1-110a-5602-8b59-ac777ffd80c9",
+          "43111d20-1986-51ea-846f-e2476e49044d",
+          "43111d20-1986-51ea-846f-e2476e49044d",
+          "0d2a089d-eaec-5ca8-9012-ea614647524d",
+          "0d2a089d-eaec-5ca8-9012-ea614647524d"
+        ],
+        "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C03-no-reference": [
+          "1706fc8c-f4ac-5743-80d4-a6f9ad79de37"
+        ],
+        "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-success": [
+          "1038ef67-a909-55e8-a0be-3f745af156ab"
+        ],
+        "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-failure": [
+          "a8a545aa-5c07-5273-ab45-3c432b060f19"
+        ],
+        "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-cancel": [
+          "6c65ae85-f421-5c0b-b550-a398d2b5c9fe"
+        ],
+        "TestRun:g07/pilot-1016-continuation-06-catalog/skipped/C04-error": [
+          "b260dea1-110a-5602-8b59-ac777ffd80c9"
+        ],
+        "Component:g07-d/pilot-1016-continuation-06-catalog/api": [
+          "46156bee-bdfa-5258-80f1-78b7bfc71ec8",
+          "bff0542b-c987-54cd-8a45-1c396e2c7bf8",
+          "c4d91348-6ece-56f8-95ce-cc4051dcf994",
+          "d9946f3e-cf35-5457-a83d-654b25caefa1",
+          "34c4633b-c73e-51fd-8b80-094fd7142d01",
+          "453a23ea-111e-5e33-b670-86e449daff1c",
+          "9418a5e4-da6b-508a-83eb-7449c4ef9f1b",
+          "a21d3c80-51b9-5a7b-9047-96eea5a4fc08"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/api|production|same-sha|2026-10-16T08:08:27+00:00": [
+          "46156bee-bdfa-5258-80f1-78b7bfc71ec8"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/api|production|same-sha|2026-10-16T08:08:28+00:00": [
+          "bff0542b-c987-54cd-8a45-1c396e2c7bf8",
+          "c4d91348-6ece-56f8-95ce-cc4051dcf994"
+        ],
+        "DeploymentRollback:1ebefa39-e9e9-5b58-ac8e-b88552a3fe29": [
+          "1ebefa39-e9e9-5b58-ac8e-b88552a3fe29"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/other|g07-d/pilot-1016-continuation-06-catalog/api|production|same-sha|2026-10-16T08:08:28+00:00": [
+          "d9946f3e-cf35-5457-a83d-654b25caefa1"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/worker|production|same-sha|2026-10-16T08:08:28+00:00": [
+          "21907b13-9bd7-53ed-957f-ca0dc5add428"
+        ],
+        "Component:g07-d/pilot-1016-continuation-06-catalog/worker": [
+          "21907b13-9bd7-53ed-957f-ca0dc5add428"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/api|staging|same-sha|2026-10-16T08:08:28+00:00": [
+          "34c4633b-c73e-51fd-8b80-094fd7142d01"
+        ],
+        "DeploymentRollback:ffed02e4-d9f8-56ba-902b-fddb8218f641": [
+          "ffed02e4-d9f8-56ba-902b-fddb8218f641"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/api|production|unknown-sha|2026-10-16T08:08:29+00:00": [
+          "453a23ea-111e-5e33-b670-86e449daff1c"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/api|production|upgrade-sha|2026-10-16T08:08:47+00:00": [
+          "9418a5e4-da6b-508a-83eb-7449c4ef9f1b"
+        ],
+        "Deployment:g07-d/pilot-1016-continuation-06-catalog/app|g07-d/pilot-1016-continuation-06-catalog/api|production|bare-sha|2026-10-16T08:08:48+00:00": [
+          "a21d3c80-51b9-5a7b-9047-96eea5a4fc08"
+        ],
+        "Change:g07-e/pilot-1016-continuation-06-catalog/01/repo|7": [
+          "5bacdd1f-d250-55df-b30c-a27a0799e003",
+          "5bacdd1f-d250-55df-b30c-a27a0799e003"
+        ],
+        "Change:g07-e/pilot-1016-continuation-06-catalog/02/repo|7": [
+          "c5c84c1c-2a4c-5535-b747-d631cf0f9261",
+          "c5c84c1c-2a4c-5535-b747-d631cf0f9261"
+        ],
+        "Change:g07-e/pilot-1016-continuation-06-catalog/03/repo|7": [
+          "1239dbfa-003f-5b89-920a-35c3f1e22ec0",
+          "1239dbfa-003f-5b89-920a-35c3f1e22ec0"
+        ],
+        "Change:g07-e/pilot-1016-continuation-06-catalog/04/repo|7": [
+          "a9de5129-70e3-5fc2-939c-1e5d179945ff",
+          "a9de5129-70e3-5fc2-939c-1e5d179945ff"
+        ],
+        "Review:g07-e/pilot-1016-continuation-06-catalog/05/repo|7|r1": [
+          "681f8f73-13b1-5903-9045-5c7e9a400d79",
+          "681f8f73-13b1-5903-9045-5c7e9a400d79"
+        ],
+        "Change:g07-e/pilot-1016-continuation-06-catalog/06/repo|7": [
+          "d4d754b9-0c36-58b1-9daf-d1f2dde6cccf",
+          "d4d754b9-0c36-58b1-9daf-d1f2dde6cccf"
+        ],
+        "Release:g07-e/pilot-1016-continuation-06-catalog/07/repo|v1": [
+          "475de617-8e1d-5e3b-adde-1efabac65f63",
+          "475de617-8e1d-5e3b-adde-1efabac65f63"
+        ],
+        "TestCase:g07-e/pilot-1016-continuation-06-catalog/08/repo|unit": [
+          "123dee76-3151-5324-a3ed-56e8db03d2af",
+          "123dee76-3151-5324-a3ed-56e8db03d2af"
+        ],
+        "TestRun:g07-e/pilot-1016-continuation-06-catalog/08-run": [
+          "123dee76-3151-5324-a3ed-56e8db03d2af",
+          "123dee76-3151-5324-a3ed-56e8db03d2af"
+        ],
+        "TestCase:g07-e/pilot-1016-continuation-06-catalog/09/repo|unit": [
+          "23e02701-b046-52d4-8634-ca31ebf0d20b",
+          "23e02701-b046-52d4-8634-ca31ebf0d20b"
+        ],
+        "TestRun:g07-e/pilot-1016-continuation-06-catalog/09-run": [
+          "23e02701-b046-52d4-8634-ca31ebf0d20b",
+          "23e02701-b046-52d4-8634-ca31ebf0d20b"
+        ],
+        "Component:g07-e/pilot-1016-continuation-06-catalog/10-service": [
+          "47d67b2c-73a5-5ad5-b1be-4b67b2024d8a",
+          "47d67b2c-73a5-5ad5-b1be-4b67b2024d8a"
+        ],
+        "Deployment:g07-e/pilot-1016-continuation-06-catalog/10/repo|g07-e/pilot-1016-continuation-06-catalog/10-service|prod|def|2026-10-16T08:13:27+00:00": [
+          "47d67b2c-73a5-5ad5-b1be-4b67b2024d8a",
+          "47d67b2c-73a5-5ad5-b1be-4b67b2024d8a"
+        ],
+        "DeploymentRollback:d3b05b72-7ee0-57a7-8cb3-daff6871cf04": [
+          "d3b05b72-7ee0-57a7-8cb3-daff6871cf04",
+          "d3b05b72-7ee0-57a7-8cb3-daff6871cf04"
+        ],
+        "Component:g07-e/pilot-1016-continuation-06-catalog/12-service": [
+          "b6a27f46-c3d1-558a-86a0-64cac3d2df2d",
+          "b6a27f46-c3d1-558a-86a0-64cac3d2df2d"
+        ],
+        "Deployment:g07-e/pilot-1016-continuation-06-catalog/12/repo|g07-e/pilot-1016-continuation-06-catalog/12-service|prod|def|2026-10-16T08:13:27+00:00": [
+          "b6a27f46-c3d1-558a-86a0-64cac3d2df2d",
+          "b6a27f46-c3d1-558a-86a0-64cac3d2df2d"
+        ],
+        "Component:g07-e/pilot-1016-continuation-06-catalog/13-service": [
+          "abe1477d-ad84-58d6-adec-dbec6cc91282",
+          "abe1477d-ad84-58d6-adec-dbec6cc91282"
+        ],
+        "Incident:g07-e/pilot-1016-continuation-06-catalog/13/repo|g07-e/pilot-1016-continuation-06-catalog/13-service|inc-1": [
+          "abe1477d-ad84-58d6-adec-dbec6cc91282",
+          "abe1477d-ad84-58d6-adec-dbec6cc91282"
+        ],
+        "Incident:g07-e/pilot-1016-continuation-06-catalog/14/repo|g07-e/pilot-1016-continuation-06-catalog/14-service|inc-1": [
+          "3a360838-259c-5187-a220-d4725380e7e8",
+          "3a360838-259c-5187-a220-d4725380e7e8"
+        ],
+        "Incident:g07-e/pilot-1016-continuation-06-catalog/15/repo|g07-e/pilot-1016-continuation-06-catalog/15-service|inc-1": [
+          "477a3e1c-1303-5e3c-8d93-0db431de659f",
+          "477a3e1c-1303-5e3c-8d93-0db431de659f"
+        ],
+        "Component:g07-e/pilot-1016-continuation-06-catalog/15-service": [
+          "477a3e1c-1303-5e3c-8d93-0db431de659f",
+          "477a3e1c-1303-5e3c-8d93-0db431de659f"
+        ],
+        "WorkItem:jira|G07-571551951042": [
+          "5c9c637f-f5c4-518e-b347-8f61e289f1c7",
+          "5c9c637f-f5c4-518e-b347-8f61e289f1c7"
+        ],
+        "WorkItem:jira|G07-345414410848": [
+          "4cb6ec0b-821a-52bd-933d-5c46466cb208",
+          "4cb6ec0b-821a-52bd-933d-5c46466cb208"
+        ],
+        "WorkItem:jira|G07-12724836677": [
+          "b058a378-7d8b-54d0-b36d-09e93f9153e5",
+          "b058a378-7d8b-54d0-b36d-09e93f9153e5"
+        ],
+        "Request:jira|g07-e/pilot-1016-continuation-06-catalog/19-request": [
+          "e2e64236-1ef0-571b-b5bc-216d397f0d82",
+          "e2e64236-1ef0-571b-b5bc-216d397f0d82"
+        ],
+        "Spec:g07-e/pilot-1016-continuation-06-catalog/20-service|1": [
+          "eedfaad7-a45d-5c82-b221-c6e7a624d67d",
+          "eedfaad7-a45d-5c82-b221-c6e7a624d67d"
+        ],
+        "Requirement:g07-e/pilot-1016-continuation-06-catalog/21-service|1|R1": [
+          "3e8dcd17-4a3e-54d5-8973-5d16c529c2b3",
+          "3e8dcd17-4a3e-54d5-8973-5d16c529c2b3"
+        ],
+        "DesignElement:g07-e/pilot-1016-continuation-06-catalog/22-hld|Retries|1": [
+          "defbbe28-88e4-5c42-9a9d-efe50b3cbdda",
+          "defbbe28-88e4-5c42-9a9d-efe50b3cbdda"
+        ],
+        "Decision:f2fc89fac14e6279c5adb6950112ff2100bb05cdd56d70ad48ad2f1ede481905": [
+          "42681f76-273f-51f2-9aef-b7477831d0a7",
+          "42681f76-273f-51f2-9aef-b7477831d0a7"
+        ],
+        "Spec:g07-e/pilot-1016-continuation-06-catalog/24-service|1": [
+          "fca8b7ab-4696-57f8-908c-7119b268a15c",
+          "fca8b7ab-4696-57f8-908c-7119b268a15c"
+        ],
+        "DesignApproval:g07-e/pilot-1016-continuation-06-catalog/25-approval": [
+          "9bd8ddb5-75e7-5958-b731-e915c12a1b1e",
+          "9bd8ddb5-75e7-5958-b731-e915c12a1b1e"
+        ],
+        "Deployment:g07-e/pilot-1016-continuation-06-catalog/26/repo|g07-e/pilot-1016-continuation-06-catalog/26-service|prod|def|2026-10-16T08:13:27+00:00": [
+          "bfaf27aa-d04a-59e3-bc5e-ce2b239b1f02",
+          "bfaf27aa-d04a-59e3-bc5e-ce2b239b1f02"
+        ],
+        "Component:g07-e/pilot-1016-continuation-06-catalog/26-service": [
+          "bfaf27aa-d04a-59e3-bc5e-ce2b239b1f02",
+          "bfaf27aa-d04a-59e3-bc5e-ce2b239b1f02"
+        ],
+        "Lesson:8a34d1a80207e1af8d4d174ff47e94f69500a52a97df8f6ae997868a7d9473b1:authored": [
+          "075bdce3-cbcc-5ed9-bf91-cb305b74712f",
+          "075bdce3-cbcc-5ed9-bf91-cb305b74712f"
+        ],
+        "TestRun:7483575514071493211": [
+          "43111d20-1986-51ea-846f-e2476e49044d",
+          "43111d20-1986-51ea-846f-e2476e49044d"
+        ],
+        "TestRun:4371044999596291776": [
+          "0d2a089d-eaec-5ca8-9012-ea614647524d",
+          "0d2a089d-eaec-5ca8-9012-ea614647524d"
+        ]
+      },
+      "source_kind": "Read-only retained catalog; CQ1 excludes two never-admitted normalized TestRuns"
+    }
+  ],
+  "coverage": "P01 split proof: fresh mixed verification and remaining retained-catalog reads; original157matched steps/intermediate checks remain separate failed-run evidence",
+  "limits": [
+    "Continuation06 remains failed",
+    "Original161-input run did not pass unchanged",
+    "Reserved webhook actor refusal preserved",
+    "No P02 or later goal starts in this run",
+    "AQ06 is separately labeled global retained discovery; it does not prove newest-namespace exact3 discovery. Question unchanged and seedless; source-backed relevance and directed Request/Spec chain required.",
+    "CQ1 is split by query scope: Change-linked outcomes exclude the no-reference run; TestCase-seeded execution history includes it. Original exact all-runs-from-Change oracle failed local preflight and is not claimed passed."
+  ],
+  "continuation_of": {
+    "run": "pilot-1016-continuation-06",
+    "matched_steps": 157,
+    "unadmitted_original_normalized_runs": [
+      "TestRun:4371044999596291776",
+      "TestRun:7483575514071493211"
+    ],
+    "retained_intermediate_query_scenarios": [
+      "DQ02-retained-exact-target",
+      "DQ04-null-observation",
+      "DQ04-real-observation"
+    ]
+  }
+}

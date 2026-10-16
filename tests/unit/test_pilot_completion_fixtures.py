@@ -4,6 +4,9 @@ Local scripted proposals test fixture consistency, not live model usefulness.
 """
 
 import json
+from pathlib import Path
+
+import pytest
 
 from engram_goal03_implementation_demo import assert_retrieval_policy, fixture_observations
 from engram_pilot_completion_fixtures import p02_history
@@ -18,11 +21,16 @@ from context_graph.retrieval.artifacts import ArtifactQuery, ArtifactRetriever
 from context_graph.worker.pack_projection import apply_plan
 
 
-async def test_p02_contracts_projection_and_independent_read_expectations():
-    group = p02_history("p02-fixture-preflight")
+@pytest.mark.parametrize("story", ["p02", "mixed-verification"])
+async def test_completion_contracts_projection_and_independent_read_expectations(story):
+    if story == "p02":
+        group = p02_history("p02-fixture-preflight")
+    else:
+        path = Path(__file__).resolve().parents[2] / "docs/pilot/pilot-p01-1016-07-journeys.json"
+        group = json.loads(path.read_text())["groups"][0]
     registry = load_registry(["pdlc"])
     graph = MemoryGraphStore()
-    projector = PackProjector(registry, frozenset({"completion.publisher"}))
+    projector = PackProjector(registry, frozenset(s["request"]["agent_id"] for s in group["steps"]))
     retriever = ArtifactRetriever(
         graph,
         registry,
@@ -52,6 +60,8 @@ async def test_p02_contracts_projection_and_independent_read_expectations():
             assert answer["meta"]["retrieval_channels"].get(key) == count
 
     for index, step in enumerate(group["steps"]):
+        if step["expected_status"] >= 400 or step.get("duplicate"):
+            continue
         record = step["request"]
         event = Event.model_validate_json(json.dumps(record)).model_copy(
             update={"global_position": f"{index + 1}-0"}

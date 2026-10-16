@@ -98,7 +98,7 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 
 | Goal | Initial status | Evidence |
 |---|---|---|
-| P01 | Active work already authorized; continuation06 running | runs/pilot-1016-continuation-06 |
+| P01 | Active; continuation06 partial failure retained, selected P01 continuation07 prepared | runs/pilot-1016-continuation-06; pilot-p01-1016-07 |
 | P02 | Approved; queued | This inventory |
 | P03 | Approved; queued | This inventory |
 | P04 | Approved; queued | This inventory |

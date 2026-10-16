@@ -165,3 +165,19 @@ def test_catalog_edge_property_oracles_match_real_projection_contracts():
                 for k in ("source_event_id", "pinned_position")
             )
     assert {"C01-skipped", "C02-webhook-skipped", "C02-webhook-neutral", "C04-success"} <= checked
+
+
+def test_normalized_check_inputs_pass_generic_ingestion_actor_guard():
+    from types import SimpleNamespace
+    from context_graph.api.routes.events import _undeclared
+
+    request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(tenant_binding=object())))
+    catalog = next(g for g in freeze("normalized-actor-probe")["groups"] if g["name"] == "catalog")
+    steps = [s for s in catalog["steps"] if s.get("webhook")]
+    assert len(steps) == 4
+    for step in steps:
+        event = Event.model_validate_json(json.dumps(step["request"]))
+        assert _undeclared(request, event) is None
+        assert "expected_authority" not in step
+        assert "not webhook-route proof" in step["source_kind"]
+        assert _undeclared(request, event.model_copy(update={"agent_id": "webhook:github"}))

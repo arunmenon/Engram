@@ -60,7 +60,8 @@ def sourced_proposals(state, source_ids):
         if edge[2] == "DERIVED_FROM" and edge[3] == "Event" and edge[4] in source_ids
     }
     return [
-        row for row in state["nodes"]
+        row
+        for row in state["nodes"]
         if row[0] in {"Decision", "Constraint", "Lesson"} and (row[0], row[1]) in keys
     ]
 
@@ -221,9 +222,7 @@ def fixtures(run_id):
     }
 
 
-async def execute(args):
-    directory = Path(args.output).resolve()
-    directory.mkdir(parents=True, exist_ok=False)
+def build_plan(args):
     plan = fixtures(args.run_id)
     if getattr(args, "journey_file", None):
         plan["spectrum"] = json.loads(args.journey_file.read_text())
@@ -231,12 +230,47 @@ async def execute(args):
         from engram_pilot_spectrum import freeze
 
         plan["spectrum"] = freeze(args.run_id)
+    groups = plan.get("spectrum", {}).get("groups", [])
+    selected_only = getattr(args, "journeys_only", False)
+    if selected_only and not groups:
+        raise ValueError("--journeys-only requires nonempty selected journey groups")
+    names = set()
+    for group in groups:
+        if group["name"] in names or group["tenant"] not in TARGETS:
+            raise ValueError("Journey names must be unique and tenants must be a or b")
+        names.add(group["name"])
+        if not isinstance(group["steps"], list) or not isinstance(group["queries"], list):
+            raise ValueError("Journey steps and queries must be lists")
+        if not group["steps"] and not group["queries"] and not group.get("final_queries"):
+            raise ValueError("Journey group must contain inputs or read checks")
+        for step in group["steps"]:
+            Event.model_validate_json(json.dumps(step["request"]))
+    plan["execution_mode"] = "selected-journeys" if selected_only else "entry-and-selected"
+    if selected_only:
+        plan.update(
+            events=[],
+            expected_artifacts={},
+            queries={},
+            scope=[plan["spectrum"]["coverage"]],
+            remaining=(
+                "Selected groups only; entry business paths are not executed "
+                "or certified by this attempt."
+            ),
+        )
+    return plan
+
+
+async def execute(args):
+    plan = build_plan(args)
+    directory = Path(args.output).resolve()
+    directory.mkdir(parents=True, exist_ok=False)
     spectrum_steps = [
         {"tenant": group["tenant"], **step}
         for group in plan.get("spectrum", {}).get("groups", [])
         for step in group["steps"]
     ]
-    if spectrum_steps:
+    selected_groups = plan.get("spectrum", {}).get("groups", [])
+    if selected_groups and not getattr(args, "journeys_only", False):
         plan["scope"] = [*plan["scope"], plan["spectrum"]["coverage"]]
     source_inputs = plan["events"] + [{"event": step["request"]} for step in spectrum_steps]
 
@@ -260,6 +294,7 @@ async def execute(args):
         directory / "reproduction-manifest.json",
         {
             "git_revision": revision.stdout.strip(),
+            "execution_mode": plan["execution_mode"],
             "source_sha256": {
                 str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in source_paths
@@ -273,6 +308,7 @@ async def execute(args):
 
     record = {
         "state": "preflight",
+        "execution_mode": plan["execution_mode"],
         "scope": plan["scope"],
         "checks": [],
         "requests": [],
@@ -284,7 +320,7 @@ async def execute(args):
                 "Local loopback public-dispatcher path; no external cohort onboarding "
                 "or TLS/remote access proof"
             ),
-            "No Episode schedule/summary or ANN quality proof in this first checkpoint",
+            "Episode/summary/vector claims require corresponding selected-scenario evidence",
             "Unevaluated-pack development gate retained; no full-pack evaluation claim",
         ],
     }
@@ -535,290 +571,308 @@ async def execute(args):
                 save()
                 return response.status_code, out
 
-            for row in plan["events"]:
-                code, out = await request(row["tenant"], "/v1/events", row["event"])
-                check(row["key"] + " admitted", code == row["expected_status"], code)
-            # Stable request identity, same input, separately recorded retry result.
-            first = plan["events"][0]
-            code, out = await request("a", "/v1/events", first["event"])
-            check("unchanged retry accepted without new identity", code in (200, 201), code)
-            b_prose = {
-                r["event"]["event_id"] for r in plan["events"] if r["key"] in ("design", "prose")
-            }
-            deadline = time.monotonic() + 240
-            states = {}
-            required = {(r["tenant"], r["event"]["event_id"]) for r in plan["events"]}
-            while time.monotonic() < deadline:
-                invalid = [
-                    o
-                    for o in record["worker_outcomes"]
-                    if o.get("event") == "pack_extraction_answer_invalid"
-                    and o.get("event_id") in b_prose
-                ]
-                if invalid:
-                    raise AssertionError("Required pack answer invalid; no completed output")
-                for task in tasks:
-                    if task.done():
-                        await task
-                        raise RuntimeError("worker exited before stop")
-                states = {t: await asyncio.to_thread(snapshot, db) for t, db in databases.items()}
-                all_present = all(
-                    any(n[0] == "Event" and n[1] == eid for n in states[t]["nodes"])
-                    for t, eid in required
-                )
-                a_nodes = {(r[0], r[1]): r[2] for r in states["a"]["nodes"]}
-                receipts = all(
-                    ("Event", r["event"]["event_id"]) in a_nodes
-                    and "user_extraction_receipt" in a_nodes[("Event", r["event"]["event_id"])]
+            if not getattr(args, "journeys_only", False):
+                for row in plan["events"]:
+                    code, out = await request(row["tenant"], "/v1/events", row["event"])
+                    check(row["key"] + " admitted", code == row["expected_status"], code)
+                # Stable request identity, same input, separately recorded retry result.
+                first = plan["events"][0]
+                code, out = await request("a", "/v1/events", first["event"])
+                check("unchanged retry accepted without new identity", code in (200, 201), code)
+                b_prose = {
+                    r["event"]["event_id"]
                     for r in plan["events"]
-                    if r["tenant"] == "a" and r["key"].endswith("-end")
-                )
-                applied = {
-                    r.get("event_id")
-                    for r in record["worker_outcomes"]
-                    if r.get("event") == "pack_extraction_applied"
+                    if r["key"] in ("design", "prose")
                 }
-                lags = await asyncio.gather(*(w._subscription.lag() for w in consumers))
-                if (
+                deadline = time.monotonic() + 240
+                states = {}
+                required = {(r["tenant"], r["event"]["event_id"]) for r in plan["events"]}
+                while time.monotonic() < deadline:
+                    invalid = [
+                        o
+                        for o in record["worker_outcomes"]
+                        if o.get("event") == "pack_extraction_answer_invalid"
+                        and o.get("event_id") in b_prose
+                    ]
+                    if invalid:
+                        raise AssertionError("Required pack answer invalid; no completed output")
+                    for task in tasks:
+                        if task.done():
+                            await task
+                            raise RuntimeError("worker exited before stop")
+                    states = {
+                        t: await asyncio.to_thread(snapshot, db) for t, db in databases.items()
+                    }
+                    all_present = all(
+                        any(n[0] == "Event" and n[1] == eid for n in states[t]["nodes"])
+                        for t, eid in required
+                    )
+                    a_nodes = {(r[0], r[1]): r[2] for r in states["a"]["nodes"]}
+                    receipts = all(
+                        ("Event", r["event"]["event_id"]) in a_nodes
+                        and "user_extraction_receipt" in a_nodes[("Event", r["event"]["event_id"])]
+                        for r in plan["events"]
+                        if r["tenant"] == "a" and r["key"].endswith("-end")
+                    )
+                    applied = {
+                        r.get("event_id")
+                        for r in record["worker_outcomes"]
+                        if r.get("event") == "pack_extraction_applied"
+                    }
+                    lags = await asyncio.gather(*(w._subscription.lag() for w in consumers))
+                    if (
+                        all_present
+                        and receipts
+                        and b_prose <= applied
+                        and not any(lags)
+                        and not any(s["pending"] or s["dead_letters"] for s in states.values())
+                    ):
+                        break
+                    await asyncio.sleep(1)
+                check(
+                    "exact events, extraction receipts, matching pack outcomes and drained work",
                     all_present
                     and receipts
                     and b_prose <= applied
                     and not any(lags)
-                    and not any(s["pending"] or s["dead_letters"] for s in states.values())
-                ):
-                    break
-                await asyncio.sleep(1)
-            check(
-                "exact events, extraction receipts, matching pack outcomes and drained work",
-                all_present
-                and receipts
-                and b_prose <= applied
-                and not any(lags)
-                and not any(s["pending"] or s["dead_letters"] for s in states.values()),
-            )
-            for t, s in states.items():
-                durable_json(directory / (t + "-processed.json"), s)
-                before = json.loads((directory / (t + "-before.json")).read_text())
-                previous_ids = {row[0] for row in before["snapshot"]["events"]}
-                observed_ids = {row[0] for row in s["events"]}
-                expected_ids = {
-                    row["event"]["event_id"] for row in plan["events"] if row["tenant"] == t
-                }
-                check(
-                    t + " exact new ledger identities including retry",
-                    observed_ids - previous_ids == expected_ids,
+                    and not any(s["pending"] or s["dead_letters"] for s in states.values()),
                 )
-            prior_b = json.loads((directory / "b-before.json").read_text())["snapshot"]
-            prior_keys = {(row[0], row[1]) for row in prior_b["nodes"]}
-            fresh_b = [row for row in states["b"]["nodes"] if (row[0], row[1]) not in prior_keys]
-            check(
-                "B disabled User and unasserted deployment outputs absent",
-                not any(
-                    row[0] in {"UserProfile", "Preference", "Skill", "Deployment"}
-                    for row in fresh_b
-                ),
-            )
-            proposals = sourced_proposals(states["b"], b_prose)
-            fresh_proposals = [
-                row for row in fresh_b if row[0] in {"Decision", "Constraint", "Lesson"}
-            ]
-            check(
-                "model proposals stored with actual source evidence",
-                all(sourced_proposals(states["b"], {source}) for source in b_prose)
-                and all(
-                    any(
-                        edge[:3] == [row[0], row[1], "DERIVED_FROM"]
-                        and edge[3] == "Event"
-                        and edge[4] in b_prose
+                for t, s in states.items():
+                    durable_json(directory / (t + "-processed.json"), s)
+                    before = json.loads((directory / (t + "-before.json")).read_text())
+                    previous_ids = {row[0] for row in before["snapshot"]["events"]}
+                    observed_ids = {row[0] for row in s["events"]}
+                    expected_ids = {
+                        row["event"]["event_id"] for row in plan["events"] if row["tenant"] == t
+                    }
+                    check(
+                        t + " exact new ledger identities including retry",
+                        observed_ids - previous_ids == expected_ids,
+                    )
+                prior_b = json.loads((directory / "b-before.json").read_text())["snapshot"]
+                prior_keys = {(row[0], row[1]) for row in prior_b["nodes"]}
+                fresh_b = [
+                    row for row in states["b"]["nodes"] if (row[0], row[1]) not in prior_keys
+                ]
+                check(
+                    "B disabled User and unasserted deployment outputs absent",
+                    not any(
+                        row[0] in {"UserProfile", "Preference", "Skill", "Deployment"}
+                        for row in fresh_b
+                    ),
+                )
+                proposals = sourced_proposals(states["b"], b_prose)
+                fresh_proposals = [
+                    row for row in fresh_b if row[0] in {"Decision", "Constraint", "Lesson"}
+                ]
+                check(
+                    "model proposals stored with actual source evidence",
+                    all(sourced_proposals(states["b"], {source}) for source in b_prose)
+                    and all(
+                        any(
+                            edge[:3] == [row[0], row[1], "DERIVED_FROM"]
+                            and edge[3] == "Event"
+                            and edge[4] in b_prose
+                            for edge in states["b"]["edges"]
+                        )
+                        for row in fresh_proposals
+                    ),
+                )
+                owner_reads = {}
+                for owner, name, phrase in [
+                    ("alice", "Alice", "short answers"),
+                    ("bob", "Bob", "detailed examples"),
+                ]:
+                    uid = "user:" + args.run_id + ":" + owner
+                    code, profile = await request(
+                        "a", "/v1/users/" + uid + "/profile", method="GET", role="admin"
+                    )
+                    check(
+                        name + " canonical profile",
+                        code == 200
+                        and profile.get("profile_id") == "profile:" + uid
+                        and profile.get("display_name", "").startswith(name),
+                        profile,
+                    )
+                    code, prefs = await request(
+                        "a", "/v1/users/" + uid + "/preferences", method="GET", role="admin"
+                    )
+                    source = next(
+                        r["event"]["event_id"] for r in plan["events"] if r["key"] == owner
+                    )
+                    a_nodes = {(r[0], r[1]): r[2] for r in states["a"]["nodes"]}
+                    end = next(
+                        r["event"]["event_id"] for r in plan["events"] if r["key"] == owner + "-end"
+                    )
+                    receipt = a_nodes[("Event", end)]["user_extraction_receipt"]["result"]
+                    supported = {
+                        p["preference_id"]
+                        for p in receipt["preferences"]
+                        if phrase in p.get("source_quote", "").lower()
+                        and p["polarity"] == "positive"
+                    }
+                    check(
+                        name + " attributed preference and exact source",
+                        code == 200
+                        and any(
+                            p.get("preference_id") in supported
+                            and p.get("support_event_ids") == [source]
+                            for p in prefs
+                        ),
+                        prefs,
+                    )
+                    code, answer = await request(
+                        "a", "/v1/query/subgraph", plan["queries"]["a-" + owner]
+                    )
+                    ownprefs = supported & {p.get("preference_id") for p in prefs}
+                    check(
+                        name + " composed read contains preference evidence",
+                        code == 200
+                        and bool(ownprefs & set(answer.get("nodes", {})))
+                        and source in answer.get("nodes", {}),
+                        answer,
+                    )
+                    owner_reads[owner] = {
+                        "answer": answer,
+                        "prefs": ownprefs,
+                        "profile": "profile:" + uid,
+                    }
+                    other_source = next(
+                        r["event"]["event_id"]
+                        for r in plan["events"]
+                        if r["key"] == ("bob" if owner == "alice" else "alice")
+                    )
+                    check(
+                        name + " read excludes other owner source",
+                        other_source not in answer.get("nodes", {}),
+                    )
+                for owner, other in (("alice", "bob"), ("bob", "alice")):
+                    answer = owner_reads[owner]["answer"]
+                    forbidden = owner_reads[other]["prefs"] | {owner_reads[other]["profile"]}
+                    check(
+                        owner + " excludes foreign profile/preferences",
+                        not (forbidden & set(answer.get("nodes", {})))
+                        and all(
+                            n.get("attributes", {}).get("user_id")
+                            != "user:" + args.run_id + ":" + other
+                            for n in answer.get("nodes", {}).values()
+                        ),
+                    )
+                code, _ = await request(
+                    "a", "/v1/users/user:" + args.run_id + ":alice/profile", method="GET"
+                )
+                check("ordinary API role cannot read admin User endpoint", code == 403, code)
+                for key in ("b-trace", "b-text"):
+                    code, answer = await request("b", "/v1/query/artifacts", plan["queries"][key])
+                    check(
+                        key + " declared chain retrievable",
+                        code == 200
+                        and all(
+                            n in answer.get("nodes", {})
+                            for n in plan["expected_artifacts"].values()
+                        ),
+                        answer,
+                    )
+                    expected = plan["expected_artifacts"]
+                    pairs = {
+                        (e["edge_type"], e["source"], e["target"]) for e in answer.get("edges", [])
+                    }
+                    check(
+                        key + " declared directed links",
+                        {
+                            ("REFINES", expected["design"], expected["requirement"]),
+                            ("REFINES", expected["requirement"], expected["spec"]),
+                        }
+                        <= pairs,
+                    )
+                    source_for = {
+                        plan["expected_artifacts"][k]: next(
+                            r["event"]["event_id"] for r in plan["events"] if r["key"] == k
+                        )
+                        for k in ("spec", "requirement", "design")
+                    }
+                    check(
+                        key + " exact artifact source provenance",
+                        all(
+                            (answer["nodes"][nid].get("provenance") or {}).get("event_id") == eid
+                            for nid, eid in source_for.items()
+                        ),
+                    )
+                prose_event = next(
+                    r["event"]["event_id"] for r in plan["events"] if r["key"] == "prose"
+                )
+                prose_proposals = [
+                    row
+                    for row in proposals
+                    if any(
+                        edge[:5] == [row[0], row[1], "DERIVED_FROM", "Event", prose_event]
                         for edge in states["b"]["edges"]
                     )
-                    for row in fresh_proposals
-                ),
-            )
-            owner_reads = {}
-            for owner, name, phrase in [
-                ("alice", "Alice", "short answers"),
-                ("bob", "Bob", "detailed examples"),
-            ]:
-                uid = "user:" + args.run_id + ":" + owner
-                code, profile = await request(
-                    "a", "/v1/users/" + uid + "/profile", method="GET", role="admin"
-                )
+                ]
+                initial = {"Decision": "proposed", "Constraint": "active", "Lesson": "tentative"}
                 check(
-                    name + " canonical profile",
-                    code == 200
-                    and profile.get("profile_id") == "profile:" + uid
-                    and profile.get("display_name", "").startswith(name),
-                    profile,
-                )
-                code, prefs = await request(
-                    "a", "/v1/users/" + uid + "/preferences", method="GET", role="admin"
-                )
-                source = next(r["event"]["event_id"] for r in plan["events"] if r["key"] == owner)
-                a_nodes = {(r[0], r[1]): r[2] for r in states["a"]["nodes"]}
-                end = next(
-                    r["event"]["event_id"] for r in plan["events"] if r["key"] == owner + "-end"
-                )
-                receipt = a_nodes[("Event", end)]["user_extraction_receipt"]["result"]
-                supported = {
-                    p["preference_id"]
-                    for p in receipt["preferences"]
-                    if phrase in p.get("source_quote", "").lower() and p["polarity"] == "positive"
-                }
-                check(
-                    name + " attributed preference and exact source",
-                    code == 200
-                    and any(
-                        p.get("preference_id") in supported
-                        and p.get("support_event_ids") == [source]
-                        for p in prefs
-                    ),
-                    prefs,
-                )
-                code, answer = await request(
-                    "a", "/v1/query/subgraph", plan["queries"]["a-" + owner]
-                )
-                ownprefs = supported & {p.get("preference_id") for p in prefs}
-                check(
-                    name + " composed read contains preference evidence",
-                    code == 200
-                    and bool(ownprefs & set(answer.get("nodes", {})))
-                    and source in answer.get("nodes", {}),
-                    answer,
-                )
-                owner_reads[owner] = {
-                    "answer": answer,
-                    "prefs": ownprefs,
-                    "profile": "profile:" + uid,
-                }
-                other_source = next(
-                    r["event"]["event_id"]
-                    for r in plan["events"]
-                    if r["key"] == ("bob" if owner == "alice" else "alice")
-                )
-                check(
-                    name + " read excludes other owner source",
-                    other_source not in answer.get("nodes", {}),
-                )
-            for owner, other in (("alice", "bob"), ("bob", "alice")):
-                answer = owner_reads[owner]["answer"]
-                forbidden = owner_reads[other]["prefs"] | {owner_reads[other]["profile"]}
-                check(
-                    owner + " excludes foreign profile/preferences",
-                    not (forbidden & set(answer.get("nodes", {})))
+                    "prose specifically produced persisted proposals",
+                    bool(prose_proposals)
                     and all(
-                        n.get("attributes", {}).get("user_id")
-                        != "user:" + args.run_id + ":" + other
-                        for n in answer.get("nodes", {}).values()
+                        row[2].get("status") == initial[row[0]] and row[2].get("method")
+                        for row in prose_proposals
                     ),
                 )
-            code, _ = await request(
-                "a", "/v1/users/user:" + args.run_id + ":alice/profile", method="GET"
-            )
-            check("ordinary API role cannot read admin User endpoint", code == 403, code)
-            for key in ("b-trace", "b-text"):
-                code, answer = await request("b", "/v1/query/artifacts", plan["queries"][key])
+                proposal_query = dict(
+                    query="status of these proposed export choices",
+                    intent="status",
+                    seed_node_ids=[r[1] for r in prose_proposals],
+                    max_nodes=60,
+                )
+                ArtifactQueryRequest.model_validate(proposal_query)
+                code, proposal_answer = await request("b", "/v1/query/artifacts", proposal_query)
                 check(
-                    key + " declared chain retrievable",
+                    "prose proposals publicly retrievable with provenance",
                     code == 200
                     and all(
-                        n in answer.get("nodes", {}) for n in plan["expected_artifacts"].values()
-                    ),
-                    answer,
-                )
-                expected = plan["expected_artifacts"]
-                pairs = {
-                    (e["edge_type"], e["source"], e["target"]) for e in answer.get("edges", [])
-                }
-                check(
-                    key + " declared directed links",
-                    {
-                        ("REFINES", expected["design"], expected["requirement"]),
-                        ("REFINES", expected["requirement"], expected["spec"]),
-                    }
-                    <= pairs,
-                )
-                source_for = {
-                    plan["expected_artifacts"][k]: next(
-                        r["event"]["event_id"] for r in plan["events"] if r["key"] == k
-                    )
-                    for k in ("spec", "requirement", "design")
-                }
-                check(
-                    key + " exact artifact source provenance",
-                    all(
-                        (answer["nodes"][nid].get("provenance") or {}).get("event_id") == eid
-                        for nid, eid in source_for.items()
+                        row[1] in proposal_answer.get("nodes", {})
+                        and (proposal_answer["nodes"][row[1]].get("provenance") or {}).get(
+                            "event_id"
+                        )
+                        == prose_event
+                        and proposal_answer["nodes"][row[1]]["attributes"].get("status")
+                        == initial[row[0]]
+                        for row in prose_proposals
                     ),
                 )
-            prose_event = next(
-                r["event"]["event_id"] for r in plan["events"] if r["key"] == "prose"
-            )
-            prose_proposals = [
-                row
-                for row in proposals
-                if any(
-                    edge[:5] == [row[0], row[1], "DERIVED_FROM", "Event", prose_event]
-                    for edge in states["b"]["edges"]
+                design = next(
+                    r["event"]["event_id"] for r in plan["events"] if r["key"] == "design"
                 )
-            ]
-            initial = {"Decision": "proposed", "Constraint": "active", "Lesson": "tentative"}
-            check(
-                "prose specifically produced persisted proposals",
-                bool(prose_proposals)
-                and all(
-                    row[2].get("status") == initial[row[0]] and row[2].get("method")
-                    for row in prose_proposals
-                ),
-            )
-            proposal_query = dict(
-                query="status of these proposed export choices",
-                intent="status",
-                seed_node_ids=[r[1] for r in prose_proposals],
-                max_nodes=60,
-            )
-            ArtifactQueryRequest.model_validate(proposal_query)
-            code, proposal_answer = await request("b", "/v1/query/artifacts", proposal_query)
-            check(
-                "prose proposals publicly retrievable with provenance",
-                code == 200
-                and all(
-                    row[1] in proposal_answer.get("nodes", {})
-                    and (proposal_answer["nodes"][row[1]].get("provenance") or {}).get("event_id")
-                    == prose_event
-                    and proposal_answer["nodes"][row[1]]["attributes"].get("status")
-                    == initial[row[0]]
-                    for row in prose_proposals
-                ),
-            )
-            design = next(r["event"]["event_id"] for r in plan["events"] if r["key"] == "design")
-            foreign_body = dict(
-                query="event " + design,
-                session_id=args.run_id + ":work",
-                agent_id=args.run_id + ":publisher",
-                seed_nodes=[design],
-                intent="what",
-                timeout_ms=30000,
-                max_nodes=30,
-            )
-            code, positive = await request("b", "/v1/query/subgraph", foreign_body)
-            check("foreign-only positive in B", code == 200 and design in positive.get("nodes", {}))
-            code, negative = await request("a", "/v1/query/subgraph", foreign_body)
-            check(
-                "foreign-only excluded in A",
-                code == 200 and design not in negative.get("nodes", {}),
-            )
-            applied = [
-                r
-                for r in record["worker_outcomes"]
-                if r.get("event") == "pack_extraction_applied" and r.get("event_id") in b_prose
-            ]
-            check(
-                "actual model generated validated PDLC proposals",
-                sum(r.get("nodes", 0) for r in applied) > 0,
-                applied,
-            )
-            if spectrum_steps:
+                foreign_body = dict(
+                    query="event " + design,
+                    session_id=args.run_id + ":work",
+                    agent_id=args.run_id + ":publisher",
+                    seed_nodes=[design],
+                    intent="what",
+                    timeout_ms=30000,
+                    max_nodes=30,
+                )
+                code, positive = await request("b", "/v1/query/subgraph", foreign_body)
+                check(
+                    "foreign-only positive in B",
+                    code == 200 and design in positive.get("nodes", {}),
+                )
+                code, negative = await request("a", "/v1/query/subgraph", foreign_body)
+                check(
+                    "foreign-only excluded in A",
+                    code == 200 and design not in negative.get("nodes", {}),
+                )
+                applied = [
+                    r
+                    for r in record["worker_outcomes"]
+                    if r.get("event") == "pack_extraction_applied" and r.get("event_id") in b_prose
+                ]
+                check(
+                    "actual model generated validated PDLC proposals",
+                    sum(r.get("nodes", 0) for r in applied) > 0,
+                    applied,
+                )
+            if selected_groups:
                 from engram_pilot_spectrum import execute as execute_spectrum
 
                 await execute_spectrum(
@@ -870,7 +924,9 @@ async def execute(args):
             record["checks"].append(
                 {
                     "name": "actual provider calls returned after cooperative shutdown",
-                    "passed": bool(record["provider_calls"])
+                    "passed": (
+                        bool(record["provider_calls"]) or getattr(args, "journeys_only", False)
+                    )
                     and all(c.get("state") == "returned" for c in record["provider_calls"]),
                 }
             )
@@ -1000,10 +1056,18 @@ async def execute(args):
                 record["state"] = "failed"
             elif record["state"] == "pending-final-verification":
                 record["state"] = (
-                    "passed-spectrum-checkpoint" if spectrum_steps else "passed-first-checkpoint"
+                    "passed-selected-journeys"
+                    if getattr(args, "journeys_only", False)
+                    else "passed-spectrum-checkpoint"
+                    if selected_groups
+                    else "passed-first-checkpoint"
                 )
             save()
-    if record["state"] not in {"passed-first-checkpoint", "passed-spectrum-checkpoint"}:
+    if record["state"] not in {
+        "passed-first-checkpoint",
+        "passed-spectrum-checkpoint",
+        "passed-selected-journeys",
+    }:
         raise RuntimeError("Pilot entry checkpoint failed; inspect retained report")
     print(
         json.dumps(
@@ -1027,6 +1091,11 @@ def main():
     )
     parser.add_argument(
         "--journey-file", type=Path, help="Explicit frozen spectrum JSON in the same format"
+    )
+    parser.add_argument(
+        "--journeys-only",
+        action="store_true",
+        help="Execute selected groups only; no entry checkpoint acceptance claim",
     )
     parser.add_argument(
         "--service-account", default="engram-experiment-sa@portiq-mvp.iam.gserviceaccount.com"
