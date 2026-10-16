@@ -66,6 +66,11 @@ def sourced_proposals(state, source_ids):
     ]
 
 
+def provider_prompt_text(messages):
+    """Observe original message text without JSON transport quote escaping."""
+    return "\n".join(str(message.get("content", "")) for message in messages)
+
+
 def material_node(row, recovered_user_triggers=frozenset()):
     allowed = {
         "Event": {"access_count", "last_accessed_at", "importance_score"},
@@ -256,19 +261,24 @@ def build_plan(args):
         names.add(group["name"])
         if not isinstance(group["steps"], list) or not isinstance(group["queries"], list):
             raise ValueError("Journey steps and queries must be lists")
+        correction_inputs = group.get("recover_user_inputs") or [
+            s["request"] for s in group["steps"]
+        ]
         if group.get("user_correction") and (
-            len(group["steps"]) != 2
-            or [s["request"]["event_type"] for s in group["steps"]]
+            len(correction_inputs) != 2
+            or [r["event_type"] for r in correction_inputs]
             != ["observation.input", "system.session_end"]
-            or any(s["request"]["agent_id"] != group["owner"] for s in group["steps"])
-            or any(s["request"]["session_id"] != group["session"] for s in group["steps"])
+            or any(
+                r["agent_id"] != group["owner"] or r["session_id"] != group["session"]
+                for r in correction_inputs
+            )
         ):
             raise ValueError("Correction requires the declared two-input owner/session window")
         recovery = group.get("recover_user_inputs") or group.get("verify_user_inputs", [])
         if group.get("recover_user_inputs") and group.get("verify_user_inputs"):
             raise ValueError("A User group cannot both recover and verify a prior receipt")
         if recovery and (
-            not group.get("user_story")
+            not (group.get("user_story") or group.get("user_correction"))
             or group["steps"]
             or len(recovery) != 2
             or [r["event_type"] for r in recovery] != ["observation.input", "system.session_end"]
@@ -429,7 +439,7 @@ async def execute(args):
             row["usage"] = answer.usage.model_dump() if answer.usage else None
             row["output"] = answer.choices[0].message.content
             row["state"] = "returned"
-            prompt = json.dumps(kw.get("messages", []))
+            prompt = provider_prompt_text(kw.get("messages", []))
             probe_ids = {
                 step["request"]["event_id"]
                 for group in plan.get("spectrum", {}).get("groups", [])
@@ -451,10 +461,12 @@ async def execute(args):
                 )
             ]
             user_input_ids = {
-                step["request"]["event_id"]
+                r["event_id"]
                 for group in selected_groups
                 if group.get("user_story") or group.get("user_correction")
-                for step in group["steps"]
+                for r in (
+                    group.get("recover_user_inputs") or [step["request"] for step in group["steps"]]
+                )
             }
             if row["input_event_candidates"] and (
                 "Known items:" in prompt
@@ -966,6 +978,10 @@ async def execute(args):
                     record=record,
                     save=save,
                     consumers=consumers,
+                    baselines={
+                        t: json.loads((directory / (t + "-before.json")).read_text())["snapshot"]
+                        for t in databases
+                    },
                 )
                 deadline = time.monotonic() + 240
                 while time.monotonic() < deadline:

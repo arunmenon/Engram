@@ -97,12 +97,10 @@ def prepare_extraction_receipt(
         if not supports:
             raise ValueError("User extraction quote has no exact accepted source")
         item["support_event_ids"] = supports
-    for item in result["preferences"]:
-        item.update(scope="global", scope_id=None)
-        item["preference_id"] = artifact_identity("Preference", owner, item)
-    for item in result["skills"]:
-        item["skill_id"] = artifact_identity("Skill", owner, item)
-    corrections = []
+    preferences = result["preferences"]
+    original_contexts = {id(item): item.get("context") for item in preferences}
+    assignments: dict[int, tuple[str, str | None]] = {}
+    selected_corrections = []
     for event_id in ids:
         if event_id in applied_correction_sources:
             continue
@@ -119,27 +117,53 @@ def prepare_extraction_receipt(
                 raise ValueError(
                     "Correction needs an exact predecessor, replacement key, polarity and context"
                 )
-            targets = [
+            if (
+                not isinstance(correction["previous_preference_id"], str)
+                or not correction["previous_preference_id"].strip()
+                or not isinstance(correction["replacement_key"], str)
+                or not correction["replacement_key"].strip()
+                or correction["replacement_polarity"] not in ("positive", "negative", "neutral")
+                or (
+                    correction["context"] is not None and not isinstance(correction["context"], str)
+                )
+            ):
+                raise ValueError("Correction identity metadata types differ")
+            candidates = [
                 item
-                for item in result["preferences"]
+                for item in preferences
                 if item["key"] == correction["replacement_key"]
                 and item["polarity"] == correction["replacement_polarity"]
-                and item.get("context") == correction["context"]
                 and event_id in item["support_event_ids"]
             ]
-            if (
-                len(targets) != 1
-                or not isinstance(correction["previous_preference_id"], str)
-                or not correction["previous_preference_id"]
-            ):
+            exact = [
+                item for item in candidates if original_contexts[id(item)] == correction["context"]
+            ]
+            targets = exact if exact else candidates
+            if len(targets) != 1:
                 raise ValueError("Correction must select exactly one supported replacement")
-            corrections.append(
-                dict(
-                    previous_preference_id=correction["previous_preference_id"],
-                    replacement_id=targets[0]["preference_id"],
-                    source_event_id=event_id,
-                )
-            )
+            target = targets[0]
+            assignment = (correction["previous_preference_id"], correction["context"])
+            if id(target) in assignments and assignments[id(target)] != assignment:
+                raise ValueError("Conflicting correction declarations select the same replacement")
+            assignments[id(target)] = assignment
+            selected_corrections.append((assignment[0], target, event_id))
+    # Explicit producer metadata owns canonical identity; model prose describes
+    # the supported assertion. Resolve all selections before changing any context.
+    for item in preferences:
+        if id(item) in assignments:
+            item["context"] = assignments[id(item)][1]
+        item.update(scope="global", scope_id=None)
+        item["preference_id"] = artifact_identity("Preference", owner, item)
+    for item in result["skills"]:
+        item["skill_id"] = artifact_identity("Skill", owner, item)
+    corrections = [
+        dict(
+            previous_preference_id=previous,
+            replacement_id=item["preference_id"],
+            source_event_id=event_id,
+        )
+        for previous, item, event_id in selected_corrections
+    ]
     receipt = dict(
         version="user-extraction-v1",
         owner=owner,

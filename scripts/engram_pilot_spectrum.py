@@ -631,7 +631,7 @@ def discovery_eligibility(state, policy, depth):
     return matching, eligible
 
 
-async def execute(plan, *, request, check, databases, record, save, consumers):
+async def execute(plan, *, request, check, databases, record, save, consumers, baselines=None):
     """Run frozen expectations; never derive an expected artifact from output."""
     results = record.setdefault("spectrum", [])
     observations_by_event = {}
@@ -897,11 +897,14 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
         if group.get("user_correction"):
             from engram_pilot_completion_fixtures import correction_expected_updates
 
-            before = (await settle())[tenant]
+            before = (
+                baselines[tenant] if group.get("recover_user_inputs") else (await settle())[tenant]
+            )
+            inputs = group.get("recover_user_inputs") or [s["request"] for s in group["steps"]]
             for step in group["steps"]:
                 code, _ = await request(tenant, "/v1/events", step["request"])
                 check(group["name"] + ":" + step["scenario"] + " admission", code == 201)
-            trigger = group["steps"][-1]["request"]["event_id"]
+            trigger = inputs[-1]["event_id"]
             deadline = time.monotonic() + 180
             while time.monotonic() < deadline:
                 after = await asyncio.to_thread(snapshot, databases[tenant])
@@ -941,7 +944,7 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 code == 200
                 and {p["preference_id"] for p in history["preferences"]} == {old_id, new_id, other},
             )
-            source = group["steps"][0]["request"]["event_id"]
+            source = inputs[0]["event_id"]
             check(
                 group["name"] + " public correction provenance and exact receipt",
                 receipt in history["extraction_receipts"]

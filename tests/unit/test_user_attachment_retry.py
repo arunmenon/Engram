@@ -948,3 +948,134 @@ async def test_user_worker_and_replay_preserve_existing_shared_entity_timestamps
         assert props["first_seen"] == seen and props["last_seen"] == seen
         assert props["mention_count"] == 7 and props["entity_type"] == "tool"
     provider.extract_from_session.assert_awaited_once()
+
+
+async def test_declared_correction_canonicalizes_descriptive_context_without_stale_identity():
+    from context_graph.domain.user_extraction import artifact_identity
+
+    graph = MemoryGraphStore()
+    trigger, original, _ = await _prepared(
+        graph, 151, {"content": "short answers"}, {"preferences": [_preference()]}
+    )
+    await graph.apply_user_extraction(trigger)
+    previous = original["result"]["preferences"][0]["preference_id"]
+    trigger, receipt, _ = await _prepared(
+        graph,
+        153,
+        {
+            "content": "I no longer prefer short answers in support.",
+            "preference_corrections": [
+                dict(
+                    previous_preference_id=previous,
+                    replacement_key="answer-length",
+                    replacement_polarity="negative",
+                    context="support",
+                )
+            ],
+        },
+        {
+            "preferences": [
+                {
+                    **_preference("negative"),
+                    "context": "No longer prefers brief responses during support.",
+                    "source_quote": "I no longer prefer short answers in support",
+                }
+            ]
+        },
+    )
+    replacement = receipt["result"]["preferences"][0]
+    assert replacement["context"] == "support"
+    expected = artifact_identity("Preference", "user:alice", replacement)
+    assert receipt["corrections"][0]["replacement_id"] == expected == replacement["preference_id"]
+    await graph.apply_user_extraction(trigger)
+    active = await graph.get_user_preferences("user:alice")
+    assert len(active) == 1 and active[0]["polarity"] == "negative"
+    assert active[0]["preference_id"] == expected
+
+
+@pytest.mark.parametrize("failure", ["ambiguous", "contexts", "predecessors", "context-type"])
+async def test_correction_normalization_rejects_ambiguous_or_conflicting_metadata(failure):
+    graph = MemoryGraphStore()
+    metadata = dict(
+        previous_preference_id="preference:old",
+        replacement_key="answer-length",
+        replacement_polarity="negative",
+        context="support",
+    )
+    preferences = [{**_preference("negative"), "context": "Prefers longer support responses."}]
+    declared = [metadata]
+    if failure == "ambiguous":
+        preferences.append({**preferences[0], "context": "Avoids brief support responses."})
+    elif failure in ("contexts", "predecessors"):
+        field = "context" if failure == "contexts" else "previous_preference_id"
+        declared.append({**metadata, field: "different"})
+    else:
+        declared = [{**metadata, "context": ["invalid"]}]
+    with pytest.raises(ValueError):
+        await _prepared(
+            graph,
+            155,
+            {"content": "short answers", "preference_corrections": declared},
+            {"preferences": preferences},
+        )
+
+
+async def test_exact_context_selection_preserves_undeclared_preference_context():
+    graph = MemoryGraphStore()
+    trigger, receipt, _ = await _prepared(
+        graph,
+        157,
+        {
+            "content": "short answers",
+            "preference_corrections": [
+                dict(
+                    previous_preference_id="preference:old",
+                    replacement_key="answer-length",
+                    replacement_polarity="negative",
+                    context="support",
+                )
+            ],
+        },
+        {
+            "preferences": [
+                _preference("negative"),
+                {**_preference("negative"), "context": "reviews"},
+            ]
+        },
+    )
+    assert [p["context"] for p in receipt["result"]["preferences"]] == ["support", "reviews"]
+    assert (
+        receipt["corrections"][0]["replacement_id"]
+        == (receipt["result"]["preferences"][0]["preference_id"])
+    )
+
+
+async def test_canonical_correction_cannot_replace_another_owners_preference():
+    from context_graph.domain.user_extraction import UserExtractionConflictError
+
+    graph = MemoryGraphStore()
+    trigger, original, _ = await _prepared(
+        graph, 161, {"content": "short answers"}, {"preferences": [_preference()]}, owner="bob"
+    )
+    await graph.apply_user_extraction(trigger)
+    previous = original["result"]["preferences"][0]["preference_id"]
+    trigger, _, _ = await _prepared(
+        graph,
+        163,
+        {
+            "content": "short answers",
+            "preference_corrections": [
+                dict(
+                    previous_preference_id=previous,
+                    replacement_key="answer-length",
+                    replacement_polarity="negative",
+                    context="support",
+                )
+            ],
+        },
+        {"preferences": [{**_preference("negative"), "context": "avoid brief support answers"}]},
+    )
+    with pytest.raises(UserExtractionConflictError, match="owner or context"):
+        await graph.apply_user_extraction(trigger)
+    assert not await graph.get_user_preferences("user:alice", active_only=False)
+    assert (await graph.get_user_preferences("user:bob"))[0]["preference_id"] == previous

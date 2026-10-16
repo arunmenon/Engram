@@ -145,6 +145,11 @@ def test_recovery_receipt_requires_exact_source_window_and_owner(tmp_path):
     path.write_text(json.dumps({"groups": [group], "coverage": "exact pending recovery"}))
     args = SimpleNamespace(run_id="recovery-unit", journey_file=path, journeys_only=True)
     assert build_plan(args)["execution_mode"] == "selected-journeys"
+    correction_recovery = {**group, "user_story": False, "user_correction": True}
+    path.write_text(
+        json.dumps({"groups": [correction_recovery], "coverage": "correction recovery"})
+    )
+    assert build_plan(args)["execution_mode"] == "selected-journeys"
     invalid = deepcopy(group)
     invalid["owner"] = "other-owner"
     path.write_text(json.dumps({"groups": [invalid], "coverage": "invalid"}))
@@ -439,3 +444,13 @@ def test_explicit_correction_has_exact_identity_and_receipt_derived_profile_chan
     changed["nodes"][-1][2]["polarity"] = "positive"
     with pytest.raises(ValueError, match="owner/source/count differs"):
         correction_expected_updates(before, changed, group)
+
+
+def test_provider_observer_matches_quoted_source_without_transport_escaping():
+    from engram_pilot_first_run import provider_prompt_text
+
+    source = 'A declared context is {"key": "incident", "context": "positive label"}.'
+    messages = [{"role": "system", "content": "<conversation>" + source + "</conversation>"}]
+    assert source not in json.dumps(messages)
+    assert source in provider_prompt_text(messages)
+    assert "unrelated source" not in provider_prompt_text(messages)

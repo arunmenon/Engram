@@ -1,0 +1,507 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    [
+      "P03 eight stories/16 inputs: thirdparty refusal; Mercury diagnostic; Rust origin preservation; neutral indifference; owner preference about another person; absence; coding and paraphrase regressions under corrected prompt.",
+      "Then execute frozen05 explicit canonical correction as the last group in the same worker run; separate per-group acceptance, total18inputs."
+    ]
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "groups": [
+      {
+        "name": "user-third-person-fixed",
+        "tenant": "a",
+        "user_story": true,
+        "steps": [
+          {
+            "scenario": "third-person-fixed-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "b072a6d7-74ca-53d1-8d1c-4e68b39d3324",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350561+00:00",
+              "session_id": "pilot-p03-1016-06:story:third-person-fixed",
+              "agent_id": "pilot-p03-1016-06:owner:third-person-fixed",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:third-person",
+              "payload": {
+                "content": "My name is Leela. Omar prefers trains to flights. That is Omar's preference, not mine. I have not stated any travel preference."
+              }
+            }
+          },
+          {
+            "scenario": "third-person-fixed-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "ef8cc5cd-2802-53a8-8a61-2365bb7dc016",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350561+00:00",
+              "session_id": "pilot-p03-1016-06:story:third-person-fixed",
+              "agent_id": "pilot-p03-1016-06:owner:third-person-fixed",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:third-person",
+              "payload": {}
+            }
+          }
+        ],
+        "queries": [],
+        "owner": "pilot-p03-1016-06:owner:third-person-fixed",
+        "session": "pilot-p03-1016-06:story:third-person-fixed",
+        "question": "What personal preferences did I actually state?",
+        "expect_user": true,
+        "expect_preferences": false,
+        "expected_name": "Leela",
+        "preference_semantics": [],
+        "diagnostic_queries": [],
+        "source_kind": "Actual model attribution control; diagnostic behavior is not a capability pass"
+      },
+      {
+        "name": "user-mercury",
+        "tenant": "a",
+        "user_story": true,
+        "steps": [
+          {
+            "scenario": "mercury-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "61a7a4b2-6f9f-5d7c-9512-115dae64fb78",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350578+00:00",
+              "session_id": "pilot-p03-1016-01:story:mercury",
+              "agent_id": "pilot-p03-1016-01:owner:mercury",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:mercury",
+              "payload": {
+                "content": "My name is Dev. Our software project is named Mercury. The planet Mercury is a different thing. This is a description of two things, not my preference or skill."
+              }
+            }
+          },
+          {
+            "scenario": "mercury-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "a61a8ffe-df6c-58fe-9cf8-7db11faad12a",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350578+00:00",
+              "session_id": "pilot-p03-1016-01:story:mercury",
+              "agent_id": "pilot-p03-1016-01:owner:mercury",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:mercury",
+              "payload": {}
+            }
+          }
+        ],
+        "queries": [],
+        "owner": "pilot-p03-1016-01:owner:mercury",
+        "session": "pilot-p03-1016-01:story:mercury",
+        "question": "What personal preferences did I actually state?",
+        "expect_user": true,
+        "expect_preferences": false,
+        "expected_name": "Dev",
+        "preference_semantics": [],
+        "diagnostic_queries": [
+          {
+            "query": "What do we know about Mercury?",
+            "intent": "related"
+          }
+        ],
+        "source_kind": "Actual model attribution control; diagnostic behavior is not a capability pass"
+      },
+      {
+        "name": "user-rust-reobservation",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "paraphrase-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "2b14aa69-4dc2-5270-a995-699512d948ef",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+              "session_id": "pilot-p03-1016-02:story:paraphrase",
+              "agent_id": "pilot-p03-1016-02:owner:paraphrase",
+              "trace_id": "pilot-p03-1016-02",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {
+                "content": "My name is Ravi. I prefer examples written in Rust. Rust is the programming language used in these examples."
+              }
+            }
+          },
+          {
+            "scenario": "paraphrase-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "5aea561b-3929-5025-ab80-7987da5881a0",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+              "session_id": "pilot-p03-1016-02:story:paraphrase",
+              "agent_id": "pilot-p03-1016-02:owner:paraphrase",
+              "trace_id": "pilot-p03-1016-02",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-02:owner:paraphrase",
+        "session": "pilot-p03-1016-02:story:paraphrase",
+        "question": "What examples do I prefer?",
+        "expect_user": true,
+        "expected_name": "Ravi",
+        "preference_semantics": [
+          [
+            "positive",
+            [
+              "rust",
+              "example"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {},
+        "preserve_entity_origins": [
+          "entity:Rust"
+        ]
+      },
+      {
+        "name": "user-explicit-indifference",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "explicit-indifference-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "0c6bd103-a8db-5c21-828f-04a31174a325",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+              "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+              "agent_id": "pilot-p03-1016-06:owner:explicit-indifference",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {
+                "content": "My name is Noor. I have no preference between coffee and tea; either is equally acceptable to me."
+              }
+            }
+          },
+          {
+            "scenario": "explicit-indifference-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "427cd587-1567-5961-ade0-ff0c4e6236a2",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+              "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+              "agent_id": "pilot-p03-1016-06:owner:explicit-indifference",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-06:owner:explicit-indifference",
+        "session": "pilot-p03-1016-06:story:explicit-indifference",
+        "question": "What examples do I prefer?",
+        "expect_user": true,
+        "expected_name": "Noor",
+        "preference_semantics": [
+          [
+            "neutral",
+            [
+              "coffee",
+              "tea"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      },
+      {
+        "name": "user-owner-preference-about-person",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "owner-preference-about-person-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "40fb32c3-a5ea-595b-a110-ddd6431cd506",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+              "session_id": "pilot-p03-1016-06:story:owner-preference-about-person",
+              "agent_id": "pilot-p03-1016-06:owner:owner-preference-about-person",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {
+                "content": "My name is Ada. I prefer working with Omar because his code reviews are thorough. This is my own preference about working with Omar."
+              }
+            }
+          },
+          {
+            "scenario": "owner-preference-about-person-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "871d6fd8-c28d-5026-baaa-600b730fdf44",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+              "session_id": "pilot-p03-1016-06:story:owner-preference-about-person",
+              "agent_id": "pilot-p03-1016-06:owner:owner-preference-about-person",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-06:owner:owner-preference-about-person",
+        "session": "pilot-p03-1016-06:story:owner-preference-about-person",
+        "question": "What examples do I prefer?",
+        "expect_user": true,
+        "expected_name": "Ada",
+        "preference_semantics": [
+          [
+            "positive",
+            [
+              "omar",
+              "work|collaborat"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      },
+      {
+        "name": "user-absence-fixed",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "absence-fixed-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "949b8615-7627-5a63-b707-92c24aa1f3c7",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350226+00:00",
+              "session_id": "pilot-p03-1016-06:story:absence-fixed",
+              "agent_id": "pilot-p03-1016-06:owner:absence-fixed",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:absence",
+              "payload": {
+                "content": "This is a network diagnostic record. No personal preference, skill or commitment is stated."
+              }
+            }
+          },
+          {
+            "scenario": "absence-fixed-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "45dd2872-b204-5dc1-a054-fefb82a4f351",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350226+00:00",
+              "session_id": "pilot-p03-1016-06:story:absence-fixed",
+              "agent_id": "pilot-p03-1016-06:owner:absence-fixed",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:absence",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-06:owner:absence-fixed",
+        "session": "pilot-p03-1016-06:story:absence-fixed",
+        "question": "Do we have evidence of a personal preference or commitment?",
+        "expect_user": false,
+        "expected_name": "",
+        "preference_semantics": [],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      },
+      {
+        "name": "user-coding",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "coding-regression-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "1c0f1291-fa68-5b0a-82a2-a130013db018",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350153+00:00",
+              "session_id": "pilot-p03-1016-06:story:coding-regression",
+              "agent_id": "pilot-p03-1016-06:owner:coding-regression",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:coding",
+              "payload": {
+                "content": "My name is Maya. I have used Python professionally for five years. I am beginning Rust and am not a Rust expert."
+              }
+            }
+          },
+          {
+            "scenario": "coding-regression-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "4f826150-29f3-5622-b17f-2d8571dddd0f",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350153+00:00",
+              "session_id": "pilot-p03-1016-06:story:coding-regression",
+              "agent_id": "pilot-p03-1016-06:owner:coding-regression",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:coding",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-06:owner:coding-regression",
+        "session": "pilot-p03-1016-06:story:coding-regression",
+        "question": "What skills and learning interests did Maya actually state?",
+        "expect_user": true,
+        "expected_name": "Maya",
+        "preference_semantics": [],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      },
+      {
+        "name": "user-paraphrase",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "paraphrase-regression-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "993e2857-8fec-53ee-baa1-20e8e1d4359e",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350217+00:00",
+              "session_id": "pilot-p03-1016-06:story:paraphrase-regression",
+              "agent_id": "pilot-p03-1016-06:owner:paraphrase-regression",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {
+                "content": "My name is Tara. Long walls of text are hard for me to use; two or three practical steps work much better."
+              }
+            }
+          },
+          {
+            "scenario": "paraphrase-regression-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "67c1a9b7-4dab-5bce-84f9-57bc53fbda89",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350217+00:00",
+              "session_id": "pilot-p03-1016-06:story:paraphrase-regression",
+              "agent_id": "pilot-p03-1016-06:owner:paraphrase-regression",
+              "trace_id": "pilot-p03-1016-06",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-06:owner:paraphrase-regression",
+        "session": "pilot-p03-1016-06:story:paraphrase-regression",
+        "question": "How should an assistant format a response for Tara?",
+        "expect_user": true,
+        "expected_name": "Tara",
+        "preference_semantics": [
+          [
+            "positive",
+            [
+              "step|action",
+              "practical|two|three|short|concise"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      },
+      {
+        "name": "user-explicit-correction",
+        "tenant": "a",
+        "user_correction": true,
+        "owner": "pilot-p03-1016-01:owner:contexts",
+        "session": "pilot-p03-1016-05:context-correction",
+        "steps": [
+          {
+            "scenario": "explicit-correction-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "13d4e563-949b-59b7-9e36-67ea5b41e0aa",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T10:43:13.957158+00:00",
+              "session_id": "pilot-p03-1016-05:context-correction",
+              "agent_id": "pilot-p03-1016-01:owner:contexts",
+              "trace_id": "pilot-p03-1016-05",
+              "payload_ref": "pilot:explicit-preference-correction",
+              "payload": {
+                "content": "My name is Ishan. I no longer prefer short bullet-point actions during incident response. This explicitly reverses that incident preference; my design-review preference is unchanged. The producer identifies the replacement preference with these canonical fields: {\"about_entity\": \"incident response communication\", \"category\": \"communication\", \"context\": \"For incident response, prefers concise action-oriented bullet points.\", \"key\": \"short_bullet_point_actions_during_incident_response\", \"polarity\": \"negative\", \"scope\": \"global\", \"scope_id\": null}. The positive wording inside the old context label is an identity label, not a reaffirmation. The negative statement above is the evidence for this correction.",
+                "preference_corrections": [
+                  {
+                    "previous_preference_id": "preference:41b4d9a70176b45833e26ea1d8ed12bd336faa7904804158b59e56ed8c2a8b82",
+                    "replacement_key": "short_bullet_point_actions_during_incident_response",
+                    "replacement_polarity": "negative",
+                    "context": "For incident response, prefers concise action-oriented bullet points."
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "scenario": "explicit-correction-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "db53073a-125c-5b55-83f2-03ab18c61bb5",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T10:43:14.957158+00:00",
+              "session_id": "pilot-p03-1016-05:context-correction",
+              "agent_id": "pilot-p03-1016-01:owner:contexts",
+              "trace_id": "pilot-p03-1016-05",
+              "payload_ref": "pilot:explicit-preference-correction",
+              "payload": {}
+            }
+          }
+        ],
+        "queries": [],
+        "expected_previous": "preference:41b4d9a70176b45833e26ea1d8ed12bd336faa7904804158b59e56ed8c2a8b82",
+        "expected_replacement": "preference:bed422c1dd0926b54379310238bbf1d74d4e9ed69b3b7d1ff8813ba34446ace7",
+        "identity_fields": {
+          "category": "communication",
+          "key": "short_bullet_point_actions_during_incident_response",
+          "context": "For incident response, prefers concise action-oriented bullet points.",
+          "about_entity": "incident response communication",
+          "polarity": "negative",
+          "scope": "global",
+          "scope_id": null
+        },
+        "unrelated_preference": "preference:db6b7bb32412c451a0caf5a47d36da4fe6a4166ac1064219408cc4616b2e138b",
+        "required_negative_quote": "no longer prefer short bullet-point actions during incident response",
+        "question": "What are my current incident-response and design-review preferences?"
+      }
+    ],
+    "coverage": [
+      "P03 eight stories/16 inputs: thirdparty refusal; Mercury diagnostic; Rust origin preservation; neutral indifference; owner preference about another person; absence; coding and paraphrase regressions under corrected prompt.",
+      "Then execute frozen05 explicit canonical correction as the last group in the same worker run; separate per-group acceptance, total18inputs."
+    ],
+    "limits": [
+      "Failed04 false preferences remain saved as failed-test data; no manual deletion or immutable receipt replacement.",
+      "Prompt examples use different names/topics from these actual-model cases; negative oracle unchanged.",
+      "Not automatic natural-language correction detection. Canonical identifiers explicitly supplied by producer.",
+      "No source editing or repeated wording adjustment to chase a model output.",
+      "Profile changes allowed only exact supported receipt-derived values and membership, not broad field exemptions."
+    ]
+  },
+  "execution_mode": "selected-journeys"
+}

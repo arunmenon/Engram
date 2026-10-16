@@ -580,7 +580,7 @@ def p02_history(run_id):
 
 def correction_expected_updates(before, after, group):
     """Exact permitted prior-node changes for one frozen producer correction."""
-    inputs = [s["request"] for s in group["steps"]]
+    inputs = group.get("recover_user_inputs") or [s["request"] for s in group["steps"]]
     receipt = verified_recovered_user_receipt(
         after,
         {

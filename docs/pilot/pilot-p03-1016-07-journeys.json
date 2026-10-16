@@ -1,0 +1,106 @@
+{
+  "groups": [
+    {
+      "name": "user-explicit-indifference-natural-read",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [],
+      "owner": "pilot-p03-1016-06:owner:explicit-indifference",
+      "session": "pilot-p03-1016-06:story:explicit-indifference",
+      "question": "What did I say about coffee versus tea?",
+      "expect_user": true,
+      "expected_name": "Noor",
+      "preference_semantics": [
+        [
+          "neutral",
+          [
+            "coffee",
+            "tea"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {},
+      "verify_user_inputs": [
+        {
+          "event_id": "0c6bd103-a8db-5c21-828f-04a31174a325",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+          "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+          "agent_id": "pilot-p03-1016-06:owner:explicit-indifference",
+          "trace_id": "pilot-p03-1016-06",
+          "payload_ref": "pilot-story:paraphrase",
+          "payload": {
+            "content": "My name is Noor. I have no preference between coffee and tea; either is equally acceptable to me."
+          }
+        },
+        {
+          "event_id": "427cd587-1567-5961-ade0-ff0c4e6236a2",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+          "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+          "agent_id": "pilot-p03-1016-06:owner:explicit-indifference",
+          "trace_id": "pilot-p03-1016-06",
+          "payload_ref": "pilot-story:paraphrase",
+          "payload": {}
+        }
+      ],
+      "recovery_input_hash": "eb8a7d54f36efc05073443e204cd5ded128cfaa3309a24506aec74ac6e7cd5f2"
+    },
+    {
+      "name": "user-owner-preference-about-person-natural-read",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [],
+      "owner": "pilot-p03-1016-06:owner:owner-preference-about-person",
+      "session": "pilot-p03-1016-06:story:owner-preference-about-person",
+      "question": "What did I say about working with Omar?",
+      "expect_user": true,
+      "expected_name": "Ada",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "omar",
+            "work|collaborat"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {},
+      "verify_user_inputs": [
+        {
+          "event_id": "40fb32c3-a5ea-595b-a110-ddd6431cd506",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+          "session_id": "pilot-p03-1016-06:story:owner-preference-about-person",
+          "agent_id": "pilot-p03-1016-06:owner:owner-preference-about-person",
+          "trace_id": "pilot-p03-1016-06",
+          "payload_ref": "pilot-story:paraphrase",
+          "payload": {
+            "content": "My name is Ada. I prefer working with Omar because his code reviews are thorough. This is my own preference about working with Omar."
+          }
+        },
+        {
+          "event_id": "871d6fd8-c28d-5026-baaa-600b730fdf44",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+          "session_id": "pilot-p03-1016-06:story:owner-preference-about-person",
+          "agent_id": "pilot-p03-1016-06:owner:owner-preference-about-person",
+          "trace_id": "pilot-p03-1016-06",
+          "payload_ref": "pilot-story:paraphrase",
+          "payload": {}
+        }
+      ],
+      "recovery_input_hash": "617bf42317398fe6084acfa36ac914cf479888f3ea2c0b78e9be86f7509d67aa"
+    }
+  ],
+  "coverage": [
+    "Worker-free natural-question reads for already-extracted Noor/Ada facts. Original06 generic example questions remain context-inclusion-only proof."
+  ],
+  "limits": [
+    "No new extraction or retroactive claim for other question wording."
+  ]
+}
