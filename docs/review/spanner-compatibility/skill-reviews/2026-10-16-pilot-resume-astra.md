@@ -122,3 +122,11 @@ Astrareviewed worker-free retained-read mode: selectedgroupswithzeroinputs only,
 ## P02 final composite evidence acceptance
 
 Astra found no blocker to boundedP02completion or#71/#73closure. Run02 remainsfailed solelyfinalDecisioncontrast;253checks,173returnedprovidercalls,cleanshutdown. Run03passed33retained-readchecks,0inputs/workers/providers. Bothfinalledger/owner/materialgraph/oldEpisodeconservationandpending/DLQchecks pass. Actualfreshprompt/output/SpannersavededgeproveproposedVERIFIES. Run01actualDecisionplusrun03publicstatus/sourcecontrast completesfourhistoryscenarios. Neitheroriginalrunpassedunchanged;run02H09producednoDecision;inferrededgehasnodirectEventpointer. Umbrellasstayopen.
+
+## P03 pending-source recovery harness review
+
+Bounded static review of the frozen pilot-p03-1016-02 plan and recovery admission/final conservation found one launch blocker: `material_node` exempts `user_extraction_owner` on the exact recovery trigger, but `verified_recovered_user_receipt` does not validate that private field. `receipt_from_event` validates the receipt owner, not the separate Event property. Require the property to equal `user:` plus the trigger agent ID, with a wrong-private-owner regression, before accepting recovery.
+
+The remaining reviewed scope is appropriately narrow: tenant-specific original pending trigger, absent prior receipt/owner, exact frozen two-input window and hash, normal worker startup drain, no re-ingestion of Tara, and final domain receipt validation. Eight new inputs are separate; the original failed run and prior Entity mutations remain retained. Preference correction remains a separate required phase. No cloud calls or runtime edits performed by this review.
+
+P03 recovery recheck: the private Event owner now must equal `user:` plus the exact trigger agent ID, and the added negative regression alters only that private owner and requires rejection. The conservation closure also binds the tenant-specific trigger set explicitly. The identified launch blocker is resolved; no remaining blocker in this bounded static review. This permits recovery execution, not a live recovery or P03 completion claim.

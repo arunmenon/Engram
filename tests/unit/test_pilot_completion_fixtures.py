@@ -108,3 +108,77 @@ async def test_completion_contracts_projection_and_independent_read_expectations
     for q in group["queries"]:
         if not q.get("after_scenario"):
             await query(q)
+
+
+def test_recovery_receipt_requires_exact_source_window_and_owner(tmp_path):
+    from copy import deepcopy
+    from types import SimpleNamespace
+
+    from engram_pilot_completion_fixtures import (
+        p03_user_stories,
+        recovery_documents,
+        recovery_input_hash,
+        verified_recovered_user_receipt,
+    )
+    from engram_pilot_first_run import build_plan, material_node
+
+    from context_graph.domain.user_extraction import prepare_extraction_receipt
+
+    original = next(g for g in p03_user_stories("recovery-unit") if g["name"] == "user-paraphrase")
+    inputs = [s["request"] for s in original["steps"]]
+    state = {"events": [], "nodes": []}
+    for i, request in enumerate(inputs):
+        event = Event.model_validate(request, strict=False)
+        stored = event.model_dump(mode="json")
+        stored["payload"] = request["payload"]
+        state["events"].append([request["event_id"], stored])
+        props = event.model_dump(mode="json")
+        props["global_position"] = f"{i + 1}-0"
+        state["nodes"].append(["Event", request["event_id"], props])
+    group = {
+        **original,
+        "steps": [],
+        "recover_user_inputs": inputs,
+        "recovery_input_hash": recovery_input_hash(state, inputs),
+    }
+    path = tmp_path / "journeys.json"
+    path.write_text(json.dumps({"groups": [group], "coverage": "exact pending recovery"}))
+    args = SimpleNamespace(run_id="recovery-unit", journey_file=path, journeys_only=True)
+    assert build_plan(args)["execution_mode"] == "selected-journeys"
+    invalid = deepcopy(group)
+    invalid["owner"] = "other-owner"
+    path.write_text(json.dumps({"groups": [invalid], "coverage": "invalid"}))
+    with pytest.raises(ValueError, match="owner/session"):
+        build_plan(args)
+
+    documents = recovery_documents(state, inputs)
+    events = [Event.model_validate(d, strict=False) for d in documents]
+    receipt = prepare_extraction_receipt(events[-1], events, documents, {})
+    receipt["status"] = "applied"
+    state["nodes"][-1][2].update(
+        user_extraction_receipt=receipt, user_extraction_owner=receipt["owner"]
+    )
+    assert verified_recovered_user_receipt(state, group) == receipt
+    source_before = material_node(state["nodes"][-1], {inputs[-1]["event_id"]})
+    ordinary = material_node(state["nodes"][-1])
+    assert "user_extraction_receipt" in ordinary
+    assert "user_extraction_receipt" not in source_before
+    assert "agent_id" in source_before
+    for field, value in (
+        ("owner", "user:foreign"),
+        ("input_hash", "wrong"),
+        ("input_event_ids", [inputs[-1]["event_id"]]),
+    ):
+        changed = deepcopy(state)
+        changed["nodes"][-1][2]["user_extraction_receipt"][field] = value
+        with pytest.raises(ValueError):
+            verified_recovered_user_receipt(changed, group)
+    changed = deepcopy(state)
+    changed["events"][0][1]["payload"]["content"] = "altered source"
+    with pytest.raises(ValueError, match="source differs"):
+        recovery_documents(changed, inputs)
+
+    wrong_private_owner = deepcopy(state)
+    wrong_private_owner["nodes"][-1][2]["user_extraction_owner"] = "user:foreign"
+    with pytest.raises(ValueError, match="frozen source window"):
+        verified_recovered_user_receipt(wrong_private_owner, group)

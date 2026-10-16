@@ -445,17 +445,19 @@ class GraphOperations:
         mention_count: int,
         embedding: list[float] | None = None,
     ) -> None:
-        await self._merge_node(
-            "Entity",
-            entity_id,
-            {
-                "name": name,
-                "entity_type": entity_type,
-                "first_seen": first_seen,
-                "last_seen": last_seen,
-                "mention_count": mention_count,
-                "embedding": embedding or [],
-            },
+        await self._merge_nodes(
+            [
+                (
+                    ("Entity", entity_id),
+                    {"last_seen": last_seen, "embedding": embedding or []},
+                    {
+                        "name": name,
+                        "entity_type": entity_type,
+                        "first_seen": first_seen,
+                        "mention_count": mention_count,
+                    },
+                ),
+            ]
         )
 
     # ------------------------------------------------------------------

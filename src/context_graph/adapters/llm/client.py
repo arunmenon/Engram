@@ -675,13 +675,10 @@ class LLMExtractionClient:
 
                 if detect_degenerate_output(raw_result):
                     log.warning(
-                        "extraction_degenerate_output",
+                        "extraction_low_score_spread",
                         session_id=session_id,
                         attempt=attempt,
                     )
-                    if attempt < self._max_retries:
-                        continue
-                    return self._failed_extraction(session_id, agent_id)
 
                 validated = validate_extraction(raw_result, conversation_text)
                 log.info(
@@ -717,12 +714,10 @@ class LLMExtractionClient:
 
 
 def detect_degenerate_output(result: SessionExtractionResult) -> bool:
-    """Check if extraction output is degenerate (all confidences nearly identical).
+    """Legacy-named diagnostic for low spread in confidence fields/interest weights.
 
-    Returns True if the standard deviation of all confidence scores is < 0.02,
-    which suggests the model is not discriminating between extractions.
-    A well-calibrated LLM may legitimately assign similar scores (e.g. 0.8-0.9)
-    when evidence quality is uniformly strong, so the threshold is kept low.
+    A spread below 0.02 does not establish invalid output or model calibration.
+    Schema, source and receipt validation decide whether output is usable.
     """
     confidences: list[float] = []
     for entity in result.entities:

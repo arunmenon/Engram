@@ -279,6 +279,38 @@ class TestValidateExtraction:
 
 
 class TestLLMExtractionClient:
+    @pytest.mark.parametrize("supported", [True, False])
+    async def test_uniform_confidence_still_uses_source_validation(self, monkeypatch, supported):
+        import json
+        from pathlib import Path
+        from unittest.mock import AsyncMock
+
+        captured = Path(__file__).parents[1] / "fixtures/tara_uniform_confidence.json"
+        answer = json.loads(captured.read_text())
+        content = (
+            "My name is Tara. Long walls of text are hard for me to use; "
+            "two or three practical steps work much better."
+        )
+        if not supported:
+            for item in answer["preferences"]:
+                item["source_quote"] = "fabricated unrelated evidence never spoken"
+        client = LLMExtractionClient(model_id="gpt-6-luna", require_success=True)
+        provider = AsyncMock(return_value=json.dumps(answer))
+        monkeypatch.setattr(client, "_call_llm", provider)
+        event = make_event(event_type="observation.input", session_id="tara", agent_id="tara")
+        result = await client.extract_from_session(
+            events=[event],
+            session_id="tara",
+            agent_id="tara",
+            event_payloads=[{"event_id": str(event.event_id), "payload": {"content": content}}],
+        )
+        provider.assert_awaited_once()
+        assert len(result["preferences"]) == (2 if supported else 0)
+        if supported:
+            assert len({p["key"] for p in result["preferences"]}) == 2
+            assert all(p["source_quote"] in content for p in result["preferences"])
+            assert all(p["confidence"] == 0.95 for p in result["preferences"])
+
     @pytest.fixture()
     def client(self) -> LLMExtractionClient:
         return LLMExtractionClient(model_id="test-model", prompt_version="v1")

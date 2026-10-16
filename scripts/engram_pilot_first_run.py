@@ -66,6 +66,17 @@ def sourced_proposals(state, source_ids):
     ]
 
 
+def material_node(row, recovered_user_triggers=frozenset()):
+    allowed = {
+        "Event": {"access_count", "last_accessed_at", "importance_score"},
+        "Entity": {"last_seen", "mention_count"},
+        "Summary": {"content", "created_at"},
+    }.get(row[0], set())
+    if row[0] == "Event" and row[1] in recovered_user_triggers:
+        allowed = allowed | {"user_extraction_receipt", "user_extraction_owner"}
+    return {key: value for key, value in row[2].items() if key not in allowed}
+
+
 def fixtures(run_id):
     start = datetime.now(UTC) - timedelta(minutes=3)
     rows = []
@@ -241,10 +252,20 @@ def build_plan(args):
         names.add(group["name"])
         if not isinstance(group["steps"], list) or not isinstance(group["queries"], list):
             raise ValueError("Journey steps and queries must be lists")
-        if not group["steps"] and not group["queries"] and not group.get("final_queries"):
+        recovery = group.get("recover_user_inputs", [])
+        if recovery and (
+            not group.get("user_story")
+            or group["steps"]
+            or len(recovery) != 2
+            or [r["event_type"] for r in recovery] != ["observation.input", "system.session_end"]
+            or any(r["agent_id"] != group["owner"] for r in recovery)
+            or any(r["session_id"] != group["session"] for r in recovery)
+        ):
+            raise ValueError("User recovery must name its exact two-input owner/session window")
+        if not any((group["steps"], group["queries"], group.get("final_queries"), recovery)):
             raise ValueError("Journey group must contain inputs or read checks")
-        for step in group["steps"]:
-            Event.model_validate_json(json.dumps(step["request"]))
+        for request in [*[s["request"] for s in group["steps"]], *recovery]:
+            Event.model_validate_json(json.dumps(request))
     plan["execution_mode"] = "selected-journeys" if selected_only else "entry-and-selected"
     if selected_only:
         plan.update(
@@ -257,7 +278,7 @@ def build_plan(args):
                 "or certified by this attempt."
             ),
         )
-        if not any(group["steps"] for group in groups):
+        if not any(group["steps"] or group.get("recover_user_inputs") for group in groups):
             plan["execution_mode"] = "selected-retained-reads"
     return plan
 
@@ -274,7 +295,12 @@ async def execute(args):
     selected_groups = plan.get("spectrum", {}).get("groups", [])
     if selected_groups and not getattr(args, "journeys_only", False):
         plan["scope"] = [*plan["scope"], plan["spectrum"]["coverage"]]
-    source_inputs = plan["events"] + [{"event": step["request"]} for step in spectrum_steps]
+    recovery_groups = [g for g in selected_groups if g.get("recover_user_inputs")]
+    source_inputs = (
+        plan["events"]
+        + [{"event": step["request"]} for step in spectrum_steps]
+        + [{"event": r} for g in recovery_groups for r in g["recover_user_inputs"]]
+    )
     retained_reads_only = plan["execution_mode"] == "selected-retained-reads"
 
     durable_json(directory / "fixtures.json", plan)
@@ -449,6 +475,25 @@ async def execute(args):
                 and fingerprint(db) == previous["fingerprints"],
             )
             durable_json(directory / (t + "-before.json"), previous)
+            for group in recovery_groups:
+                if group["tenant"] != t:
+                    continue
+                from engram_pilot_completion_fixtures import recovery_input_hash
+
+                trigger_id = group["recover_user_inputs"][-1]["event_id"]
+                trigger_props = next(
+                    r[2]
+                    for r in previous["snapshot"]["nodes"]
+                    if r[0] == "Event" and r[1] == trigger_id
+                )
+                check(
+                    group["name"] + " exact pending source and absent prior receipt",
+                    ["assessment-extraction", trigger_id] in previous["snapshot"]["pending"]
+                    and not trigger_props.get("user_extraction_receipt")
+                    and not trigger_props.get("user_extraction_owner")
+                    and recovery_input_hash(previous["snapshot"], group["recover_user_inputs"])
+                    == group["recovery_input_hash"],
+                )
             existing_ids = {r[0] for r in previous["snapshot"]["events"]}
             fixture_ids = {r["event"]["event_id"] for r in plan["events"] if r["tenant"] == t}
             fixture_ids |= {
@@ -541,7 +586,7 @@ async def execute(args):
                 raise RuntimeError("API startup failed")
             await asyncio.sleep(0.1)
         check("public dispatcher ready", server.started)
-        for _t, b in (() if retained_reads_only else bindings.items()):
+        for _t, b in () if retained_reads_only else bindings.items():
             for kind in VALID_CONSUMERS:
                 worker, store = await _build_consumer(kind, b.settings(), tenant_binding=b)
                 consumers.append(worker)
@@ -989,16 +1034,27 @@ async def execute(args):
                             ),
                         }
                     )
-                    mutable = {
-                        "Event": {"access_count", "last_accessed_at", "importance_score"},
-                        "Entity": {"last_seen", "mention_count"},
-                        "Summary": {"content", "created_at"},
+                    tenant_recovery_triggers = {
+                        g["recover_user_inputs"][-1]["event_id"]
+                        for g in recovery_groups
+                        if g["tenant"] == t
                     }
 
-                    def material(row, mutable=mutable):
-                        return {
-                            k: v for k, v in row[2].items() if k not in mutable.get(row[0], set())
-                        }
+                    def material(row, allowed_triggers=tenant_recovery_triggers):
+                        return material_node(row, allowed_triggers)
+
+                    for group in recovery_groups:
+                        if group["tenant"] != t:
+                            continue
+                        from engram_pilot_completion_fixtures import verified_recovered_user_receipt
+
+                        verified_recovered_user_receipt(final["snapshot"], group)
+                        record["checks"].append(
+                            {
+                                "name": group["name"] + " final exact recovered receipt",
+                                "passed": True,
+                            }
+                        )
 
                     after_nodes = {(r[0], r[1]): material(r) for r in final["snapshot"]["nodes"]}
 

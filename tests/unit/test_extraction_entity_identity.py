@@ -28,6 +28,64 @@ class Provider:
         }
 
 
+async def test_raw_entity_reobservation_preserves_creation_metadata_and_count():
+    graph = MemoryGraphStore()
+    origin = datetime(2020, 1, 1, tzinfo=UTC).isoformat()
+    later = datetime(2026, 10, 16, tzinfo=UTC).isoformat()
+    await graph.merge_entity_node_raw("entity:Rust", "Rust", "concept", origin, origin, 7)
+    await graph.merge_entity_node_raw("entity:Rust", "Rust", "tool", later, later, 1)
+    ref = NodeRef("Entity", "entity:Rust", "entity_id")
+    node = (await graph.get_nodes([ref]))[ref]
+    assert node["first_seen"] == origin
+    assert node["entity_type"] == "concept" and node["mention_count"] == 7
+    assert node["last_seen"] == later
+
+
+@pytest.mark.parametrize("historical_self_edge", [True, False])
+async def test_same_storage_identity_is_reobserved_without_rewriting_self_link(
+    monkeypatch, historical_self_edge
+):
+    from unittest.mock import AsyncMock
+
+    graph, ledger = MemoryGraphStore(), MemoryEventLog()
+    origin = datetime(2020, 1, 1, tzinfo=UTC).isoformat()
+    await graph.merge_entity_node_raw("entity:Rust", "Rust", "concept", origin, origin, 7)
+    historical = dict(confidence=0.5, justification="historical", resolved_at=origin)
+    if historical_self_edge:
+        await graph.merge_typed_edge("entity:Rust", "entity:Rust", "SAME_AS", historical)
+    event = Event(
+        event_id=UUID(int=9190),
+        event_type="system.session_end",
+        occurred_at=datetime(2026, 10, 16, tzinfo=UTC),
+        session_id="same-identity",
+        agent_id="alice",
+        trace_id="t",
+        payload_ref="Rust",
+    )
+    position = await ledger.append(event, {"content": "Rust"})
+    await graph.merge_event_node(
+        event_to_node(event.model_copy(update={"global_position": position}))
+    )
+    subscription = MemorySubscription(ledger.stream, "extraction", "same-identity")
+    worker = ExtractionConsumer(
+        subscription,
+        ledger,
+        Provider("Rust", "Rust"),
+        Settings(ontology=OntologySettings(builtin_packs=[])),
+        graph_store=graph,
+    )
+    monkeypatch.setattr(worker, "_compute_entity_embedding", AsyncMock(return_value=None))
+    await worker.process_message(position, {"event_id": str(event.event_id)})
+    ref = NodeRef("Entity", "entity:Rust", "entity_id")
+    node = (await graph.get_nodes([ref]))[ref]
+    assert node["first_seen"] == origin
+    assert node["entity_type"] == "concept" and node["mention_count"] == 7
+    links = await graph.neighbors([ref], ["SAME_AS"], "out", 10)
+    assert [row["properties"] for row in links] == ([historical] if historical_self_edge else [])
+    references = await graph.neighbors([ref], ["REFERENCES"], "in", 10)
+    assert {row["source_key"] for row in references} == {str(event.event_id)}
+
+
 @pytest.mark.parametrize("user", [False, True])
 @pytest.mark.parametrize("first,second", [("ResetToken", "ResetToken"), ("JavaScript", "JS")])
 async def test_repeated_entity_resolution_retains_id_and_all_session_references(

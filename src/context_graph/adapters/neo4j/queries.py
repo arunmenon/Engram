@@ -137,11 +137,11 @@ SET e.event_type = evt.event_type,
 
 MERGE_ENTITY_NODE = """
 MERGE (n:Entity {entity_id: $entity_id})
-SET n.name = $name,
-    n.entity_type = $entity_type,
-    n.first_seen = $first_seen,
-    n.last_seen = $last_seen,
-    n.mention_count = $mention_count,
+ON CREATE SET n.name = $name,
+              n.entity_type = $entity_type,
+              n.first_seen = $first_seen,
+              n.mention_count = $mention_count
+SET n.last_seen = $last_seen,
     n.embedding = $embedding
 """.strip()
 

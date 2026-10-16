@@ -4,11 +4,58 @@ Business data is never inserted here. The existing pilot runner ingests these
 Events and verifies them through Engram's public flows on retained Spanner.
 """
 
+import json
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from uuid import NAMESPACE_URL, uuid5
 
 from engram_goal03_implementation_demo import fixture_observations
+
+
+def recovery_documents(state, inputs):
+    """Reconstruct the unchanged accepted input window, including read positions."""
+    from context_graph.domain.models import Event
+
+    ledger = {row[0]: row[1] for row in state["events"]}
+    nodes = {row[1]: row[2] for row in state["nodes"] if row[0] == "Event"}
+    documents = []
+    for expected in inputs:
+        eid = expected["event_id"]
+        actual = dict(ledger[eid])
+        original = Event.model_validate(expected, strict=False)
+        stored = Event.model_validate(actual, strict=False)
+        if original.model_copy(update={"global_position": None}) != stored.model_copy(
+            update={"global_position": None}
+        ) or actual.get("payload") != expected.get("payload"):
+            raise ValueError("Recovery source differs from the frozen accepted input")
+        actual["global_position"] = nodes[eid]["global_position"]
+        documents.append(actual)
+    return documents
+
+
+def recovery_input_hash(state, inputs):
+    documents = recovery_documents(state, inputs)
+    return sha256(json.dumps(documents, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def verified_recovered_user_receipt(state, group):
+    from context_graph.domain.models import Event
+    from context_graph.domain.user_extraction import receipt_from_event
+
+    documents = recovery_documents(state, group["recover_user_inputs"])
+    event = Event.model_validate(documents[-1], strict=False)
+    props = next(r[2] for r in state["nodes"] if r[0] == "Event" and r[1] == str(event.event_id))
+    receipt = receipt_from_event(event, props)
+    if (
+        not receipt
+        or props.get("user_extraction_owner") != "user:" + event.agent_id
+        or receipt["status"] != "applied"
+        or receipt["input_event_ids"] != [r["event_id"] for r in documents]
+        or receipt["input_hash"] != group["recovery_input_hash"]
+        or recovery_input_hash(state, group["recover_user_inputs"]) != group["recovery_input_hash"]
+    ):
+        raise ValueError("Recovered User receipt differs from its frozen source window")
+    return receipt
 
 
 def p03_user_stories(run_id):
@@ -80,8 +127,7 @@ def p03_user_stories(run_id):
                 preference_semantics=[],
                 diagnostic_queries=diagnostics,
                 source_kind=(
-                    "Actual model attribution control; "
-                    "diagnostic behavior is not a capability pass"
+                    "Actual model attribution control; diagnostic behavior is not a capability pass"
                 ),
             )
         )

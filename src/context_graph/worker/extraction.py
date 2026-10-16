@@ -408,7 +408,10 @@ class ExtractionConsumer(BaseConsumer):
                     raise ValueError("Matched Entity has no valid storage identity")
                 canonical_id = matched_id
 
-            if resolution is not None and resolution.action == EntityResolutionAction.MERGE:
+            if resolution is not None and (
+                resolution.action == EntityResolutionAction.MERGE
+                or canonical_id == f"entity:{entity_name}"
+            ):
                 entity_id = canonical_id
                 mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
                 log.debug(
