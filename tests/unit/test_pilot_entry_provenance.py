@@ -52,7 +52,7 @@ def test_selected_query_only_plan_contains_no_entry_events_or_scope(tmp_path):
     assert plan["events"] == []
     assert plan["expected_artifacts"] == {} and plan["queries"] == {}
     assert plan["scope"] == ["Only retained read checks"]
-    assert plan["execution_mode"] == "selected-journeys"
+    assert plan["execution_mode"] == "selected-retained-reads"
     args.journeys_only = False
     default = build_plan(args)
     assert len(default["events"]) == 9

@@ -257,6 +257,8 @@ def build_plan(args):
                 "or certified by this attempt."
             ),
         )
+        if not any(group["steps"] for group in groups):
+            plan["execution_mode"] = "selected-retained-reads"
     return plan
 
 
@@ -273,6 +275,7 @@ async def execute(args):
     if selected_groups and not getattr(args, "journeys_only", False):
         plan["scope"] = [*plan["scope"], plan["spectrum"]["coverage"]]
     source_inputs = plan["events"] + [{"event": step["request"]} for step in spectrum_steps]
+    retained_reads_only = plan["execution_mode"] == "selected-retained-reads"
 
     durable_json(directory / "fixtures.json", plan)
     source_paths = [*ROOT.joinpath("src").rglob("*.py"), *ROOT.joinpath("src").rglob("*.yaml")]
@@ -314,6 +317,7 @@ async def execute(args):
         "requests": [],
         "provider_calls": [],
         "worker_outcomes": [],
+        "workers": [],
         "limitations": [
             plan["remaining"],
             (
@@ -537,7 +541,7 @@ async def execute(args):
                 raise RuntimeError("API startup failed")
             await asyncio.sleep(0.1)
         check("public dispatcher ready", server.started)
-        for _t, b in bindings.items():
+        for _t, b in (() if retained_reads_only else bindings.items()):
             for kind in VALID_CONSUMERS:
                 worker, store = await _build_consumer(kind, b.settings(), tenant_binding=b)
                 consumers.append(worker)
@@ -898,17 +902,27 @@ async def execute(args):
                         break
                     await asyncio.sleep(0.3)
                 check(
-                    "spectrum worker outputs drained without failures",
+                    (
+                        "retained reads leave pending/DLQ empty"
+                        if retained_reads_only
+                        else "spectrum worker outputs drained without failures"
+                    ),
                     not any(lags)
                     and all(not s["pending"] and not s["dead_letters"] for s in states.values()),
                 )
         record["final_worker_lags"] = await asyncio.gather(
             *(w._subscription.lag() for w in consumers)
         )
-        check(
-            "ten worker identities and final zero lag",
-            len(record["workers"]) == 10 and not any(record["final_worker_lags"]),
-        )
+        if retained_reads_only:
+            check(
+                "retained-read checkpoint submits no inputs or background model work",
+                not source_inputs and not record["workers"] and not record["provider_calls"],
+            )
+        else:
+            check(
+                "ten worker identities and final zero lag",
+                len(record["workers"]) == 10 and not any(record["final_worker_lags"]),
+            )
         record["state"] = "pending-final-verification"
         save()
     except BaseException as exc:
@@ -1058,7 +1072,9 @@ async def execute(args):
                 record["state"] = "failed"
             elif record["state"] == "pending-final-verification":
                 record["state"] = (
-                    "passed-selected-journeys"
+                    "passed-retained-read-checkpoint"
+                    if retained_reads_only
+                    else "passed-selected-journeys"
                     if getattr(args, "journeys_only", False)
                     else "passed-spectrum-checkpoint"
                     if selected_groups
@@ -1069,6 +1085,7 @@ async def execute(args):
         "passed-first-checkpoint",
         "passed-spectrum-checkpoint",
         "passed-selected-journeys",
+        "passed-retained-read-checkpoint",
     }:
         raise RuntimeError("Pilot entry checkpoint failed; inspect retained report")
     print(

@@ -110,3 +110,10 @@ Astra recommended persisted registry-valid explicit endpoint priority within unc
 
 
 Astra implementation recheck for#73: no blocker. Explicit persisted endpoints precede lexical fill while retaining eligibility,total bound and normal validation. Regression covers crowding,bothendpoints and nonexistentendpointrejection. Capture covers successful freshfixturepackcalls; failedprovidercalls still lackcapturedinputs and requireseparateP10support. FreshP02 execution appropriate; originalfailedrecord remainsfailed.
+
+
+## P02 composite Decision contrast and retained-read checkpoint
+
+Rerun02 passed its19individualinputs and26readchecks, includingactualVERIFIES fromcapturedfreshprompt. FinalDecisioncheck failed: H09producedConstraint,notDecision. Keepthatfailure. Astra approvedreusing run01'sactualLunaDecision ratherthannewinput/outcomechasing. Reviewerverifiedrecordedstatementhash=f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4,finalstatusproposed,methodextracted,DERIVED_FROMexactoldH09. Frozenreadplanrequirespublicstatus/sourcecontrast withrun02explicitacceptedDecision; bothfailedrunsremainfailed.
+
+Astrareviewed worker-free retained-read mode: selectedgroupswithzeroinputs only, realpublicAPI/binding/baseline/conservation, explicitzeroworkers/providers anddistinctverdict. No launchblocker. This doesnotre-executeingestion/workers; originalactualprocessing/modelproofislinked. Fivefixture/provenancechecksandruffpassed; requestcontractsvalidatedbeforelaunch.
