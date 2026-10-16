@@ -682,7 +682,9 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
             if step.get("expected_node"):
                 required[step["expected_node"]] = step["expected_props"]
             actual_edges = {(r[2], r[1], r[4]) for r in state["edges"]}
-            applicable = step["request"]["event_type"] in {
+            applicable = step.get("requires_pack_output", False) or step["request"][
+                "event_type"
+            ] in {
                 "pdlc.design.section_changed",
                 "pdlc.spec.approved",
             }
@@ -773,6 +775,11 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 group["name"] + ":" + query_case["scenario"] + " directed links",
                 {tuple(e) for e in query_case.get("expected_edges", [])} <= edges,
             )
+            for channel, expected in query_case.get("expected_channels", {}).items():
+                check(
+                    group["name"] + ":" + query_case["scenario"] + " channel " + channel,
+                    answer.get("meta", {}).get("retrieval_channels", {}).get(channel) == expected,
+                )
             if query_case.get("global_discovery"):
                 check(group["name"] + " global discovery relevance", actual <= eligible)
                 events = {r[0] for r in prior["events"]}
@@ -1029,6 +1036,20 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 continue
             state = await wait_for(tenant, step)
             state = (await settle())[tenant]
+            for proposed in step.get("required_proposed_edges", []):
+                matches = [
+                    json_value(row[5])
+                    for row in state["edges"]
+                    if (row[2], row[1], row[4])
+                    == (proposed["kind"], proposed["source"], proposed["target"])
+                ]
+                check(
+                    label + " exact proposed link",
+                    len(matches) == 1
+                    and matches[0].get("method") == proposed["method"]
+                    and matches[0].get("link_status") == proposed["link_status"],
+                    matches,
+                )
             assert_forbidden_edges(state, step)
             observed = observations_by_event.setdefault(
                 step["request"]["event_id"], fixture_observations(step)
@@ -1189,6 +1210,67 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
         for query_case in group["queries"]:
             if not query_case.get("after_scenario"):
                 await execute_query(query_case)
+        if group.get("model_proposal_check"):
+            policy = group["model_proposal_check"]
+            state = await asyncio.to_thread(snapshot, databases[tenant])
+            proposed_ids = {
+                row[1]
+                for row in state["edges"]
+                if row[0] == policy["required_type"]
+                and row[2] == "DERIVED_FROM"
+                and row[4] == policy["event_id"]
+            }
+            properties = {row[1]: json_value(row[2]) for row in state["nodes"]}
+            check(
+                group["name"] + " model proposals distinct from accepted decision",
+                bool(proposed_ids)
+                and policy["accepted_decision"] not in proposed_ids
+                and all(properties[n].get("status") == policy["status"] for n in proposed_ids)
+                and properties[policy["accepted_decision"]].get("status") == "accepted",
+            )
+            code, answer = await request(
+                tenant,
+                "/v1/query/artifacts",
+                dict(
+                    query="status",
+                    intent="status",
+                    seed_node_ids=sorted(proposed_ids),
+                    max_nodes=100,
+                ),
+            )
+            check(
+                group["name"] + " proposed choices publicly retrievable",
+                code == 200
+                and all(
+                    n in answer.get("nodes", {})
+                    and answer["nodes"][n]["attributes"].get("status") == policy["status"]
+                    for n in proposed_ids
+                ),
+            )
+            accepted = {row[0] for row in state["events"]}
+            event_positions = {
+                row[1]: json_value(row[2]).get("global_position")
+                for row in state["nodes"]
+                if row[0] == "Event"
+            }
+            for nid in proposed_ids:
+                provenance = answer["nodes"][nid].get("provenance") or {}
+                source = provenance.get("event_id")
+                check(
+                    group["name"] + " public proposal accepted-source membership " + nid,
+                    source in accepted
+                    and provenance.get("source") == "spanner"
+                    and provenance.get("global_position") == event_positions.get(source)
+                    and any(
+                        row[1] == nid and row[2] == "DERIVED_FROM" and row[4] == source
+                        for row in state["edges"]
+                    ),
+                )
+            entry["model_proposal_contrast"] = {
+                "proposed": sorted(proposed_ids),
+                "accepted": policy["accepted_decision"],
+            }
+            save()
         for query_case in group.get("final_queries", []):
             body = {k: v for k, v in query_case.items() if k not in {"required", "forbidden"}}
             body.update(max_nodes=100, timeout_ms=30000)

@@ -436,3 +436,76 @@ class TestReviewFindings:
         await consumer.process_message(position, fields)
         assert len(model.prompts) == 1
         assert "We decided things." in model.prompts[0]
+
+
+class TestSourceEndpointDiscovery:
+    async def test_existing_testcase_can_propose_verification_with_validated_endpoints(
+        self,
+    ) -> None:
+        case = "TestCase:coverage/repo|expiry"
+        requirement = "Requirement:coverage|1|expiry"
+        missing = "TestCase:coverage/repo|not-offered"
+        model = ScriptedModel(
+            orjson.dumps(
+                {
+                    "nodes": [],
+                    "links": [
+                        {"type": "VERIFIES", "from": case, "to": requirement, "confidence": 0.6},
+                        {"type": "VERIFIES", "from": missing, "to": requirement, "confidence": 0.6},
+                    ],
+                }
+            ).decode()
+        )
+        consumer, log, graph = await _consumer(model)
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    NodeRef("TestCase", case),
+                    {
+                        "repo": "coverage/repo",
+                        "test_id": "expiry",
+                        "name": "coverageprobe expiry test",
+                        "path": "coverageprobe.py",
+                    },
+                ),
+                NodeWrite(
+                    NodeRef("Requirement", requirement),
+                    {"statement": "coverageprobe expires tokens"},
+                ),
+                NodeWrite(NodeRef("TestCase", missing), {"name": "unrelated", "path": "other.py"}),
+            ]
+        )
+        position = await _ingest(
+            log, graph, {"body": "coverageprobe expiry test checks token expiry"}
+        )
+        (entry,) = await log.read_after(None, 10)
+        await consumer.process_message(position, {"event_id": entry.event_id})
+        prompt = model.prompts[0]
+        assert f"- {case} (TestCase):" in prompt
+        assert f"- {requirement} (Requirement):" in prompt
+        assert f"- {missing} (TestCase):" not in prompt
+        rows = await graph.neighbors(
+            [NodeRef("TestCase", case), NodeRef("TestCase", missing)], ["VERIFIES"], "out", 10
+        )
+        assert [(r["source_key"], r["target_key"]) for r in rows] == [(case, requirement)]
+        assert rows[0]["properties"]["method"] == "inferred"
+        assert rows[0]["properties"]["link_status"] == "proposed"
+
+    async def test_source_endpoint_discovery_preserves_total_candidate_limit(self) -> None:
+        consumer, _, graph = await _consumer(ScriptedModel())
+        consumer._known_limit = 1
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    NodeRef("TestCase", "TestCase:limit/repo|expiry"), {"name": "limitprobe"}
+                ),
+                NodeWrite(
+                    NodeRef("Requirement", "Requirement:limit|1|expiry"),
+                    {"statement": "limitprobe"},
+                ),
+            ]
+        )
+        known = await consumer._known_items(
+            PROFILE, _event(), {"payload": {"body": "limitprobe"}}, "limitprobe"
+        )
+        assert len(known) == 1

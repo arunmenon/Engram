@@ -69,3 +69,11 @@ Corrected the shared skipped fixture and normalized-webhook helper: exact direct
 ## Approved batch plan review
 
 Arun approved P01–P12 for autonomous sequential checkpoints. Astra's scope review required four clarifications, folded into completion-goals.md: nonexistent-claim/trusted-source probes, explicit cross-session agent-scoped Goal with second-owner control, executable User context/ambiguity diagnostics, and bounded provider-failure/stale-startup procedures with restoration and unchanged owner. Existing legacy freeze/reactivation operators are not authorized by this plan. Independent human reproduction remains separately labeled.
+
+## P02 source-only extraction endpoints
+
+Astra confirmed TestCase was unreachable in normal PDLC extraction candidate discovery: only link target types were searched, while TestCase is only a VERIFIES source and is neither proposable nor owned by eligible prose Events. Regression reproduced missing prompt identity and rejected link. The profile now derives registry-permitted source+target types; the worker uses the same bounded search, key eligibility, trust and endpoint validation. Astra implementation review: no blockers.92 relevant local tests passed. Live P02 proof pending; P01 continuation06 retains original259df1c executed source.
+
+## P02 fixture/oracle review
+
+19 explicit inputs and seven read checks preflight accepted payload contracts and actual projection/retriever behavior locally. The scripted local proposed VERIFIES is fixture consistency proof only, not live model evidence. Future live runner requires an applied extraction outcome and exact persisted proposed edge metadata, plus missing/proposed-only/confirmed completeness channel counts and exact source/receipt membership. Astra found a reused Decision identity risk: current DERIVED_FROM membership is required, while public provenance must resolve to an accepted source belonging to that Decision rather than necessarily selecting the newest Event. Corrected accordingly. Explicit-seed trace questions are labeled traversal controls; natural discovery remains P08. P02 live run pending P01.

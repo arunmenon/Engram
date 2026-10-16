@@ -266,6 +266,17 @@ class ExtractionProfile:
         """Proposable edge type → the node types it may end at."""
         return self._link_targets
 
+    def link_endpoint_types(self) -> set[str]:
+        """Existing items may be either endpoint of a proposed relationship."""
+        targets = set().union(*self._link_targets.values())
+        sources = {
+            source
+            for name, targets_for_edge in self._link_targets.items()
+            for source in self._registry.node_types
+            if any(self._registry.allows(name, source, target) for target in targets_for_edge)
+        }
+        return sources | targets
+
     # -- prompt and schema -----------------------------------------------------------
 
     def output_schema(self) -> dict[str, Any]:

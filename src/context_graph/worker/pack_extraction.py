@@ -193,9 +193,9 @@ class PackExtractionConsumer(BaseConsumer):
                 ref.key, KnownItem(ref.key, ref.label, _label(node, self._label_chars))
             )
         terms = search_terms(text, self._search_terms)
-        targets = sorted(set().union(*profile.link_targets().values())) if profile.edges else []
+        endpoint_types = sorted(profile.link_endpoint_types())
         registry = self._projector.registry
-        for label in targets:
+        for label in endpoint_types:
             if len(known) >= self._known_limit or not terms:
                 break
             node_type = registry.node_types[label]
