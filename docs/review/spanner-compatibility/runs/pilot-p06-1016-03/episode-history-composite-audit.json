@@ -1,0 +1,66 @@
+{
+  "verdict": "bounded composite P06 proof; original01 and02 remain failed",
+  "original_full_flow_run": "pilot-p06-1016-02",
+  "original_accepted_inputs": 8,
+  "original_worker_count": 10,
+  "original_verdict": "failed",
+  "follow_up_state": "passed-retained-read-checkpoint",
+  "follow_up_checks": 271,
+  "follow_up_inputs": 0,
+  "follow_up_workers": 0,
+  "follow_up_model_calls": 0,
+  "follow_up_public_reads": 4,
+  "proof": {
+    "directory": "docs/review/spanner-compatibility/runs/pilot-p06-1016-02",
+    "sha256": {
+      "a-final-state.json": "d407469ef65a2909dbf669312e3dfeafd48e95ea5d5e0019929ec3e9594b90a9",
+      "b-final-state.json": "e15a7c4f3513984f04e23e207d27d34c3df5a15c79d8fdd32bcff023cd899c3c",
+      "fixtures.json": "475fb7095b3bb21371a9634b73ec6e24b41712ae29976f67d07933309cc9bffc",
+      "recorded-source-audit.json": "aad092cc9db7dffe06cd3835cb9e4815cc25cd21a0b20aa5643c3c88616ab314",
+      "reproduction-manifest.json": "80f0a7dc88a2f3d109a2114c1fa07920913af38fd178e741cc5976f90b89e4b0",
+      "results.json": "55f285d2bf14aa03075e421c2e634c29d48424304619a92cc6098daf6921677c"
+    }
+  },
+  "tenants": {
+    "a": {
+      "episode_snapshots": 5,
+      "reads": [
+        {
+          "control": false,
+          "episode_count": 4,
+          "summary_count": 4,
+          "status": 200
+        },
+        {
+          "control": true,
+          "episode_count": 1,
+          "summary_count": 1,
+          "status": 200
+        }
+      ],
+      "owner_and_ledger_unchanged": true
+    },
+    "b": {
+      "episode_snapshots": 4,
+      "reads": [
+        {
+          "control": false,
+          "episode_count": 3,
+          "summary_count": 3,
+          "status": 200
+        },
+        {
+          "control": true,
+          "episode_count": 1,
+          "summary_count": 1,
+          "status": 200
+        }
+      ],
+      "owner_and_ledger_unchanged": true
+    }
+  },
+  "limits": [
+    "Episode/episode-Summary context isolation only; general raw Event recall can be broader",
+    "No live cache-benefit claim from a worker-free checkpoint"
+  ]
+}

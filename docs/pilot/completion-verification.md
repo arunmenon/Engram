@@ -290,3 +290,49 @@ The retained preflight contains 95 Episode/session cache keys in A and 129 in B,
 The regression reproduced two identical 65-session cycles making 260 calls. The smallest correction raises the existing bounded capacity to 256, with identical scope/identity/membership/prompt keys, worker-local lifetime, success-only caching and eviction semantics. It is a memory bound, not a model-call/spend cap. The corrected two cycles make 130 calls; changing one session's Episode and session prompts adds only two calls. Eviction and failure/empty-output tests remain enforced. There is no unlimited reuse or latency claim.
 
 Astra cleared this narrow fix and the retained-history checkpoint. Fifty-five focused tests passed during preparation, followed by 30 targeted tests after the proof-loader refinements; those sets overlap and are not added together. Ruff/whitespace checks passed. The worker-free checkpoint cannot prove live cache benefit; that confirmation remains for the next actual worker run. #67 stays open pending that evidence.
+
+## P06 verification walkthrough — late activity and Episode history
+
+**Question:** when an older activity record arrives late, can Engram update its grouping without erasing what it previously published?
+
+The grouping rule uses source timestamps: a gap greater than 30 minutes starts a separate Episode. For each tenant, we first submitted an activity at minute 0 and another at minute 40. They belong to one session but initially form two separate Episodes. We also submitted the same wording under the same owner in a different session as a negative control. The runner waited for the initial private structure and public reads before sending anything else.
+
+Next, we submitted an Event whose source timestamp was minute 20. Its ledger receipt is newer, but its source time sits between the first two Events. Both gaps are now 20 minutes, so normal consolidation should publish a new three-member Episode. The two earlier Episodes must remain available with their original members and bounds. `complete=true` here means the snapshot's membership has been written; it does not mean a task or Goal completed.
+
+| Input in each tenant | Expected observation |
+|---|---|
+| First activity, source minute 0 | One singleton Episode with the first Event as evidence |
+| Later activity, source minute 40 | Another singleton Episode; both publicly retrievable |
+| Same wording, unrelated session | A separate Episode context in that session's read, excluded from the primary Episode context |
+| Late activity, source minute 20, sent after initial reads pass | A new three-member Episode; earlier two remain unchanged |
+
+Tenant A also published a source-valid first+bridge snapshot along the way. It remains in history rather than being erased. The original three-snapshot-only oracle rejected it; Astra reviewed that failure and the follow-up validates every source-valid published snapshot. Tenant B has the initial two and final merged snapshot.
+
+The late Event is not a data migration or manual repair. Every Event enters through the authenticated API; ordinary workers construct the graph in real Spanner; acceptance reads use the public API. The read-only SDK snapshots support diagnosis and exact storage checks.
+
+For every snapshot we compare the declared identity, exact Event members, bounds, linked Summary structure, directed CONTAINS/DERIVED_FROM/SUMMARIZES edges and receipt-backed source positions. Public reads must return the exact expected Episode/episode-Summary history for the selected session. A generic raw Event recall result is separately diagnosed and is not used to claim strict session isolation for every retrieval channel. Summary text quality is the separate P07 check; P06 proves membership/history structure.
+
+**Accepted result:** P06 is complete as a bounded composite proof, independently accepted by Astra. Original run02 supplies eight authenticated API admissions, ten ordinary workers, real Spanner materialization and both initial public checkpoints. Retained run03 passed all 271 checks with four public 200 reads, zero new inputs/workers/model calls and clean shutdown. Its 179 source hashes match `d429f96`. Both owners and source ledgers stayed unchanged; all prior material graph and Episode memberships were preserved.
+
+| Public read | Expected and actual Episode context | Verdict |
+|---|---|---|
+| A primary session | Four Episodes and four linked episode Summaries: initial two + valid intermediate pair + merged triple | Pass |
+| A control session | One control Episode and Summary; primary context excluded | Pass |
+| B primary session | Three Episodes and three linked episode Summaries: initial two + merged triple | Pass |
+| B control session | One control Episode and Summary; primary context excluded | Pass |
+
+Repeat the exact public read checkpoint using the pinned run03 fixture and a fresh read-only preflight; the frozen evidence hashes must still match. [Composite audit](../review/spanner-compatibility/runs/pilot-p06-1016-03/episode-history-composite-audit.json), [actual public responses and checks](../review/spanner-compatibility/runs/pilot-p06-1016-03/results.json), [frozen read plan](pilot-p06-1016-03-journeys.json), [source audit](../review/spanner-compatibility/runs/pilot-p06-1016-03/recorded-source-audit.json). Original01/02 remain failed. This does not prove Summary meaning, live cache benefit, all-channel session isolation, overall pilot readiness or independent human reproduction. P07 is next.
+
+To repeat the P06 retained-read checkpoint, use the repository's Python environment with dependencies installed, `gcloud` on PATH, the experiment service account authorized on both retained databases, and the existing pilot credentials/environment. The harness checks for an OpenAI credential even though this read-only mode makes no provider calls. Existing ownership/bindings must remain unchanged; the preflight refuses a mismatch. Choose fresh output names if these already exist. No database cleanup is part of this command pair.
+
+```sh
+PYTHONPATH=src:scripts python scripts/engram_pilot_model_transition.py inspect \
+  --binding-record docs/review/spanner-compatibility/runs/pilot-1016-model-transition-01 \
+  --output docs/review/spanner-compatibility/runs/p06-recheck-preflight
+
+PYTHONPATH=src:scripts python scripts/engram_pilot_first_run.py \
+  --run-id p06-recheck \
+  --predecessor docs/review/spanner-compatibility/runs/p06-recheck-preflight \
+  --output docs/review/spanner-compatibility/runs/p06-recheck \
+  --journey-file docs/pilot/pilot-p06-1016-03-journeys.json --journeys-only
+```
