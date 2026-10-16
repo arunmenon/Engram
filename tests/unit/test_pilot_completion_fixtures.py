@@ -170,6 +170,11 @@ def test_recovery_receipt_requires_exact_source_window_and_owner(tmp_path):
     verification.pop("recover_user_inputs")
     path.write_text(json.dumps({"groups": [verification], "coverage": "retained verification"}))
     assert build_plan(args)["execution_mode"] == "selected-retained-reads"
+    correction_verification = {**verification, "user_story": False, "user_correction": True}
+    path.write_text(
+        json.dumps({"groups": [correction_verification], "coverage": "read correction"})
+    )
+    assert build_plan(args)["execution_mode"] == "selected-retained-reads"
     assert verified_recovered_user_receipt(state, verification) == receipt
     path.write_text(json.dumps({"groups": [{**verification, **group}], "coverage": "invalid"}))
     with pytest.raises(ValueError, match="both recover and verify"):
@@ -423,6 +428,11 @@ def test_explicit_correction_has_exact_identity_and_receipt_derived_profile_chan
     )
     updates, actual = correction_expected_updates(before, after, group)
     assert actual == receipt
+    from engram_pilot_completion_fixtures import verified_user_correction
+
+    assert verified_user_correction(after, group) == receipt
+    with pytest.raises(ValueError, match="active and replacement fresh"):
+        correction_expected_updates(after, after, group)
     assert updates[("Preference", "preference:old")] == {
         **before["nodes"][0][2],
         "superseded_by": new_id,

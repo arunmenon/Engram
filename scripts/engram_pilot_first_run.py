@@ -261,9 +261,11 @@ def build_plan(args):
         names.add(group["name"])
         if not isinstance(group["steps"], list) or not isinstance(group["queries"], list):
             raise ValueError("Journey steps and queries must be lists")
-        correction_inputs = group.get("recover_user_inputs") or [
-            s["request"] for s in group["steps"]
-        ]
+        correction_inputs = (
+            group.get("recover_user_inputs")
+            or group.get("verify_user_inputs")
+            or [s["request"] for s in group["steps"]]
+        )
         if group.get("user_correction") and (
             len(correction_inputs) != 2
             or [r["event_type"] for r in correction_inputs]
@@ -1084,7 +1086,11 @@ async def execute(args):
                     )
                     correction_updates = {}
                     for group in selected_groups:
-                        if group["tenant"] == t and group.get("user_correction"):
+                        if (
+                            group["tenant"] == t
+                            and group.get("user_correction")
+                            and not group.get("verify_user_inputs")
+                        ):
                             from engram_pilot_completion_fixtures import correction_expected_updates
 
                             expected, _receipt = correction_expected_updates(

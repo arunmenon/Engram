@@ -578,14 +578,18 @@ def p02_history(run_id):
     )
 
 
-def correction_expected_updates(before, after, group):
-    """Exact permitted prior-node changes for one frozen producer correction."""
-    inputs = group.get("recover_user_inputs") or [s["request"] for s in group["steps"]]
+def verified_user_correction(state, group):
+    """Validate an applied correction independently of its mutation baseline."""
+    inputs = (
+        group.get("recover_user_inputs")
+        or group.get("verify_user_inputs")
+        or [s["request"] for s in group["steps"]]
+    )
     receipt = verified_recovered_user_receipt(
-        after,
+        state,
         {
             "verify_user_inputs": inputs,
-            "recovery_input_hash": recovery_input_hash(after, inputs),
+            "recovery_input_hash": recovery_input_hash(state, inputs),
         },
     )
     source = inputs[0]["event_id"]
@@ -606,13 +610,12 @@ def correction_expected_updates(before, after, group):
         != [dict(previous_preference_id=old_id, replacement_id=new_id, source_event_id=source)]
     ):
         raise ValueError("Correction output differs from its frozen identity/negative evidence")
-    nodes = {(r[0], r[1]): decoded_snapshot_cell(r[2]) for r in after["nodes"]}
-    old_nodes = {(r[0], r[1]): dict(r[2]) for r in before["nodes"]}
+    nodes = {(r[0], r[1]): decoded_snapshot_cell(r[2]) for r in state["nodes"]}
     old_ref = ("Preference", old_id)
-    if old_nodes[old_ref].get("superseded_by") or ("Preference", new_id) in old_nodes:
-        raise ValueError("Correction predecessor must be active and replacement fresh")
-    expected_old = {**old_nodes[old_ref], "superseded_by": new_id}
-    if nodes[old_ref].get("superseded_by") != new_id:
+    if (
+        nodes[old_ref].get("superseded_by") != new_id
+        or nodes[old_ref].get("user_id") != "user:" + group["owner"]
+    ):
         raise ValueError("Correction did not supersede its exact predecessor")
     new_props = nodes[("Preference", new_id)]
     if (
@@ -641,7 +644,7 @@ def correction_expected_updates(before, after, group):
         ("Preference", new_id, "DERIVED_FROM", "Event", source),
         ("Preference", old_id, "DERIVED_FROM", "Event", source),
     }
-    edges = {tuple(e[:5]): decoded_snapshot_cell(e[5]) for e in after["edges"]}
+    edges = {tuple(e[:5]): decoded_snapshot_cell(e[5]) for e in state["edges"]}
     if (
         not expected_edges <= edges.keys()
         or edges[("Preference", new_id, "SUPERSEDES", "Preference", old_id)].get("source_event_id")
@@ -654,6 +657,18 @@ def correction_expected_updates(before, after, group):
         or evidence.get("extraction_event_id") != inputs[-1]["event_id"]
     ):
         raise ValueError("Persisted correction evidence differs from validated replacement")
+    return receipt
+
+
+def correction_expected_updates(before, after, group):
+    """Exact permitted prior-node changes for one frozen producer correction."""
+    receipt = verified_user_correction(after, group)
+    old_id, new_id = group["expected_previous"], group["expected_replacement"]
+    old_nodes = {(r[0], r[1]): dict(r[2]) for r in before["nodes"]}
+    old_ref = ("Preference", old_id)
+    if old_nodes[old_ref].get("superseded_by") or ("Preference", new_id) in old_nodes:
+        raise ValueError("Correction predecessor must be active and replacement fresh")
+    expected_old = {**old_nodes[old_ref], "superseded_by": new_id}
     updates = {old_ref: expected_old}
     profile_ref = ("UserProfile", "profile:user:" + group["owner"])
     profile = dict(old_nodes[profile_ref])

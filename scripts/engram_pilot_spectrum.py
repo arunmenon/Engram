@@ -895,12 +895,21 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             save()
             continue
         if group.get("user_correction"):
-            from engram_pilot_completion_fixtures import correction_expected_updates
+            from engram_pilot_completion_fixtures import (
+                correction_expected_updates,
+                verified_user_correction,
+            )
 
             before = (
-                baselines[tenant] if group.get("recover_user_inputs") else (await settle())[tenant]
+                baselines[tenant]
+                if group.get("recover_user_inputs") or group.get("verify_user_inputs")
+                else (await settle())[tenant]
             )
-            inputs = group.get("recover_user_inputs") or [s["request"] for s in group["steps"]]
+            inputs = (
+                group.get("recover_user_inputs")
+                or group.get("verify_user_inputs")
+                or [s["request"] for s in group["steps"]]
+            )
             for step in group["steps"]:
                 code, _ = await request(tenant, "/v1/events", step["request"])
                 check(group["name"] + ":" + step["scenario"] + " admission", code == 201)
@@ -914,17 +923,21 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                 if props.get("user_extraction_status") == "applied":
                     break
                 await asyncio.sleep(0.3)
-            updates, receipt = correction_expected_updates(before, after, group)
-            actual_nodes = {(n[0], n[1]): json_value(n[2]) for n in after["nodes"]}
-            check(
-                group["name"] + " exact permitted predecessor/profile changes",
-                all(actual_nodes[k] == json_value(json.dumps(v)) for k, v in updates.items()),
-            )
+            if group.get("verify_user_inputs"):
+                receipt = verified_user_correction(after, group)
+                check(group["name"] + " exact already-applied correction state", True)
+            else:
+                updates, receipt = correction_expected_updates(before, after, group)
+                actual_nodes = {(n[0], n[1]): json_value(n[2]) for n in after["nodes"]}
+                check(
+                    group["name"] + " exact permitted predecessor/profile changes",
+                    all(actual_nodes[k] == json_value(json.dumps(v)) for k, v in updates.items()),
+                )
             old_id, new_id = group["expected_previous"], group["expected_replacement"]
             other = group["unrelated_preference"]
             expected_active = {new_id, other}
             base = "/v1/users/user:" + group["owner"]
-            code, active = await request(tenant, base + "/preferences", method="GET")
+            code, active = await request(tenant, base + "/preferences", method="GET", role="admin")
             check(
                 group["name"] + " active public preferences exclude predecessor",
                 code == 200 and {p["preference_id"] for p in active} == expected_active,
