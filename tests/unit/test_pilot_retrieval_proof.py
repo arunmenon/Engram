@@ -144,3 +144,64 @@ async def test_observer_preserves_results_failures_and_task_context():
     await graph._query("APPROX_COSINE_DISTANCE", {}, {})
     assert not record["vector_observations"][-1]["ann"]
     assert calls[0][0][1] == dict(query=[0.1] * 384)
+
+
+def test_entity_without_own_receipt_requires_stored_source_path():
+    _, state, body = proof()
+    state["nodes"][0][2]["entity_id"] = "entity:VegaLedger"
+    body["nodes"]["entity:VegaLedger"] = dict(
+        node_type="Entity",
+        attributes=dict(name="VegaLedger", entity_id="entity:VegaLedger"),
+        provenance=None,
+    )
+    body["edges"] = [dict(source="source", target="entity:VegaLedger", edge_type="REFERENCES")]
+    assert closed_response(body, state)
+    changed = deepcopy(state)
+    changed["edges"] = []
+    assert not closed_response(body, changed)
+    changed = deepcopy(body)
+    changed["nodes"]["source"]["provenance"]["global_position"] = "wrong"
+    assert not closed_response(changed, state)
+    changed = deepcopy(body)
+    changed["nodes"]["entity:VegaLedger"]["attributes"]["name"] = "invented"
+    assert not closed_response(changed, state)
+    changed = deepcopy(body)
+    changed["nodes"]["entity:VegaLedger"]["node_type"] = "Goal"
+    assert not closed_response(changed, state)
+
+
+@pytest.fixture(scope="module")
+def retained_case():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    plan = json.loads((root / "docs/pilot/pilot-p08-1016-02-journeys.json").read_text())
+    original = root / plan["retained_retrieval_proof"]["directory"]
+    states = {
+        t: json.loads((original / (t + "-final-state.json")).read_text())["snapshot"]
+        for t in ("a", "b")
+    }
+    return plan, states
+
+
+def test_retained_full_flow_source_proof(retained_case):
+    from engram_pilot_retrieval_proof import retained_sources
+
+    plan, states = retained_case
+    result = retained_sources(plan, states)
+    assert result["accepted_inputs"] == 9 and result["original_verdict"] == "failed"
+    assert result["unrelated_background_provider_failure"]["error_type"] == "InternalServerError"
+
+
+def test_changed_retained_proof_or_question_rejected(retained_case):
+    from engram_pilot_retrieval_proof import retained_sources
+
+    plan, states = retained_case
+    changed = deepcopy(plan)
+    changed["retained_retrieval_proof"]["sha256"]["results.json"] = "0" * 64
+    with pytest.raises(ValueError, match="proof changed"):
+        retained_sources(changed, states)
+    changed = deepcopy(plan)
+    changed["groups"][0]["paraphrase"] = "easier changed question"
+    with pytest.raises(ValueError, match="source or question changed"):
+        retained_sources(changed, states)

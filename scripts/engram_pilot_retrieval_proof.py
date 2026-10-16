@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from contextvars import ContextVar
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
 
 from engram_pilot_completion_fixtures import decoded_snapshot_cell as decode
-from engram_pilot_completion_fixtures import p04_negative_proof
+from engram_pilot_completion_fixtures import p04_negative_proof, recovery_documents
 
 
 def freeze(run_id):
@@ -225,19 +228,165 @@ def observe_vectors(child, tenant, record, save):
 
 
 def closed_response(body, state):
-    """Every returned endpoint and provenance position must resolve to saved data."""
+    """Event receipts or an Entity's stored REFERENCES path establish provenance."""
     nodes = body.get("nodes", {})
-    positions = {
-        r[1]: decode(r[2]).get("global_position") for r in state["nodes"] if r[0] == "Event"
+    saved = {(r[0], r[1]): decode(r[2]) for r in state["nodes"]}
+    if any(e["source"] not in nodes or e["target"] not in nodes for e in body.get("edges", [])):
+        return False
+
+    def receipt(node):
+        p = node.get("provenance")
+        return bool(
+            p
+            and ("Event", p["event_id"]) in saved
+            and p["global_position"] == saved[("Event", p["event_id"])].get("global_position")
+            and p["source"] == "spanner"
+        )
+
+    stored_refs = {
+        (r[1], r[4])
+        for r in state["edges"]
+        if r[0] == "Event" and r[2] == "REFERENCES" and r[3] == "Entity"
     }
-    return all(
-        e["source"] in nodes and e["target"] in nodes for e in body.get("edges", [])
-    ) and all(
-        n.get("provenance")
-        and n["provenance"]["event_id"] in positions
-        and n["provenance"]["global_position"] == positions[n["provenance"]["event_id"]]
-        and n["provenance"]["source"] == "spanner"
-        for n in nodes.values()
+    for nid, node in nodes.items():
+        if node.get("provenance") is not None:
+            if not receipt(node):
+                return False
+        elif node["node_type"] == "Entity":
+            props = saved.get(("Entity", nid), {})
+            if props.get("entity_id") != nid or not all(
+                props.get(k) == v for k, v in node["attributes"].items()
+            ):
+                return False
+            if not any(
+                e["edge_type"] == "REFERENCES"
+                and e["target"] == nid
+                and (e["source"], nid) in stored_refs
+                and nodes[e["source"]]["node_type"] == "Event"
+                and receipt(nodes[e["source"]])
+                for e in body.get("edges", [])
+            ):
+                return False
+        else:
+            return False
+    return True
+
+
+def retained_sources(plan, states):
+    """Pin the failed full-flow evidence and unchanged accepted records before reads."""
+    proof = plan["retained_retrieval_proof"]
+    root = Path(__file__).resolve().parents[1]
+    directory = (root / proof["directory"]).resolve()
+    expected_files = {
+        "results.json",
+        "fixtures.json",
+        "reproduction-manifest.json",
+        "recorded-source-audit.json",
+        "a-final-state.json",
+        "b-final-state.json",
+    }
+    if not directory.is_relative_to(root) or set(proof["sha256"]) != expected_files:
+        raise ValueError("Exact retained P08 evidence pins are required")
+    docs = {}
+    for name, digest in proof["sha256"].items():
+        raw = (directory / name).read_bytes()
+        if hashlib.sha256(raw).hexdigest() != digest:
+            raise ValueError("Retained proof changed: " + name)
+        docs[name] = json.loads(raw)
+    r = docs["results.json"]
+    audit = docs["recorded-source-audit.json"]
+    manifest = docs["reproduction-manifest.json"]
+    if (
+        r["state"] != "failed"
+        or r.get("shutdown_errors") != []
+        or r.get("finalization_errors")
+        or {c["name"] for c in r["checks"] if not c["passed"]}
+        != {
+            "p08-vector-a endpoint/source closure",
+            "actual provider calls returned after cooperative shutdown",
+        }
+        or not audit["all_match"]
+        or audit["git_revision"] != manifest["git_revision"]
+        or len(audit["files"]) != len(manifest["source_sha256"])
+        or not all(
+            f["matches"]
+            and f["expected_sha256"]
+            == f["committed_sha256"]
+            == manifest["source_sha256"].get(f["path"])
+            for f in audit["files"]
+        )
+    ):
+        raise ValueError("Retained original is not the reviewed P08 failure/source proof")
+    workers = {(w["tenant"], w["type"]) for w in r["workers"]}
+    if workers != {
+        (t, k)
+        for t in ("a", "b")
+        for k in ("projection", "extraction", "enrichment", "consolidation", "pack_extraction")
+    }:
+        raise ValueError("Original worker evidence incomplete")
+    required_checks = {
+        t + " " + suffix
+        for t in ("a", "b")
+        for suffix in (
+            "final exact ledger append and retained owner",
+            "prior graph preserved except approved derived refresh",
+            "exact prior Episode membership retained",
+            "final zero pending and exactly declared DLQ",
+        )
+    }
+    if not required_checks <= {c["name"] for c in r["checks"] if c["passed"]}:
+        raise ValueError("Original preservation proof incomplete")
+    if len([q for q in r["requests"] if q["path"] == "/v1/events" and q["status"] == 201]) != 9:
+        raise ValueError("Original accepted input inventory changed")
+    original = docs["fixtures.json"]["spectrum"]["groups"]
+    if len(original) != len(plan["groups"]):
+        raise ValueError("Retained groups changed")
+    for g, old in zip(plan["groups"], original, strict=True):
+        if (
+            g["steps"]
+            or g["retained_steps"] != old["steps"]
+            or any(
+                g.get(k) != v
+                for k, v in old.items()
+                if k not in {"steps", "queries", "retained_negative_deliveries"}
+            )
+        ):
+            raise ValueError("Frozen P08 source or question changed")
+        sources = [s["request"] for s in old["steps"]]
+        current_documents = recovery_documents(states[g["tenant"]], sources)
+        positions = {d["event_id"]: d["global_position"] for d in current_documents}
+        for source in sources:
+            q = [
+                q
+                for q in r["requests"]
+                if q["path"] == "/v1/events" and q["tenant"] == g["tenant"] and q["input"] == source
+            ]
+            if (
+                len(q) != 1
+                or q[0]["status"] != 201
+                or q[0]["output"]["status"] != "created"
+                or positions[source["event_id"]] != q[0]["output"]["global_position"]
+            ):
+                raise ValueError("Original accepted source receipt missing")
+        if current_documents != recovery_documents(
+            docs[g["tenant"] + "-final-state.json"]["snapshot"], sources
+        ):
+            raise ValueError("Retained accepted content/authority/position changed")
+    ids = {s["request"]["event_id"] for g in original for s in g["steps"]}
+    failed = [c for c in r["provider_calls"] if c.get("state") != "returned"]
+    if len(failed) != 1 or failed[0].get("error_type") != "InternalServerError":
+        raise ValueError("Unexpected original provider failure")
+    scope = next(
+        o for o in r["summary_cache_observations"] if o["id"] == failed[0].get("summary_request_id")
+    )
+    if set(scope["source_event_ids"]) & ids:
+        raise ValueError("Required P08 input had failed summary invocation")
+    return dict(
+        original_run=proof["directory"],
+        original_verdict="failed",
+        accepted_inputs=9,
+        unrelated_background_provider_failure=failed[0],
+        pins=proof,
     )
 
 
@@ -287,6 +436,10 @@ async def execute(plan, *, request, check, record, save, settle):
             )
             check(g["name"] + ":" + step["scenario"] + " admitted", code == 201, code)
     states = await settle()
+    if plan.get("retained_retrieval_proof"):
+        record["retained_retrieval_source_proof"] = retained_sources(plan, states)
+        check("retained P08 accepted sources and original worker proof", True)
+        save()
 
     async def read(g, name, path, body):
         code, out = await request(g["tenant"], path, body)
@@ -356,7 +509,7 @@ async def execute(plan, *, request, check, record, save, settle):
             check(name + " target discovered", g["change"] in out["nodes"])
         save()
     acceptance = {r[0]: decode(r[2]) for r in states["b"]["events"]}
-    for step in g["steps"]:
+    for step in g.get("retained_steps") or g["steps"]:
         if step["scenario"].startswith("trust-"):
             expected_source = "demo.untrusted" if step.get("role") == "untrusted" else "demo.query"
             check(
@@ -408,8 +561,8 @@ async def execute(plan, *, request, check, record, save, settle):
         body = dict(
             query=g["vector_query"],
             intent="related",
-            session_id=g["steps"][0]["request"]["session_id"],
-            agent_id=g["steps"][0]["request"]["agent_id"],
+            session_id=(g.get("retained_steps") or g["steps"])[0]["request"]["session_id"],
+            agent_id=(g.get("retained_steps") or g["steps"])[0]["request"]["agent_id"],
             max_nodes=100,
             timeout_ms=30000,
         )
@@ -425,6 +578,30 @@ async def execute(plan, *, request, check, record, save, settle):
             and rows[0]["state"] == "returned"
             and vector_chain(rows[0], states[t], g["source_id"], out, g["entity_name"]),
         )
+        if g.get("entity_paraphrase_query"):
+            text = g["entity_paraphrase_query"]
+            check(
+                g["name"] + " descriptive query excludes exact Entity token",
+                g["entity_name"].lower() not in text.lower(),
+            )
+            diagnostic, entry = await read(
+                g, g["name"] + "-descriptive", "/v1/query/subgraph", {**body, "query": text}
+            )
+            observed = [
+                r
+                for r in record.get("vector_observations", [])
+                if r["tenant"] == t and r["query"]["query"] == text
+            ]
+            entry["target_source_returned"] = g["source_id"] in diagnostic["nodes"]
+            entry["target_vector_participation"] = len(observed) == 1 and vector_chain(
+                observed[0], states[t], g["source_id"], diagnostic, g["entity_name"]
+            )
+            entry["diagnostic_verdict"] = (
+                "target-vector-participates"
+                if entry["target_vector_participation"]
+                else "C04-semantic-vector-gap"
+            )
+            save()
         absent, entry = await read(
             g,
             "absent-" + t,

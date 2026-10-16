@@ -109,7 +109,7 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 | P05 | Complete: 246 live checks; Astra accepted Memory/PDLC coexistence and retained-negative proof | [Verification](completion-verification.md); pilot-p05-1016-01 |
 | P06 | Complete: Astra accepted bounded composite history proof; original01/02 remain failed | [Verification](completion-verification.md); run03 passed 271 retained-read checks over the original eight full-flow inputs |
 | P07 | Complete: four actual-model contrasts,133 live checks; Astra accepted evidence | [Verification](completion-verification.md); pilot-p07-1016-01 |
-| P08 | Prepared: nine frozen inputs, retrieval budget/vector/trust probes; launch review in progress | pilot-p08-1016-01-journeys.json |
+| P08 | In progress: attempt01 retained as failed; Astra accepted Entity evidence-oracle correction; read-only follow-up pending clean shutdown | pilot-p08-1016-01-journeys.json; original question/source records retained |
 | P09 | Approved; queued | This inventory |
 | P10 | Approved; queued | This inventory |
 | P11 | Approved; queued | This inventory |

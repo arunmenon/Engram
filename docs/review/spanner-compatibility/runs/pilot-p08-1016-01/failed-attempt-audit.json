@@ -1,0 +1,78 @@
+{
+  "original_verdict": "failed",
+  "source": "298baae808565e3a328c081a82ed66ac1f28e0d6",
+  "source_hashes": 180,
+  "accepted_inputs": 9,
+  "checks": 71,
+  "failed_checks": [
+    {
+      "name": "p08-vector-a endpoint/source closure",
+      "passed": false,
+      "actual": null
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": false
+    }
+  ],
+  "shutdown_errors": [],
+  "conservation": [
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final zero pending and exactly declared DLQ",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final zero pending and exactly declared DLQ",
+      "passed": true
+    }
+  ],
+  "unrelated_provider_error": {
+    "call": {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T18:18:25.651405+00:00",
+      "prompt_sha256": "884d0455048646c019b166850f4b3fd044367ed636a62993fb646876300952d3",
+      "summary_request_id": "summary-234",
+      "state": "failed",
+      "error_type": "InternalServerError"
+    },
+    "scope": {
+      "id": "summary-234",
+      "tenant": "b",
+      "scope": "episode",
+      "scope_id": "episode-f7a5c8f54a89439b13a1d94ed202f2bbe6e2c91696dbefa6e122a7eb9a9ec6c8",
+      "source_event_ids": [
+        "d4d754b9-0c36-58b1-9daf-d1f2dde6cccf"
+      ],
+      "prompt_sha256": "884d0455048646c019b166850f4b3fd044367ed636a62993fb646876300952d3",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": null,
+      "cache_present_after": false
+    },
+    "source_ids_disjoint_from_p08": true
+  }
+}
