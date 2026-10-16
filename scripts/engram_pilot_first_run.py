@@ -27,6 +27,7 @@ import litellm
 import structlog
 import uvicorn
 from engram_experiment_support import durable_json, fingerprint, read_owner, snapshot, stop_demo
+from engram_pilot_completion_fixtures import declared_dead_letters
 from engram_pilot_model_transition import binding_from_baseline
 from google.cloud import spanner
 from google.cloud.spanner_v1.pool import BurstyPool
@@ -512,6 +513,10 @@ async def execute(args):
                 and read_owner(db) == previous["owner"]
                 and fingerprint(db) == previous["fingerprints"],
             )
+            check(
+                t + " baseline has no undeclared retained dead letters",
+                not previous["snapshot"]["dead_letters"],
+            )
             durable_json(directory / (t + "-before.json"), previous)
             for group in recovery_groups:
                 if group["tenant"] != t:
@@ -722,7 +727,10 @@ async def execute(args):
                         and receipts
                         and b_prose <= applied
                         and not any(lags)
-                        and not any(s["pending"] or s["dead_letters"] for s in states.values())
+                        and all(
+                            not s["pending"] and declared_dead_letters(s, selected_groups, t)
+                            for t, s in states.items()
+                        )
                     ):
                         break
                     await asyncio.sleep(1)
@@ -732,7 +740,10 @@ async def execute(args):
                     and receipts
                     and b_prose <= applied
                     and not any(lags)
-                    and not any(s["pending"] or s["dead_letters"] for s in states.values()),
+                    and all(
+                        not s["pending"] and declared_dead_letters(s, selected_groups, t)
+                        for t, s in states.items()
+                    ),
                 )
                 for t, s in states.items():
                     durable_json(directory / (t + "-processed.json"), s)
@@ -992,7 +1003,9 @@ async def execute(args):
                         t: await asyncio.to_thread(snapshot, db) for t, db in databases.items()
                     }
                     if not any(lags) and all(
-                        not s["pending"] and not s["dead_letters"] for s in states.values()
+                        not s["pending"]
+                        and declared_dead_letters(s, selected_groups, t, require_all=True)
+                        for t, s in states.items()
                     ):
                         break
                     await asyncio.sleep(0.3)
@@ -1000,10 +1013,14 @@ async def execute(args):
                     (
                         "retained reads leave pending/DLQ empty"
                         if retained_reads_only
-                        else "spectrum worker outputs drained without failures"
+                        else "spectrum work drained with exactly declared negative deliveries"
                     ),
                     not any(lags)
-                    and all(not s["pending"] and not s["dead_letters"] for s in states.values()),
+                    and all(
+                        not s["pending"]
+                        and declared_dead_letters(s, selected_groups, t, require_all=True)
+                        for t, s in states.items()
+                    ),
                 )
         record["final_worker_lags"] = await asyncio.gather(
             *(w._subscription.lag() for w in consumers)
@@ -1168,9 +1185,11 @@ async def execute(args):
                     )
                     record["checks"].append(
                         {
-                            "name": t + " final pending/DLQ empty",
+                            "name": t + " final zero pending and exactly declared DLQ",
                             "passed": not final["snapshot"]["pending"]
-                            and not final["snapshot"]["dead_letters"],
+                            and declared_dead_letters(
+                                final["snapshot"], selected_groups, t, require_all=complete
+                            ),
                         }
                     )
                 except Exception as exc:

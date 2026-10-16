@@ -633,6 +633,8 @@ def discovery_eligibility(state, policy, depth):
 
 async def execute(plan, *, request, check, databases, record, save, consumers, baselines=None):
     """Run frozen expectations; never derive an expected artifact from output."""
+    from engram_pilot_completion_fixtures import declared_dead_letters, memory_subject_snapshot
+
     results = record.setdefault("spectrum", [])
     observations_by_event = {}
 
@@ -668,7 +670,8 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             lags = await asyncio.gather(*(w._subscription.lag() for w in consumers))
             states = {t: await asyncio.to_thread(snapshot, db) for t, db in databases.items()}
             if not any(lags) and all(
-                not st["pending"] and not st["dead_letters"] for st in states.values()
+                not st["pending"] and declared_dead_letters(st, plan["groups"], t)
+                for t, st in states.items()
             ):
                 return states
             await asyncio.sleep(0.3)
@@ -698,7 +701,7 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             if (
                 (not applicable or applied)
                 and not state["pending"]
-                and not state["dead_letters"]
+                and declared_dead_letters(state, plan["groups"], tenant)
                 and eid in nodes
                 and all(
                     nid in nodes and all(nodes[nid].get(k) == v for k, v in props.items())
@@ -1225,8 +1228,35 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                     if query_case.get("after_scenario") == step["scenario"]:
                         await execute_query(query_case)
                 continue
+            if step.get("expected_worker_rejection"):
+                deadline = time.monotonic() + 180
+                key = [step["expected_worker_rejection"]["group"], step["request"]["event_id"]]
+                while time.monotonic() < deadline:
+                    state = await asyncio.to_thread(snapshot, databases[tenant])
+                    if key in state["dead_letters"] and declared_dead_letters(
+                        state, plan["groups"], tenant
+                    ):
+                        break
+                    await asyncio.sleep(0.3)
+                check(
+                    label + " exact bound dead letter and conflict diagnostic",
+                    key in state["dead_letters"]
+                    and declared_dead_letters(state, plan["groups"], tenant),
+                )
+                source_node = next(json_value(r[2]) for r in state["nodes"] if r[1] == key[1])
+                check(
+                    label + " DLQ position equals admitted position",
+                    source_node["global_position"] == body["global_position"],
+                )
             state = await wait_for(tenant, step)
             state = (await settle())[tenant]
+            if step.get("unchanged_subject"):
+                subject = step["unchanged_subject"]
+                check(
+                    label + " exact subject and incident evidence unchanged",
+                    memory_subject_snapshot(before, subject)
+                    == memory_subject_snapshot(state, subject),
+                )
             for proposed in step.get("required_proposed_edges", []):
                 matches = [
                     json_value(row[5])
@@ -1393,6 +1423,21 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                         for k, v in step["expected_props"].items()
                     ),
                 )
+            if step.get("memory_intent"):
+                public_edges = {
+                    (e["edge_type"], e["source"], e["target"]) for e in answer.get("edges", [])
+                }
+                check(
+                    label + " public declared lifecycle links",
+                    {tuple(e) for e in step["expected_edges"]} <= public_edges,
+                )
+                check(
+                    label + " public exact action evidence",
+                    all(
+                        ("DERIVED_FROM", oid, step["request"]["event_id"]) in public_edges
+                        for oid in observed
+                    ),
+                )
             entry["queries"].append({"scenario": label, "route": route, "required": key})
             save()
             for query_case in group["queries"]:
@@ -1471,6 +1516,17 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                 code == 200
                 and set(query_case["required"]) <= answer.get("nodes", {}).keys()
                 and not set(query_case["forbidden"]) & answer.get("nodes", {}).keys(),
+            )
+            if group.get("source_expectations"):
+                state = await asyncio.to_thread(snapshot, databases[tenant])
+                assert_public_sources(answer, set(query_case["required"]), state)
+            check(
+                group["name"] + ":" + body["intent"] + " Memory owner exclusions",
+                all(
+                    n.get("attributes", {}).get("agent_id") == body["agent_id"]
+                    for n in answer.get("nodes", {}).values()
+                    if n.get("node_type") in {"Goal", "Belief"}
+                ),
             )
         entry["state"] = "passed selected scenarios"
         save()

@@ -1,0 +1,666 @@
+{
+  "coverage": "P04 explicit Memory lifecycle, conflict, owner and session/agent scope",
+  "groups": [
+    {
+      "name": "a-memory",
+      "tenant": "a",
+      "steps": [
+        {
+          "scenario": "belief-stated",
+          "request": {
+            "event_id": "8a87e154-bc58-5feb-8626-2ec63c41185f",
+            "event_type": "memory.belief.stated",
+            "occurred_at": "2026-10-16T12:08:56.087549+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:belief-stated",
+            "payload": {
+              "key": "expiry",
+              "belief_text": "Reset tokens expire in fifteen minutes.",
+              "confidence": 0.7,
+              "category": "world_model"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+          "expected_props": {
+            "origin": "stated",
+            "confirmation_count": 1,
+            "state_revision": 0
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "belief-confirmed",
+          "request": {
+            "event_id": "3d01cd35-81eb-5c29-ab44-fe5213281d22",
+            "event_type": "memory.belief.confirmed",
+            "occurred_at": "2026-10-16T12:08:57.087553+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:belief-confirmed",
+            "payload": {
+              "key": "expiry",
+              "expected_revision": 0
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+          "expected_props": {
+            "confirmation_count": 2,
+            "state_revision": 1
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "stale-belief-confirmation",
+          "request": {
+            "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+            "event_type": "memory.belief.confirmed",
+            "occurred_at": "2026-10-16T12:08:58.087555+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:belief-confirmed",
+            "payload": {
+              "key": "expiry",
+              "expected_revision": 0
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+          "expected_props": {
+            "confirmation_count": 2,
+            "state_revision": 1
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": false,
+          "expected_worker_rejection": {
+            "group": "assessment-projection",
+            "reason": "state_conflict",
+            "disposition_epoch": 53
+          },
+          "unchanged_subject": "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8"
+        },
+        {
+          "scenario": "belief-inferred",
+          "request": {
+            "event_id": "1b64c685-4f48-567e-983f-1e78dcc26bc2",
+            "event_type": "memory.belief.inferred",
+            "occurred_at": "2026-10-16T12:08:59.087557+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:belief-inferred",
+            "payload": {
+              "key": "replacement",
+              "belief_text": "Expiry is ten minutes after policy review.",
+              "confidence": 0.7,
+              "category": "world_model"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464",
+          "expected_props": {
+            "origin": "inferred",
+            "confirmation_count": 0
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "belief-corrected",
+          "request": {
+            "event_id": "699ac80a-69a5-5f1d-abb3-2171243e3550",
+            "event_type": "memory.belief.corrected",
+            "occurred_at": "2026-10-16T12:09:00.087559+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:belief-corrected",
+            "payload": {
+              "key": "expiry",
+              "replacement_key": "replacement",
+              "expected_revision": 1,
+              "contradicts": true
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+          "expected_props": {
+            "superseded_by": "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464",
+            "state_revision": 2
+          },
+          "expected_edges": [
+            [
+              "SUPERSEDES",
+              "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464",
+              "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8"
+            ],
+            [
+              "CONTRADICTS",
+              "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464",
+              "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8"
+            ]
+          ],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "expected_edge_properties": [
+            [
+              "SUPERSEDES",
+              "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464",
+              "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+              {
+                "method": "declared",
+                "source_event_id": "699ac80a-69a5-5f1d-abb3-2171243e3550"
+              }
+            ],
+            [
+              "CONTRADICTS",
+              "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464",
+              "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+              {
+                "method": "declared",
+                "source_event_id": "699ac80a-69a5-5f1d-abb3-2171243e3550"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "study-created",
+          "request": {
+            "event_id": "cef2fd2b-8c3f-5c7f-940c-f5acb0663862",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:01.087561+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:study-created",
+            "payload": {
+              "key": "study",
+              "description": "Finish study",
+              "priority": 5
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-0f9499265b858780b8bc680973710403972ef789ade5378a93ac9587dc770730",
+          "expected_props": {
+            "status": "active",
+            "evidence_count": 1
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "study-terminal",
+          "request": {
+            "event_id": "1552c182-1762-5fa3-bc96-5da4d6450a3e",
+            "event_type": "memory.goal.completed",
+            "occurred_at": "2026-10-16T12:09:02.087563+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:study-terminal",
+            "payload": {
+              "key": "study",
+              "expected_revision": 0
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-0f9499265b858780b8bc680973710403972ef789ade5378a93ac9587dc770730",
+          "expected_props": {
+            "status": "completed",
+            "evidence_count": 2
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "household-created",
+          "request": {
+            "event_id": "c425d5c6-afe4-5f96-b71a-2c32503add54",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:03.087565+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:household-created",
+            "payload": {
+              "key": "household",
+              "description": "Finish household",
+              "priority": 5
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-5e3bc398f558db36d705f245089d1c3f7c4879b62ca6bd82f72e9fe8ae07e0fc",
+          "expected_props": {
+            "status": "active",
+            "evidence_count": 1
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "household-terminal",
+          "request": {
+            "event_id": "d7e190a4-2915-543e-9e56-a1b28b2e23a6",
+            "event_type": "memory.goal.abandoned",
+            "occurred_at": "2026-10-16T12:09:04.087566+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:household-terminal",
+            "payload": {
+              "key": "household",
+              "expected_revision": 0
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-5e3bc398f558db36d705f245089d1c3f7c4879b62ca6bd82f72e9fe8ae07e0fc",
+          "expected_props": {
+            "status": "abandoned",
+            "evidence_count": 2
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "delivery-created",
+          "request": {
+            "event_id": "cd7d91af-5217-54eb-96aa-6e24a5e1c3bf",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:05.087568+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:delivery-created",
+            "payload": {
+              "key": "delivery",
+              "description": "Finish delivery",
+              "priority": 5
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-147dfbf42b1dfa13ed0db0607a263e36afa76047d19427fb4f408f4925dc8c0d",
+          "expected_props": {
+            "status": "active",
+            "evidence_count": 1
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "replacement-created",
+          "request": {
+            "event_id": "0b7b0324-3ae8-5119-966a-afb21f535bac",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:06.087570+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:replacement-created",
+            "payload": {
+              "key": "new-plan",
+              "description": "Use revised plan"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-73b747ce9aa9e135887b0bc8ddd8febad4325e26981dea4bd3faa82f1cf37fb7",
+          "expected_props": {
+            "status": "active"
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when"
+        },
+        {
+          "scenario": "delivery-terminal",
+          "request": {
+            "event_id": "86d20aa5-6e28-50e7-b194-ea727468d1ff",
+            "event_type": "memory.goal.superseded",
+            "occurred_at": "2026-10-16T12:09:07.087571+00:00",
+            "session_id": "pilot-p04-1016-01:a:memory",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-spectrum:delivery-terminal",
+            "payload": {
+              "key": "delivery",
+              "expected_revision": 0,
+              "replacement_key": "new-plan"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-147dfbf42b1dfa13ed0db0607a263e36afa76047d19427fb4f408f4925dc8c0d",
+          "expected_props": {
+            "status": "superseded",
+            "evidence_count": 2
+          },
+          "expected_edges": [
+            [
+              "SUPERSEDES",
+              "goal-73b747ce9aa9e135887b0bc8ddd8febad4325e26981dea4bd3faa82f1cf37fb7",
+              "goal-147dfbf42b1dfa13ed0db0607a263e36afa76047d19427fb4f408f4925dc8c0d"
+            ]
+          ],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "expected_edge_properties": [
+            [
+              "SUPERSEDES",
+              "goal-73b747ce9aa9e135887b0bc8ddd8febad4325e26981dea4bd3faa82f1cf37fb7",
+              "goal-147dfbf42b1dfa13ed0db0607a263e36afa76047d19427fb4f408f4925dc8c0d",
+              {
+                "method": "declared",
+                "source_event_id": "86d20aa5-6e28-50e7-b194-ea727468d1ff"
+              }
+            ]
+          ]
+        },
+        {
+          "scenario": "agent-goal-created",
+          "request": {
+            "event_id": "d5971e28-3fb9-525f-8240-c40bad2bc163",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:08.087573+00:00",
+            "session_id": "pilot-p04-1016-01:scope:first",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-p04:agent-goal-created",
+            "payload": {
+              "key": "study",
+              "scope": "agent",
+              "description": "Finish the reliability course"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+          "expected_props": {
+            "status": "active",
+            "state_revision": 0,
+            "evidence_count": 1,
+            "scope": "agent"
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": true
+        },
+        {
+          "scenario": "other-owner-goal",
+          "request": {
+            "event_id": "5e55e8da-6214-5a30-a6eb-7cd42ee32f87",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:09.087575+00:00",
+            "session_id": "pilot-p04-1016-01:scope:first",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner:other",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-p04:other-owner-goal",
+            "payload": {
+              "key": "study",
+              "scope": "agent",
+              "description": "Finish the reliability course"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193",
+          "expected_props": {
+            "status": "active",
+            "scope": "agent"
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": true
+        },
+        {
+          "scenario": "session-goal-created",
+          "request": {
+            "event_id": "754e6d5a-4539-562e-9d77-17d4d9eccfa7",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T12:09:10.087577+00:00",
+            "session_id": "pilot-p04-1016-01:scope:second",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-p04:session-goal-created",
+            "payload": {
+              "key": "study",
+              "scope": "session",
+              "description": "Finish the reliability course"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4",
+          "expected_props": {
+            "status": "active",
+            "scope": "session"
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": true
+        },
+        {
+          "scenario": "ordinary-progress",
+          "request": {
+            "event_id": "844c2c8b-d233-5c7a-83a7-0f48cd2eb991",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T12:09:11.087578+00:00",
+            "session_id": "pilot-p04-1016-01:scope:second",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-p04:ordinary-progress",
+            "payload": {
+              "content": "I finished chapter one of the reliability course; the course is not complete."
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+          "expected_props": {
+            "status": "active",
+            "state_revision": 0,
+            "evidence_count": 1
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": false,
+          "unchanged_subject": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+          "expected_observed_node_ids": []
+        },
+        {
+          "scenario": "agent-goal-completed-second-session",
+          "request": {
+            "event_id": "fd4033a2-f608-539a-9f2c-8b1125c86bd8",
+            "event_type": "memory.goal.completed",
+            "occurred_at": "2026-10-16T12:09:12.087580+00:00",
+            "session_id": "pilot-p04-1016-01:scope:second",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-p04:agent-goal-completed-second-session",
+            "payload": {
+              "key": "study",
+              "scope": "agent",
+              "expected_revision": 0
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+          "expected_props": {
+            "status": "completed",
+            "state_revision": 1,
+            "evidence_count": 2
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": true,
+          "node_assertions": {
+            "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4": {
+              "status": "active"
+            },
+            "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193": {
+              "status": "active"
+            }
+          }
+        },
+        {
+          "scenario": "malformed-goal-completion",
+          "request": {
+            "event_id": "99ef55b3-1c7d-5ac5-acbc-8a6b510ae14f",
+            "event_type": "memory.goal.completed",
+            "occurred_at": "2026-10-16T12:09:13.087582+00:00",
+            "session_id": "pilot-p04-1016-01:scope:second",
+            "agent_id": "pilot-p04-1016-01:a:memory-owner",
+            "trace_id": "pilot-p04-1016-01",
+            "payload_ref": "pilot-p04:agent-goal-completed-second-session",
+            "payload": {
+              "key": "study",
+              "scope": "agent"
+            }
+          },
+          "expected_status": 422,
+          "expected_node": "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+          "expected_props": {
+            "status": "completed",
+            "state_revision": 1,
+            "evidence_count": 2
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": true,
+          "node_assertions": {
+            "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4": {
+              "status": "active"
+            },
+            "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193": {
+              "status": "active"
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "source_kind": "Explicit attributed Memory actions; no prose inference",
+      "final_queries": [
+        {
+          "query": "What assumptions remain current?",
+          "intent": "beliefs",
+          "session_id": "pilot-p04-1016-01:a:memory",
+          "agent_id": "pilot-p04-1016-01:a:memory-owner",
+          "required": [
+            "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464"
+          ],
+          "forbidden": [
+            "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8"
+          ]
+        },
+        {
+          "query": "What changed in the assumptions?",
+          "intent": "when",
+          "session_id": "pilot-p04-1016-01:a:memory",
+          "agent_id": "pilot-p04-1016-01:a:memory-owner",
+          "required": [
+            "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8",
+            "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464"
+          ],
+          "forbidden": []
+        },
+        {
+          "query": "What goals do I have?",
+          "intent": "goals",
+          "session_id": "pilot-p04-1016-01:scope:second",
+          "agent_id": "pilot-p04-1016-01:a:memory-owner",
+          "required": [
+            "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4",
+            "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6"
+          ],
+          "forbidden": [
+            "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193"
+          ]
+        },
+        {
+          "query": "Show my goal history",
+          "intent": "when",
+          "session_id": "pilot-p04-1016-01:scope:second",
+          "agent_id": "pilot-p04-1016-01:a:memory-owner",
+          "required": [
+            "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+            "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4"
+          ],
+          "forbidden": [
+            "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193"
+          ]
+        },
+        {
+          "query": "What goals do I have?",
+          "intent": "goals",
+          "session_id": "pilot-p04-1016-01:scope:first",
+          "agent_id": "pilot-p04-1016-01:a:memory-owner:other",
+          "required": [
+            "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193"
+          ],
+          "forbidden": [
+            "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6",
+            "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4"
+          ]
+        },
+        {
+          "query": "Show my goal across sessions",
+          "intent": "when",
+          "session_id": "pilot-p04-1016-01:scope:first",
+          "agent_id": "pilot-p04-1016-01:a:memory-owner",
+          "required": [
+            "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6"
+          ],
+          "forbidden": [
+            "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4",
+            "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193"
+          ]
+        }
+      ],
+      "source_expectations": {
+        "belief-b22a24468432a03183745f6a2e27bb5839e7e18570afcd2f7ee18cefe0a9e3f8": [
+          "8a87e154-bc58-5feb-8626-2ec63c41185f"
+        ],
+        "belief-db32ad238db84c2440e4d93c6c51aa86665e67a5da6b5592bf84d588dd15d464": [
+          "1b64c685-4f48-567e-983f-1e78dcc26bc2"
+        ],
+        "goal-0f9499265b858780b8bc680973710403972ef789ade5378a93ac9587dc770730": [
+          "cef2fd2b-8c3f-5c7f-940c-f5acb0663862"
+        ],
+        "goal-5e3bc398f558db36d705f245089d1c3f7c4879b62ca6bd82f72e9fe8ae07e0fc": [
+          "c425d5c6-afe4-5f96-b71a-2c32503add54"
+        ],
+        "goal-147dfbf42b1dfa13ed0db0607a263e36afa76047d19427fb4f408f4925dc8c0d": [
+          "cd7d91af-5217-54eb-96aa-6e24a5e1c3bf"
+        ],
+        "goal-73b747ce9aa9e135887b0bc8ddd8febad4325e26981dea4bd3faa82f1cf37fb7": [
+          "0b7b0324-3ae8-5119-966a-afb21f535bac"
+        ],
+        "goal-a77b3af2798402cef729604e9ae1ec721090593def47b642eef1a527458060e6": [
+          "d5971e28-3fb9-525f-8240-c40bad2bc163"
+        ],
+        "goal-b0e2c03eeb7cf20ebaf72fc380481a5fbcb26bb87ac45ba9c9bc590d57f18193": [
+          "5e55e8da-6214-5a30-a6eb-7cd42ee32f87"
+        ],
+        "goal-d120ebbd46a3262fcb4d72382e7d4cd35cbb583a83531685f45d5ffd697dd0f4": [
+          "754e6d5a-4539-562e-9d77-17d4d9eccfa7"
+        ]
+      }
+    }
+  ]
+}

@@ -195,6 +195,12 @@ def snapshot(database):
                 list(r)
                 for r in snap.execute_sql("SELECT group_name, event_id FROM ConsumerDeadLetters")
             ],
+            "dead_letter_fields": [
+                list(r)
+                for r in snap.execute_sql(
+                    "SELECT group_name, event_id, fields FROM ConsumerDeadLetters"
+                )
+            ],
         }
 
 

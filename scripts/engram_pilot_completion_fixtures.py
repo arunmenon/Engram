@@ -689,3 +689,236 @@ def correction_expected_updates(before, after, group):
             )
     updates[profile_ref] = profile
     return updates, receipt
+
+
+def declared_dead_letters(state, groups, tenant, *, require_all=False):
+    """Only frozen negative deliveries are allowed; validate their bound source.
+
+    Reason lives on the Event diagnostic: bound subscription metadata deliberately
+    reconstructs the accepted delivery rather than trusting arbitrary caller fields.
+    No declaration is inferred from observed dead letters.
+    """
+    expected = {
+        (step["expected_worker_rejection"]["group"], step["request"]["event_id"]): step
+        for group in groups
+        if group["tenant"] == tenant
+        for step in group["steps"]
+        if step.get("expected_worker_rejection")
+    }
+    actual = {tuple(row) for row in state["dead_letters"]}
+    if not actual <= expected.keys() or (require_all and actual != expected.keys()):
+        return False
+    if len(actual) != len(state["dead_letters"]):
+        return False
+    details = {
+        (r[0], r[1]): decoded_snapshot_cell(r[2]) for r in state.get("dead_letter_fields", [])
+    }
+    nodes = {r[1]: decoded_snapshot_cell(r[2]) for r in state["nodes"] if r[0] == "Event"}
+    ledger = {r[0]: r for r in state["events"]}
+    for key in actual:
+        step, fields = expected[key], details.get(key, {})
+        eid = key[1]
+        node = nodes.get(eid, {})
+        if eid not in ledger or len(ledger[eid]) < 3:
+            return False
+        accepted = decoded_snapshot_cell(ledger[eid][2])
+        acceptance = fields.get("acceptance")
+        try:
+            acceptance = json.loads(acceptance) if isinstance(acceptance, str) else acceptance
+        except ValueError:
+            return False
+        if not (
+            node.get("memory_status") == "conflict"
+            and node.get("memory_reason") == step["expected_worker_rejection"]["reason"]
+            and fields.get("event_id") == eid
+            and fields.get("group") == key[0]
+            and fields.get("consumer") == "projection-1"
+            and fields.get("disposition_epoch")
+            == str(step["expected_worker_rejection"]["disposition_epoch"])
+            and fields.get("original_entry_id") == node.get("global_position")
+            and acceptance == accepted
+            and all(
+                fields.get(k) == accepted.get(k)
+                for k in (
+                    "tenant_id",
+                    "database_resource",
+                    "binding_id",
+                    "bundle_digest",
+                    "engine_revision",
+                )
+            )
+            and [key[0], eid] not in state["pending"]
+        ):
+            return False
+    return True
+
+
+def memory_subject_snapshot(state, subject):
+    """Exact Memory state and all incident edges, including lifecycle/evidence."""
+    return {
+        "nodes": [r for r in state["nodes"] if r[1] == subject],
+        "edges": sorted(
+            json.dumps(r, sort_keys=True, default=str)
+            for r in state["edges"]
+            if r[1] == subject or r[4] == subject
+        ),
+    }
+
+
+def p04_memory(run_id):
+    from copy import deepcopy
+
+    from engram_memory_actions_demo import identity
+    from engram_pilot_spectrum import freeze
+
+    group = next(g for g in freeze(run_id)["groups"] if g["name"] == "a-memory")
+    steps = group["steps"]
+    confirmed = steps[1]
+    stale = deepcopy(confirmed)
+    stale.update(
+        scenario="stale-belief-confirmation",
+        observes_node=False,
+        expected_worker_rejection=dict(
+            group="assessment-projection", reason="state_conflict", disposition_epoch=53
+        ),
+        unchanged_subject=confirmed["expected_node"],
+    )
+    stale["request"]["event_id"] = str(uuid5(NAMESPACE_URL, run_id + ":stale"))
+    steps.insert(2, stale)
+    owner = confirmed["request"]["agent_id"]
+    session = run_id + ":scope:first"
+    second = run_id + ":scope:second"
+    other = owner + ":other"
+    agent_goal = identity("Goal", owner, "agent", session, "study")
+    session_goal = identity("Goal", owner, "session", second, "study")
+    other_goal = identity("Goal", other, "agent", session, "study")
+
+    def add(key, kind, payload, subject, props, *, sid=session, agent=owner, observed=True):
+        req = deepcopy(confirmed["request"])
+        req.update(
+            event_id=str(uuid5(NAMESPACE_URL, run_id + ":" + key)),
+            event_type=kind,
+            session_id=sid,
+            agent_id=agent,
+            payload=payload,
+            payload_ref="pilot-p04:" + key,
+        )
+        step = dict(
+            scenario=key,
+            request=req,
+            expected_status=201,
+            expected_node=subject,
+            expected_props=props,
+            expected_edges=[],
+            extra_nodes={},
+            memory_intent="when",
+            observes_node=observed,
+        )
+        steps.append(step)
+        return step
+
+    add(
+        "agent-goal-created",
+        "memory.goal.created",
+        dict(key="study", scope="agent", description="Finish the reliability course"),
+        agent_goal,
+        dict(status="active", state_revision=0, evidence_count=1, scope="agent"),
+    )
+    add(
+        "other-owner-goal",
+        "memory.goal.created",
+        dict(key="study", scope="agent", description="Finish the reliability course"),
+        other_goal,
+        dict(status="active", scope="agent"),
+        agent=other,
+    )
+    add(
+        "session-goal-created",
+        "memory.goal.created",
+        dict(key="study", scope="session", description="Finish the reliability course"),
+        session_goal,
+        dict(status="active", scope="session"),
+        sid=second,
+    )
+    progress = add(
+        "ordinary-progress",
+        "observation.input",
+        dict(
+            content="I finished chapter one of the reliability course; the course is not complete."
+        ),
+        agent_goal,
+        dict(status="active", state_revision=0, evidence_count=1),
+        sid=second,
+        observed=False,
+    )
+    progress["unchanged_subject"] = agent_goal
+    progress["expected_observed_node_ids"] = []
+    completed = add(
+        "agent-goal-completed-second-session",
+        "memory.goal.completed",
+        dict(key="study", scope="agent", expected_revision=0),
+        agent_goal,
+        dict(status="completed", state_revision=1, evidence_count=2),
+        sid=second,
+    )
+    completed["node_assertions"] = {
+        session_goal: dict(status="active"),
+        other_goal: dict(status="active"),
+    }
+    malformed = deepcopy(completed)
+    malformed.update(scenario="malformed-goal-completion", expected_status=422)
+    malformed["request"]["event_id"] = str(uuid5(NAMESPACE_URL, run_id + ":malformed"))
+    malformed["request"]["payload"].pop("expected_revision")
+    steps.append(malformed)
+    for index, step in enumerate(steps):
+        step["request"]["occurred_at"] = (
+            datetime.now(UTC) - timedelta(minutes=5) + timedelta(seconds=index)
+        ).isoformat()
+    group["final_queries"].extend(
+        [
+            dict(
+                query="What goals do I have?",
+                intent="goals",
+                session_id=second,
+                agent_id=owner,
+                required=[session_goal, agent_goal],
+                forbidden=[other_goal],
+            ),
+            dict(
+                query="Show my goal history",
+                intent="when",
+                session_id=second,
+                agent_id=owner,
+                required=[agent_goal, session_goal],
+                forbidden=[other_goal],
+            ),
+            dict(
+                query="What goals do I have?",
+                intent="goals",
+                session_id=session,
+                agent_id=other,
+                required=[other_goal],
+                forbidden=[agent_goal, session_goal],
+            ),
+        ]
+    )
+    group["final_queries"].append(
+        dict(
+            query="Show my goal across sessions",
+            intent="when",
+            session_id=session,
+            agent_id=owner,
+            required=[agent_goal],
+            forbidden=[session_goal, other_goal],
+        )
+    )
+    group["source_expectations"] = {}
+    for step in steps:
+        if step["expected_status"] < 400 and step.get("observes_node", True):
+            group["source_expectations"].setdefault(
+                step["expected_node"], [step["request"]["event_id"]]
+            )
+    return dict(
+        coverage="P04 explicit Memory lifecycle, conflict, owner and session/agent scope",
+        groups=[group],
+    )
