@@ -23,3 +23,7 @@ The old pending Bob delivery was completed under Luna, adding its previously abs
 ## Provider observation timing
 
 Entry04's primary checks passed, but its pre-shutdown provider-return assertion ran while consolidation still had an invocation in flight. Its final record contains 41 returned calls and no failed/incomplete call; the failed verdict remains. Astra reviewed moving the unchanged provider-return requirement after stop_demo awaits consumer tasks: this permits ordinary in-flight work to finish, while failures, incomplete calls, shutdown errors and preservation violations still fail. No blocker found in that bounded correction. A fresh-namespace entry05 provides separate acceptance evidence; it does not relabel entry04.
+
+## Pack JSON-output correction
+
+Entry05 failed after a required PDLC answer was malformed JSON and rejected. #66 tracks expressing that output requirement at the provider boundary. The existing LLM client now has opt-in JSON output, enabled only for pack extraction. User extraction already used JSON mode; Summary/HyDE free text is unchanged. Existing parsing, schema, source and proposal validation remain mandatory. The runner fails promptly on terminal invalid required output rather than waiting for an impossible applied outcome. Astra's static review found no blocker; fresh validated live outputs remain required.

@@ -486,6 +486,7 @@ class LLMExtractionClient:
         prompt_version: str = "v1",
         include_user: bool = True,
         require_success: bool = False,
+        json_output: bool = False,
     ) -> None:
         self._model_id = model_id
         self._temperature = temperature
@@ -495,6 +496,7 @@ class LLMExtractionClient:
         self._prompt_version = prompt_version
         self._include_user = include_user
         self._require_success = require_success
+        self._json_output = json_output
 
     async def generate_text(self, prompt: str) -> str | None:
         """Generate text from a prompt. Used for HyDE and other expansions."""
@@ -507,6 +509,7 @@ class LLMExtractionClient:
                 **chat_options(self._model_id, self._temperature, self._max_tokens),
                 timeout=self._timeout,
                 num_retries=self._max_retries,
+                **({"response_format": {"type": "json_object"}} if self._json_output else {}),
             )
             content = response.choices[0].message.content
             return str(content) if content else None

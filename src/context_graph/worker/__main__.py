@@ -172,6 +172,7 @@ async def _build_consumer(
                     max_tokens=settings.llm.max_tokens,
                     timeout=settings.llm.timeout_seconds,
                     max_retries=settings.llm.max_retries,
+                    json_output=True,
                 ),
                 settings=settings,
             ), stores
