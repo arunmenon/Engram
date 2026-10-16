@@ -67,6 +67,13 @@ def main():
     for key in ("a", "b", "c"):
         for row in entries[key]:
             row.update(teaching[row["id"]])
+    coverage = {
+        row["id"]: row for row in json.loads((ROOT / "docs/pilot/coverage-map.json").read_text())
+    }
+    assert set(coverage) == {row["id"] for rows in entries.values() for row in rows}
+    for rows in entries.values():
+        for row in rows:
+            row["coverage"] = coverage[row["id"]]
     template = (GUIDE.parent / "pilot-chapter.html").read_text()
     data = json.dumps(entries, ensure_ascii=False).replace("</", "<\\/")
     chapter = template.replace("@@PILOT_DATA@@", data)

@@ -2,7 +2,7 @@
 
 Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 was the active execution at approval.
 
-Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is complete as an Astra-accepted bounded composite proof, with both failed attempts retained. P07 is complete with Astra acceptance; P08 is complete for its bounded checks with Astra acceptance; three failed attempts are preserved and descriptive Entity discovery remains an open C04 capability gap (#83). P09 is complete with Astra acceptance; its two failed attempts are preserved. P10 is complete with Astra acceptance for cooperative recovery. P11 technical reproduction passed and Astra accepted the evidence. P12 final coverage and handoff are in progress. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
+Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is complete as an Astra-accepted bounded composite proof, with both failed attempts retained. P07 is complete with Astra acceptance; P08 is complete for its bounded checks with Astra acceptance; three failed attempts are preserved and descriptive Entity discovery remains an open C04 capability gap (#83). P09 is complete with Astra acceptance; its two failed attempts are preserved. P10 is complete with Astra acceptance for cooperative recovery. P11 technical reproduction passed and Astra accepted the evidence. P12 coverage, educational handoff and issue reconciliation are complete for the approved engineering batch. Stakeholder attendance, independent human repetition and external cohort deployment remain separate. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
 
 ## Purpose and current evidence
 
@@ -94,7 +94,7 @@ Verify: prerequisites, roles, launch commands and manifests are sufficient; expe
 
 ### P12 — Publish the final demo, coverage and issue reconciliation
 
-Objective: assemble the stakeholder walkthrough and update the HTML pilot chapter with actual outcomes, repeat commands and limitations. Map all25 A candidates,24 B candidates and18 shared probes to full proof, partial proof, unsupported/diagnostic behavior, external prerequisite or explicitly deferred scope.
+Objective: assemble the stakeholder walkthrough and update the HTML pilot chapter with actual outcomes, repeat commands and limitations. Map all 25 A candidates,24 B candidates and18 shared probes to full proof, partial proof, unsupported/diagnostic behavior, external prerequisite or explicitly deferred scope.
 
 Verify: every pass links exact source revision, inputs, public responses, relevant worker/source/Spanner evidence and retained failures; no input/assertion count masquerades as journey coverage. Astra reviews final evidence/completeness; artifact-quality-gate checks unsupported claims/assumptions and usability. Update affected sub-issues and umbrellas with evidence and remaining scope, create a new issue only for a concrete uncovered defect, and close only issues fully satisfied. Push everything to the one canonical branch. Publish separate verdicts for engineering checks, stakeholder demo delivery and independent human reproduction.
 
@@ -113,6 +113,6 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 | P09 | Complete: tenant collisions, replay and refusal proof; Astra accepted | [Verification](completion-verification.md); pilot-p09-1017-03 |
 | P10 | Complete: bounded cooperative recovery; Astra accepted | [Verification](completion-verification.md); pilot-p10-1017-01 |
 | P11 | Complete: 69 checks, source/import audit and Astra acceptance; human repetition external | pilot-p11-1017-01 |
-| P12 | In progress: candidate coverage and rendered team guide review | Coverage map and team walkthrough |
+| P12 | Complete: coverage map, rendered guide, Astra/quality review and issue reconciliation; external milestones separate | Coverage map, team walkthrough and final issue reconciliation |
 
 Update each row with actual status, source/evidence links and issue disposition. Plan approval alone is not completion evidence.

@@ -1,0 +1,60 @@
+### Result
+{"pages":[{"page":1,"title":"Start with what runs where"},{"page":2,"title":"Tables indexes and graph definition"},{"page":3,"title":"How Engram talks to Spanner"},{"page":4,"title":"The write request ends at the ledger"},{"page":5,"title":"What one ledger row represents"},{"page":6,"title":"How consumer groups actually run"},{"page":7,"title":"Choose a worker to understand"},{"page":8,"title":"Worker deep dive: graph projection"},{"page":9,"title":"Worker deep dive: session extraction"},{"page":10,"title":"Worker deep dive: enrichment"},{"page":11,"title":"Consolidation: turn accumulated activity into inspectable memory"},{"page":12,"title":"Worker deep dive: pack extraction"},{"page":13,"title":"Zoom into the graph projection worker"},{"page":14,"title":"How ontology packs compose"},{"page":15,"title":"Core + User + Memory: three kinds of knowledge"},{"page":16,"title":"The event and context read path"},{"page":17,"title":"The artifact read path and Spanner Graph"},{"page":18,"title":"One service, two authorized tenant runtimes"},{"page":19,"title":"Now place the journeys on this architecture"},{"page":20,"title":"Can another team use Engram and trust the evidence?"},{"page":21,"title":"A journey has a story and an independently declared result"},{"page":22,"title":"Personal context changes over time—and belongs to someone"},{"page":23,"title":"Follow what was planned, built, checked, shipped and learned"},{"page":24,"title":"Five shared workers; different applicable work"},{"page":25,"title":"Finding an exact ID is only one kind of retrieval"},{"page":26,"title":"A pass requires the right result and the right evidence"},{"page":27,"title":"What another developer needs to reproduce the pilot"}],"catalog_entries":67,"worker_stages":8,"mobile_overflow":false}
+### Ran Playwright code
+```js
+await (async (page) => {
+await page.reload();
+const outcomes=[];
+await page.setViewportSize({width:1440,height:1000});
+for(let i=0;i<27;i++){
+ await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption(String(i));
+ const visible=page.locator('section.page:visible');
+ if(await visible.count()!==1)throw Error('page count '+i);
+ const title=await visible.locator('h1').innerText();
+ if(!title.trim())throw Error('empty heading '+i);
+ outcomes.push({page:i+1,title});
+}
+let examined=0;
+for(const [key,index,total] of [['a',21,25],['b',22,24],['c',25,18]]){
+ await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption(String(index));
+ const root=page.locator('[data-pilot-catalog="'+key+'"]');
+ const select=root.locator('select');
+ const values=await select.locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));
+ let count=0;
+ for(const value of values){
+  await select.selectOption(value);
+  const buttons=root.locator('.pilot-jlist button');
+  for(let j=0;j<await buttons.count();j++){
+   await buttons.nth(j).click();
+   const detail=await root.locator('article').innerText();
+   if(!detail.includes('Recorded verdict:')||!detail.includes('Boundary:'))throw Error('missing verdict '+key+j);
+   count++;examined++;
+  }
+ }
+ if(count!==total)throw Error('catalog count '+key+' '+count);
+}
+await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption('23');
+for(const tenant of ['a','b']){
+ await page.locator('[data-worker-choice] [data-tenant="'+tenant+'"]').click();
+ for(let stage=0;stage<4;stage++){
+  await page.locator('[data-worker-walk] [data-stage="'+stage+'"]').click();
+  if((await page.locator('.pilot-stage').innerText()).length<80)throw Error('empty stage');
+ }
+}
+await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption('19');
+await page.screenshot({path:'output/playwright/p12/purpose-desktop.png',fullPage:true});
+await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption('21');
+await page.screenshot({path:'output/playwright/p12/coverage-desktop.png',fullPage:true});
+await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption('26');
+await page.screenshot({path:'output/playwright/p12/reproduction-desktop.png',fullPage:true});
+await page.setViewportSize({width:390,height:844});
+await page.screenshot({path:'output/playwright/p12/reproduction-mobile.png',fullPage:true});
+const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+if(overflow)throw Error('mobile horizontal document overflow');
+return {pages:outcomes,catalog_entries:examined,worker_stages:8,mobile_overflow:overflow};
+
+})(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8765/docs/guide/engram-architecture.html
+- Page Title: Engram architecture from first principles
