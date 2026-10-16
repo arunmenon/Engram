@@ -1,0 +1,23 @@
+{
+  "verdict": "actual unchanged-key reuse observed; worker-local bounded cache only",
+  "counts": {
+    "a-misses": 103,
+    "b-misses": 137,
+    "a-hits": 214,
+    "b-hits": 251
+  },
+  "unique_keys": {
+    "a": 103,
+    "b": 137
+  },
+  "observations": 705,
+  "correlated_provider_calls": 240,
+  "checks": [
+    "Successful cache hits had no correlated provider call and retained the earlier output hash",
+    "Cold summary invocations had one correlated actual Luna call with matching prompt and output hash"
+  ],
+  "limits": [
+    "No unlimited retained-size, restart persistence, throughput or latency guarantee",
+    "Episode and session scopes are distinct keys even with identical prompts"
+  ]
+}

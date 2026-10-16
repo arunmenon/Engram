@@ -232,3 +232,9 @@ Accepted: bounded composite P06 is complete. Run03 passed all 271 checks with fo
 ### P07 exact call correlation and cache observer launch review — Astra low
 
 No launch blocker found. The wrapper awaits the original summary method with unchanged arguments and returns its result. ContextVar correlation scopes provider calls to the actual summary invocation. P07 requires the matching tenant/Episode request as well as exact sources and stored/public output equality, preventing session-summary misattribution. For #67, count a cache hit only when the successful same-key invocation has no correlated provider call; cache presence alone is insufficient. No live benefit is claimed yet. Forty-eight focused tests passed before launch.
+
+## P07 final evidence and bounded #67 acceptance
+
+Accepted bounded P07 completion. Actual saved results pass all 133 checks; four A/B forward/inverse cases each match one actual Episode-scoped provider result with exact source evidence and identical stored/public text. Ten workers finish at zero lag, all 244 provider calls are recorded, shutdown errors are empty, and both tenants pass ledger/owner/material graph/prior Episode and declared-DLQ conservation. Source audit reports 179 matching files at cef29cc.
+
+Independently reconstructed cache keys and correlated calls from raw result observations: 705 invocations comprise 240 unique cold keys and 465 successful hits; no hit invoked the provider or changed its prior output hash, and each cold invocation has one returned provider output matching its recorded hash. This supports #67 closure for the measured working-set thrashing fix (A103/B137 keys within capacity256). It does not establish unlimited size, persistent reuse, latency, or general Summary semantic quality. Overall pilot remains open; P08 is next.
