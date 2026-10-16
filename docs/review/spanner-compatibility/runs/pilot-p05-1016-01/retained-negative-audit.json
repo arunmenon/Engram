@@ -1,0 +1,98 @@
+{
+  "frozen_proofs": [
+    {
+      "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+      "tenant": "a",
+      "sha256": {
+        "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+        "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+        "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+      }
+    }
+  ],
+  "decoded_declarations": [
+    {
+      "tenant": "a",
+      "request": {
+        "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "event_type": "memory.belief.confirmed",
+        "occurred_at": "2026-10-16T12:08:58.087555+00:00",
+        "session_id": "pilot-p04-1016-01:a:memory",
+        "agent_id": "pilot-p04-1016-01:a:memory-owner",
+        "trace_id": "pilot-p04-1016-01",
+        "payload_ref": "pilot-spectrum:belief-confirmed",
+        "payload": {
+          "key": "expiry",
+          "expected_revision": 0
+        }
+      },
+      "fields": {
+        "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+        "binding_id": "tenant-isolation-1014-03-a",
+        "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+        "consumer": "projection-1",
+        "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+        "delivery_count": "1",
+        "disposition_epoch": "53",
+        "engine_revision": "tenant-isolation-v1",
+        "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "event_type": "memory.belief.confirmed",
+        "group": "assessment-projection",
+        "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "original_stream": "Events",
+        "tenant_id": "isolation-a"
+      },
+      "expected_worker_rejection": {
+        "group": "assessment-projection",
+        "reason": "state_conflict",
+        "disposition_epoch": 53
+      }
+    }
+  ],
+  "before": [
+    [
+      "assessment-projection",
+      "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+      {
+        "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+        "binding_id": "tenant-isolation-1014-03-a",
+        "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+        "consumer": "projection-1",
+        "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+        "delivery_count": "1",
+        "disposition_epoch": "53",
+        "engine_revision": "tenant-isolation-v1",
+        "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "event_type": "memory.belief.confirmed",
+        "group": "assessment-projection",
+        "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "original_stream": "Events",
+        "tenant_id": "isolation-a"
+      }
+    ]
+  ],
+  "after": [
+    [
+      "assessment-projection",
+      "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+      {
+        "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+        "binding_id": "tenant-isolation-1014-03-a",
+        "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+        "consumer": "projection-1",
+        "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+        "delivery_count": "1",
+        "disposition_epoch": "53",
+        "engine_revision": "tenant-isolation-v1",
+        "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "event_type": "memory.belief.confirmed",
+        "group": "assessment-projection",
+        "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+        "original_stream": "Events",
+        "tenant_id": "isolation-a"
+      }
+    ]
+  ],
+  "exact_fields_preserved": true,
+  "all_a_fingerprints_identical": true
+}

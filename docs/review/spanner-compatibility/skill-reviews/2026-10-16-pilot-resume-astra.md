@@ -184,3 +184,7 @@ Astra low: P04 can be marked complete for its bounded scope. Saved evidence conf
 ### P05 design and harness acceptance
 
 Astra low: no launch blocker. Proof-backed retained-DLQ admission checks successful prior evidence and exact current source/acceptance/position/diagnostic/fields, requires preservation throughout and rejects extra failures. Worker selection derives from writes/recovery, runs all five expected identities per selected tenant and rejects inactive-tenant pending work. P05 checks unchanged active Goal privately/publicly after each PDLC input, explicit completion only and noncontradictory correction in storage/public history. Preflight `trace` correction preserves required nodes/links and matches traversal semantics. No runtime or oracle waiver. Final live evidence still pending.
+
+### P05 final evidence acceptance
+
+Astra low: P05 can be marked complete for its bounded scope. Goal state/evidence stays exactly unchanged after Change creation, merge and passing test; only explicit completion changes it. Correction records SUPERSEDES without CONTRADICTS. P04's negative fields and all A fingerprints remain identical. All 246 checks pass, five B workers have zero lag, all 126 calls returned, shutdown is clean, and both tenants' preservation checks pass. All 176 recorded hashes match fa0b9d4. No blocker. This proves coexistence, not automatic cross-pack semantic inference; overall pilot remains open.

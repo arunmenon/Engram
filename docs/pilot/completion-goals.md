@@ -2,7 +2,7 @@
 
 Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 is the active execution at approval.
 
-Current checkpoint: P01–P04 are complete with bounded evidence and Astra acceptance. P05 is next; P06–P12 remain queued. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
+Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is being prepared; P07–P12 remain queued. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
 
 ## Purpose and current evidence
 
@@ -104,10 +104,10 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 |---|---|---|
 | P01 | Complete: bounded composite verdict; Astra accepted final evidence | [Verification](completion-verification.md); continuation06 remains failed; continuation07 passed243checks |
 | P02 | Complete: Astra accepted composite history/coverage/hotfix/Decision proof; original runs stay failed | [Verification](completion-verification.md); runs02/03; #71/#73 closure reconciliation |
-| P03 | Active: reviewed20-input first phase prepared; explicit correction phase remains required | pilot-p03-1016-01-journeys.json |
-| P04 | Approved; queued | This inventory |
-| P05 | Approved; queued | This inventory |
-| P06 | Approved; queued | This inventory |
+| P03 | Complete: Astra accepted diverse User stories and explicit correction with retained failed runs | [Verification](completion-verification.md); final retained-read checkpoint09 |
+| P04 | Complete: 260 live checks; Astra accepted lifecycle, conflict and scope proof | [Verification](completion-verification.md); pilot-p04-1016-01 |
+| P05 | Complete: 246 live checks; Astra accepted Memory/PDLC coexistence and retained-negative proof | [Verification](completion-verification.md); pilot-p05-1016-01 |
+| P06 | Preparing: late Event bridges Episode membership; retain earlier snapshots | This inventory |
 | P07 | Approved; queued | This inventory |
 | P08 | Approved; queued | This inventory |
 | P09 | Approved; queued | This inventory |

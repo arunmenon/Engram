@@ -1,0 +1,704 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    "P05 Memory alongside PDLC; explicit completion and noncontradictory correction"
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "coverage": "P05 Memory alongside PDLC; explicit completion and noncontradictory correction",
+    "groups": [
+      {
+        "name": "b-memory",
+        "tenant": "b",
+        "steps": [
+          {
+            "scenario": "belief-stated",
+            "request": {
+              "event_id": "083312dd-9fb3-5bfd-a5b4-bbb5e840a6aa",
+              "event_type": "memory.belief.stated",
+              "occurred_at": "2026-10-16T12:27:23.749450+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:belief-stated",
+              "payload": {
+                "key": "expiry",
+                "belief_text": "Reset tokens expire in fifteen minutes.",
+                "confidence": 0.7,
+                "category": "world_model"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f",
+            "expected_props": {
+              "origin": "stated",
+              "confirmation_count": 1,
+              "state_revision": 0
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "belief-confirmed",
+            "request": {
+              "event_id": "171ba79e-55af-528f-848a-565317f15748",
+              "event_type": "memory.belief.confirmed",
+              "occurred_at": "2026-10-16T12:27:24.749466+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:belief-confirmed",
+              "payload": {
+                "key": "expiry",
+                "expected_revision": 0
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f",
+            "expected_props": {
+              "confirmation_count": 2,
+              "state_revision": 1
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "belief-inferred",
+            "request": {
+              "event_id": "25be90a4-d7fa-5d8b-85b8-16c33321b1c8",
+              "event_type": "memory.belief.inferred",
+              "occurred_at": "2026-10-16T12:27:25.749469+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:belief-inferred",
+              "payload": {
+                "key": "replacement",
+                "belief_text": "Expiry is ten minutes after policy review.",
+                "confidence": 0.7,
+                "category": "world_model"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148",
+            "expected_props": {
+              "origin": "inferred",
+              "confirmation_count": 0
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "belief-corrected",
+            "request": {
+              "event_id": "45332038-1c51-5d86-acc1-f06a9a4a3423",
+              "event_type": "memory.belief.corrected",
+              "occurred_at": "2026-10-16T12:27:26.749471+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:belief-corrected",
+              "payload": {
+                "key": "expiry",
+                "replacement_key": "replacement",
+                "expected_revision": 1,
+                "contradicts": false
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f",
+            "expected_props": {
+              "superseded_by": "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148",
+              "state_revision": 2,
+              "contradiction_declared": false
+            },
+            "expected_edges": [
+              [
+                "SUPERSEDES",
+                "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148",
+                "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f"
+              ]
+            ],
+            "extra_nodes": {},
+            "memory_intent": "when",
+            "expected_edge_properties": [
+              [
+                "SUPERSEDES",
+                "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148",
+                "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f",
+                {
+                  "method": "declared",
+                  "source_event_id": "45332038-1c51-5d86-acc1-f06a9a4a3423"
+                }
+              ]
+            ],
+            "forbidden_edge_types": [
+              "CONTRADICTS"
+            ]
+          },
+          {
+            "scenario": "study-created",
+            "request": {
+              "event_id": "1f7bc653-21cd-57b5-843d-1c7d643e60d7",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T12:27:27.749473+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:study-created",
+              "payload": {
+                "key": "study",
+                "description": "Finish study",
+                "priority": 5
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-5beb3f45d26cdc6db17f3c75f9c6ab06a10af0e26ab4313b0bf9bb750262048b",
+            "expected_props": {
+              "status": "active",
+              "evidence_count": 1
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "study-terminal",
+            "request": {
+              "event_id": "a8c9c1a6-af83-5b03-a093-ffb4ca3fc758",
+              "event_type": "memory.goal.completed",
+              "occurred_at": "2026-10-16T12:27:28.749476+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:study-terminal",
+              "payload": {
+                "key": "study",
+                "expected_revision": 0
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-5beb3f45d26cdc6db17f3c75f9c6ab06a10af0e26ab4313b0bf9bb750262048b",
+            "expected_props": {
+              "status": "completed",
+              "evidence_count": 2
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "household-created",
+            "request": {
+              "event_id": "0fb4a625-4aed-55e6-98bf-52f5a8b7404a",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T12:27:29.749478+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:household-created",
+              "payload": {
+                "key": "household",
+                "description": "Finish household",
+                "priority": 5
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-a55eec83ef3a6f94b4aa01d5e8ee6abf62519e9c82ff04042d74da3fa79e719f",
+            "expected_props": {
+              "status": "active",
+              "evidence_count": 1
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "household-terminal",
+            "request": {
+              "event_id": "adaede71-fc46-5cd8-8077-fb126cf3637c",
+              "event_type": "memory.goal.abandoned",
+              "occurred_at": "2026-10-16T12:27:30.749480+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:household-terminal",
+              "payload": {
+                "key": "household",
+                "expected_revision": 0
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-a55eec83ef3a6f94b4aa01d5e8ee6abf62519e9c82ff04042d74da3fa79e719f",
+            "expected_props": {
+              "status": "abandoned",
+              "evidence_count": 2
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "delivery-created",
+            "request": {
+              "event_id": "0d81148e-427f-5589-b638-5d276aee753e",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T12:27:31.749482+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:delivery-created",
+              "payload": {
+                "key": "delivery",
+                "description": "Finish delivery",
+                "priority": 5
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-9e54aecb7d514bde762aa142463328ab2cf69d290fe9d04bf9d2c4f45d3bcd40",
+            "expected_props": {
+              "status": "active",
+              "evidence_count": 1
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "replacement-created",
+            "request": {
+              "event_id": "0a9cb9e4-7fba-56b9-8d34-4b262a6c1a90",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T12:27:32.749484+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:replacement-created",
+              "payload": {
+                "key": "new-plan",
+                "description": "Use revised plan"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-f49bedf7ae16d872beb8d4614d54871b9670d76d7b9a17f1198e8beb476ae89d",
+            "expected_props": {
+              "status": "active"
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "delivery-terminal",
+            "request": {
+              "event_id": "0df6ab45-894a-5c99-839b-3cfeec1d99d3",
+              "event_type": "memory.goal.superseded",
+              "occurred_at": "2026-10-16T12:27:33.749486+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-spectrum:delivery-terminal",
+              "payload": {
+                "key": "delivery",
+                "expected_revision": 0,
+                "replacement_key": "new-plan"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-9e54aecb7d514bde762aa142463328ab2cf69d290fe9d04bf9d2c4f45d3bcd40",
+            "expected_props": {
+              "status": "superseded",
+              "evidence_count": 2
+            },
+            "expected_edges": [
+              [
+                "SUPERSEDES",
+                "goal-f49bedf7ae16d872beb8d4614d54871b9670d76d7b9a17f1198e8beb476ae89d",
+                "goal-9e54aecb7d514bde762aa142463328ab2cf69d290fe9d04bf9d2c4f45d3bcd40"
+              ]
+            ],
+            "extra_nodes": {},
+            "memory_intent": "when",
+            "expected_edge_properties": [
+              [
+                "SUPERSEDES",
+                "goal-f49bedf7ae16d872beb8d4614d54871b9670d76d7b9a17f1198e8beb476ae89d",
+                "goal-9e54aecb7d514bde762aa142463328ab2cf69d290fe9d04bf9d2c4f45d3bcd40",
+                {
+                  "method": "declared",
+                  "source_event_id": "0df6ab45-894a-5c99-839b-3cfeec1d99d3"
+                }
+              ]
+            ]
+          },
+          {
+            "scenario": "delivery-goal-created",
+            "request": {
+              "event_id": "c602bc5d-43af-56bb-9c5d-c7cd62a87acd",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T12:27:34.749487+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-p05:delivery-goal-created",
+              "payload": {
+                "key": "ship-expiry",
+                "description": "Ship and verify the password-reset expiry fix"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+            "expected_props": {
+              "status": "active",
+              "state_revision": 0,
+              "evidence_count": 1
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          },
+          {
+            "scenario": "expiry-change-created",
+            "request": {
+              "event_id": "4a072e51-57f6-5238-a173-8c6b68c129a1",
+              "event_type": "pdlc.change.created",
+              "occurred_at": "2026-10-16T12:27:35.749489+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-p05:expiry-change-created",
+              "payload": {
+                "repo": "pilot/pilot-p05-1016-01/payments",
+                "number": 7,
+                "title": "Reject expired reset tokens",
+                "head_sha": "abc123"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Change:pilot/pilot-p05-1016-01/payments|7",
+            "expected_props": {
+              "status": "open",
+              "head_sha": "abc123"
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "unchanged_subject": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+            "public_memory_guard": {
+              "node_id": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+              "attributes": {
+                "status": "active",
+                "state_revision": 0,
+                "evidence_count": 1
+              }
+            }
+          },
+          {
+            "scenario": "expiry-change-merged",
+            "request": {
+              "event_id": "3587cbc6-6198-5d41-9c44-bc98bed03e32",
+              "event_type": "pdlc.change.merged",
+              "occurred_at": "2026-10-16T12:27:36.749491+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-p05:expiry-change-merged",
+              "payload": {
+                "repo": "pilot/pilot-p05-1016-01/payments",
+                "number": 7,
+                "title": "Reject expired reset tokens",
+                "body": "Password-reset expiry fix",
+                "merge_sha": "abc123"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Change:pilot/pilot-p05-1016-01/payments|7",
+            "expected_props": {
+              "status": "merged",
+              "merge_sha": "abc123"
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "unchanged_subject": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+            "public_memory_guard": {
+              "node_id": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+              "attributes": {
+                "status": "active",
+                "state_revision": 0,
+                "evidence_count": 1
+              }
+            }
+          },
+          {
+            "scenario": "expiry-test-passed",
+            "request": {
+              "event_id": "9238c7fe-8703-54eb-b20a-40dc5a620019",
+              "event_type": "pdlc.testcaserun.finished",
+              "occurred_at": "2026-10-16T12:27:37.749493+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-p05:expiry-test-passed",
+              "payload": {
+                "repo": "pilot/pilot-p05-1016-01/payments",
+                "test_id": "expiry",
+                "run_id": "pilot-p05-1016-01-success",
+                "outcome": "success",
+                "name": "Reject expired reset token",
+                "path": "tests/test_expiry.py",
+                "commit_sha": "abc123",
+                "change_number": 7
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "TestRun:pilot-p05-1016-01-success",
+            "expected_props": {
+              "outcome": "success",
+              "commit_sha": "abc123"
+            },
+            "expected_edges": [
+              [
+                "EXECUTES",
+                "TestRun:pilot-p05-1016-01-success",
+                "TestCase:pilot/pilot-p05-1016-01/payments|expiry"
+              ],
+              [
+                "RAN_AGAINST",
+                "TestRun:pilot-p05-1016-01-success",
+                "Change:pilot/pilot-p05-1016-01/payments|7"
+              ]
+            ],
+            "extra_nodes": {
+              "TestCase:pilot/pilot-p05-1016-01/payments|expiry": {
+                "name": "Reject expired reset token",
+                "path": "tests/test_expiry.py"
+              }
+            },
+            "expected_edge_properties": [
+              [
+                "RAN_AGAINST",
+                "TestRun:pilot-p05-1016-01-success",
+                "Change:pilot/pilot-p05-1016-01/payments|7",
+                {
+                  "commit_sha": "abc123"
+                }
+              ]
+            ],
+            "unchanged_subject": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+            "public_memory_guard": {
+              "node_id": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+              "attributes": {
+                "status": "active",
+                "state_revision": 0,
+                "evidence_count": 1
+              }
+            }
+          },
+          {
+            "scenario": "explicit-delivery-completion",
+            "request": {
+              "event_id": "672b8e5c-8d2c-5231-bc82-322f8a596478",
+              "event_type": "memory.goal.completed",
+              "occurred_at": "2026-10-16T12:27:38.749495+00:00",
+              "session_id": "pilot-p05-1016-01:b:memory",
+              "agent_id": "pilot-p05-1016-01:b:memory-owner",
+              "trace_id": "pilot-p05-1016-01",
+              "payload_ref": "pilot-p05:explicit-delivery-completion",
+              "payload": {
+                "key": "ship-expiry",
+                "expected_revision": 0
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+            "expected_props": {
+              "status": "completed",
+              "state_revision": 1,
+              "evidence_count": 2
+            },
+            "expected_edges": [],
+            "extra_nodes": {},
+            "memory_intent": "when"
+          }
+        ],
+        "queries": [
+          {
+            "scenario": "merged-change-and-passing-test",
+            "text": "Show this test run and the code it ran against",
+            "intent": "trace",
+            "seeds": [
+              "TestRun:pilot-p05-1016-01-success"
+            ],
+            "required": [
+              "TestRun:pilot-p05-1016-01-success",
+              "TestCase:pilot/pilot-p05-1016-01/payments|expiry",
+              "Change:pilot/pilot-p05-1016-01/payments|7"
+            ],
+            "forbidden": [
+              "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a"
+            ],
+            "expected_edges": [
+              [
+                "EXECUTES",
+                "TestRun:pilot-p05-1016-01-success",
+                "TestCase:pilot/pilot-p05-1016-01/payments|expiry"
+              ],
+              [
+                "RAN_AGAINST",
+                "TestRun:pilot-p05-1016-01-success",
+                "Change:pilot/pilot-p05-1016-01/payments|7"
+              ]
+            ]
+          }
+        ],
+        "source_kind": "Explicit attributed Memory actions; no prose inference",
+        "final_queries": [
+          {
+            "query": "What assumptions remain current?",
+            "intent": "beliefs",
+            "session_id": "pilot-p05-1016-01:b:memory",
+            "agent_id": "pilot-p05-1016-01:b:memory-owner",
+            "required": [
+              "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148"
+            ],
+            "forbidden": [
+              "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f"
+            ]
+          },
+          {
+            "query": "What changed in the assumptions?",
+            "intent": "when",
+            "session_id": "pilot-p05-1016-01:b:memory",
+            "agent_id": "pilot-p05-1016-01:b:memory-owner",
+            "required": [
+              "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f",
+              "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148"
+            ],
+            "forbidden": [],
+            "expected_edges": [
+              [
+                "SUPERSEDES",
+                "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148",
+                "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f"
+              ]
+            ],
+            "forbidden_edges": [
+              [
+                "CONTRADICTS",
+                "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148",
+                "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f"
+              ]
+            ]
+          },
+          {
+            "query": "Show delivery and assumption history",
+            "intent": "when",
+            "session_id": "pilot-p05-1016-01:b:memory",
+            "agent_id": "pilot-p05-1016-01:b:memory-owner",
+            "required": [
+              "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a",
+              "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f",
+              "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148"
+            ],
+            "forbidden": []
+          }
+        ],
+        "source_expectations": {
+          "belief-12fbe39036a3d418ea771d0d324d33b6448d2ccb104efcb3b828e96a03b29b9f": [
+            "083312dd-9fb3-5bfd-a5b4-bbb5e840a6aa"
+          ],
+          "belief-97ebfb4f6cd0309e5c7a3e4a0df36c637b67435e333f351124063d53e044a148": [
+            "25be90a4-d7fa-5d8b-85b8-16c33321b1c8"
+          ],
+          "goal-5beb3f45d26cdc6db17f3c75f9c6ab06a10af0e26ab4313b0bf9bb750262048b": [
+            "1f7bc653-21cd-57b5-843d-1c7d643e60d7"
+          ],
+          "goal-a55eec83ef3a6f94b4aa01d5e8ee6abf62519e9c82ff04042d74da3fa79e719f": [
+            "0fb4a625-4aed-55e6-98bf-52f5a8b7404a"
+          ],
+          "goal-9e54aecb7d514bde762aa142463328ab2cf69d290fe9d04bf9d2c4f45d3bcd40": [
+            "0d81148e-427f-5589-b638-5d276aee753e"
+          ],
+          "goal-f49bedf7ae16d872beb8d4614d54871b9670d76d7b9a17f1198e8beb476ae89d": [
+            "0a9cb9e4-7fba-56b9-8d34-4b262a6c1a90"
+          ],
+          "goal-3ebea78ee0c39468313e37bdc71e89c803b8487a375bebdb2542ba35dafce41a": [
+            "c602bc5d-43af-56bb-9c5d-c7cd62a87acd"
+          ],
+          "Change:pilot/pilot-p05-1016-01/payments|7": [
+            "4a072e51-57f6-5238-a173-8c6b68c129a1",
+            "3587cbc6-6198-5d41-9c44-bc98bed03e32"
+          ],
+          "TestCase:pilot/pilot-p05-1016-01/payments|expiry": [
+            "9238c7fe-8703-54eb-b20a-40dc5a620019"
+          ],
+          "TestRun:pilot-p05-1016-01-success": [
+            "9238c7fe-8703-54eb-b20a-40dc5a620019"
+          ]
+        },
+        "retained_negative_proofs": [
+          {
+            "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+            "tenant": "a",
+            "sha256": {
+              "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+              "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+              "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+            }
+          }
+        ],
+        "retained_negative_deliveries": [
+          {
+            "tenant": "a",
+            "request": {
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "occurred_at": "2026-10-16T12:08:58.087555+00:00",
+              "session_id": "pilot-p04-1016-01:a:memory",
+              "agent_id": "pilot-p04-1016-01:a:memory-owner",
+              "trace_id": "pilot-p04-1016-01",
+              "payload_ref": "pilot-spectrum:belief-confirmed",
+              "payload": {
+                "key": "expiry",
+                "expected_revision": 0
+              }
+            },
+            "fields": {
+              "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+              "binding_id": "tenant-isolation-1014-03-a",
+              "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+              "consumer": "projection-1",
+              "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+              "delivery_count": "1",
+              "disposition_epoch": "53",
+              "engine_revision": "tenant-isolation-v1",
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "group": "assessment-projection",
+              "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "original_stream": "Events",
+              "tenant_id": "isolation-a"
+            },
+            "expected_worker_rejection": {
+              "group": "assessment-projection",
+              "reason": "state_conflict",
+              "disposition_epoch": 53
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "execution_mode": "selected-journeys"
+}

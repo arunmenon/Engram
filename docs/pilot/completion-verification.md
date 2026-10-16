@@ -150,7 +150,7 @@ To repeat: pin the recorded source, satisfy the common cloud/model/binding prere
 
 Frozen plan: [18 authored inputs](pilot-p04-1016-01-journeys.json), plus public current/history and cross-session/owner reads. It reuses the eleven Memory lifecycle actions and adds a stale confirmation, agent-scoped Goal creation, other-owner and session-scoped counterparts, ordinary progress, explicit completion in the second session, and malformed completion. All writes and acceptance reads use the public authenticated dispatcher, ordinary workers and retained Spanner; no database reset or source repair is allowed.
 
-The stale confirmation is expected to be admitted (201), then fail projection with `memory_status=conflict`, `memory_reason=state_conflict` and exactly one projection dead letter. Its immutable embedded acceptance, tenant/database/binding, consumer, Event identity and position must match the admitted source; target properties and all incident evidence/lifecycle edges must remain identical. All other deliveries must drain normally, with zero pending and lag. The negative audit record remains retained. Later milestones must explicitly admit this verified negative using its proof; the current baseline guard rejects any preexisting dead letters.
+The stale confirmation is expected to be admitted (201), then fail projection with `memory_status=conflict`, `memory_reason=state_conflict` and exactly one projection dead letter. Its immutable embedded acceptance, tenant/database/binding, consumer, Event identity and position must match the admitted source; target properties and all incident evidence/lifecycle edges must remain identical. All other deliveries must drain normally, with zero pending and lag. The negative audit record remains retained. Later milestones must explicitly admit this verified negative using its proof; the P04 executed revision rejected any preexisting dead letters; P05 adds explicit proof-backed admission.
 
 Completed Goals remain visible in `goals` context with their actual status; source inspection shows only superseded state is excluded from current Memory context. Public provenance anchors the original creation/stated Event, while directed evidence links retain subsequent actions. Cross-session reads must return the same agent-scoped identity and exclude the other owner's Goal; the first-session read must exclude the second-session-only Goal. Ordinary progress is read before completion and must leave Goal state and evidence unchanged.
 
@@ -191,7 +191,7 @@ PYTHONPATH=src:scripts python scripts/engram_pilot_first_run.py \
   --journey-file docs/pilot/pilot-p04-1016-01-journeys.json --journeys-only
 ```
 
-These are the executed coordinates, not an instruction to submit the same identities again. A new write reproduction needs fresh run/Event/owner/session identities, a fresh baseline and explicit admission of the preserved negative-test proof. The runner currently rejects preexisting dead letters; that intentional guard must be extended before the next retained run. Independent human reproduction remains a later milestone. Cloud Monitoring export still reports 403; this run does not establish monitoring export, automatic prose inference, calibrated confidence or full pilot readiness.
+These are the executed coordinates, not an instruction to submit the same identities again. A new write reproduction needs fresh run/Event/owner/session identities, a fresh baseline and explicit admission of the preserved negative-test proof. The P04 executed revision initially rejected preexisting dead letters. P05 adds explicit proof-backed admission for later retained runs, preserving the verified negative and rejecting unexpected failures. Independent human reproduction remains a later milestone. Cloud Monitoring export still reports 403; this run does not establish monitoring export, automatic prose inference, calibrated confidence or full pilot readiness.
 
 ## P05 — predeclared Memory/PDLC coexistence contract
 
@@ -202,3 +202,39 @@ P04's expected negative is an explicit prerequisite: the frozen plan pins the su
 Only Tenant B receives writes, so all five B workers run; both dispatcher bindings and both tenants' preservation checks remain. Any pending work in inactive A fails preflight. No worker is omitted for an active tenant, and no model-call cap, timer, runtime policy, pack schema or owner binding changes. The original P04 evidence remains tied to its ten-worker execution; future checks report actual selected-worker identities.
 
 Thirty targeted local tests and Ruff pass. Local preflight exposed an oracle mismatch: `status` returns the seeded artifact without traversal. The related TestRun/TestCase/Change check now uses `trace`, retaining all required nodes and directed links. No cloud attempt was run with the earlier oracle. Astra reviewed design and the prepared harness, found no launch blocker and confirmed no runtime or oracle waiver. Live P05 results are not yet available.
+
+### P05 stakeholder walkthrough — complete
+
+**Question:** can Memory and PDLC share a tenant without confusing “code merged/tests passed” with “this Goal is complete,” or confusing a correction with an asserted contradiction?
+
+[Run `pilot-p05-1016-01`](../review/spanner-compatibility/runs/pilot-p05-1016-01/results.json), executing `fa0b9d4`, passed **246 checks**. All sixteen authored inputs were accepted through the authenticated dispatcher into real Spanner. All five Tenant B workers ran and finished at zero lag; all 126 actual `gpt-6-luna` calls returned and shutdown was clean. No runtime, pack-schema or owner-binding change was required.
+
+| What went in | What Engram stored and returned |
+|---|---|
+| Eleven explicit Memory lifecycle actions | Stated/inferred beliefs, confirmation, correction and distinct completed/abandoned/superseded Goals, with exact source evidence. |
+| Correction declaring `contradicts=false` | Old belief is superseded, with a declared SUPERSEDES edge and its original evidence retained. No CONTRADICTS edge exists for the pair in storage or the public history response. |
+| A delivery Goal, then PR creation | Change is open; the Goal stays active at revision 0/count 1, with exactly unchanged properties and incident evidence. |
+| Merge that PR | Change becomes merged with the declared merge SHA; the Goal remains unchanged and publicly active. |
+| Successful test against the merged code | TestRun has outcome `success`, EXECUTES its TestCase and RAN_AGAINST the Change with commit SHA `abc123`. The Goal still remains unchanged. |
+| Explicit Goal completion | Goal becomes completed at revision 1/count 2. Its evidence consists of the creation and explicit completion actions; PR/test success did not supply implicit completion. |
+| Public PDLC trace and Memory history reads | TestRun, TestCase and merged Change return with exact directed links/source positions; the Goal and corrected-belief history are separately retrievable through supported Memory reads. |
+
+The [coexistence audit](../review/spanner-compatibility/runs/pilot-p05-1016-01/memory-pdlc-coexistence-audit.json) records the actual public Goal properties and incident edges at creation, after each PDLC action, and after explicit completion. Private checks also compared every Goal property and incident edge before/after each PDLC action. The [correction audit](../review/spanner-compatibility/runs/pilot-p05-1016-01/noncontradictory-correction-audit.json) contains the exact input, stored belief/relationship and public history response.
+
+Tenant B appended exactly 16 source Events; A appended none. Both retained their owner, earlier source documents, material graph except approved derived refresh, and exact prior Episode memberships. B has no pending/dead-letter work. A has no pending work and retains exactly P04's verified negative. The [retained-negative audit](../review/spanner-compatibility/runs/pilot-p05-1016-01/retained-negative-audit.json) shows the pinned prerequisite and identical before/after fields; **all A table fingerprints are identical**. Only B needed processing workers; both tenants remained in dispatcher/preservation scope.
+
+All 176 [recorded source hashes](../review/spanner-compatibility/runs/pilot-p05-1016-01/recorded-source-audit.json) match committed source `fa0b9d4`. Thirty targeted local tests and Ruff passed. Astra independently accepted the final bounded evidence with no blocker. Broader issues remain open; see [issue reconciliation](../review/spanner-compatibility/runs/pilot-p05-1016-01/github-reconciliation.json).
+
+The exact executed write command was:
+
+```sh
+PYTHONPATH=src:scripts python scripts/engram_pilot_first_run.py \
+  --run-id pilot-p05-1016-01 \
+  --predecessor docs/review/spanner-compatibility/runs/pilot-p05-1016-01-preflight \
+  --output docs/review/spanner-compatibility/runs/pilot-p05-1016-01 \
+  --journey-file docs/pilot/pilot-p05-1016-01-journeys.json --journeys-only
+```
+
+The preceding inspect command uses the same retained model-transition binding record as P04 and a fresh `pilot-p05-1016-01-preflight` output. A new write reproduction needs fresh run/Event/owner/session identities and a fresh baseline. The selected JSON plan explicitly pins P04's successful negative-test evidence; it never derives an exception from whatever failed rows happen to exist. No original identities should be resubmitted and counted as new creation.
+
+This proves **coexistence and explicit state transitions**, not an automatic semantic Goal→PR link, automatic prose inference, calibrated confidence, independent human reproduction or full pilot readiness. Same-session context provides the narrative grouping. Cloud Monitoring export still reports 403. P06 is next.
