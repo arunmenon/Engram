@@ -228,3 +228,7 @@ Astra confirmed at least two cache keys per qualifying session. At 65 sessions t
 ### P06 final composite evidence acceptance — Astra low
 
 Accepted: bounded composite P06 is complete. Run03 passed all 271 checks with four public 200 reads, zero inputs/workers/model calls and clean shutdown. Both tenants' preservation checks pass; 179 source hashes match `d429f96`. The pinned original supplies admission and pre-bridge publication evidence, and the follow-up validates all retained source-valid histories. Original01/02 remain failed. This proves Episode/Summary context isolation, not all raw Event recall; it proves neither Summary meaning nor live cache benefit. Overall pilot remains open.
+
+### P07 exact call correlation and cache observer launch review — Astra low
+
+No launch blocker found. The wrapper awaits the original summary method with unchanged arguments and returns its result. ContextVar correlation scopes provider calls to the actual summary invocation. P07 requires the matching tenant/Episode request as well as exact sources and stored/public output equality, preventing session-summary misattribution. For #67, count a cache hit only when the successful same-key invocation has no correlated provider call; cache presence alone is insufficient. No live benefit is claimed yet. Forty-eight focused tests passed before launch.

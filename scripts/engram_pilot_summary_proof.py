@@ -131,6 +131,16 @@ async def execute(plan, *, request, check, databases, record, save, settle):
             if r[0] == "Summary" and r[1] == e["summary"]
         )
         calls = matching_calls(record["provider_calls"], g["steps"])
+        episode_requests = {
+            o["id"]
+            for o in record.get("summary_cache_observations", [])
+            if o["tenant"] == t
+            and o["scope"] == "episode"
+            and o["scope_id"] == e["id"]
+            and o["source_event_ids"] == e["members"]
+        }
+        calls = [c for c in calls if c.get("summary_request_id") in episode_requests]
+
         check(g["name"] + " actual returned Luna call with exact accepted sources", bool(calls))
         check(
             g["name"] + " stored text equals actual returned provider text",
@@ -183,6 +193,11 @@ async def execute(plan, *, request, check, databases, record, save, settle):
         )
         for h in chosen:
             for nid in (h["id"], h["summary"], *h["members"]):
+                if nid in h["members"]:
+                    check(
+                        g["name"] + " public member is Event",
+                        answer["nodes"][nid].get("node_type") == "Event",
+                    )
                 source = nid if nid in h["members"] else h["anchor"]
                 p = answer["nodes"][nid].get("provenance") or {}
                 check(

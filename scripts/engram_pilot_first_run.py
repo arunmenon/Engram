@@ -18,6 +18,7 @@ import shutil
 import socket
 import subprocess
 import time
+from contextvars import ContextVar
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
@@ -70,6 +71,47 @@ def sourced_proposals(state, source_ids):
 def provider_prompt_text(messages):
     """Observe original message text without JSON transport quote escaping."""
     return "\n".join(str(message.get("content", "")) for message in messages)
+
+
+def observe_summary_cache(consumer, tenant, record, save, context):
+    """Observe the original worker call; never replace its provider or result."""
+    from context_graph.domain.consolidation import build_summary_prompt
+
+    original = consumer._summary_text
+
+    async def observed(scope, scope_id, events):
+        prompt = build_summary_prompt(events)
+        sources = tuple(sorted(str(e["event_id"]) for e in events))
+        key = (scope, scope_id, sources, prompt)
+        observations = record.setdefault("summary_cache_observations", [])
+        row = dict(
+            id="summary-" + str(len(observations)),
+            tenant=tenant,
+            scope=scope,
+            scope_id=scope_id,
+            source_event_ids=list(sources),
+            prompt_sha256=hashlib.sha256(prompt.encode()).hexdigest(),
+            cache_present_before=key in consumer._summary_texts,
+        )
+        observations.append(row)
+        token = context.set(row["id"])
+        save()
+        try:
+            text = await original(scope, scope_id, events)
+            row.update(
+                state="returned",
+                output_sha256=hashlib.sha256(text.encode()).hexdigest() if text else None,
+                cache_present_after=key in consumer._summary_texts,
+            )
+            return text
+        except Exception as exc:
+            row.update(state="failed", error_type=type(exc).__name__)
+            raise
+        finally:
+            context.reset(token)
+            save()
+
+    consumer._summary_text = observed
 
 
 def material_node(row, recovered_user_triggers=frozenset()):
@@ -444,9 +486,15 @@ async def execute(args):
     tasks = []
     server = server_task = None
     original_completion = litellm.acompletion
+    summary_context: ContextVar[str | None] = ContextVar("pilot_summary_request", default=None)
 
     async def observed_completion(*a, **kw):
         row = {"model": kw.get("model"), "started_at": datetime.now(UTC).isoformat()}
+        row["prompt_sha256"] = hashlib.sha256(
+            provider_prompt_text(kw.get("messages", [])).encode()
+        ).hexdigest()
+        if summary_context.get() is not None:
+            row["summary_request_id"] = summary_context.get()
         record["provider_calls"].append(row)
         save()
         try:
@@ -669,6 +717,8 @@ async def execute(args):
                 continue
             for kind in VALID_CONSUMERS:
                 worker, store = await _build_consumer(kind, b.settings(), tenant_binding=b)
+                if kind == "consolidation":
+                    observe_summary_cache(worker, _t, record, save, summary_context)
                 consumers.append(worker)
                 stores.append(store)
                 tasks.append(asyncio.create_task(worker.run()))

@@ -528,3 +528,36 @@ async def test_summary_cache_remains_bounded_with_eviction(consumer_with_llm):
     await consumer._summary_text("episode", "0", events)
     assert consumer._llm_client.generate_text.await_count == 258
     assert len(consumer._summary_texts) == 256
+
+
+@pytest.mark.asyncio
+async def test_pilot_cache_observer_preserves_calls_results_and_context(consumer_with_llm):
+    from contextvars import ContextVar
+
+    from engram_pilot_first_run import observe_summary_cache
+
+    consumer = consumer_with_llm
+    context: ContextVar[str | None] = ContextVar("summary_test", default=None)
+    seen = []
+
+    async def original_provider(prompt):
+        seen.append(context.get())
+        return "Actual summary"
+
+    consumer._llm_client.generate_text.side_effect = original_provider
+    record = {}
+    observe_summary_cache(consumer, "b", record, lambda: None, context)
+    events = [{"event_id": "one", "event_type": "observation.input"}]
+    assert await consumer._summary_text("episode", "same", events) == "Actual summary"
+    assert await consumer._summary_text("episode", "same", events) == "Actual summary"
+    assert consumer._llm_client.generate_text.await_count == 1
+    rows = record["summary_cache_observations"]
+    assert [r["cache_present_before"] for r in rows] == [False, True]
+    assert rows[0]["output_sha256"] == rows[1]["output_sha256"]
+    assert seen == [rows[0]["id"]]
+    assert context.get() is None
+    consumer._llm_client.generate_text.side_effect = RuntimeError("original failure")
+    with pytest.raises(RuntimeError, match="original failure"):
+        await consumer._summary_text("episode", "other", events)
+    assert record["summary_cache_observations"][-1]["state"] == "failed"
+    assert context.get() is None
