@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261008-05",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261008T034504Z-0574",
+ "created_at": "2026-10-08T04:20:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261007-02:merged:none",
+ "card_id": "PC-SURVEY-20261007-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "merged",
+ "reason": "The card asks to add a lifecycle fixture to P0 step 5's adapter swap test, so the P0 swap over two real backends answers it with the same arms; it is a fixture addition to P0, not a separate experiment. For the P0 owners: seed superseded, retracted and expired items, require per-record lifecycle_state and a store count manifest, and score stale-as-current answers (arXiv 2610.04794).",
+ "input_refs": [],
+ "merged_into": "P0"
+}

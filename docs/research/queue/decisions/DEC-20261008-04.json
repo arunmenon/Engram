@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261008-04",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261008T034504Z-0574",
+ "created_at": "2026-10-08T04:20:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261007-01:recommended:none",
+ "card_id": "PC-SURVEY-20261007-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20261008-01 screens whether our typed briefing versus a natural-language rendering of the same items moves memory QA accuracy by 5 points or more; it moves no register belief but decides whether the renderer must be frozen in P3 before H2, H3 and H8 run (priority 4, benchmarks). Now because it is one cheap run (about 8 USD) and an unfrozen renderer could swamp every retrieval comparison.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261008-01",
+   "file_id": "1bH_8YeZR9hA-JGHJ1FPzkBA4037YElEP",
+   "sha256": "9ea3bc9cace1ce64ef947bdde5aba62fd86c0154db8b56a2a127450327c76d2a"
+  }
+ ],
+ "merged_into": null
+}

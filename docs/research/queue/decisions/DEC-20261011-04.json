@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261011-04",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261011T034957Z-fbbb",
+ "created_at": "2026-10-11T04:30:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261009-01:recommended:none",
+ "card_id": "PC-SURVEY-20261009-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "No register belief covers erasure completeness, so this would create one: it measures whether our node delete leaves an erased fact reachable through derived summaries and caches, as a plain delete did in the paper (Any-Leak 0.94, identical to no forget). Now because erasure is a customer promise with no measurement behind it, and P5 provenance makes the taint-closure arm buildable.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261011-03",
+   "file_id": "1VwRfl7docLyO1gqSdje7WFFX_Xnn61Aq",
+   "sha256": "09c6b6fb4d6d388db292215ccd81c2fe759acf36f252257cdfcd039fbc4fcf6b"
+  }
+ ],
+ "merged_into": null
+}

@@ -1,0 +1,873 @@
+{
+ "schema_version": 1,
+ "artifact_id": "CKPT-triage-20261008T015053Z",
+ "artifact_type": "checkpoint",
+ "producer": "triage",
+ "run_id": "triage-20261008T014615Z-49b5",
+ "created_at": "2026-10-08T01:46:15Z",
+ "input_refs": [],
+ "supersedes": "CKPT-triage-20261007T074957Z",
+ "idempotency_key": "checkpoint:triage-20261008T014615Z-49b5",
+ "consumed_upto": {
+  "memory_feed_batch": "signals-20260930-124317",
+  "decision_feed_batch": "signals-20260930-123310"
+ },
+ "pending": [
+  {
+   "cluster_id": "x:2100606119504712138",
+   "post_ids": [
+    "2100655158992719907"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "email routing numbers (85.5% zero errors) only in an X thread; x.com fetch returns 402",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102979401025806732",
+   "post_ids": [
+    "2102979401025806732"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev code reranker on 100 GitHub issues: table in image",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103565692494925906",
+   "post_ids": [
+    "2103565692494925906",
+    "2103591942198087949"
+   ],
+   "reason": "image only",
+   "blocked_reason": "you.com Jev rerank 84% Vertical RTK: numbers in image, no write-up link",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103188520156229672",
+   "post_ids": [
+    "2103188520156229672"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Momentic Locator Bench 51.8%: image only",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103039616211157449",
+   "post_ids": [
+    "2103039616211157449"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jina multi-vector vs dense retrievers on memory search: chart only",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2100937437325205568",
+   "post_ids": [
+    "2101196885260460388"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "WebMCP benchmark claim only in quoted X post",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2096616468851097811",
+   "post_ids": [
+    "2096647325049626918"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: openai.com 403 and x.com 402 for OpenAI research-acceleration data (openai.com 403 again on 2026-09-27 and 2026-09-28; not retried 2026-10-06, WebSearch not permitted)",
+   "attempts": 5,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103610898690855161",
+   "post_ids": [
+    "2103612889655353346",
+    "2103612667865002248",
+    "2103615960175522108",
+    "2103713051002257705",
+    "2103615668683714730",
+    "2103663848511459603",
+    "2103684019107795155",
+    "2103776463388631493",
+    "2103781842155614264",
+    "2103648309881758112",
+    "2103709570338316525"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "OpenRouter jev-router launch: model page is API docs only; how-it-works and results in images",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102910289083826675",
+   "post_ids": [
+    "2102910289083826675"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "60-case tool-call risk benchmark only in X thread",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103098242921591201",
+   "post_ids": [
+    "2103098242921591201"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "README with negative rerank results not linked in item",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2103187018423361536",
+   "post_ids": [
+    "2103195865280328031"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "DocsBot Jev reranker benchmark in X article (not fetchable)",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102869389762867200",
+   "post_ids": [
+    "2102885375639507087"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "MCP outcome judge write-up in X article",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102342653782175744",
+   "post_ids": [
+    "2102830489237065968"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev OPSEC ranker in X article",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102108924677927169",
+   "post_ids": [
+    "2102121915733405896",
+    "2102127055034847447",
+    "2102218770630758684",
+    "2102130510877372732"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Browserbase Jev write-up is a quoted X post/article",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2100300097695232164",
+   "post_ids": [
+    "2100477620144205849"
+   ],
+   "reason": "image only",
+   "blocked_reason": "fx auto-mode classifier benchmark in image",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103153482161086753",
+   "post_ids": [
+    "2103169226047463831"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "claimed ICML paper (hallucinations 22% to 4%) not identified",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2103626484518924288",
+   "post_ids": [
+    "2103627396389974103"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev vs GPT-5.6 Terra 67.8/67.9 in X article",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102072714488139776",
+   "post_ids": [
+    "2102074672020066685"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "renewals agent 4.5x cheaper in X article",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103345111388373359",
+   "post_ids": [
+    "2103345111388373359"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "production router for verification workflows: no link",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103193093247750466",
+   "post_ids": [
+    "2103208544585892280"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "LlamaIndex calibrated-confidence blog URL not in item (links to X post and video)",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103754592056144155",
+   "post_ids": [
+    "2103754592056144155"
+   ],
+   "reason": "image only",
+   "blocked_reason": "SkillHEX summary in image, paper not linked",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "url:prospex.ch/blog/adaptive-reranking-with-jev-and-a-logistic-regression",
+   "post_ids": [
+    "2102412336569180506"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: HTTP 403 (WebFetch and curl again 403 on 2026-09-27; WebFetch 403 on 2026-09-28; WebFetch 403 again 2026-10-06)",
+   "attempts": 5,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2103095032635171224",
+   "post_ids": [
+    "2103095032635171224"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "JevOS routing 15/16 labelled steps: no write-up",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2102842288619814925",
+   "post_ids": [
+    "2103168377388978635"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev on 586 marketing items: results in image",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x-article:2102806912278339584",
+   "post_ids": [
+    "2102810316497371268"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "local 4B command picker 77% in X article",
+   "attempts": 2,
+   "retry_after": "2026-10-10",
+   "first_seen": "2026-09-26"
+  },
+  {
+   "cluster_id": "x:2104157986813792504",
+   "post_ids": [
+    "2104157986813792504"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "NeoHorse-1 routing-as-self-improvement (4B 58.94 to 64.87 macro-average over 11 benchmarks): no link in post; WebSearch not permitted in this run",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104133730038427863",
+   "post_ids": [
+    "2104133730038427863"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "OpenDecider 400M typed-decision model 79.6% vs Laya 76.6% vs Jev 75.4%: no link in post",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104130265580965999",
+   "post_ids": [
+    "2104130265580965999"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "jev-gateway benchmark (Claude Code with routing: +61% input tokens, +83% time on a feature task, -48% tokens on a bugfix): link promised in thread but not staged",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2100857375909679496",
+   "post_ids": [
+    "2104171847634096258",
+    "2104172064966058485"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "memory mesh supersession claim (current top-1 100% mesh vs 16.7% flat; LoCoMo top-k 0.037 vs 0.176 dense): replies with no repo, n or write-up; bears on B3",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2100984487802708306",
+   "post_ids": [
+    "2104118002723504325"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "paper mapping the early Jev ecosystem (Routing 250 projects avg 364 stars vs Simulation 252 avg 8): paper not linked; quoted X article not fetchable",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104121286565798051",
+   "post_ids": [
+    "2104121293406642379",
+    "2104121299681337635",
+    "2104121315472851029"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev juror pipeline robustness test (injection detection 0.08 to 0.98, vote unchanged; single-prompt 0.43 vs 0.41): source of the experiment not identified in the thread",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104138463675056433",
+   "post_ids": [
+    "2104138463675056433"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev calibration on three tabular datasets (few-shot cut calibration error 26 to 10 points; traditional ML better): numbers in image only",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104187215651930289",
+   "post_ids": [
+    "2104187215651930289",
+    "2104187221050024378",
+    "2104187269527855343",
+    "2104187310560681993"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev penetration-testing agent in NASim (guided setup 9/9 runs; fact attached to action aids decisions): 14-post thread, only 4 staged, figures in images, no repo",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104435470620848342",
+   "post_ids": [
+    "2104436011920990403",
+    "2104436428818018619",
+    "2104436546145300564",
+    "2104436934642651536"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "preregistered Jev calibration test (297 questions, confidence 96% to 81% where human agreement ~47%; NLI model worse): paper and code are in an unstaged reply ('Links' below 2104435470620848342); t.co resolves only to the video; WebSearch unavailable",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104321654067265716",
+   "post_ids": [
+    "2104321654067265716"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev passage scoring on Onyx EnterpriseRAG-Bench (512k docs, 500 q; +20 points on a Luna-judged exploratory dev sample, n not stated): X post only, no write-up or repo",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104432996615143425",
+   "post_ids": [
+    "2104437317301940672"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "self fine-tuned Jev-like model ($3, Unsloth) vs TypeSafe Jev on 747 questions: breakdown, model and code only in an X article (not fetchable)",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104373857054527508",
+   "post_ids": [
+    "2104373857054527508"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev as a judge of which knowledge-graph nodes to link (priority 1 and 3, linking stage): claim 'extremely effective' with evidence only in an attached image",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104191310076780718",
+   "post_ids": [
+    "2104356000237228139"
+   ],
+   "reason": "image only",
+   "blocked_reason": "TypeSafe open-sourced adapter that makes GPT, Claude and Gemini answer Jev-shaped questions: repo link only inside a quoted post image; repository not identified",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2101515447816663222",
+   "post_ids": [
+    "2104330427011928065"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Agent Memory Challenge 2026 Cycle 2 (coding memory track, 150 tasks clean vs noisy history, stale-context purge): announcement link resolves to an image; challenge site not identified",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104337790229999616",
+   "post_ids": [
+    "2104338858121060580"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev for RAG in finance (50/50 right, 100x fewer tokens, 4 companies, 4 LLMs): X article only (not fetchable)",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104222548468875264",
+   "post_ids": [
+    "2104229273980829905"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Vestra: where Jev helps and where it is confidently wrong in production: X article only (not fetchable)",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104374799288164452",
+   "post_ids": [
+    "2104374799288164452"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev 'does this diff affect this test?' recall 43% (file name only) vs 92% (imports and names in state) on 60 OSS commits: reply post only, no repo (possibly related to jgrep, N-20260927-18)",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x-article:2104332814418317312",
+   "post_ids": [
+    "2104371575428641074"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "SGLang decision-serving work (faster scoring vs better judgment): X article only; underlying SGLang PR or paper not linked",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "x:2104252978274488798",
+   "post_ids": [
+    "2104252978274488798"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Fastino GLiNER2.5-Decide, 340M open-weight decision model on CPU under 200 ms (priority 2): no link in post; model card not located without search",
+   "attempts": 2,
+   "retry_after": "2026-10-12",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "url:academy.dair.ai/resources/jev-decisions-in-a-pi-sdk-harness",
+   "post_ids": [
+    "2103875089779261682",
+    "2103513870904053936",
+    "2103964220941390233",
+    "2103879444859428967"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: DAIR Academy 'Building a Custom Harness with Pi and Jev' is a signup-gated teaser with no numbers; Jev Router test (8 cases, $0.008 vs $0.018, 1.5s vs 1.9s) only in post text; 2026-09-30: langchain.com/blog/building-a-harness-with-jev (Runkle, Lovell, 2026-09-17) read, has code snippets (TypeSafeClassifier, ModelRouterMiddleware) but none of the router test numbers (priority 1, routing)",
+   "attempts": 3,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2105093057389670660",
+   "post_ids": [
+    "2105093057389670660"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "hogunism: Jev task-complexity estimate vs lines changed on 120 dev tasks (r +0.614, +0.563 controlling project size, category alone +0.277): numbers only in post; repo ZEST-im/vibe-engineering at e8396a9 has no analysis, its kanban says labels are still being collected (priority 1, routing). 2026-10-07: HEAD 26fc6ab (2026-10-02) docs/architecture/00_solution.md:87 cites only 'rho=+0.614' from a 09-28 spike, Jev not yet wired in, labels still being collected",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2103123493567025321",
+   "post_ids": [
+    "2104868318918144200",
+    "2104879117942378586"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "TypeSafe Hermes skill-router test (488 requests, 182 skills, wrong-skill loads 16.8% to 7.3%, fixed 37, broke 7): relayed by fluixoo; quoted post is a bare t.co link, TypeSafe write-up not located (priority 1, routing)",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "url:pub.towardsai.net/gliner2-5-decide-fine-tuned-local-system-one-model-jev-level-accuracy-7-faster-367f82c01bf7",
+   "post_ids": [
+    "2104895968772772295"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: Towards AI article (Mohit Mayank, 2026-09-28) returns 403 directly and only an intro via reader proxy (member paywall likely); fine-tune numbers (80.3% vs Jev 79.3% on 1,500 QQP pairs, false duplicates 298 to 182, 68 ms on Mac) only in post; would update bus note hf:fastino/GLiNER2.5-Decide (priority 2). Still 403 on 2026-10-01; 2026-10-02: WebFetch 403 and the medium.com/towards-artificial-intelligence mirror 403; web search not permitted in this run; 2026-10-06 WebFetch 403 again",
+   "attempts": 5,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2104985355493532002",
+   "post_ids": [
+    "2104985355493532002"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "STALE benchmark (agents recognising invalidated stored memories, best model 55.2%): post gives no link, title or authors; web search unavailable this run (priority 4, staleness)",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2104959648482701686",
+   "post_ids": [
+    "2104959648482701686"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "muratcan: Jev zero-shot on 2,029 receptionist calls (38,012 turn forecasts at 118 ms median, AUC 0.78 at halfway, $3): post only, no write-up (priority 1)",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x-article:2105036345437810688",
+   "post_ids": [
+    "2105070742446690442"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "rae1101x outage-investigation agent on Jev (~5 s vs 32 and 119 s, right service 57/60): X article only, not fetchable (priority 1)",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2103831653575544914",
+   "post_ids": [
+    "2104248143739015190"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "MichaelThiessen Jev as a fuzzy linter after edits (coding guidelines as tiny rules; medium-confidence tier 'seems to double what it catches'): quoted X post only, no write-up or numbers; related bus note github-diffpal-lintpal.md",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104003596375425117",
+   "post_ids": [
+    "2104682600103284917"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "DTap red-team of Jev 1.13 (70.1% ASR direct misuse, 43.5% indirect injection; self-gating mitigation): numbers only in post text and image; not found on decodingtrust-agent.com, AI-secure GitHub or arXiv API; 'read more below' thread not staged (R8, B24)",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104683332152029342",
+   "post_ids": [
+    "2104683332152029342"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "builder report that Jev is bad at clustering and knowledge-graph construction (keeps creating new groups instead of adding to existing ones): item 2 of an unstaged thread, no system linked (priority 1 and 3, linking stage)",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104609870804828387",
+   "post_ids": [
+    "2104609870804828387"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "memory arbitration test (2 repeats of a false fact flip 12/12 runs; provenance check before arbitration fixes 12/12, after does nothing; 12 seeds, 60 facts): summarises an unlinked post; author and write-up not identified (R2/R8, B1)",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104631874308178253",
+   "post_ids": [
+    "2104631874308178253"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Context7 tested Jev and kept Qwen for classification and Voyage for reranking: counter-evidence on priority 1, but 'technical post coming soon' not yet published",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104636172488384714",
+   "post_ids": [
+    "2104636172488384714",
+    "2104642687534293353"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Rox: Jev classification vs LLM reranking for sales-data retrieval (20x faster, 10x cheaper, 12% more accurate than GPT-5 Mini): no link, n or method (priority 1, reranking)",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104624722403283407",
+   "post_ids": [
+    "2104624722403283407"
+   ],
+   "reason": "image only",
+   "blocked_reason": "EntendreAI Crypto Accounting Benchmark (Jev 51.7/47.5/48.3% with 2/3/5 accounts; 61.5% on 39 of 118 at confidence >= 0.75): charts in images, no benchmark link",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104724683254051026",
+   "post_ids": [
+    "2104724683254051026"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "harness with Jev at router, context picker, gate and verifier: only the context picker helped; agent bypassed the SQL gate via the shell; no write-up or repo linked",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104735022758728114",
+   "post_ids": [
+    "2104735022758728114"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "two-month test of six memory systems (Graphiti, Zep, Cognee...) where a plain relational store matched or beat all for code context: reply post only, no data (bears on B8)",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x:2104721332953075969",
+   "post_ids": [
+    "2104721332953075969"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "ProjectPulse on Hindsight (human-approved inbox, verbatim-quote validator, max 5 rules per brief): summarises an unlinked post",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "x-article:2104822211869544448",
+   "post_ids": [
+    "2104823490079584643"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "builder report that putting Jev in front of an AI writer made writing worse and giving it the small decision before the writing helped (priority 1, assembly): X article only, not fetchable",
+   "attempts": 2,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-29"
+  },
+  {
+   "cluster_id": "url:developers.openai.com/api/docs/guides/decisions",
+   "post_ids": [
+    "2105093602070372434",
+    "2105137776152953300",
+    "2105185824090521794",
+    "2105185818314686583",
+    "2105185823553675326",
+    "2105072095696756871",
+    "2105069865321275449",
+    "2104996032438546790"
+   ],
+   "reason": "fetch failed",
+   "blocked_reason": "fetch failed: OpenAI Decisions API (GPT-6 Luna, limited preview; ~150 ms vs 1.6 s claimed in posts). Merged 2026-10-02 with url:thenewstack.io/openai-decision-api-luna (same claim). 2026-10-02: developers.openai.com/api/docs/guides/decisions 404, openai.com/index/introducing-decisions-api 403, platform.openai.com/docs/api-reference/decisions 403, The New Stack body still not rendered (headline only); developers.openai.com/api/docs/changelog lists gpt-6-luna (2026-09-22) but no Decisions API entry; web search not permitted (priority 1); 2026-10-06: guides/decisions 404 again, The New Stack body still headline only",
+   "attempts": 5,
+   "retry_after": "2026-10-13",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "url:docs.liquid.ai/lfm/models/decision-models",
+   "post_ids": [
+    "2105136265549218270",
+    "2105104332756754743",
+    "2105185645086003710",
+    "2105165764294836461",
+    "2105161261604593770"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "no primary source for d1's own score: docs page has API shape only; huggingface.co/spaces/huggingface/decision-index still 401 on 2026-10-02; liquid.ai blog 404; no d1 on OpenRouter or the LiquidAI HF org. Partly resolved 2026-10-02 by N-20261002-01 (notes/vendor-jev-decision-index-community-leaderboard.md): community Decision Index 0.2.1 at commit cdbd1cab confirms Jev 57.91 but has no d1 row and no entrant above Jev. Remaining: d1 58.9 on a readable board, and the builder browser-QA test (Jev 6/6, d1 4/6, n=6, no repo) (priority 2)",
+   "attempts": 3,
+   "retry_after": "2026-10-09",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105180027814097063",
+   "post_ids": [
+    "2105180027814097063"
+   ],
+   "reason": "image only",
+   "blocked_reason": "Jev vs Laya vs Kev vs a fine-tuned Kev on one task, does a new memory replace an old one (supersession, linking stage, priorities 1 and 2): results only in an image, no repository or model link in the post",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105095379272515603",
+   "post_ids": [
+    "2105167468964806987"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "SGLang native /v1/decisions and a Qwen3.8-27B multimodal decision model (sub-100 ms claim): only a quoted X post; docs.sglang.io index has no decisions page (priority 2)",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105104433390789051",
+   "post_ids": [
+    "2105104433390789051"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "MemoryOps incident copilot over Hindsight (writes blocked unless confirmed, 3 or more confirmations before consolidating a pattern): post summarises an unlinked article",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105183102548996166",
+   "post_ids": [
+    "2105183102548996166"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Vestige local MCP memory server (retrieval receipts, evidence replay, failure backtracking, AGPL-3.0): repository link is in a reply that was not captured",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105124580570370414",
+   "post_ids": [
+    "2105124580570370414"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Nubank pre-deployment screening of customer-experience agents with synthetic customers and simulated tool outputs, matched production comparison claimed: post names no link",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2103560531235795129",
+   "post_ids": [
+    "2105162516099969311"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "LangChain document-review demo said to show a 5 to 6x classification speedup with Jev: second-hand post quoting a bare short link that was not resolved",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105177128895733905",
+   "post_ids": [
+    "2105177128895733905"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "git-lex (git extension that turns repositories with Markdown frontmatter into an RDF knowledge graph) and the Subtexture, Pan and Ravel stores: described in a post with no link (priority 3, exploration sample)",
+   "attempts": 2,
+   "retry_after": "2026-10-14",
+   "first_seen": "2026-09-30"
+  },
+  {
+   "cluster_id": "x:2105262606600601858",
+   "post_ids": [
+    "2105262606600601858",
+    "2105270078937739646",
+    "2105263136638996553"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Jev founder's 12-page PDF on coding-agent harnesses (reading and searching two thirds of tokens, routing easy work down costs 50% more, compaction compresses before knowing the question): PDF link said to be in a reply that was not captured; reposts quote x:2104828310819618979 and polydao bare links; both quoted posts returned HTTP 402 on 2026-10-08 (priority 1)",
+   "attempts": 2,
+   "retry_after": "2026-10-15",
+   "first_seen": "2026-10-01"
+  },
+  {
+   "cluster_id": "x:2105226177660993616#vercel-gateway-adoption",
+   "post_ids": [
+    "2105226177660993616"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Vercel says ~13% of paid AI Gateway teams used Jev on day one: not in the Vega post (Vega part noted as N-20261008-02); no Vercel source linked (priority 1)",
+   "attempts": 1,
+   "retry_after": "2026-10-15",
+   "first_seen": "2026-10-08"
+  },
+  {
+   "cluster_id": "x:2105276611348382045",
+   "post_ids": [
+    "2105276611348382045"
+   ],
+   "reason": "no primary source",
+   "blocked_reason": "Lyzr Studio: Jev decides before each turn whether the tool catalog is needed; 'input dropped by 99%' on turns needing no tools: vendor post with a video, no write-up, n or baseline; lyzr.ai/blog had no matching post on 2026-10-08 (priority 1, routing)",
+   "attempts": 2,
+   "retry_after": "2026-10-15",
+   "first_seen": "2026-10-01"
+  }
+ ],
+ "consumed_source_ids": ["2105225030544093522", "2105226177660993616", "2105262606600601858", "2105263136638996553", "2105263170679902211", "2105270078937739646", "2105271190143340848", "2105276611348382045"]
+}

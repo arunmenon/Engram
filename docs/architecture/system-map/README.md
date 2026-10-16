@@ -1,5 +1,7 @@
 # Engram System Map
 
+Historical design overview from 8 October. For the current architecture and controlled pilot, use [the maintained guide](../../guide/engram-architecture.html) and [team walkthrough](../../pilot/team-walkthrough.md).
+
 A design overview of Engram at a 30,000-foot level. It covers ingestion, retrieval, multi-tenancy, the Spanner handshake and ontology packs.
 
 - Published artifact (private until shared): https://claude.ai/artifact/9r5JZ8TY7Lf1nBPiyntpoA

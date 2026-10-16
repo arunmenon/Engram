@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261005-03",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261005T034505Z-994f",
+ "created_at": "2026-10-05T04:00:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261003-02:recommended:DEC-20261004-06",
+ "card_id": "PC-SURVEY-20261003-02",
+ "prev_decision_id": "DEC-20261004-06",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision r2 fixes the P3/P4 attribution, restricts every gate to answer-key-free inputs with a source-faithful NLI control and a conflict control, runs and budgets gated fit outcomes before fitting, and uses a cluster-aware capable-set denominator with a defined AURC. It can move working belief B11 on who owns admission when memory holds a stale Decision, which must be settled before H5's scorer earns production shadow.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261004-02-r2",
+   "file_id": "1S45FQY4exxgEq960fNhT9xnE3-cGxGtq",
+   "sha256": "b5deaf1e169246345241e7235886a592c17dde4db204736cf4cdf25a4df9ea0f"
+  }
+ ],
+ "merged_into": null
+}

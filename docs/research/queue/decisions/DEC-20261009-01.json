@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261009-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261009T034502Z-08bf",
+ "created_at": "2026-10-09T03:46:46Z",
+ "idempotency_key": "decision:PC-20261008-01:recommended:DEC-20261008-01",
+ "card_id": "PC-20261008-01",
+ "prev_decision_id": "DEC-20261008-01",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20261008-02-r2 answers REV-20261008-02: request-level saved-request and any-question action-disagreement metrics, gate actions with the H5 confidence floor, fixed-sequence threshold rule labelled an IID-only heuristic with grouped time-ordered splits and a cluster bootstrap, corrected power claim, required downstream checks, and five shards each within policy per-run caps. It can move working belief B14 (bound versus point thresholds on our gate questions) and bounds B13 evidence to measured downstream effects, and is worth running now because it decides whether in-house gate text goes through a distilled student.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261008-02-r2",
+   "file_id": "1_ln2aVUsBgHCBi4qPn9QeIWoOpyGUTK9",
+   "sha256": "5ced9557ff85ff4482ed6607ba7417913519a2e11b4e44b53e2c7e2bdf4ff863"
+  }
+ ],
+ "merged_into": null
+}

@@ -1,5 +1,7 @@
 # Engram controlled pilot: team walkthrough
 
+**Use one branch: `feature/engram-memory-episodes`.** Foundation, goals, projection fixes, guide and pilot work are consolidated here. See the [three-week lineage audit](branch-lineage-2026-10-16.md); no other branch needs to be merged to use this work.
+
 This pilot checks whether two tenants can send activity into Engram and retrieve the right knowledge with source evidence. Tenant A selects Core, User and Memory. Tenant B selects Core, PDLC and Memory. Both use real Spanner, the authenticated HTTP dispatcher and five ordinary worker loops per tenant. Model-dependent checks use actual `gpt-6-luna` responses.
 
 Read the [visual architecture guide](../guide/engram-architecture.html) first. Pages 1–18 explain the machinery; pages 20–27 explain the pilot. The animations illustrate behavior; they are not live results.

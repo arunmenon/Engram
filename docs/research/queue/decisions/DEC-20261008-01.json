@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261008-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261008T034504Z-0574",
+ "created_at": "2026-10-08T04:20:00Z",
+ "idempotency_key": "decision:PC-20261008-01:recommended:none",
+ "card_id": "PC-20261008-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20261008-02 tests whether a bound-thresholded distilled student can answer at least half of our gate calls within a 2% Jev disagreement budget, which can move B14 (working: fit thresholds locally with a bound, not point estimates) and B13 (lead), and serves CTO priority 2 (in-house decision model). Now because after a capped Jev collection on permitted seeded data it needs only CPU fitting, giving the cheapest in-house alternative to E-20260928-12-r2; the card's own-traffic log is replaced by seeded data because no dogfood tenant is named.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261008-02",
+   "file_id": "19UIV3lbCNjnjxIKI1PTH4jMtXPmPSHvb",
+   "sha256": "dca17538888e450e4231bec96e39772aeae09b20eaf5b003e3dd304d1c32b1cc"
+  }
+ ],
+ "merged_into": null
+}

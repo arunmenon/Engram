@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261009-02",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261009T034502Z-08bf",
+ "created_at": "2026-10-09T03:46:46Z",
+ "idempotency_key": "decision:PC-SURVEY-20261007-01:recommended:DEC-20261008-04",
+ "card_id": "PC-SURVEY-20261007-01",
+ "prev_decision_id": "DEC-20261008-04",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20261008-01-r2 answers REV-20261008-01: narrowed source attribution, a gold-free common item schema selected before rendering with a semantic-preservation audit, a blinded judge, Holm correction framed as a directional screen, in-run judge noise, and a measured pre-launch cost gate with PDLC removed. It moves no register belief directly but decides whether the renderer must be frozen in P3 before H2, H3 and H8 run, so it should run before those comparisons.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261008-01-r2",
+   "file_id": "1U9KFROnC9lS0nxjaVyXs7Uz91j2Hitks",
+   "sha256": "2a234cb24f58d96f1d128c114442c5c5f54322b4378dceb103ecd3c510f81b13"
+  }
+ ],
+ "merged_into": null
+}

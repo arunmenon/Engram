@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261005-04",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261005T034505Z-994f",
+ "created_at": "2026-10-05T04:00:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261003-03:recommended:DEC-20261004-07",
+ "card_id": "PC-SURVEY-20261003-03",
+ "prev_decision_id": "DEC-20261004-07",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision r2 adds a source-faithful listwise logit arm with shared randomised candidate orders, replaces point-estimate large-pool rules with paired bounds on a shared subset, corrects the power figures, scopes conclusions per dataset and fits a fixed five-run, 5M-token plan with capped GPU time. It stays the cheap exploration slot that can annotate lead belief B10 for an open instruct model, informing priority 2 self-hosting.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261004-03-r2",
+   "file_id": "1CRV9NFLJAWCIwvoT5SyPRbtcLZcNwKn-",
+   "sha256": "133aa440951b7a68df937337a4781fcb89356b24c33cd94482ff8041c509c901"
+  }
+ ],
+ "merged_into": null
+}

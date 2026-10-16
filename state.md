@@ -1,4 +1,6 @@
-# Executor state (fast-track queue)
+# Research executor state snapshot — 29 September 2026
+
+This records the separate research experiments below, not current Engram goal or pilot status. The canonical delivery branch and current pilot evidence are documented in `docs/pilot/team-walkthrough.md`.
 
 | # | Item | Spec | Dataset | Status | Notes |
 |---|---|---|---|---|---|
