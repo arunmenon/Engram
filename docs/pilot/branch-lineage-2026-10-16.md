@@ -18,6 +18,6 @@ All **27 distinct recent branch tips** in the audited set are ancestors after re
 
 Three older foundation status/index files were preserved under `docs/review/spanner-compatibility/lineage-archive/foundation-gate-20261009/` instead of replacing the current status. Original source worktrees were not modified. Local virtual environments, ignored credentials and machine-only caches are not deliverables.
 
-The reconciliation changed documentation/research/harness content, not the running pilot's source files. Every source hash recorded by continuation02 still matched afterward. The pending-consumer and PDLC contract/pack checks passed **138 tests**. Research harness inclusion is preservation, not a new execution or validity claim.
+The reconciliation changed documentation/research/harness content, not the running pilot's source files. Every source hash recorded by continuation02 still matched at that reconciliation checkpoint, before the subsequent separately recorded HTTP-client adjustment. The pending-consumer and PDLC contract/pack checks passed **138 tests**. Research harness inclusion is preservation, not a new execution or validity claim.
 
 The pilot has its own verification verdict. Consolidating Git history does not turn a failed or in-progress run into a pass. See [team walkthrough](team-walkthrough.md) for reproduction prerequisites and evidence limits.

@@ -496,7 +496,14 @@ async def execute(args):
                 )
         record["state"] = "running"
         save()
-        async with httpx.AsyncClient(base_url=f"http://127.0.0.1:{port}", timeout=45) as http:
+        # Each request gets a fresh loopback connection. Long Spanner/model waits
+        # must not leave a pooled socket racing Uvicorn's keep-alive expiry.
+        # HTTP errors still fail the run; this does not retry/waive responses.
+        async with httpx.AsyncClient(
+            base_url=f"http://127.0.0.1:{port}",
+            timeout=45,
+            limits=httpx.Limits(max_keepalive_connections=0),
+        ) as http:
 
             async def request(t, path, body=None, *, method="POST", role="api"):
                 token = (admin if role == "admin" else tokens)[t]
