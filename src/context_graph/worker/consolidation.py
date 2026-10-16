@@ -16,6 +16,7 @@ Source: ADR-0008 Stage 3, ADR-0013 Consumer 4, ADR-0014
 from __future__ import annotations
 
 import asyncio
+from collections import OrderedDict
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
@@ -81,6 +82,29 @@ class ConsolidationConsumer(BaseConsumer):
             raise ValueError("Selected Memory Episodes require a graph producer")
         self._consolidation_lock = asyncio.Lock()
         self._stop_requested = asyncio.Event()
+        self._summary_texts: OrderedDict[tuple[str, str, tuple[str, ...], str], str] = OrderedDict()
+
+    async def _summary_text(
+        self, scope: str, scope_id: str, events: list[dict[str, Any]]
+    ) -> str | None:
+        """Reuse successful text for identical inputs within this worker only.
+
+        Summary/evidence writes and maintenance still execute on every cycle.
+        A new worker, changed membership or changed prompt requires a new call.
+        """
+        if self._llm_client is None:
+            return None
+        prompt = build_summary_prompt(events)
+        key = (scope, scope_id, tuple(sorted(str(e["event_id"]) for e in events)), prompt)
+        if key in self._summary_texts:
+            self._summary_texts.move_to_end(key)
+            return self._summary_texts[key]
+        text = await self._llm_client.generate_text(prompt)
+        if text and text.strip():
+            self._summary_texts[key] = text
+            if len(self._summary_texts) > 128:
+                self._summary_texts.popitem(last=False)
+        return text
 
     # -- lifecycle ----------------------------------------------------------
 
@@ -276,10 +300,7 @@ class ConsolidationConsumer(BaseConsumer):
                 if self._episode_graph is not None
                 else f"{session_id}-ep{idx}"
             )
-            llm_summary_text: str | None = None
-            if self._llm_client is not None:
-                prompt = build_summary_prompt(episode)
-                llm_summary_text = await self._llm_client.generate_text(prompt)
+            llm_summary_text = await self._summary_text("episode", scope_id, episode)
 
             summary = create_summary_from_events(
                 events=episode,
@@ -307,10 +328,7 @@ class ConsolidationConsumer(BaseConsumer):
                 )
 
         # Create a session-level summary covering all events
-        session_llm_text: str | None = None
-        if self._llm_client is not None:
-            session_prompt = build_summary_prompt(events)
-            session_llm_text = await self._llm_client.generate_text(session_prompt)
+        session_llm_text = await self._summary_text("session", session_id, events)
 
         session_summary = create_summary_from_events(
             events=events,

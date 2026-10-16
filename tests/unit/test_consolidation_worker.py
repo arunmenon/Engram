@@ -396,3 +396,35 @@ class TestLLMConsolidationWiring:
         calls = gm.write_summary_with_edges.call_args_list
         for call in calls:
             assert "1 events" in call.kwargs["content"]
+
+
+@pytest.mark.asyncio
+async def test_summary_reuse_requires_same_scope_membership_and_prompt(consumer_with_llm):
+    consumer = consumer_with_llm
+    consumer._llm_client.generate_text.return_value = "Useful summary"
+    first = [{"event_id": "a", "event_type": "tool.result"}]
+    assert await consumer._summary_text("episode", "s", first) == "Useful summary"
+    await consumer._summary_text("episode", "s", first)
+    assert consumer._llm_client.generate_text.await_count == 1
+    # IDs are not currently in the prompt, so membership must independently key reuse.
+    await consumer._summary_text("episode", "s", [{**first[0], "event_id": "b"}])
+    await consumer._summary_text("session", "s", first)
+    await consumer._summary_text("episode", "other", first)
+    await consumer._summary_text("episode", "s", [{**first[0], "event_type": "tool.error"}])
+    assert consumer._llm_client.generate_text.await_count == 5
+    consumer._summary_texts.clear()
+    await consumer._summary_text("episode", "s", first)
+    assert consumer._llm_client.generate_text.await_count == 6
+
+
+@pytest.mark.asyncio
+async def test_summary_failure_or_empty_answer_is_not_reused(consumer_with_llm):
+    consumer = consumer_with_llm
+    events = [{"event_id": "a", "event_type": "tool.result"}]
+    consumer._llm_client.generate_text.side_effect = [RuntimeError("provider"), "", "valid"]
+    with pytest.raises(RuntimeError, match="provider"):
+        await consumer._summary_text("episode", "s", events)
+    assert await consumer._summary_text("episode", "s", events) == ""
+    assert await consumer._summary_text("episode", "s", events) == "valid"
+    assert await consumer._summary_text("episode", "s", events) == "valid"
+    assert consumer._llm_client.generate_text.await_count == 3

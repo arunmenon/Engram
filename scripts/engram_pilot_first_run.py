@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import secrets
@@ -211,7 +212,51 @@ async def execute(args):
     directory = Path(args.output).resolve()
     directory.mkdir(parents=True, exist_ok=False)
     plan = fixtures(args.run_id)
+    if getattr(args, "journey_file", None):
+        plan["spectrum"] = json.loads(args.journey_file.read_text())
+    elif getattr(args, "spectrum", False):
+        from engram_pilot_spectrum import freeze
+
+        plan["spectrum"] = freeze(args.run_id)
+    spectrum_steps = [
+        {"tenant": group["tenant"], **step}
+        for group in plan.get("spectrum", {}).get("groups", [])
+        for step in group["steps"]
+    ]
+    if spectrum_steps:
+        plan["scope"] = [*plan["scope"], plan["spectrum"]["coverage"]]
+    source_inputs = plan["events"] + [{"event": step["request"]} for step in spectrum_steps]
+
     durable_json(directory / "fixtures.json", plan)
+    source_paths = [*ROOT.joinpath("src").rglob("*.py"), *ROOT.joinpath("src").rglob("*.yaml")]
+    source_paths.extend(
+        ROOT / "scripts" / name
+        for name in (
+            "engram_pilot_first_run.py",
+            "engram_pilot_model_transition.py",
+            "engram_experiment_support.py",
+            "engram_composition_assessment.py",
+            "engram_pilot_spectrum.py",
+        )
+    )
+    revision = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True
+    )
+    durable_json(
+        directory / "reproduction-manifest.json",
+        {
+            "git_revision": revision.stdout.strip(),
+            "source_sha256": {
+                str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in source_paths
+            },
+            "fixtures_sha256": hashlib.sha256(
+                (directory / "fixtures.json").read_bytes()
+            ).hexdigest(),
+            "provider_mode": "actual; no replacement; no artificial call ceiling",
+        },
+    )
+
     record = {
         "state": "preflight",
         "scope": plan["scope"],
@@ -292,7 +337,7 @@ async def execute(args):
             prompt = json.dumps(kw.get("messages", []))
             row["input_event_candidates"] = [
                 r["event"]["event_id"]
-                for r in plan["events"]
+                for r in source_inputs
                 if any(
                     text and text in prompt
                     for text in (
@@ -341,6 +386,11 @@ async def execute(args):
             durable_json(directory / (t + "-before.json"), previous)
             existing_ids = {r[0] for r in previous["snapshot"]["events"]}
             fixture_ids = {r["event"]["event_id"] for r in plan["events"] if r["tenant"] == t}
+            fixture_ids |= {
+                step["request"]["event_id"]
+                for step in spectrum_steps
+                if step["tenant"] == t and step["expected_status"] < 400
+            }
             check(t + " all fixture Event identities fresh", not (existing_ids & fixture_ids))
             if t == "b":
                 check(
@@ -350,6 +400,19 @@ async def execute(args):
                         & set(plan["expected_artifacts"].values())
                     ),
                 )
+            spectrum_artifacts = set()
+            for step in spectrum_steps:
+                if step["tenant"] == t and step["expected_status"] < 400:
+                    spectrum_artifacts.update(step.get("extra_nodes", {}))
+                    spectrum_artifacts.update(step.get("node_assertions", {}))
+                    if step.get("expected_node"):
+                        spectrum_artifacts.add(step["expected_node"])
+                    for _, source, target in step.get("expected_edges", []):
+                        spectrum_artifacts.update((source, target))
+            check(
+                t + " spectrum artifact identities fresh",
+                not (spectrum_artifacts & {r[1] for r in previous["snapshot"]["nodes"]}),
+            )
             with db.snapshot() as view:
                 groups = {r[0] for r in view.execute_sql("SELECT group_name FROM ConsumerGroups")}
             check(
@@ -449,10 +512,21 @@ async def execute(args):
             first = plan["events"][0]
             code, out = await request("a", "/v1/events", first["event"])
             check("unchanged retry accepted without new identity", code in (200, 201), code)
+            b_prose = {
+                r["event"]["event_id"] for r in plan["events"] if r["key"] in ("design", "prose")
+            }
             deadline = time.monotonic() + 240
             states = {}
             required = {(r["tenant"], r["event"]["event_id"]) for r in plan["events"]}
             while time.monotonic() < deadline:
+                invalid = [
+                    o
+                    for o in record["worker_outcomes"]
+                    if o.get("event") == "pack_extraction_answer_invalid"
+                    and o.get("event_id") in b_prose
+                ]
+                if invalid:
+                    raise AssertionError("Required pack answer invalid; no completed output")
                 for task in tasks:
                     if task.done():
                         await task
@@ -473,11 +547,6 @@ async def execute(args):
                     r.get("event_id")
                     for r in record["worker_outcomes"]
                     if r.get("event") == "pack_extraction_applied"
-                }
-                b_prose = {
-                    r["event"]["event_id"]
-                    for r in plan["events"]
-                    if r["key"] in ("design", "prose")
                 }
                 lags = await asyncio.gather(*(w._subscription.lag() for w in consumers))
                 if (
@@ -716,6 +785,34 @@ async def execute(args):
                 sum(r.get("nodes", 0) for r in applied) > 0,
                 applied,
             )
+            if spectrum_steps:
+                from engram_pilot_spectrum import execute as execute_spectrum
+
+                await execute_spectrum(
+                    plan["spectrum"],
+                    request=request,
+                    check=check,
+                    databases=databases,
+                    record=record,
+                    save=save,
+                    consumers=consumers,
+                )
+                deadline = time.monotonic() + 240
+                while time.monotonic() < deadline:
+                    lags = await asyncio.gather(*(w._subscription.lag() for w in consumers))
+                    states = {
+                        t: await asyncio.to_thread(snapshot, db) for t, db in databases.items()
+                    }
+                    if not any(lags) and all(
+                        not s["pending"] and not s["dead_letters"] for s in states.values()
+                    ):
+                        break
+                    await asyncio.sleep(0.3)
+                check(
+                    "spectrum worker outputs drained without failures",
+                    not any(lags)
+                    and all(not s["pending"] and not s["dead_letters"] for s in states.values()),
+                )
         record["final_worker_lags"] = await asyncio.gather(
             *(w._subscription.lag() for w in consumers)
         )
@@ -737,11 +834,13 @@ async def execute(args):
             except Exception as exc:
                 errors = [type(exc).__name__]
             record["shutdown_errors"] = errors
-            record["checks"].append({
-                "name": "actual provider calls returned after cooperative shutdown",
-                "passed": bool(record["provider_calls"])
-                and all(c.get("state") == "returned" for c in record["provider_calls"]),
-            })
+            record["checks"].append(
+                {
+                    "name": "actual provider calls returned after cooperative shutdown",
+                    "passed": bool(record["provider_calls"])
+                    and all(c.get("state") == "returned" for c in record["provider_calls"]),
+                }
+            )
             if errors:
                 record["state"] = "failed"
             for t, db in databases.items():
@@ -766,6 +865,11 @@ async def execute(args):
                     retained = {r[0]: r[1:] for r in final["snapshot"]["events"]}
                     expected_ids = {
                         r["event"]["event_id"] for r in plan["events"] if r["tenant"] == t
+                    }
+                    expected_ids |= {
+                        step["request"]["event_id"]
+                        for step in spectrum_steps
+                        if step["tenant"] == t and step["expected_status"] < 400
                     }
                     complete = record["state"] == "pending-final-verification"
                     record["checks"].append(
@@ -862,9 +966,11 @@ async def execute(args):
             if record.get("observation_errors") or any(not c["passed"] for c in record["checks"]):
                 record["state"] = "failed"
             elif record["state"] == "pending-final-verification":
-                record["state"] = "passed-first-checkpoint"
+                record["state"] = (
+                    "passed-spectrum-checkpoint" if spectrum_steps else "passed-first-checkpoint"
+                )
             save()
-    if record["state"] != "passed-first-checkpoint":
+    if record["state"] not in {"passed-first-checkpoint", "passed-spectrum-checkpoint"}:
         raise RuntimeError("Pilot entry checkpoint failed; inspect retained report")
     print(
         json.dumps(
@@ -883,6 +989,12 @@ def main():
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--predecessor", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument(
+        "--spectrum", action="store_true", help="Run the additional frozen journey families"
+    )
+    parser.add_argument(
+        "--journey-file", type=Path, help="Explicit frozen spectrum JSON in the same format"
+    )
     parser.add_argument(
         "--service-account", default="engram-experiment-sa@portiq-mvp.iam.gserviceaccount.com"
     )

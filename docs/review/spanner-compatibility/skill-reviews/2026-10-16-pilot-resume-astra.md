@@ -27,3 +27,9 @@ Entry04's primary checks passed, but its pre-shutdown provider-return assertion 
 ## Pack JSON-output correction
 
 Entry05 failed after a required PDLC answer was malformed JSON and rejected. #66 tracks expressing that output requirement at the provider boundary. The existing LLM client now has opt-in JSON output, enabled only for pack extraction. User extraction already used JSON mode; Summary/HyDE free text is unchanged. Existing parsing, schema, source and proposal validation remain mandatory. The runner fails promptly on terminal invalid required output rather than waiting for an impossible applied outcome. Astra's static review found no blocker; fresh validated live outputs remain required.
+
+## Broader runner and repeated consolidation calls
+
+Astra inspected the broader runner and found concrete harness defects: success-state rejection, duplicate provenance expectations, omitted normalized GitHub check inputs required by existing query oracles, missing settled no-write proofs, missing per-source model outcomes, weakened cumulative graph checks, retained artifact collisions, and weak User semantic checks. These were corrected before live spectrum execution. A final source-equality check was scoped to declared artifacts; model proposals retain separate source checks and records. This is static review, not broader live acceptance.
+
+Astra also accepted process-local reuse of successful consolidation text, keyed by scope, scope ID, exact source membership and exact prompt. Summary/evidence writes and maintenance still execute; failed or empty output is not reused. The change addresses observed repeat calls without imposing a provider-call cap. Forty targeted fixture-integrity, summary-worker/shutdown and model request tests passed; mypy passed on the changed runtime files. Entry06 independently passed 58 live checks with 57 returned provider calls and no shutdown errors. Full spectrum execution and final evidence review remain pending.
