@@ -1,0 +1,77 @@
+{
+  "original_verdict": "failed",
+  "failed_check": "api-admin-refused both databases unchanged",
+  "cause": "Routine materialization deactivated an already complete Episode during background Summary refresh",
+  "episode_id": "episode-3feeabcfd10f24e241c4656d470fc762bdffdba87745e15e70f14ff63615edf0",
+  "before": {
+    "complete": true,
+    "end_time": "2026-10-16T10:35:53.563709+00:00",
+    "episode_id": "episode-3feeabcfd10f24e241c4656d470fc762bdffdba87745e15e70f14ff63615edf0",
+    "episode_type": "temporal",
+    "event_count": 2,
+    "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+    "snapshot_kind": "membership",
+    "source_event_ids": [
+      "0c6bd103-a8db-5c21-828f-04a31174a325",
+      "427cd587-1567-5961-ade0-ff0c4e6236a2"
+    ],
+    "start_time": "2026-10-16T10:35:52.563709+00:00",
+    "summary_id": "summary-episode-3feeabcfd10f24e241c4656d470fc762bdffdba87745e15e70f14ff63615edf0-3f9864aa27e9"
+  },
+  "after": {
+    "complete": false,
+    "end_time": "2026-10-16T10:35:53.563709+00:00",
+    "episode_id": "episode-3feeabcfd10f24e241c4656d470fc762bdffdba87745e15e70f14ff63615edf0",
+    "episode_type": "temporal",
+    "event_count": 2,
+    "session_id": "pilot-p03-1016-06:story:explicit-indifference",
+    "snapshot_kind": "membership",
+    "source_event_ids": [
+      "0c6bd103-a8db-5c21-828f-04a31174a325",
+      "427cd587-1567-5961-ade0-ff0c4e6236a2"
+    ],
+    "start_time": "2026-10-16T10:35:52.563709+00:00",
+    "summary_id": "summary-episode-3feeabcfd10f24e241c4656d470fc762bdffdba87745e15e70f14ff63615edf0-3f9864aa27e9"
+  },
+  "source_revision": "6c25c170549b1a411760e5f046b0d0013c0b5bea",
+  "source_hashes": 182,
+  "provider_calls": 36,
+  "all_provider_calls_returned": true,
+  "shutdown_errors": [],
+  "final_conservation": [
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final zero pending and exactly declared DLQ",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final zero pending and exactly declared DLQ",
+      "passed": true
+    }
+  ],
+  "issue": 84,
+  "limitation": "No live correction pass; original failure preserved even though final state converged."
+}

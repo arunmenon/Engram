@@ -632,3 +632,72 @@ async def test_producer_rejects_extra_summary_source_after_existing_episode_link
     )
     with pytest.raises(ValueError, match="summary"):
         await materialize_episode_snapshot(graph, "s", summary, events)
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        None,
+        "missing-edge",
+        "extra-edges",
+        "properties",
+        "incomplete",
+        "edge-properties",
+        "extra-summary",
+    ],
+)
+async def test_complete_episode_refresh_is_write_free_only_for_exact_valid_snapshot(corruption):
+    from unittest.mock import AsyncMock
+
+    graph = MemoryGraphStore()
+    events = [
+        dict(event_id=eid, session_id="refresh", occurred_at="2026-01-01T00:00:00+00:00")
+        for eid in ("one", "two")
+    ]
+    await graph.upsert_nodes(
+        [NodeWrite(NodeRef("Event", e["event_id"], "event_id"), e) for e in events]
+    )
+    summary = create_summary_from_events(
+        events, "episode", episode_identity("refresh", [e["event_id"] for e in events])
+    )
+    await graph.write_summary_with_edges(
+        summary.summary_id,
+        summary.scope,
+        summary.scope_id,
+        summary.content,
+        summary.created_at.isoformat(),
+        summary.event_count,
+        [d.isoformat() for d in summary.time_range],
+        [e["event_id"] for e in events],
+    )
+    identity = await materialize_episode_snapshot(graph, "refresh", summary, events)
+    episode = ("Episode", identity)
+    key = (episode, "CONTAINS", ("Event", "one"))
+    if corruption == "missing-edge":
+        graph.edges.pop(key)
+    elif corruption == "extra-edges":
+        for i in range(7):
+            graph.nodes[("Event", "extra-" + str(i))] = dict(event_id="extra-" + str(i))
+            graph.edges[(episode, "CONTAINS", ("Event", "extra-" + str(i)))] = {}
+    elif corruption == "properties":
+        graph.nodes[episode]["event_count"] = 999
+    elif corruption == "incomplete":
+        graph.nodes[episode]["complete"] = False
+    elif corruption == "edge-properties":
+        graph.edges[key]["session_id"] = "wrong"
+    elif corruption == "extra-summary":
+        graph.nodes[("Summary", "other-summary")] = dict(summary_id="other-summary")
+        graph.edges[(("Summary", "other-summary"), "SUMMARIZES", episode)] = {}
+    graph.upsert_nodes = AsyncMock(wraps=graph.upsert_nodes)
+    graph.upsert_edges = AsyncMock(wraps=graph.upsert_edges)
+    assert (
+        await materialize_episode_snapshot(graph, "refresh", summary, list(reversed(events)))
+        == identity
+    )
+    if corruption is None:
+        graph.upsert_nodes.assert_not_awaited()
+        graph.upsert_edges.assert_not_awaited()
+        assert graph.nodes[episode]["complete"] is True
+    else:
+        assert graph.upsert_nodes.await_count == 2
+        graph.upsert_edges.assert_awaited_once()

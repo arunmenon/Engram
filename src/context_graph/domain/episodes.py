@@ -67,25 +67,50 @@ async def materialize_episode_snapshot(
     ):
         raise ValueError("Episode summary must summarize exactly its source events")
     episode = NodeRef("Episode", identity, "episode_id")
-    await graph.upsert_nodes(
-        [
-            NodeWrite(
-                episode,
-                {
-                    "session_id": session_id,
-                    "start_time": found[summary_ref]["time_range"][0],
-                    "end_time": found[summary_ref]["time_range"][-1],
-                    "event_count": len(members),
-                    "episode_type": "temporal",
-                    "summary_id": summary.summary_id,
-                    "source_event_ids": members,
-                    "snapshot_kind": "membership",
-                    "complete": False,
-                },
-            )
-        ]
-    )
+    properties = {
+        "session_id": session_id,
+        "start_time": found[summary_ref]["time_range"][0],
+        "end_time": found[summary_ref]["time_range"][-1],
+        "event_count": len(members),
+        "episode_type": "temporal",
+        "summary_id": summary.summary_id,
+        "source_event_ids": members,
+        "snapshot_kind": "membership",
+    }
     evidence = {"method": "temporal_consolidation", "session_id": session_id}
+    existing = (await graph.get_nodes([episode])).get(episode)
+    if (
+        existing is not None
+        and existing.get("episode_id") == identity
+        and existing.get("complete") is True
+        and all(existing.get(key) == value for key, value in properties.items())
+    ):
+        # Routine Summary refresh must not deactivate an immutable published Episode.
+        # Overflow rows make the shortcut fail rather than hide extra links.
+        membership = await graph.neighbors(
+            [episode], ["CONTAINS", "DERIVED_FROM"], "out", 2 * len(members) + 1
+        )
+        summarized_by = await graph.neighbors([episode], ["SUMMARIZES"], "in", 2)
+        expected = {(kind, member) for kind in ("CONTAINS", "DERIVED_FROM") for member in members}
+        if (
+            len(membership) == len(expected)
+            and {(r["edge_type"], r["target_key"]) for r in membership} == expected
+            and all(
+                r["source_label"] == "Episode"
+                and r["source_key"] == identity
+                and r["target_label"] == "Event"
+                and r.get("properties", {}) == evidence
+                for r in membership
+            )
+            and len(summarized_by) == 1
+            and summarized_by[0]["source_label"] == "Summary"
+            and summarized_by[0]["source_key"] == summary_ref.key
+            and summarized_by[0]["target_label"] == "Episode"
+            and summarized_by[0]["target_key"] == identity
+            and summarized_by[0].get("properties", {}) == {}
+        ):
+            return identity
+    await graph.upsert_nodes([NodeWrite(episode, {**properties, "complete": False})])
     links = [
         EdgeWrite(kind, episode, ref, evidence)
         for ref in refs
