@@ -357,17 +357,25 @@ class GraphOperations:
             await self._merge_nodes(items)
 
     async def merge_entity_node(self, node: EntityNode) -> None:
-        await self._merge_node(
-            "Entity",
-            node.entity_id,
-            {
-                "name": node.name,
-                "entity_type": str(node.entity_type),
-                "first_seen": node.first_seen.isoformat(),
-                "last_seen": node.last_seen.isoformat(),
-                "mention_count": node.mention_count,
-                "embedding": node.embedding,
-            },
+        # A new model observation must not rewrite an existing Entity's origin
+        # or silently reclassify a name collision. Mention counts accumulate
+        # separately; resetting them here would lose earlier observations.
+        await self._merge_nodes(
+            [
+                (
+                    ("Entity", node.entity_id),
+                    {
+                        "last_seen": node.last_seen.isoformat(),
+                        "embedding": node.embedding,
+                    },
+                    {
+                        "name": node.name,
+                        "entity_type": str(node.entity_type),
+                        "first_seen": node.first_seen.isoformat(),
+                        "mention_count": node.mention_count,
+                    },
+                ),
+            ]
         )
 
     async def merge_summary_node(self, node: SummaryNode) -> None:

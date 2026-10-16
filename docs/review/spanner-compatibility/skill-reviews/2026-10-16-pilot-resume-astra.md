@@ -11,3 +11,11 @@ Findings/dispositions:
 - Old Episode membership cannot be checked only as a subset: addressed with full CONTAINS/DERIVED_FROM row-set equality for existing Episode IDs, plus an added-membership regression. New Episodes remain allowed.
 
 Final reviewer disposition: bounded static-review blockers resolved; acceptable to proceed with authorized cutover/pilot subject to root tests. This is not final live evidence review or full-pilot completeness sign-off.
+
+## Corrective entry-run review
+
+Live entry03 failed owner exclusion and preservation checks; it remains failed. #64 tracks foreign-owner Event expansion through shared Entities. The corrected User-pack personalize/who_is path scopes candidates before fusion, explicit seeds, cross-session Events and neighbor Events. A mixed-intent test revealed Episode expansion also needs owner scope; it now rejects a mixed-owner snapshot as a unit rather than altering its membership. General graph reads are unchanged. Astra reviewed that bounded fix and found no further critical gap after the Episode correction.
+
+#65 tracks repeated Entity observation overwriting first_seen/classification and resetting mention metadata. Core GraphOperations.merge_entity_node now uses existing atomic create-only defaults for origin/classification/count fields, updating last_seen/embedding separately. Astra verified Spanner's inherited implementation remains processing-fenced and transactional; no critical gap found. Name ambiguity and deliberate reclassification remain separate.
+
+The old pending Bob delivery was completed under Luna, adding its previously absent prepared/applied User receipt; this is retained recovery evidence, not an exemption retroactively added to entry03. Fresh corrective-run baselines include that completed state. The review accepted rerun subject to root's tests; no live-result endorsement yet.

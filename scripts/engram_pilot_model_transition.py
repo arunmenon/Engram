@@ -119,6 +119,9 @@ def main():
     parser.add_argument("phase", choices=["inspect", "activate"])
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--predecessor", type=Path)
+    parser.add_argument(
+        "--binding-record", type=Path, help="Existing model transition for inspection"
+    )
     parser.add_argument("--resume", type=Path, help="Prior activation output after interruption")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
@@ -161,6 +164,14 @@ def main():
             }
             durable_json(args.output / (tenant + "-before.json"), before)
             if args.phase == "inspect":
+                if args.binding_record:
+                    known = json.loads(
+                        (args.binding_record / (tenant + "-read-only-state.json")).read_text()
+                    )
+                    before["model_transition"] = known["model_transition"]
+                    binding = binding_from_baseline("inspect", tenant, before)
+                    if binding.bundle_digest != before["owner"][0][4]:
+                        raise RuntimeError("Known transition does not match current owner")
                 durable_json(args.output / (tenant + "-read-only-state.json"), before)
                 print(tenant, {k: v["count"] for k, v in before["fingerprints"].items()})
                 continue

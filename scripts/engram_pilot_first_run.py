@@ -752,6 +752,11 @@ async def execute(args):
                         "fingerprints": fingerprint(db),
                         "snapshot": snapshot(db),
                     }
+                    previous_path = directory / (t + "-before.json")
+                    if previous_path.exists():
+                        prior_baseline = json.loads(previous_path.read_text())
+                        if "model_transition" in prior_baseline:
+                            final["model_transition"] = prior_baseline["model_transition"]
                     durable_json(directory / (t + "-final-state.json"), final)
                     before_path = directory / (t + "-before.json")
                     if not before_path.exists():

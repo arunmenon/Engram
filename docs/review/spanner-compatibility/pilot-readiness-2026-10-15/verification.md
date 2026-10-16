@@ -41,3 +41,9 @@ The architecture/pilot guide is versioned under docs/guide; pages20–27 teach t
 ## GitHub reconciliation
 
 [Follow-up #63](https://github.com/arunmenon/Engram/issues/63) is an open native child of [#39](https://github.com/arunmenon/Engram/issues/39), within umbrella [#34](https://github.com/arunmenon/Engram/issues/34). Both #39 and #34 received actual failure/evidence updates and remain open. No issue was closed. Parent relationship and states were reread; exact comment links are in [the reconciliation record](github-reconciliation.json).
+
+## 16 October continuation — not a pilot pass
+
+Model-only cutover advanced A52→53 and B6→7 with exact prior acceptance epochs A[51,52], B[6], preserving every application-table fingerprint. Source and grant evidence: runs/pilot-1016-model-transition-01.
+
+Entry03 (`runs/pilot-1016-entry-03`) failed at Alice's owner-exclusion check: Bob source Events entered through shared Entity expansion (#64). Its final preservation check also failed: entity:Rust origin/classification changed on reobservation (#65), and the previously pending Bob trigger gained its newly applied receipt. Both databases ended with no pending/DLQ and cooperative shutdown succeeded. Those facts do not turn the run into a pass. Corrective owner/Entity changes and a fresh retained baseline precede entry04. Old source documents/acceptance remain preserved; direct repairs were not performed.

@@ -21,6 +21,8 @@ async def add_episode_context(
     edges: list[AtlasEdge],
     seen: set[tuple[str, str, str]],
     provenance_source: str,
+    *,
+    owner_id: str | None = None,
 ) -> bool:
     """Add immutable membership snapshots; return whether the storage bound cut data.
 
@@ -106,6 +108,12 @@ async def add_episode_context(
         ):
             continue
         valid_sources = [source for source in sources if source is not None]
+        if owner_id is not None and any(
+            source.get("agent_id") != owner_id for source in valid_sources
+        ):
+            # The Summary represents the entire snapshot; do not filter its
+            # members and present a different, apparently complete Episode.
+            continue
         if not summary_matches_snapshot(summary, identity, valid_sources) or [
             props.get("start_time"),
             props.get("end_time"),

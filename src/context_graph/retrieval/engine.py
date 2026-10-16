@@ -197,6 +197,13 @@ class RetrievalEngine:
         else:
             edge_weights = get_edge_weights(inferred_intents, INTENT_WEIGHTS)
             seed_strategy = select_seed_strategy(inferred_intents)
+        owner_id = (
+            query.agent_id
+            if self._bundle is not None
+            and self._bundle.enables("user.extract.v1")
+            and max(inferred_intents, key=inferred_intents.__getitem__) in {"personalize", "who_is"}
+            else None
+        )
         seed_limit = min(MAX_SEEDS, query.max_nodes)
 
         # Multi-channel hybrid retrieval (L4): run 3 channels in parallel
@@ -237,6 +244,16 @@ class RetrievalEngine:
                 ranked_lists.append(ch_result)
                 retrieval_channels[channel_names[idx]] = len(ch_result)
 
+        if owner_id is not None:
+            # Shared Entities and global search hits are not ownership evidence.
+            # Scope candidates before fusion/traversal, not only the response.
+            candidate_ids = list(dict.fromkeys(sid for hits in ranked_lists for sid, _ in hits))
+            candidate_events = await self._graph.get_event_nodes(
+                candidate_ids, timeout_s=self._query_timeout_s
+            )
+            owned = {p["event_id"] for p in candidate_events if p.get("agent_id") == owner_id}
+            ranked_lists = [[hit for hit in hits if hit[0] in owned] for hits in ranked_lists]
+
         # Fuse seed lists using Reciprocal Rank Fusion
         fused_seeds = reciprocal_rank_fusion(ranked_lists) if ranked_lists else []
 
@@ -255,6 +272,7 @@ class RetrievalEngine:
             seed_node_ids,
             query_embedding,
             entity_seed_ids=entity_seed_ids,
+            owner_id=owner_id,
         )
 
         # Override with user-provided seed_nodes if specified
@@ -262,14 +280,24 @@ class RetrievalEngine:
             seed_node_ids = [sid for sid in query.seed_nodes if sid in nodes]
             user_seeds = [s for s in query.seed_nodes if s not in nodes]
             if user_seeds:
-                await self._fetch_seed_nodes(user_seeds, nodes, seed_node_ids, query_embedding)
+                await self._fetch_seed_nodes(
+                    user_seeds, nodes, seed_node_ids, query_embedding, owner_id=owner_id
+                )
 
         # Cross-session entity expansion for relevant intents
-        await self._expand_cross_session(query, inferred_intents, nodes, query_embedding)
+        await self._expand_cross_session(
+            query, inferred_intents, nodes, query_embedding, owner_id=owner_id
+        )
 
         # Batch neighbor traversal for all seeds (single roundtrip)
         await self._expand_neighbors(
-            seed_node_ids, nodes, edges, seen_edges, edge_weights, query_embedding
+            seed_node_ids,
+            nodes,
+            edges,
+            seen_edges,
+            edge_weights,
+            query_embedding,
+            owner_id=owner_id,
         )
 
         episode_truncated = False
@@ -282,7 +310,13 @@ class RetrievalEngine:
             from context_graph.retrieval.episodes import add_episode_context
 
             episode_truncated = await add_episode_context(
-                self._pack_graph, query, nodes, edges, seen_edges, self._provenance_source
+                self._pack_graph,
+                query,
+                nodes,
+                edges,
+                seen_edges,
+                self._provenance_source,
+                owner_id=owner_id,
             )
 
         memory_truncated = False
@@ -746,6 +780,7 @@ class RetrievalEngine:
         query_embedding: list[float] | None,
         *,
         entity_seed_ids: set[str] | None = None,
+        owner_id: str | None = None,
     ) -> None:
         """Batch-fetch event nodes for seed IDs (single roundtrip)."""
         if not seed_ids:
@@ -758,6 +793,8 @@ class RetrievalEngine:
 
         found_ids: set[str] = set()
         for props in records:
+            if owner_id is not None and props.get("agent_id") != owner_id:
+                continue
             event_id = props.get("event_id", "")
             if event_id and event_id in new_ids:
                 found_ids.add(event_id)
@@ -780,6 +817,8 @@ class RetrievalEngine:
         inferred_intents: dict[str, float],
         nodes: dict[str, AtlasNode],
         query_embedding: list[float] | None,
+        *,
+        owner_id: str | None = None,
     ) -> None:
         """Add cross-session entity events for personalization intents."""
         cross_intents = {"who_is", "personalize", "related"}
@@ -793,6 +832,8 @@ class RetrievalEngine:
         )
 
         for props in cross_records:
+            if owner_id is not None and props.get("agent_id") != owner_id:
+                continue
             event_id = props.get("event_id", "")
             if event_id and event_id not in nodes:
                 scores = self._score_event(props, query_embedding)
@@ -808,6 +849,8 @@ class RetrievalEngine:
         seen_edges: set[tuple[str, str, str]],
         edge_weights: dict[str, float],
         query_embedding: list[float] | None,
+        *,
+        owner_id: str | None = None,
     ) -> None:
         """Batch neighbor traversal for all seeds (single roundtrip)."""
         if not seed_node_ids:
@@ -860,6 +903,13 @@ class RetrievalEngine:
             )
             neighbor_id = neighbor_eid or neighbor_entity_id or ""
             if not neighbor_id:
+                continue
+
+            if (
+                neighbor_eid
+                and owner_id is not None
+                and (nrec.get("neighbor_props") or {}).get("agent_id") != owner_id
+            ):
                 continue
 
             weight = edge_weights.get(rel_type, 1.0)
