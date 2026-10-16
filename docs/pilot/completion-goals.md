@@ -2,7 +2,7 @@
 
 Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 is the active execution at approval.
 
-Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is retrying a retained failed publication timeout; P07 is prepared, and P08–P12 remain queued. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
+Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is preparing a worker-free retained-history checkpoint after two failed attempts; P07 is prepared, and P08–P12 remain queued. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
 
 ## Purpose and current evidence
 
@@ -107,7 +107,7 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 | P03 | Complete: Astra accepted diverse User stories and explicit correction with retained failed runs | [Verification](completion-verification.md); final retained-read checkpoint09 |
 | P04 | Complete: 260 live checks; Astra accepted lifecycle, conflict and scope proof | [Verification](completion-verification.md); pilot-p04-1016-01 |
 | P05 | Complete: 246 live checks; Astra accepted Memory/PDLC coexistence and retained-negative proof | [Verification](completion-verification.md); pilot-p05-1016-01 |
-| P06 | Retry prepared: run01 failed initial 600-second publication deadline; six accepted inputs retained | [Verification](completion-verification.md); run02 keeps all oracles with a predeclared 1200-second phase window |
+| P06 | Retained-history checkpoint prepared: run01 timeout and run02 narrow-history oracle remain failed | [Verification](completion-verification.md); run03 pins run02 full-flow evidence and validates all source-valid published history without new inputs |
 | P07 | Prepared: four exact-source Summary contrasts; Astra cleared harness | [Verification](completion-verification.md); no cloud inputs submitted |
 | P08 | Approved; queued | This inventory |
 | P09 | Approved; queued | This inventory |

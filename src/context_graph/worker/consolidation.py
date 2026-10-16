@@ -44,6 +44,11 @@ if TYPE_CHECKING:
 log = structlog.get_logger(__name__)
 
 
+# The retained pilot needs about 134 Episode/session keys in one scan. Keep
+# bounded worker-local headroom; this is not a model-call or spend limit.
+SUMMARY_TEXT_CACHE_CAPACITY = 256
+
+
 class ConsolidationConsumer(BaseConsumer):
     """Consumer 4: Periodic consolidation and forgetting.
 
@@ -102,7 +107,7 @@ class ConsolidationConsumer(BaseConsumer):
         text = await self._llm_client.generate_text(prompt)
         if text and text.strip():
             self._summary_texts[key] = text
-            if len(self._summary_texts) > 128:
+            if len(self._summary_texts) > SUMMARY_TEXT_CACHE_CAPACITY:
                 self._summary_texts.popitem(last=False)
         return text
 

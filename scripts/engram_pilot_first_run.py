@@ -359,6 +359,7 @@ async def execute(args):
             "engram_pilot_completion_fixtures.py",
             "engram_pilot_episode_bridge.py",
             "engram_pilot_summary_proof.py",
+            "engram_pilot_episode_history.py",
         )
     )
     revision = subprocess.run(
@@ -1039,7 +1040,7 @@ async def execute(args):
                     await asyncio.sleep(0.3)
                 check(
                     (
-                        "retained reads leave pending/DLQ empty"
+                        "retained reads preserve exactly declared queue/DLQ state"
                         if retained_reads_only
                         else "spectrum work drained with exactly declared negative deliveries"
                     ),

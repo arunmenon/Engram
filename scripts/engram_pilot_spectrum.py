@@ -713,6 +713,18 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             await asyncio.sleep(0.3)
         raise TimeoutError("Spectrum projection missing: " + step["scenario"])
 
+    if any(g.get("episode_history_retained") for g in plan["groups"]):
+        from engram_pilot_episode_history import execute as execute_history
+
+        return await execute_history(
+            plan,
+            request=request,
+            check=check,
+            record=record,
+            save=save,
+            settle=settle,
+        )
+
     if plan["groups"] and all(g.get("temporal_story") for g in plan["groups"]):
         from engram_pilot_summary_proof import execute as execute_summaries
 

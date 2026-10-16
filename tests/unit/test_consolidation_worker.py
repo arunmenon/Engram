@@ -492,3 +492,39 @@ async def test_summary_provider_receives_matching_source_content(consumer_with_l
     assert len(prompts) == 2
     assert all("Investigation completed; rollout uncertain" in prompt for prompt in prompts)
     assert all('"event_id": "e"' in prompt for prompt in prompts)
+
+
+@pytest.mark.asyncio
+async def test_summary_reuse_across_retained_working_set(consumer_with_llm):
+    """65 single-Episode sessions exceed the former 128-key cyclic cache."""
+    consumer = consumer_with_llm
+    consumer._llm_client.generate_text.return_value = "Useful summary"
+    sessions = [[{"event_id": f"event-{i}", "event_type": "observation.input"}] for i in range(65)]
+    for _cycle in range(2):
+        for i, events in enumerate(sessions):
+            await consumer._summary_text("episode", f"episode-{i}", events)
+            await consumer._summary_text("session", f"session-{i}", events)
+    assert consumer._llm_client.generate_text.await_count == 130
+    changed = [{**sessions[0][0], "event_type": "tool.error"}]
+    await consumer._summary_text("episode", "episode-0", changed)
+    await consumer._summary_text("session", "session-0", changed)
+    assert consumer._llm_client.generate_text.await_count == 132
+    for i, events in enumerate(sessions[1:], start=1):
+        await consumer._summary_text("episode", f"episode-{i}", events)
+        await consumer._summary_text("session", f"session-{i}", events)
+    assert consumer._llm_client.generate_text.await_count == 132
+
+
+@pytest.mark.asyncio
+async def test_summary_cache_remains_bounded_with_eviction(consumer_with_llm):
+    consumer = consumer_with_llm
+    consumer._llm_client.generate_text.return_value = "Useful summary"
+    events = [{"event_id": "e", "event_type": "observation.input"}]
+    for i in range(257):
+        await consumer._summary_text("episode", str(i), events)
+    assert len(consumer._summary_texts) == 256
+    await consumer._summary_text("episode", "256", events)
+    assert consumer._llm_client.generate_text.await_count == 257
+    await consumer._summary_text("episode", "0", events)
+    assert consumer._llm_client.generate_text.await_count == 258
+    assert len(consumer._summary_texts) == 256

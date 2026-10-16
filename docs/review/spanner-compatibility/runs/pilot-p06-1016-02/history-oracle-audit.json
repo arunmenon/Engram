@@ -1,0 +1,330 @@
+{
+  "original_verdict": "failed",
+  "original_failed_check": [
+    {
+      "name": "a:bridged public read and Episode context isolation",
+      "passed": false,
+      "actual": null
+    }
+  ],
+  "original_expected": [
+    "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d",
+    "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391",
+    "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b"
+  ],
+  "actual_public_episodes": [
+    "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d",
+    "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926",
+    "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391",
+    "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b"
+  ],
+  "additional_source_valid_snapshots": {
+    "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926": {
+      "id": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926",
+      "summary": "summary-episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926-b4c350c84fb8",
+      "session": "pilot-p06-1016-02:a:episode-session",
+      "members": [
+        "659ffde5-efef-5eea-be4c-90ca88bb0612",
+        "901a92ac-d7f7-5767-8221-454cf5fa3205"
+      ],
+      "start": "2026-10-16T11:50:11.669840+00:00",
+      "end": "2026-10-16T12:10:11.669840+00:00",
+      "anchor": "901a92ac-d7f7-5767-8221-454cf5fa3205"
+    }
+  },
+  "private_proofs": {
+    "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926": {
+      "properties": {
+        "complete": true,
+        "end_time": "2026-10-16T12:10:11.669840+00:00",
+        "episode_id": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926",
+        "episode_type": "temporal",
+        "event_count": 2,
+        "session_id": "pilot-p06-1016-02:a:episode-session",
+        "snapshot_kind": "membership",
+        "source_event_ids": [
+          "659ffde5-efef-5eea-be4c-90ca88bb0612",
+          "901a92ac-d7f7-5767-8221-454cf5fa3205"
+        ],
+        "start_time": "2026-10-16T11:50:11.669840+00:00",
+        "summary_id": "summary-episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926-b4c350c84fb8"
+      },
+      "membership": [
+        "[\"Episode\", \"episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926\", \"CONTAINS\", \"Event\", \"659ffde5-efef-5eea-be4c-90ca88bb0612\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926\", \"CONTAINS\", \"Event\", \"901a92ac-d7f7-5767-8221-454cf5fa3205\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926\", \"DERIVED_FROM\", \"Event\", \"659ffde5-efef-5eea-be4c-90ca88bb0612\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926\", \"DERIVED_FROM\", \"Event\", \"901a92ac-d7f7-5767-8221-454cf5fa3205\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]"
+      ],
+      "summary_structure": {
+        "scope": "episode",
+        "scope_id": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926",
+        "event_count": 2,
+        "time_range": [
+          "2026-10-16T11:50:11.669840+00:00",
+          "2026-10-16T12:10:11.669840+00:00"
+        ]
+      }
+    },
+    "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391": {
+      "properties": {
+        "complete": true,
+        "end_time": "2026-10-16T12:30:11.669840+00:00",
+        "episode_id": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391",
+        "episode_type": "temporal",
+        "event_count": 1,
+        "session_id": "pilot-p06-1016-02:a:episode-session",
+        "snapshot_kind": "membership",
+        "source_event_ids": [
+          "05e18e15-99f8-5116-ae22-1b72b458c34b"
+        ],
+        "start_time": "2026-10-16T12:30:11.669840+00:00",
+        "summary_id": "summary-episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391-74ced4d83ba5"
+      },
+      "membership": [
+        "[\"Episode\", \"episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391\", \"CONTAINS\", \"Event\", \"05e18e15-99f8-5116-ae22-1b72b458c34b\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391\", \"DERIVED_FROM\", \"Event\", \"05e18e15-99f8-5116-ae22-1b72b458c34b\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]"
+      ],
+      "summary_structure": {
+        "scope": "episode",
+        "scope_id": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391",
+        "event_count": 1,
+        "time_range": [
+          "2026-10-16T12:30:11.669840+00:00",
+          "2026-10-16T12:30:11.669840+00:00"
+        ]
+      }
+    },
+    "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d": {
+      "properties": {
+        "complete": true,
+        "end_time": "2026-10-16T11:50:11.669840+00:00",
+        "episode_id": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d",
+        "episode_type": "temporal",
+        "event_count": 1,
+        "session_id": "pilot-p06-1016-02:a:episode-session",
+        "snapshot_kind": "membership",
+        "source_event_ids": [
+          "901a92ac-d7f7-5767-8221-454cf5fa3205"
+        ],
+        "start_time": "2026-10-16T11:50:11.669840+00:00",
+        "summary_id": "summary-episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d-efecf745bdee"
+      },
+      "membership": [
+        "[\"Episode\", \"episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d\", \"CONTAINS\", \"Event\", \"901a92ac-d7f7-5767-8221-454cf5fa3205\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d\", \"DERIVED_FROM\", \"Event\", \"901a92ac-d7f7-5767-8221-454cf5fa3205\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]"
+      ],
+      "summary_structure": {
+        "scope": "episode",
+        "scope_id": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d",
+        "event_count": 1,
+        "time_range": [
+          "2026-10-16T11:50:11.669840+00:00",
+          "2026-10-16T11:50:11.669840+00:00"
+        ]
+      }
+    },
+    "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b": {
+      "properties": {
+        "complete": true,
+        "end_time": "2026-10-16T12:30:11.669840+00:00",
+        "episode_id": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b",
+        "episode_type": "temporal",
+        "event_count": 3,
+        "session_id": "pilot-p06-1016-02:a:episode-session",
+        "snapshot_kind": "membership",
+        "source_event_ids": [
+          "05e18e15-99f8-5116-ae22-1b72b458c34b",
+          "659ffde5-efef-5eea-be4c-90ca88bb0612",
+          "901a92ac-d7f7-5767-8221-454cf5fa3205"
+        ],
+        "start_time": "2026-10-16T11:50:11.669840+00:00",
+        "summary_id": "summary-episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b-cc3b06b76002"
+      },
+      "membership": [
+        "[\"Episode\", \"episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b\", \"CONTAINS\", \"Event\", \"05e18e15-99f8-5116-ae22-1b72b458c34b\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b\", \"CONTAINS\", \"Event\", \"659ffde5-efef-5eea-be4c-90ca88bb0612\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b\", \"CONTAINS\", \"Event\", \"901a92ac-d7f7-5767-8221-454cf5fa3205\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b\", \"DERIVED_FROM\", \"Event\", \"05e18e15-99f8-5116-ae22-1b72b458c34b\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b\", \"DERIVED_FROM\", \"Event\", \"659ffde5-efef-5eea-be4c-90ca88bb0612\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]",
+        "[\"Episode\", \"episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b\", \"DERIVED_FROM\", \"Event\", \"901a92ac-d7f7-5767-8221-454cf5fa3205\", {\"method\": \"temporal_consolidation\", \"session_id\": \"pilot-p06-1016-02:a:episode-session\"}]"
+      ],
+      "summary_structure": {
+        "scope": "episode",
+        "scope_id": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b",
+        "event_count": 3,
+        "time_range": [
+          "2026-10-16T11:50:11.669840+00:00",
+          "2026-10-16T12:30:11.669840+00:00"
+        ]
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 Episode identity, complete membership and bounds",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 exact linked Summary structure",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 exact CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 membership method CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 exact DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 membership method DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 Summary exact source and Episode links",
+      "passed": true
+    },
+    {
+      "name": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926 exact admitted source positions",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 Episode identity, complete membership and bounds",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 exact linked Summary structure",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 exact CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 membership method CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 exact DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 membership method DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 Summary exact source and Episode links",
+      "passed": true
+    },
+    {
+      "name": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391 exact admitted source positions",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d Episode identity, complete membership and bounds",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d exact linked Summary structure",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d exact CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d membership method CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d exact DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d membership method DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d Summary exact source and Episode links",
+      "passed": true
+    },
+    {
+      "name": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d exact admitted source positions",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b Episode identity, complete membership and bounds",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b exact linked Summary structure",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b exact CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b membership method CONTAINS",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b exact DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b membership method DERIVED_FROM",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b Summary exact source and Episode links",
+      "passed": true
+    },
+    {
+      "name": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b exact admitted source positions",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact Episode context",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public directed membership",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public Summary targets",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public directed membership",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public Summary targets",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public directed membership",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public Summary targets",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public directed membership",
+      "passed": true
+    },
+    {
+      "name": "original A public source-valid history exact public Summary targets",
+      "passed": true
+    }
+  ],
+  "creation_sequence": "Inferred from count-then-limited-fetch scheduling; the response proves membership, not its creation sequence.",
+  "next_step": "Worker-free retained public-read checkpoint; do not rewrite original run verdict."
+}

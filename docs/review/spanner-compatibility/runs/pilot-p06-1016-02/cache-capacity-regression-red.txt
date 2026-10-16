@@ -1,0 +1,47 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+________________ test_summary_reuse_across_retained_working_set ________________
+
+consumer_with_llm = <context_graph.worker.consolidation.ConsolidationConsumer object at 0x10596c770>
+
+    @pytest.mark.asyncio
+    async def test_summary_reuse_across_retained_working_set(consumer_with_llm):
+        """65 single-Episode sessions exceed the former 128-key cyclic cache."""
+        consumer = consumer_with_llm
+        consumer._llm_client.generate_text.return_value = "Useful summary"
+        sessions = [
+            [{"event_id": f"event-{i}", "event_type": "observation.input"}]
+            for i in range(65)
+        ]
+        for _cycle in range(2):
+            for i, events in enumerate(sessions):
+                await consumer._summary_text("episode", f"episode-{i}", events)
+                await consumer._summary_text("session", f"session-{i}", events)
+>       assert consumer._llm_client.generate_text.await_count == 130
+E       AssertionError: assert 260 == 130
+E        +  where 260 = <AsyncMock name='mock.generate_text' id='4365661392'>.await_count
+E        +    where <AsyncMock name='mock.generate_text' id='4365661392'> = <AsyncMock id='4363350192'>.generate_text
+E        +      where <AsyncMock id='4363350192'> = <context_graph.worker.consolidation.ConsolidationConsumer object at 0x10596c770>._llm_client
+
+tests/unit/test_consolidation_worker.py:510: AssertionError
+_______________ test_summary_cache_remains_bounded_with_eviction _______________
+
+consumer_with_llm = <context_graph.worker.consolidation.ConsolidationConsumer object at 0x105a4efc0>
+
+    @pytest.mark.asyncio
+    async def test_summary_cache_remains_bounded_with_eviction(consumer_with_llm):
+        consumer = consumer_with_llm
+        consumer._llm_client.generate_text.return_value = "Useful summary"
+        events = [{"event_id": "e", "event_type": "observation.input"}]
+        for i in range(257):
+            await consumer._summary_text("episode", str(i), events)
+>       assert len(consumer._summary_texts) == 256
+E       AssertionError: assert 128 == 256
+E        +  where 128 = len(OrderedDict({('episode', '129', ('e',), 'Summarize the following sequence of agent events into a concise episode descr...o not invent facts missing from the source.\n\nEvents:\n- : observation.input\n\nEpisode summary:'): 'Useful summary'}))
+E        +    where OrderedDict({('episode', '129', ('e',), 'Summarize the following sequence of agent events into a concise episode descr...o not invent facts missing from the source.\n\nEvents:\n- : observation.input\n\nEpisode summary:'): 'Useful summary'}) = <context_graph.worker.consolidation.ConsolidationConsumer object at 0x105a4efc0>._summary_texts
+
+tests/unit/test_consolidation_worker.py:528: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_consolidation_worker.py::test_summary_reuse_across_retained_working_set
+FAILED tests/unit/test_consolidation_worker.py::test_summary_cache_remains_bounded_with_eviction
+2 failed, 20 deselected in 0.16s

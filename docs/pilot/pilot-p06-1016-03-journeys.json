@@ -1,0 +1,264 @@
+{
+  "coverage": "P06 worker-free retained-history checkpoint; original02 remains failed, composite proof only",
+  "groups": [
+    {
+      "name": "a-retained-episode-history",
+      "tenant": "a",
+      "episode_history_retained": true,
+      "episode_history_proof": {
+        "directory": "docs/review/spanner-compatibility/runs/pilot-p06-1016-02",
+        "sha256": {
+          "a-final-state.json": "d407469ef65a2909dbf669312e3dfeafd48e95ea5d5e0019929ec3e9594b90a9",
+          "b-final-state.json": "e15a7c4f3513984f04e23e207d27d34c3df5a15c79d8fdd32bcff023cd899c3c",
+          "fixtures.json": "475fb7095b3bb21371a9634b73ec6e24b41712ae29976f67d07933309cc9bffc",
+          "recorded-source-audit.json": "aad092cc9db7dffe06cd3835cb9e4815cc25cd21a0b20aa5643c3c88616ab314",
+          "reproduction-manifest.json": "80f0a7dc88a2f3d109a2114c1fa07920913af38fd178e741cc5976f90b89e4b0",
+          "results.json": "55f285d2bf14aa03075e421c2e634c29d48424304619a92cc6098daf6921677c"
+        }
+      },
+      "candidate_snapshots": [
+        {
+          "id": "episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d",
+          "summary": "summary-episode-27953f699e74b7de2f44c61ef3a169db1d32a4e4a1edccfa6f5b7617427be28d-efecf745bdee",
+          "session": "pilot-p06-1016-02:a:episode-session",
+          "members": [
+            "901a92ac-d7f7-5767-8221-454cf5fa3205"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T11:50:11.669840+00:00",
+          "anchor": "901a92ac-d7f7-5767-8221-454cf5fa3205"
+        },
+        {
+          "id": "episode-3a86fbbf88a2a8f9665e88ac6e8dbd67e81942c590e9c7d059372220fcbb0725",
+          "summary": "summary-episode-3a86fbbf88a2a8f9665e88ac6e8dbd67e81942c590e9c7d059372220fcbb0725-d61918c6affa",
+          "session": "pilot-p06-1016-02:a:episode-session",
+          "members": [
+            "05e18e15-99f8-5116-ae22-1b72b458c34b",
+            "659ffde5-efef-5eea-be4c-90ca88bb0612"
+          ],
+          "start": "2026-10-16T12:10:11.669840+00:00",
+          "end": "2026-10-16T12:30:11.669840+00:00",
+          "anchor": "659ffde5-efef-5eea-be4c-90ca88bb0612"
+        },
+        {
+          "id": "episode-3f2f4e9c3cbbf5f0a15c976d3ccf10f01ce1dd400562afd8b3903be71fdb4247",
+          "summary": "summary-episode-3f2f4e9c3cbbf5f0a15c976d3ccf10f01ce1dd400562afd8b3903be71fdb4247-fbe671eba061",
+          "session": "pilot-p06-1016-02:a:episode-session:unrelated",
+          "members": [
+            "5305a659-cb42-5c9e-9b0a-62931da2186e"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T11:50:11.669840+00:00",
+          "anchor": "5305a659-cb42-5c9e-9b0a-62931da2186e"
+        },
+        {
+          "id": "episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926",
+          "summary": "summary-episode-46013668d85729357b8f06c1263a39b308cb7a4413da3b4fa44e1bb681fdb926-b4c350c84fb8",
+          "session": "pilot-p06-1016-02:a:episode-session",
+          "members": [
+            "659ffde5-efef-5eea-be4c-90ca88bb0612",
+            "901a92ac-d7f7-5767-8221-454cf5fa3205"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T12:10:11.669840+00:00",
+          "anchor": "901a92ac-d7f7-5767-8221-454cf5fa3205"
+        },
+        {
+          "id": "episode-54804b3a2464f0b09c3d45a494b087a25f2a48016afd4b683538024b2106303e",
+          "summary": "summary-episode-54804b3a2464f0b09c3d45a494b087a25f2a48016afd4b683538024b2106303e-245ae6194f9c",
+          "session": "pilot-p06-1016-02:a:episode-session",
+          "members": [
+            "659ffde5-efef-5eea-be4c-90ca88bb0612"
+          ],
+          "start": "2026-10-16T12:10:11.669840+00:00",
+          "end": "2026-10-16T12:10:11.669840+00:00",
+          "anchor": "659ffde5-efef-5eea-be4c-90ca88bb0612"
+        },
+        {
+          "id": "episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391",
+          "summary": "summary-episode-86932650ad508ad057958f780eb8a064c05caaed571f15631262f6ebd34b7391-74ced4d83ba5",
+          "session": "pilot-p06-1016-02:a:episode-session",
+          "members": [
+            "05e18e15-99f8-5116-ae22-1b72b458c34b"
+          ],
+          "start": "2026-10-16T12:30:11.669840+00:00",
+          "end": "2026-10-16T12:30:11.669840+00:00",
+          "anchor": "05e18e15-99f8-5116-ae22-1b72b458c34b"
+        },
+        {
+          "id": "episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b",
+          "summary": "summary-episode-9fef657dde8b39818e30229b69cda5190c53799fb50dadee5a27ce575aa0369b-cc3b06b76002",
+          "session": "pilot-p06-1016-02:a:episode-session",
+          "members": [
+            "05e18e15-99f8-5116-ae22-1b72b458c34b",
+            "659ffde5-efef-5eea-be4c-90ca88bb0612",
+            "901a92ac-d7f7-5767-8221-454cf5fa3205"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T12:30:11.669840+00:00",
+          "anchor": "901a92ac-d7f7-5767-8221-454cf5fa3205"
+        }
+      ],
+      "steps": [],
+      "queries": [
+        {
+          "scenario": "primary-history",
+          "request": {
+            "query": "Show the recorded activity and its membership history",
+            "intent": "when",
+            "session_id": "pilot-p06-1016-02:a:episode-session",
+            "agent_id": "pilot-p06-1016-02:a:episode-owner",
+            "max_nodes": 100,
+            "timeout_ms": 30000
+          }
+        },
+        {
+          "scenario": "unrelated-session",
+          "request": {
+            "query": "Show the recorded activity and its membership history",
+            "intent": "when",
+            "session_id": "pilot-p06-1016-02:a:episode-session:unrelated",
+            "agent_id": "pilot-p06-1016-02:a:episode-owner",
+            "max_nodes": 100,
+            "timeout_ms": 30000
+          }
+        }
+      ],
+      "retained_negative_proofs": [
+        {
+          "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+          "tenant": "a",
+          "sha256": {
+            "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+            "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+            "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "b-retained-episode-history",
+      "tenant": "b",
+      "episode_history_retained": true,
+      "episode_history_proof": {
+        "directory": "docs/review/spanner-compatibility/runs/pilot-p06-1016-02",
+        "sha256": {
+          "a-final-state.json": "d407469ef65a2909dbf669312e3dfeafd48e95ea5d5e0019929ec3e9594b90a9",
+          "b-final-state.json": "e15a7c4f3513984f04e23e207d27d34c3df5a15c79d8fdd32bcff023cd899c3c",
+          "fixtures.json": "475fb7095b3bb21371a9634b73ec6e24b41712ae29976f67d07933309cc9bffc",
+          "recorded-source-audit.json": "aad092cc9db7dffe06cd3835cb9e4815cc25cd21a0b20aa5643c3c88616ab314",
+          "reproduction-manifest.json": "80f0a7dc88a2f3d109a2114c1fa07920913af38fd178e741cc5976f90b89e4b0",
+          "results.json": "55f285d2bf14aa03075e421c2e634c29d48424304619a92cc6098daf6921677c"
+        }
+      },
+      "candidate_snapshots": [
+        {
+          "id": "episode-034641e9f3b8bed9753db40e6f681cd8faa8938c43867e6e96e482c3a9736726",
+          "summary": "summary-episode-034641e9f3b8bed9753db40e6f681cd8faa8938c43867e6e96e482c3a9736726-3489d611fdc9",
+          "session": "pilot-p06-1016-02:b:episode-session",
+          "members": [
+            "681cfa33-f7a2-5209-9739-d35a9e4064e8",
+            "efbd8d47-5f14-500e-9b92-c682e3a78788"
+          ],
+          "start": "2026-10-16T12:10:11.669840+00:00",
+          "end": "2026-10-16T12:30:11.669840+00:00",
+          "anchor": "681cfa33-f7a2-5209-9739-d35a9e4064e8"
+        },
+        {
+          "id": "episode-45fb04f574b8a0d800d9bc56c3c789811e3ce99ae3c67968d7c341b0508f132a",
+          "summary": "summary-episode-45fb04f574b8a0d800d9bc56c3c789811e3ce99ae3c67968d7c341b0508f132a-7d8a31d38d56",
+          "session": "pilot-p06-1016-02:b:episode-session",
+          "members": [
+            "c8446c82-1692-5c8b-b68c-635871f5ca3b"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T11:50:11.669840+00:00",
+          "anchor": "c8446c82-1692-5c8b-b68c-635871f5ca3b"
+        },
+        {
+          "id": "episode-5234c0086e2bd09a1bd3edf8c47d88b73e6429ae9ff130ae141f8db9e434491d",
+          "summary": "summary-episode-5234c0086e2bd09a1bd3edf8c47d88b73e6429ae9ff130ae141f8db9e434491d-c2a42cc03012",
+          "session": "pilot-p06-1016-02:b:episode-session",
+          "members": [
+            "681cfa33-f7a2-5209-9739-d35a9e4064e8"
+          ],
+          "start": "2026-10-16T12:10:11.669840+00:00",
+          "end": "2026-10-16T12:10:11.669840+00:00",
+          "anchor": "681cfa33-f7a2-5209-9739-d35a9e4064e8"
+        },
+        {
+          "id": "episode-578701bfccf2d8ea149ffa766e32d00c1c7209fc7780764c44fa4dfe6fed1001",
+          "summary": "summary-episode-578701bfccf2d8ea149ffa766e32d00c1c7209fc7780764c44fa4dfe6fed1001-dc9be35e9f75",
+          "session": "pilot-p06-1016-02:b:episode-session",
+          "members": [
+            "681cfa33-f7a2-5209-9739-d35a9e4064e8",
+            "c8446c82-1692-5c8b-b68c-635871f5ca3b",
+            "efbd8d47-5f14-500e-9b92-c682e3a78788"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T12:30:11.669840+00:00",
+          "anchor": "c8446c82-1692-5c8b-b68c-635871f5ca3b"
+        },
+        {
+          "id": "episode-6f12494178268c46fa11a71ebeb1ca2420e935e2a9f1dafa7957a1a4300b78e2",
+          "summary": "summary-episode-6f12494178268c46fa11a71ebeb1ca2420e935e2a9f1dafa7957a1a4300b78e2-3a69d8874060",
+          "session": "pilot-p06-1016-02:b:episode-session",
+          "members": [
+            "681cfa33-f7a2-5209-9739-d35a9e4064e8",
+            "c8446c82-1692-5c8b-b68c-635871f5ca3b"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T12:10:11.669840+00:00",
+          "anchor": "c8446c82-1692-5c8b-b68c-635871f5ca3b"
+        },
+        {
+          "id": "episode-932fc8039e367e4b76c41b64f75be3c678b0031bacc58f9118f6bdf495bc5e36",
+          "summary": "summary-episode-932fc8039e367e4b76c41b64f75be3c678b0031bacc58f9118f6bdf495bc5e36-c0517cde1abf",
+          "session": "pilot-p06-1016-02:b:episode-session",
+          "members": [
+            "efbd8d47-5f14-500e-9b92-c682e3a78788"
+          ],
+          "start": "2026-10-16T12:30:11.669840+00:00",
+          "end": "2026-10-16T12:30:11.669840+00:00",
+          "anchor": "efbd8d47-5f14-500e-9b92-c682e3a78788"
+        },
+        {
+          "id": "episode-ab38f09e0e8502f19d1c361fec91d9a0c26e1b2995363ee145e1fc49876f603d",
+          "summary": "summary-episode-ab38f09e0e8502f19d1c361fec91d9a0c26e1b2995363ee145e1fc49876f603d-5141c24146b2",
+          "session": "pilot-p06-1016-02:b:episode-session:unrelated",
+          "members": [
+            "651515c4-84cd-5af8-9ef6-c36129ac3afd"
+          ],
+          "start": "2026-10-16T11:50:11.669840+00:00",
+          "end": "2026-10-16T11:50:11.669840+00:00",
+          "anchor": "651515c4-84cd-5af8-9ef6-c36129ac3afd"
+        }
+      ],
+      "steps": [],
+      "queries": [
+        {
+          "scenario": "primary-history",
+          "request": {
+            "query": "Show the recorded activity and its membership history",
+            "intent": "when",
+            "session_id": "pilot-p06-1016-02:b:episode-session",
+            "agent_id": "pilot-p06-1016-02:b:episode-owner",
+            "max_nodes": 100,
+            "timeout_ms": 30000
+          }
+        },
+        {
+          "scenario": "unrelated-session",
+          "request": {
+            "query": "Show the recorded activity and its membership history",
+            "intent": "when",
+            "session_id": "pilot-p06-1016-02:b:episode-session:unrelated",
+            "agent_id": "pilot-p06-1016-02:b:episode-owner",
+            "max_nodes": 100,
+            "timeout_ms": 30000
+          }
+        }
+      ]
+    }
+  ]
+}
