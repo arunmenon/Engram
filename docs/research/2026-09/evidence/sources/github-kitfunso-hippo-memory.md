@@ -163,5 +163,3 @@ So one read does three things: resets the decay clock (largest effect), adds 2 d
 - Which sleep phase causes the -3.6 pp recall cost (merge is the "first suspect")?
 - Does the recency factor get turned off after the round-3 stale-fact check?
 - Would Jev (or any decision model) help more as a write gate or abstention signal than as a reranker here? Not tested in this repo.
-
----

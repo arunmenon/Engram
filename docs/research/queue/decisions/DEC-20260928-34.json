@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-34",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-09:recommended:none",
+ "card_id": "PC-SURVEY-20260928-09",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20260928-15 tests whether typing items at bind time (a retriever plus a typed Choice per source field, confirmed once) is as accurate as the serve-time G7 Choice per item and cheaper at serve time, and whether a schema change silently mistypes items; no register belief covers it, so it decides G7's design rather than a grade. It is recommended now because it is the one gateway change the survey synthesis proposes, and the spec adds the field-level clustering the card missed (items from one field share one mapping, so at least 120 distinct fields are required).",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-15",
+   "file_id": "1aBFPjcE-Oy4w1TSXgXkxtM5TtvamqFdk",
+   "sha256": "b000ab3ab627ef06f05f94c066036288fa1da556693ef98250e301d699f56dc5"
+  }
+ ],
+ "merged_into": null
+}

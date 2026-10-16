@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-28",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-03:recommended:DEC-20260928-14",
+ "card_id": "PC-SURVEY-20260928-03",
+ "prev_decision_id": "DEC-20260928-14",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-09-r2 answers REV-20260928-11: every fusion runs with the graph on and off, the graph-off convex weights are refit, the unusable-score fallback is removed, the winning fusion is chosen on a dev split sharing no conversations with the held-out set, the noise floor is fixed before results, and the main and interaction tests each get half the error rate with power shown. It can move B23 (working) on H2's harness, and B8 only if the interaction is significant, before the fusion baseline is frozen.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-09-r2",
+   "file_id": "1-nlTkYBiEOM58PHeHs5ym0ZSh37gCbXf",
+   "sha256": "d276d3afc115d0f2a229b601d83507f518a861ff239045e77e62d51452fb2c97"
+  }
+ ],
+ "merged_into": null
+}

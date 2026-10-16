@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260926-17",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260926T133420Z-4f35",
+ "created_at": "2026-09-26T13:40:18Z",
+ "idempotency_key": "decision:PC-20260926-C08:rejected:none",
+ "card_id": "PC-20260926-C08",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "Cannot run this quarter: it needs interventional, auto-approved outcome-gated promotion on H4's replayed stream with seeded guardrail blocks, plus a counterfactual-success scorer (Arm D) that does not exist. The operating plan limits H4 to observational join coverage in weeks 7 to 12. The evidence is a qualitative essay (N-CAT-06, no quantitative estimate) and a repo with no memory-quality metrics (N-CAT-10). The passive guardrail-trigger-rate check stays in the discovery plan's governance checks; re-raise when H4 becomes interventional.",
+ "input_refs": [],
+ "merged_into": null
+}

@@ -109,5 +109,3 @@ On semantics: "A Noul value estimates how likely a specific condition is to be t
 ## Open questions
 - What thresholds did the author actually use, and what were the observation-mode results?
 - Did the author apply the pattern to memory reads or writes anywhere? The citing post suggests so; the article does not show it.
-
----

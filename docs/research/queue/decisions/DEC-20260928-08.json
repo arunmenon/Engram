@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-08",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T034505Z-3548",
+ "created_at": "2026-09-28T04:12:53Z",
+ "idempotency_key": "decision:PC-SURVEY-20260927-06:recommended:none",
+ "card_id": "PC-SURVEY-20260927-06",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Can add a requirement to B1 (working) and sharpen B2: whether snapshot level L2 must freeze scoring inputs (BM25 statistics, embedder version, ANN index) as well as documents, measured on our corpus, where the sources report no drift magnitude. Now, because it is cheap (S, no LLM calls) and must land before P0 freezes the manifest-of-pins contract.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-04",
+   "file_id": "1Hqkf_Qjtj4la35pr3ipEj2reO1xMbydZ",
+   "sha256": "deb935f83f4072690b2a909367f81652009110fc566bb197a2eeaf233bc32c66"
+  }
+ ],
+ "merged_into": null
+}

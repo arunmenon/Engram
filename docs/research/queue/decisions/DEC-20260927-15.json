@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-15",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T051328Z-1b49",
+ "created_at": "2026-09-27T05:16:04Z",
+ "idempotency_key": "decision:PC-SURVEY-20260927-02:rejected:none",
+ "card_id": "PC-SURVEY-20260927-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "Cannot run this quarter: the operating plan runs H4 observational only in weeks 7 to 12, so there is no replayed reinforcement stream, and the four-arm design also needs P4 task.outcome events, P5 provenance fields, H10's seeded stale Decisions and batch-invariant leave-one-out reruns, none of which exist yet; the RoMeRL stress-test construction is also under-specified in the note. Re-raise when H4 is scheduled as an intervention, carrying the add-all arm, the joint versus interventional credit split and the planted-noise loop metric into H4's spec.",
+ "input_refs": [],
+ "merged_into": null
+}

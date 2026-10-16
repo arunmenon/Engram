@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261001-09",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261001T034503Z-64de",
+ "created_at": "2026-10-01T04:06:08Z",
+ "idempotency_key": "decision:PC-SURVEY-20260929-02:recommended:DEC-20260930-10",
+ "card_id": "PC-SURVEY-20260929-02",
+ "prev_decision_id": "DEC-20260930-10",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "The revision answers REV-20260930-10: it replaces the unmatched F1 pair with the section 4.4.1 averages, discloses that LinkRank's headline uses oracle K, shares the threshold between the cascade and the full-pool arm, adds an exhaustively labelled subset and an out-of-pool audit, orders ranker, scoring, labelling and freezes without circularity, and drops the untested default for pools over 40. No register belief is affected; it decides the priority 3 linking design, and whether ranking first keeps trace links affordable.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260930-04-r2",
+   "file_id": "1HTtzXnCcKn-LQrzgnM6KfmYcO-deRbe7",
+   "sha256": "773477332eb572cf17ebc6e6c143871fc3af6aed8d19c17b62f56da34b96d2f3"
+  }
+ ],
+ "merged_into": null
+}

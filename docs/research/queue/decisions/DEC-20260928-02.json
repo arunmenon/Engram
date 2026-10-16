@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-02",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T034505Z-3548",
+ "created_at": "2026-09-28T04:12:53Z",
+ "idempotency_key": "decision:PC-20260927-05:recommended:none",
+ "card_id": "PC-20260927-05",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Exploration slot: moves no register belief (the card's B15 and B5 mapping was narrowed), but it is cheap (S) and surprising, since ObservationPack alone raised score while cutting tokens on one backend and cut tokens only 6% on the other. Now, because it reuses H1's frozen harness and tests whether the R1 receipt pattern also pays for R3 context budgeting.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-02",
+   "file_id": "1w5r6Oer_jcDl7s6eq43Xy-uYZd7LwNkj",
+   "sha256": "c334808f3c6889cec53f922064e229d8ffdf35cc1d6ffa33ea928ef49c972d77"
+  }
+ ],
+ "merged_into": null
+}

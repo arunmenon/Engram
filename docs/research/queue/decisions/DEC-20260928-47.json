@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-47",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T180051Z-479c",
+ "created_at": "2026-09-28T18:14:41Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-09:recommended:DEC-20260928-34",
+ "card_id": "PC-SURVEY-20260928-09",
+ "prev_decision_id": "DEC-20260928-34",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-15-r2 answers REV-20260928-29: the Magneto 0.860 MRR is re-attributed to the combined retriever plus 70B reranker system, automatic bind-time arms are added beside the human-assisted ones with a blinded confirmer and disjoint sample values, deployment requires both the accuracy rule and post-migration safety, validity needs 40 fields per backend, and the card's kill-rule change carries an explicit override. No register belief covers source typing, so it decides G7's design (priority 3) on public ASF data within POLICY-v1 caps.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-15-r2",
+   "file_id": "1or-hKe0F0hhghj0g_21gfOnYgJQOtfR8",
+   "sha256": "9ef3b26e5fe94704d473553cfb564f13b969ebf2d60ef434a955033b2cfd345f"
+  }
+ ],
+ "merged_into": null
+}

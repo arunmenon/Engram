@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-21",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-20260928-03:recommended:none",
+ "card_id": "PC-20260928-03",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20260928-11 tests whether write-time fact extraction loses answer accuracy against retained source artifacts at the same retriever, reader and judge, with a matched-token control and a single static reader prompt that removes the source's prompt confound; it can move B16 (lead) from skills to facts and add a second negative measurement under B5 (working). It takes this run's exploration slot because it is cheap, the source effect (94.2% to 87.8% with recall unchanged) is large and one-variable, and it decides the ingestion write path before extraction becomes canonical.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-11",
+   "file_id": "1XRhHHHfPxJ3BF9lr-5TzNiIL6Ml77WwB",
+   "sha256": "258ff89faf69977c42b1b4dfd763dc5063df283b0373562ace88ddaf1529d312"
+  }
+ ],
+ "merged_into": null
+}

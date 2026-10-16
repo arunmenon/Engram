@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260927-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260927T034502Z-8bdb",
+ "created_at": "2026-09-27T03:58:00Z",
+ "idempotency_key": "decision:PC-20260926-C03:recommended:DEC-20260926-12",
+ "card_id": "PC-20260926-C03",
+ "prev_decision_id": "DEC-20260926-12",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision r2 answers REV-20260926-20. The ranker arms are now a none-option x cutoff factorial, so cutoff losses are not blamed on the none option. Unanswerable abstention and opt-out compliance are separate endpoints, with a deterministic opt-out rule as the control. Answerer, judge and ranker are separate models, the judge is blinded and gold stays out of the store. It can give B11 (working) our own measurement of where the empty result belongs. The vendor numbers stay unverified, the harness does not exist and policy is unset, so this sets priority and does not approve a run.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260926-05-r2",
+   "file_id": "1tVKNpLUc8dxc6tzogEyTBUFzeCF9U2C-",
+   "sha256": "bd14d35b869ea660bf5adb06339105ef0c840ee50658adbd623422e89eb531fb"
+  }
+ ],
+ "merged_into": null
+}

@@ -124,5 +124,3 @@ answersRequest: {
 ## Open questions
 - What does the HN discussion say? Not retrieved.
 - Has anyone measured how often the 0.8 gate is right on labeled cases? Not stated.
-
----

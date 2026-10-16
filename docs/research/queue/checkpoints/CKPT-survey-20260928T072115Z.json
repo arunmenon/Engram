@@ -1,0 +1,54 @@
+{
+ "schema_version": 1,
+ "artifact_id": "CKPT-survey-20260928T072115Z",
+ "artifact_type": "checkpoint",
+ "producer": "triage",
+ "run_id": "survey-20260928T071753Z-2e00",
+ "idempotency_key": "checkpoint:survey-20260928T071753Z-2e00",
+ "created_at": "2026-09-28T07:21:15Z",
+ "supersedes": null,
+ "consumed_source_ids": [
+  "arxiv:2410.10813",
+  "arxiv:2605.12493",
+  "arxiv:2402.17753",
+  "arxiv:2609.24971",
+  "arxiv:2606.05661",
+  "arxiv:2608.20664",
+  "arxiv:2507.05257",
+  "arxiv:2512.18470",
+  "arxiv:2608.13662",
+  "arxiv:2606.12329",
+  "arxiv:2603.13258",
+  "url:https://penfieldlabs.substack.com/p/we-audited-locomo-64-of-the-answer",
+  "url:https://dev.to/gde03/the-ai-memory-benchmark-everyone-quotes-forbids-saying-i-dont-know-o1n",
+  "note:N-20260926-05",
+  "note:N-SURVEY-20260927-06",
+  "note:N-20260928-09",
+  "note:N-SURVEY-20260928-13",
+  "note:N-SURVEY-20260928-15"
+ ],
+ "consumed_upto": {},
+ "pending": [
+  {
+   "cluster_id": "arxiv:2609.14976",
+   "reason": "MemRiskBench surfaced in search; deferred by scope",
+   "attempts": 0,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "beam-beyond-a-million-tokens",
+   "reason": "memory benchmark not checked this run; deferred to monthly benchmark sweep",
+   "attempts": 0,
+   "retry_after": "2026-10-05",
+   "first_seen": "2026-09-28"
+  },
+  {
+   "cluster_id": "programme-plan-dogfood-corpus",
+   "reason": "programme plan naming the dogfood corpus not in run inputs",
+   "attempts": 1,
+   "retry_after": "2026-09-29",
+   "first_seen": "2026-09-28"
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-44",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T180051Z-479c",
+ "created_at": "2026-09-28T18:14:41Z",
+ "idempotency_key": "decision:PC-20260928-12:rejected:none",
+ "card_id": "PC-20260928-12",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "Not our workload and no testable margin: the note (N-20260928-28) grades applicability low (within-task buffer of upstream DAG outputs, not long-term memory, no prompt caching), the accuracy side is one seed with keyword grading (0.600 vs 0.570), fewer served entries cutting tokens is arithmetic, and 60 tasks x 3 seeds cannot resolve a 2-point pass-rate margin. The real question, fewer served entries at equal accuracy, is H8's (fixed k versus stop rule), which can report a k = 2 row; two-pass attribution of injected tokens is telemetry for P3, not an experiment.",
+ "input_refs": [
+  {
+   "artifact_id": "N-20260928-28",
+   "file_id": "1Lxv1khgc-IQxQoUlKCc9iDXeGaMLjTR5",
+   "sha256": "8746739abc0a070568cc1379ca591b66f1c608de591246802f6993f8d6b67363"
+  }
+ ],
+ "merged_into": null
+}

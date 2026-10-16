@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261004-04",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261004T034505Z-4283",
+ "created_at": "2026-10-04T04:00:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261002-02:withdrawn:DEC-20261003-03",
+ "card_id": "PC-SURVEY-20261002-02",
+ "prev_decision_id": "DEC-20261003-03",
+ "expected_prior_status": "recommended",
+ "status": "withdrawn",
+ "reason": "REV-20261003-06's corrections (an LLM-repair or matched-call control, detector-diagnosis margins and retention kills aligned with the claim, recurrence inside the decision, rebalanced measured shards) cannot be met this quarter: they need P4 read receipts landed and H10a's detector frozen at a threshold, which the operating plan puts at the week 6 verdict, and the added control roughly doubles a token plan (6.5M) that already broke its own shard limits. Withdrawn rather than revised; re-raise once P4 receipts exist and H10a's threshold is frozen, with the reviewer's LLM-judge repair arm as the baseline.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261003-02",
+   "file_id": "PENDING",
+   "sha256": "PENDING"
+  }
+ ],
+ "merged_into": null
+}

@@ -36,5 +36,3 @@ Trigger mechanism: "capability checkpoints": "if models have capability X, then 
 
 ## Open questions
 - What metric would a "speed limit" on RSI use?
-
----

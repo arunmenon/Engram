@@ -1,0 +1,58 @@
+{
+ "schema_version": 1,
+ "artifact_id": "CKPT-survey-20260927T055700Z",
+ "artifact_type": "checkpoint",
+ "producer": "triage",
+ "run_id": "survey-20260927T054501Z-e1b9",
+ "idempotency_key": "checkpoint:survey-20260927T054501Z-e1b9",
+ "created_at": "2026-09-27T05:57:00Z",
+ "supersedes": "unknown",
+ "consumed_source_ids": [
+  "arxiv:2505.16067",
+  "arxiv:2601.15322",
+  "arxiv:2602.12670",
+  "arxiv:2606.05661",
+  "arxiv:2606.08275",
+  "arxiv:2606.15621",
+  "arxiv:2607.28048",
+  "arxiv:2608.02508",
+  "arxiv:2608.11888",
+  "arxiv:2609.08258",
+  "arxiv:2609.20625",
+  "arxiv:2609.25913",
+  "arxiv:2509.26354",
+  "arxiv:2604.15774",
+  "arxiv:2608.12851",
+  "arxiv:2605.24117",
+  "arxiv:2510.21614",
+  "arxiv:2608.14376",
+  "blog:thinkingmachines.ai/defeating-nondeterminism-in-llm-inference",
+  "arxiv:2601.19934",
+  "arxiv:2607.16200",
+  "github:taiwrash/agrepl",
+  "arxiv:2411.04051",
+  "arxiv:2605.21997",
+  "arxiv:2606.14470",
+  "arxiv:2607.26520"
+ ],
+ "consumed_upto": {
+  "memory_feed_batch": null,
+  "decision_feed_batch": null
+ },
+ "pending": [
+  {
+   "cluster_id": "arxiv:2601.19934",
+   "reason": "abstract only; full text not read, no unique-output fractions extracted",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "survey-r5-skill-lifecycle-candidates (arxiv:2608.24747, arxiv:2609.05837, arxiv:2605.18401, arxiv:2602.03224, arxiv:2606.29823, arxiv:2605.18284)",
+   "reason": "deferred by budget",
+   "attempts": 0,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  }
+ ]
+}

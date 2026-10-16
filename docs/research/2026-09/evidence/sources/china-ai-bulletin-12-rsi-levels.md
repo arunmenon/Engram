@@ -39,5 +39,3 @@ The two bounded-L5 systems are not named in the bulletin excerpt I retrieved.
 
 ## Open questions
 - Which two systems show bounded L5?
-
----

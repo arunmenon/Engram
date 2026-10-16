@@ -297,5 +297,3 @@ Link: https://signalhigh.centritude.com/post/jev-mem-system-one-controlled-agent
 - How often does JevSearch pick from outside the top 5, and is it more accurate?
 - Can Jev-Mem's LoCoMo 0.777 and 6.6x build speedup be independently reproduced (arXiv 2609.23986)?
 - What quality metrics does Beacon's write gate achieve on its 579 sessions?
-
----

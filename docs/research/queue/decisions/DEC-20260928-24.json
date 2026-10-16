@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-24",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-20260928-06:recommended:none",
+ "card_id": "PC-20260928-06",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Spec E-20260928-12 tests whether an open-weight decision model fine-tuned on our own store/skip and supersedes decisions is non-inferior to zero-shot Jev on unseen repositories, which measures calibration locally (B14, working) and the borderline cascade (B13, lead). It fills the priority 2 reserved slot now because the od1 card shows the recipe is cheap (0.21 H100-hours) and the real cost is our labels; the spec widens the card's 2-point margin to 3 points because 1,200 test decisions cannot resolve 2.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-12",
+   "file_id": "1PFQTMrPetpYbHtCVsdkoZBy3cTshDJZ6",
+   "sha256": "8d49b8a213188b5d1f23054f5a9527a73efb22c42fd26dd23ecb608b72b2fdc3"
+  }
+ ],
+ "merged_into": null
+}

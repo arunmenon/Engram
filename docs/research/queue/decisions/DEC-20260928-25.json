@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-25",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-SURVEY-20260927-06:recommended:DEC-20260928-08",
+ "card_id": "PC-SURVEY-20260927-06",
+ "prev_decision_id": "DEC-20260928-08",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-04-r2 answers REV-20260928-06: it separates reproducing the snapshot's own ranking from exact recall against brute-force kNN, adds an exact as-of read path as the fallback arm, decides on exact counts with cluster-level intervals and shown power, pins index seeds and byte hashes, and drops the unapproved token and wall-clock proposal. It can add a frozen-scoring-inputs requirement to B1 (working) for snapshot level L2 before P0 ratifies the snapshot level.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-04-r2",
+   "file_id": "1GdCvOsigDzYVXpS0Owsh1_huLZZ8VfQh",
+   "sha256": "04b71d63d0779d5c50a245ddee63a558f9b3a5b60f9d3a1d92f7dd13c5d47333"
+  }
+ ],
+ "merged_into": null
+}

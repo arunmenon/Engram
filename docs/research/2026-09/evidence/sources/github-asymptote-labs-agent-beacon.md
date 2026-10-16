@@ -132,5 +132,3 @@ Order: status must be `completed`; `task_success` must be answered (missing answ
 - How calibrated are Jev `noul` probabilities on agent traces, and what precision/recall does the 0.50 / 0.60 gate give on a labelled set? Not stated.
 - What fraction of evaluated traces become candidates, and of those, how many are approved? Not stated (the 579-session demo gives no candidate counts).
 - Does approved Beacon memory measurably improve later agent runs in another harness? Not stated.
-
----

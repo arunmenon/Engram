@@ -1,4 +1,3 @@
-
 # Scraping agent flow: how the X signals pipeline runs
 
 Written 2026-09-26 from the code (`bin/*.py`, `bin/*.sh`), the launchd jobs and the batches on disk. The same pipeline code runs two feeds side by side. Only the config, prompts, paths and hub page differ.
@@ -130,4 +129,3 @@ These are observations from the code, offered as fitting points; nothing here is
   - the dated daily curation reports
   - `voices-*.json`, dated, for who is rising
 - **Stable ids:** the post `id` is the natural key for item-level status. Trend names in `trends.md` are the natural key for trend-level deltas.
-

@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-11",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T072636Z-be64",
+ "created_at": "2026-09-28T07:30:45Z",
+ "idempotency_key": "decision:PC-SCOPE-20260928-01:rejected:none:renumbered-from-DEC-20260928-01",
+ "card_id": "PC-SCOPE-20260928-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "deferred by portfolio: a cost L, opinion-grade design scope (8 engineer-weeks, about 160 annotator hours, USD 3,000 to 8,000) cannot be sized while policy is unset, its Engram rows are blocked by P1 to P3, and its own note leaves seven CTO questions open (dogfood corpus and transcript use, publication, supermemory terms, reproducer, full-context budget, stage swaps in v1) that decide the spec; its Kendall-tau kill over about five systems is also too coarse to falsify. Re-raise after the CTO answers those questions and after E-20260928-08 (its 300 labelled SpecMine pairs seed family F3), as a narrowed v0 of families F2, F3 and F5 on the public split with competitors run first, as the note itself recommends.",
+ "input_refs": [
+  {
+   "artifact_id": "N-SCOPE-20260928-01",
+   "file_id": "1k99wbwoOCWZfzVwi--hQAbTOQR_ghMUk",
+   "sha256": "cf92eb5720951dac79dfabab5c99515006343a8dcb40c73b18478a7cc80a4e8d"
+  }
+ ],
+ "merged_into": null
+}

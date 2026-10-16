@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260930-10",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260930T034502Z-7f81",
+ "created_at": "2026-09-30T04:03:39Z",
+ "idempotency_key": "decision:PC-SURVEY-20260929-02:recommended:none",
+ "card_id": "PC-SURVEY-20260929-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "No register belief covers trace-link deciders, so it decides the priority 3 linking design rather than a grade: LinkRank's metadata ranker beat LLM agents on issue-to-commit links (F1 73.17 against 48.39), and the spec tests whether ranking candidate PRs by cheap features and asking Jev about only the top 5 loses no more than 3 F1 points against asking about every candidate. Now, because the answer sets how many model calls keeping the graph current will cost, and it supplies the candidate sets to which E-20260928-08-r2's choice of decider applies.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260930-04",
+   "file_id": "1loN_i5Oq1GFsXOG8EWAejx7wNNZJz8Mv",
+   "sha256": "d9d06758f49ad7e53433f1e268628fe63813506a9a810cb17ec7add43c1e8aa4"
+  }
+ ],
+ "merged_into": null
+}

@@ -1,0 +1,54 @@
+{
+ "schema_version": 1,
+ "artifact_id": "CKPT-survey-20260927T045314Z",
+ "artifact_type": "checkpoint",
+ "producer": "triage",
+ "run_id": "survey-20260927T044739Z-8de9",
+ "idempotency_key": "checkpoint:survey-20260927T044739Z-8de9",
+ "created_at": "2026-09-27T04:53:14Z",
+ "supersedes": null,
+ "consumed_source_ids": [
+  "arxiv:2601.15322",
+  "arxiv:2606.15621",
+  "arxiv:2609.08258",
+  "arxiv:2505.16067",
+  "arxiv:2608.02508",
+  "arxiv:2606.05661",
+  "arxiv:2602.12670",
+  "arxiv:2608.11888",
+  "arxiv:2607.28048",
+  "arxiv:2609.20625",
+  "arxiv:2606.08275",
+  "arxiv:2609.25913"
+ ],
+ "consumed_upto": {
+  "survey_pillars": [
+   "R1",
+   "R5"
+  ],
+  "survey_date": "20260927"
+ },
+ "pending": [
+  {
+   "cluster_id": "web:opentelemetry-genai-semconv-retrieval-spans",
+   "reason": "no primary source: docs page moved to github:open-telemetry/semantic-conventions-genai and spec files not reached",
+   "attempts": 2,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "arxiv:2609.25913",
+   "reason": "deferred by budget: R3 retrieval result, abstract only read; full read belongs to an R3 run",
+   "attempts": 1,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  },
+  {
+   "cluster_id": "arxiv:2606.26294",
+   "reason": "deferred by budget: Red Queen Goedel Machine, candidate evidence for B18 / evaluator co-evolution",
+   "attempts": 0,
+   "retry_after": "2026-10-04",
+   "first_seen": "2026-09-27"
+  }
+ ]
+}

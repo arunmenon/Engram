@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261002-06",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261002T034503Z-02ea",
+ "created_at": "2026-10-02T03:58:00Z",
+ "idempotency_key": "decision:PC-SURVEY-20261001-02:recommended:none",
+ "card_id": "PC-SURVEY-20261001-02",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "This can move B11 (working: admission must be able to return empty) by testing on our own staleness checks whether a Choice with a none option ever says none when dates or versions decide, against per-memory Boolean questions and a fitted threshold; it also moves B14 (working) through locally fitted thresholds. Now, because an independent paper shows Jev chose none only 7% of the time in that shape while per-candidate checks rejected 99%, and every priority 1 gate we build at the staleness and recall stages will take one shape or the other, at under 1 USD of model cost.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261002-02",
+   "file_id": "1ftxScMbxm5sldAkCGU8WlSJFMnQJc09I",
+   "sha256": "fde48187d13acd32f63469468221d54f66ca9e4bccb1054fab1188f74ccfb98c"
+  }
+ ],
+ "merged_into": null
+}

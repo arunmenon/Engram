@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261002-02",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261002T034503Z-02ea",
+ "created_at": "2026-10-02T03:58:00Z",
+ "idempotency_key": "decision:PC-20261001-01:recommended:DEC-20261001-06",
+ "card_id": "PC-20261001-01",
+ "prev_decision_id": "DEC-20261001-06",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised per REV-20261001-05: the prompt test now checks static templates and blocks gold data from reader state while allowing the question and authorised units, the LoCoMo recall denominator is frozen to category 1 to 4 answerable questions with category 5 reported apart, the random baseline is verified by combinatorial unit tests and a Monte Carlo error bound, and unverified Caura figures are motivation only (REV-20261001-10 targets E-20260930-03-r2 and was not applied). It remains the cheapest way to put a random-selection line under every Track B read-path claim before H2 and H8 report lifts, testing B19 (firm) and B20 (working) on the new harness.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261001-02-r2",
+   "file_id": "1e2OqM1teOu5DaJHPnuIqdagVjlsu711v",
+   "sha256": "619006c704daaeb30f7c8f17a02a02dc64e43b5a922e1b699589524147223755"
+  }
+ ],
+ "merged_into": null
+}

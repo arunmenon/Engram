@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261003-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261003T034502Z-6d9a",
+ "created_at": "2026-10-03T03:46:50Z",
+ "idempotency_key": "decision:PC-SURVEY-20261001-02:recommended:DEC-20261002-06",
+ "card_id": "PC-SURVEY-20261001-02",
+ "prev_decision_id": "DEC-20261002-06",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20261002-02-r2 adds explicit call records for every call, whole-item failure handling with paired denominators, a 2% item-failure invalidation threshold, a tie rule and dry scorer outputs in the freeze bundle, answering REV-20261002-10 (whose target was the sibling spec E-20261001-03-r2). It still moves working beliefs B11 and B14 on the priority 1 question shape for staleness gates, and is cheap enough (under 5 USD) to run before more System One gates are built.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20261002-02-r2",
+   "file_id": "1KS9msLiPu0VOY5iJLJkikvtJELnhEPw4",
+   "sha256": "6ec16fea1339499c46e3a80a955c3e2a6993b54b5700fd9c83ea31c68eb45822"
+  }
+ ],
+ "merged_into": null
+}

@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261001-10",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261001T034503Z-64de",
+ "created_at": "2026-10-01T04:06:08Z",
+ "idempotency_key": "decision:PC-SURVEY-20260929-03:recommended:DEC-20260930-11",
+ "card_id": "PC-SURVEY-20260929-03",
+ "prev_decision_id": "DEC-20260930-11",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Neither listed review (REV-20260930-06, REV-20260930-10) targets E-20260930-05, so the revision applies their transferable corrections (a matched-rubric LLM guard, a repository-cluster bootstrap that refits thresholds over at least 12 repositories, a recall lower bound, and complete or explicitly failed outputs for every arm) and asks the desk for a direct review. No register belief is affected; it decides the priority 3 link maintenance rule, whether a changed trace link gets a cheap model re-check or a plain review flag.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260930-05-r2",
+   "file_id": "1i--1YAfxmtHrXD9TsTER2-ChJpH96Xos",
+   "sha256": "b1f3143e1420cb1d13ed366e3c1f546e4a3727c317a1d20fab51a770fdb0db8d"
+  }
+ ],
+ "merged_into": null
+}

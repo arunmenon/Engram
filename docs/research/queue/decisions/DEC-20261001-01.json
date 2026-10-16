@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261001-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261001T034503Z-64de",
+ "created_at": "2026-10-01T04:06:08Z",
+ "idempotency_key": "decision:PC-20260929-07:recommended:DEC-20260930-05",
+ "card_id": "PC-20260929-07",
+ "prev_decision_id": "DEC-20260930-05",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "The revision answers REV-20260930-07: every arm now carries the same metadata on current items, the decision arm tests the exact current-first packing, the run is a pilot that cannot change the default without a confirmatory current-value non-inferiority test, the populated freeze bundle must pass a challenger check before any model call, and PC-20260930-04's correction-versus-world-change split is absorbed as labelled rows. It can move B3 (lead) by isolating how supersede edges are served, and it is cheap now because it reuses MemProbe's pinned scorer and the PDLC seed.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260930-01-r2",
+   "file_id": "1IwPyDY0nHuQIZrXpcDWUn3p1_yqO4YZQ",
+   "sha256": "bfde9b290c5f6e4fb2f143fcfaffcf60c21d46086d8249708a0b322a26e66a8e"
+  }
+ ],
+ "merged_into": null
+}

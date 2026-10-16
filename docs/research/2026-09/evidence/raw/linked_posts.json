@@ -1,0 +1,1018 @@
+{
+ "data": [
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2102795227610447872"
+    ]
+   },
+   "author_id": "703601972",
+   "conversation_id": "2102795260296593567",
+   "created_at": "2026-09-23T16:20:32.000Z",
+   "edit_history_tweet_ids": [
+    "2102795260296593567"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/O7NKnNHrbD",
+      "end": 304,
+      "expanded_url": "https://x.com/akshay_pachaar/status/2102795260296593567/video/1",
+      "media_key": "13_2102795227610447872",
+      "start": 281,
+      "url": "https://t.co/O7NKnNHrbD"
+     },
+     {
+      "display_url": "x.com/703601972/stat…",
+      "end": 328,
+      "expanded_url": "https://twitter.com/703601972/status/2101037514945597645",
+      "start": 305,
+      "url": "https://t.co/jn9faMDYV6"
+     }
+    ]
+   },
+   "id": "2102795260296593567",
+   "note_tweet": {
+    "entities": {
+     "mentions": [
+      {
+       "end": 445,
+       "id": "1977601085960601600",
+       "start": 431,
+       "username": "asymptotelabs"
+      }
+     ],
+     "urls": [
+      {
+       "display_url": "github.com/Asymptote-Labs…",
+       "end": 696,
+       "expanded_url": "http://github.com/Asymptote-Labs/agent-beacon",
+       "start": 673,
+       "url": "https://t.co/sfdu9P1bfx"
+      }
+     ]
+    },
+    "text": "Another insane Jev use case!\n\nJev makes it incredibly cheap to evaluate and classify agent runs at scale.\n\nAnd finally, someone open-sourced a self-improving memory layer that can put that capability to work across agent harnesses.\n\nIt turns your agent sessions into a compounding knowledge layer, where every successful run can make future agents smarter across:\n\n- Codex\n- Claude Code\n- Cursor\n- OpenCode and 20+ more\n\nBeacon by @asymptotelabs continuously builds a shared history across your agent harnesses and uses Jev to identify the runs worth learning from.\n\nIt then turns the best workflows, corrections, and debugging patterns into reusable skills.\n\nGitHub repo: https://t.co/sfdu9P1bfx.\n\n(don’t forget to star it ⭐)\n\nMost agent runs are messy.\n\nThey contain exploration, failed commands, dead ends, and one-off fixes that should never become permanent memory.\n\nSo Beacon preserves the full session history, while Jev helps decide what should be promoted, reviewed, or discarded.\n\nThe recording below shows this in action.\n\nBeacon found 579 sessions across 5 coding-agent harnesses and normalized them into one consistent history.\n\nFrom there, Jev surfaces the lessons worth keeping and makes them available across your agent stack.\n\n- A pattern learned in Cursor can carry into OpenCode.\n- A lesson from Claude Code can improve the next Codex run.\n\nEvery successful run adds to the shared knowledge layer, making future agents smarter.\n\nIf you want to dive deeper into Jev, I also wrote a breakdown of how it works.\n\nThe article is quoted below."
+   },
+   "public_metrics": {
+    "bookmark_count": 1482,
+    "impression_count": 114042,
+    "like_count": 902,
+    "quote_count": 9,
+    "reply_count": 52,
+    "retweet_count": 115
+   },
+   "text": "Another insane Jev use case!\n\nJev makes it incredibly cheap to evaluate and classify agent runs at scale.\n\nAnd finally, someone open-sourced a self-improving memory layer that can put that capability to work across agent harnesses.\n\nIt turns your agent sessions into a compounding https://t.co/O7NKnNHrbD https://t.co/jn9faMDYV6"
+  },
+  {
+   "article": {
+    "cover_media": "3_2102108265849171968",
+    "entities": {
+     "code": [
+      {
+       "code": "// Playwright\nawait page.click('button[type=\"submit\"]');\n\n// Stagehand\nstagehand.act(\"click the submit button\")",
+       "content": "```typescript\n// Playwright\nawait page.click('button[type=\"submit\"]');\n\n// Stagehand\nstagehand.act(\"click the submit button\")\n```",
+       "language": "typescript"
+      },
+      {
+       "code": "// Input\n{\n  \"model\": \"jev-latest\",\n  \"state\": \"Hi, I was charged twice for my monthly subscription. Could you refund the extra charge? My account is working fine.\",\n  \"questions\": {\n    \"department\": {\n      \"type\": \"choice\",\n      \"instructions\": \"Which team should handle this message?\",\n      \"criteria\": {\n        \"billing\": \"Charges, payments, subscriptions, and refunds\",\n        \"technical\": \"Bugs, errors, and broken features\",\n        \"account\": \"Login, passwords, and account access\"\n      }\n    },\n    \"requests_refund\": {\n      \"type\": \"noul\",\n      \"instructions\": \"Is the customer explicitly requesting a refund?\"\n    },\n    \"frustration\": {\n      \"type\": \"score\",\n      \"instructions\": \"How frustrated does the customer sound?\",\n      \"criteria\": [\n        \"Calm: politely describes the issue without expressing frustration\",\n        \"Frustrated: expresses annoyance or dissatisfaction\",\n        \"Very frustrated: expresses strong anger or threatens to leave\"\n      ]\n    }\n  }\n}\n// Output\n{\n  \"model\": \"jev-1.13.0\",\n  \"answers\": {\n    \"department\": {\n      \"type\": \"choice\",\n      \"choice\": \"billing\",\n      \"confidence\": 1,\n      \"probabilities\": {\n        \"technical\": 0,\n        \"account\": 0,\n        \"billing\": 1\n      }\n    },\n    \"requests_refund\": {\n      \"type\": \"noul\",\n      \"noul\": 0.99\n    },\n    \"frustration\": {\n      \"type\": \"score\",\n      \"score\": 0,\n      \"legend\": {\n        \"0\": \"Calm: politely describes the issue without expressing frustration\",\n        \"1\": \"Frustrated: expresses annoyance or dissatisfaction\",\n        \"2\": \"Very frustrated: expresses strong anger or threatens to leave\"\n      },\n      \"confidence\": 1,\n      \"probabilities\": {\n        \"0\": 1,\n        \"1\": 0,\n        \"2\": 0\n      }\n    }\n  },\n  \"usage\": {\n    \"input_tokens\": 442,\n    \"output_tokens\": 72\n  },\n  \"request_id\": \"playground_12bbfa4198be5ca4de9818a45c0906a2055\",\n  \"evaluation_time_ms\": 163.01120699790772\n}",
+       "content": "```json\n// Input\n{\n  \"model\": \"jev-latest\",\n  \"state\": \"Hi, I was charged twice for my monthly subscription. Could you refund the extra charge? My account is working fine.\",\n  \"questions\": {\n    \"department\": {\n      \"type\": \"choice\",\n      \"instructions\": \"Which team should handle this message?\",\n      \"criteria\": {\n        \"billing\": \"Charges, payments, subscriptions, and refunds\",\n        \"technical\": \"Bugs, errors, and broken features\",\n        \"account\": \"Login, passwords, and account access\"\n      }\n    },\n    \"requests_refund\": {\n      \"type\": \"noul\",\n      \"instructions\": \"Is the customer explicitly requesting a refund?\"\n    },\n    \"frustration\": {\n      \"type\": \"score\",\n      \"instructions\": \"How frustrated does the customer sound?\",\n      \"criteria\": [\n        \"Calm: politely describes the issue without expressing frustration\",\n        \"Frustrated: expresses annoyance or dissatisfaction\",\n        \"Very frustrated: expresses strong anger or threatens to leave\"\n      ]\n    }\n  }\n}\n// Output\n{\n  \"model\": \"jev-1.13.0\",\n  \"answers\": {\n    \"department\": {\n      \"type\": \"choice\",\n      \"choice\": \"billing\",\n      \"confidence\": 1,\n      \"probabilities\": {\n        \"technical\": 0,\n        \"account\": 0,\n        \"billing\": 1\n      }\n    },\n    \"requests_refund\": {\n      \"type\": \"noul\",\n      \"noul\": 0.99\n    },\n    \"frustration\": {\n      \"type\": \"score\",\n      \"score\": 0,\n      \"legend\": {\n        \"0\": \"Calm: politely describes the issue without expressing frustration\",\n        \"1\": \"Frustrated: expresses annoyance or dissatisfaction\",\n        \"2\": \"Very frustrated: expresses strong anger or threatens to leave\"\n      },\n      \"confidence\": 1,\n      \"probabilities\": {\n        \"0\": 1,\n        \"1\": 0,\n        \"2\": 0\n      }\n    }\n  },\n  \"usage\": {\n    \"input_tokens\": 442,\n    \"output_tokens\": 72\n  },\n  \"request_id\": \"playground_12bbfa4198be5ca4de9818a45c0906a2055\",\n  \"evaluation_time_ms\": 163.01120699790772\n}\n```",
+       "language": "json"
+      }
+     ],
+     "mentions": [
+      {
+       "end": 90,
+       "start": 79,
+       "username": "typesafeai"
+      }
+     ],
+     "tweets": [
+      {
+       "id": "2100622054945095934"
+      },
+      {
+       "id": "2099925682726002904"
+      }
+     ],
+     "urls": [
+      {
+       "text": "https://typesafe.ai/manifesto"
+      },
+      {
+       "text": "https://console.typesafe.ai/playground"
+      },
+      {
+       "text": "https://github.com/browserbase/stagehand/pull/2951"
+      },
+      {
+       "text": "https://docs.typesafe.ai/primitives/choice"
+      },
+      {
+       "text": "https://www.linkedin.com/in/diogomda/"
+      },
+      {
+       "text": "https://en.wikipedia.org/wiki/LeNet"
+      },
+      {
+       "text": "https://github.com/browserbase/stagehand/pull/2993/changes"
+      },
+      {
+       "text": "https://proceedings.mlr.press/v70/guo17a.html"
+      },
+      {
+       "text": "https://github.com/browserbase/stagehand/pull/2953"
+      },
+      {
+       "text": "https://docs.typesafe.ai/primitives/score"
+      },
+      {
+       "text": "https://github.com/browserbase/stagehand"
+      },
+      {
+       "text": "https://docs.typesafe.ai/primitives/noul"
+      },
+      {
+       "text": "https://docs.typesafe.ai/concepts/state"
+      },
+      {
+       "text": "https://docs.typesafe.ai/introduction/machine-learning-primer"
+      },
+      {
+       "text": "https://docs.typesafe.ai/concepts/use-case-map"
+      },
+      {
+       "text": "https://x.com/marcus_lowe/status/2101476399488160013"
+      },
+      {
+       "text": "https://x.com/dabit3/status/2100756930054504776"
+      },
+      {
+       "text": "https://typesafe.ai/blog/introducing-system-one-models-and-jev"
+      }
+     ]
+    },
+    "media_entities": [
+     "3_2101857467332509696",
+     "3_2101857314588467200",
+     "3_2101857106630766592",
+     "3_2101857823663804416",
+     "3_2101858033160843264"
+    ],
+    "plain_text": "Unless you’ve been living under a rock for the past week, you’ve seen Jev from @typesafeai.\n \nThey describe their models as:\na class of AI models built to make fast, structured decisions that software can use directly. A System One model evaluates a state and returns typed answers and probabilities.\nAccording to TypeSafe's benchmarks, Jev is 20-200x faster and 40-400x cheaper than LLMs.\nBut why does this even matter? We’ve trained classifiers before (autocorrect in your phone, gmail filtering, etc), but according to twitter Jev is something special.\nIn this article, I aim to teach you what Jev is, why it exists, and how you can introduce it into your production systems.\n \nSo what is Jev exactly?\n“Think of Jev as a frontier-intelligence function call: unstructured state in, typed probabilistic decisions out.” - TypeSafe\nJev exposes 3 primitives: Choice, Score, and Noul.\nChoice is a question type that selects one option from a defined set (of max 255) whose answer includes the selected option, a probability for each option, and confidence.\nScore rates content against ordered, descriptive levels whose answer includes a score, a probability for each level, and confidence.\nNoul asks the model to evaluate a yes/no question and return the probability that the answer is yes.\nHere’s a sample input and output for a customer-support use case:\n \nI’d recommend going through their dashboard onboarding for a better understanding of how state and questions work together for outputs.\nIsn’t this just a classifier?\nWell yes and no. It’s more like if an LLM and a classifier had a baby.\nTraditional classifiers are good for high-volume, fixed taxonomy tasks. Think LeNet-5 being able to identify what digit an image represented. However classifiers are usually ultra-specialized and domain specific. LLMs are good generating sequences. Their flexible and great for open-ended tasks defined at runtime, but they’re also slower (than a classifier), more expensive, and less predictable.\nJev is a “foundation model for classification”, combining the natural-language flexibility of an LLM with the constrained, probabilistic output of a classifier. You can complete a wide variety of tasks without having to train a new model, while also maintaining expertise across variety of different domains (code, text, logs, UI states, events, etc.). Jev can also generate output in parallel, which makes it much faster than an LLM which is limited to sequential generation.\nTL;DR it’s a really smart generalizable classifier.\n \nWhy does Jev exist?\nTypeSafe’s CEO and co-founder Diogo Almeida spent time at OpenAI helping create RLHF (reinforcement learning from human feedback) and the ChatGPT product. RLHF let us train LLMs to be really good at following instructions and prompts, which matches their autoregressive nature.\nHe then left OpenAI to start TypeSafe and train a different class of models to enable AI-powered software, rather than agents. Jev is trained with RLCD (reinforcement learning from calibrated decisions) which is research speak for they train the model to be really good at outputting confidence and probabilities rather than answers.\nTypeSafe believes is that software should be intelligent. Agents don’t naturally diffuse into how software historically worked, and human-in-the-loop makes it hard for intelligent AND autonomous software. Jev is a step towards intelligence as a composable, dependable primitive inside software systems.\nThis isn’t a completely new idea, researchers in 2017 found that strong predictive accuracy doesn’t mean reliable confidence estimates (so LLMs aren’t a perfect solution here).\nWhy RLCD over RLHF?\nThe problem with RLHF is that what humans want isn’t always objectively correct. Just because we prefer a certain answer in a certain format doesn’t make the models more intelligent, but rather nicer to work with.\nIt also introduces mode collapse, RLHF makes LLMs converge to a single answer where sometimes multiple trajectories could be “correct”.\n“An output can be compelling to a person without being reliable enough for unattended automation. Human preference and machine trustworthiness are different optimization targets.”\n \nJev was NOT meant to build agents\nContrary to what you’re seeing all over your timeline, Jev is not very good as a standalone agent. We’ve tried to build versions of it, both Jev only and LLM + Jev.\n \nHonestly, Jev agents do make for cool demos. There’s been a ton of them using Jev to do agent tasks at lightning speed. But even the best demos aren’t ready to be deployed to production.\nA model like Jev is meant for AI-powered software, it can help you make decisions composed in deterministic code. Without reasoning or generative capabilities, using it as a standalone agent is just pure ignorance.\n \nRather than let Jev be a standalone computer use agent it should be used in customer support routing, invoice processing, security alerts and triaging, or as an agent monitor.\nThe numbers\nTheir first model Jev 1.13.0 costs $42/btok (or $0.042/mtok) input and $0 for output tokens. For reference, Fable 5.1 is $10/mtok input which is $10,000 / Btok. Typical enterprise workloads are 3:1 or 4:1 for input-output tokens so Fable moves to ~ $20,000/Btok (with $50/mtok output). \nThe context window is 64k tokens per request, where state + the longest question must fit in 32k tokens.\nIn their internal benchmarks however they outperform all models in accuracy/cost & accuracy/speed from OpenAI, Anthropic, and Deepseek (via Fireworks for inference).\n \n \nEnough talk, how do I use it?\nYou should now have enough of an understanding of Jev to have thought of a few use cases whatever you’re currently working on. (If not here’s a list of use cases recommended by TypeSafe).\nRather than limit your creativity on how you should use it, I’ll show you how we’ve retrofitted Jev into our framework Stagehand.\nFor the last 2 years Stagehand has evolved as a framework for AI and Agents to control a remote browser. Before agents were good enough, we create AI-primitives Act (complete an action), Extract (pull structured data), and Observe (discover potential actions on a page) to help developers write self-healing scripts to automate the web.\nInstead of using Playwright (or other legacy frameworks) and having to parse through the DOM by hand to provide selectors in actions, Stagehand A/E/O lets you use natural language to build automations.\n \nThis is helpful when writing scripts for the first time (development speed is much faster), but especially helpful for script maintenance. If a website changes and DOM selectors update, then Playwright scripts must be re-written to match the new page. Stagehand chooses selectors and actions at runtime, and are “self-healing”.\nYou can kinda see where we’re going with this. Jev fits extremely well into these primitives. We originally used an LLM (given context on what the page looked like and the goal) to decide what to do. With Jev we can use Choice to decide what selectors to interact with.\nLets use Act specifically to talk through the flow. Normally, we’d give the LLM a concise representation of the page using a hybrid a11y-tree. With Jev, we first mark nodes in the a11y tree as either interact-able (even rich-text editors) or not.\nWhen stagehand.act is called:\nJev classifies the instruction into an action (like click, fill, or scroll)\nStagehand parses arguments and builds candidate list for that action (which includes nearby page context\nJev answers “which candidate is best” and “does any candidate match” with an acceptance threshold of 0.7\nIf the candidate action is accepted then Stagehand handles the execution\nIf the action isn’t, then Stagehand falls back to an LLM\n \nIn early testing, Act median latency drops from 1.97 seconds to 0.46 seconds which is about 4.3× faster (or 77% less time). See the full PR stack.\nWith computer use, Jev is a piece of the pie but not a standalone solution. We’re now able to build more deterministic software tools that agents can use.\n \n \nDiffusing AI in the real world\nWill Jev build production grade computer use agents? No. Is it a useful piece of the puzzle? I think it will be.\nIt feels like there's an abundance of ideas that didn't make sense before Jev. I’ve seen people build instant search, smart copy paste, and more simple but extremely helpful tools.\nAI shouldn’t be confined to some version of a chat interface, sync or async. With models like Jev, we can build software that incorporates prediction models without a chat input box. Even though classifiers have been available for so long they’ve never felt more useful. Maybe all we needed to build was inspiration.\n-> Kyle",
+    "preview_text": "Unless you’ve been living under a rock for the past week, you’ve seen Jev from @typesafeai.\n \nThey describe their models as:\na class of AI models built to make fast, structured decisions that software",
+    "title": "Jev wasn't built to make Agents"
+   },
+   "author_id": "1281175702788702210",
+   "conversation_id": "2102108924677927169",
+   "created_at": "2026-09-21T18:53:17.000Z",
+   "edit_history_tweet_ids": [
+    "2102108924677927169"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "x.com/i/article/2101…",
+      "end": 23,
+      "expanded_url": "https://x.com/i/article/2101856134483353600",
+      "start": 0,
+      "status": 404,
+      "unwound_url": "https://x.com/i/article/2101856134483353600",
+      "url": "https://t.co/MAj6LuRCZ3"
+     }
+    ]
+   },
+   "id": "2102108924677927169",
+   "public_metrics": {
+    "bookmark_count": 385,
+    "impression_count": 170476,
+    "like_count": 207,
+    "quote_count": 15,
+    "reply_count": 5,
+    "retweet_count": 29
+   },
+   "text": "https://t.co/MAj6LuRCZ3"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2102561203918913536"
+    ]
+   },
+   "author_id": "1281175702788702210",
+   "conversation_id": "2102561749404971460",
+   "created_at": "2026-09-23T00:52:39.000Z",
+   "edit_history_tweet_ids": [
+    "2102561749404971460"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 126,
+      "id": "1757344117426896896",
+      "start": 114,
+      "username": "browserbase"
+     }
+    ],
+    "urls": [
+     {
+      "display_url": "pic.x.com/jT3sM3vWYl",
+      "end": 296,
+      "expanded_url": "https://x.com/kylejeong/status/2102561749404971460/video/1",
+      "media_key": "13_2102561203918913536",
+      "start": 273,
+      "url": "https://t.co/jT3sM3vWYl"
+     },
+     {
+      "display_url": "x.com/kylejeong/stat…",
+      "end": 320,
+      "expanded_url": "https://twitter.com/kylejeong/status/2102108924677927169",
+      "start": 297,
+      "url": "https://t.co/NRc4KLyD0v"
+     }
+    ]
+   },
+   "id": "2102561749404971460",
+   "public_metrics": {
+    "bookmark_count": 121,
+    "impression_count": 51804,
+    "like_count": 98,
+    "quote_count": 4,
+    "reply_count": 14,
+    "retweet_count": 7
+   },
+   "text": "I built JevSearch, search the web &amp; validate your results with Jev.\n\nGive a query and selection criteria, use @browserbase search to get the t25 results, then Jev scores and returns the t5 results.\n\nJev often chooses urls outside of the initial top 5 as more relevant. https://t.co/jT3sM3vWYl https://t.co/NRc4KLyD0v"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2102077251412230144"
+    ]
+   },
+   "author_id": "1538914763916251136",
+   "conversation_id": "2102077291081896307",
+   "created_at": "2026-09-21T16:47:35.000Z",
+   "edit_history_tweet_ids": [
+    "2102077291081896307"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "MotherDuck Blog - Introducing prompt_jev(): bringing Jev to Motherduck SQL",
+      "display_url": "motherduck.com/blog/motherduc…",
+      "end": 265,
+      "expanded_url": "https://motherduck.com/blog/motherduck-supports-jev/",
+      "images": [
+       {
+        "height": 1890,
+        "url": "https://pbs.twimg.com/news_img/2102074509419491328/_QQWLyM4?format=png&name=orig",
+        "width": 3600
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2102074509419491328/_QQWLyM4?format=png&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 242,
+      "status": 200,
+      "title": "Introducing prompt_jev(): bringing Jev to Motherduck SQL - MotherDuck Blog",
+      "unwound_url": "https://motherduck.com/blog/motherduck-supports-jev/",
+      "url": "https://t.co/XIE2cw6rUS"
+     },
+     {
+      "display_url": "pic.x.com/CdP1q8OwDe",
+      "end": 289,
+      "expanded_url": "https://x.com/motherduck/status/2102077291081896307/photo/1",
+      "media_key": "3_2102077251412230144",
+      "start": 266,
+      "url": "https://t.co/CdP1q8OwDe"
+     }
+    ]
+   },
+   "id": "2102077291081896307",
+   "public_metrics": {
+    "bookmark_count": 509,
+    "impression_count": 207257,
+    "like_count": 513,
+    "quote_count": 20,
+    "reply_count": 12,
+    "retweet_count": 44
+   },
+   "text": "Text classification in MotherDuck just got ~50x faster at ~1% of the cost.\n\nprompt_jev() is a SQL function powered by Jev, TypeSafe's new system one model. 100k rows: 40s, $0.50, frontier-LLM accuracy. The LLM took 32 min and $37.\n\nRead on:\n\nhttps://t.co/XIE2cw6rUS https://t.co/CdP1q8OwDe"
+  },
+  {
+   "author_id": "19847765",
+   "conversation_id": "2102896869164691911",
+   "created_at": "2026-09-23T23:04:18.000Z",
+   "edit_history_tweet_ids": [
+    "2102896869164691911"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 19,
+      "id": "216776631",
+      "start": 5,
+      "username": "BernieSanders"
+     },
+     {
+      "end": 34,
+      "id": "1683515731",
+      "start": 24,
+      "username": "GregCasar"
+     },
+     {
+      "end": 158,
+      "id": "117501995",
+      "start": 142,
+      "username": "SenatorCantwell"
+     },
+     {
+      "end": 194,
+      "id": "23022687",
+      "start": 186,
+      "username": "tedcruz"
+     },
+     {
+      "end": 259,
+      "id": "1962684882569564160",
+      "start": 251,
+      "username": "_perloj"
+     }
+    ],
+    "urls": [
+     {
+      "description": "New legislation authored by Sen. Sanders, I-Vt., and Rep. Casar, D-Texas, also calls for a Cabinet-level secretary of AI to regulate artificial intelligence.",
+      "display_url": "nbcnews.com/politics/congr…",
+      "end": 284,
+      "expanded_url": "https://www.nbcnews.com/politics/congress/bernie-sanders-greg-casar-propose-ai-superintelligence-ban-20-year-jai-rcna599460",
+      "images": [
+       {
+        "height": 512,
+        "url": "https://pbs.twimg.com/news_img/2102896037404749824/YmpBfygV?format=jpg&name=orig",
+        "width": 1024
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2102896037404749824/YmpBfygV?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 261,
+      "status": 200,
+      "title": "Bernie Sanders and Greg Casar propose AI ‘superintelligence’ ban with a 20-year jail penalty",
+      "unwound_url": "https://www.nbcnews.com/politics/congress/bernie-sanders-greg-casar-propose-ai-superintelligence-ban-20-year-jai-rcna599460",
+      "url": "https://t.co/PbQe9mslMN"
+     }
+    ]
+   },
+   "id": "2102896869164691911",
+   "public_metrics": {
+    "bookmark_count": 3,
+    "impression_count": 11437,
+    "like_count": 9,
+    "quote_count": 2,
+    "reply_count": 3,
+    "retweet_count": 3
+   },
+   "text": "New: @BernieSanders and @GregCasar roll out their AI ‘superintelligence’ ban with a 20-year jail penalty\n\nRealistic? Experts weigh in.\n\nPLUS: @SenatorCantwell dishes on her AI vision.\n \n@TedCruz says his bill w/ Klobuchar &amp; Thune isn’t ready.\n\nw/ @_perloj: https://t.co/PbQe9mslMN"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2103318208480739328"
+    ]
+   },
+   "author_id": "2008628513331638272",
+   "conversation_id": "2103318291456610667",
+   "created_at": "2026-09-25T02:58:53.000Z",
+   "edit_history_tweet_ids": [
+    "2103318291456610667"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/m0qzeNhMqF",
+      "end": 226,
+      "expanded_url": "https://x.com/tazr_dev/status/2103318291456610667/video/1",
+      "media_key": "13_2103318208480739328",
+      "start": 203,
+      "url": "https://t.co/m0qzeNhMqF"
+     }
+    ]
+   },
+   "id": "2103318291456610667",
+   "public_metrics": {
+    "bookmark_count": 3,
+    "impression_count": 652,
+    "like_count": 10,
+    "quote_count": 0,
+    "reply_count": 4,
+    "retweet_count": 1
+   },
+   "text": "And now I present to you:\n\nA \"beautiful rendition\" of world of warcraft in three.js by Qwen 3.8 27b... (having removed the conical trees)\n\nWhile using a custom vibe coded harness and, pointlessly, djev. https://t.co/m0qzeNhMqF"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2102808790710030337"
+    ]
+   },
+   "author_id": "1222786244",
+   "conversation_id": "2102808794493321714",
+   "created_at": "2026-09-23T17:14:19.000Z",
+   "edit_history_tweet_ids": [
+    "2102808794493321714"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/7tMQE5sv26",
+      "end": 241,
+      "expanded_url": "https://x.com/Vtrivedy10/status/2102808794493321714/photo/1",
+      "media_key": "3_2102808790710030337",
+      "start": 218,
+      "url": "https://t.co/7tMQE5sv26"
+     }
+    ]
+   },
+   "id": "2102808794493321714",
+   "public_metrics": {
+    "bookmark_count": 932,
+    "impression_count": 122517,
+    "like_count": 735,
+    "quote_count": 13,
+    "reply_count": 36,
+    "retweet_count": 52
+   },
+   "text": "Jev for RAG \n\nin almost all cases you trust the semantic matching capability of Jev more than dot product similarity\n\nvery useful as the direct similarity metric in small data cases\n\nand a great reranker with big data https://t.co/7tMQE5sv26"
+  },
+  {
+   "author_id": "1275451278718414854",
+   "conversation_id": "2103246518518153614",
+   "created_at": "2026-09-24T22:26:53.000Z",
+   "edit_history_tweet_ids": [
+    "2103249840646029811"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 10,
+      "id": "130261123",
+      "start": 0,
+      "username": "grichadev"
+     }
+    ]
+   },
+   "id": "2103249840646029811",
+   "public_metrics": {
+    "bookmark_count": 0,
+    "impression_count": 436,
+    "like_count": 6,
+    "quote_count": 1,
+    "reply_count": 1,
+    "retweet_count": 0
+   },
+   "text": "@grichadev Wait but Jev was supposed to change everything"
+  },
+  {
+   "article": {
+    "cover_media": "3_2101680910726737920",
+    "entities": {
+     "code": [
+      {
+       "code": "mkdir jev-router; cd jev-router\npy -3.12 -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\npip install typesafe-sdk\n$env:TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"",
+       "content": "```powershell\nmkdir jev-router; cd jev-router\npy -3.12 -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\npip install typesafe-sdk\n$env:TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"\n```",
+       "language": "powershell"
+      },
+      {
+       "code": "observe → build allowlist → decide → execute → verify → observe again",
+       "content": "```plaintext\nobserve → build allowlist → decide → execute → verify → observe again\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "10,000 decisions × 1,000 tokens = 10M input tokens\n10M × $0.042 / 1M            = $0.42",
+       "content": "```plaintext\n10,000 decisions × 1,000 tokens = 10M input tokens\n10M × $0.042 / 1M            = $0.42\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "state + typed questions\n        ↓\nanswers + probabilities + confidence\n\n\nIt has three question primitives.",
+       "content": "```plaintext\nstate + typed questions\n        ↓\nanswers + probabilities + confidence\n\n\nIt has three question primitives.\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "mkdir jev-router && cd jev-router\npython3 -m venv .venv\nsource .venv/bin/activate\npip install typesafe-sdk\nexport TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"",
+       "content": "```bash\nmkdir jev-router && cd jev-router\npython3 -m venv .venv\nsource .venv/bin/activate\npip install typesafe-sdk\nexport TYPESAFE_API_KEY=\"YOUR_KEY_HERE\"\n```",
+       "language": "bash"
+      },
+      {
+       "code": "import json\nfrom pathlib import Path\n\nfrom typesafe_sdk import Choice, Noul, Score, TypeSafeClient\n\nstate = {\n    \"request\": \"Compare three browser agents and draft a briefing\",\n    \"sources_found\": 3,\n    \"draft_exists\": False,\n    \"explicit_publish_approval\": False,\n}\n\nwith TypeSafeClient(model=\"jev-1.13.0\") as client:\n    result = client.system_one(\n        state=state,\n        questions={\n            \"next_worker\": Choice(\n                instructions=\"Which worker should act next?\",\n                criteria={\n                    \"research\": \"Evidence is missing or weak\",\n                    \"write\": \"Evidence is sufficient and no draft exists\",\n                    \"review\": \"A draft exists or the request is unclear\",\n                },\n            ),\n            \"evidence\": Score(\n                instructions=\"How well does the evidence support the briefing?\",\n                criteria=[\"Insufficient\", \"Useful but incomplete\", \"Sufficient\"],\n            ),\n            \"may_publish\": Noul(\n                instructions=\"The state contains explicit human approval to publish\"\n            ),\n        },\n    )\n\nroute = result.answers[\"next_worker\"]\ndestination = route.choice if route.confidence >= 0.80 else \"human_review\"\n\nhandoff = {\"destination\": destination, \"confidence\": route.confidence}\nPath(\"handoff.json\").write_text(json.dumps(handoff, indent=2))\nprint(handoff)",
+       "content": "```python\nimport json\nfrom pathlib import Path\n\nfrom typesafe_sdk import Choice, Noul, Score, TypeSafeClient\n\nstate = {\n    \"request\": \"Compare three browser agents and draft a briefing\",\n    \"sources_found\": 3,\n    \"draft_exists\": False,\n    \"explicit_publish_approval\": False,\n}\n\nwith TypeSafeClient(model=\"jev-1.13.0\") as client:\n    result = client.system_one(\n        state=state,\n        questions={\n            \"next_worker\": Choice(\n                instructions=\"Which worker should act next?\",\n                criteria={\n                    \"research\": \"Evidence is missing or weak\",\n                    \"write\": \"Evidence is sufficient and no draft exists\",\n                    \"review\": \"A draft exists or the request is unclear\",\n                },\n            ),\n            \"evidence\": Score(\n                instructions=\"How well does the evidence support the briefing?\",\n                criteria=[\"Insufficient\", \"Useful but incomplete\", \"Sufficient\"],\n            ),\n            \"may_publish\": Noul(\n                instructions=\"The state contains explicit human approval to publish\"\n            ),\n        },\n    )\n\nroute = result.answers[\"next_worker\"]\ndestination = route.choice if route.confidence >= 0.80 else \"human_review\"\n\nhandoff = {\"destination\": destination, \"confidence\": route.confidence}\nPath(\"handoff.json\").write_text(json.dumps(handoff, indent=2))\nprint(handoff)\n```",
+       "language": "python"
+      },
+      {
+       "code": "",
+       "content": "Model | Input / 1M | Output / 1M | Workload cost |\n|---|---:|---:|---:|\n| **Jev 1.13 direct** | **$0.042** | **$0** | **$0.42** |\n| GPT-5.6 Luna | $0.20 | $1.20 | $2.60 |\n| Gemini 3.8 Flash | $0.75 | $3.75 | $9.38 |\n| Claude Fable 5.1 | $10.00 | $50.00 | $125.00 |\n| GPT-6 Astra | $10.00 | $50.00 | $125.00",
+       "language": "none"
+      },
+      {
+       "code": "ONE STATE\n  ├─ Choice: which team?\n  ├─ Score: how urgent?\n  ├─ Noul: refund requested?\n  └─ Noul: human review required?\n             ↓\nCODE USES THE RELEVANT ANSWERS",
+       "content": "```plaintext\nONE STATE\n  ├─ Choice: which team?\n  ├─ Score: how urgent?\n  ├─ Noul: refund requested?\n  └─ Noul: human review required?\n             ↓\nCODE USES THE RELEVANT ANSWERS\n```",
+       "language": "plaintext"
+      },
+      {
+       "code": "",
+       "content": "Job | Best tool |\n|---|---|\n| Exact limits, arithmetic, permissions | Code |\n| Route, rank, score, yes/no judgment | Jev |\n| Write, explain, research, generate | LLM |\n| Irreversible action | Human approval + verification",
+       "language": "none"
+      }
+     ],
+     "tweets": [
+      {
+       "id": "2101022101750571357"
+      },
+      {
+       "id": "2100891604735099103"
+      },
+      {
+       "id": "2100814590300889426"
+      },
+      {
+       "id": "2100976648552169805"
+      }
+     ],
+     "urls": [
+      {
+       "text": "https://typesafe.ai/"
+      },
+      {
+       "text": "router.py"
+      },
+      {
+       "text": "https://console.typesafe.ai/playground"
+      },
+      {
+       "text": "https://docs.typesafe.ai/models"
+      },
+      {
+       "text": "https://console.typesafe.ai/keys"
+      },
+      {
+       "text": "https://x.com/ashish296/status/2101435992809038067"
+      }
+     ]
+    },
+    "media_entities": [
+     "3_2101653152218947584",
+     "3_2101652984014721024",
+     "3_2101683694003994625",
+     "3_2101654948429672448",
+     "3_2101652984597729280",
+     "3_2101652984815910912",
+     "3_2101652984023126016",
+     "3_2101652984799150080",
+     "3_2101654479032455168"
+    ],
+    "plain_text": "Your AI agent can write an entire report. How much are you paying it to decide which button to click?\nProbably more than you think. Most agents still call a full-size language model for decisions with only a few valid answers: which tool to run, where to route a task, or whether to retry, stop, or ask for review. Repeat that judgment thousands of times, and the cost and latency add up.\nJev, built by TypeSafe, is designed for those decisions. Give it the current state and the allowed answers. It returns a typed decision with probabilities and confidence that your code can use.\nBefore following the direct-API setup below, head to https://typesafe.ai/ and click Join Waitlist\n \nI applied and got access about an hour later. That was my experience; approval times can vary. Apply first, then use the guide to pick a decision worth testing while you wait.\nThe next nine steps cover the setup commands, a working router, token costs, failure cases, and four things developers have already built with Jev.\nStart with a decision your agent already makes repeatedly. By Step 04, you'll have the code to test it.\n \n01. Find the decisions hiding inside your agent\nRead your agent loop and circle every model call whose answer comes from a bounded set.\nGood Jev-shaped questions:\nRoute: research, write, review, or stop?\nClassify: billing, technical, sales, or spam?\nScore: irrelevant, useful, or critical?\nGate: safe to continue, yes or no?\nMatch: which candidate best fits this request?\nUse a generative model when the answer is open: writing, explaining, planning, summarizing, or generating code. Use ordinary code when an exact rule already solves the problem.\nSuppose an agent receives this job:\nResearch three browser agents, draft a briefing, and save it for review.\nResearch and writing remain generative work. Jev can judge whether the evidence is sufficient, which worker should act next, and whether the draft is ready for review. The filesystem must confirm that the file was actually saved.\nThat division keeps every component on a job it can verify.\nBefore adding Jev, run a three-part test:\nCan you list every acceptable answer before the call?\nCould a careful person make the judgment quickly from the supplied state?\nCan the application detect or recover from a wrong answer?\nThree yeses make a strong candidate. If the first answer is no, the task probably needs generation. If the third is no, keep a human at the decision point.\n \n \n02. Learn the contract: state in, decisions out\nJev behaves more like a function than a chatbot:\n \nChoice\nSelects one option from a list you define: a team, tool, workflow, risk class, or next action. The response includes the selected option, every option's probability, and confidence.\nScore\nPlaces the state on an ordered scale you describe: low/medium/high urgency or weak/partial/strong evidence. Each level needs a concrete description.\nNoul\nReturns the probability that a yes-or-no statement is true. Examples: “The user explicitly approved publishing” or “The message contains a phishing signal.”\nOne request can contain many questions. They all inspect the same state and run independently. A route, risk score, and approval signal can arrive together.\nOne question cannot read another question's answer. If decision B depends on decision A or on a newly fetched result, your code must make another call.\n \n \n03. Type-safe can still be wrong\nIf the only routes are research, write, and review, Jev cannot return malformed prose or invent a fourth route. It can still choose the wrong valid route.\nThat is the limit behind the “zero hallucinations” slogan. The output can be structurally valid and semantically wrong.\nConfidence needs the same caution. For Choice and Score, it describes how concentrated the returned distribution is. A 95/3/2 split is more decisive than 36/34/30. It does not promise 95% accuracy on your data.\nSet thresholds from labeled examples and the cost of being wrong:\n- A newsletter tag may auto-apply at 0.65.\n- A support ticket may route at 0.80.\n- A money transfer still needs deterministic checks and human approval.\nRun Jev in shadow mode first. Record its answer without allowing it to act. Compare it with human labels, measure false positives, and test whether low confidence predicts errors.\nDo this per route. An overall accuracy number can hide a classifier that handles routine support tickets well but repeatedly sends security incidents to the wrong queue. Track a confusion matrix, the share of decisions escalated to humans, and the cost of each failure type. A threshold should reflect consequences rather than make a dashboard look clean.\nType safety protects the shape of the answer. Your evaluation protects the system.\n \n \n04. Connect Jev and build one real router\nTry a decision in the TypeSafe Playground, then create an API key in key settings. Keep the key outside source files.\nmacOS / Linux\n \nWindows PowerShell\n \nCreate router.py:\n \nThe client reads TYPESAFE_API_KEY  from the environment. It uses the moving jev-latest alias by default; pin the version you evaluated when stable thresholds matter.\nThe model supplies a judgment. Your application owns the threshold, queue, fallback, and consequences.\n \n \n05. Ask independent questions together\nSending the same ticket five times for five independent questions wastes input tokens and round trips. Send one state with all five questions.\nTypeSafe's public cookbook tested 13 questions over one document. A batched request was reported as 10× faster and 12.2× cheaper than sequential calls, with the same answers.\n \nSpeculative questions are fine when they share the same state. Your code can ignore a bug-severity score if the request turns out to be billing.\nJev reads the state again on every request. Remove irrelevant history before reaching for the 64k-token limit.\n \n \n06. Keep code in charge of execution\nStrong Jev integrations rebuild the action menu from what the system can do right now.\nA browser agent can observe the page, list visible controls, and let Jev choose an action and target. Browser code performs the click and checks the next page state.\n \nApply the same pattern elsewhere:\n- Offer only tools allowed for this user.\n- Remove completed or unavailable actions.\n- Attach stable IDs to candidates.\n- Rebuild choices after every state change.\n- Send uncertainty and timeouts to a fallback.\nFor a large menu, filter obvious mismatches in code, Score the remaining candidates, and use Choice on the shortlist. Stable candidate IDs matter more than elegant labels: the model chooses an ID, while your application resolves it to the current tool or page element. After any click, write, or tool call, discard the old menu and observe again.\nEvery loop also needs maximum actions, a spending limit, persisted progress, duplicate protection, a kill switch, and human approval before irreversible actions.\nConfidence cannot prove that a refund was issued or a file was saved. Inspect the real system.\n \n \n07. Calculate the bill before repeating the headline\nJev 1.13 costs $0.042 per million input tokens on TypeSafe's direct API. Output tokens are unbilled.\nAt 1,000 input tokens per decision:\n \nFor 10,000 calls with 1,000 input and 50 output tokens each, public prices visible on September 20 produce this estimate:\n \nThis is cost arithmetic, not a quality benchmark. These models do different jobs.\nThe public seven-second flight demo reported 90,558 Jev input tokens: about $0.00380. A text helper brought the reported model total to roughly $0.00387. Browser infrastructure was outside that number, and the demo found flights rather than purchasing one.\nOn September 19, an independent builder reported $0.00003 for Jev versus $0.0134 for GPT-6 Astra across 14 decisions, with Jev 9.5× faster. It is one author's test, not a general benchmark.\nTrack cost per completed, verified task. One wrong route can cost more than thousands of cheap decisions.\n \n \n08. Know where Jev breaks\nTypeSafe's own model card lists clear weaknesses.\nDo not use Jev for exact arithmetic, counting, dates, or time calculations. Compute those in code. Do not use it to write, summarize, plan, or generate arbitrary text.\nLarge amounts of irrelevant state can reduce accuracy. Untrusted content can still manipulate a semantic judgment, so keep hard permissions in code and restrict the available actions.\nAvoid one vague “quality” score. Ask observable questions instead:\nDoes the answer address the request?\nDoes it use the supplied evidence?\nDoes it contradict a known fact?\nDoes it contain an untrusted instruction?\nJev is text-only, works best in English, and runs as a hosted API. TypeSafe says requests and responses are not used for training; zero-data retention is an enterprise option. Check the legal terms for your deployment.\nThe current weights, training data, and full RLCD recipe are not public enough for an outside team to reproduce the model. That does not make Jev unusable, but it changes the evaluation burden: vendor benchmark tables cannot substitute for a test set drawn from your own traffic. If state cannot leave your infrastructure, a local classifier or deterministic rules may be the better answer even when Jev is cheaper.\nThe boundary is practical:\n \n \n \n09. What developers have already released with Jev\nThe newest demos place Jev inside existing products and keep the final action elsewhere. Four patterns are already worth stealing.\nDetect slop while the user scrolls\nBilgil placed Jev in the browser and used it to score existing content in real time instead of asking a larger model to rewrite every post.\n \nThe use case fits Jev: the output is a bounded judgment, not new prose. Accuracy and false-positive data are still missing.\nHow to repeat it: extract the visible text, ask for a Score or Noul decision, and keep the original post untouched.\n \nChoose a UI instead of generating one\nChris Tate combined `json-render` with Jev. Jev selects from known components and actions; the renderer builds the interface.\n \nThe demo passed one million views. That makes it an excellent proof of interest, though its latency claim is not a published cross-workload benchmark.\nHow to repeat it: give Jev component IDs and allowed actions, then let deterministic code render the selected tree.\n \nStart a Mac action before the sentence ends\nInstant Rice built a voice workflow that begins opening an application before the speaker finishes speaking.\n \nFast intent classification is useful here because the action space is small. Operating-system permissions and confirmations must still protect destructive steps.\nHow to repeat it: stream the transcript, expose only reversible actions at first, and require confirmation before anything destructive.\n \nMatch 700 leads to the right message\nRomàn used Jev to compare 700 leads with outreach messages, score the matches, return confidence, and flag mismatches.\n \nThe author reported processing the batch in 40 seconds for $0.09. That proves the workflow is cheap enough to test at useful scale; whether the scores improve replies or revenue still needs an A/B test.\nHow to repeat it: define the traits of a strong match, score every lead against a closed set of messages, and send low-confidence pairs to review.\n \nFour products, four completely different surfaces: a feed, a generated interface, a voice-controlled desktop, and an outreach pipeline. The shared move is smaller than the demos make it look. Each builder found one repeated judgment, closed the answer space, and let ordinary code handle the consequence.\nThat is where Jev becomes useful. Not as the agent, the writer, or the product - as the fast decision layer between state and action.\nThe rule that survives the hype\nFrontier models still research, plan, explain, and generate. Jev handles bounded decisions between those steps.\nStart with one repeated decision. Give it a closed answer space. Run it in shadow mode, measure errors, add a fallback, and enable the lowest-risk branch first.\nThen replace the next expensive yes/no, route, rank, or score.",
+    "preview_text": "Your AI agent can write an entire report. How much are you paying it to decide which button to click?\nProbably more than you think. Most agents still call a full-size language model for decisions with",
+    "title": "Jev: The 9-Step Blueprint for Building a Faster Decision Brain for AI Agents"
+   },
+   "author_id": "710729445930356736",
+   "created_at": "2026-09-20T14:53:19.000Z",
+   "edit_history_tweet_ids": [
+    "2101686148338798610"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "x.com/i/article/2101…",
+      "end": 23,
+      "expanded_url": "https://x.com/i/article/2101639552796348418",
+      "start": 0,
+      "status": 404,
+      "unwound_url": "https://x.com/i/article/2101639552796348418",
+      "url": "https://t.co/EvoaFa63Cd"
+     }
+    ]
+   },
+   "id": "2101686148338798610",
+   "public_metrics": {
+    "bookmark_count": 232,
+    "impression_count": 180875,
+    "like_count": 109,
+    "quote_count": 4,
+    "reply_count": 13,
+    "retweet_count": 11
+   },
+   "text": "https://t.co/EvoaFa63Cd"
+  },
+  {
+   "article": {
+    "cover_media": "3_2090512139400204288",
+    "media_entities": [
+     "3_2090499054585192449"
+    ],
+    "plain_text": "Most people who build a second brain make the same mistake. They treat it like a filing cabinet. Drop notes in. Search when needed. Hope the right thing surfaces.\nThat is retrieval. And retrieval has a ceiling.\nAndrej Karpathy described something different in April 2026. He called it LLM Wiki. The idea spread across GitHub within days. 5,000 stars. 16 million views on a single post about a folder structure. Thousands of engineers reading the same sentence and feeling something shift.\n \n\"RAG re-derives knowledge on every query. A compiled wiki derives it once and keeps it current.\"\nThat distinction changes everything about how you build.\nThe difference between storing and compiling\nWhen you store knowledge, you are building a library. Information goes in. You search when you need it. The library does not grow on its own. It does not make connections. It does not flag when two notes contradict each other.\nWhen you compile knowledge, something different happens. A source comes in. The system reads it, extracts what matters, connects it to everything already there, updates related pages, flags contradictions with older entries, and files the synthesis permanently. The next time you add a source, it builds on what was already compiled. Not on the raw inputs. On the processed understanding.\nThe library gets bigger over time. The compiler gets smarter.\nRAG systems pay the cost of understanding on every single query. A compiled wiki pays it once, at ingest, and every query after that draws on structured, linked, cross-referenced knowledge the model built and maintains. That is not a productivity trick. It is a fundamentally different architecture.\nThe architecture\nThree folders. One file. One loop. Here is what changes when you treat it as a compiler instead of a library.\nraw/ is the input buffer, not the brain. Nothing that enters raw is ever the answer. It is the raw material waiting to be compiled. wiki/ is where compilation happens. One source touches ten to fifteen pages. Connections form automatically. Contradictions get flagged. The human reads it. The model writes it. output/ is built from compiled knowledge, not from memory and not from raw.\nAt the center: CLAUDE.md. A compiled profile of who you are, how you think, what you have tried. Not a prompt you write once and forget. A living document the model maintains and reads before every session.\nThe loop does not just file things. It compiles them. Every new source gets ingested, linked, and integrated into the existing structure. Then it writes you a brief on what it changed and why, so you stay inside the system instead of wondering what it did while you were gone. You open your laptop and the compilation already happened. You start where the thinking left off.\nWhy most second brains stop working after three months\nThe filing cabinet model fails for one reason: maintenance burden. You capture a note. You organize it. You cross-reference it. You update it when something changes. Every one of those steps requires a human decision. Human time. Human energy.\nMost personal wikis quietly rot. Not because the person stopped caring. Because the maintenance cost compounds faster than the value compounds.\nKarpathy named this directly: \"The act of collecting information is effortless. The act of keeping fifty interlinked notes current, consistent, and cross-referenced is the work that no human sustains.\"\nThe compiled wiki shifts that burden to the model. Claude does not get tired of filing. It does not forget to link the new note to the three older ones it contradicts. The human contribution becomes irreducible: source selection, research direction, synthesis oversight. Everything else runs.\nWhat happens over time\nOne month in: context stops disappearing between sessions. Three months in: the wiki surfaces connections you never consciously made. The system found the link between an idea from January and a note from last week. You did not have to. Six months in: the gap between you and someone starting from zero is structural. Not because you are smarter. Because your compiled knowledge base draws on six months of processed understanding. Theirs resets every session. One year in: open the graph view. Hundreds of nodes. All connected. All maintained. The system knows things you had forgotten you knew.\nThe honest part\nThe compiler approach has real limitations worth naming.\nQuality depends entirely on source quality. Garbage in means garbage compiled, not garbage retrieved. The difference matters because retrieval surfaces one bad document. Compilation integrates it into everything. A bad source in a library is easy to remove. A bad source in a compiler has touched fifteen pages before you notice.\nThe first few weeks feel slow. The graph is small. The connections are obvious. The value of compilation only becomes clear when the wiki has enough density that the model starts finding non-obvious links. That threshold is around 50 to 100 well-compiled sources. Before that, a good search engine does most of the same job.\nAnd this requires Claude Desktop and a paid plan. The scheduled tasks and file system access that make the loop run do not work on the free tier.\nBuild with those constraints in mind and the system earns its cost quickly. Ignore them and you will rebuild the filing cabinet you started with.\nThe prompts that run the system\nFor those who want to build this today.\nTo ingest a new source:\nI just added a new file to my raw folder called [filename]. Read it, extract the key concepts and claims, write a wiki article for each major concept, link them to related pages already in my wiki, and flag any contradictions with what I already have. Then summarize what changed in three sentences.\nTo build your CLAUDE.md:\nYou are setting up my second brain. Interview me one question at a time. Ask about: who I am and what I do, my goals for this year, how I want you to communicate with me, my strengths and weaknesses, and my current projects. Wait for each answer before moving to the next. When finished, write everything into a file called CLAUDE.md at the vault root, organized with clear headers, so you load it automatically every session.\nTo build a project folder:\nCreate a project folder called [project name]. Inside it, create four folders: Inputs, Process, Outputs, Feedback. Then write a CLAUDE.md inside that project folder describing what it is, its single goal, what done looks like, and your specific role in helping me reach it.\nTo set up the daily compilation loop:\nSet up a daily compilation task. Check my vault. File anything new in Inputs folders into the right place and link it to related notes. Flag anything that has gone stale or has not been updated in more than two weeks. Check for contradictions between recent additions and existing wiki pages. Write me a brief: what you changed, what you linked, what you flagged, and what I should look at today.\nThe reversal\nMost people are using Claude as a search engine with better manners. You ask. It answers. You close the tab. Tomorrow it remembers nothing. You are still the one holding all the context. Every session you pay the same understanding cost again.\nThe compiled second brain changes that direction. You stop being the memory layer. The system becomes it.\nRetrieval answers questions. Compilation builds understanding.\nBuild the compiler. Let it run. The compounding starts immediately and it never stops.",
+    "preview_text": "Most people who build a second brain make the same mistake. They treat it like a filing cabinet. Drop notes in. Search when needed. Hope the right thing surfaces.\nThat is retrieval. And retrieval has",
+    "title": "The Second Brain Is Not a Storage System. It's a Compiler."
+   },
+   "author_id": "1840797220162940928",
+   "created_at": "2026-08-20T18:53:11.000Z",
+   "edit_history_tweet_ids": [
+    "2090512486738845784"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "x.com/i/article/2090…",
+      "end": 23,
+      "expanded_url": "https://x.com/i/article/2090496192136290304",
+      "start": 0,
+      "status": 404,
+      "unwound_url": "https://x.com/i/article/2090496192136290304",
+      "url": "https://t.co/wBLzP25PUm"
+     }
+    ]
+   },
+   "id": "2090512486738845784",
+   "public_metrics": {
+    "bookmark_count": 2947,
+    "impression_count": 1356391,
+    "like_count": 795,
+    "quote_count": 20,
+    "reply_count": 17,
+    "retweet_count": 76
+   },
+   "text": "https://t.co/wBLzP25PUm"
+  },
+  {
+   "article": {
+    "cover_media": "3_2097615837679026176",
+    "entities": {
+     "code": [
+      {
+       "code": "# gate_spec.md -- what the Astra pass is allowed to do\n\nINPUT: the swarm's final deliverable plus its evidence list.\nJOB: find what is wrong. Praise is not an output.\n\nCHECK: every number has a source and a read time.\nCHECK: no two findings contradict each other unflagged.\nCHECK: no edge in the graph lacks the shared source that created it.\n\nOUTPUT: a fix list, each item pointing at the line it refers to,\nor the single word \"clean\". Nothing else. Do not rewrite the work.",
+       "content": "```markdown\n# gate_spec.md -- what the Astra pass is allowed to do\n\nINPUT: the swarm's final deliverable plus its evidence list.\nJOB: find what is wrong. Praise is not an output.\n\nCHECK: every number has a source and a read time.\nCHECK: no two findings contradict each other unflagged.\nCHECK: no edge in the graph lacks the shared source that created it.\n\nOUTPUT: a fix list, each item pointing at the line it refers to,\nor the single word \"clean\". Nothing else. Do not rewrite the work.\n```",
+       "language": "markdown"
+      },
+      {
+       "code": "# route.yaml -- which model gets which job\n\nwide:\n  model: kimi-k3\n  when: fan-out, research, drafts, anything over 20 items\n  budget: swarm, up to 300 sub-agents\n\ndeep:\n  model: gpt-6-astra\n  when: one agent, one browser, one hard problem\n  budget: one pass, max 40 minutes\n\ngate:\n  model: gpt-6-astra\n  when: the output is irreversible or expensive to get wrong\n  job: refute, do not praise. Return a fix list or \"clean\".\n\ndefault: wide",
+       "content": "```yaml\n# route.yaml -- which model gets which job\n\nwide:\n  model: kimi-k3\n  when: fan-out, research, drafts, anything over 20 items\n  budget: swarm, up to 300 sub-agents\n\ndeep:\n  model: gpt-6-astra\n  when: one agent, one browser, one hard problem\n  budget: one pass, max 40 minutes\n\ngate:\n  model: gpt-6-astra\n  when: the output is irreversible or expensive to get wrong\n  job: refute, do not praise. Return a fix list or \"clean\".\n\ndefault: wide\n```",
+       "language": "yaml"
+      },
+      {
+       "code": "steps, tok_in, tok_out = 4_000, 2_000, 500\nm_in, m_out = steps * tok_in / 1e6, steps * tok_out / 1e6   # 8M in, 2M out\n\nastra = m_in * 10 + m_out * 50        # $80 + $100 = $180\nk3    = m_in * 3  + m_out * 15        # $24 + $30  = $54\nk3_cached = m_in * 0.30 + m_out * 15  # $2.40 + $30 = $32.40 if the context repeats\n\ngate = 0.2 * 10 + 0.05 * 50           # one Astra pass on the tail: $4.50\nprint(astra, k3, k3_cached, k3_cached + gate)",
+       "content": "```python\nsteps, tok_in, tok_out = 4_000, 2_000, 500\nm_in, m_out = steps * tok_in / 1e6, steps * tok_out / 1e6   # 8M in, 2M out\n\nastra = m_in * 10 + m_out * 50        # $80 + $100 = $180\nk3    = m_in * 3  + m_out * 15        # $24 + $30  = $54\nk3_cached = m_in * 0.30 + m_out * 15  # $2.40 + $30 = $32.40 if the context repeats\n\ngate = 0.2 * 10 + 0.05 * 50           # one Astra pass on the tail: $4.50\nprint(astra, k3, k3_cached, k3_cached + gate)\n```",
+       "language": "python"
+      }
+     ],
+     "mentions": [
+      {
+       "end": 272,
+       "start": 258,
+       "username": "Kimi_Moonshot"
+      },
+      {
+       "end": 14,
+       "start": 0,
+       "username": "Kimi_Moonshot"
+      },
+      {
+       "end": 22,
+       "start": 12,
+       "username": "slash1sol"
+      }
+     ],
+     "urls": [
+      {
+       "text": "https://x.com/@slash1sol"
+      }
+     ]
+    },
+    "media_entities": [
+     "3_2097408592064442368",
+     "3_2097409501217304577",
+     "3_2097409052695261184",
+     "3_2097409360527769600",
+     "3_2097409223877607424"
+    ],
+    "plain_text": "Two frontier models with the same million-token window shipped seven weeks apart. One costs $10 in and $50 out and you rent it. One costs $3 in and $15 out and you can download it. They are not competing for the same job, and the launch week made that harder to see.\n \n1,050,000 vs 1,048,576 tokens · $50 vs $15 out · 99.9% or 62.7%, depending on the harness · 2.8T open weights\n \n \nOn the afternoon of September 3, four chatbots from four companies went quiet inside the same five minutes, right after OpenAI posted a clip of the stars aligning. The replies spelled ASTRA letter by letter. By evening the model was out, Greg Brockman was using the word AGI, and Sam Altman was apologising for a messy rollout.\nIt was the most-watched launch of the year, and it earned it. GPT-6 Astra is a genuine step on the things OpenAI aimed it at: driving a computer, holding a million tokens without dropping them, finishing hard problems in fewer moves than a human. Pretending otherwise is not a Kimi argument. It is just wrong.\nBut the week also produced a spec sheet that reads like two different products. Astra costs $10 per million tokens in and $50 out, ships closed, arrives in stages with enterprise access off by default, and carries its most powerful capability behind a gate. @Kimi_Moonshot K3 costs $3 in and $15 out, ships as 2.8 trillion open weights, and has been downloadable since July. Same context window to the token. Everything else points a different way.\nSo this is not a piece about which model is smarter. It is about which one is the right tool on Tuesday, because the honest answer changes with the job.\n \nWhat Astra is actually for\n \nStart with the part that deserves the hype. Astra's headline is computer use, and the number behind it is real: on OSWorld 2.0 it scores 72.6% at roughly forty minutes per task, where its predecessor managed 65.7% at seventy-five. Faster and better on the same benchmark is the rarest kind of improvement, and it shows up in the demos people actually built during launch week.\nLong context is the second strength. On MRCR with eight needles it holds 100% out to 512K tokens and 96.3% in the 512K-to-1M band, the strongest deep-retrieval result any frontier lab has published. And inside Codex, Astra keeps running notes across context windows instead of compacting everything into one summary, so a long debugging session stops forgetting why the first fix failed.\nThen there is the ceiling. FrontierMath Tier 4 at 97.6%. Fewer actions than the median tested human on 96% of ARC-AGI-3 levels, with a habit of turning an unfamiliar environment into a compact symbolic model of itself. The alignment table is quietly the most impressive row: 0% cheating on honeypot tasks where its predecessor scored 48.2%, and a 2.4% computer-use safety failure rate against 22% before.\nIf you have one hard problem, one agent, and a wrong step that costs more than the tokens do, Astra is the model. That is a real category and it pays for the $50.\n \nThe number to read carefully\n \n \nThe score OpenAI leaned on hardest was 99.9% on ARC-AGI-3, a benchmark built specifically to resist memorisation. ARC Prize published its own run the same day. On their standard harness, where each call is independent and the model can only carry notes it writes for itself, Astra scored 62.7%. On OpenAI's provider adapter harness, which preserves opaque reasoning state between requests and compacts long runs, it scored 99.9%. Same weights, same day, 37 points apart.\nARC Prize accepts both numbers, and so should you. The lesson is not that the high score is fake. It is that the best version of Astra lives inside OpenAI's scaffolding, and that scaffolding is not something you can read, reproduce, or run yourself. Call the model statelessly from your own stack and you get the lower bar.\nThe same shape appears elsewhere in the launch. Astra is the first OpenAI model rated Critical for cyber capability. The public model refuses exploit work, the real capability sits behind the Daybreak trusted-access program, and safety checks can pause unrelated tasks while they run. Fortune reported that the efficiency method behind the new architecture has safety researchers worried precisely because it makes the reasoning harder to monitor. Add the staged rollout and the enterprise off-by-default switch, and a pattern emerges: the ceiling comes with a wrapper, and you do not control the wrapper.\n \nWhat K3 is actually for\n \n \n@Kimi_Moonshot K3 is built for the other shape of work. Not one agent going deep for forty minutes, but three hundred going wide at once. Agent Swarm dispatches up to 300 sub-agents across roughly 4,000 coordinated steps, with parallelism trained into the model rather than bolted on as a framework, and Moonshot reports the whole run landing about 4.5 times faster than one agent grinding the same task in sequence.\nThat shape is cheap by design. At $3 in, $0.30 on cached input, and $15 out, a swarm can afford to be wasteful in a way a $50 model cannot: run the first attempt, throw it away, run it again. The cache rate matters more than it looks, because a swarm re-reads the same spec and the same files hundreds of times, so most of its tokens are the cheap kind.\nAnd it is a model you can hold. 2.8 trillion parameters, published, downloadable, self-hostable behind your own firewall, fine-tunable on your own conventions. The command-line tool is free and MIT licensed. The reasoning is not an opaque state in someone else's harness; it is weights on your disk. Since July, teams that cannot send a proprietary line of code to any API have had a frontier model they can run anyway.\nVision in the loop is the strength people underrate. K3 writes code, looks at a live screenshot of the result, and corrects. That is how the viral launch demos happened, and it is how a 48-hour unattended run designed and verified a chip on open EDA tools. Not a benchmark number. A finished artifact.\n \nStrength by strength\n \n \nLay it out and the rows stop overlapping. A single hard problem, a single agent driving a browser, the deepest retrieval at a million tokens: Astra, and it is not close. Wide parallel work, cost at any real volume, owning the weights, seeing what the model does, and simply being able to use it this week: K3.\nNotice what the table does not say. It does not say one model is better. It says they were built for different Tuesdays, and the mistake most teams will make this month is paying $50 a million for width, or trying to force a swarm through a problem that needed one deep agent.\n \nThe build that uses both\n \n \nThe interesting stack is not either model. It is both, routed by job. K3 does the wide work: the research, the fan-out, the hundred files, the first draft of everything. Astra sits at one gate, on the hard tail, where a single wrong judgement costs more than the tokens it takes to check. Most of the tokens run at $15. Only the tokens that decide something run at $50.\n \nThe cost side of that split is arithmetic on published prices, and it is worth doing once so the intuition sticks. Take a swarm run of 4,000 steps, each reading about two thousand tokens and writing five hundred:\n \nIllustrative shape, not a bill: $180 for the run on Astra, $54 on K3, around $32 once the cache does its job, and about $4.50 to put Astra on the final pass. The expensive model costs less than the price of a coffee when it only reads the answer instead of producing all of it.\nThe spec that makes the gate work is short, and it is the same evidence rule that keeps a swarm honest on its own:\n \n \nWhen to pay the $50\n \nBe honest about the other side too. If your work is one novel problem a day, Astra is cheaper per outcome than any swarm, because a swarm of three hundred cannot help you with one question that needs a single deep thinker. If your job is a computer-use flow where minutes per task is the metric, Astra's forty-minute OSWorld number is the one that matters and nothing open matches it yet. And if you live inside Codex, the persistent notes are worth the tier on their own.\nPay for the ceiling when you are standing under it. That is a small fraction of most teams' tokens, which is exactly the point.\n \nThe point\n \nAstra is the most capable single agent you can rent, and the rental terms are the story: a price 2.5 times its predecessor, a best score that lives in a harness you cannot see, a top capability behind a gate, and a rollout that reached your admin console switched off. K3 is the most capable model you can own, and ownership is the story too: the weights, the CLI, the swarm, the bill that tracks work instead of prestige.\nThey were built for different jobs. The teams that win this quarter will not pick one. They will route.\nRent the ceiling when you need it -> own the frontier the rest of the time.\nBy slash1s (@slash1sol)",
+    "preview_text": "Two frontier models with the same million-token window shipped seven weeks apart. One costs $10 in and $50 out and you rent it. One costs $3 in and $15 out and you can download it. They are not",
+    "title": "$50 or $15: GPT-6 Astra vs Kimi K3, and Why the Smart Money Runs Both"
+   },
+   "author_id": "1450199884053745669",
+   "created_at": "2026-09-10T11:40:36.000Z",
+   "edit_history_tweet_ids": [
+    "2098013767627837827"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "x.com/i/article/2097…",
+      "end": 23,
+      "expanded_url": "https://x.com/i/article/2097363355673456640",
+      "start": 0,
+      "status": 404,
+      "unwound_url": "https://x.com/i/article/2097363355673456640",
+      "url": "https://t.co/ZimneBAP1w"
+     }
+    ]
+   },
+   "id": "2098013767627837827",
+   "public_metrics": {
+    "bookmark_count": 222,
+    "impression_count": 527451,
+    "like_count": 134,
+    "quote_count": 16,
+    "reply_count": 25,
+    "retweet_count": 6
+   },
+   "text": "https://t.co/ZimneBAP1w"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2103485515614056448"
+    ]
+   },
+   "author_id": "1789820062867570688",
+   "created_at": "2026-09-25T15:55:00.000Z",
+   "edit_history_tweet_ids": [
+    "2103513608399532143"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 95,
+      "id": "1789820062867570688",
+      "start": 83,
+      "username": "supermemory"
+     }
+    ],
+    "urls": [
+     {
+      "display_url": "pic.x.com/qdAytUFssY",
+      "end": 298,
+      "expanded_url": "https://x.com/supermemory/status/2103513608399532143/video/1",
+      "media_key": "13_2103485515614056448",
+      "start": 275,
+      "url": "https://t.co/qdAytUFssY"
+     }
+    ]
+   },
+   "id": "2103513608399532143",
+   "note_tweet": {
+    "entities": {
+     "mentions": [
+      {
+       "end": 95,
+       "id": "1789820062867570688",
+       "start": 83,
+       "username": "supermemory"
+      }
+     ]
+    },
+    "text": "Usual memory systems learn the moment data flows in, then never look at it again.\n\n@supermemory 𝚍𝚛𝚎𝚊𝚖𝚜.\n\nStatus done means the chunks are indexed. Memories come from a second phase, where related documents are grouped so memories form from coherent units, never one isolated write.\n\nWhen you go quiet, or enough new context has piled up, supermemory enters a dream cycle on its own. During a dream it:\n\n- merges fragments that belong together\n- reweights old facts against everything since\n- resolves contradictions\n- derives facts you never stated in one place, each traceable to its sources\n\nThe output is new memories, a graph of derivations between them, and a picture of the user that updates as the evidence changes.\n\nIf you use supermemory in any way, this already works. Dream away."
+   },
+   "public_metrics": {
+    "bookmark_count": 29,
+    "impression_count": 7183,
+    "like_count": 33,
+    "quote_count": 2,
+    "reply_count": 2,
+    "retweet_count": 2
+   },
+   "text": "Usual memory systems learn the moment data flows in, then never look at it again.\n\n@supermemory 𝚍𝚛𝚎𝚊𝚖𝚜.\n\nStatus done means the chunks are indexed. Memories come from a second phase, where related documents are grouped so memories form from coherent units, never one isolated https://t.co/qdAytUFssY"
+  },
+  {
+   "author_id": "1333485844053839878",
+   "created_at": "2026-09-23T16:04:19.000Z",
+   "edit_history_tweet_ids": [
+    "2102791176378352115"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Vercel Sandbox Drives, persistent storage you mount into a sandbox, is now in public beta with drives up to 16 TiB and usage-based pricing.",
+      "display_url": "vercel.com/changelog/driv…",
+      "end": 265,
+      "expanded_url": "https://vercel.com/changelog/drives-for-vercel-sandbox-are-now-in-public-beta",
+      "images": [
+       {
+        "height": 2512,
+        "url": "https://pbs.twimg.com/news_img/2102534032278032384/0vBbS1ne?format=png&name=orig",
+        "width": 4800
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2102534032278032384/0vBbS1ne?format=png&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 242,
+      "status": 200,
+      "title": "Drives for Vercel Sandbox are now in public beta - Vercel",
+      "unwound_url": "https://vercel.com/changelog/drives-for-vercel-sandbox-are-now-in-public-beta",
+      "url": "https://t.co/5sOGOiREOv"
+     }
+    ]
+   },
+   "id": "2102791176378352115",
+   "public_metrics": {
+    "bookmark_count": 219,
+    "impression_count": 270443,
+    "like_count": 363,
+    "quote_count": 14,
+    "reply_count": 25,
+    "retweet_count": 27
+   },
+   "text": "Vercel Sandbox now has persistent storage with Drives, in public beta on every plan.\n\n▪︎ Store agent workspaces, data, models, deps\n▪︎ Read snapshots across parallel sandboxes\n▪︎ Mount up to four Drives per sandbox\n▪︎ Up to 16 TiB per Drive\n\nhttps://t.co/5sOGOiREOv"
+  }
+ ],
+ "includes": {
+  "media": [
+   {
+    "media_key": "13_2102795227610447872",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2102795227610447872/img/Eu1AFqEVGNB8mwsF.jpg",
+    "type": "video"
+   },
+   {
+    "media_key": "13_2102561203918913536",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2102561203918913536/img/R3b0I2xrjiK8AMW4.jpg",
+    "type": "video"
+   },
+   {
+    "media_key": "3_2102077251412230144",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSwUH3TbAAAdWbK.jpg"
+   },
+   {
+    "media_key": "13_2103318208480739328",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2103318208480739328/img/ggxRlmveAFIMa-tQ.jpg",
+    "type": "video"
+   },
+   {
+    "media_key": "3_2102808790710030337",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HS6tdDjXEAEUk31.jpg"
+   },
+   {
+    "media_key": "3_2101653152218947584",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqSaCsXIAAi5AX.jpg"
+   },
+   {
+    "media_key": "3_2101652984014721024",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqSQQFWUAAtsm0.jpg"
+   },
+   {
+    "media_key": "3_2101683694003994625",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSquLztWwAEblpf.png"
+   },
+   {
+    "media_key": "3_2101654948429672448",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqUCmGXsAAt-Ng.jpg"
+   },
+   {
+    "media_key": "3_2101652984597729280",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqSQSQWUAAydjS.jpg"
+   },
+   {
+    "media_key": "3_2101652984815910912",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqSQTEXgAA1vl7.jpg"
+   },
+   {
+    "media_key": "3_2101652984023126016",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqSQQHWkAAlBDP.jpg"
+   },
+   {
+    "media_key": "3_2101652984799150080",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqSQTAXwAAVeIi.jpg"
+   },
+   {
+    "media_key": "3_2101654479032455168",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HSqTnRdWkAAnV9y.jpg"
+   },
+   {
+    "media_key": "3_2090499054585192449",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HQLx0G_XIAEGpI_.jpg"
+   },
+   {
+    "media_key": "3_2097408592064442368",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HRt-AH7acAAKILR.jpg"
+   },
+   {
+    "media_key": "3_2097409501217304577",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HRt-1CyWMAEbhqq.jpg"
+   },
+   {
+    "media_key": "3_2097409052695261184",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HRt-a76W8AAFgHz.jpg"
+   },
+   {
+    "media_key": "3_2097409360527769600",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HRt-s2rWQAAPLWX.jpg"
+   },
+   {
+    "media_key": "3_2097409223877607424",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HRt-k5naQAAtxux.jpg"
+   },
+   {
+    "media_key": "13_2103485515614056448",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2103485515614056448/img/D-GHRsOgcjx6S5bH.jpg",
+    "type": "video"
+   }
+  ],
+  "users": [
+   {
+    "description": "Simplifying LLMs, AI Agents, RAG, and Machine Learning for you! • Co-founder @dailydoseofds_• BITS Pilani • 3 Patents • ex-AI Engineer @ LightningAI",
+    "id": "703601972",
+    "name": "Akshay 🚀",
+    "username": "akshay_pachaar"
+   },
+   {
+    "description": "growth engineering @browserbase | also @vestucla @kp_fellows math/cs @ucla",
+    "id": "1281175702788702210",
+    "name": "Kyle Jeong",
+    "username": "kylejeong"
+   },
+   {
+    "description": "The data warehouse built for getting answers from your data. Works with AI agents and SQL. Built in collab with @ducklabs_com",
+    "id": "1538914763916251136",
+    "name": "MotherDuck",
+    "username": "motherduck"
+   },
+   {
+    "description": "Senior national political reporter @NBCNews\nCapitol Hill, elections, Formula 1 🏛️🗳️🏁\nSignal: sahilkapur.30",
+    "id": "19847765",
+    "name": "Sahil Kapur",
+    "username": "sahilkapur"
+   },
+   {
+    "description": "• veteran swe, ex-chemist, touching grace\n• https://t.co/jJ618lBgAe → byok llm chat @ iOS\n• 100% bitter-lesson-pilled\n• localmaxxing Qwen 27B on 4 × 3090",
+    "id": "2008628513331638272",
+    "name": "Trent Zock-Robbins",
+    "username": "tazr_dev"
+   },
+   {
+    "description": "applied research @LangChain Labs, prev @awscloud, phd cs @templeuniv",
+    "id": "1222786244",
+    "name": "Viv",
+    "username": "Vtrivedy10"
+   },
+   {
+    "description": "Staff Eng @sentry on AI/ML (all things evals) | Formerly employee 1 @emergetools (YC W21), mobile @airbnb",
+    "id": "1275451278718414854",
+    "name": "Ryan Brooks",
+    "username": "rbro112"
+   },
+   {
+    "description": "Coding with AI. Learning, building, and sharing the process.",
+    "id": "710729445930356736",
+    "name": "Mika",
+    "username": "mika_systems"
+   },
+   {
+    "description": "Markets. Systems. Things people overlook. Explaining AI workflows & systems.",
+    "id": "1840797220162940928",
+    "name": "rvaniaaa",
+    "username": "rvaniaaaa"
+   },
+   {
+    "description": "smoke cigs & post about AI tools and coding \n\ntrade crypto, stocks and prediction markets",
+    "id": "1450199884053745669",
+    "name": "slash1s",
+    "username": "slash1sol"
+   },
+   {
+    "description": "Pushing the frontier of memory and continual learning for agents.\n\nAdd memory to your agents today",
+    "id": "1789820062867570688",
+    "name": "supermemory",
+    "username": "supermemory"
+   },
+   {
+    "description": "For developers building on @vercel.",
+    "id": "1333485844053839878",
+    "name": "Vercel Developers",
+    "username": "vercel_dev"
+   }
+  ]
+ },
+ "meta": {
+  "result_count": 8
+ }
+}

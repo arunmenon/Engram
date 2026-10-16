@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-35",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T172142Z-c0d2",
+ "created_at": "2026-09-28T17:27:44Z",
+ "idempotency_key": "decision:PC-20260928-03:recommended:DEC-20260928-21",
+ "card_id": "PC-20260928-03",
+ "prev_decision_id": "DEC-20260928-21",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revised per REV-20260928-19: the primary contrast is now fixed-candidate (same 10 parent artifacts, per-parent token matching), recall equivalence has a plus or minus 3 point test, the negative verdict needs a one-sided 95% bound below the 3-point margin, prompt attribution is corrected, B5 is dropped to a related measurement, and the packet gains a start gate, numeric token estimate (about 18M) and cap enforcement. It can move B16 (lead) on raw versus distilled evidence for engineering artifacts and settles the ingestion write-path choice before Track B freezes its benchmark set.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-11-r2",
+   "file_id": "1EAQs0IFP4ZGizwOcHWprv8CI9TLW_DF2",
+   "sha256": "d193d1dc6a11c7e592105a9a8f2582d7253163ee74956874c1f33d3b1f5d8952"
+  }
+ ],
+ "merged_into": null
+}

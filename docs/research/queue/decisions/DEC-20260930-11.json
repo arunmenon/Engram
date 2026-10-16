@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260930-11",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260930T034502Z-7f81",
+ "created_at": "2026-09-30T04:03:39Z",
+ "idempotency_key": "decision:PC-SURVEY-20260929-03:recommended:none",
+ "card_id": "PC-SURVEY-20260929-03",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "No register belief covers link maintenance, so it decides a priority 3 design: whether a trace link is re-checked by Jev with labelled neighbour links (the TVR recipe that raised invalid-F1 from 29% to 94% in one project) or simply flagged when either end changes, which is H10(a)'s first test applied to links. Now, because the PDLC layer plans to import tool links of which roughly one in ten may be wrong, and this spec shares SpecMine data and labelling with E-20260930-04.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260930-05",
+   "file_id": "1ovIduD8hpVlBjPhVzDI67BYh_ulI-s6c",
+   "sha256": "ff4658912dc47ba152c94775cba1f846fb9858e142fa45ff590ce9db4f510b10"
+  }
+ ],
+ "merged_into": null
+}

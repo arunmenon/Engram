@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20261004-01",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20261004T034505Z-4283",
+ "created_at": "2026-10-04T04:00:00Z",
+ "idempotency_key": "decision:PC-20261004-01:rejected:none",
+ "card_id": "PC-20261004-01",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "rejected",
+ "reason": "No baseline: the note (N-20261004-04, builder report with no released data, model or test protocol) shows teacher self-agreement as a diagnostic and says low-agreement question types were dropped, but never compares a model fine-tuned on filtered labels against one fine-tuned on unfiltered labels, so the card's 5-point macro F1 margin has no source; the test also depends on an open-model fine-tuning recipe and labelled link sets that E-20260928-12-r2 and E-20261002-01-r2 have not yet produced. Re-raise as an added arm (self-agreement filter vs none, equal size) inside E-20260928-12-r2 once its recipe is frozen; per-type teacher self-agreement is worth recording in that spec's stage 0.",
+ "input_refs": [
+  {
+   "artifact_id": "N-20261004-04",
+   "file_id": "1VTKGeHhONPGkp7pQq0Eh7QG9ndRdwnXU",
+   "sha256": "d57273bee0ecc508413a40c034419d097205f087d388e97bd3e0be0ac47b50fa"
+  }
+ ],
+ "merged_into": null
+}

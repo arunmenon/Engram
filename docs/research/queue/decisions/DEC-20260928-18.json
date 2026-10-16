@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-18",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T150938Z-c200",
+ "created_at": "2026-09-28T15:19:22Z",
+ "idempotency_key": "decision:PC-20260927-04:recommended:DEC-20260928-01",
+ "card_id": "PC-20260927-04",
+ "prev_decision_id": "DEC-20260928-01",
+ "expected_prior_status": "recommended",
+ "status": "recommended",
+ "reason": "Revision E-20260928-01-r2 answers REV-20260928-03: it corrects the source effect to 13.3 points, gives every main arm identical artifact bytes plus a same-length unlabelled ledger arm, adds an unknown label, keeps eval-only data from the labeller and executor, adds a leakage preflight, and makes pass, fail and inconclusive rules disjoint with recomputed power (60 to 96 tasks). It can move B8's typed-structure clause (working) now, before Track B freezes the read surface.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-01-r2",
+   "file_id": "1o6tXfgZYJCyLVyC3W7OJdjAahKEIBWKA",
+   "sha256": "44db007baa66f2c484d4197e56a04b266f7ec96f384d1c098086b23d8005ecf6"
+  }
+ ],
+ "merged_into": null
+}

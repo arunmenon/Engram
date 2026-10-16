@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "artifact_id": "DEC-20260928-14",
+ "artifact_type": "decision",
+ "producer": "hypotheses",
+ "run_id": "hypotheses-20260928T072636Z-be64",
+ "created_at": "2026-09-28T07:30:45Z",
+ "idempotency_key": "decision:PC-SURVEY-20260928-03:recommended:none:renumbered-from-DEC-20260928-04",
+ "card_id": "PC-SURVEY-20260928-03",
+ "prev_decision_id": null,
+ "expected_prior_status": "proposed",
+ "status": "recommended",
+ "reason": "Can move working belief B23 (RRF k=60 as a reasonable baseline), which the source contradicts on every dataset it reports, and protects B8 by checking whether H2's graph-lift verdict changes sign under a tuned fusion. Now, because H2 is the plan's stop-and-rewrite point and this costs three extra sweeps on its harness (S) before its verdict is read.",
+ "input_refs": [
+  {
+   "artifact_id": "E-20260928-09",
+   "file_id": "1KmY1-R11khlHowk7A9l-IMTaYwroZ-Yb",
+   "sha256": "22a7e4cde786febdf77f43ea57308272cf798742e50c3b696d1fd9c70231bb0d"
+  }
+ ],
+ "merged_into": null
+}

@@ -197,5 +197,3 @@ Other caveats: calibration is asserted, not measured on these pages; cookbook nu
 - Measured calibration (ECE or reliability curves) of Noul outputs on memory-type questions: not stated.
 - Whether per-question accuracy degrades when many Nouls share one request: the docs say answers do not change with batching (parallel questions cookbook), but that page was not fetched here; only its summary lines were read.
 - Exact server-side limits on the number of questions per request: not stated on the pages read (LintPal caps itself at 128 per batch by default, 1024 hard).
-
----

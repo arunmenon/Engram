@@ -51,5 +51,3 @@
 ## Open questions
 
 - None raised by the blog itself. The open questions (ablations, LongMemEval, cost per query, threshold transfer) are listed in the paper note.
-
----
