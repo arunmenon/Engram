@@ -12,12 +12,26 @@ from uuid import NAMESPACE_URL, uuid5
 from engram_goal03_implementation_demo import fixture_observations
 
 
+def decoded_snapshot_cell(value):
+    """Use the storage codec for both live cells and serialized evidence."""
+    from context_graph.adapters.spanner.log import json_value
+
+    return json_value(
+        value if hasattr(value, "serialize") or isinstance(value, str) else json.dumps(value)
+    )
+
+
 def recovery_documents(state, inputs):
     """Reconstruct the unchanged accepted input window, including read positions."""
     from context_graph.domain.models import Event
 
-    ledger = {row[0]: row[1] for row in state["events"]}
-    nodes = {row[1]: row[2] for row in state["nodes"] if row[0] == "Event"}
+    ledger = {row[0]: decoded_snapshot_cell(row[1]) for row in state["events"]}
+    nodes = {row[1]: decoded_snapshot_cell(row[2]) for row in state["nodes"] if row[0] == "Event"}
+    acceptances = {
+        row[0]: decoded_snapshot_cell(row[2])
+        for row in state["events"]
+        if len(row) > 2 and row[2] is not None
+    }
     documents = []
     for expected in inputs:
         eid = expected["event_id"]
@@ -28,6 +42,8 @@ def recovery_documents(state, inputs):
             update={"global_position": None}
         ) or actual.get("payload") != expected.get("payload"):
             raise ValueError("Recovery source differs from the frozen accepted input")
+        if eid in acceptances:
+            actual["acceptance"] = acceptances[eid]
         actual["global_position"] = nodes[eid]["global_position"]
         documents.append(actual)
     return documents
@@ -42,17 +58,21 @@ def verified_recovered_user_receipt(state, group):
     from context_graph.domain.models import Event
     from context_graph.domain.user_extraction import receipt_from_event
 
-    documents = recovery_documents(state, group["recover_user_inputs"])
+    inputs = group.get("recover_user_inputs") or group["verify_user_inputs"]
+    documents = recovery_documents(state, inputs)
     event = Event.model_validate(documents[-1], strict=False)
-    props = next(r[2] for r in state["nodes"] if r[0] == "Event" and r[1] == str(event.event_id))
+    props = decoded_snapshot_cell(
+        next(r[2] for r in state["nodes"] if r[0] == "Event" and r[1] == str(event.event_id))
+    )
     receipt = receipt_from_event(event, props)
     if (
         not receipt
         or props.get("user_extraction_owner") != "user:" + event.agent_id
+        or props.get("user_extraction_status") != "applied"
         or receipt["status"] != "applied"
         or receipt["input_event_ids"] != [r["event_id"] for r in documents]
         or receipt["input_hash"] != group["recovery_input_hash"]
-        or recovery_input_hash(state, group["recover_user_inputs"]) != group["recovery_input_hash"]
+        or recovery_input_hash(state, inputs) != group["recovery_input_hash"]
     ):
         raise ValueError("Recovered User receipt differs from its frozen source window")
     return receipt

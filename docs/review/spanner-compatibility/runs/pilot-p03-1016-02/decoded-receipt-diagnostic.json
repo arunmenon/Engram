@@ -1,0 +1,86 @@
+{
+  "verdict": "diagnostic only; later public read checkpoint required",
+  "receipt": {
+    "corrections": [],
+    "effective_at": "2026-10-16T09:49:23.350217+00:00",
+    "input_event_ids": [
+      "051ee6f0-4335-597a-bc7c-e01d34f5c51b",
+      "8b324c6f-56ed-5496-aa62-3fff56db6c71"
+    ],
+    "input_hash": "6bda0071ef38a16cafbd23f8bd45d427f28dda8c1f40864d643764bf5eabc2e0",
+    "owner": "user:pilot-p03-1016-01:owner:paraphrase",
+    "result": {
+      "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+      "entities": [
+        {
+          "confidence": 0.99,
+          "entity_type": "user",
+          "name": "Tara",
+          "source_quote": "My name is Tara",
+          "source_turn_index": null
+        }
+      ],
+      "interests": [],
+      "model_id": "gpt-6-luna",
+      "persona": {
+        "communication_style": "Prefers concise, practical guidance",
+        "name": "Tara",
+        "role": null,
+        "source_quote": "My name is Tara. Long walls of text are hard for me to use",
+        "support_event_ids": [
+          "051ee6f0-4335-597a-bc7c-e01d34f5c51b"
+        ],
+        "tech_level": null
+      },
+      "preferences": [
+        {
+          "about_entity": "communication style",
+          "category": "communication",
+          "confidence": 0.95,
+          "context": "Prefers short responses over long blocks of text.",
+          "key": "concise_responses",
+          "polarity": "positive",
+          "preference_id": "preference:831883f63c6e895e92fb147d7ff6e931f6e35b32fe3e98fb0736b01047afe35d",
+          "scope": "global",
+          "scope_id": null,
+          "source": "explicit",
+          "source_quote": "Long walls of text are hard for me to use",
+          "source_turn_index": null,
+          "strength": 0.95,
+          "support_event_ids": [
+            "051ee6f0-4335-597a-bc7c-e01d34f5c51b"
+          ]
+        },
+        {
+          "about_entity": "step-by-step guidance",
+          "category": "workflow",
+          "confidence": 0.95,
+          "context": "Finds two or three practical steps more useful.",
+          "key": "two_or_three_practical_steps",
+          "polarity": "positive",
+          "preference_id": "preference:f4b9470414a35750172db654ca2a4098908725a79fcdd067ed9ab7c70c674d31",
+          "scope": "global",
+          "scope_id": null,
+          "source": "explicit",
+          "source_quote": "two or three practical steps work much better",
+          "source_turn_index": null,
+          "strength": 0.9,
+          "support_event_ids": [
+            "051ee6f0-4335-597a-bc7c-e01d34f5c51b"
+          ]
+        }
+      ],
+      "prompt_version": "v1",
+      "session_id": "pilot-p03-1016-01:story:paraphrase",
+      "skills": []
+    },
+    "result_hash": "6ef2fb969c2f0ee7996cba4838a9814906d343b1953b9bc197a527f13fd6cb71",
+    "session_id": "pilot-p03-1016-01:story:paraphrase",
+    "source_position": "2026-10-16T10:19:48.782367000Z/000000/8b324c6f-56ed-5496-aa62-3fff56db6c71",
+    "status": "applied",
+    "trigger_event_id": "8b324c6f-56ed-5496-aa62-3fff56db6c71",
+    "version": "user-extraction-v1"
+  },
+  "original_run_state": "failed",
+  "reconstruction": "bound ledger documents include acceptance and global_position; from unchanged firstphase sources"
+}

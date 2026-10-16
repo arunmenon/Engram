@@ -898,7 +898,11 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
             for step in group["steps"]:
                 status, _ = await request(tenant, "/v1/events", step["request"])
                 check(group["name"] + ":" + step["scenario"] + " admission", status == 201)
-            inputs = group.get("recover_user_inputs") or [s["request"] for s in group["steps"]]
+            inputs = (
+                group.get("recover_user_inputs")
+                or group.get("verify_user_inputs")
+                or [s["request"] for s in group["steps"]]
+            )
             source, end = [row["event_id"] for row in inputs]
             deadline = time.monotonic() + 180
             receipt = None
@@ -915,11 +919,11 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 group["name"] + " actual extraction applied",
                 bool(receipt) and receipt.get("status") == "applied",
             )
-            if group.get("recover_user_inputs"):
+            if group.get("recover_user_inputs") or group.get("verify_user_inputs"):
                 from engram_pilot_completion_fixtures import verified_recovered_user_receipt
 
                 verified_recovered_user_receipt(state, group)
-                check(group["name"] + " original pending delivery recovered", True)
+                check(group["name"] + " exact original-source applied receipt validated", True)
             extracted = receipt["result"]
             entry["extraction"] = extracted
             check(

@@ -1,0 +1,278 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    [
+      "P03 exact original Tara pending recovery, three unsubmitted attribution/absence controls, and Rust reobservation preservation. Eight new inputs; Tara submits zero new inputs."
+    ]
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "groups": [
+      {
+        "name": "user-paraphrase-recovery",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [],
+        "owner": "pilot-p03-1016-01:owner:paraphrase",
+        "session": "pilot-p03-1016-01:story:paraphrase",
+        "question": "How should an assistant format a response for Tara?",
+        "expect_user": true,
+        "expected_name": "Tara",
+        "preference_semantics": [
+          [
+            "positive",
+            [
+              "step|action",
+              "practical|two|three|short|concise"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {},
+        "recover_user_inputs": [
+          {
+            "event_id": "051ee6f0-4335-597a-bc7c-e01d34f5c51b",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350217+00:00",
+            "session_id": "pilot-p03-1016-01:story:paraphrase",
+            "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {
+              "content": "My name is Tara. Long walls of text are hard for me to use; two or three practical steps work much better."
+            }
+          },
+          {
+            "event_id": "8b324c6f-56ed-5496-aa62-3fff56db6c71",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350217+00:00",
+            "session_id": "pilot-p03-1016-01:story:paraphrase",
+            "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {}
+          }
+        ],
+        "recovery_input_hash": "9c0147b997e053701808a11fd0d94a2cf802dc6580f2bd4a5b3ce9f19e30d085"
+      },
+      {
+        "name": "user-absence",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "absence-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "f80a9ae8-f37c-5e62-a974-22a7887e9ded",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350226+00:00",
+              "session_id": "pilot-p03-1016-01:story:absence",
+              "agent_id": "pilot-p03-1016-01:owner:absence",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:absence",
+              "payload": {
+                "content": "This is a network diagnostic record. No personal preference, skill or commitment is stated."
+              }
+            }
+          },
+          {
+            "scenario": "absence-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "e043dc75-222c-5462-887e-4e03949c58ff",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350226+00:00",
+              "session_id": "pilot-p03-1016-01:story:absence",
+              "agent_id": "pilot-p03-1016-01:owner:absence",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:absence",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-01:owner:absence",
+        "session": "pilot-p03-1016-01:story:absence",
+        "question": "Do we have evidence of a personal preference or commitment?",
+        "expect_user": false,
+        "expected_name": "",
+        "preference_semantics": [],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      },
+      {
+        "name": "user-third-person",
+        "tenant": "a",
+        "user_story": true,
+        "steps": [
+          {
+            "scenario": "third-person-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "54b94661-f8fb-5a9e-bd18-54d31a94dfec",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350561+00:00",
+              "session_id": "pilot-p03-1016-01:story:third-person",
+              "agent_id": "pilot-p03-1016-01:owner:third-person",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:third-person",
+              "payload": {
+                "content": "My name is Leela. Omar prefers trains to flights. That is Omar's preference, not mine. I have not stated any travel preference."
+              }
+            }
+          },
+          {
+            "scenario": "third-person-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "3845d2ec-a295-5899-a203-e084f84e046e",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350561+00:00",
+              "session_id": "pilot-p03-1016-01:story:third-person",
+              "agent_id": "pilot-p03-1016-01:owner:third-person",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:third-person",
+              "payload": {}
+            }
+          }
+        ],
+        "queries": [],
+        "owner": "pilot-p03-1016-01:owner:third-person",
+        "session": "pilot-p03-1016-01:story:third-person",
+        "question": "What personal preferences did I actually state?",
+        "expect_user": true,
+        "expect_preferences": false,
+        "expected_name": "Leela",
+        "preference_semantics": [],
+        "diagnostic_queries": [],
+        "source_kind": "Actual model attribution control; diagnostic behavior is not a capability pass"
+      },
+      {
+        "name": "user-mercury",
+        "tenant": "a",
+        "user_story": true,
+        "steps": [
+          {
+            "scenario": "mercury-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "61a7a4b2-6f9f-5d7c-9512-115dae64fb78",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:49:22.350578+00:00",
+              "session_id": "pilot-p03-1016-01:story:mercury",
+              "agent_id": "pilot-p03-1016-01:owner:mercury",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:mercury",
+              "payload": {
+                "content": "My name is Dev. Our software project is named Mercury. The planet Mercury is a different thing. This is a description of two things, not my preference or skill."
+              }
+            }
+          },
+          {
+            "scenario": "mercury-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "a61a8ffe-df6c-58fe-9cf8-7db11faad12a",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T09:49:23.350578+00:00",
+              "session_id": "pilot-p03-1016-01:story:mercury",
+              "agent_id": "pilot-p03-1016-01:owner:mercury",
+              "trace_id": "pilot-p03-1016-01",
+              "payload_ref": "pilot-story:mercury",
+              "payload": {}
+            }
+          }
+        ],
+        "queries": [],
+        "owner": "pilot-p03-1016-01:owner:mercury",
+        "session": "pilot-p03-1016-01:story:mercury",
+        "question": "What personal preferences did I actually state?",
+        "expect_user": true,
+        "expect_preferences": false,
+        "expected_name": "Dev",
+        "preference_semantics": [],
+        "diagnostic_queries": [
+          {
+            "query": "What do we know about Mercury?",
+            "intent": "related"
+          }
+        ],
+        "source_kind": "Actual model attribution control; diagnostic behavior is not a capability pass"
+      },
+      {
+        "name": "user-rust-reobservation",
+        "tenant": "a",
+        "user_story": true,
+        "queries": [],
+        "steps": [
+          {
+            "scenario": "paraphrase-source",
+            "expected_status": 201,
+            "request": {
+              "event_id": "2b14aa69-4dc2-5270-a995-699512d948ef",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T10:35:52.563709+00:00",
+              "session_id": "pilot-p03-1016-02:story:paraphrase",
+              "agent_id": "pilot-p03-1016-02:owner:paraphrase",
+              "trace_id": "pilot-p03-1016-02",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {
+                "content": "My name is Ravi. I prefer examples written in Rust. Rust is the programming language used in these examples."
+              }
+            }
+          },
+          {
+            "scenario": "paraphrase-end",
+            "expected_status": 201,
+            "request": {
+              "event_id": "5aea561b-3929-5025-ab80-7987da5881a0",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T10:35:53.563709+00:00",
+              "session_id": "pilot-p03-1016-02:story:paraphrase",
+              "agent_id": "pilot-p03-1016-02:owner:paraphrase",
+              "trace_id": "pilot-p03-1016-02",
+              "payload_ref": "pilot-story:paraphrase",
+              "payload": {}
+            }
+          }
+        ],
+        "owner": "pilot-p03-1016-02:owner:paraphrase",
+        "session": "pilot-p03-1016-02:story:paraphrase",
+        "question": "What examples do I prefer?",
+        "expect_user": true,
+        "expected_name": "Ravi",
+        "preference_semantics": [
+          [
+            "positive",
+            [
+              "rust",
+              "example"
+            ]
+          ]
+        ],
+        "source_kind": "Actual model interpretation of distinct application context",
+        "source_expectations": {}
+      }
+    ],
+    "coverage": [
+      "P03 exact original Tara pending recovery, three unsubmitted attribution/absence controls, and Rust reobservation preservation. Eight new inputs; Tara submits zero new inputs."
+    ],
+    "limits": [
+      "Original P03 attempt remains failed. Its prior Entity metadata mutation is retained; no restoration or full-history immutability claim.",
+      "Only original Tara trigger may acquire validated receipt and owner; source and all other fields are preserved.",
+      "Mercury response is diagnostic, not a disambiguation pass. Explicit canonical correction remains separately required."
+    ]
+  },
+  "execution_mode": "selected-journeys"
+}

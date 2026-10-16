@@ -1,0 +1,58 @@
+{
+  "groups": [
+    {
+      "name": "user-paraphrase-retained-verification",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [],
+      "owner": "pilot-p03-1016-01:owner:paraphrase",
+      "session": "pilot-p03-1016-01:story:paraphrase",
+      "question": "How should an assistant format a response for Tara?",
+      "expect_user": true,
+      "expected_name": "Tara",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "step|action",
+            "practical|two|three|short|concise"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {},
+      "recovery_input_hash": "6bda0071ef38a16cafbd23f8bd45d427f28dda8c1f40864d643764bf5eabc2e0",
+      "verify_user_inputs": [
+        {
+          "event_id": "051ee6f0-4335-597a-bc7c-e01d34f5c51b",
+          "event_type": "observation.input",
+          "occurred_at": "2026-10-16T09:49:22.350217+00:00",
+          "session_id": "pilot-p03-1016-01:story:paraphrase",
+          "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+          "trace_id": "pilot-p03-1016-01",
+          "payload_ref": "pilot-story:paraphrase",
+          "payload": {
+            "content": "My name is Tara. Long walls of text are hard for me to use; two or three practical steps work much better."
+          }
+        },
+        {
+          "event_id": "8b324c6f-56ed-5496-aa62-3fff56db6c71",
+          "event_type": "system.session_end",
+          "occurred_at": "2026-10-16T09:49:23.350217+00:00",
+          "session_id": "pilot-p03-1016-01:story:paraphrase",
+          "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+          "trace_id": "pilot-p03-1016-01",
+          "payload_ref": "pilot-story:paraphrase",
+          "payload": {}
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    "Worker-free validation of original Tara applied receipt and public retrieval. Startup recovery evidence belongs to failed02; no re-ingestion or repeated model claim."
+  ],
+  "limits": [
+    "Hash reconstructed from unchanged firstphase source documents plus their stored acceptance receipts and graph source positions, matching the bound ledger read contract. Original02 incomplete reconstruction remains unchanged."
+  ]
+}

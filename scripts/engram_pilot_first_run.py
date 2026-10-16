@@ -73,7 +73,11 @@ def material_node(row, recovered_user_triggers=frozenset()):
         "Summary": {"content", "created_at"},
     }.get(row[0], set())
     if row[0] == "Event" and row[1] in recovered_user_triggers:
-        allowed = allowed | {"user_extraction_receipt", "user_extraction_owner"}
+        allowed = allowed | {
+            "user_extraction_receipt",
+            "user_extraction_owner",
+            "user_extraction_status",
+        }
     return {key: value for key, value in row[2].items() if key not in allowed}
 
 
@@ -252,7 +256,9 @@ def build_plan(args):
         names.add(group["name"])
         if not isinstance(group["steps"], list) or not isinstance(group["queries"], list):
             raise ValueError("Journey steps and queries must be lists")
-        recovery = group.get("recover_user_inputs", [])
+        recovery = group.get("recover_user_inputs") or group.get("verify_user_inputs", [])
+        if group.get("recover_user_inputs") and group.get("verify_user_inputs"):
+            raise ValueError("A User group cannot both recover and verify a prior receipt")
         if recovery and (
             not group.get("user_story")
             or group["steps"]
@@ -296,6 +302,7 @@ async def execute(args):
     if selected_groups and not getattr(args, "journeys_only", False):
         plan["scope"] = [*plan["scope"], plan["spectrum"]["coverage"]]
     recovery_groups = [g for g in selected_groups if g.get("recover_user_inputs")]
+    verified_groups = [g for g in selected_groups if g.get("verify_user_inputs")]
     source_inputs = (
         plan["events"]
         + [{"event": step["request"]} for step in spectrum_steps]
@@ -491,9 +498,17 @@ async def execute(args):
                     ["assessment-extraction", trigger_id] in previous["snapshot"]["pending"]
                     and not trigger_props.get("user_extraction_receipt")
                     and not trigger_props.get("user_extraction_owner")
+                    and not trigger_props.get("user_extraction_status")
                     and recovery_input_hash(previous["snapshot"], group["recover_user_inputs"])
                     == group["recovery_input_hash"],
                 )
+            for group in verified_groups:
+                if group["tenant"] != t:
+                    continue
+                from engram_pilot_completion_fixtures import verified_recovered_user_receipt
+
+                verified_recovered_user_receipt(previous["snapshot"], group)
+                check(group["name"] + " exact already-applied receipt at startup", True)
             existing_ids = {r[0] for r in previous["snapshot"]["events"]}
             fixture_ids = {r["event"]["event_id"] for r in plan["events"] if r["tenant"] == t}
             fixture_ids |= {
@@ -1043,7 +1058,7 @@ async def execute(args):
                     def material(row, allowed_triggers=tenant_recovery_triggers):
                         return material_node(row, allowed_triggers)
 
-                    for group in recovery_groups:
+                    for group in [*recovery_groups, *verified_groups]:
                         if group["tenant"] != t:
                             continue
                         from engram_pilot_completion_fixtures import verified_recovered_user_receipt

@@ -1,0 +1,2137 @@
+{
+  "state": "failed",
+  "execution_mode": "selected-journeys",
+  "scope": [
+    [
+      "P03 exact original Tara pending recovery, three unsubmitted attribution/absence controls, and Rust reobservation preservation. Eight new inputs; Tara submits zero new inputs."
+    ]
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "user-paraphrase-recovery exact pending source and absent prior receipt",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "user-paraphrase-recovery actual extraction applied",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": true
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final pending/DLQ empty",
+      "passed": true
+    }
+  ],
+  "requests": [],
+  "provider_calls": [
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:42:21.270071+00:00",
+      "usage": {
+        "completion_tokens": 328,
+        "prompt_tokens": 1502,
+        "total_tokens": 1830,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 1499,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "{\n  \"persona\": {\n    \"name\": \"Tara\",\n    \"role\": null,\n    \"tech_level\": null,\n    \"communication_style\": \"Prefers concise, practical guidance\",\n    \"source_quote\": \"My name is Tara. Long walls of text are hard for me to use\"\n  },\n  \"entities\": [\n    {\n      \"name\": \"Tara\",\n      \"entity_type\": \"user\",\n      \"confidence\": 0.99,\n      \"source_quote\": \"My name is Tara\"\n    }\n  ],\n  \"preferences\": [\n    {\n      \"category\": \"communication\",\n      \"key\": \"concise_responses\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.95,\n      \"confidence\": 0.99,\n      \"source\": \"explicit\",\n      \"context\": \"Prefers short responses over long blocks of text.\",\n      \"about_entity\": \"communication style\",\n      \"source_quote\": \"Long walls of text are hard for me to use\"\n    },\n    {\n      \"category\": \"workflow\",\n      \"key\": \"two_or_three_practical_steps\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.9,\n      \"confidence\": 0.99,\n      \"source\": \"explicit\",\n      \"context\": \"Finds two or three practical steps more useful.\",\n      \"about_entity\": \"step-by-step guidance\",\n      \"source_quote\": \"two or three practical steps work much better\"\n    }\n  ],\n  \"skills\": [],\n  \"interests\": []\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "051ee6f0-4335-597a-bc7c-e01d34f5c51b"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:42:43.439661+00:00",
+      "usage": {
+        "completion_tokens": 69,
+        "prompt_tokens": 648,
+        "total_tokens": 717,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice stated that she uses ResetToken and that reset tokens should expire after 15 minutes. She later corrected her preference, saying she no longer wants short answers. Afterward, the phrase \u201cFresh restarted tenant a event\u201d was submitted twice. No tools or other actions are recorded, and no outcome for those later submissions is shown.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:42:47.675234+00:00",
+      "usage": {
+        "completion_tokens": 79,
+        "prompt_tokens": 648,
+        "total_tokens": 727,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice said she uses ResetToken and initially preferred short answers; she also stated that reset tokens should expire after 15 minutes. She later corrected her answer-length preference, saying she no longer prefers short answers. No tools were used, and no implementation or verification of the token-expiry decision was recorded. Two later inputs said \u201cFresh restarted tenant a event\u201d; their significance is unclear.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:42:51.204636+00:00",
+      "usage": {
+        "completion_tokens": 45,
+        "prompt_tokens": 393,
+        "total_tokens": 438,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief that reset tokens expire after fifteen minutes, then created and marked complete a goal to implement reset expiry. The events do not show what implementation actions, if any, were performed.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:42:55.651346+00:00",
+      "usage": {
+        "completion_tokens": 47,
+        "prompt_tokens": 393,
+        "total_tokens": 440,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed the belief that reset tokens expire after fifteen minutes, then created and marked complete a goal to implement reset expiry. The events don\u2019t show what implementation work or verification, if any, was performed.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:42:58.807800+00:00",
+      "usage": {
+        "completion_tokens": 37,
+        "prompt_tokens": 219,
+        "total_tokens": 256,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob shared that he is a software engineer, prefers detailed examples, and is interested in Rust language development. The session then ended; no tools were used or actions taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:02.262886+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 219,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user introduced themselves as Bob, a software engineer interested in Rust language development who prefers detailed examples. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:04.393358+00:00",
+      "usage": {
+        "completion_tokens": 29,
+        "prompt_tokens": 223,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Tara said long text is difficult for her and that two or three practical steps work better. The session ended without further action.",
+      "state": "returned",
+      "input_event_candidates": [
+        "051ee6f0-4335-597a-bc7c-e01d34f5c51b"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:08.018303+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 223,
+        "total_tokens": 256,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Tara said long text is difficult to use and asked for two or three practical steps. The session ended; no further actions or tools were recorded.",
+      "state": "returned",
+      "input_event_candidates": [
+        "051ee6f0-4335-597a-bc7c-e01d34f5c51b"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:10.204316+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 218,
+        "total_tokens": 248,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. No tools were used, and the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:13.633056+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 218,
+        "total_tokens": 250,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. No tools were used, and no further action was taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:16.368201+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 217,
+        "total_tokens": 247,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that they are Bob, a software engineer who prefers detailed examples and is interested in Rust development. The session then ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:20.032799+00:00",
+      "usage": {
+        "completion_tokens": 44,
+        "prompt_tokens": 217,
+        "total_tokens": 261,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared their name (Bob), profession (software engineer), preference for detailed examples, and interest in Rust language development. No tools were used, and no further action was taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:22.350180+00:00",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 230,
+        "total_tokens": 268,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Ishan stated that he prefers short bullet-point actions for incident response and detailed explanations with trade-offs for design reviews. No tools were used, and no further action was recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:25.693059+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 230,
+        "total_tokens": 265,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Ishan stated a preference for short bullet-point actions during incident response and detailed explanations with trade-offs during design reviews. The session ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:27.972717+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 222,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Priya said she prefers planning tasks in the morning and had finished the investigation. The rollout remained uncertain. No tools or further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:31.450562+00:00",
+      "usage": {
+        "completion_tokens": 29,
+        "prompt_tokens": 222,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Priya said she prefers planning tasks in the morning and had finished the investigation. The rollout remained uncertain. No tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:34.887331+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 229,
+        "total_tokens": 263,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer, prefers short answers, and is interested in Rust language development. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:38.200423+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 229,
+        "total_tokens": 262,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust language development and prefers short answers. No tools were used, and no further action was taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:40.688024+00:00",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 224,
+        "total_tokens": 262,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that their name is Bob, they are a software engineer, prefer detailed examples, and are interested in Rust development. No tools were used or further actions taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:44.002658+00:00",
+      "usage": {
+        "completion_tokens": 39,
+        "prompt_tokens": 224,
+        "total_tokens": 263,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob shared that he is a software engineer, prefers detailed examples, and is interested in Rust language development. No tools were used and no further action was taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:46.580389+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 224,
+        "total_tokens": 260,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that they are a software engineer named Bob, prefer detailed examples, and are interested in Rust development. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:50.174623+00:00",
+      "usage": {
+        "completion_tokens": 42,
+        "prompt_tokens": 224,
+        "total_tokens": 266,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that their name is Bob, they are a software engineer, prefer detailed examples, and are interested in Rust language development. No tools were used, and no further action was taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:52.325526+00:00",
+      "usage": {
+        "completion_tokens": 48,
+        "prompt_tokens": 222,
+        "total_tokens": 270,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user provided a brief profile: their name is Bob, they are a software engineer, prefer detailed examples, and are interested in Rust language development. No tools were used, and no further action occurred before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:55.673238+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 222,
+        "total_tokens": 258,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob stated that he is a software engineer, prefers detailed examples, and is interested in Rust language development. No tools were used, and no further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:43:58.038713+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 222,
+        "total_tokens": 258,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice stated that she is a software engineer, prefers short answers, and is interested in Rust language development. No tools were used, and no further actions were taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:01.374483+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 222,
+        "total_tokens": 255,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer, prefers short answers, and is interested in Rust language development. No tools were used or further actions taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:03.639325+00:00",
+      "usage": {
+        "completion_tokens": 31,
+        "prompt_tokens": 226,
+        "total_tokens": 257,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob shared that he is a software engineer interested in Rust language development and prefers detailed examples. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:07.184139+00:00",
+      "usage": {
+        "completion_tokens": 37,
+        "prompt_tokens": 226,
+        "total_tokens": 263,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob shared that he is a software engineer, prefers detailed examples, and is interested in Rust language development. No tools were used or further actions taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:09.410883+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 217,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Omar shared two trip-planning preferences: he prefers trains over flights and needs extra time between connections. No planning actions were taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:13.200095+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 217,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Omar shared that he prefers trains to flights when planning trips and needs extra time between connections. No planning actions or tools were used; the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:15.702065+00:00",
+      "usage": {
+        "completion_tokens": 42,
+        "prompt_tokens": 225,
+        "total_tokens": 267,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that their name is Bob, they are a software engineer, prefer detailed examples, and are interested in Rust development. No tools were used or further actions taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:19.206326+00:00",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 225,
+        "total_tokens": 263,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob stated that he is a software engineer who prefers detailed examples and is interested in Rust development. No tools were used, and no further action was taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:21.608089+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 221,
+        "total_tokens": 255,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Maya stated that she has five years of professional Python experience and is beginning to learn Rust. No tools were used, and no further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:25.088407+00:00",
+      "usage": {
+        "completion_tokens": 44,
+        "prompt_tokens": 221,
+        "total_tokens": 265,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Maya stated that she has five years of professional Python experience and is beginning to learn Rust, but is not yet an expert. No tools were used, and no further actions occurred before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:27.602369+00:00",
+      "usage": {
+        "completion_tokens": 46,
+        "prompt_tokens": 222,
+        "total_tokens": 268,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Sam stated that they prefer reminders the evening before household appointments and that discussing a repair does not mean they have committed to doing it. No tools were used or actions taken beyond recording this information; the session then ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:31.089174+00:00",
+      "usage": {
+        "completion_tokens": 39,
+        "prompt_tokens": 222,
+        "total_tokens": 261,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Sam stated that they prefer reminders the evening before household appointments and clarified that discussing a repair does not mean committing to it. No tools were used or actions taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:33.362846+00:00",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 225,
+        "total_tokens": 263,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob stated that he is a software engineer who prefers detailed examples and is interested in Rust language development. The session ended; no tools were used and no further action was taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:36.988301+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 225,
+        "total_tokens": 255,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob shared that he is a software engineer who prefers detailed examples and is interested in Rust language development. The session ended without further action.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:39.508420+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 220,
+        "total_tokens": 253,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust language development and prefers short answers. No tools were used, and no further action was taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:42.791546+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 220,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that their name is Alice, they\u2019re a software engineer interested in Rust language development, and they prefer short answers. The session then ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:45.100168+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 226,
+        "total_tokens": 260,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob shared that he is a software engineer, prefers detailed examples, and is interested in Rust language development. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:48.451621+00:00",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 226,
+        "total_tokens": 264,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user introduced themselves as Bob, a software engineer who prefers detailed examples and is interested in Rust development. No tools were used, and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:51.028882+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 216,
+        "total_tokens": 246,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:54.682584+00:00",
+      "usage": {
+        "completion_tokens": 28,
+        "prompt_tokens": 216,
+        "total_tokens": 244,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice said she is a software engineer, prefers short answers, and is interested in Rust language development. The session then ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:44:56.945928+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 222,
+        "total_tokens": 258,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that they are Bob, a software engineer who prefers detailed examples and is interested in Rust language development. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:00.567193+00:00",
+      "usage": {
+        "completion_tokens": 37,
+        "prompt_tokens": 222,
+        "total_tokens": 259,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user introduced themselves as Bob, a software engineer who prefers detailed examples and is interested in Rust development. No tools were used or further actions taken; the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:02.869844+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 219,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice introduced herself as a software engineer interested in Rust language development and said she prefers short answers. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:06.727112+00:00",
+      "usage": {
+        "completion_tokens": 29,
+        "prompt_tokens": 219,
+        "total_tokens": 248,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice stated that she is a software engineer, prefers short answers, and is interested in Rust language development. No tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:09.203928+00:00",
+      "usage": {
+        "completion_tokens": 31,
+        "prompt_tokens": 222,
+        "total_tokens": 253,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Bob said he is a software engineer, prefers detailed examples, and is interested in Rust development. No tools were used or further actions taken.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:12.935170+00:00",
+      "usage": {
+        "completion_tokens": 37,
+        "prompt_tokens": 222,
+        "total_tokens": 259,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that their name is Bob, they are a software engineer, prefer detailed examples, and are interested in Rust language development. The session ended without further action.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:15.334859+00:00",
+      "usage": {
+        "completion_tokens": 31,
+        "prompt_tokens": 223,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer, prefers short answers, and is interested in Rust language development. The session ended without further action.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:19.186414+00:00",
+      "usage": {
+        "completion_tokens": 39,
+        "prompt_tokens": 223,
+        "total_tokens": 262,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The user shared that their name is Alice, they are a software engineer, prefer short answers, and are interested in Rust language development. No tools were used; the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:21.555064+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 220,
+        "total_tokens": 250,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:25.194082+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 220,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice introduced herself as a software engineer interested in Rust language development and said she prefers short answers. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:27.327167+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 214,
+        "total_tokens": 247,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Nila said she is researching battery recycling and prefers answers that distinguish evidence from speculation and cite sources. The session ended without any further actions or research.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:30.642782+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 214,
+        "total_tokens": 249,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Nila said she is researching battery recycling and prefers answers that distinguish evidence from speculation and cite sources. No research or other actions were recorded before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:32.844869+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 217,
+        "total_tokens": 241,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice said she is a software engineer interested in Rust development and prefers short answers. No tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:36.487555+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 217,
+        "total_tokens": 247,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer, prefers short answers, and is interested in Rust development. The session ended without further action.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:38.868746+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 222,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice said she is a software engineer interested in Rust language development and prefers short answers. No tools were used or actions taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:42.418535+00:00",
+      "usage": {
+        "completion_tokens": 29,
+        "prompt_tokens": 222,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. The session ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:45.174413+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 224,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. The session then ended; no tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T10:45:48.385885+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 224,
+        "total_tokens": 260,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice shared that she is a software engineer interested in Rust development and prefers short answers. No tools were used, and no further action was taken before the session ended.",
+      "state": "returned",
+      "input_event_candidates": []
+    }
+  ],
+  "worker_outcomes": [
+    {
+      "event_id": "8b324c6f-56ed-5496-aa62-3fff56db6c71",
+      "session_id": "pilot-p03-1016-01:story:paraphrase",
+      "outcome": "applied",
+      "event": "user_extraction_applied"
+    }
+  ],
+  "workers": [
+    {
+      "tenant": "a",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "a",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "a",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "a",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "a",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "b",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "b",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "b",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    }
+  ],
+  "limitations": [
+    "Selected groups only; entry business paths are not executed or certified by this attempt.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "Episode/summary/vector claims require corresponding selected-scenario evidence",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 53,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 7,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "spectrum": [
+    {
+      "group": "user-paraphrase-recovery",
+      "tenant": "a",
+      "steps": [],
+      "queries": []
+    }
+  ],
+  "error": {
+    "type": "UserExtractionConflictError",
+    "message": "Stored User extraction result hash differs"
+  },
+  "shutdown_errors": [],
+  "finalization_errors": [
+    {
+      "tenant": "a",
+      "type": "UserExtractionConflictError",
+      "message": "Stored User extraction result hash differs"
+    }
+  ]
+}

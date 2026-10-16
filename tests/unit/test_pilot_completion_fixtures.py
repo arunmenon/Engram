@@ -156,9 +156,19 @@ def test_recovery_receipt_requires_exact_source_window_and_owner(tmp_path):
     receipt = prepare_extraction_receipt(events[-1], events, documents, {})
     receipt["status"] = "applied"
     state["nodes"][-1][2].update(
-        user_extraction_receipt=receipt, user_extraction_owner=receipt["owner"]
+        user_extraction_receipt=receipt,
+        user_extraction_owner=receipt["owner"],
+        user_extraction_status="applied",
     )
     assert verified_recovered_user_receipt(state, group) == receipt
+    verification = {**group, "verify_user_inputs": group["recover_user_inputs"]}
+    verification.pop("recover_user_inputs")
+    path.write_text(json.dumps({"groups": [verification], "coverage": "retained verification"}))
+    assert build_plan(args)["execution_mode"] == "selected-retained-reads"
+    assert verified_recovered_user_receipt(state, verification) == receipt
+    path.write_text(json.dumps({"groups": [{**verification, **group}], "coverage": "invalid"}))
+    with pytest.raises(ValueError, match="both recover and verify"):
+        build_plan(args)
     source_before = material_node(state["nodes"][-1], {inputs[-1]["event_id"]})
     ordinary = material_node(state["nodes"][-1])
     assert "user_extraction_receipt" in ordinary
@@ -182,3 +192,76 @@ def test_recovery_receipt_requires_exact_source_window_and_owner(tmp_path):
     wrong_private_owner["nodes"][-1][2]["user_extraction_owner"] = "user:foreign"
     with pytest.raises(ValueError, match="frozen source window"):
         verified_recovered_user_receipt(wrong_private_owner, group)
+
+
+def test_recovery_validates_decoded_spanner_receipt_and_rejects_tampering():
+    from copy import deepcopy
+
+    from engram_pilot_completion_fixtures import (
+        p03_user_stories,
+        recovery_documents,
+        recovery_input_hash,
+        verified_recovered_user_receipt,
+    )
+
+    from context_graph.adapters.spanner.log import json_param
+    from context_graph.domain.user_extraction import prepare_extraction_receipt
+
+    original = next(g for g in p03_user_stories("receipt-float") if g["name"] == "user-paraphrase")
+    inputs = [s["request"] for s in original["steps"]]
+    state = {"events": [], "nodes": []}
+    for i, request in enumerate(inputs):
+        event = Event.model_validate(request, strict=False)
+        document = {**event.model_dump(mode="json"), "payload": request["payload"]}
+        state["events"].append(
+            [
+                request["event_id"],
+                json_param(document),
+                json_param({"binding_id": "test-binding", "accepted_epoch": 53}),
+            ]
+        )
+        props = {**event.model_dump(mode="json"), "global_position": f"{i + 1}-0"}
+        state["nodes"].append(["Event", request["event_id"], json_param(props)])
+    documents = recovery_documents(state, inputs)
+    assert all(d["acceptance"]["binding_id"] == "test-binding" for d in documents)
+    events = [Event.model_validate(d, strict=False) for d in documents]
+    raw = dict(
+        preferences=[
+            dict(
+                category="communication",
+                key="concise",
+                polarity="positive",
+                confidence=0.95,
+                strength=0.9,
+                source="explicit",
+                source_quote="Long walls of text are hard for me to use",
+            )
+        ]
+    )
+    receipt = prepare_extraction_receipt(events[-1], events, documents, raw)
+    receipt["status"] = "applied"
+    props.update(
+        user_extraction_receipt=receipt,
+        user_extraction_owner=receipt["owner"],
+        user_extraction_status="applied",
+    )
+    state["nodes"][-1][2] = json_param(props)
+    group = {
+        **original,
+        "recover_user_inputs": inputs,
+        "recovery_input_hash": recovery_input_hash(state, inputs),
+    }
+    assert verified_recovered_user_receipt(state, group)["result_hash"] == receipt["result_hash"]
+    saved = json.loads(json.dumps(state))
+    assert verified_recovered_user_receipt(saved, group)["result_hash"] == receipt["result_hash"]
+    changed = deepcopy(props)
+    changed["user_extraction_receipt"]["result"]["preferences"][0]["strength"] = 0.2
+    state["nodes"][-1][2] = json_param(changed)
+    with pytest.raises(ValueError, match="result hash differs"):
+        verified_recovered_user_receipt(state, group)
+
+    changed = deepcopy(props)
+    changed["user_extraction_status"] = "prepared"
+    state["nodes"][-1][2] = json_param(changed)
+    with pytest.raises(ValueError, match="frozen source window"):
+        verified_recovered_user_receipt(state, group)

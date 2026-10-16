@@ -1,0 +1,709 @@
+{
+  "revision": "23bdc60022557a69e01ddabb81f34e96c5f9bffa",
+  "checks": [
+    {
+      "path": "src/context_graph/metrics.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/tenancy.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/settings.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/evaluation.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/runtime.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/loader.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/versioning.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/__main__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/rebuild.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/metrics.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/registry.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/graph_ops.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/search.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/composed_reads.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/errors.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/user_context.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/engine.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/memory_state.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/artifacts.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/episodes.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/retrieval/atlas.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/sources/events.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/sources/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/sources/jira.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/sources/github.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/ingest.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/tenant_responses.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/rate_limit.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/app.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/tenants.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/middleware.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/dependencies.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/enrichment.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/pack_extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/consolidation.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/pack_projection.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/consumer.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/projection.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/worker/__main__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/intent.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/graph_reads.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/pack_graph.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/event_log.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/subscription.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/embedding.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/maintenance.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/health.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/llm.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/graph_backend.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/event_store.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/memory_state.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/retention.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/retrieval.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/archive.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/user_store.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/search.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/errors.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/graph_store.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ports/user_extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/intent.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/source_trust.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/event_acceptance.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_versioning.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_contracts.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_removals.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/models.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_intents.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/keyword_search.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/entity_resolution.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/feedback.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_bundle.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/consolidation.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/scoring.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_admission.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_expressions.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/query_expansion.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_projection.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pack_properties.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/reranking.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/forgetting.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/memory_actions.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/ontology.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/episodes.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/pagination.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/contradiction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/lineage.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/projection.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/ppr.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/user_extraction.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/domain/validation.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/migration/mirror.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/migration/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/migration/compare.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/migration/__main__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/graph_reads.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/store.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/ontology_schema.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/user_queries.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/pack_graph.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/maintenance.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/retrieval.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/queries.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/neo4j/errors.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/llm/client.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/llm/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/llm/intent_classifier.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/llm/request_options.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/memory/subscription.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/memory/log.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/memory/graph.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/memory/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/memory/stream.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/store.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/subscription.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/trimmer.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/indexes.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/retention.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/errors.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/embedding/service.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/embedding/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/event_acceptance.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/entity_index.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/subscription.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/commits.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/log.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/graph.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/ddl_upgrade.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/lifecycle.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/search.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/errors.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/tenant_control.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/spanner/schema.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/fs/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/fs/archive.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/gcs/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/gcs/archive.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/adapters/redis/lua/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/query.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/users.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/health.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/events.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/feedback.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/simulate.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/__init__.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/context.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/admin.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/ontology.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/artifacts.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/entities.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/webhooks.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/api/routes/lineage.py",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/packs/user.pack.yaml",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/packs/pdlc.pack.yaml",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/packs/memory.pack.yaml",
+      "passed": true
+    },
+    {
+      "path": "src/context_graph/ontology/packs/core.pack.yaml",
+      "passed": true
+    },
+    {
+      "path": "scripts/engram_pilot_first_run.py",
+      "passed": true
+    },
+    {
+      "path": "scripts/engram_pilot_model_transition.py",
+      "passed": true
+    },
+    {
+      "path": "scripts/engram_experiment_support.py",
+      "passed": true
+    },
+    {
+      "path": "scripts/engram_composition_assessment.py",
+      "passed": true
+    },
+    {
+      "path": "scripts/engram_pilot_spectrum.py",
+      "passed": true
+    },
+    {
+      "path": "scripts/engram_pilot_completion_fixtures.py",
+      "passed": true
+    }
+  ]
+}
