@@ -35,7 +35,7 @@ The thirteen retained catalog reads include an additional TestCase-scoped check.
 2. Exact ledger append and receipt/source checks passed. Tenant A appended no Events; B appended precisely the nine accepted unique Events.
 3. Prior ledger records, tenant owners, material graph content and exact old Episode membership remained intact. Permitted Summary/importance refresh is recorded separately. Both pending-delivery and dead-letter sets ended empty.
 4. All 176 recorded execution-source hashes match commit `1536ed0` in the [source audit](../review/spanner-compatibility/runs/pilot-p01-1016-07/recorded-source-audit.json).
-5. Astra accepted the final composite evidence with no technical blocker. The bounded fixture issues #69, #70 and #72 are eligible for closure; broader pilot/feature umbrellas remain open. Exact GitHub dispositions are recorded below.
+5. Astra accepted the final composite evidence with no technical blocker. The bounded fixture issues #69, #70 and #72 are closed; #63 and broader #34/#39/#41/#42 remain open. Actual comments and reread states are in the [GitHub reconciliation](../review/spanner-compatibility/runs/pilot-p01-1016-07/github-reconciliation.json).
 
 ### Reproduction
 
