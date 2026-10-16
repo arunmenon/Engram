@@ -14,6 +14,14 @@ The entry checkpoint passed 58 checks in [entry06](../review/spanner-compatibili
 
 Entry06 is historical evidence, not an exact checkout-only reproduction package: its manifest was captured with uncommitted harness/model-request changes, so its recorded Git revision alone is insufficient to reconstruct it. Do not advertise that commit as an exact replay. Spectrum01 was started from committed code; its source hashes match the pinned revision. The commands below run that improved suite with fresh Event identities, not a byte-identical replay of the earlier provider responses.
 
+## Current continuation and remaining gates
+
+Continuation04 is executing from source commit `797d261`, using the retained targets and the frozen continuation03 journey file. It is **not yet passed**. Continuation03 remains failed: its oracle wrongly required fresh model-proposal identities, despite content-hash reuse with exact new source evidence. Astra accepted the correction; each applicable source still requires persisted output, an exact evidence edge and a successful worker outcome.
+
+The remaining broad stage contains 245 input submissions: incident38, PDLC catalog161, Memory22 across both tenants, User16 and summary8. Earlier planning and connected-query evidence is preserved separately. Submission count is not journey coverage or a completion percentage.
+
+Even a broad-stage pass requires remaining boundary verdicts before full pilot acceptance: small read budgets/truncation; late Episode grouping and preserved history; dependency ordering; actual vector-search contribution; overlapping tenant identities/routing refusals; and documented extension/reproduction. Context selection, Entity ambiguity and automatic cross-session discovery need explicit limitation verdicts. Independent human reproduction cannot be claimed from an agent run. Historical migration, ANN load testing and hierarchy authorization remain separate scope.
+
 ## Journeys in the broader stage
 
 | Tenant | Inputs | What the reads must show |
@@ -35,7 +43,7 @@ The catalog stage uses normalized HTTP Event inputs, including independently aut
 
 Prerequisites must be satisfied before a write run:
 
-- This branch at commit `7c1c9d5760406280c8f8d9c2c908953014d1ab7a` for spectrum01 (or the later recorded revision for a later run); Python 3.12+, project dependencies and local embedding-model availability. Verify source hashes before execution as shown below.
+- This branch at commit `797d261` for continuation04 (or the later recorded source revision for a later run); Python 3.12+, project dependencies and local embedding-model availability. Verify source hashes before execution as shown below.
 - `gcloud` installed and authenticated with permission to impersonate `engram-experiment-sa@portiq-mvp.iam.gserviceaccount.com`.
 - Access to project `portiq-mvp`, instance `engram-experiment`, databases `engram-assess-1010a-pdlc` (A) and `engram-g07-target` (B). These are retained targets; do not reset or use unrelated databases.
 - `OPENAI_API_KEY` supplied through your local secret mechanism. Never commit it. The account must have access to `gpt-6-luna`.
@@ -51,13 +59,13 @@ python3.12 -m venv .venv
 export PYTHONPATH=src:scripts
 ```
 
-Verify the execution sources against spectrum01's manifest before a reproduction. The manifest itself is evidence added after the source commit, so obtain it from this branch's run directory:
+Verify the execution sources against continuation04's manifest before a reproduction. The manifest itself is evidence added after the source commit, so obtain it from this branch's run directory:
 
 ```sh
 .venv/bin/python - <<'PY'
 import hashlib, json
 from pathlib import Path
-manifest = json.loads(Path('docs/review/spanner-compatibility/runs/pilot-1016-spectrum-01/reproduction-manifest.json').read_text())
+manifest = json.loads(Path('docs/review/spanner-compatibility/runs/pilot-1016-continuation-04/reproduction-manifest.json').read_text())
 mismatches = [p for p, expected in manifest['source_sha256'].items()
               if hashlib.sha256(Path(p).read_bytes()).hexdigest() != expected]
 assert not mismatches, mismatches
