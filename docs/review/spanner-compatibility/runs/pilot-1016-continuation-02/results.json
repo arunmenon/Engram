@@ -1,0 +1,526 @@
+{
+  "state": "running",
+  "scope": [
+    "A-01",
+    "A-06 owner control",
+    "B02 declared chain",
+    "B06 prose proposals",
+    "C02",
+    "C06",
+    "C07",
+    "C17",
+    "Planning/revisions; connected requirement-to-deployment; incident/lesson; all28 PDLC contracts; explicit Belief/Goal lifecycles in both tenants"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "alice admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "alice-end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "bob admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "bob-end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "spec admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "requirement admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "design admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "prose admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "end admitted",
+      "passed": true,
+      "actual": 201
+    }
+  ],
+  "requests": [
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "5d156c86-b1aa-5a76-b256-f3737b87b6d5",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T03:34:30.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:alice",
+        "agent_id": "pilot-1016-continuation-02:alice",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "5d156c86-b1aa-5a76-b256-f3737b87b6d5",
+        "global_position": "2026-10-16T03:38:18.519567000Z/000000/5d156c86-b1aa-5a76-b256-f3737b87b6d5",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "e6802cc1-5702-5480-bdf8-fd141cb3dc99",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T03:34:31.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:alice",
+        "agent_id": "pilot-1016-continuation-02:alice",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:alice-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "e6802cc1-5702-5480-bdf8-fd141cb3dc99",
+        "global_position": "2026-10-16T03:38:18.817695000Z/000000/e6802cc1-5702-5480-bdf8-fd141cb3dc99",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "5c327d42-16c3-52de-9d9c-6943a25cef31",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T03:34:32.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:bob",
+        "agent_id": "pilot-1016-continuation-02:bob",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:bob",
+        "payload": {
+          "content": "My name is Bob. I am a software engineer. I prefer detailed examples. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "5c327d42-16c3-52de-9d9c-6943a25cef31",
+        "global_position": "2026-10-16T03:38:19.097743000Z/000000/5c327d42-16c3-52de-9d9c-6943a25cef31",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "739c5aa4-d7d7-52b4-aad1-852c7c1e562d",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T03:34:33.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:bob",
+        "agent_id": "pilot-1016-continuation-02:bob",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:bob-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "739c5aa4-d7d7-52b4-aad1-852c7c1e562d",
+        "global_position": "2026-10-16T03:38:19.381375000Z/000000/739c5aa4-d7d7-52b4-aad1-852c7c1e562d",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "c3212938-bfa4-52be-8bc1-7da9d99a23e7",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-16T03:34:34.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:work",
+        "agent_id": "pilot-1016-continuation-02:publisher",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:spec",
+        "payload": {
+          "doc_id": "pilot-1016-continuation-02-export",
+          "version": "1",
+          "title": "Audit CSV export",
+          "scope": "Export authorized workspace rows",
+          "acceptance_criteria": "Only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "c3212938-bfa4-52be-8bc1-7da9d99a23e7",
+        "global_position": "2026-10-16T03:38:30.501327000Z/000000/c3212938-bfa4-52be-8bc1-7da9d99a23e7",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "de611934-856f-50a6-a7a8-9c57778ee8f8",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-16T03:34:35.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:work",
+        "agent_id": "pilot-1016-continuation-02:publisher",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:requirement",
+        "payload": {
+          "spec_id": "pilot-1016-continuation-02-export",
+          "spec_version": "1",
+          "local_id": "authorization",
+          "statement": "Export only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "de611934-856f-50a6-a7a8-9c57778ee8f8",
+        "global_position": "2026-10-16T03:38:30.771119000Z/000000/de611934-856f-50a6-a7a8-9c57778ee8f8",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "0c436089-b8f7-5b00-9628-e54b8e5222db",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-16T03:34:36.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:work",
+        "agent_id": "pilot-1016-continuation-02:publisher",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:design",
+        "payload": {
+          "doc_id": "pilot-1016-continuation-02-hld",
+          "section_path": "streaming",
+          "version": "1",
+          "kind": "hld",
+          "title": "Bounded export streaming",
+          "body": "We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory. Constraint: never buffer an entire workspace.",
+          "requirements": [
+            {
+              "spec_id": "pilot-1016-continuation-02-export",
+              "spec_version": "1",
+              "local_id": "authorization"
+            }
+          ]
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "0c436089-b8f7-5b00-9628-e54b8e5222db",
+        "global_position": "2026-10-16T03:38:31.026623000Z/000000/0c436089-b8f7-5b00-9628-e54b8e5222db",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "5b458cc2-d5f8-5b71-bfcd-4c71d1f773a9",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T03:34:37.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:work",
+        "agent_id": "pilot-1016-continuation-02:publisher",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:prose",
+        "payload": {
+          "content": "For export jobs we choose bounded batches because memory is limited; avoid buffering whole workspaces. This is a proposed design choice, not evidence of a production deployment."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "5b458cc2-d5f8-5b71-bfcd-4c71d1f773a9",
+        "global_position": "2026-10-16T03:38:31.303567000Z/000000/5b458cc2-d5f8-5b71-bfcd-4c71d1f773a9",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "5ad3f066-0b55-59f5-a05a-7e4e11320ab0",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T03:34:38.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:work",
+        "agent_id": "pilot-1016-continuation-02:publisher",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "5ad3f066-0b55-59f5-a05a-7e4e11320ab0",
+        "global_position": "2026-10-16T03:38:31.548207000Z/000000/5ad3f066-0b55-59f5-a05a-7e4e11320ab0",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "5d156c86-b1aa-5a76-b256-f3737b87b6d5",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T03:34:30.589139+00:00",
+        "session_id": "pilot-1016-continuation-02:alice",
+        "agent_id": "pilot-1016-continuation-02:alice",
+        "trace_id": "pilot-1016-continuation-02",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      }
+    }
+  ],
+  "provider_calls": [
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T03:38:17.208692+00:00",
+      "usage": {
+        "completion_tokens": 63,
+        "prompt_tokens": 648,
+        "total_tokens": 711,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "Alice said she uses ResetToken and initially preferred short answers, then corrected that preference to say she no longer does. She also stated that reset tokens should expire after 15 minutes. No tools or other actions are recorded; two later inputs repeated \u201cFresh restarted tenant a event,\u201d with no recorded outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T03:38:31.236163+00:00"
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T03:38:31.340561+00:00"
+    }
+  ],
+  "worker_outcomes": [],
+  "limitations": [
+    "All other candidate journeys/probes remain unexecuted. This first checkpoint is not complete pilot acceptance.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "No Episode schedule/summary or ANN quality proof in this first checkpoint",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 53,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 7,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "workers": [
+    {
+      "tenant": "a",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "a",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "a",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "a",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "a",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "b",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "b",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "b",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    }
+  ]
+}
