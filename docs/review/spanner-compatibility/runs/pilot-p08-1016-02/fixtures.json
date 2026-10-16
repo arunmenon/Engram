@@ -1,0 +1,312 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    "P08 exact/wording/paraphrase/budgets/native vector participation/trust/absence; not ANN performance or universal discovery"
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "coverage": "P08 exact/wording/paraphrase/budgets/native vector participation/trust/absence; not ANN performance or universal discovery",
+    "groups": [
+      {
+        "name": "p08-artifacts",
+        "tenant": "b",
+        "retrieval_proof": true,
+        "steps": [],
+        "queries": [
+          {
+            "scenario": "P08 unchanged retained reads"
+          }
+        ],
+        "change": "Change:pilot/pilot-p08-1016-01/vega|7",
+        "case": "TestCase:pilot/pilot-p08-1016-01/vega|expiry",
+        "run": "TestRun:pilot-p08-1016-01",
+        "control": "Change:pilot/pilot-p08-1016-01/vega-control|7",
+        "title": "VegaLedger rejects expired reconciliation tokens",
+        "paraphrase": "Which change prevents stale credentials from being accepted during payment reconciliation?",
+        "trust_title": "OrionVault enforces archive retention duration",
+        "trusted": "Change:pilot/pilot-p08-1016-01/vega-trusted|9",
+        "untrusted": "Change:pilot/pilot-p08-1016-01/vega-untrusted|9",
+        "retained_negative_proofs": [
+          {
+            "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+            "tenant": "a",
+            "sha256": {
+              "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+              "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+              "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+            }
+          }
+        ],
+        "retained_steps": [
+          {
+            "scenario": "chain-change",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "d5291eec-b908-5369-8a9d-b048a418931b",
+              "event_type": "pdlc.change.created",
+              "occurred_at": "2026-10-16T18:00:58.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:chain",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:chain-change",
+              "payload": {
+                "repo": "pilot/pilot-p08-1016-01/vega",
+                "number": 7,
+                "title": "VegaLedger rejects expired reconciliation tokens",
+                "head_sha": "abc123"
+              }
+            }
+          },
+          {
+            "scenario": "chain-test",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "18959b58-1a84-55cf-89ee-c782091ecfe0",
+              "event_type": "pdlc.testcaserun.finished",
+              "occurred_at": "2026-10-16T18:00:58.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:chain",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:chain-test",
+              "payload": {
+                "repo": "pilot/pilot-p08-1016-01/vega",
+                "test_id": "expiry",
+                "run_id": "pilot-p08-1016-01",
+                "outcome": "failure",
+                "name": "VegaLedger rejects expired reconciliation tokens",
+                "path": "tests/test_expiry.py",
+                "commit_sha": "abc123",
+                "change_number": 7
+              }
+            }
+          },
+          {
+            "scenario": "control-change",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "a92ab36b-221d-5f16-916c-addfebd89546",
+              "event_type": "pdlc.change.created",
+              "occurred_at": "2026-10-16T18:00:58.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:control",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:control-change",
+              "payload": {
+                "repo": "pilot/pilot-p08-1016-01/vega-control",
+                "number": 7,
+                "title": "Newsletter renders the welcome banner",
+                "head_sha": "def456"
+              }
+            }
+          },
+          {
+            "scenario": "trust-trusted",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "3687db13-41f8-5605-9946-e486aab69fb6",
+              "event_type": "pdlc.change.created",
+              "occurred_at": "2026-10-16T18:00:58.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:trust",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:trust-trusted",
+              "payload": {
+                "repo": "pilot/pilot-p08-1016-01/vega-trusted",
+                "number": 9,
+                "title": "OrionVault enforces archive retention duration",
+                "head_sha": "abc123"
+              }
+            }
+          },
+          {
+            "scenario": "trust-untrusted",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "72e73acf-4a8a-5d08-b9c1-b66c34e8d437",
+              "event_type": "pdlc.change.created",
+              "occurred_at": "2026-10-16T18:00:58.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:trust",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:trust-untrusted",
+              "payload": {
+                "repo": "pilot/pilot-p08-1016-01/vega-untrusted",
+                "number": 9,
+                "title": "OrionVault enforces archive retention duration",
+                "head_sha": "abc123"
+              }
+            },
+            "role": "untrusted"
+          }
+        ],
+        "retained_negative_deliveries": [
+          {
+            "tenant": "a",
+            "request": {
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "occurred_at": "2026-10-16T12:08:58.087555+00:00",
+              "session_id": "pilot-p04-1016-01:a:memory",
+              "agent_id": "pilot-p04-1016-01:a:memory-owner",
+              "trace_id": "pilot-p04-1016-01",
+              "payload_ref": "pilot-spectrum:belief-confirmed",
+              "payload": {
+                "key": "expiry",
+                "expected_revision": 0
+              }
+            },
+            "fields": {
+              "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+              "binding_id": "tenant-isolation-1014-03-a",
+              "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+              "consumer": "projection-1",
+              "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+              "delivery_count": "1",
+              "disposition_epoch": "53",
+              "engine_revision": "tenant-isolation-v1",
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "group": "assessment-projection",
+              "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "original_stream": "Events",
+              "tenant_id": "isolation-a"
+            },
+            "expected_worker_rejection": {
+              "group": "assessment-projection",
+              "reason": "state_conflict",
+              "disposition_epoch": 53
+            }
+          }
+        ]
+      },
+      {
+        "name": "p08-vector-a",
+        "tenant": "a",
+        "retrieval_proof": true,
+        "steps": [],
+        "queries": [
+          {
+            "scenario": "P08 unchanged retained reads"
+          }
+        ],
+        "entity_name": "VegaLedger",
+        "source_id": "ce6722a4-36a1-567a-807d-fdb0c856de8e",
+        "vector_query": "VegaLedger payment reconciliation service",
+        "absent_query": "What proves QuasarNebula retention override was approved?",
+        "absent_seed": "Change:pilot/pilot-p08-1016-01/absent|999",
+        "retained_steps": [
+          {
+            "scenario": "entity-source",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "ce6722a4-36a1-567a-807d-fdb0c856de8e",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T18:01:08.932763+00:00",
+              "session_id": "pilot-p08-1016-01:a:entity",
+              "agent_id": "pilot-p08-1016-01:a:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:entity-source",
+              "payload": {
+                "content": "VegaLedger is the name of our payment reconciliation service. VegaLedger validates settlement records before posting them. This describes a software service, not a personal preference."
+              }
+            }
+          },
+          {
+            "scenario": "entity-end",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "4e9ecc29-2234-59f2-96a1-2cd537369f25",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T18:01:08.932763+00:00",
+              "session_id": "pilot-p08-1016-01:a:entity",
+              "agent_id": "pilot-p08-1016-01:a:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:entity-end",
+              "payload": {}
+            }
+          }
+        ],
+        "entity_paraphrase_query": "Which software service validates settlement records before posting them?"
+      },
+      {
+        "name": "p08-vector-b",
+        "tenant": "b",
+        "retrieval_proof": true,
+        "steps": [],
+        "queries": [
+          {
+            "scenario": "P08 unchanged retained reads"
+          }
+        ],
+        "entity_name": "OrionVault",
+        "source_id": "9c6fc01a-1935-5d54-9350-bf6bf416ae98",
+        "vector_query": "OrionVault payment reconciliation service",
+        "absent_query": "What proves QuasarNebula retention override was approved?",
+        "absent_seed": "Change:pilot/pilot-p08-1016-01/absent|999",
+        "retained_steps": [
+          {
+            "scenario": "entity-source",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "9c6fc01a-1935-5d54-9350-bf6bf416ae98",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T18:01:18.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:entity",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:entity-source",
+              "payload": {
+                "content": "OrionVault is the name of our payment reconciliation service. OrionVault validates settlement records before posting them. This describes a software service, not a personal preference."
+              }
+            }
+          },
+          {
+            "scenario": "entity-end",
+            "expected_status": 201,
+            "expected_edges": [],
+            "request": {
+              "event_id": "30123560-3f47-5aa0-954b-aea6739fa874",
+              "event_type": "system.session_end",
+              "occurred_at": "2026-10-16T18:01:18.932763+00:00",
+              "session_id": "pilot-p08-1016-01:b:entity",
+              "agent_id": "pilot-p08-1016-01:b:retrieval-owner",
+              "trace_id": "pilot-p08-1016-01",
+              "payload_ref": "pilot-p08:entity-end",
+              "payload": {}
+            }
+          }
+        ],
+        "entity_paraphrase_query": "Which software service validates settlement records before posting them?"
+      }
+    ],
+    "retained_retrieval_proof": {
+      "directory": "docs/review/spanner-compatibility/runs/pilot-p08-1016-01",
+      "sha256": {
+        "results.json": "ebc3d18b0dd6a74ae5f3722fa260efa6bcf616855904b6d4d1a1918b88a400bc",
+        "fixtures.json": "a805d60bd324cacf7eb82837b2927b27e59da19783a649bf0afab464e2ef46dd",
+        "reproduction-manifest.json": "b2aed826db6533bbb48757179fc7818981b0443fcc5efe829382d85c2a0c2bf0",
+        "recorded-source-audit.json": "cb40714bb79873b8b20270a6d3b30e6d41cd1efc2dcb79251c16e3fb66ad1437",
+        "a-final-state.json": "724ba101e29c3920d177e70a7382cbfd8494e2820836bd37fc290f2b6313e0ed",
+        "b-final-state.json": "d68e62989307ed157aba29dd19ebf8d40f59eb802a5c39a6034a2edcd5afe1ad"
+      }
+    }
+  },
+  "execution_mode": "selected-retained-reads"
+}

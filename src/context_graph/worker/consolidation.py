@@ -203,10 +203,17 @@ class ConsolidationConsumer(BaseConsumer):
             except Exception:
                 log.exception("consolidation_cycle_failed", source=source)
             else:
-                log.info("consolidation_cycle_completed", source=source)
+                log.info(
+                    "consolidation_cycle_stopped"
+                    if self._stopped
+                    else "consolidation_cycle_completed",
+                    source=source,
+                )
 
     async def _run_consolidation_cycle(self) -> None:
         """Execute a full consolidation cycle."""
+        if self._stopped:
+            return
         gm = self._graph_maintenance
 
         # Step 1: Get session event counts
@@ -229,20 +236,30 @@ class ConsolidationConsumer(BaseConsumer):
 
         # Step 2: Consolidate qualifying sessions
         for session_id, event_count in sessions_to_consolidate.items():
+            if self._stopped:
+                return
             await self._consolidate_session(session_id, event_count)
 
         # Step 2b: Create agent-level summaries
         agent_sessions: dict[str, list[str]] = {}
         for session_id in sessions_to_consolidate:
+            if self._stopped:
+                return
             agent_id = await gm.session_agent_id(session_id)
             if agent_id is not None:
                 agent_sessions.setdefault(agent_id, []).append(session_id)
 
         for agent_id, sids in agent_sessions.items():
+            if self._stopped:
+                return
             all_agent_events: list[dict[str, Any]] = []
             for sid in sids:
+                if self._stopped:
+                    return
                 all_agent_events.extend(await gm.session_events(sid, limit=1000))
 
+            if self._stopped:
+                return
             if all_agent_events:
                 agent_summary = create_summary_from_events(
                     events=all_agent_events,
@@ -265,12 +282,18 @@ class ConsolidationConsumer(BaseConsumer):
                 log.info("agent_summary_created", agent_id=agent_id, sessions=len(sids))
 
         # Step 2c: Recompute importance from centrality
+        if self._stopped:
+            return
         await self._recompute_importance_from_centrality()
 
         # Step 3: Run forgetting (retention tier enforcement)
+        if self._stopped:
+            return
         await self._run_forgetting()
 
         # Step 4: Trim the event log's hot tier + lifecycle cleanup
+        if self._stopped:
+            return
         await self._trim_event_log()
 
     async def _consolidate_session(self, session_id: str, event_count: int) -> None:
