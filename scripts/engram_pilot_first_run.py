@@ -403,6 +403,7 @@ async def execute(args):
             "engram_pilot_summary_proof.py",
             "engram_pilot_episode_history.py",
             "engram_pilot_retrieval_proof.py",
+            "engram_pilot_tenant_proof.py",
         )
     )
     revision = subprocess.run(
@@ -756,16 +757,45 @@ async def execute(args):
             limits=httpx.Limits(max_keepalive_connections=0),
         ) as http:
 
-            async def request(t, path, body=None, *, method="POST", role="api"):
+            async def request(
+                t,
+                path,
+                body=None,
+                *,
+                method="POST",
+                role="api",
+                auth_mode="normal",
+                tenant_hints=None,
+            ):
                 if role not in {"api", "admin", "untrusted"}:
                     raise ValueError("Unknown explicit pilot credential role")
                 token = {"admin": admin, "api": tokens, "untrusted": untrusted}[role][t]
-                row = {"tenant": t, "path": path, "method": method, "role": role, "input": body}
+                if auth_mode not in {"normal", "missing", "invalid", "duplicate"}:
+                    raise ValueError("Unknown explicit authentication probe")
+                headers = []
+                if auth_mode != "missing":
+                    headers.append(
+                        (
+                            "Authorization",
+                            "Bearer "
+                            + ("invalid-pilot-probe" if auth_mode == "invalid" else token),
+                        )
+                    )
+                if auth_mode == "duplicate":
+                    headers.append(("Authorization", "Bearer " + token))
+                headers.extend(("X-Tenant-ID", hint) for hint in (tenant_hints or []))
+                row = {
+                    "tenant": t,
+                    "path": path,
+                    "method": method,
+                    "role": role,
+                    "input": body,
+                    "auth_mode": auth_mode,
+                    "tenant_hints": tenant_hints or [],
+                }
                 record["requests"].append(row)
                 save()
-                response = await http.request(
-                    method, path, json=body, headers={"Authorization": "Bearer " + token}
-                )
+                response = await http.request(method, path, json=body, headers=headers)
                 try:
                     out = response.json()
                 except ValueError:
@@ -1086,6 +1116,7 @@ async def execute(args):
 
                 await execute_spectrum(
                     plan["spectrum"],
+                    evidence_directory=directory,
                     request=request,
                     check=check,
                     databases=databases,

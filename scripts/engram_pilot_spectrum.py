@@ -631,7 +631,18 @@ def discovery_eligibility(state, policy, depth):
     return matching, eligible
 
 
-async def execute(plan, *, request, check, databases, record, save, consumers, baselines=None):
+async def execute(
+    plan,
+    *,
+    request,
+    check,
+    databases,
+    record,
+    save,
+    consumers,
+    baselines=None,
+    evidence_directory=None,
+):
     """Run frozen expectations; never derive an expected artifact from output."""
     from engram_pilot_completion_fixtures import declared_dead_letters, memory_subject_snapshot
 
@@ -712,6 +723,20 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                 return state
             await asyncio.sleep(0.3)
         raise TimeoutError("Spectrum projection missing: " + step["scenario"])
+
+    if any(g.get("tenant_proof") for g in plan["groups"]):
+        from engram_pilot_tenant_proof import execute as execute_tenants
+
+        return await execute_tenants(
+            plan,
+            request=request,
+            check=check,
+            record=record,
+            save=save,
+            settle=settle,
+            databases=databases,
+            evidence_directory=evidence_directory,
+        )
 
     if any(g.get("retrieval_proof") for g in plan["groups"]):
         from engram_pilot_retrieval_proof import execute as execute_retrieval
@@ -1249,7 +1274,8 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
             )
             save()
             duplicate = (
-                step.get("duplicate") or step["request"]["event_id"] in observations_by_event
+                step.get("duplicate")
+                or (tenant, step["request"]["event_id"]) in observations_by_event
             )
             if status >= 400 or duplicate:
                 after = (await settle())[tenant]
@@ -1319,7 +1345,7 @@ async def execute(plan, *, request, check, databases, record, save, consumers, b
                 )
             assert_forbidden_edges(state, step)
             observed = observations_by_event.setdefault(
-                step["request"]["event_id"], fixture_observations(step)
+                (tenant, step["request"]["event_id"]), fixture_observations(step)
             )
             declared_ids = set(expected_nodes) | set(step.get("extra_nodes", {}))
             if step.get("expected_node"):
