@@ -1,0 +1,56 @@
+{
+ "G_sessions": 76,
+ "bucket_counts": {
+  "ambiguous": 30,
+  "no_fit": 30,
+  "obvious": 30
+ },
+ "bucket_rules": {
+  "ambiguous": "0.40 <= confidence <= 0.70 and quote in excerpt",
+  "no_fit": "quote not in session, or confidence < 0.30",
+  "obvious": "confidence >= 0.85 and quote in excerpt"
+ },
+ "built_at": "2026-09-29T03:12:30Z",
+ "candidates_total": 4764,
+ "conversations": 9,
+ "draw_rule": "within each bucket sort by sha256(item_id) hex ascending, take the first 30; skip items whose session already contributes 6 of the 90; buckets drawn in the order obvious, ambiguous, no_fit",
+ "dropped_by_client_validation_recovered": 4,
+ "dropped_for_session_cap": 0,
+ "dropped_item_note": "Engram's client drops items whose quote fails its fuzzy check before returning them; those items are recovered from the raw reply the client used (first JSON reply of the session) and enter the pool with their raw confidence (no source-type ceiling applied). Without them the recipe's no_fit bucket is nearly empty, because the returned items all passed the quote check.",
+ "excerpt_anchor_counts_chosen": {
+  "derived_verbatim_match": 60,
+  "none_whole_session": 30
+ },
+ "excerpt_rule": "3 turns before to 3 turns after the anchor turn; anchor = source_turn_index if present, else first turn containing the quote verbatim, else whole session",
+ "extracted_sha256": "a4ed53b6726f5c7646b8c38f2f98cca334658da692b987bc277f74e5aaa14a19",
+ "item_kind_counts_chosen": {
+  "interest": 29,
+  "preference": 43,
+  "skill": 18
+ },
+ "no_fit_by_fallback": 0,
+ "no_fit_by_recipe_rule": 30,
+ "no_fit_fallback_confidences": [],
+ "no_fit_fallback_rule": "the recipe's no_fit rule (quote not in session, or confidence < 0.30) matched too few items: gpt-6-astra quoted every item verbatim and scored none below 0.30; the remainder of no_fit is the lowest-confidence items not already drawn, ordered by (confidence, sha256(item_id)), same 6-per-session cap",
+ "origin_counts_by_bucket_chosen": {
+  "ambiguous": {
+   "returned": 30
+  },
+  "no_fit": {
+   "returned": 30
+  },
+  "obvious": {
+   "returned": 30
+  }
+ },
+ "origin_counts_chosen": {
+  "returned": 90
+ },
+ "pool_sizes": {
+  "ambiguous": 955,
+  "no_fit": 61,
+  "obvious": 2699
+ },
+ "returned_items": 4760,
+ "verbatim_rule": "quote found = lowercased, whitespace-collapsed quote is a substring of the lowercased, whitespace-collapsed text"
+}

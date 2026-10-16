@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(cfg["out_dir"])
     started = time.time()
     try:
-        repo_root = repo_root_from(args.manifest.resolve())
+        repo_root = repo_root_from(Path(__file__).resolve())  # the harness repo; frozen datasets live outside it
         git = require_clean_tree(repo_root, allow_dirty=args.allow_dirty)
         policy = parse_policy(Path(cfg["policy_path"]))
         require_policy_set(policy)
@@ -86,16 +86,25 @@ def main(argv: list[str] | None = None) -> int:
     calls: list[dict] = []
     stop_reason = None
 
-    def do_call(row: dict, request: dict, neighbour_text: str | None) -> None:
+    def do_call(row: dict, request: dict, neighbour_fragments: list[str] | None) -> None:
+        # Fix (executor, 2026-09-29): the check used to look for the raw newline-joined neighbour text in the
+        # JSON body, where escaping changes the bytes, so it never passed. It now looks for every neighbour
+        # fragment as JSON-escaped in the body (render.bytes_present).
         body = R.request_bytes(request)
         row.update({"request_sha256": sha256_bytes(body), "request_bytes_len": len(body),
-                    "bytes_present": (neighbour_text.encode("utf-8") in body) if neighbour_text is not None else None,
+                    "bytes_present": R.bytes_present(body, neighbour_fragments) if neighbour_fragments is not None else None,
                     "status": "rendered", "decision": None, "probabilities": None, "confidence": None,
                     "billed_input_tokens": None, "billed_output_tokens": None, "model_reported": None, "latency_ms": None, "error": None})
         if client is None:
             calls.append(row); return
         guard.check_before_call(time.time())
         res = client.call(body)
+        attempts = 1
+        while res.status == "failed" and attempts < 4:  # fast-track policy v2: retry, counted in attempts
+            time.sleep(2 ** attempts)
+            res = client.call(body)
+            attempts += 1
+        row["attempts"] = attempts
         row.update({"status": res.status, "billed_input_tokens": res.input_tokens, "billed_output_tokens": res.output_tokens,
                     "model_reported": res.model_reported, "latency_ms": round(res.latency_ms, 2), "error": res.error})
         if res.status == "ok":
@@ -129,8 +138,12 @@ def main(argv: list[str] | None = None) -> int:
                         b_text = ntext
                     elif ntext != b_text:
                         raise PreflightError(f"neighbour text differs between B and {arm} for {item['item_id']}")
-                do_call({"arm": arm, "item_id": item["item_id"], "thread_id": item["thread_id"], "kind": "item"}, req,
-                        b_text if real_arm in R.NEIGHBOUR_ARMS else None)
+                fragments = R.neighbour_fragments(req["state"].get("neighbours_text", req["state"].get("neighbours"))) \
+                    if real_arm in R.NEIGHBOUR_ARMS else None
+                # Fix (executor, 2026-09-29): carry the frozen nbr_tokens into every call row so the scorer's
+                # token check uses the pinned tokenizer count instead of the bytes/4 fallback.
+                do_call({"arm": arm, "item_id": item["item_id"], "thread_id": item["thread_id"], "kind": "item",
+                         "nbr_tokens": item.get("nbr_tokens"), "nbr_tokenizer": item.get("nbr_tokenizer")}, req, fragments)
             for probe in [x for x in probes_view if x["item_id"] == item["item_id"]]:
                 rank = 0 if probe["position"] == "p1" else 4
                 planted = list(nbrs)
@@ -138,7 +151,9 @@ def main(argv: list[str] | None = None) -> int:
                 for arm in R.NEIGHBOUR_ARMS:
                     req = R.render_request(tpl, item, arm, planted, rule, p5_landed, model)
                     do_call({"arm": arm, "item_id": item["item_id"], "thread_id": item["thread_id"], "kind": "probe",
-                             "variant": probe["variant_id"], "position": probe["position"]}, req, R.strip_labels(req["state"].get("neighbours_text", req["state"].get("neighbours"))))
+                             "variant": probe["variant_id"], "position": probe["position"],
+                             "nbr_tokens": probe.get("nbr_tokens"), "nbr_tokenizer": probe.get("nbr_tokenizer")}, req,
+                            R.neighbour_fragments(req["state"].get("neighbours_text", req["state"].get("neighbours"))))
         for canary in canaries:
             item = next(x for x in items if x["item_id"] == canary["item_id"])
             nbrs = list(item["neighbours"][:5])
@@ -146,7 +161,7 @@ def main(argv: list[str] | None = None) -> int:
                                               "originating_event_type": nbrs[canary["neighbour_rank"]].get("originating_event_type", "")}
             for arm in R.NEIGHBOUR_ARMS:
                 req = R.render_canary_request(tpl, item, arm, nbrs, canary["nonce"], rule, p5_landed, model)
-                do_call({"arm": arm, "item_id": item["item_id"], "thread_id": item["thread_id"], "kind": "canary", "nonce": canary["nonce"]}, req, canary["nonce"])
+                do_call({"arm": arm, "item_id": item["item_id"], "thread_id": item["thread_id"], "kind": "canary", "nonce": canary["nonce"]}, req, [canary["nonce"]])
     except PreflightError as exc:
         stop_reason = str(exc)
     finally:

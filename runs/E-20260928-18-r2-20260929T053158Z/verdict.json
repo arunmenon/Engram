@@ -1,0 +1,85 @@
+{
+ "contrasts": {
+  "A_paper_minus_C": {
+   "ci95_two_sided": [
+    -0.030821917808219176,
+    0.025684931506849314
+   ],
+   "discordant": 28,
+   "lb95": -0.0273972602739726,
+   "n": 292,
+   "point": -0.003424657534246575,
+   "ub95": 0.02054794520547945
+  },
+  "A_paper_minus_N": {
+   "ci95_two_sided": [
+    0.003424657534246575,
+    0.06678082191780822
+   ],
+   "discordant": 34,
+   "lb95": 0.008561643835616438,
+   "n": 292,
+   "point": 0.03424657534246575,
+   "ub95": 0.06164383561643835
+  },
+  "C_minus_N": {
+   "ci95_two_sided": [
+    0.0017123287671232876,
+    0.07534246575342465
+   ],
+   "discordant": 43,
+   "lb95": 0.00684931506849315,
+   "n": 292,
+   "point": 0.03767123287671233,
+   "ub95": 0.0702054794520548
+  }
+ },
+ "edges_inert": false,
+ "first_cut": "LoCoMo only, answer accuracy and build cost; link precision/recall need labelled pairs, arm B needs gpt-5.6-terra",
+ "jev_build": {
+  "by_type": {
+   "CAUSED_BY": 646,
+   "SAME_EPISODE": 1047,
+   "SEMANTIC": 2591
+  },
+  "calls": 918,
+  "input_tokens": 2031657,
+  "jev_edges_at_0_60": 4284,
+  "latency_ms_mean": 386.9478832062918,
+  "models_reported": [
+   "jev-1.13.0"
+  ],
+  "ok": 918,
+  "output_tokens": 551772,
+  "pairs_scored": 9090,
+  "seconds_per_1000_writes_sequential": 386.9478832062918,
+  "usd": 0.08532959400000001,
+  "usd_per_1000_writes": 0.0929516274509804,
+  "wall_s": 44.6,
+  "writes_scored": 918
+ },
+ "outcome": "inconclusive (first cut: no labelled link pairs and no LLM-linker arm B, so the link-metric rules cannot be evaluated)",
+ "summary": {
+  "A_paper": {
+   "accuracy": 0.583904109589041,
+   "adversarial_cat5": 0.65625,
+   "answerable_cat1_4": 0.5635964912280702,
+   "mean_served_tokens": 3981.9931506849316,
+   "n": 292
+  },
+  "C": {
+   "accuracy": 0.5873287671232876,
+   "adversarial_cat5": 0.734375,
+   "answerable_cat1_4": 0.5460526315789473,
+   "mean_served_tokens": 3980.359589041096,
+   "n": 292
+  },
+  "N": {
+   "accuracy": 0.5496575342465754,
+   "adversarial_cat5": 0.671875,
+   "answerable_cat1_4": 0.5153508771929824,
+   "mean_served_tokens": 3981.6917808219177,
+   "n": 292
+  }
+ }
+}

@@ -51,6 +51,7 @@ class TypeSafeClient:
                 "Authorization": f"Bearer {self._api_key}",
                 "Content-Type": "application/json",
                 "Accept": "application/json",
+                "User-Agent": "memory-rsi-signals/1.0 (research harness)",
             },
         )
         digest = sha256_bytes(body)

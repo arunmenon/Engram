@@ -1,0 +1,17 @@
+{
+ "better_than_noise": false,
+ "ece_ok": false,
+ "exploratory": "90 items, G = 76; test half is about 45 items, so bounds are wide",
+ "f1_difference_lb95": -0.09035901573215,
+ "f1_test": {
+  "confidence": 0.8235294117647058,
+  "jev": 0.810126582278481
+ },
+ "gate_score": "Jev jev-1.13.0 P(supports), current H5 wording (N aligned, run 1, canonical order), from the naming-audit run",
+ "hypothesis": "H5 (discovery plan): independent typed gate beats extractor self-reported confidence",
+ "jev_ece_test": 0.3062499999999999,
+ "kill_rule": "killed if test-half F1(Jev) - F1(confidence) has one-sided 95% lower bound <= 0, or Jev test-half ECE > 0.15",
+ "labels": "model labels (Claude labels, Codex review, max 3 rounds), used as gold per policy v2",
+ "primary_fold": "A_primary",
+ "verdict": "killed"
+}

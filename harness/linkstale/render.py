@@ -124,5 +124,28 @@ def strip_labels(rendered) -> str:
     return "\n\n".join(texts)
 
 
+def neighbour_fragments(rendered) -> list[str]:
+    """The neighbour strings exactly as they sit in the request state (one per text or sentence)."""
+    if isinstance(rendered, str):
+        return [rendered]
+    fragments = []
+    for n in rendered:
+        if "text" in n:
+            fragments.append(n["text"])
+        else:
+            fragments.extend(s["text"] for s in n["sentences"])
+    return fragments
+
+
+def json_escaped(text: str) -> bytes:
+    """The bytes a string takes inside a JSON body serialised by request_bytes (quotes stripped)."""
+    return json.dumps(text, ensure_ascii=False)[1:-1].encode("utf-8")
+
+
+def bytes_present(body: bytes, fragments: list[str]) -> bool:
+    """Delivery check: every neighbour fragment, JSON-escaped, is present in the request body."""
+    return all(json_escaped(fragment) in body for fragment in fragments)
+
+
 def request_bytes(request: dict) -> bytes:
     return json.dumps(request, separators=(",", ":"), ensure_ascii=False).encode("utf-8")

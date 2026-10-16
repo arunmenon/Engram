@@ -29,3 +29,15 @@ def test_arms_share_question_and_neighbour_text():
     c2 = reqs["C2"]["state"]["neighbours"][0]
     assert c2["source_class"] == "user-stated"
     assert any(s["unverified"] for s in c2["sentences"])
+
+
+def test_bytes_present_uses_json_escaping_and_detects_loss():
+    from linkstale import render as R
+    fragments = ["line one\nline \"two\"", "third\tpart"]
+    body = R.request_bytes({"state": {"neighbours_text": "\n\n".join(fragments)}})
+    assert fragments[0].encode("utf-8") not in body  # the old raw check could never pass
+    assert R.bytes_present(body, ["\n\n".join(fragments)])
+    structured = R.request_bytes({"state": {"neighbours": [{"text": fragments[0]}, {"sentences": [{"text": fragments[1]}]}]}})
+    assert R.bytes_present(structured, R.neighbour_fragments([{"text": fragments[0]}, {"sentences": [{"text": fragments[1]}]}]))
+    dropped = R.request_bytes({"state": {"neighbours": [{"text": fragments[0]}]}})
+    assert not R.bytes_present(dropped, fragments)

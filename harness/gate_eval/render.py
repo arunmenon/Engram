@@ -150,7 +150,19 @@ def map_answer(template: dict, cell: Cell, answer: dict) -> dict:
 
 
 def name_token_delta(names_a: list[str], names_b: list[str]) -> int:
-    """Crude local token-count difference of the name strings (whitespace/punct split)."""
-    def count(names: list[str]) -> int:
-        return sum(max(1, len(n.replace("-", " ").split())) for n in names)
+    """Local token-count difference of the name strings.
+
+    Uses tiktoken o200k_base when installed (Jev's tokenizer is not published; o200k is the
+    local stand-in). Without tiktoken it falls back to a whitespace/punctuation split, which
+    counts a random 6-character name as one token and so under-allows the neutral set
+    (found in the 2026-09-29 run: 5 billed tokens against an allowance of 4)."""
+    try:
+        import tiktoken
+        encoding = tiktoken.get_encoding("o200k_base")
+
+        def count(names: list[str]) -> int:
+            return sum(len(encoding.encode(n)) for n in names)
+    except ImportError:
+        def count(names: list[str]) -> int:
+            return sum(max(1, len(n.replace("-", " ").split())) for n in names)
     return abs(count(names_a) - count(names_b))

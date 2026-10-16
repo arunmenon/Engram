@@ -1,0 +1,54 @@
+{
+ "bundle": {
+  "cross_encoder_tokens": {
+   "blindkw": 7496204,
+   "frozenkw": 7114568
+  },
+  "dataset": "CODEQ-ASF-80",
+  "dataset_manifest_sha256": "78b9bcded3395c1dad4b61ac64f591998f713ce21e2568dc7f6dee7b948c44b0",
+  "ended_at": "2026-09-29T06:24:00Z",
+  "finalised_at": "2026-09-29T06:26:14Z",
+  "harness_commit": "f49b114a7d89b8fdb5676f43329719e17d8f645f",
+  "jev": {
+   "blindkw": {
+    "input_tokens": 6153757,
+    "requests": 1540,
+    "usd": 0.2585
+   },
+   "frozenkw": {
+    "input_tokens": 5424443,
+    "requests": 1416,
+    "usd": 0.2278
+   }
+  },
+  "labels": "model labels (Claude wrote questions, keywords, spans; Codex reviewed, max 3 rounds), used as gold per policy v2",
+  "model_pins": {
+   "blind_keywords": "claude-sonnet-5-5 via claude -p",
+   "cross_encoder": "BAAI/bge-reranker-v2-m3 @953dc6f6 (fp16, 512 tokens)",
+   "jev": "jev-1.13.0"
+  },
+  "run_id": "E-20260928-19-r2-20260929T043953Z",
+  "spec_file_id": "10U8ANYBZSWqSp-CUHW-zRb7Dd9vDxkxL",
+  "spec_id": "E-20260928-19-r2",
+  "spec_sha256": "ed836cca0e8850acdb57b916086b2b31d82dcdd51c8b9fa9f576b55b723a5399",
+  "started_at": "2026-09-29T04:39:53Z",
+  "status": "complete",
+  "usd_basis": "genigrep's billed-token cost (0.042 USD per million input tokens); cross-encoder local; keyword writing: 80 claude -p calls, not metered; about 0.23 USD per call on a probe, so roughly 18 USD (estimate)",
+  "usd_total_estimate": 0.486
+ },
+ "cross_encoder": "BAAI/bge-reranker-v2-m3 @953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e (float16 on MPS, max_length 512)",
+ "dataset_manifest_sha256": "78b9bcded3395c1dad4b61ac64f591998f713ce21e2568dc7f6dee7b948c44b0",
+ "ended_at": "2026-09-29T06:24:00Z",
+ "engine_config_sha256": "f075a3cd1fed2817b974523a3daa63e474b8a0237c2110ab51b849fc62a6b728",
+ "genigrep_commit": "da10c5e82845356cebc5b8f918389d0025f08eaf",
+ "harness_commit": "f49b114a7d89b8fdb5676f43329719e17d8f645f",
+ "jev_model": "jev-1.13.0",
+ "repo_commit": "5af2bd77c325fa4cb4e0940f31c30705c16382d6",
+ "repository": "apache/opendal",
+ "spec": "E-20260928-19-r2",
+ "started_at": "2026-09-29T04:39:53Z",
+ "variants": [
+  "blindkw (primary)",
+  "frozenkw (secondary, invalid by keyword-author rule)"
+ ]
+}
