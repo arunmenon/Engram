@@ -83,7 +83,7 @@ def freeze(run_id):
                 control=episode(control, [records[2]]),
                 merged=episode(primary, [records[0], records[1], records[3]]),
                 reflection_threshold=5,
-                phase_wait_seconds=600,
+                phase_wait_seconds=1200,
                 source_kind="Activity at 0/40 minutes; late event at 20 minutes after publication",
             )
         )

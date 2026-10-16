@@ -1,0 +1,324 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    "P06 Episode bridging and preserved membership history on both tenants"
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "coverage": "P06 Episode bridging and preserved membership history on both tenants",
+    "groups": [
+      {
+        "name": "a-episode-bridge",
+        "tenant": "a",
+        "episode_bridge": true,
+        "owner": "pilot-p06-1016-01:a:episode-owner",
+        "session": "pilot-p06-1016-01:a:episode-session",
+        "control_session": "pilot-p06-1016-01:a:episode-session:unrelated",
+        "steps": [
+          {
+            "scenario": "first",
+            "request": {
+              "event_id": "148398d8-e5d8-5597-afb3-6645929cd51f",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T11:28:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:a:episode-session",
+              "agent_id": "pilot-p06-1016-01:a:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:first",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          },
+          {
+            "scenario": "later",
+            "request": {
+              "event_id": "d108ba71-5563-5036-913d-ead333ff903e",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T12:08:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:a:episode-session",
+              "agent_id": "pilot-p06-1016-01:a:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:later",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          },
+          {
+            "scenario": "control",
+            "request": {
+              "event_id": "2d0030b5-c678-5736-add3-5dfdb53b45e3",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T11:28:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:a:episode-session:unrelated",
+              "agent_id": "pilot-p06-1016-01:a:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:control",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          },
+          {
+            "scenario": "bridge",
+            "request": {
+              "event_id": "b903c7bf-68ee-50c2-ac9e-18e660ea2b67",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T11:48:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:a:episode-session",
+              "agent_id": "pilot-p06-1016-01:a:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:bridge",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          }
+        ],
+        "queries": [],
+        "initial": [
+          {
+            "id": "episode-5ee320b0d8ddce93d7ccedf938b15aa8218efd9a4a6b8ed3098cc972fae188fb",
+            "summary": "summary-episode-5ee320b0d8ddce93d7ccedf938b15aa8218efd9a4a6b8ed3098cc972fae188fb-33d49d1e24dc",
+            "session": "pilot-p06-1016-01:a:episode-session",
+            "members": [
+              "148398d8-e5d8-5597-afb3-6645929cd51f"
+            ],
+            "start": "2026-10-16T11:28:19.613620+00:00",
+            "end": "2026-10-16T11:28:19.613620+00:00",
+            "anchor": "148398d8-e5d8-5597-afb3-6645929cd51f"
+          },
+          {
+            "id": "episode-1ed84e56fba49654d5adb38a08181de17a1a1fdc8e8e6062cc60fb646e9c7f2e",
+            "summary": "summary-episode-1ed84e56fba49654d5adb38a08181de17a1a1fdc8e8e6062cc60fb646e9c7f2e-3c0750c2b952",
+            "session": "pilot-p06-1016-01:a:episode-session",
+            "members": [
+              "d108ba71-5563-5036-913d-ead333ff903e"
+            ],
+            "start": "2026-10-16T12:08:19.613620+00:00",
+            "end": "2026-10-16T12:08:19.613620+00:00",
+            "anchor": "d108ba71-5563-5036-913d-ead333ff903e"
+          }
+        ],
+        "control": {
+          "id": "episode-7db366ad8a1cf2b4eb7dfd1eb09b90096f0ba1e9bc919900e519b87033e503b9",
+          "summary": "summary-episode-7db366ad8a1cf2b4eb7dfd1eb09b90096f0ba1e9bc919900e519b87033e503b9-de5df52466b4",
+          "session": "pilot-p06-1016-01:a:episode-session:unrelated",
+          "members": [
+            "2d0030b5-c678-5736-add3-5dfdb53b45e3"
+          ],
+          "start": "2026-10-16T11:28:19.613620+00:00",
+          "end": "2026-10-16T11:28:19.613620+00:00",
+          "anchor": "2d0030b5-c678-5736-add3-5dfdb53b45e3"
+        },
+        "merged": {
+          "id": "episode-79159e6c33915f595960025d456fd90a0c1ba9a7285ec14ce445effdad0367dc",
+          "summary": "summary-episode-79159e6c33915f595960025d456fd90a0c1ba9a7285ec14ce445effdad0367dc-72e7e6717da7",
+          "session": "pilot-p06-1016-01:a:episode-session",
+          "members": [
+            "148398d8-e5d8-5597-afb3-6645929cd51f",
+            "b903c7bf-68ee-50c2-ac9e-18e660ea2b67",
+            "d108ba71-5563-5036-913d-ead333ff903e"
+          ],
+          "start": "2026-10-16T11:28:19.613620+00:00",
+          "end": "2026-10-16T12:08:19.613620+00:00",
+          "anchor": "148398d8-e5d8-5597-afb3-6645929cd51f"
+        },
+        "reflection_threshold": 5,
+        "phase_wait_seconds": 600,
+        "source_kind": "Activity at 0/40 minutes; late event at 20 minutes after publication",
+        "retained_negative_proofs": [
+          {
+            "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+            "tenant": "a",
+            "sha256": {
+              "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+              "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+              "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+            }
+          }
+        ],
+        "retained_negative_deliveries": [
+          {
+            "tenant": "a",
+            "request": {
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "occurred_at": "2026-10-16T12:08:58.087555+00:00",
+              "session_id": "pilot-p04-1016-01:a:memory",
+              "agent_id": "pilot-p04-1016-01:a:memory-owner",
+              "trace_id": "pilot-p04-1016-01",
+              "payload_ref": "pilot-spectrum:belief-confirmed",
+              "payload": {
+                "key": "expiry",
+                "expected_revision": 0
+              }
+            },
+            "fields": {
+              "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+              "binding_id": "tenant-isolation-1014-03-a",
+              "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+              "consumer": "projection-1",
+              "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+              "delivery_count": "1",
+              "disposition_epoch": "53",
+              "engine_revision": "tenant-isolation-v1",
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "group": "assessment-projection",
+              "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "original_stream": "Events",
+              "tenant_id": "isolation-a"
+            },
+            "expected_worker_rejection": {
+              "group": "assessment-projection",
+              "reason": "state_conflict",
+              "disposition_epoch": 53
+            }
+          }
+        ]
+      },
+      {
+        "name": "b-episode-bridge",
+        "tenant": "b",
+        "episode_bridge": true,
+        "owner": "pilot-p06-1016-01:b:episode-owner",
+        "session": "pilot-p06-1016-01:b:episode-session",
+        "control_session": "pilot-p06-1016-01:b:episode-session:unrelated",
+        "steps": [
+          {
+            "scenario": "first",
+            "request": {
+              "event_id": "e4468899-acf7-56d9-b3f8-88399179db62",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T11:28:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:b:episode-session",
+              "agent_id": "pilot-p06-1016-01:b:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:first",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          },
+          {
+            "scenario": "later",
+            "request": {
+              "event_id": "03f205a7-fb95-5026-a056-028c930bb161",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T12:08:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:b:episode-session",
+              "agent_id": "pilot-p06-1016-01:b:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:later",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          },
+          {
+            "scenario": "control",
+            "request": {
+              "event_id": "aaaaa496-6f15-5330-9d26-e5d6df31c9dc",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T11:28:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:b:episode-session:unrelated",
+              "agent_id": "pilot-p06-1016-01:b:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:control",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          },
+          {
+            "scenario": "bridge",
+            "request": {
+              "event_id": "f84020d8-3722-5468-be44-918c47ea5124",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T11:48:19.613620+00:00",
+              "session_id": "pilot-p06-1016-01:b:episode-session",
+              "agent_id": "pilot-p06-1016-01:b:episode-owner",
+              "trace_id": "pilot-p06-1016-01",
+              "payload_ref": "pilot-p06:bridge",
+              "payload": {
+                "content": "The operator recorded rollout progress. This is activity history, not a goal completion."
+              }
+            },
+            "expected_status": 201
+          }
+        ],
+        "queries": [],
+        "initial": [
+          {
+            "id": "episode-da958b9abf5338ef5b5c0f4922cfc8b1cc1aed55c2e2c49924ed7f7c8ed7af8a",
+            "summary": "summary-episode-da958b9abf5338ef5b5c0f4922cfc8b1cc1aed55c2e2c49924ed7f7c8ed7af8a-68324dd794db",
+            "session": "pilot-p06-1016-01:b:episode-session",
+            "members": [
+              "e4468899-acf7-56d9-b3f8-88399179db62"
+            ],
+            "start": "2026-10-16T11:28:19.613620+00:00",
+            "end": "2026-10-16T11:28:19.613620+00:00",
+            "anchor": "e4468899-acf7-56d9-b3f8-88399179db62"
+          },
+          {
+            "id": "episode-0cbfc57be5d19a8bbcbee2389b44c45c89b5024953541dd8eeaf3f95a795b2c5",
+            "summary": "summary-episode-0cbfc57be5d19a8bbcbee2389b44c45c89b5024953541dd8eeaf3f95a795b2c5-b6e6d8167cee",
+            "session": "pilot-p06-1016-01:b:episode-session",
+            "members": [
+              "03f205a7-fb95-5026-a056-028c930bb161"
+            ],
+            "start": "2026-10-16T12:08:19.613620+00:00",
+            "end": "2026-10-16T12:08:19.613620+00:00",
+            "anchor": "03f205a7-fb95-5026-a056-028c930bb161"
+          }
+        ],
+        "control": {
+          "id": "episode-9504f5307df7ba4fc9351d0040f1871d2cd540e6f7bb6310f03fa6a598981840",
+          "summary": "summary-episode-9504f5307df7ba4fc9351d0040f1871d2cd540e6f7bb6310f03fa6a598981840-4918d4eb7dac",
+          "session": "pilot-p06-1016-01:b:episode-session:unrelated",
+          "members": [
+            "aaaaa496-6f15-5330-9d26-e5d6df31c9dc"
+          ],
+          "start": "2026-10-16T11:28:19.613620+00:00",
+          "end": "2026-10-16T11:28:19.613620+00:00",
+          "anchor": "aaaaa496-6f15-5330-9d26-e5d6df31c9dc"
+        },
+        "merged": {
+          "id": "episode-73c2971cec459a1be3ba9f9c8694ffc236afee2d01980a18dcc3d2f96a09fa58",
+          "summary": "summary-episode-73c2971cec459a1be3ba9f9c8694ffc236afee2d01980a18dcc3d2f96a09fa58-b50c3380e19d",
+          "session": "pilot-p06-1016-01:b:episode-session",
+          "members": [
+            "03f205a7-fb95-5026-a056-028c930bb161",
+            "e4468899-acf7-56d9-b3f8-88399179db62",
+            "f84020d8-3722-5468-be44-918c47ea5124"
+          ],
+          "start": "2026-10-16T11:28:19.613620+00:00",
+          "end": "2026-10-16T12:08:19.613620+00:00",
+          "anchor": "e4468899-acf7-56d9-b3f8-88399179db62"
+        },
+        "reflection_threshold": 5,
+        "phase_wait_seconds": 600,
+        "source_kind": "Activity at 0/40 minutes; late event at 20 minutes after publication"
+      }
+    ]
+  },
+  "execution_mode": "selected-journeys"
+}

@@ -1,0 +1,112 @@
+{
+  "verdict": "failed",
+  "failed_checks": [
+    {
+      "name": "published scheduled Episode snapshots available",
+      "passed": false,
+      "actual": [
+        true,
+        false
+      ]
+    }
+  ],
+  "accepted_inputs": [
+    {
+      "event_id": "148398d8-e5d8-5597-afb3-6645929cd51f",
+      "position": "2026-10-16T13:06:05.206303000Z/000000/148398d8-e5d8-5597-afb3-6645929cd51f"
+    },
+    {
+      "event_id": "d108ba71-5563-5036-913d-ead333ff903e",
+      "position": "2026-10-16T13:06:05.640175000Z/000000/d108ba71-5563-5036-913d-ead333ff903e"
+    },
+    {
+      "event_id": "2d0030b5-c678-5736-add3-5dfdb53b45e3",
+      "position": "2026-10-16T13:06:06.079551000Z/000000/2d0030b5-c678-5736-add3-5dfdb53b45e3"
+    },
+    {
+      "event_id": "e4468899-acf7-56d9-b3f8-88399179db62",
+      "position": "2026-10-16T13:06:17.679967000Z/000000/e4468899-acf7-56d9-b3f8-88399179db62"
+    },
+    {
+      "event_id": "03f205a7-fb95-5026-a056-028c930bb161",
+      "position": "2026-10-16T13:06:18.123439000Z/000000/03f205a7-fb95-5026-a056-028c930bb161"
+    },
+    {
+      "event_id": "aaaaa496-6f15-5330-9d26-e5d6df31c9dc",
+      "position": "2026-10-16T13:06:18.569471000Z/000000/aaaaa496-6f15-5330-9d26-e5d6df31c9dc"
+    }
+  ],
+  "late_bridge_inputs_submitted": false,
+  "shutdown_errors": [],
+  "provider_calls": 224,
+  "provider_states": {
+    "returned": 224
+  },
+  "preservation_checks": [
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a baseline has no undeclared retained dead letters",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b baseline has no undeclared retained dead letters",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final zero pending and exactly declared DLQ",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final zero pending and exactly declared DLQ",
+      "passed": true
+    }
+  ],
+  "operational_cause": "600-second initial scheduled publication deadline expired; A ready, B incomplete while retained sessions were revisited. No membership/public acceptance assertion was waived."
+}

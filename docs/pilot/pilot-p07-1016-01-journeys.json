@@ -1,0 +1,232 @@
+{
+  "groups": [
+    {
+      "name": "a-summary-forward",
+      "tenant": "a",
+      "steps": [
+        {
+          "scenario": "source-0",
+          "expected_status": 201,
+          "request": {
+            "event_id": "b2d1bb6f-3640-59b9-855a-d7d457dceb46",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:15.584214+00:00",
+            "session_id": "pilot-p07-1016-01:a:summary:forward",
+            "agent_id": "pilot-p07-1016-01:a:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:forward",
+            "payload": {
+              "content": "Investigation completed; rollout uncertain."
+            }
+          }
+        },
+        {
+          "scenario": "source-1",
+          "expected_status": 201,
+          "request": {
+            "event_id": "32dc69c1-1e3c-51d0-9100-78a71da8e8ab",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:16.584214+00:00",
+            "session_id": "pilot-p07-1016-01:a:summary:forward",
+            "agent_id": "pilot-p07-1016-01:a:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:forward",
+            "payload": {
+              "content": "This is a progress record, not a request to change those outcomes."
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "temporal_story": true,
+      "session": "pilot-p07-1016-01:a:summary:forward",
+      "owner": "pilot-p07-1016-01:a:summary-owner",
+      "episode": "episode-ebd513c2eca1649d7e09d6e9ad1630c33ea10531d309fcd7fdc0c84cf8afdefc",
+      "summary": "summary-episode-ebd513c2eca1649d7e09d6e9ad1630c33ea10531d309fcd7fdc0c84cf8afdefc-962bfc728b9a",
+      "members": [
+        "32dc69c1-1e3c-51d0-9100-78a71da8e8ab",
+        "b2d1bb6f-3640-59b9-855a-d7d457dceb46"
+      ],
+      "expected_source": "Investigation completed; rollout uncertain.",
+      "contrast": "forward",
+      "source_kind": "Contrasting prose outcomes through actual summary provider",
+      "source_expectations": {},
+      "retained_negative_proofs": [
+        {
+          "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+          "tenant": "a",
+          "sha256": {
+            "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+            "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+            "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+          }
+        }
+      ],
+      "phase_wait_seconds": 1200
+    },
+    {
+      "name": "a-summary-inverse",
+      "tenant": "a",
+      "steps": [
+        {
+          "scenario": "source-0",
+          "expected_status": 201,
+          "request": {
+            "event_id": "fe509973-fc54-537a-b938-5b020771bd56",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:15.584232+00:00",
+            "session_id": "pilot-p07-1016-01:a:summary:inverse",
+            "agent_id": "pilot-p07-1016-01:a:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:inverse",
+            "payload": {
+              "content": "Investigation incomplete; rollout completed."
+            }
+          }
+        },
+        {
+          "scenario": "source-1",
+          "expected_status": 201,
+          "request": {
+            "event_id": "24639a96-be62-50d8-be10-521b02cdee0f",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:16.584232+00:00",
+            "session_id": "pilot-p07-1016-01:a:summary:inverse",
+            "agent_id": "pilot-p07-1016-01:a:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:inverse",
+            "payload": {
+              "content": "This is a progress record, not a request to change those outcomes."
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "temporal_story": true,
+      "session": "pilot-p07-1016-01:a:summary:inverse",
+      "owner": "pilot-p07-1016-01:a:summary-owner",
+      "episode": "episode-c4aa8ac0790eb227fc82f7d6b8b6bb88de2a6e5d8d57c6166207acfdf1dbd852",
+      "summary": "summary-episode-c4aa8ac0790eb227fc82f7d6b8b6bb88de2a6e5d8d57c6166207acfdf1dbd852-c78a9c4364dd",
+      "members": [
+        "24639a96-be62-50d8-be10-521b02cdee0f",
+        "fe509973-fc54-537a-b938-5b020771bd56"
+      ],
+      "expected_source": "Investigation incomplete; rollout completed.",
+      "contrast": "inverse",
+      "source_kind": "Contrasting prose outcomes through actual summary provider",
+      "source_expectations": {},
+      "phase_wait_seconds": 1200
+    },
+    {
+      "name": "b-summary-forward",
+      "tenant": "b",
+      "steps": [
+        {
+          "scenario": "source-0",
+          "expected_status": 201,
+          "request": {
+            "event_id": "4de13d74-dc10-5e3e-8f5a-d067f0912cd3",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:15.584247+00:00",
+            "session_id": "pilot-p07-1016-01:b:summary:forward",
+            "agent_id": "pilot-p07-1016-01:b:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:forward",
+            "payload": {
+              "content": "Investigation completed; rollout uncertain."
+            }
+          }
+        },
+        {
+          "scenario": "source-1",
+          "expected_status": 201,
+          "request": {
+            "event_id": "0d7ad87b-0039-5920-9fc5-7f098932db23",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:16.584247+00:00",
+            "session_id": "pilot-p07-1016-01:b:summary:forward",
+            "agent_id": "pilot-p07-1016-01:b:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:forward",
+            "payload": {
+              "content": "This is a progress record, not a request to change those outcomes."
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "temporal_story": true,
+      "session": "pilot-p07-1016-01:b:summary:forward",
+      "owner": "pilot-p07-1016-01:b:summary-owner",
+      "episode": "episode-cc82c700393b1bd8ebdef59ec459741e342d4eef099c5360c5e0a958687d5e0c",
+      "summary": "summary-episode-cc82c700393b1bd8ebdef59ec459741e342d4eef099c5360c5e0a958687d5e0c-e1dd6e1a6876",
+      "members": [
+        "0d7ad87b-0039-5920-9fc5-7f098932db23",
+        "4de13d74-dc10-5e3e-8f5a-d067f0912cd3"
+      ],
+      "expected_source": "Investigation completed; rollout uncertain.",
+      "contrast": "forward",
+      "source_kind": "Contrasting prose outcomes through actual summary provider",
+      "source_expectations": {},
+      "phase_wait_seconds": 1200
+    },
+    {
+      "name": "b-summary-inverse",
+      "tenant": "b",
+      "steps": [
+        {
+          "scenario": "source-0",
+          "expected_status": 201,
+          "request": {
+            "event_id": "d4f5c7b4-041f-5b93-b66f-d0d82a1e567c",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:15.584261+00:00",
+            "session_id": "pilot-p07-1016-01:b:summary:inverse",
+            "agent_id": "pilot-p07-1016-01:b:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:inverse",
+            "payload": {
+              "content": "Investigation incomplete; rollout completed."
+            }
+          }
+        },
+        {
+          "scenario": "source-1",
+          "expected_status": 201,
+          "request": {
+            "event_id": "236b549d-ff53-58a3-bd58-27fe6bdadd04",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T13:05:16.584261+00:00",
+            "session_id": "pilot-p07-1016-01:b:summary:inverse",
+            "agent_id": "pilot-p07-1016-01:b:summary-owner",
+            "trace_id": "pilot-p07-1016-01",
+            "payload_ref": "pilot:summary:inverse",
+            "payload": {
+              "content": "This is a progress record, not a request to change those outcomes."
+            }
+          }
+        }
+      ],
+      "queries": [],
+      "temporal_story": true,
+      "session": "pilot-p07-1016-01:b:summary:inverse",
+      "owner": "pilot-p07-1016-01:b:summary-owner",
+      "episode": "episode-3e8873b24a0702ad70c288b32621ec751ba57fd113c962d1fe22927344f4e0fd",
+      "summary": "summary-episode-3e8873b24a0702ad70c288b32621ec751ba57fd113c962d1fe22927344f4e0fd-68ec9a41e3fa",
+      "members": [
+        "236b549d-ff53-58a3-bd58-27fe6bdadd04",
+        "d4f5c7b4-041f-5b93-b66f-d0d82a1e567c"
+      ],
+      "expected_source": "Investigation incomplete; rollout completed.",
+      "contrast": "inverse",
+      "source_kind": "Contrasting prose outcomes through actual summary provider",
+      "source_expectations": {},
+      "phase_wait_seconds": 1200
+    }
+  ],
+  "coverage": "P07 actual Summary outcomes and uncertainty, four tenant/outcome contrasts",
+  "limits": [
+    "Narrow declared contrast oracle; no general summary quality, automatic Memory inference, or load claim.",
+    "Strict stored/public/provider equality may conservatively fail on concurrent refresh; retain observations."
+  ]
+}
