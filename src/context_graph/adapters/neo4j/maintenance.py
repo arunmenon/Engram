@@ -114,8 +114,10 @@ LIMIT $batch_size
 _DELETE_ORPHAN_ENTITIES_BY_IDS = """
 UNWIND $entity_ids AS eid
 MATCH (n:Entity {entity_id: eid})
-DETACH DELETE n
-RETURN count(n) AS deleted_count
+WHERE NOT (n)--()
+WITH n, n.entity_id AS entity_id
+DELETE n
+RETURN count(n) AS deleted_count, collect(entity_id) AS deleted_ids
 """.strip()
 
 _DELETE_ORPHAN_NODES_BY_LABEL = """
@@ -449,20 +451,20 @@ async def _delete_orphan_entities(
         if not entity_ids:
             break
 
-        all_entity_ids.extend(entity_ids)
-
         async with driver.session(database=database) as session:
 
-            async def _delete(tx: Any, ids: list[str] = entity_ids) -> int:
+            async def _delete(tx: Any, ids: list[str] = entity_ids) -> list[str]:
                 result = await tx.run(
                     _DELETE_ORPHAN_ENTITIES_BY_IDS,
                     {"entity_ids": ids},
                 )
                 record = await result.single()
-                return record["deleted_count"] if record else 0
+                return list(record["deleted_ids"]) if record else []
 
-            batch_deleted: int = await session.execute_write(_delete)
+            deleted_ids: list[str] = await session.execute_write(_delete)
 
+        all_entity_ids.extend(deleted_ids)
+        batch_deleted = len(deleted_ids)
         total_deleted += batch_deleted
 
         if batch_deleted < batch_size:

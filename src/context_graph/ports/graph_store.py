@@ -106,6 +106,22 @@ class GraphStore(Protocol):
         """MERGE an Entity node from raw parameters (no domain model)."""
         ...
 
+    async def publish_extracted_entity(
+        self,
+        entity_id: str,
+        source_event_ids: list[str],
+        *,
+        node: EntityNode | None = None,
+        resolution: Edge | None = None,
+    ) -> None:
+        """Atomically publish an Entity with its REFERENCES and resolution edge.
+
+        Missing projected sources/resolution dependencies raise UnavailableError
+        with no partial writes. With node=None, retain the existing canonical
+        Entity unchanged. Existing reference properties and origin/counts survive.
+        """
+        ...
+
     async def merge_typed_edge(
         self, source_id: str, target_id: str, edge_type: str, props: dict[str, Any] | None = None
     ) -> None:

@@ -309,44 +309,34 @@ class TestSourceEventIdsInResults:
 
 
 class TestEntityEmbeddingOnNeo4j:
-    async def test_merge_entity_node_passes_embedding(self) -> None:
-        """_merge_entity_node should pass embedding param to GraphStore."""
+    async def test_entity_publication_carries_embedding_and_sources(self) -> None:
         consumer = _make_consumer()
-        await consumer._merge_entity_node(
+        await consumer._publish_entity_node(
             entity_id="entity:test",
             name="test",
             entity_type="concept",
             now="2026-01-01T00:00:00Z",
+            source_event_ids=["source"],
             embedding=[0.1, 0.2, 0.3],
         )
-        consumer._graph_store.merge_entity_node_raw.assert_called_once_with(
-            entity_id="entity:test",
-            name="test",
-            entity_type="concept",
-            first_seen="2026-01-01T00:00:00Z",
-            last_seen="2026-01-01T00:00:00Z",
-            mention_count=1,
-            embedding=[0.1, 0.2, 0.3],
-        )
+        call = consumer._graph_store.publish_extracted_entity.call_args
+        assert call.args == ("entity:test", ["source"])
+        assert call.kwargs["node"].embedding == [0.1, 0.2, 0.3]
+        assert call.kwargs["node"].mention_count == 1
+        consumer._graph_store.merge_entity_node_raw.assert_not_called()
+        consumer._graph_store.merge_typed_edge.assert_not_called()
 
-    async def test_merge_entity_node_default_empty_embedding(self) -> None:
-        """_merge_entity_node with no embedding should pass empty list."""
+    async def test_entity_publication_without_embedding(self) -> None:
         consumer = _make_consumer()
-        await consumer._merge_entity_node(
+        await consumer._publish_entity_node(
             entity_id="entity:test",
             name="test",
             entity_type="concept",
             now="2026-01-01T00:00:00Z",
+            source_event_ids=["source"],
         )
-        consumer._graph_store.merge_entity_node_raw.assert_called_once_with(
-            entity_id="entity:test",
-            name="test",
-            entity_type="concept",
-            first_seen="2026-01-01T00:00:00Z",
-            last_seen="2026-01-01T00:00:00Z",
-            mention_count=1,
-            embedding=None,
-        )
+        call = consumer._graph_store.publish_extracted_entity.call_args
+        assert call.kwargs["node"].embedding == []
 
     async def test_semantic_resolution_uses_graph_store(self) -> None:
         """_resolve_semantic should call graph_store.search_similar_entities."""

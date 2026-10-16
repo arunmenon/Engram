@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 
     from context_graph.adapters.spanner.tenant_control import TenantFence
     from context_graph.domain.memory_actions import MemoryAction
-    from context_graph.domain.models import Event
+    from context_graph.domain.models import Edge, EntityNode, Event
     from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
@@ -667,6 +667,81 @@ class SpannerGraphStore(GraphOperations):
             index="GraphEdgesByTarget",
         )
         return [list(row) for row in outgoing] + [list(row) for row in incoming]
+
+    async def publish_extracted_entity(
+        self,
+        entity_id: str,
+        source_event_ids: list[str],
+        *,
+        node: EntityNode | None = None,
+        resolution: Edge | None = None,
+    ) -> None:
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.domain.entity_publication import (
+            plan_entity_publication,
+            publication_edge_keys,
+            publication_refs,
+        )
+
+        refs = publication_refs(entity_id, source_event_ids, resolution)
+        edge_keys = publication_edge_keys(entity_id, source_event_ids, resolution)
+
+        def work(transaction: Any) -> None:
+            rows = transaction.read(
+                "GraphNodes",
+                ["label", "node_id", "props"],
+                KeySet(keys=[[ref.label, ref.key] for ref in refs]),
+            )
+            bykey = {(label, key): json_value(props) for label, key, props in rows}
+            stored = {
+                ref: bykey[(ref.label, ref.key)] for ref in refs if (ref.label, ref.key) in bykey
+            }
+            existing_edges = {}
+            if edge_keys:
+                rows = transaction.read(
+                    "GraphEdges",
+                    EDGE_COLUMNS,
+                    KeySet(
+                        keys=[[a.label, a.key, kind, b.label, b.key] for a, kind, b in edge_keys]
+                    ),
+                )
+                keyed = {key: props for key, props in (_edge_row(list(row)) for row in rows)}
+                existing_edges = {
+                    key: keyed[((key[0].label, key[0].key), key[1], (key[2].label, key[2].key))]
+                    for key in edge_keys
+                    if ((key[0].label, key[0].key), key[1], (key[2].label, key[2].key)) in keyed
+                }
+            nodes, edges = plan_entity_publication(
+                entity_id, source_event_ids, node, resolution, stored, existing_edges
+            )
+            self._write_atomic_graph_mutation(transaction, nodes, edges, bykey)
+
+        await self._transact(work)
+
+    async def _delete_orphan_candidates(self, keys: list[NodeKey]) -> list[NodeKey]:
+        """Recheck incident edges in the deletion transaction, never detach them."""
+        from google.cloud.spanner_v1 import KeySet
+
+        deleted = []
+        for run in self._budget.chunks(sorted(set(keys)), lambda _key: (NODE_DELETE_MUTATIONS, 0)):
+
+            def work(transaction: Any, run: list[NodeKey] = run) -> list[NodeKey]:
+                existing = [
+                    (label, nid)
+                    for label, nid in transaction.read(
+                        "GraphNodes", ["label", "node_id"], KeySet(keys=[list(key) for key in run])
+                    )
+                ]
+                edges = self._incident_edges_sync(transaction, existing) if existing else []
+                connected = {(r[0], r[1]) for r in edges} | {(r[3], r[4]) for r in edges}
+                orphans = [key for key in existing if key not in connected]
+                if orphans:
+                    transaction.delete("GraphNodes", KeySet(keys=[list(key) for key in orphans]))
+                return orphans
+
+            deleted.extend(await self._transact(work))
+        return deleted
 
     async def _delete_nodes(self, keys: list[NodeKey]) -> int:
         """Detach-delete nodes, in commit-sized transactions.

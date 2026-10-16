@@ -28,7 +28,7 @@ from context_graph.domain.entity_resolution import (
     resolve_exact_match,
     resolve_semantic_match,
 )
-from context_graph.domain.models import Event
+from context_graph.domain.models import Edge, EntityNode, Event
 from context_graph.ports.errors import RuntimeFencedError, UnavailableError
 from context_graph.ports.user_extraction import UserExtractionStore
 from context_graph.worker.consumer import BaseConsumer
@@ -340,6 +340,125 @@ class ExtractionConsumer(BaseConsumer):
             return []
         return await self._graph_store.get_entities(limit=1000)
 
+    async def _publish_entities(
+        self, session_id: str, result: dict[str, Any], source_event_ids: list[str], now: str
+    ) -> None:
+        """Publish a resolved extraction result with complete source references."""
+        # --- Write extracted entities + REFERENCES edges ---
+        existing_entities = await self._fetch_existing_entities()
+        same_as_edges: list[tuple[str, str]] = []
+        mention_counts: dict[str, int] = {
+            e["entity_id"]: 1 for e in existing_entities if "entity_id" in e
+        }
+
+        for entity_data in result.get("entities", []):
+            entity_name = entity_data.get("name", "")
+            entity_type = entity_data.get("entity_type", "concept")
+            if not entity_name:
+                continue
+
+            # Run entity resolution cascade: Tier 1 -> 2a -> 2b
+            resolution = resolve_exact_match(entity_name, entity_type, existing_entities)
+            if resolution is None:
+                resolution = resolve_close_match(
+                    entity_name, entity_type, existing_entities, threshold=0.9
+                )
+            if resolution is None:
+                resolution, _semantic_matches = await self._resolve_semantic(
+                    entity_name, entity_type
+                )
+
+            canonical_id = ""
+            if resolution is not None:
+                matched_id = resolution.canonical_entity_id
+                if not isinstance(matched_id, str) or not matched_id.strip():
+                    raise ValueError("Matched Entity has no valid storage identity")
+                canonical_id = matched_id
+
+            if resolution is not None and (
+                resolution.action == EntityResolutionAction.MERGE
+                or canonical_id == f"entity:{entity_name}"
+            ):
+                entity_id = canonical_id
+                if self._graph_store is not None:
+                    await self._graph_store.publish_extracted_entity(entity_id, source_event_ids)
+                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
+                log.debug(
+                    "entity_resolved_merge",
+                    name=entity_name,
+                    canonical=resolution.canonical_name,
+                )
+            elif resolution is not None and resolution.action in (
+                EntityResolutionAction.SAME_AS,
+                EntityResolutionAction.RELATED_TO,
+            ):
+                entity_id = f"entity:{entity_name}"
+                embedding = await self._compute_entity_embedding(entity_name)
+                relation = Edge.model_validate(
+                    dict(
+                        source=entity_id,
+                        target=canonical_id,
+                        edge_type="SAME_AS"
+                        if resolution.action == EntityResolutionAction.SAME_AS
+                        else "RELATED_TO",
+                        properties=dict(
+                            confidence=resolution.confidence,
+                            justification=resolution.justification,
+                            resolved_at=now,
+                        ),
+                    )
+                )
+                await self._publish_entity_node(
+                    entity_id=entity_id,
+                    name=entity_name,
+                    entity_type=entity_type,
+                    now=now,
+                    source_event_ids=source_event_ids,
+                    embedding=embedding,
+                    resolution=relation,
+                )
+                if resolution.action == EntityResolutionAction.SAME_AS:
+                    same_as_edges.append((entity_id, canonical_id))
+                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
+                mention_counts[canonical_id] = mention_counts.get(canonical_id, 0) + 1
+                log.debug(
+                    "entity_resolved_link",
+                    name=entity_name,
+                    action=resolution.action,
+                    canonical=resolution.canonical_name,
+                )
+            else:
+                entity_id = f"entity:{entity_name}"
+                embedding = await self._compute_entity_embedding(entity_name)
+                await self._publish_entity_node(
+                    entity_id=entity_id,
+                    name=entity_name,
+                    entity_type=entity_type,
+                    now=now,
+                    source_event_ids=source_event_ids,
+                    embedding=embedding,
+                )
+                existing_entities.append(
+                    {"entity_id": entity_id, "name": entity_name, "entity_type": entity_type}
+                )
+                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
+                log.debug("entity_created", name=entity_name, entity_id=entity_id)
+
+        # --- Transitive closure: consolidate SAME_AS clusters ---
+        if same_as_edges and self._graph_store is not None:
+            clusters = compute_transitive_closure(same_as_edges, mention_counts)
+            for canonical_id, members in clusters.items():
+                if len(members) > 1:
+                    await self._graph_store.consolidate_entity_cluster(
+                        cluster_ids=members, canonical_id=canonical_id
+                    )
+            log.info(
+                "transitive_closure_applied",
+                session_id=session_id,
+                edge_count=len(same_as_edges),
+                cluster_count=len(clusters),
+            )
+
     async def _write_extraction_results(
         self,
         session_id: str,
@@ -377,114 +496,11 @@ class ExtractionConsumer(BaseConsumer):
                 persona_role=persona_data.get("role"),
             )
 
-        # --- Write extracted entities + REFERENCES edges ---
-        existing_entities = await self._fetch_existing_entities()
-        same_as_edges: list[tuple[str, str]] = []
-        mention_counts: dict[str, int] = {
-            e["entity_id"]: 1 for e in existing_entities if "entity_id" in e
-        }
-
-        for entity_data in result.get("entities", []):
-            entity_name = entity_data.get("name", "")
-            entity_type = entity_data.get("entity_type", "concept")
-            if not entity_name:
-                continue
-
-            # Run entity resolution cascade: Tier 1 -> 2a -> 2b
-            resolution = resolve_exact_match(entity_name, entity_type, existing_entities)
-            if resolution is None:
-                resolution = resolve_close_match(
-                    entity_name, entity_type, existing_entities, threshold=0.9
-                )
-            if resolution is None:
-                resolution, _semantic_matches = await self._resolve_semantic(
-                    entity_name, entity_type
-                )
-
-            canonical_id = ""
-            if resolution is not None:
-                matched_id = resolution.canonical_entity_id
-                if not isinstance(matched_id, str) or not matched_id.strip():
-                    raise ValueError("Matched Entity has no valid storage identity")
-                canonical_id = matched_id
-
-            if resolution is not None and (
-                resolution.action == EntityResolutionAction.MERGE
-                or canonical_id == f"entity:{entity_name}"
-            ):
-                entity_id = canonical_id
-                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
-                log.debug(
-                    "entity_resolved_merge",
-                    name=entity_name,
-                    canonical=resolution.canonical_name,
-                )
-            elif resolution is not None and resolution.action in (
-                EntityResolutionAction.SAME_AS,
-                EntityResolutionAction.RELATED_TO,
-            ):
-                entity_id = f"entity:{entity_name}"
-                embedding = await self._compute_entity_embedding(entity_name)
-                await self._merge_entity_node(
-                    entity_id=entity_id,
-                    name=entity_name,
-                    entity_type=entity_type,
-                    now=now,
-                    embedding=embedding,
-                )
-                await self._merge_resolution_edge(
-                    source_id=entity_id,
-                    target_id=canonical_id,
-                    action=resolution.action,
-                    confidence=resolution.confidence,
-                    justification=resolution.justification,
-                )
-                if resolution.action == EntityResolutionAction.SAME_AS:
-                    same_as_edges.append((entity_id, canonical_id))
-                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
-                mention_counts[canonical_id] = mention_counts.get(canonical_id, 0) + 1
-                log.debug(
-                    "entity_resolved_link",
-                    name=entity_name,
-                    action=resolution.action,
-                    canonical=resolution.canonical_name,
-                )
-            else:
-                entity_id = f"entity:{entity_name}"
-                embedding = await self._compute_entity_embedding(entity_name)
-                await self._merge_entity_node(
-                    entity_id=entity_id,
-                    name=entity_name,
-                    entity_type=entity_type,
-                    now=now,
-                    embedding=embedding,
-                )
-                existing_entities.append(
-                    {"entity_id": entity_id, "name": entity_name, "entity_type": entity_type}
-                )
-                mention_counts[entity_id] = mention_counts.get(entity_id, 0) + 1
-                log.debug("entity_created", name=entity_name, entity_id=entity_id)
-
-            for event_id in source_event_ids:
-                await self._merge_references_edge(
-                    event_id=event_id,
-                    entity_id=entity_id,
-                )
-
-        # --- Transitive closure: consolidate SAME_AS clusters ---
-        if same_as_edges and self._graph_store is not None:
-            clusters = compute_transitive_closure(same_as_edges, mention_counts)
-            for canonical_id, members in clusters.items():
-                if len(members) > 1:
-                    await self._graph_store.consolidate_entity_cluster(
-                        cluster_ids=members, canonical_id=canonical_id
-                    )
-            log.info(
-                "transitive_closure_applied",
-                session_id=session_id,
-                edge_count=len(same_as_edges),
-                cluster_count=len(clusters),
-            )
+        # Dependency waits retry publication, not the already completed model call.
+        await self._retry_transient(
+            partial(self._publish_entities, session_id, result, source_event_ids, now),
+            "publish_extracted_entities",
+        )
 
         # --- Write preferences ---
         if us is not None:
@@ -606,62 +622,31 @@ class ExtractionConsumer(BaseConsumer):
             log.warning("entity_embedding_failed", name=entity_name)
             return []
 
-    async def _merge_entity_node(
+    async def _publish_entity_node(
         self,
         entity_id: str,
         name: str,
         entity_type: str,
         now: str,
+        source_event_ids: list[str],
         embedding: list[float] | None = None,
+        resolution: Edge | None = None,
     ) -> None:
-        """MERGE an Entity node via GraphStore protocol."""
         if self._graph_store is None:
             return
-        await self._graph_store.merge_entity_node_raw(
-            entity_id=entity_id,
-            name=name,
-            entity_type=entity_type,
-            first_seen=now,
-            last_seen=now,
-            mention_count=1,
-            embedding=embedding,
+        node = EntityNode.model_validate(
+            dict(
+                entity_id=entity_id,
+                name=name,
+                entity_type=entity_type,
+                first_seen=now,
+                last_seen=now,
+                mention_count=1,
+                embedding=embedding or [],
+            )
         )
-
-    async def _merge_references_edge(
-        self,
-        event_id: str,
-        entity_id: str,
-    ) -> None:
-        """MERGE a REFERENCES edge from Event to Entity."""
-        if self._graph_store is None:
-            return
-        await self._graph_store.merge_typed_edge(
-            source_id=event_id,
-            target_id=entity_id,
-            edge_type="REFERENCES",
-        )
-
-    async def _merge_resolution_edge(
-        self,
-        source_id: str,
-        target_id: str,
-        action: EntityResolutionAction,
-        confidence: float,
-        justification: str,
-    ) -> None:
-        """MERGE a SAME_AS or RELATED_TO edge between entities."""
-        if self._graph_store is None:
-            return
-        edge_type = "SAME_AS" if action == EntityResolutionAction.SAME_AS else "RELATED_TO"
-        await self._graph_store.merge_typed_edge(
-            source_id=source_id,
-            target_id=target_id,
-            edge_type=edge_type,
-            props={
-                "confidence": confidence,
-                "justification": justification,
-                "resolved_at": datetime.now(UTC).isoformat(),
-            },
+        await self._graph_store.publish_extracted_entity(
+            entity_id, source_event_ids, node=node, resolution=resolution
         )
 
     async def _resolve_preference_contradictions(

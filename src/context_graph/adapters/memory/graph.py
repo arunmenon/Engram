@@ -24,6 +24,7 @@ from context_graph.adapters.graph_ops import (
 
 if TYPE_CHECKING:
     from context_graph.domain.memory_actions import MemoryAction
+    from context_graph.domain.models import Edge, EntityNode
     from context_graph.settings import DecaySettings, PPRSettings
 
 
@@ -133,6 +134,53 @@ class MemoryGraphStore(GraphOperations):
         self.nodes.update(nodes)
         self.edges.update(edges)
         return plan.outcome
+
+    async def publish_extracted_entity(
+        self,
+        entity_id: str,
+        source_event_ids: list[str],
+        *,
+        node: EntityNode | None = None,
+        resolution: Edge | None = None,
+    ) -> None:
+        from context_graph.domain.entity_publication import (
+            plan_entity_publication,
+            publication_edge_keys,
+            publication_refs,
+        )
+
+        refs = publication_refs(entity_id, source_event_ids, resolution)
+        stored = {
+            ref: dict(self.nodes[(ref.label, ref.key)])
+            for ref in refs
+            if (ref.label, ref.key) in self.nodes
+        }
+        edges = {
+            key: dict(self.edges[((key[0].label, key[0].key), key[1], (key[2].label, key[2].key))])
+            for key in publication_edge_keys(entity_id, source_event_ids, resolution)
+            if ((key[0].label, key[0].key), key[1], (key[2].label, key[2].key)) in self.edges
+        }
+        nodes, writes = plan_entity_publication(
+            entity_id, source_event_ids, node, resolution, stored, edges
+        )
+        # No await between validation and mutation: reference-event-loop atomic.
+        self.nodes.update({(n.ref.label, n.ref.key): dict(n.properties) for n in nodes})
+        self.edges.update(
+            {
+                ((e.source.label, e.source.key), e.edge_type, (e.target.label, e.target.key)): dict(
+                    e.properties
+                )
+                for e in writes
+            }
+        )
+
+    async def _delete_orphan_candidates(self, keys: list[NodeKey]) -> list[NodeKey]:
+        # Recheck at mutation time; never detach a newly linked node.
+        connected = {node for edge in self.edges for node in (edge[0], edge[2])}
+        deleted = [key for key in keys if key in self.nodes and key not in connected]
+        for key in deleted:
+            del self.nodes[key]
+        return deleted
 
     async def _get_nodes(self, keys: list[NodeKey]) -> dict[NodeKey, dict[str, Any]]:
         return {key: dict(self.nodes[key]) for key in keys if key in self.nodes}

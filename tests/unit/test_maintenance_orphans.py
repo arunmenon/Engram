@@ -64,7 +64,7 @@ class TestDeleteOrphanEntities:
         driver = _make_driver(
             [
                 ["ent-1", "ent-2"],  # entity read
-                2,  # entity write
+                ["ent-1", "ent-2"],  # actual deleted Entity IDs
                 # batch_deleted(2) < batch_size(500) -> break
                 0,  # Preference write
                 0,  # Skill write
@@ -219,9 +219,9 @@ class TestBatchLoopContinuesUntilZero:
         driver = _make_driver(
             [
                 ["e1", "e2", "e3"],  # entity read batch 1
-                3,  # entity write batch 1 (3 == batch_size -> continue)
+                ["e1", "e2", "e3"],  # actual deletions fill batch -> continue
                 ["e4", "e5"],  # entity read batch 2
-                2,  # entity write batch 2 (2 < 3 -> break)
+                ["e4", "e5"],  # actual deletions smaller than batch -> break
                 0,  # Preference write
                 0,  # Skill write
                 0,  # Workflow write

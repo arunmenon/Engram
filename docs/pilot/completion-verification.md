@@ -378,3 +378,10 @@ The provider actually returned all three B Entities, including OrionVault. Extra
 A's no-name descriptive query returned its source Event but without target-Entity vector participation. This remains a C04 semantic-vector gap; arrival via another channel cannot rescue that proof. B's descriptive and absent-claim reads were not reached in attempt02. See [the bounded RCA](../review/spanner-compatibility/runs/pilot-p08-1016-02/entity-reference-rca.json). No direct graph repair will be used: after the fix, fresh affected journeys must pass through ordinary authenticated ingestion and workers.
 
 Issue#79's cooperative-stop correction is implemented locally with26 focused tests passing after two decisive failures on the former code. It preserves the current awaited session and checks stop before starting later work; live P10 stop/restart verification is still pending, so the issue stays open.
+
+
+### P08 publication correction — ready for live rerun
+
+Issue #80 addresses the missing Entity/source links observed in P08. Entity publication now requires projected source Events and commits the Entity and its REFERENCES links together. A dependency retry reuses the primary extraction result. Orphan cleanup rechecks connectivity before deletion. Existing identity, origin, counts and reference properties are preserved; Neo4j creation defaults cannot overwrite a concurrent creator.
+
+The final focused regression run passed 48 tests, affected-caller checks previously passed 96 tests (overlapping sets), and eight changed source files passed mypy. Astra accepted the bounded implementation recheck. These are local checks, not live proof. Original P08 attempts remain failed and unchanged. Fresh run `pilot-p08-1017-03` retains the same authored questions and named-Entity requirements, with fresh input identities. Descriptive discovery is separately reported and cannot substitute for a failed mandatory check.

@@ -243,6 +243,21 @@ class GraphOperations:
         """Detach-delete nodes; return how many existed."""
         raise NotImplementedError
 
+    async def publish_extracted_entity(
+        self,
+        entity_id: str,
+        source_event_ids: list[str],
+        *,
+        node: EntityNode | None = None,
+        resolution: Edge | None = None,
+    ) -> None:
+        """Backend-supplied atomic Entity/source publication; no sequential fallback."""
+        raise NotImplementedError
+
+    async def _delete_orphan_candidates(self, keys: list[NodeKey]) -> list[NodeKey]:
+        """Delete only still-disconnected nodes atomically; return actual keys."""
+        raise NotImplementedError
+
     async def _edges(
         self,
         *,
@@ -1027,9 +1042,10 @@ class GraphOperations:
                 ) + await self._edges(targets=keys):
                     connected.update((source, target))
             orphans = [key for key in keys if key not in connected]
-            counts[label] = await self._delete_nodes(orphans) if orphans else 0
+            deleted = await self._delete_orphan_candidates(orphans) if orphans else []
+            counts[label] = len(deleted)
             if label == "Entity":
-                deleted_entity_ids = [key[1] for key in orphans]
+                deleted_entity_ids = [key[1] for key in deleted]
         return counts, deleted_entity_ids
 
     async def update_importance_from_centrality(self) -> int:

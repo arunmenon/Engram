@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from neo4j import AsyncDriver
 
     from context_graph.domain.memory_actions import MemoryAction
-    from context_graph.domain.models import Event
+    from context_graph.domain.models import Edge, EntityNode, Event
     from context_graph.domain.ontology import OntologyRegistry
     from context_graph.ports.pack_graph import (
         Direction,
@@ -214,6 +214,106 @@ class Neo4jPackGraph:
         async with self._driver.session(database=self._database) as session:
             result: dict[str, Any] | str = await session.execute_write(work)
             return result
+
+    async def publish_extracted_entity(
+        self,
+        entity_id: str,
+        source_event_ids: list[str],
+        *,
+        node: EntityNode | None = None,
+        resolution: Edge | None = None,
+    ) -> None:
+        from context_graph.domain.entity_publication import (
+            plan_entity_publication,
+            publication_edge_keys,
+            publication_refs,
+        )
+        from context_graph.ports.errors import UnavailableError
+
+        refs = publication_refs(entity_id, source_event_ids, resolution)
+        edge_keys = publication_edge_keys(entity_id, source_event_ids, resolution)
+
+        async def work(tx: Any) -> None:
+            stored = {}
+            for label, prop in (("Entity", "entity_id"), ("Event", "event_id")):
+                selected_nodes = {ref.key: ref for ref in refs if ref.label == label}
+                if not selected_nodes:
+                    continue
+                result = await tx.run(
+                    f"UNWIND $ids AS id MATCH (n:{label} {{{prop}:id}}) "
+                    "SET n.__entity_publication_lock=true REMOVE n.__entity_publication_lock "
+                    f"RETURN n.{prop} AS id, properties(n) AS props",
+                    {"ids": sorted(selected_nodes)},
+                )
+                async for record in result:
+                    stored[selected_nodes[record["id"]]] = dict(record["props"])
+            existing_edges = {}
+            for kind in sorted({key[1] for key in edge_keys}):
+                group = [key for key in edge_keys if key[1] == kind]
+                source_label, source_prop = (
+                    ("Event", "event_id") if kind == "REFERENCES" else ("Entity", "entity_id")
+                )
+                selected_edges = {(a.key, b.key): (a, kind, b) for a, _kind, b in group}
+                result = await tx.run(
+                    f"UNWIND $pairs AS pair MATCH (a:{source_label} {{{source_prop}:pair.source}}) "
+                    f"-[r:{_edge_type(kind)}]->(b:Entity {{entity_id:pair.target}}) "
+                    "SET r.__entity_publication_lock=true REMOVE r.__entity_publication_lock "
+                    f"RETURN a.{source_prop} AS source, b.entity_id AS target, "
+                    "properties(r) AS props",
+                    {"pairs": [{"source": a, "target": b} for a, b in selected_edges]},
+                )
+                async for record in result:
+                    existing_edges[selected_edges[(record["source"], record["target"])]] = dict(
+                        record["props"]
+                    )
+            nodes, edges = plan_entity_publication(
+                entity_id, source_event_ids, node, resolution, stored, existing_edges
+            )
+            for write in nodes:
+                await tx.run(
+                    "MERGE (n:Entity {entity_id:$id}) "
+                    "ON CREATE SET n += $defaults SET n += $updates",
+                    {
+                        "id": write.ref.key,
+                        "defaults": _props(write.properties),
+                        "updates": _props(
+                            {
+                                key: write.properties[key]
+                                for key in ("last_seen", "embedding")
+                                if key in write.properties
+                            }
+                        ),
+                    },
+                )
+            for kind in sorted({write.edge_type for write in edges}):
+                writes_of_kind = [write for write in edges if write.edge_type == kind]
+                source_label, source_prop = (
+                    ("Event", "event_id") if kind == "REFERENCES" else ("Entity", "entity_id")
+                )
+                row = await (
+                    await tx.run(
+                        f"UNWIND $rows AS row MATCH (a:{source_label} "
+                        f"{{{source_prop}:row.source}}), "
+                        "(b:Entity {entity_id:row.target}) "
+                        f"MERGE (a)-[r:{_edge_type(kind)}]->(b) SET r += row.props "
+                        "RETURN count(r) AS count",
+                        {
+                            "rows": [
+                                {
+                                    "source": e.source.key,
+                                    "target": e.target.key,
+                                    "props": _props(e.properties),
+                                }
+                                for e in writes_of_kind
+                            ]
+                        },
+                    )
+                ).single()
+                if not row or row["count"] != len(writes_of_kind):
+                    raise UnavailableError("Entity evidence endpoint disappeared")
+
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(work)
 
     async def apply_memory_action(self, action: MemoryAction) -> str:
         """Lock subjects and atomically validate/write state with its evidence."""
