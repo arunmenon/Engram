@@ -38,6 +38,7 @@ from context_graph.domain.pack_extraction import (
     event_text,
     parse_answer,
 )
+from context_graph.domain.pack_projection import parse_node_id
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.event_log import AcceptedRecordReader
 from context_graph.worker.consumer import BaseConsumer
@@ -49,13 +50,14 @@ if TYPE_CHECKING:
     from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.extraction import TextGenerator
-    from context_graph.ports.pack_graph import PackGraph
+    from context_graph.ports.pack_graph import NodeRef, PackGraph
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
 log = structlog.get_logger(__name__)
 
 WORD = re.compile(r"[a-z0-9][a-z0-9_.\-/]{3,}")
+MENTIONED_NODE = re.compile(r"\b[A-Za-z][A-Za-z0-9_]*:[^\s\"'<>]+")
 # Properties shown as a known item's label, first present wins
 LABEL_FIELDS = ("title", "statement", "name", "catalog_name", "display_name", "body")
 
@@ -195,6 +197,31 @@ class PackExtractionConsumer(BaseConsumer):
         terms = search_terms(text, self._search_terms)
         endpoint_types = sorted(profile.link_endpoint_types())
         registry = self._projector.registry
+        # Exact, persisted references should not disappear behind older lexical
+        # matches of an alphabetically earlier type. These remain candidates,
+        # not relationships; the model and normal endpoint checks still apply.
+        mentioned: list[NodeRef] = []
+        for match in MENTIONED_NODE.finditer(text):
+            if len(mentioned) >= max(0, self._known_limit - len(known)):
+                break
+            parsed = parse_node_id(registry, match.group().rstrip(".,;!?()[]{}"))
+            if parsed is None:
+                continue
+            label, ref = parsed
+            if (
+                label in endpoint_types
+                and label not in profile.nodes
+                and ref.key_property == "node_id"
+                and ref.key not in known
+                and ref not in mentioned
+            ):
+                mentioned.append(ref)
+        persisted = await self._graph.get_nodes(mentioned) if mentioned else {}
+        for ref in mentioned:
+            if ref in persisted:
+                known[ref.key] = KnownItem(
+                    ref.key, ref.label, _label(persisted[ref], self._label_chars)
+                )
         for label in endpoint_types:
             if len(known) >= self._known_limit or not terms:
                 break

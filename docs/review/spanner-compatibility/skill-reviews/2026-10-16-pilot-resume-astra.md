@@ -96,3 +96,17 @@ Astra confirmed the original Change-seeded CQ1 cannot establish a no-reference r
 Astra accepted the bounded P01 composite evidence with no technical blocker. Continuation07 passed243checks, all166observed provider calls returned and shutdown was clean. A appended0Events; B appended9. Both owners, old source rows/material graph and exact oldEpisode memberships remained intact; pending/DLQ empty. All176source audit checks match1536ed0. The crosswalk records169matched step admissions across28event types, not169journeys.
 
 Continuation06 remains failed; its157individually completed steps/three intermediate reads are reused alongside the selected07 proof. Distinct Change/TestCaseCQ1 scopes and AQ06 retained-global discovery remain explicit. No unchanged161-input, native-webhook, whole-pilot or independent-human-reproduction pass follows. Bounded issues69/70/72 may close after evidence/dispositions are pushed; umbrellas stay open.
+
+
+## P03 first-phase preparation review
+
+Astra found no necessary blocker in the prepared eight User stories plus third-person and Mercury controls (20inputs), named-context and name-ambiguity diagnostic read recording. HTTP200 is recorded as an observed diagnostic, not semantic context/disambiguation success. Explicit supported correction and alternate-context/history proof remain required before P03 closure. No P03 live run has started.
+
+## P02 retained candidate starvation RCA
+
+P02firstattempt failed H09-proposed-coverage: actual extraction created proposals but no requiredVERIFIES. Original fullprompt was not captured. Astra independently found alphabetical shared30candidate exhaustion in retained baseline. Root reconstruction invokes actual _known_items from executedf500f8a over the saved baseline plus frozen accepted projections:11DesignElement+13Requirement+6Spec, freshRequirement offered, freshTestCase absent. This is deterministic source-grounded diagnosis, not captured-prompt or live acceptance proof.
+
+Astra recommended persisted registry-valid explicit endpoint priority within unchanged limit, then existing lexical fill. Implemented and38targetedtests passed, including35retainedmatch actualworkerprompt, absentendpoint rejection and candidatebound. Ruff/mypy passed. Futurefreshpackprompt capture added. #73 is a nativechild of63; #71and73 remainopen pending review/live evidence. Original P02 attempt stays failed.
+
+
+Astra implementation recheck for#73: no blocker. Explicit persisted endpoints precede lexical fill while retaining eligibility,total bound and normal validation. Regression covers crowding,bothendpoints and nonexistentendpointrejection. Capture covers successful freshfixturepackcalls; failedprovidercalls still lackcapturedinputs and requireseparateP10support. FreshP02 execution appropriate; originalfailedrecord remainsfailed.

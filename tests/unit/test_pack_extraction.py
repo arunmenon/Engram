@@ -439,6 +439,55 @@ class TestReviewFindings:
 
 
 class TestSourceEndpointDiscovery:
+    async def test_explicit_persisted_endpoints_survive_retained_lexical_crowding(self) -> None:
+        case = "TestCase:fresh/repo|expiry"
+        requirement = "Requirement:fresh|1|expiry"
+        absent = "TestCase:fresh/repo|missing"
+        model = ScriptedModel(
+            orjson.dumps(
+                {
+                    "nodes": [],
+                    "links": [
+                        {"type": "VERIFIES", "from": case, "to": requirement, "confidence": 0.6},
+                        {"type": "VERIFIES", "from": absent, "to": requirement, "confidence": 0.6},
+                    ],
+                }
+            ).decode()
+        )
+        consumer, log, graph = await _consumer(model)
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    NodeRef("DesignElement", f"DesignElement:old-{i}|section|1"),
+                    {"title": "coverageprobe bounded processing"},
+                )
+                for i in range(35)
+            ]
+            + [
+                NodeWrite(NodeRef("TestCase", case), {"name": "coverageprobe"}),
+                NodeWrite(NodeRef("Requirement", requirement), {"statement": "coverageprobe"}),
+            ]
+        )
+        position = await _ingest(
+            log,
+            graph,
+            {"body": f"coverageprobe: {case} checks {requirement}. Also mention {absent}."},
+        )
+        (entry,) = await log.read_after(None, 10)
+        await consumer.process_message(position, {"event_id": entry.event_id})
+        prompt = model.prompts[0]
+        assert f"- {case} (TestCase):" in prompt
+        assert f"- {requirement} (Requirement):" in prompt
+        assert f"- {absent} (TestCase):" not in prompt
+        known_lines = [
+            line
+            for line in prompt.split("Known items:\n", 1)[1].split("\n\n", 1)[0].splitlines()
+            if line.startswith("- ")
+        ]
+        assert len(known_lines) <= consumer._known_limit
+        rows = await graph.neighbors([NodeRef("TestCase", case)], ["VERIFIES"], "out", 10)
+        assert [(r["source_key"], r["target_key"]) for r in rows] == [(case, requirement)]
+
     async def test_existing_testcase_can_propose_verification_with_validated_endpoints(
         self,
     ) -> None:

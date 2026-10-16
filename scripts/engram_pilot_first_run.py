@@ -405,6 +405,8 @@ async def execute(args):
                     )
                 )
             ]
+            if row["input_event_candidates"] and "Known items:" in prompt:
+                row["input_messages"] = kw.get("messages", [])
             save()
         except Exception as exc:
             record.setdefault("observation_errors", []).append(type(exc).__name__)

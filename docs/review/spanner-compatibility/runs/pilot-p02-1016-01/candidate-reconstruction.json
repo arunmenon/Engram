@@ -1,0 +1,194 @@
+{
+  "classification": "Local deterministic reconstruction from saved before snapshot and accepted frozen projection inputs, not captured live prompt and not acceptance proof",
+  "terms": [
+    "p02/pilot-p02-1016-01/auth",
+    "p02/pilot-p02-1016-01/spec",
+    "coverageprobe039a2b1dcf",
+    "relationship",
+    "engineering",
+    "requirement",
+    "processing",
+    "buffering",
+    "decision.",
+    "execution",
+    "proposed.",
+    "workspace"
+  ],
+  "known": [
+    {
+      "id": "DesignElement:pilot-1015-entry-02-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-continuation-02-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-continuation-03-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-continuation-04-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-continuation-05-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-continuation-06-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-entry-04-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-entry-05-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-entry-06-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "DesignElement:pilot-1016-spectrum-01-hld|streaming|1",
+      "type": "DesignElement",
+      "label": "Bounded export streaming"
+    },
+    {
+      "id": "Requirement:p02/pilot-p02-1016-01/spec|1|missing",
+      "type": "Requirement",
+      "label": "No coverage observation supplied for this requirement"
+    },
+    {
+      "id": "Requirement:p02/pilot-p02-1016-01/spec|1|proposed",
+      "type": "Requirement",
+      "label": "coverageprobe039a2b1dcf selective coverage assertion"
+    },
+    {
+      "id": "Requirement:pilot-1015-entry-02-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-continuation-02-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-continuation-03-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-continuation-04-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-continuation-05-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-continuation-06-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-entry-03-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-entry-04-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-entry-05-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-entry-06-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Requirement:pilot-1016-spectrum-01-export|1|authorization",
+      "type": "Requirement",
+      "label": "Export only workspace-authorized rows"
+    },
+    {
+      "id": "Spec:pilot-1015-entry-02-export|1",
+      "type": "Spec",
+      "label": "Audit CSV export"
+    },
+    {
+      "id": "Spec:pilot-1016-continuation-02-export|1",
+      "type": "Spec",
+      "label": "Audit CSV export"
+    },
+    {
+      "id": "Spec:pilot-1016-continuation-03-export|1",
+      "type": "Spec",
+      "label": "Audit CSV export"
+    },
+    {
+      "id": "Spec:pilot-1016-continuation-04-export|1",
+      "type": "Spec",
+      "label": "Audit CSV export"
+    },
+    {
+      "id": "Spec:pilot-1016-continuation-05-export|1",
+      "type": "Spec",
+      "label": "Audit CSV export"
+    },
+    {
+      "id": "Spec:pilot-1016-continuation-06-export|1",
+      "type": "Spec",
+      "label": "Audit CSV export"
+    }
+  ],
+  "expected_endpoints": {
+    "spec1": "Spec:p02/pilot-p02-1016-01/spec|1",
+    "spec2": "Spec:p02/pilot-p02-1016-01/spec|2",
+    "req1": "Requirement:p02/pilot-p02-1016-01/spec|1|expiry",
+    "req2": "Requirement:p02/pilot-p02-1016-01/spec|2|expiry",
+    "missing": "Requirement:p02/pilot-p02-1016-01/spec|1|missing",
+    "proposed": "Requirement:p02/pilot-p02-1016-01/spec|1|proposed",
+    "ticket": "WorkItem:jira|P039A2B1DCF-17",
+    "change": "Change:p02/pilot-p02-1016-01/auth|17",
+    "case": "TestCase:p02/pilot-p02-1016-01/auth|expiry",
+    "failed": "TestRun:p02/pilot-p02-1016-01/failed",
+    "passed": "TestRun:p02/pilot-p02-1016-01/passed",
+    "planned_case": "TestCase:p02/pilot-p02-1016-01/auth|coverageprobe039a2b1dcf",
+    "skipped": "TestRun:p02/pilot-p02-1016-01/skipped",
+    "review": "Review:p02/pilot-p02-1016-01/auth|17|review-1",
+    "component": "Component:p02/pilot-p02-1016-01/tokens",
+    "incident": "Incident:p02/pilot-p02-1016-01/auth|p02/pilot-p02-1016-01/tokens|INC-17",
+    "decision": "Decision:afe1459c7308d724ad0ab6399df57d43dc3589b62e50df0c2668eb5c1c3953df",
+    "deployment": "Deployment:p02/pilot-p02-1016-01/auth|p02/pilot-p02-1016-01/tokens|production|fixed-sha|2026-10-16T09:11:49+00:00"
+  },
+  "method_source": "f500f8a",
+  "expected_endpoint_offered": {
+    "planned_case": false,
+    "proposed": true
+  }
+}

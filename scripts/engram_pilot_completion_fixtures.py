@@ -11,6 +11,83 @@ from uuid import NAMESPACE_URL, uuid5
 from engram_goal03_implementation_demo import fixture_observations
 
 
+def p03_user_stories(run_id):
+    """Reuse eight authored stories; add attribution and named-context diagnostics.
+
+    Correction is a second phase: its predecessor must be an actually accepted
+    Preference identity. No model output is invented during fixture construction.
+    """
+    from engram_pilot_spectrum import freeze
+
+    groups = [g for g in freeze(run_id)["groups"] if g.get("user_story")]
+    contexts = next(g for g in groups if g["name"] == "user-contexts")
+    contexts["diagnostic_queries"] = [
+        dict(query="How should you respond to me during incident response?", intent="personalize"),
+        dict(query="How should you respond to me during a design review?", intent="personalize"),
+    ]
+    for key, name, content, diagnostics in (
+        (
+            "third-person",
+            "Leela",
+            "Omar prefers trains to flights. That is Omar's preference, not mine. "
+            "I have not stated any travel preference.",
+            [],
+        ),
+        (
+            "mercury",
+            "Dev",
+            "Our software project is named Mercury. The planet Mercury is a different thing. "
+            "This is a description of two things, not my preference or skill.",
+            [dict(query="What do we know about Mercury?", intent="related")],
+        ),
+    ):
+        session, owner = run_id + ":story:" + key, run_id + ":owner:" + key
+        start = datetime.now(UTC) - timedelta(minutes=4)
+        steps = []
+        for suffix, kind, payload in (
+            ("source", "observation.input", dict(content=f"My name is {name}. {content}")),
+            ("end", "system.session_end", {}),
+        ):
+            steps.append(
+                dict(
+                    scenario=key + "-" + suffix,
+                    expected_status=201,
+                    request=dict(
+                        event_id=str(uuid5(NAMESPACE_URL, session + ":" + suffix)),
+                        event_type=kind,
+                        occurred_at=(start + timedelta(seconds=len(steps))).isoformat(),
+                        session_id=session,
+                        agent_id=owner,
+                        trace_id=run_id,
+                        payload_ref="pilot-story:" + key,
+                        payload=payload,
+                    ),
+                )
+            )
+        groups.append(
+            dict(
+                name="user-" + key,
+                tenant="a",
+                user_story=True,
+                steps=steps,
+                queries=[],
+                owner=owner,
+                session=session,
+                question="What personal preferences did I actually state?",
+                expect_user=True,
+                expect_preferences=False,
+                expected_name=name,
+                preference_semantics=[],
+                diagnostic_queries=diagnostics,
+                source_kind=(
+                    "Actual model attribution control; "
+                    "diagnostic behavior is not a capability pass"
+                ),
+            )
+        )
+    return groups
+
+
 def p02_history(run_id):
     prefix = "p02/" + run_id
     repo = prefix + "/auth"

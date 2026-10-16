@@ -951,8 +951,13 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                             "rust" in s["name"].lower() and s["proficiency"] > 0.8 for s in skills
                         ),
                     )
-                else:
+                elif group.get("expect_preferences", True):
                     check(group["name"] + " useful preference", bool(prefs))
+                else:
+                    check(
+                        group["name"] + " no preference/skill attributed from descriptive prose",
+                        not prefs and not skills,
+                    )
                 if group["name"] == "user-contexts":
                     contexts = [p.get("context", "").lower() for p in prefs]
                     check(
@@ -1011,6 +1016,25 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                     and source_node["provenance"]["global_position"]
                     == source_props["global_position"],
                 )
+            for diagnostic in group.get("diagnostic_queries", []):
+                query_body = {
+                    **body,
+                    "query": diagnostic["query"],
+                    "intent": diagnostic["intent"],
+                }
+                code, diagnostic_answer = await request(tenant, "/v1/query/subgraph", query_body)
+                check(group["name"] + " diagnostic read completed", code == 200)
+                entry.setdefault("diagnostics", []).append(
+                    {
+                        "request": query_body,
+                        "response": diagnostic_answer,
+                        "verdict": (
+                            "observed diagnostic; "
+                            "not proof of context selection or name disambiguation"
+                        ),
+                    }
+                )
+                save()
             entry["state"] = "passed selected semantic/source checks"
             save()
             continue

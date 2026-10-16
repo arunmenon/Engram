@@ -1,0 +1,550 @@
+{
+  "groups": [
+    {
+      "name": "user-coding",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "coding-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "5a2a7c74-f4d2-5356-9974-a5c8782ea862",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350153+00:00",
+            "session_id": "pilot-p03-1016-01:story:coding",
+            "agent_id": "pilot-p03-1016-01:owner:coding",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:coding",
+            "payload": {
+              "content": "My name is Maya. I have used Python professionally for five years. I am beginning Rust and am not a Rust expert."
+            }
+          }
+        },
+        {
+          "scenario": "coding-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "b33ff070-3484-58b3-b892-6bcaf068ad48",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350153+00:00",
+            "session_id": "pilot-p03-1016-01:story:coding",
+            "agent_id": "pilot-p03-1016-01:owner:coding",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:coding",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:coding",
+      "session": "pilot-p03-1016-01:story:coding",
+      "question": "What skills and learning interests did Maya actually state?",
+      "expect_user": true,
+      "expected_name": "Maya",
+      "preference_semantics": [],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-contexts",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "contexts-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "79ccc51c-5313-5aa2-b151-7fcae1dd9f51",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350167+00:00",
+            "session_id": "pilot-p03-1016-01:story:contexts",
+            "agent_id": "pilot-p03-1016-01:owner:contexts",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:contexts",
+            "payload": {
+              "content": "My name is Ishan. In incident response, I prefer short bullet-point actions. During design reviews, I prefer detailed explanations with trade-offs."
+            }
+          }
+        },
+        {
+          "scenario": "contexts-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "105c6d9d-530d-5c7f-af6b-6c8089a33a71",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350167+00:00",
+            "session_id": "pilot-p03-1016-01:story:contexts",
+            "agent_id": "pilot-p03-1016-01:owner:contexts",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:contexts",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:contexts",
+      "session": "pilot-p03-1016-01:story:contexts",
+      "question": "What response preferences apply in incidents and design reviews?",
+      "expect_user": true,
+      "expected_name": "Ishan",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "incident",
+            "short|brief|concise|bullet"
+          ]
+        ],
+        [
+          "positive",
+          [
+            "design",
+            "detail|trade"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {},
+      "diagnostic_queries": [
+        {
+          "query": "How should you respond to me during incident response?",
+          "intent": "personalize"
+        },
+        {
+          "query": "How should you respond to me during a design review?",
+          "intent": "personalize"
+        }
+      ]
+    },
+    {
+      "name": "user-research",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "research-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "de8bc700-45ca-52ee-a336-dbd88811c433",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350178+00:00",
+            "session_id": "pilot-p03-1016-01:story:research",
+            "agent_id": "pilot-p03-1016-01:owner:research",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:research",
+            "payload": {
+              "content": "My name is Nila. I am researching battery recycling. I prefer answers that distinguish evidence from speculation and cite sources."
+            }
+          }
+        },
+        {
+          "scenario": "research-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "ae6852c0-6344-5138-aac1-b568e2135fed",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350178+00:00",
+            "session_id": "pilot-p03-1016-01:story:research",
+            "agent_id": "pilot-p03-1016-01:owner:research",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:research",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:research",
+      "session": "pilot-p03-1016-01:story:research",
+      "question": "How should evidence and uncertainty be presented to Nila?",
+      "expect_user": true,
+      "expected_name": "Nila",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "evidence|source|citation|cite",
+            "speculat|uncertain|evidence|source"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-travel",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "travel-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "b7391185-6caa-5b6e-983e-bda4c308015f",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350188+00:00",
+            "session_id": "pilot-p03-1016-01:story:travel",
+            "agent_id": "pilot-p03-1016-01:owner:travel",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:travel",
+            "payload": {
+              "content": "My name is Omar. When planning a trip, I prefer trains to flights. I need extra time between connections."
+            }
+          }
+        },
+        {
+          "scenario": "travel-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "3dd57065-e93b-5668-927c-e024ed59ae24",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350188+00:00",
+            "session_id": "pilot-p03-1016-01:story:travel",
+            "agent_id": "pilot-p03-1016-01:owner:travel",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:travel",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:travel",
+      "session": "pilot-p03-1016-01:story:travel",
+      "question": "What should a travel assistant remember about Omar?",
+      "expect_user": true,
+      "expected_name": "Omar",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "train|rail",
+            "flight|air|travel"
+          ]
+        ],
+        [
+          "positive",
+          [
+            "time|buffer",
+            "connect|transfer"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-work-journal",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "work-journal-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "46d35df3-9ba1-5a0a-aab4-2abeefafd6c8",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350198+00:00",
+            "session_id": "pilot-p03-1016-01:story:work-journal",
+            "agent_id": "pilot-p03-1016-01:owner:work-journal",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:work-journal",
+            "payload": {
+              "content": "My name is Priya. I prefer planning tasks in the morning. Today I finished the investigation but the rollout is still uncertain."
+            }
+          }
+        },
+        {
+          "scenario": "work-journal-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "23cd923f-545c-53f2-b579-da4be8395885",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350198+00:00",
+            "session_id": "pilot-p03-1016-01:story:work-journal",
+            "agent_id": "pilot-p03-1016-01:owner:work-journal",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:work-journal",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:work-journal",
+      "session": "pilot-p03-1016-01:story:work-journal",
+      "question": "How should Priya plan tasks, and what is still uncertain?",
+      "expect_user": true,
+      "expected_name": "Priya",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "morning",
+            "plan|task"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-household",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "household-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "5baa5f95-5370-5780-8821-eae1658ed92b",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350208+00:00",
+            "session_id": "pilot-p03-1016-01:story:household",
+            "agent_id": "pilot-p03-1016-01:owner:household",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:household",
+            "payload": {
+              "content": "My name is Sam. I prefer reminders the evening before a household appointment. Discussing a repair is not a commitment to doing it."
+            }
+          }
+        },
+        {
+          "scenario": "household-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "cabe1396-a717-5f10-836a-813911e1a8f4",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350208+00:00",
+            "session_id": "pilot-p03-1016-01:story:household",
+            "agent_id": "pilot-p03-1016-01:owner:household",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:household",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:household",
+      "session": "pilot-p03-1016-01:story:household",
+      "question": "When should Sam receive reminders?",
+      "expect_user": true,
+      "expected_name": "Sam",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "evening|night",
+            "remind|appointment"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-paraphrase",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "paraphrase-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "051ee6f0-4335-597a-bc7c-e01d34f5c51b",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350217+00:00",
+            "session_id": "pilot-p03-1016-01:story:paraphrase",
+            "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {
+              "content": "My name is Tara. Long walls of text are hard for me to use; two or three practical steps work much better."
+            }
+          }
+        },
+        {
+          "scenario": "paraphrase-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "8b324c6f-56ed-5496-aa62-3fff56db6c71",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350217+00:00",
+            "session_id": "pilot-p03-1016-01:story:paraphrase",
+            "agent_id": "pilot-p03-1016-01:owner:paraphrase",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:paraphrase",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:paraphrase",
+      "session": "pilot-p03-1016-01:story:paraphrase",
+      "question": "How should an assistant format a response for Tara?",
+      "expect_user": true,
+      "expected_name": "Tara",
+      "preference_semantics": [
+        [
+          "positive",
+          [
+            "step|action",
+            "practical|two|three|short|concise"
+          ]
+        ]
+      ],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-absence",
+      "tenant": "a",
+      "user_story": true,
+      "queries": [],
+      "steps": [
+        {
+          "scenario": "absence-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "f80a9ae8-f37c-5e62-a974-22a7887e9ded",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350226+00:00",
+            "session_id": "pilot-p03-1016-01:story:absence",
+            "agent_id": "pilot-p03-1016-01:owner:absence",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:absence",
+            "payload": {
+              "content": "This is a network diagnostic record. No personal preference, skill or commitment is stated."
+            }
+          }
+        },
+        {
+          "scenario": "absence-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "e043dc75-222c-5462-887e-4e03949c58ff",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350226+00:00",
+            "session_id": "pilot-p03-1016-01:story:absence",
+            "agent_id": "pilot-p03-1016-01:owner:absence",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:absence",
+            "payload": {}
+          }
+        }
+      ],
+      "owner": "pilot-p03-1016-01:owner:absence",
+      "session": "pilot-p03-1016-01:story:absence",
+      "question": "Do we have evidence of a personal preference or commitment?",
+      "expect_user": false,
+      "expected_name": "",
+      "preference_semantics": [],
+      "source_kind": "Actual model interpretation of distinct application context",
+      "source_expectations": {}
+    },
+    {
+      "name": "user-third-person",
+      "tenant": "a",
+      "user_story": true,
+      "steps": [
+        {
+          "scenario": "third-person-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "54b94661-f8fb-5a9e-bd18-54d31a94dfec",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350561+00:00",
+            "session_id": "pilot-p03-1016-01:story:third-person",
+            "agent_id": "pilot-p03-1016-01:owner:third-person",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:third-person",
+            "payload": {
+              "content": "My name is Leela. Omar prefers trains to flights. That is Omar's preference, not mine. I have not stated any travel preference."
+            }
+          }
+        },
+        {
+          "scenario": "third-person-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "3845d2ec-a295-5899-a203-e084f84e046e",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350561+00:00",
+            "session_id": "pilot-p03-1016-01:story:third-person",
+            "agent_id": "pilot-p03-1016-01:owner:third-person",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:third-person",
+            "payload": {}
+          }
+        }
+      ],
+      "queries": [],
+      "owner": "pilot-p03-1016-01:owner:third-person",
+      "session": "pilot-p03-1016-01:story:third-person",
+      "question": "What personal preferences did I actually state?",
+      "expect_user": true,
+      "expect_preferences": false,
+      "expected_name": "Leela",
+      "preference_semantics": [],
+      "diagnostic_queries": [],
+      "source_kind": "Actual model attribution control; diagnostic behavior is not a capability pass"
+    },
+    {
+      "name": "user-mercury",
+      "tenant": "a",
+      "user_story": true,
+      "steps": [
+        {
+          "scenario": "mercury-source",
+          "expected_status": 201,
+          "request": {
+            "event_id": "61a7a4b2-6f9f-5d7c-9512-115dae64fb78",
+            "event_type": "observation.input",
+            "occurred_at": "2026-10-16T09:49:22.350578+00:00",
+            "session_id": "pilot-p03-1016-01:story:mercury",
+            "agent_id": "pilot-p03-1016-01:owner:mercury",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:mercury",
+            "payload": {
+              "content": "My name is Dev. Our software project is named Mercury. The planet Mercury is a different thing. This is a description of two things, not my preference or skill."
+            }
+          }
+        },
+        {
+          "scenario": "mercury-end",
+          "expected_status": 201,
+          "request": {
+            "event_id": "a61a8ffe-df6c-58fe-9cf8-7db11faad12a",
+            "event_type": "system.session_end",
+            "occurred_at": "2026-10-16T09:49:23.350578+00:00",
+            "session_id": "pilot-p03-1016-01:story:mercury",
+            "agent_id": "pilot-p03-1016-01:owner:mercury",
+            "trace_id": "pilot-p03-1016-01",
+            "payload_ref": "pilot-story:mercury",
+            "payload": {}
+          }
+        }
+      ],
+      "queries": [],
+      "owner": "pilot-p03-1016-01:owner:mercury",
+      "session": "pilot-p03-1016-01:story:mercury",
+      "question": "What personal preferences did I actually state?",
+      "expect_user": true,
+      "expect_preferences": false,
+      "expected_name": "Dev",
+      "preference_semantics": [],
+      "diagnostic_queries": [
+        {
+          "query": "What do we know about Mercury?",
+          "intent": "related"
+        }
+      ],
+      "source_kind": "Actual model attribution control; diagnostic behavior is not a capability pass"
+    }
+  ],
+  "coverage": [
+    "P03 first phase: eight User stories, third-person attribution control and three diagnostic reads. Explicit correction is required separately before P03 closure."
+  ],
+  "limits": [
+    "No context selection or Mercury disambiguation pass inferred from a diagnostic HTTP200.",
+    "No correction proof in this phase; accepted predecessor identity required for second phase."
+  ]
+}
