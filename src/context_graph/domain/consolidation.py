@@ -80,7 +80,8 @@ def create_summary_from_events(
     """Create a deterministic summary node without LLM.
 
     Summarizes event count, distinct types, and time range. Generates a
-    stable summary_id from scope_id and a hash of the event IDs.
+    stable summary_id from scope and membership. Episode identities retain
+    their existing contract.
     """
     if not events:
         msg = "Cannot create summary from empty event list"
@@ -94,6 +95,9 @@ def create_summary_from_events(
     event_ids = sorted(e.get("event_id", "") for e in events)
     id_hash = hashlib.sha256("|".join(event_ids).encode()).hexdigest()[:12]
     summary_id = f"summary-{scope_id}-{id_hash}"
+    if scope in {"session", "agent"}:
+        identity = json.dumps([scope, scope_id, event_ids], separators=(",", ":"))
+        summary_id = "summary-v2-" + hashlib.sha256(identity.encode()).hexdigest()
 
     event_types = sorted({e.get("event_type", "unknown") for e in events})
     timestamps = [_parse_dt(e["occurred_at"]) for e in events if "occurred_at" in e]

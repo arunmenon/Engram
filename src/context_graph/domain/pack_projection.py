@@ -211,6 +211,33 @@ def _escape(text: str) -> str:
     return text.replace("%", "%25").replace("|", "%7C")
 
 
+def is_reference_stub(node_type: NodeType, props: dict[str, Any]) -> bool:
+    """Recognize only the identity/default shape emitted by ``_stub``.
+
+    This does not establish evidence; callers must separately check that the
+    node has no direct observation and keep declared-reference evidence distinct.
+    """
+    if node_type.definition.id_property:
+        return False
+    required = {*node_type.key, "node_id", "node_type", "ontology_version"}
+    allowed = set(required)
+    lifecycle = node_type.lifecycle
+    if lifecycle is not None:
+        allowed.update({"status", "status_changed_at"})
+        if props.get("status") != lifecycle.initial or not isinstance(
+            props.get("status_changed_at"), str
+        ):
+            return False
+    return (
+        required <= props.keys() <= allowed
+        and props.get("node_type") == node_type.name
+        and isinstance(props.get("ontology_version"), str)
+        and all(props.get(key) is not None for key in node_type.key)
+        and props.get("node_id")
+        == make_node_id(node_type.name, [props[key] for key in node_type.key])
+    )
+
+
 def make_node_id(type_name: str, key_values: list[Any]) -> str:
     """``<Type>:<v1>|<v2>...`` from already-coerced key values."""
     parts = []

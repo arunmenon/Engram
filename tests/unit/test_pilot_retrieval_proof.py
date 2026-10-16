@@ -205,3 +205,74 @@ def test_changed_retained_proof_or_question_rejected(retained_case):
     changed["groups"][0]["paraphrase"] = "easier changed question"
     with pytest.raises(ValueError, match="source or question changed"):
         retained_sources(changed, states)
+
+
+@pytest.mark.parametrize("corruption", [None, "unlabelled", "business", "edge", "receipt"])
+async def test_unresolved_reference_requires_declaring_source_and_explicit_label(corruption):
+    from engram_pilot_retrieval_proof import pilot_pdlc_registry
+
+    from context_graph.domain.event_acceptance import AdmissionContext, stamp_acceptance
+    from context_graph.domain.pack_projection import PackProjector
+    from context_graph.retrieval.artifacts import ArtifactQuery, ArtifactRetriever
+    from tests.unit.test_pack_projection import Harness
+
+    h = Harness()
+    h.projector = PackProjector(pilot_pdlc_registry(), frozenset({"webhook:github"}))
+    payload = dict(
+        doc_id="stub-proof",
+        version="1",
+        title="Reference proof",
+        request_system="jira",
+        request_ids=["MISSING"],
+    )
+    event = await h.ingest("pdlc.spec.approved", payload)
+    authority = AdmissionContext(
+        tenant_id="isolation-b",
+        database_resource="projects/portiq-mvp/instances/engram-experiment/databases/engram-g07-target",
+        binding_id="test-binding",
+        accepted_epoch=7,
+        bundle_digest="sha256:" + "1" * 64,
+        engine_revision="test",
+        source_id="demo.query",
+    )
+    acceptance = stamp_acceptance(authority, event, payload)
+    state = dict(
+        nodes=[[label, key, props] for (label, key), props in h.graph.nodes.items()],
+        edges=[
+            [a[0], a[1], kind, b[0], b[1], props] for (a, kind, b), props in h.graph.edges.items()
+        ],
+        events=[
+            [
+                str(event.event_id),
+                {**event.model_dump(mode="json"), "payload": payload},
+                acceptance.model_dump(),
+            ]
+        ],
+    )
+    retriever = ArtifactRetriever(
+        h.graph,
+        h.projector.registry,
+        default_max_depth=3,
+        seed_limit=10,
+        neighbor_limit=200,
+        provenance_source="spanner",
+    )
+    body = (
+        await retriever.retrieve(
+            ArtifactQuery(
+                query="Trace this artifact", intent="trace", seed_node_ids=["Spec:stub-proof|1"]
+            )
+        )
+    ).model_dump(mode="json")
+    nid = "Request:jira|MISSING"
+    if corruption == "unlabelled":
+        body["nodes"][nid]["attributes"].pop("reference_state")
+    elif corruption == "business":
+        body["nodes"][nid]["attributes"]["title"] = "Invented factual title"
+    elif corruption == "edge":
+        for edge in body["edges"]:
+            if nid in (edge["source"], edge["target"]):
+                edge["edge_type"] = "RELATED_TO"
+    elif corruption == "receipt":
+        state["events"] = []
+    assert closed_response(body, state) == (corruption is None)

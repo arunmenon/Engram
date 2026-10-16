@@ -978,3 +978,56 @@ class TestSeedPrecision:
             ArtifactQuery("Which change added support for object restoration?")
         )
         assert response.meta.seed_nodes == ["Change:acme/lib|9"]
+
+
+async def test_reference_stub_is_explicit_and_does_not_claim_lifecycle_status():
+    from tests.unit.test_pack_projection import Harness
+
+    h = Harness()
+    await h.ingest(
+        "pdlc.spec.approved",
+        dict(
+            doc_id="ref-demo",
+            version="1",
+            title="Reference demo",
+            request_system="jira",
+            request_ids=["MISSING-1"],
+        ),
+    )
+    answer = await _retriever(h.graph).retrieve(
+        ArtifactQuery(
+            query="Trace this artifact", intent="trace", seed_node_ids=["Spec:ref-demo|1"]
+        )
+    )
+    stub = answer.nodes["Request:jira|MISSING-1"]
+    assert stub.provenance is None
+    assert stub.attributes["reference_state"] == "unresolved"
+    assert "status" not in stub.attributes and "status_changed_at" not in stub.attributes
+    assert h.node("Request:jira|MISSING-1")["status"] == "new"
+    assert answer.nodes["Spec:ref-demo|1"].provenance is not None
+    assert "reference_state" not in answer.nodes["Spec:ref-demo|1"].attributes
+    assert any(
+        e.source == "Spec:ref-demo|1"
+        and e.target == "Request:jira|MISSING-1"
+        and e.edge_type == "REFINES"
+        for e in answer.edges
+    )
+
+
+def test_reference_stub_rejects_business_properties_and_noninitial_status():
+    from context_graph.domain.pack_projection import is_reference_stub
+
+    kind = REGISTRY.node_types["Request"]
+    props = dict(
+        node_id="Request:jira|MISSING-1",
+        node_type="Request",
+        source_system="jira",
+        external_id="MISSING-1",
+        ontology_version=REGISTRY.version,
+        status="new",
+        status_changed_at="2026-01-01T00:00:00+00:00",
+    )
+    assert is_reference_stub(kind, props)
+    assert not is_reference_stub(kind, {**props, "title": "Real business content"})
+    assert not is_reference_stub(kind, {**props, "status": "approved"})
+    assert not is_reference_stub(kind, {**props, "node_id": "Request:jira|OTHER"})

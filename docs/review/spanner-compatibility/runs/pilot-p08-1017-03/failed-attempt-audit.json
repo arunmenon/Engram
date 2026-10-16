@@ -1,0 +1,34 @@
+{
+  "original_verdict": "failed",
+  "failed_checks": [
+    "absent-b endpoint/source closure",
+    "a prior graph preserved except approved derived refresh"
+  ],
+  "provider_calls": 37,
+  "all_provider_calls_returned": true,
+  "shutdown_errors": [],
+  "final_worker_lags_recorded": false,
+  "scope_collision_differences": [
+    {
+      "identity": "summary-pilot-1016-continuation-03:bob-4482b5571d1d",
+      "before_scope": "agent",
+      "after_scope": "session"
+    },
+    {
+      "identity": "summary-pilot-1016-continuation-05:alice-130fe9790cc2",
+      "before_scope": "agent",
+      "after_scope": "session"
+    },
+    {
+      "identity": "summary-pilot-1016-continuation-06:bob-683e3d352b6c",
+      "before_scope": "agent",
+      "after_scope": "session"
+    }
+  ],
+  "issues": [
+    80,
+    81,
+    82
+  ],
+  "note": "Both named native ANN Entity to Event probes passed; final absent-B closure and A Summary conservation failed. No retrospective pass."
+}

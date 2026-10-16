@@ -96,7 +96,7 @@ from context_graph.domain.models import (
 from context_graph.domain.ontology import OPEN_PACKS, PROVENANCE_EDGE, EnumSpec
 from context_graph.domain.pack_expressions import MATCH_TIMEOUT_SECONDS
 from context_graph.domain.pack_intents import RegistryIntents
-from context_graph.domain.pack_projection import coerce
+from context_graph.domain.pack_projection import coerce, is_reference_stub
 from context_graph.ports.pack_graph import NodeRef
 
 if TYPE_CHECKING:
@@ -1123,6 +1123,12 @@ class ArtifactRetriever:
                 )
             }
             event = found.props.get("_provenance")
+            node_type = self._registry.node_types.get(found.ref.label)
+            if event is None and node_type is not None and is_reference_stub(node_type, attributes):
+                # Lifecycle defaults belong to stub creation, not observed facts.
+                attributes.pop("status", None)
+                attributes.pop("status_changed_at", None)
+                attributes["reference_state"] = "unresolved"
             nodes[key] = AtlasNode(
                 node_id=key,
                 node_type=found.ref.label,

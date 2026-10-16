@@ -356,3 +356,47 @@ def test_summary_prompt_preserves_contrasting_source_and_marks_truncation():
     bounded = build_summary_prompt([{**base, "summary_source": {"content": "x" * 6000}}])
     assert "source content truncated" in bounded
     assert "x" * 5000 not in bounded
+
+
+def test_summary_identity_separates_equal_agent_and_session_scopes():
+    events = [
+        dict(event_id="one", occurred_at="2026-01-01T00:00:00+00:00"),
+        dict(event_id="two", occurred_at="2026-01-01T00:01:00+00:00"),
+    ]
+    session = create_summary_from_events(events, "session", "same-owner")
+    agent = create_summary_from_events(events, "agent", "same-owner")
+    assert session.summary_id != agent.summary_id
+    assert (
+        session.summary_id
+        == create_summary_from_events(list(reversed(events)), "session", "same-owner").summary_id
+    )
+    assert (
+        session.summary_id
+        != create_summary_from_events(events[:1], "session", "same-owner").summary_id
+    )
+    import hashlib
+
+    expected = "summary-same-owner-" + hashlib.sha256(b"one|two").hexdigest()[:12]
+    assert create_summary_from_events(events, "episode", "same-owner").summary_id == expected
+
+
+async def test_scoped_summary_writes_preserve_legacy_node_and_edges():
+    from copy import deepcopy
+
+    from context_graph.adapters.memory.graph import MemoryGraphStore
+
+    graph = MemoryGraphStore()
+    graph.nodes[("Event", "one")] = {"event_id": "one"}
+    legacy = create_summary_from_events([dict(event_id="one")], "episode", "same")
+    await graph.write_summary_with_edges(
+        legacy.summary_id, "agent", "same", "legacy", "2026-01-01", 1, [], ["one"]
+    )
+    before_nodes, before_edges = deepcopy(graph.nodes), deepcopy(graph.edges)
+    for scope in ("session", "agent"):
+        current = create_summary_from_events([dict(event_id="one")], scope, "same")
+        await graph.write_summary_with_edges(
+            current.summary_id, scope, "same", "fresh", "2026-01-02", 1, [], ["one"]
+        )
+    assert all(graph.nodes[k] == v for k, v in before_nodes.items())
+    assert all(graph.edges[k] == v for k, v in before_edges.items())
+    assert len([k for k in graph.nodes if k[0] == "Summary"]) == 3

@@ -6,6 +6,7 @@ import hashlib
 import json
 from contextvars import ContextVar
 from datetime import UTC, datetime, timedelta
+from functools import lru_cache
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
 
@@ -227,6 +228,85 @@ def observe_vectors(child, tenant, record, save):
     engine._get_vector_seeds, graph._query = seeds, query
 
 
+@lru_cache(maxsize=1)
+def pilot_pdlc_registry():
+    from context_graph.ontology import load_registry
+
+    return load_registry(["pdlc"], builtin_packs=["core", "memory"])
+
+
+def unresolved_reference_evidence(nid, node, body, state, saved):
+    """Validate an explicit reference, never a sourced artifact/status claim."""
+    from context_graph.domain.event_acceptance import EventAcceptance
+    from context_graph.domain.models import Event
+    from context_graph.domain.pack_projection import PackProjector, is_reference_stub
+
+    registry = pilot_pdlc_registry()
+    kind = registry.node_types.get(node["node_type"])
+    props = saved.get((node["node_type"], nid), {})
+    if (
+        kind is None
+        or not is_reference_stub(kind, props)
+        or props["ontology_version"] != registry.version
+    ):
+        return False
+    expected = {k: v for k, v in props.items() if k not in {"status", "status_changed_at"}}
+    expected["reference_state"] = "unresolved"
+    if node.get("attributes") != expected or any(
+        r[1] == nid and r[2] == "DERIVED_FROM" for r in state["edges"]
+    ):
+        return False
+    stored_edges = {tuple(r[:5]): decode(r[5]) for r in state["edges"]}
+    ledger = {
+        r[0]: (decode(r[1]), decode(r[2]))
+        for r in state["events"]
+        if len(r) > 2 and r[2] is not None
+    }
+    for edge in body.get("edges", []):
+        if nid not in (edge["source"], edge["target"]):
+            continue
+        source, target = body["nodes"][edge["source"]], body["nodes"][edge["target"]]
+        key = (
+            source["node_type"],
+            edge["source"],
+            edge["edge_type"],
+            target["node_type"],
+            edge["target"],
+        )
+        if stored_edges.get(key) != edge["properties"]:
+            continue
+        neighbor = edge["target"] if edge["source"] == nid else edge["source"]
+        declaring_events = {
+            r[4]
+            for r in state["edges"]
+            if r[1] == neighbor and r[2] == "DERIVED_FROM" and r[3] == "Event"
+        }
+        for eid in declaring_events & ledger.keys():
+            document, raw_acceptance = ledger[eid]
+            event = Event.model_validate(document, strict=False)
+            acceptance = EventAcceptance.model_validate(raw_acceptance)
+            acceptance.require_same_request(acceptance, event, document.get("payload"))
+            projected_event = saved.get(("Event", eid), {})
+            if not projected_event.get("global_position"):
+                continue
+            document = {**document, "global_position": projected_event["global_position"]}
+            event = event.model_copy(update={"global_position": projected_event["global_position"]})
+            projector = PackProjector(
+                registry,
+                frozenset({event.agent_id})
+                if acceptance.source_id == "demo.query"
+                else frozenset(),
+            )
+            plan = projector.plan(event, document)
+            if any(
+                (e.source.label, e.source.key, e.edge_type, e.target.label, e.target.key) == key
+                and all(edge["properties"].get(k) == v for k, v in e.properties.items())
+                for e in plan.edges
+            ):
+                return True
+    return False
+
+
 def closed_response(body, state):
     """Event receipts or an Entity's stored REFERENCES path establish provenance."""
     nodes = body.get("nodes", {})
@@ -266,6 +346,9 @@ def closed_response(body, state):
                 and receipt(nodes[e["source"]])
                 for e in body.get("edges", [])
             ):
+                return False
+        elif node.get("attributes", {}).get("reference_state") == "unresolved":
+            if not unresolved_reference_evidence(nid, node, body, state, saved):
                 return False
         else:
             return False
