@@ -1,0 +1,146 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    "P09 public two-tenant collision, authenticated binding, roles and refused probes; no internal hierarchy policy"
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "run_id": "pilot-p09-1017-03",
+    "coverage": "P09 public two-tenant collision, authenticated binding, roles and refused probes; no internal hierarchy policy",
+    "groups": [
+      {
+        "name": "p09-a",
+        "tenant": "a",
+        "tenant_proof": true,
+        "steps": [
+          {
+            "scenario": "collision",
+            "expected_status": 201,
+            "request": {
+              "event_id": "4a8ed946-5918-5419-a581-b45382bf788a",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T19:17:03.177504+00:00",
+              "session_id": "pilot-p09-1017-03:same-session",
+              "agent_id": "pilot-p09-1017-03:same-owner",
+              "trace_id": "pilot-p09-1017-03",
+              "payload_ref": "pilot-p09:collision",
+              "payload": {
+                "key": "delivery",
+                "description": "Prepare the user research workshop"
+              }
+            }
+          }
+        ],
+        "queries": [],
+        "goal": "goal-2facffc6fd2d24e394dcd8e2bd9583fa7e499703f63f7621a2f90df0d05f2316",
+        "text": "Prepare the user research workshop",
+        "retained_negative_proofs": [
+          {
+            "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+            "tenant": "a",
+            "sha256": {
+              "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+              "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+              "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+            }
+          }
+        ],
+        "retained_negative_deliveries": [
+          {
+            "tenant": "a",
+            "request": {
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "occurred_at": "2026-10-16T12:08:58.087555+00:00",
+              "session_id": "pilot-p04-1016-01:a:memory",
+              "agent_id": "pilot-p04-1016-01:a:memory-owner",
+              "trace_id": "pilot-p04-1016-01",
+              "payload_ref": "pilot-spectrum:belief-confirmed",
+              "payload": {
+                "key": "expiry",
+                "expected_revision": 0
+              }
+            },
+            "fields": {
+              "acceptance": "{\"tenant_id\":\"isolation-a\",\"database_resource\":\"projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc\",\"binding_id\":\"tenant-isolation-1014-03-a\",\"accepted_epoch\":53,\"bundle_digest\":\"sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd\",\"engine_revision\":\"tenant-isolation-v1\",\"source_id\":\"demo.query\",\"envelope_version\":1,\"request_digest\":\"sha256:json-v1:a063960b1e702c30890c7f8fe99b0e3e0bd8135fa053b991936c22ecad72efdd\"}",
+              "binding_id": "tenant-isolation-1014-03-a",
+              "bundle_digest": "sha256:1d7d8530fb50cee52634a0faa3457852d9ec81e7124f4aba42ff3679f3f3dfdd",
+              "consumer": "projection-1",
+              "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-assess-1010a-pdlc",
+              "delivery_count": "1",
+              "disposition_epoch": "53",
+              "engine_revision": "tenant-isolation-v1",
+              "event_id": "dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "event_type": "memory.belief.confirmed",
+              "group": "assessment-projection",
+              "original_entry_id": "2026-10-16T12:15:58.883919000Z/000000/dc1c59b9-2e0f-515f-896e-fa87f37a29a7",
+              "original_stream": "Events",
+              "tenant_id": "isolation-a"
+            },
+            "expected_worker_rejection": {
+              "group": "assessment-projection",
+              "reason": "state_conflict",
+              "disposition_epoch": 53
+            }
+          }
+        ]
+      },
+      {
+        "name": "p09-b",
+        "tenant": "b",
+        "tenant_proof": true,
+        "steps": [
+          {
+            "scenario": "collision",
+            "expected_status": 201,
+            "request": {
+              "event_id": "4a8ed946-5918-5419-a581-b45382bf788a",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T19:17:03.177504+00:00",
+              "session_id": "pilot-p09-1017-03:same-session",
+              "agent_id": "pilot-p09-1017-03:same-owner",
+              "trace_id": "pilot-p09-1017-03",
+              "payload_ref": "pilot-p09:collision",
+              "payload": {
+                "key": "delivery",
+                "description": "Prepare the payment settlement release"
+              }
+            }
+          },
+          {
+            "scenario": "foreign-only",
+            "expected_status": 201,
+            "request": {
+              "event_id": "3fb5e2a3-f3bd-5c9c-89ad-e40e6f2cff0b",
+              "event_type": "memory.goal.created",
+              "occurred_at": "2026-10-16T19:17:03.177504+00:00",
+              "session_id": "pilot-p09-1017-03:same-session",
+              "agent_id": "pilot-p09-1017-03:same-owner",
+              "trace_id": "pilot-p09-1017-03",
+              "payload_ref": "pilot-p09:collision",
+              "payload": {
+                "key": "foreign",
+                "description": "Only Tenant B has this reconciliation follow-up"
+              }
+            }
+          }
+        ],
+        "queries": [],
+        "goal": "goal-2facffc6fd2d24e394dcd8e2bd9583fa7e499703f63f7621a2f90df0d05f2316",
+        "text": "Prepare the payment settlement release",
+        "retained_negative_proofs": [],
+        "foreign": "goal-304a52b042daa44cf290e1fc15d35202b6ecdf36e24b62f4a88b0095b82c588c"
+      }
+    ]
+  },
+  "execution_mode": "selected-journeys"
+}
