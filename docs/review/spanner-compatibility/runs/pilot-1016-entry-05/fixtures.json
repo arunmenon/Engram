@@ -1,0 +1,235 @@
+{
+  "events": [
+    {
+      "tenant": "a",
+      "key": "alice",
+      "event": {
+        "event_id": "c6193330-43d3-59c5-8681-1826ec46c86b",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:22.795250+00:00",
+        "session_id": "pilot-1016-entry-05:alice",
+        "agent_id": "pilot-1016-entry-05:alice",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "a",
+      "key": "alice-end",
+      "event": {
+        "event_id": "a4d3afd2-6893-5294-a8ec-a729af946926",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T02:50:23.795250+00:00",
+        "session_id": "pilot-1016-entry-05:alice",
+        "agent_id": "pilot-1016-entry-05:alice",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:alice-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "a",
+      "key": "bob",
+      "event": {
+        "event_id": "c824a5f6-84cc-56b0-882a-e96502389570",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:24.795250+00:00",
+        "session_id": "pilot-1016-entry-05:bob",
+        "agent_id": "pilot-1016-entry-05:bob",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:bob",
+        "payload": {
+          "content": "My name is Bob. I am a software engineer. I prefer detailed examples. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "a",
+      "key": "bob-end",
+      "event": {
+        "event_id": "7375368d-c0ea-5d4f-a6f1-1831b24f3f04",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T02:50:25.795250+00:00",
+        "session_id": "pilot-1016-entry-05:bob",
+        "agent_id": "pilot-1016-entry-05:bob",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:bob-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "b",
+      "key": "spec",
+      "event": {
+        "event_id": "e36c8195-8961-51ae-b594-cb2fd65bb4f7",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-16T02:50:26.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:spec",
+        "payload": {
+          "doc_id": "pilot-1016-entry-05-export",
+          "version": "1",
+          "title": "Audit CSV export",
+          "scope": "Export authorized workspace rows",
+          "acceptance_criteria": "Only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "b",
+      "key": "requirement",
+      "event": {
+        "event_id": "216925dd-3db1-5817-af6f-f13d63c4c657",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-16T02:50:27.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:requirement",
+        "payload": {
+          "spec_id": "pilot-1016-entry-05-export",
+          "spec_version": "1",
+          "local_id": "authorization",
+          "statement": "Export only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "b",
+      "key": "design",
+      "event": {
+        "event_id": "335fa61a-561b-54c8-8e81-c66611fbff9b",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-16T02:50:28.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:design",
+        "payload": {
+          "doc_id": "pilot-1016-entry-05-hld",
+          "section_path": "streaming",
+          "version": "1",
+          "kind": "hld",
+          "title": "Bounded export streaming",
+          "body": "We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory. Constraint: never buffer an entire workspace.",
+          "requirements": [
+            {
+              "spec_id": "pilot-1016-entry-05-export",
+              "spec_version": "1",
+              "local_id": "authorization"
+            }
+          ]
+        },
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "b",
+      "key": "prose",
+      "event": {
+        "event_id": "7294291c-83d6-5495-8848-c6e2cca479d8",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:29.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:prose",
+        "payload": {
+          "content": "For export jobs we choose bounded batches because memory is limited; avoid buffering whole workspaces. This is a proposed design choice, not evidence of a production deployment."
+        },
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    },
+    {
+      "tenant": "b",
+      "key": "end",
+      "event": {
+        "event_id": "18ee04c9-3cfd-5051-b1d1-a9838736283e",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T02:50:30.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "expected_status": 201
+    }
+  ],
+  "expected_artifacts": {
+    "spec": "Spec:pilot-1016-entry-05-export|1",
+    "requirement": "Requirement:pilot-1016-entry-05-export|1|authorization",
+    "design": "DesignElement:pilot-1016-entry-05-hld|streaming|1"
+  },
+  "queries": {
+    "a-alice": {
+      "query": "What answer style and interests should this assistant use for Alice?",
+      "intent": "personalize",
+      "agent_id": "pilot-1016-entry-05:alice",
+      "session_id": "pilot-1016-entry-05:alice",
+      "timeout_ms": 30000,
+      "max_nodes": 60
+    },
+    "a-bob": {
+      "query": "What answer style and interests should this assistant use for Bob?",
+      "intent": "personalize",
+      "agent_id": "pilot-1016-entry-05:bob",
+      "session_id": "pilot-1016-entry-05:bob",
+      "timeout_ms": 30000,
+      "max_nodes": 60
+    },
+    "b-trace": {
+      "query": "Which design refines this export authorization requirement?",
+      "intent": "trace",
+      "seed_node_ids": [
+        "Requirement:pilot-1016-entry-05-export|1|authorization"
+      ],
+      "max_depth": 3,
+      "max_nodes": 60
+    },
+    "b-text": {
+      "query": "Audit CSV export",
+      "intent": "trace",
+      "max_depth": 3,
+      "max_nodes": 60
+    }
+  },
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    "A-01",
+    "A-06 owner control",
+    "B02 declared chain",
+    "B06 prose proposals",
+    "C02",
+    "C06",
+    "C07",
+    "C17"
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "All other candidate journeys/probes remain unexecuted. This first checkpoint is not complete pilot acceptance."
+}

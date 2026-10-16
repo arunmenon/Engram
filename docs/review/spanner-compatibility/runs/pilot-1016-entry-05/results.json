@@ -1,0 +1,5582 @@
+{
+  "state": "failed",
+  "scope": [
+    "A-01",
+    "A-06 owner control",
+    "B02 declared chain",
+    "B06 prose proposals",
+    "C02",
+    "C06",
+    "C07",
+    "C17"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "alice admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "alice-end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "bob admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "bob-end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "spec admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "requirement admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "design admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "prose admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "end admitted",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "unchanged retry accepted without new identity",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "exact events, extraction receipts, matching pack outcomes and drained work",
+      "passed": false,
+      "actual": null
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": true
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final pending/DLQ empty",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final pending/DLQ empty",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "c6193330-43d3-59c5-8681-1826ec46c86b",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:22.795250+00:00",
+        "session_id": "pilot-1016-entry-05:alice",
+        "agent_id": "pilot-1016-entry-05:alice",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "c6193330-43d3-59c5-8681-1826ec46c86b",
+        "global_position": "2026-10-16T02:54:09.174799000Z/000000/c6193330-43d3-59c5-8681-1826ec46c86b",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "a4d3afd2-6893-5294-a8ec-a729af946926",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T02:50:23.795250+00:00",
+        "session_id": "pilot-1016-entry-05:alice",
+        "agent_id": "pilot-1016-entry-05:alice",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:alice-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "a4d3afd2-6893-5294-a8ec-a729af946926",
+        "global_position": "2026-10-16T02:54:09.589999000Z/000000/a4d3afd2-6893-5294-a8ec-a729af946926",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "c824a5f6-84cc-56b0-882a-e96502389570",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:24.795250+00:00",
+        "session_id": "pilot-1016-entry-05:bob",
+        "agent_id": "pilot-1016-entry-05:bob",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:bob",
+        "payload": {
+          "content": "My name is Bob. I am a software engineer. I prefer detailed examples. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "c824a5f6-84cc-56b0-882a-e96502389570",
+        "global_position": "2026-10-16T02:54:09.929775000Z/000000/c824a5f6-84cc-56b0-882a-e96502389570",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "7375368d-c0ea-5d4f-a6f1-1831b24f3f04",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T02:50:25.795250+00:00",
+        "session_id": "pilot-1016-entry-05:bob",
+        "agent_id": "pilot-1016-entry-05:bob",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:bob-end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "7375368d-c0ea-5d4f-a6f1-1831b24f3f04",
+        "global_position": "2026-10-16T02:54:22.097151000Z/000000/7375368d-c0ea-5d4f-a6f1-1831b24f3f04",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "e36c8195-8961-51ae-b594-cb2fd65bb4f7",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-16T02:50:26.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:spec",
+        "payload": {
+          "doc_id": "pilot-1016-entry-05-export",
+          "version": "1",
+          "title": "Audit CSV export",
+          "scope": "Export authorized workspace rows",
+          "acceptance_criteria": "Only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "e36c8195-8961-51ae-b594-cb2fd65bb4f7",
+        "global_position": "2026-10-16T02:54:22.423247000Z/000000/e36c8195-8961-51ae-b594-cb2fd65bb4f7",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "216925dd-3db1-5817-af6f-f13d63c4c657",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-16T02:50:27.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:requirement",
+        "payload": {
+          "spec_id": "pilot-1016-entry-05-export",
+          "spec_version": "1",
+          "local_id": "authorization",
+          "statement": "Export only workspace-authorized rows"
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "216925dd-3db1-5817-af6f-f13d63c4c657",
+        "global_position": "2026-10-16T02:54:22.724783000Z/000000/216925dd-3db1-5817-af6f-f13d63c4c657",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "335fa61a-561b-54c8-8e81-c66611fbff9b",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-16T02:50:28.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:design",
+        "payload": {
+          "doc_id": "pilot-1016-entry-05-hld",
+          "section_path": "streaming",
+          "version": "1",
+          "kind": "hld",
+          "title": "Bounded export streaming",
+          "body": "We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory. Constraint: never buffer an entire workspace.",
+          "requirements": [
+            {
+              "spec_id": "pilot-1016-entry-05-export",
+              "spec_version": "1",
+              "local_id": "authorization"
+            }
+          ]
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "335fa61a-561b-54c8-8e81-c66611fbff9b",
+        "global_position": "2026-10-16T02:54:23.030143000Z/000000/335fa61a-561b-54c8-8e81-c66611fbff9b",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "7294291c-83d6-5495-8848-c6e2cca479d8",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:29.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:prose",
+        "payload": {
+          "content": "For export jobs we choose bounded batches because memory is limited; avoid buffering whole workspaces. This is a proposed design choice, not evidence of a production deployment."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "7294291c-83d6-5495-8848-c6e2cca479d8",
+        "global_position": "2026-10-16T02:54:23.317647000Z/000000/7294291c-83d6-5495-8848-c6e2cca479d8",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "18ee04c9-3cfd-5051-b1d1-a9838736283e",
+        "event_type": "system.session_end",
+        "occurred_at": "2026-10-16T02:50:30.795250+00:00",
+        "session_id": "pilot-1016-entry-05:work",
+        "agent_id": "pilot-1016-entry-05:publisher",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:end",
+        "payload": {},
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "18ee04c9-3cfd-5051-b1d1-a9838736283e",
+        "global_position": "2026-10-16T02:54:23.603055000Z/000000/18ee04c9-3cfd-5051-b1d1-a9838736283e",
+        "status": "created"
+      }
+    },
+    {
+      "tenant": "a",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "c6193330-43d3-59c5-8681-1826ec46c86b",
+        "event_type": "observation.input",
+        "occurred_at": "2026-10-16T02:50:22.795250+00:00",
+        "session_id": "pilot-1016-entry-05:alice",
+        "agent_id": "pilot-1016-entry-05:alice",
+        "trace_id": "pilot-1016-entry-05",
+        "payload_ref": "pilot:alice",
+        "payload": {
+          "content": "My name is Alice. I am a software engineer. I prefer short answers. I am interested in Rust language development."
+        },
+        "importance_hint": 7
+      },
+      "status": 201,
+      "output": {
+        "event_id": "c6193330-43d3-59c5-8681-1826ec46c86b",
+        "global_position": "2026-10-16T02:54:09.174799000Z/000000/c6193330-43d3-59c5-8681-1826ec46c86b",
+        "status": "duplicate"
+      }
+    }
+  ],
+  "provider_calls": [
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:09.035712+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 222,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended repeatedly after brief periods of input. No tool use or substantive actions are recorded, so there is no outcome to report.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:22.654511+00:00",
+      "usage": {
+        "completion_tokens": 367,
+        "prompt_tokens": 1486,
+        "total_tokens": 1853,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 1483,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 1483
+        }
+      },
+      "output": "{\n  \"persona\": {\n    \"name\": \"Alice\",\n    \"role\": \"Software engineer\",\n    \"tech_level\": \"intermediate\",\n    \"communication_style\": \"Prefers short answers\",\n    \"source_quote\": \"My name is Alice. I am a software engineer.\"\n  },\n  \"entities\": [\n    {\n      \"name\": \"Alice\",\n      \"entity_type\": \"user\",\n      \"confidence\": 1.0,\n      \"source_quote\": \"My name is Alice\"\n    },\n    {\n      \"name\": \"Rust\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.95,\n      \"source_quote\": \"Rust language development\"\n    }\n  ],\n  \"preferences\": [\n    {\n      \"category\": \"communication\",\n      \"key\": \"short_answers\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.9,\n      \"confidence\": 1.0,\n      \"source\": \"explicit\",\n      \"context\": \"Prefers concise responses.\",\n      \"about_entity\": \"answer length\",\n      \"source_quote\": \"I prefer short answers\"\n    }\n  ],\n  \"skills\": [\n    {\n      \"name\": \"Software engineering\",\n      \"category\": \"domain_knowledge\",\n      \"proficiency\": 0.65,\n      \"confidence\": 0.85,\n      \"source\": \"declared\",\n      \"source_quote\": \"I am a software engineer\"\n    }\n  ],\n  \"interests\": [\n    {\n      \"entity_name\": \"Rust language development\",\n      \"entity_type\": \"concept\",\n      \"weight\": 0.9,\n      \"source\": \"explicit\",\n      \"source_quote\": \"I am interested in Rust language development\"\n    }\n  ]\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "c6193330-43d3-59c5-8681-1826ec46c86b"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:23.148552+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 222,
+        "total_tokens": 248,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session contained several brief input observations and repeated session-end events. No actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:29.857197+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 154,
+        "total_tokens": 190,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools were used, and no further details about the belief or goal were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:29.951985+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 222,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted only of input observations and repeated session-end events. No actions or tool use were recorded, and no outcome was documented.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:29.956213+00:00",
+      "usage": {
+        "completion_tokens": 243,
+        "prompt_tokens": 1765,
+        "total_tokens": 2008,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 1762,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 1762
+        }
+      },
+      "output": "{\"nodes\":[{\"ref\":\"n1\",\"type\":\"Decision\",\"confidence\":0.8,\"statement\":\"Stream authorized rows in bounded batches to prevent workspace exports from exhausting memory.\",\"rationale\":\"Workspace exports must not exhaust memory.\",\"evidence\":\"We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory.\"},{\"ref\":\"n2\",\"type\":\"Constraint\",\"confidence\":0.8,\"statement\":\"Never buffer an entire workspace.\",\"scope\":\"Workspace exports\",\"evidence\":\"Constraint: never buffer an entire workspace.\"}],\"links\":[{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"DesignElement:pilot-1016-entry-04-hld|streaming|1\",\"confidence\":0.8,\"evidence\":\"title: Bounded export streaming\"},{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"Requirement:pilot-1016-entry-04-export|1|authorization\",\"confidence\":0.73,\"evidence\":\"stream authorized rows\"},{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"Spec:pilot-1016-entry-05-export|1\",\"confidence\":0.75,\"evidence\":\"workspace exports\"}}]}",
+      "state": "returned",
+      "input_event_candidates": [
+        "335fa61a-561b-54c8-8e81-c66611fbff9b"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:30.172530+00:00",
+      "usage": {
+        "completion_tokens": 259,
+        "prompt_tokens": 446,
+        "total_tokens": 705,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "{\"entities\":[{\"name\":\"pilot-1016-entry-05:publisher\",\"entity_type\":\"agent\",\"confidence\":0.99,\"source_quote\":\"agent=pilot-1016-entry-05:publisher\"},{\"name\":\"pilot:spec\",\"entity_type\":\"resource\",\"confidence\":0.98,\"source_quote\":\"payload_ref: pilot:spec\"},{\"name\":\"pilot:requirement\",\"entity_type\":\"resource\",\"confidence\":0.98,\"source_quote\":\"payload_ref: pilot:requirement\"},{\"name\":\"pilot:design\",\"entity_type\":\"resource\",\"confidence\":0.98,\"source_quote\":\"payload_ref: pilot:design\"},{\"name\":\"pilot:prose\",\"entity_type\":\"resource\",\"confidence\":0.98,\"source_quote\":\"payload_ref: pilot:prose\"},{\"name\":\"bounded batches\",\"entity_type\":\"concept\",\"confidence\":0.99,\"source_quote\":\"we choose bounded batches\"},{\"name\":\"memory limitation\",\"entity_type\":\"concept\",\"confidence\":0.97,\"source_quote\":\"memory is limited\"},{\"name\":\"workspaces\",\"entity_type\":\"concept\",\"confidence\":0.93,\"source_quote\":\"avoid buffering whole workspaces\"},{\"name\":\"production deployment\",\"entity_type\":\"concept\",\"confidence\":0.94,\"source_quote\":\"not evidence of a production deployment\"}]}",
+      "state": "returned",
+      "input_event_candidates": [
+        "7294291c-83d6-5495-8848-c6e2cca479d8"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:32.050597+00:00",
+      "usage": {
+        "completion_tokens": 364,
+        "prompt_tokens": 1486,
+        "total_tokens": 1850,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 1483,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 1483
+        }
+      },
+      "output": "{\n  \"persona\": {\n    \"name\": \"Bob\",\n    \"role\": \"Software engineer\",\n    \"tech_level\": null,\n    \"communication_style\": null,\n    \"source_quote\": \"My name is Bob. I am a software engineer.\"\n  },\n  \"entities\": [\n    {\n      \"name\": \"Bob\",\n      \"entity_type\": \"user\",\n      \"confidence\": 1.0,\n      \"source_quote\": \"My name is Bob.\"\n    },\n    {\n      \"name\": \"Rust\",\n      \"entity_type\": \"concept\",\n      \"confidence\": 0.95,\n      \"source_quote\": \"Rust language development\"\n    }\n  ],\n  \"preferences\": [\n    {\n      \"category\": \"communication\",\n      \"key\": \"detailed_examples\",\n      \"polarity\": \"positive\",\n      \"strength\": 0.9,\n      \"confidence\": 1.0,\n      \"source\": \"explicit\",\n      \"context\": \"Prefers answers that include detailed examples.\",\n      \"about_entity\": \"detailed examples\",\n      \"source_quote\": \"I prefer detailed examples.\"\n    }\n  ],\n  \"skills\": [\n    {\n      \"name\": \"Software engineering\",\n      \"category\": \"domain_knowledge\",\n      \"proficiency\": 0.7,\n      \"confidence\": 0.85,\n      \"source\": \"declared\",\n      \"source_quote\": \"I am a software engineer.\"\n    }\n  ],\n  \"interests\": [\n    {\n      \"entity_name\": \"Rust\",\n      \"entity_type\": \"concept\",\n      \"weight\": 0.9,\n      \"source\": \"explicit\",\n      \"source_quote\": \"I am interested in Rust language development.\"\n    }\n  ]\n}",
+      "state": "returned",
+      "input_event_candidates": [
+        "c824a5f6-84cc-56b0-882a-e96502389570"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:33.629438+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 154,
+        "total_tokens": 180,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No tools or further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:33.714961+00:00",
+      "usage": {
+        "completion_tokens": 300,
+        "prompt_tokens": 1609,
+        "total_tokens": 1909,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 1606,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 1606
+        }
+      },
+      "output": "{\"nodes\":[{\"ref\":\"n1\",\"type\":\"Decision\",\"confidence\":0.8,\"statement\":\"Use bounded batches for export jobs rather than buffering whole workspaces.\",\"rationale\":\"Memory is limited.\",\"alternatives\":\"Buffering whole workspaces.\"},{\"ref\":\"n2\",\"type\":\"Constraint\",\"confidence\":0.8,\"statement\":\"Export jobs must avoid buffering whole workspaces.\",\"scope\":\"Export jobs\",\"severity\":\"unspecified\",\"evidence\":\"avoid buffering whole workspaces\"}],\"links\":[{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"DesignElement:pilot-1015-entry-02-hld|streaming|1\",\"confidence\":0.8,\"evidence\":\"For export jobs we choose bounded batches\"},{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"DesignElement:pilot-1016-entry-03-hld|streaming|1\",\"confidence\":0.8,\"evidence\":\"For export jobs we choose bounded batches\"},{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"DesignElement:pilot-1016-entry-04-hld|streaming|1\",\"confidence\":0.8,\"evidence\":\"For export jobs we choose bounded batches\"},{\"type\":\"APPLIES_TO\",\"from\":\"n1\",\"to\":\"DesignElement:pilot-1016-entry-05-hld|streaming|1\",\"confidence\":0.8,\"evidence\":\"For export jobs we choose bounded batches\"}]}",
+      "state": "returned",
+      "input_event_candidates": [
+        "7294291c-83d6-5495-8848-c6e2cca479d8"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:41.583086+00:00",
+      "usage": {
+        "completion_tokens": 23,
+        "prompt_tokens": 95,
+        "total_tokens": 118,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input event and ended one second later. No tools or actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:41.624236+00:00",
+      "usage": {
+        "completion_tokens": 28,
+        "prompt_tokens": 222,
+        "total_tokens": 250,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted of several input observations interspersed with session-end events. No actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:43.663762+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated. An input was then observed, and the session ended. No tools or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:44.196938+00:00",
+      "usage": {
+        "completion_tokens": 28,
+        "prompt_tokens": 95,
+        "total_tokens": 123,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended almost immediately after an input was observed. No tools were used, and no outcome beyond session termination was recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:46.006154+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input observation and ended immediately; no tools were used or actions recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:46.632877+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated the spec, a requirement, and a design section, then received an input observation. The session ended shortly afterward; no outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:48.348000+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 181,
+        "total_tokens": 215,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated. An input observation was recorded, and the session then ended. No tools or specific outcomes were reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:48.660370+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input and ended shortly afterward. No tools were used, and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:50.767174+00:00",
+      "usage": {
+        "completion_tokens": 16,
+        "prompt_tokens": 95,
+        "total_tokens": 111,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions or tool use.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:51.075671+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated. An input was then observed, and the session ended. No tools or further outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:53.221879+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:53.283414+00:00",
+      "usage": {
+        "completion_tokens": 16,
+        "prompt_tokens": 95,
+        "total_tokens": 111,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions or tool use.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:54.912286+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended within about one second. No actions or tool use were recorded, and no outcome was reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:55.911169+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were changed, followed by an input observation. The session then ended. No specific tools or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:57.650326+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended immediately. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:58.202748+00:00",
+      "usage": {
+        "completion_tokens": 28,
+        "prompt_tokens": 154,
+        "total_tokens": 182,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded a belief, confirmed it, then created and completed a goal. No external tools or other actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:54:59.403479+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended immediately; no actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:00.828345+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 154,
+        "total_tokens": 181,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools or other actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:01.993820+00:00",
+      "usage": {
+        "completion_tokens": 23,
+        "prompt_tokens": 95,
+        "total_tokens": 118,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received an input observation, then the session ended. No tools or other actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:02.772902+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 101,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created and merged. No tools or additional details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:04.536441+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended almost immediately after receiving an input. No tools were used, and no further action or outcome was recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:06.767936+00:00",
+      "usage": {
+        "completion_tokens": 13,
+        "prompt_tokens": 101,
+        "total_tokens": 114,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created and merged successfully.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:07.038857+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions or tool use. No outcome was reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:08.579538+00:00",
+      "usage": {
+        "completion_tokens": 11,
+        "prompt_tokens": 72,
+        "total_tokens": 83,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A change was created in PDLC.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:11.322118+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 72,
+        "total_tokens": 92,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A change was created in PDLC. No further actions or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:13.593963+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 72,
+        "total_tokens": 94,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A specification change event was recorded. No further actions, tools, or outcome details were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:13.629966+00:00",
+      "usage": {
+        "completion_tokens": 29,
+        "prompt_tokens": 222,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received several inputs, but each interaction ended almost immediately. No tools were used, and no actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:16.156826+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 72,
+        "total_tokens": 94,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded a specification change. No further actions, tools, or outcome details were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:19.952555+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 222,
+        "total_tokens": 256,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted of several incoming observations, interspersed with session-end events. No tool use or specific actions are recorded, and no outcome is shown.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:23.132650+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 222,
+        "total_tokens": 249,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode contained several input observations and repeated session-end events, but no recorded agent actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:26.995492+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 222,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode contained several user-input observations, but the session ended repeatedly. No tool use or completed action is recorded, and no outcome is specified.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:31.334277+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input observation was recorded, then the session ended. No tools or outcome details were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:34.142612+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:35.838037+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, a requirement, and a design section were updated. An input was then observed, and the session ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:38.588063+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A specification, requirement, and design section were changed, followed by an input observation. The session then ended; no tools or further outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:40.345903+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:43.269658+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 181,
+        "total_tokens": 217,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, a requirement, and a design section were changed, followed by an input observation. The session then ended; no tools or specific change details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:45.230178+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The PDLC spec, requirement, and design section were updated. An input observation followed, and the session then ended. No tools or further outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:45.978439+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 222,
+        "total_tokens": 246,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received several inputs, but the session ended repeatedly. No tool use or completed action is recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:47.993241+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The PDLC spec, requirement, and design section were updated. An input was then observed, and the session ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:48.727730+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 222,
+        "total_tokens": 249,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted only of input observations and repeated session-end events. No agent actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:50.747416+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 154,
+        "total_tokens": 179,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded a belief, confirmed it, then created and completed a goal. No external tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:53.334657+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 154,
+        "total_tokens": 181,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools or other actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:55.087223+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received an input and the session ended immediately; no tools or other actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:57.668446+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received an input, then the session ended. No tools were used or actions recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:55:59.427285+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 95,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended shortly after an input was received; no tools were used and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:02.192591+00:00",
+      "usage": {
+        "completion_tokens": 17,
+        "prompt_tokens": 95,
+        "total_tokens": 112,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended without any recorded actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:04.231215+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions or tool use. No outcome was reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:06.778922+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended immediately after receiving an input; no actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:08.914856+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 95,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input, then ended. No tools were used, and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:11.723993+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input and ended immediately; no tools were used or actions recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:12.234779+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 222,
+        "total_tokens": 248,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted only of input observations and repeated session-end events. No actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:13.687908+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input and then ended. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:15.059669+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 222,
+        "total_tokens": 246,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode contains only input observations and session-end events. No actions, tools, or outcomes are recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:16.171188+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended immediately. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:16.883023+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 181,
+        "total_tokens": 213,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input was then observed, and the session ended. No tools or outcomes were specified.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:17.815370+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input observation and then ended. No tools were used, and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:19.413599+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated, followed by an input observation. The session then ended; no specific tools or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:20.459355+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 95,
+        "total_tokens": 120,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended one second later. No tool use or other actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:21.777717+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated the specification, requirement, and design section, then received an input observation. The session ended; no tools or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:22.151470+00:00",
+      "usage": {
+        "completion_tokens": 14,
+        "prompt_tokens": 95,
+        "total_tokens": 109,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended without any recorded actions or tool use.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:24.370125+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 181,
+        "total_tokens": 215,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input observation was recorded, and the session then ended. No tools or outcome details were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:24.583338+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded agent actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:26.101203+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated a specification, a requirement, and a design section, then received an input observation. The session ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:26.294631+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended immediately after an input was observed; no tools were used or actions recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:28.761604+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The PDLC specification, requirement, and design section were updated. An input was then observed, and the session ended. No specific tools or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:28.916145+00:00",
+      "usage": {
+        "completion_tokens": 19,
+        "prompt_tokens": 95,
+        "total_tokens": 114,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended almost immediately. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:31.001754+00:00",
+      "usage": {
+        "completion_tokens": 37,
+        "prompt_tokens": 181,
+        "total_tokens": 218,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated the specification, a requirement, and a design section, then received an input observation. The session ended shortly afterward; no specific tools or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:35.107139+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were changed, followed by an input observation. The session then ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:36.576649+00:00",
+      "usage": {
+        "completion_tokens": 31,
+        "prompt_tokens": 222,
+        "total_tokens": 253,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session consisted only of input observations and repeated session-end events. No tool use or substantive actions are recorded, and no outcome is evident.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:36.962541+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 154,
+        "total_tokens": 190,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools were used, and no further details about the belief or goal were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:39.169103+00:00",
+      "usage": {
+        "completion_tokens": 40,
+        "prompt_tokens": 222,
+        "total_tokens": 262,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session recorded several input observations followed by repeated session endings, with a later input observation after a longer gap. No tool use or substantive actions are shown, and no outcome is recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:39.369182+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 154,
+        "total_tokens": 178,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools were used.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:41.693934+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 101,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created and merged. No tools or further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:44.374265+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 101,
+        "total_tokens": 125,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created and then merged one second later. No tools or additional actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:47.296733+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 72,
+        "total_tokens": 96,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A change was created on 2026-10-14. No tools or further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:50.056068+00:00",
+      "usage": {
+        "completion_tokens": 19,
+        "prompt_tokens": 72,
+        "total_tokens": 91,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created. No further actions or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:56:57.445033+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 222,
+        "total_tokens": 249,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode contained several user-input observations interspersed with session-end events. No tool use or resulting actions are recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:00.942848+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 222,
+        "total_tokens": 247,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received several input observations, but the sessions ended without any recorded actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:03.506250+00:00",
+      "usage": {
+        "completion_tokens": 31,
+        "prompt_tokens": 222,
+        "total_tokens": 253,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received several input observations and the session ended multiple times. No tool use or substantive actions are recorded, and no outcome is evident.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:04.868652+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:07.492228+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 222,
+        "total_tokens": 249,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted of several user-input events and session-end signals. No actions, tool use, or outcome are recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:09.609896+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were changed, followed by an input observation. The session then ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:11.977877+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 154,
+        "total_tokens": 180,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent stated and confirmed a belief, then created and completed a goal. No tools or additional details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:12.477563+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or outcomes beyond these events were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:14.413736+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 154,
+        "total_tokens": 187,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded a belief, confirmed it, then created and completed a goal. No external tools or specific details about the belief or goal were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:15.348544+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input was then observed, and the session ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:16.283737+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded agent actions or tool use. No outcome was reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:17.236553+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 181,
+        "total_tokens": 215,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The PDLC spec, requirement, and design section were updated. An input observation followed, and the session ended. No tools or specific changes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:18.843486+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 95,
+        "total_tokens": 125,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode began with an input observation and ended one second later. No tools were used, and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:20.395002+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated. An input observation was recorded, and the session ended. No tools or outcome details were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:20.860460+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input observation and then ended; no actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:22.349095+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input was then observed, and the session ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:23.642896+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended about one second later. No actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:25.030698+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated, followed by an input observation. The session then ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:25.559376+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended immediately. No actions or tools were recorded, and no outcome was reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:28.718268+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended immediately after receiving an input; no actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:30.656088+00:00",
+      "usage": {
+        "completion_tokens": 18,
+        "prompt_tokens": 95,
+        "total_tokens": 113,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended immediately, with no recorded actions or tool use.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:34.107494+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode began and ended immediately, with no recorded actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:36.263408+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input observation and then ended. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:38.857329+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input and then ended; no actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:40.718617+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 95,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input event and ended one second later. No actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:43.362520+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions or tool use. No outcome was reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:44.870792+00:00",
+      "usage": {
+        "completion_tokens": 17,
+        "prompt_tokens": 95,
+        "total_tokens": 112,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended immediately, with no actions or tools recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:47.449333+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 95,
+        "total_tokens": 115,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended immediately; no actions, tools, or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:49.298093+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 95,
+        "total_tokens": 119,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended one second later. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:49.340564+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 222,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session consisted of several input observations and session-end events. No tool use or substantive actions are recorded, and the outcome is unclear.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:51.970052+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 95,
+        "total_tokens": 120,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended about one second later. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:52.229980+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 222,
+        "total_tokens": 246,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received several inputs, but the sessions ended without any recorded actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:54.570727+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:57.200424+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were changed, then an input was observed. The session ended; no tools or specific change details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:58.975275+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:57:59.614189+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 222,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode consisted only of incoming observations and repeated session-end events. No actions or tool use were recorded, and no outcome was documented.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:01.622750+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:02.368361+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 222,
+        "total_tokens": 247,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode contains several input observations followed by session-end events. No actions, tools, or outcomes are recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:03.362051+00:00",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 181,
+        "total_tokens": 217,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input observation was recorded, and the session then ended. No tools or outcomes beyond these changes were specified.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:06.128979+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were changed. An input was then observed, and the session ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:08.091272+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 181,
+        "total_tokens": 215,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, then an input was observed. The session ended shortly afterward; no tools or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:10.881667+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent updated the specification, a requirement, and a design section, then recorded an input observation. The session ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:12.634936+00:00",
+      "usage": {
+        "completion_tokens": 31,
+        "prompt_tokens": 154,
+        "total_tokens": 185,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No specific tools or details of the belief or goal were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:15.027463+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 154,
+        "total_tokens": 181,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools or other actions were reported.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:16.840782+00:00",
+      "usage": {
+        "completion_tokens": 12,
+        "prompt_tokens": 101,
+        "total_tokens": 113,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created and merged.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:19.928104+00:00",
+      "usage": {
+        "completion_tokens": 20,
+        "prompt_tokens": 101,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A PDLC change was created and merged. No tools or additional actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:21.864838+00:00",
+      "usage": {
+        "completion_tokens": 24,
+        "prompt_tokens": 72,
+        "total_tokens": 96,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A change was created on 2026-10-14. No tools or further actions were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:24.124532+00:00",
+      "usage": {
+        "completion_tokens": 13,
+        "prompt_tokens": 72,
+        "total_tokens": 85,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A change was created in the PDLC system.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:26.877108+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 222,
+        "total_tokens": 248,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session contained several input observations and repeated session-end events, but no recorded actions, tools used, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:29.854468+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 222,
+        "total_tokens": 255,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received several input observations, with repeated session-end events in between. No tool use or substantive action is recorded, and no outcome is documented.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:30.443475+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 222,
+        "total_tokens": 252,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session recorded several user-input observations and repeated session-end events. No tools or substantive actions are shown, and no outcome is recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:31.601196+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 154,
+        "total_tokens": 181,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No external tools or additional details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:33.058899+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 222,
+        "total_tokens": 247,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received several input observations, but each session ended without any recorded actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:34.240997+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 154,
+        "total_tokens": 180,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent recorded and confirmed a belief, then created and completed a goal. No tools or further details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:34.849407+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were changed, then an input was observed. The session ended; no further details about the changes or outcome were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:36.037881+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 95,
+        "total_tokens": 120,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended about one second later. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:37.474910+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The spec, requirement, and design section were updated. An input was then observed, and the session ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:38.955482+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 95,
+        "total_tokens": 120,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended about one second later. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:39.368966+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 181,
+        "total_tokens": 215,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input was then observed, and the session ended. No tools or specific outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:40.613197+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 95,
+        "total_tokens": 127,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode began with an input observation and ended about one second later. No tool use or other actions were recorded, and no outcome was documented.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:42.078081+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated. An input observation was recorded, then the session ended. No tools or outcome details were provided.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:43.528662+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended immediately after an input was observed. No tools were used, and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:43.719097+00:00",
+      "usage": {
+        "completion_tokens": 35,
+        "prompt_tokens": 181,
+        "total_tokens": 216,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, a requirement, and a design section were updated. An input was then observed, and the session ended. No tools or outcome details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:45.360067+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 95,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended immediately after an input was received. No tools were used, and no further actions or outcome were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:46.205646+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended; no tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:47.818183+00:00",
+      "usage": {
+        "completion_tokens": 33,
+        "prompt_tokens": 181,
+        "total_tokens": 214,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were updated, followed by an input observation. The session then ended. No tools or specific outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:48.048532+00:00",
+      "usage": {
+        "completion_tokens": 16,
+        "prompt_tokens": 95,
+        "total_tokens": 111,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions or tool use.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:49.621372+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The agent received an input, then the session ended. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:50.479631+00:00",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 181,
+        "total_tokens": 215,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The specification, requirement, and design section were changed, followed by an input observation. The session then ended; no tools or specific change details were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:52.377248+00:00",
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 95,
+        "total_tokens": 117,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended with no recorded actions or tool use, so no outcome was produced.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:54.273228+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended almost immediately after an input observation. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:56.947594+00:00",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 95,
+        "total_tokens": 116,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session received an input observation and then ended. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:58:58.560112+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 95,
+        "total_tokens": 120,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended about one second later; no actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:01.028909+00:00",
+      "usage": {
+        "completion_tokens": 30,
+        "prompt_tokens": 95,
+        "total_tokens": 125,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended one second later. No actions or tool use were recorded, and no outcome was specified.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:02.748465+00:00",
+      "usage": {
+        "completion_tokens": 19,
+        "prompt_tokens": 95,
+        "total_tokens": 114,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began and ended without any recorded actions, tool use, or outcome.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:05.456161+00:00",
+      "usage": {
+        "completion_tokens": 26,
+        "prompt_tokens": 95,
+        "total_tokens": 121,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended immediately after an input was observed; no tools were used and no further actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:07.389923+00:00",
+      "usage": {
+        "completion_tokens": 15,
+        "prompt_tokens": 95,
+        "total_tokens": 110,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session ended without any recorded agent actions or tool use.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:09.786399+00:00",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 95,
+        "total_tokens": 120,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session began with an input observation and ended about one second later. No actions or tool use were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:17.753408+00:00",
+      "usage": {
+        "completion_tokens": 27,
+        "prompt_tokens": 222,
+        "total_tokens": 249,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The session consisted only of input observations and repeated session-end events. No tools were used, actions or outcomes were recorded.",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-16T02:59:20.838111+00:00",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 222,
+        "total_tokens": 254,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "The episode contained several input observations interspersed with session-end events. No tool use or substantive actions are recorded, and no outcome is specified.",
+      "state": "returned",
+      "input_event_candidates": []
+    }
+  ],
+  "worker_outcomes": [
+    {
+      "event_id": "a4d3afd2-6893-5294-a8ec-a729af946926",
+      "session_id": "pilot-1016-entry-05:alice",
+      "outcome": "applied",
+      "event": "user_extraction_applied"
+    },
+    {
+      "event_id": "335fa61a-561b-54c8-8e81-c66611fbff9b",
+      "pack": "pdlc",
+      "error": "invalid JSON in the answer: Expecting ',' delimiter: line 1 column 965 (char 964)",
+      "event": "pack_extraction_answer_invalid"
+    },
+    {
+      "event_id": "7294291c-83d6-5495-8848-c6e2cca479d8",
+      "pack": "pdlc",
+      "nodes": 2,
+      "links": 4,
+      "edges_written": 6,
+      "rejected": [],
+      "event": "pack_extraction_applied"
+    },
+    {
+      "event_id": "7375368d-c0ea-5d4f-a6f1-1831b24f3f04",
+      "session_id": "pilot-1016-entry-05:bob",
+      "outcome": "applied",
+      "event": "user_extraction_applied"
+    }
+  ],
+  "limitations": [
+    "All other candidate journeys/probes remain unexecuted. This first checkpoint is not complete pilot acceptance.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "No Episode schedule/summary or ANN quality proof in this first checkpoint",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 53,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 7,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "workers": [
+    {
+      "tenant": "a",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "a",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "a",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "a",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "a",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "b",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "b",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "b",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    }
+  ],
+  "error": {
+    "type": "AssertionError",
+    "message": "exact events, extraction receipts, matching pack outcomes and drained work"
+  },
+  "shutdown_errors": []
+}
