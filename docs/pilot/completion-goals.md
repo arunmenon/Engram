@@ -2,7 +2,7 @@
 
 Approved by Arun on 16 October 2026: execute P01–P12 autonomously, with checkpoint reporting and no per-goal acknowledgement wait. These IDs are bounded pilot milestones, not a resumption of the retired broad #34/#41 native goal. Continuation06 was the active execution at approval.
 
-Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is complete as an Astra-accepted bounded composite proof, with both failed attempts retained. P07 is complete with Astra acceptance; P08 is complete for its bounded checks with Astra acceptance; three failed attempts are preserved and descriptive Entity discovery remains an open C04 capability gap (#83). P09 is complete with Astra acceptance; its two failed attempts are preserved. P10 is complete with Astra acceptance for cooperative recovery. P11 technical reproduction is in preparation; P12 final handoff remains queued. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
+Current checkpoint: P01–P05 are complete with bounded evidence and Astra acceptance. P06 is complete as an Astra-accepted bounded composite proof, with both failed attempts retained. P07 is complete with Astra acceptance; P08 is complete for its bounded checks with Astra acceptance; three failed attempts are preserved and descriptive Entity discovery remains an open C04 capability gap (#83). P09 is complete with Astra acceptance; its two failed attempts are preserved. P10 is complete with Astra acceptance for cooperative recovery. P11 technical reproduction passed and Astra accepted the evidence. P12 final coverage and handoff are in progress. P04 retains one verified stale-action dead letter; subsequent runs must explicitly admit that proof-backed negative before startup. See [the verification walkthrough](completion-verification.md) for actual results, retained failures and limitations. The historical approval context below is not a current run status.
 
 ## Purpose and current evidence
 
@@ -112,7 +112,7 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 | P08 | Complete: bounded retrieval proof; descriptive Entity discovery remains #83 | [Verification](completion-verification.md); pilot-p08-1017-04 |
 | P09 | Complete: tenant collisions, replay and refusal proof; Astra accepted | [Verification](completion-verification.md); pilot-p09-1017-03 |
 | P10 | Complete: bounded cooperative recovery; Astra accepted | [Verification](completion-verification.md); pilot-p10-1017-01 |
-| P11 | In progress: reviewed clean-checkout fixture and published commands | This inventory; team walkthrough |
-| P12 | Approved; queued | This inventory |
+| P11 | Complete: 69 checks, source/import audit and Astra acceptance; human repetition external | pilot-p11-1017-01 |
+| P12 | In progress: candidate coverage and rendered team guide review | Coverage map and team walkthrough |
 
 Update each row with actual status, source/evidence links and issue disposition. Plan approval alone is not completion evidence.

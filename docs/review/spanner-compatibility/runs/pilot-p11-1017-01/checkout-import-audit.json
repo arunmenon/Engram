@@ -1,0 +1,1296 @@
+{
+  "revision": "d9db077e509c07e6d6f0c2934b5805f7f8131c02",
+  "python": "3.12.7 (main, Oct  9 2024, 15:28:06) [Clang 14.0.0 (clang-1400.0.29.202)]",
+  "executable": "/Users/arunmenon/projects/Engram-foundation-gate/.venv/bin/python",
+  "initial_status": "?? docs/review/spanner-compatibility/runs/pilot-p11-1017-01-preflight/\n",
+  "imported": [
+    {
+      "module": "context_graph",
+      "path": "src/context_graph/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.adapters",
+      "path": "src/context_graph/adapters/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.adapters.composed_reads",
+      "path": "src/context_graph/adapters/composed_reads.py",
+      "sha256": "4dd90c04befe10b9a024f0cfe6920bac8406340c533b4a15a16873db4fc91aa6"
+    },
+    {
+      "module": "context_graph.adapters.embedding",
+      "path": "src/context_graph/adapters/embedding/__init__.py",
+      "sha256": "99623e2fa616f8e2c7823fb4c543c6e144723e00f7744f862ed8c9f3b988dc1d"
+    },
+    {
+      "module": "context_graph.adapters.embedding.service",
+      "path": "src/context_graph/adapters/embedding/service.py",
+      "sha256": "de64ded94918d8ba982c29155e3e3f2af2e2ca9ac958b9d9d782e3e141da2241"
+    },
+    {
+      "module": "context_graph.adapters.errors",
+      "path": "src/context_graph/adapters/errors.py",
+      "sha256": "db2171377b099b2c7e1b3222383c3d6fc2898ddfa292cf88cc7a374643d5674e"
+    },
+    {
+      "module": "context_graph.adapters.graph_ops",
+      "path": "src/context_graph/adapters/graph_ops.py",
+      "sha256": "6db20df0b8b797cbacfc3dec76b857fc265e1f1764f28ba34e90964b40d42837"
+    },
+    {
+      "module": "context_graph.adapters.llm",
+      "path": "src/context_graph/adapters/llm/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.adapters.llm.client",
+      "path": "src/context_graph/adapters/llm/client.py",
+      "sha256": "f4d4f305b3eb4d48fbd8de77b58e4d3e5070d3aeec1c52abf033c9db411a3e6e"
+    },
+    {
+      "module": "context_graph.adapters.llm.request_options",
+      "path": "src/context_graph/adapters/llm/request_options.py",
+      "sha256": "fda790a565cfa3a6fc23c4d43b9c46ac172613daacb73bb77c5664a0a110d3cf"
+    },
+    {
+      "module": "context_graph.adapters.registry",
+      "path": "src/context_graph/adapters/registry.py",
+      "sha256": "8d6bcc08abcb986de8a6f7f83dd79dc3722fe581aa7cba534428895e4420529e"
+    },
+    {
+      "module": "context_graph.adapters.search",
+      "path": "src/context_graph/adapters/search.py",
+      "sha256": "984ccc6ea19a6f737d518b498d045ca99883766429f9541edf887916aa3cbbf5"
+    },
+    {
+      "module": "context_graph.adapters.spanner",
+      "path": "src/context_graph/adapters/spanner/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.adapters.spanner.commits",
+      "path": "src/context_graph/adapters/spanner/commits.py",
+      "sha256": "370647417c9ee597a6bd76146383e877b0c1f10980504e40d95ef6851e5fa158"
+    },
+    {
+      "module": "context_graph.adapters.spanner.entity_index",
+      "path": "src/context_graph/adapters/spanner/entity_index.py",
+      "sha256": "8872d30a4151016f30514f78c20a1c32cd90e2c99789083583fccef7e3d9ec98"
+    },
+    {
+      "module": "context_graph.adapters.spanner.errors",
+      "path": "src/context_graph/adapters/spanner/errors.py",
+      "sha256": "6dd7cf8e8f7c308159f1bdb9bc7c9fb4e0210e3cb27a77585b352011beebbd66"
+    },
+    {
+      "module": "context_graph.adapters.spanner.event_acceptance",
+      "path": "src/context_graph/adapters/spanner/event_acceptance.py",
+      "sha256": "cb03180047da193abf9c10e839117c44ebc903f96c5cc575cbbc054fa9155e76"
+    },
+    {
+      "module": "context_graph.adapters.spanner.graph",
+      "path": "src/context_graph/adapters/spanner/graph.py",
+      "sha256": "36fe01c03c0000b46a96d07d44929b54ed5ac94047bf4f1c5697ab71025ba304"
+    },
+    {
+      "module": "context_graph.adapters.spanner.lifecycle",
+      "path": "src/context_graph/adapters/spanner/lifecycle.py",
+      "sha256": "04f3a05194c3d89cc6de5f6bdc1e926b04235d3aa901195f257c8fce4dafeed8"
+    },
+    {
+      "module": "context_graph.adapters.spanner.log",
+      "path": "src/context_graph/adapters/spanner/log.py",
+      "sha256": "21a20d807446802e8d0652177a009e5a1fd55a78fe7afde9f299dbedcc58dde6"
+    },
+    {
+      "module": "context_graph.adapters.spanner.schema",
+      "path": "src/context_graph/adapters/spanner/schema.py",
+      "sha256": "e93d6ef5873088884a4806c74bbc7ae2349ff96fadf281d3f292af27f894bf93"
+    },
+    {
+      "module": "context_graph.adapters.spanner.search",
+      "path": "src/context_graph/adapters/spanner/search.py",
+      "sha256": "3284d2f3f33f2371d32ba044d9a36bf623889007607b58e7be1075e80524057d"
+    },
+    {
+      "module": "context_graph.adapters.spanner.subscription",
+      "path": "src/context_graph/adapters/spanner/subscription.py",
+      "sha256": "c9232bd4af7a465a822751ca09ff162282e02f78695d8fde6a373e396b11fea8"
+    },
+    {
+      "module": "context_graph.adapters.spanner.tenant_control",
+      "path": "src/context_graph/adapters/spanner/tenant_control.py",
+      "sha256": "08879c860a5b593ea30d7edca57825b8b7a4752b42ab767e15d03ff635ddb772"
+    },
+    {
+      "module": "context_graph.api",
+      "path": "src/context_graph/api/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.api.app",
+      "path": "src/context_graph/api/app.py",
+      "sha256": "2412a264528cac41ec0e8cb5557880d5511bee61536dd1105a66e67ec2c94006"
+    },
+    {
+      "module": "context_graph.api.dependencies",
+      "path": "src/context_graph/api/dependencies.py",
+      "sha256": "641e8e5faf01771284ad62a34860ece7d0754c4b14673c0187e39995f18153d2"
+    },
+    {
+      "module": "context_graph.api.ingest",
+      "path": "src/context_graph/api/ingest.py",
+      "sha256": "06224ae933b3b910b5ff4b2308aec05abb3368e15fda8c7c0d1d0508cb86226f"
+    },
+    {
+      "module": "context_graph.api.middleware",
+      "path": "src/context_graph/api/middleware.py",
+      "sha256": "f970bebe9b8f91fb11c57437b21a6d63329d5282b4fc8c97a732123f55015b56"
+    },
+    {
+      "module": "context_graph.api.rate_limit",
+      "path": "src/context_graph/api/rate_limit.py",
+      "sha256": "14a2a571bc952f328fcba07734e5dfa40493a05c495ec56e34e47945b093f175"
+    },
+    {
+      "module": "context_graph.api.routes",
+      "path": "src/context_graph/api/routes/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.api.routes.admin",
+      "path": "src/context_graph/api/routes/admin.py",
+      "sha256": "daafbe036a07f363bcfa325959936912babbc99d4a15f37f055ee686a7703e2a"
+    },
+    {
+      "module": "context_graph.api.routes.artifacts",
+      "path": "src/context_graph/api/routes/artifacts.py",
+      "sha256": "0a09ad00e918a8c8c5be06fd156a10586348171ae253dc8ae859b1630511898a"
+    },
+    {
+      "module": "context_graph.api.routes.context",
+      "path": "src/context_graph/api/routes/context.py",
+      "sha256": "67347cb34b5da02e19535d761eda7fc6a3feffe562a49159b2a8e099ecdfeddc"
+    },
+    {
+      "module": "context_graph.api.routes.entities",
+      "path": "src/context_graph/api/routes/entities.py",
+      "sha256": "91a4a2e80b7a1aea9f73142f286a09989451d00bce24b258a2434959ac4c801a"
+    },
+    {
+      "module": "context_graph.api.routes.events",
+      "path": "src/context_graph/api/routes/events.py",
+      "sha256": "6c22c5c95354fbe573b9d317b4a25ab2d35213d0a08a898242b9d3c0ec29f2ef"
+    },
+    {
+      "module": "context_graph.api.routes.feedback",
+      "path": "src/context_graph/api/routes/feedback.py",
+      "sha256": "f334a436af9d1860a6ac1649771712b8fbc05777aa54d8a0f1d45f6a9183189d"
+    },
+    {
+      "module": "context_graph.api.routes.health",
+      "path": "src/context_graph/api/routes/health.py",
+      "sha256": "532f1b626a79da7d18a63cf33f402352abc42c4a648d8c71fe3505090b9b8e2c"
+    },
+    {
+      "module": "context_graph.api.routes.lineage",
+      "path": "src/context_graph/api/routes/lineage.py",
+      "sha256": "48f9a295c6f55b7e58a445e36a5bfcfd08ec82b640ac8a76332ede4ba3dd60e9"
+    },
+    {
+      "module": "context_graph.api.routes.ontology",
+      "path": "src/context_graph/api/routes/ontology.py",
+      "sha256": "fd968416ebea972eeccb22c8eaf59e2e40c6d50a414c9639f3a8bf8994e2ac5e"
+    },
+    {
+      "module": "context_graph.api.routes.query",
+      "path": "src/context_graph/api/routes/query.py",
+      "sha256": "0f36dc44599e370a063cf2e2cf2576cd7c8eab8b913cef22c3669bde449cfa7e"
+    },
+    {
+      "module": "context_graph.api.routes.simulate",
+      "path": "src/context_graph/api/routes/simulate.py",
+      "sha256": "5af38f3181e3a49503e54f7b561d2ae993020f48ebcaf3da180fd25987a20483"
+    },
+    {
+      "module": "context_graph.api.routes.users",
+      "path": "src/context_graph/api/routes/users.py",
+      "sha256": "ff95bfb5fe3e2f0c9743cfb94f67ff97b21bc1a0bb354d5cda19d7b4f3a3c23a"
+    },
+    {
+      "module": "context_graph.api.routes.webhooks",
+      "path": "src/context_graph/api/routes/webhooks.py",
+      "sha256": "43d7970f68fa7af527e53675e6216f894c87130ed7f9c2c43acd64c557f1366a"
+    },
+    {
+      "module": "context_graph.api.tenant_responses",
+      "path": "src/context_graph/api/tenant_responses.py",
+      "sha256": "ef71c71212b4f81e8e8386d1292b851a85308abc98f4b5fc5eeb21d300fa4fdf"
+    },
+    {
+      "module": "context_graph.api.tenants",
+      "path": "src/context_graph/api/tenants.py",
+      "sha256": "2a6f2168658ea32d23cbd4fb462885193216ee78560fec6e35c69abecbd88780"
+    },
+    {
+      "module": "context_graph.domain",
+      "path": "src/context_graph/domain/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.domain.consolidation",
+      "path": "src/context_graph/domain/consolidation.py",
+      "sha256": "2a699fcd32229e7ed4e5d11169135a1e385c80f7633d03151ee91f93291e7601"
+    },
+    {
+      "module": "context_graph.domain.contradiction",
+      "path": "src/context_graph/domain/contradiction.py",
+      "sha256": "44ac2f09adc1c9370288847c4c798f67332cad0b348ce3cb02e96a6fde31649e"
+    },
+    {
+      "module": "context_graph.domain.entity_resolution",
+      "path": "src/context_graph/domain/entity_resolution.py",
+      "sha256": "840b4421b275ef29506fc3c5aa06ac28138c15f03c1ddbdb59c7fd3526f0a14e"
+    },
+    {
+      "module": "context_graph.domain.episodes",
+      "path": "src/context_graph/domain/episodes.py",
+      "sha256": "9cb5f424aef00df87255f0a9660e2e6958e69a08c22583b25b42213cf5bf47bd"
+    },
+    {
+      "module": "context_graph.domain.event_acceptance",
+      "path": "src/context_graph/domain/event_acceptance.py",
+      "sha256": "dc2501eb48fe9a8dbb966129b0f37fd9ffccddc27dbec940237edfba847ba3a8"
+    },
+    {
+      "module": "context_graph.domain.extraction",
+      "path": "src/context_graph/domain/extraction.py",
+      "sha256": "2a1522033998ed1f757ddc97bea6be3821e4d2d797af0900c6520b74a2c45af5"
+    },
+    {
+      "module": "context_graph.domain.feedback",
+      "path": "src/context_graph/domain/feedback.py",
+      "sha256": "63a27595b00035642fb3ccb25e78cc417bf6601798a208ec2532f24cab1ccef7"
+    },
+    {
+      "module": "context_graph.domain.forgetting",
+      "path": "src/context_graph/domain/forgetting.py",
+      "sha256": "07900394815d05b780635f46c4f7440e67c408030adaa19f48b1f63c62f79787"
+    },
+    {
+      "module": "context_graph.domain.intent",
+      "path": "src/context_graph/domain/intent.py",
+      "sha256": "fa8b7fa199308c5b1edc6507536e2e078bd099aab48e15f41d9dff70f2a03a7e"
+    },
+    {
+      "module": "context_graph.domain.keyword_search",
+      "path": "src/context_graph/domain/keyword_search.py",
+      "sha256": "04231a3758ccb7283d46800cabd09daf2e6e9751f7d6352653d215c5f92b50dc"
+    },
+    {
+      "module": "context_graph.domain.lineage",
+      "path": "src/context_graph/domain/lineage.py",
+      "sha256": "ff67109addc911111045428d80bb80fb060e8245ba1e66ca06d00ce0971713b1"
+    },
+    {
+      "module": "context_graph.domain.memory_actions",
+      "path": "src/context_graph/domain/memory_actions.py",
+      "sha256": "cd279f292a96901fdca7c09fecf115a5e490c1d64d6f526ee3bfe640ce35eb0a"
+    },
+    {
+      "module": "context_graph.domain.models",
+      "path": "src/context_graph/domain/models.py",
+      "sha256": "8e85b977868167582f07af4ef705ad023a7fba79665bc28fb5f5241eb68fcc10"
+    },
+    {
+      "module": "context_graph.domain.ontology",
+      "path": "src/context_graph/domain/ontology.py",
+      "sha256": "caa92e1685df1260fa065bc882c05f385683788836ab9f66872c961198ba06e2"
+    },
+    {
+      "module": "context_graph.domain.pack_admission",
+      "path": "src/context_graph/domain/pack_admission.py",
+      "sha256": "96c7482cf73ad95a58bc64bf2d863edde063ebc7cbd73cdd28ec28bde8fa8e61"
+    },
+    {
+      "module": "context_graph.domain.pack_bundle",
+      "path": "src/context_graph/domain/pack_bundle.py",
+      "sha256": "bd0969023dc60dd0440cbc2838b59efa06343094c3db8f22f6ba40a303812166"
+    },
+    {
+      "module": "context_graph.domain.pack_contracts",
+      "path": "src/context_graph/domain/pack_contracts.py",
+      "sha256": "177591580f23711a4b7b90a83abf72457e2e8d52f424a73dcae8d131f3b88a53"
+    },
+    {
+      "module": "context_graph.domain.pack_expressions",
+      "path": "src/context_graph/domain/pack_expressions.py",
+      "sha256": "98a6114dc6e28e2f35be4c325ef9457ba8237cfe0caf12ce6d47d20a569a881a"
+    },
+    {
+      "module": "context_graph.domain.pack_extraction",
+      "path": "src/context_graph/domain/pack_extraction.py",
+      "sha256": "c966a3f8bb0239e891d5645b3e12b1b26ca03635741b8e60e7c097fce9e06310"
+    },
+    {
+      "module": "context_graph.domain.pack_intents",
+      "path": "src/context_graph/domain/pack_intents.py",
+      "sha256": "bd452d54c12ffcb1091edd5f19acdc9a6e65eecf106688f60999bd14f5848ee9"
+    },
+    {
+      "module": "context_graph.domain.pack_projection",
+      "path": "src/context_graph/domain/pack_projection.py",
+      "sha256": "f3be31447a0bc82fb19659b00c918d6ddf88e15aaeddf38f540303491cd9436d"
+    },
+    {
+      "module": "context_graph.domain.pack_properties",
+      "path": "src/context_graph/domain/pack_properties.py",
+      "sha256": "aa5ffe697392962819577551f6e3102fbbfa6554344dc65fcc0760c0dc67c27f"
+    },
+    {
+      "module": "context_graph.domain.pack_removals",
+      "path": "src/context_graph/domain/pack_removals.py",
+      "sha256": "79e49d29cbfcb4b71447450ffdd55aa5105a22f7b87c260f169c1595e4d76b30"
+    },
+    {
+      "module": "context_graph.domain.pack_versioning",
+      "path": "src/context_graph/domain/pack_versioning.py",
+      "sha256": "c9f843a81f46afd7d60c544c0c26140d2da638bc68ced78633ba4cc05adc554b"
+    },
+    {
+      "module": "context_graph.domain.pagination",
+      "path": "src/context_graph/domain/pagination.py",
+      "sha256": "b0a96e3846802b07c76df8da883d5090dd0728def9f4d08555c47afa0645bf34"
+    },
+    {
+      "module": "context_graph.domain.ppr",
+      "path": "src/context_graph/domain/ppr.py",
+      "sha256": "a67cbdd11557832c269765ad7ab7a5c317e7518121f13de003f37f8dedb622a4"
+    },
+    {
+      "module": "context_graph.domain.projection",
+      "path": "src/context_graph/domain/projection.py",
+      "sha256": "494420537cfe93357843bc5b75bc8d0fd9f419d0d8bef4011caad65e6af12b1c"
+    },
+    {
+      "module": "context_graph.domain.query_expansion",
+      "path": "src/context_graph/domain/query_expansion.py",
+      "sha256": "347b6a7a581a59fa037010f66e9bcf8074b050fdb7d6b92715f516f3d4d9744c"
+    },
+    {
+      "module": "context_graph.domain.reranking",
+      "path": "src/context_graph/domain/reranking.py",
+      "sha256": "38073533d3c9921a4d6021a56ac615128729204b457c3874aba3004c0ca397c0"
+    },
+    {
+      "module": "context_graph.domain.scoring",
+      "path": "src/context_graph/domain/scoring.py",
+      "sha256": "a73eadb7db677cd2bccf75a57d4b06e55a70be2814b6ad1bac4f674c32ed37f4"
+    },
+    {
+      "module": "context_graph.domain.source_trust",
+      "path": "src/context_graph/domain/source_trust.py",
+      "sha256": "3a6b6d8b16411adc5d2ceedb638628df1a5a7aedd78b677b8c527750c934fbba"
+    },
+    {
+      "module": "context_graph.domain.user_extraction",
+      "path": "src/context_graph/domain/user_extraction.py",
+      "sha256": "3f2ca4b07e34f7ce6a8e49efa05d4920cba2a080c4b509ac5bddfe37ec3b65a6"
+    },
+    {
+      "module": "context_graph.domain.validation",
+      "path": "src/context_graph/domain/validation.py",
+      "sha256": "20bbe41900f5d981643d654bee7601c86c05b0778d97f0534fdd0b4293fae601"
+    },
+    {
+      "module": "context_graph.metrics",
+      "path": "src/context_graph/metrics.py",
+      "sha256": "34104f508d3794b1e10b2859d175a46904973606f48dcc24c2a67c3cc98aefed"
+    },
+    {
+      "module": "context_graph.ontology",
+      "path": "src/context_graph/ontology/__init__.py",
+      "sha256": "ea867ebaedadf5eb13c919be6f14239c65568345b97e05b7fc7923cd25b3bb06"
+    },
+    {
+      "module": "context_graph.ontology.loader",
+      "path": "src/context_graph/ontology/loader.py",
+      "sha256": "081215979669619711c4ce0806641121f50a1e5600dbd76de9992a4d705dd378"
+    },
+    {
+      "module": "context_graph.ontology.runtime",
+      "path": "src/context_graph/ontology/runtime.py",
+      "sha256": "13fd8c4422426c215780ac6c20a1d4e3486532bcde596a29a17c5b4e0dcc9c68"
+    },
+    {
+      "module": "context_graph.ontology.versioning",
+      "path": "src/context_graph/ontology/versioning.py",
+      "sha256": "6237b6a48757419c72c350649d04227929d7283baa4944c064c0a6da76286f1a"
+    },
+    {
+      "module": "context_graph.ports",
+      "path": "src/context_graph/ports/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.ports.errors",
+      "path": "src/context_graph/ports/errors.py",
+      "sha256": "92c3f5c47c5c719233d1b8af36158bea8c9a599e29418d144a47251cd45976ae"
+    },
+    {
+      "module": "context_graph.ports.event_log",
+      "path": "src/context_graph/ports/event_log.py",
+      "sha256": "2fe7d72c3c0d44f0eae1222f8451499f21fc03ff4a6b6f0649e240d2cd27bd78"
+    },
+    {
+      "module": "context_graph.ports.event_store",
+      "path": "src/context_graph/ports/event_store.py",
+      "sha256": "087e867de3fef586863b651e6d03a8f51aa2fa05e940dcb21eb082fbf43d7dc8"
+    },
+    {
+      "module": "context_graph.ports.graph_reads",
+      "path": "src/context_graph/ports/graph_reads.py",
+      "sha256": "47c993d61e824a64e0db43d50339ff9d4d8b700ea05340623a023a9e05ac3021"
+    },
+    {
+      "module": "context_graph.ports.graph_store",
+      "path": "src/context_graph/ports/graph_store.py",
+      "sha256": "b09018b12635514ef0cd279c0af659aecb469ad6777a560090bc5d8d98f758ae"
+    },
+    {
+      "module": "context_graph.ports.health",
+      "path": "src/context_graph/ports/health.py",
+      "sha256": "33f3700e884ec01b772bfdb725c692f405054ba504e9fba79041db81f96c5cae"
+    },
+    {
+      "module": "context_graph.ports.maintenance",
+      "path": "src/context_graph/ports/maintenance.py",
+      "sha256": "549e79da8e18d7fb1a53806fd5b12a7d811cd9abb1cefbcac92266df4c37ce33"
+    },
+    {
+      "module": "context_graph.ports.memory_state",
+      "path": "src/context_graph/ports/memory_state.py",
+      "sha256": "2198242a1e2cf3e6396e92f50ece9884ed8405d5296924dfad6764044bd92172"
+    },
+    {
+      "module": "context_graph.ports.pack_graph",
+      "path": "src/context_graph/ports/pack_graph.py",
+      "sha256": "6da609f6720ad88a54de964d95befe9b92d4c199ab6ab0880349153278c4b239"
+    },
+    {
+      "module": "context_graph.ports.retrieval",
+      "path": "src/context_graph/ports/retrieval.py",
+      "sha256": "f1bd70a558c4d007df939ece5bae9f05c4cdb5ca8d04e4153ff867c8a6167ecf"
+    },
+    {
+      "module": "context_graph.ports.search",
+      "path": "src/context_graph/ports/search.py",
+      "sha256": "6fb9bf08c730e586667d7b4c5cfc44c141e316c676329bcab0f23e56d503b1f9"
+    },
+    {
+      "module": "context_graph.ports.subscription",
+      "path": "src/context_graph/ports/subscription.py",
+      "sha256": "f006090c07a48716fb34919c7d57d3f11b819347fe5bd85a011bf0f4b936d591"
+    },
+    {
+      "module": "context_graph.ports.user_extraction",
+      "path": "src/context_graph/ports/user_extraction.py",
+      "sha256": "12ed596355d5b5f93e18f8ff7e5f4ad6de6ccae6f8cd972ed959335cddd137cf"
+    },
+    {
+      "module": "context_graph.ports.user_store",
+      "path": "src/context_graph/ports/user_store.py",
+      "sha256": "b906690fa6605dc6566a91bef28fede4cd98402f4be046c9d35aa57f2fb24433"
+    },
+    {
+      "module": "context_graph.retrieval",
+      "path": "src/context_graph/retrieval/__init__.py",
+      "sha256": "c20fa047b061780dc14be5d5757bd2583246adfa02f15b82004154a285723893"
+    },
+    {
+      "module": "context_graph.retrieval.artifacts",
+      "path": "src/context_graph/retrieval/artifacts.py",
+      "sha256": "a53faa0b86e0c22e841d34c19fb9b3bd92cabeda8990705798582fff3106d718"
+    },
+    {
+      "module": "context_graph.retrieval.atlas",
+      "path": "src/context_graph/retrieval/atlas.py",
+      "sha256": "888422570a9def06d7b171e26e238ae77829c475ec76f02f1bc76de2ada79176"
+    },
+    {
+      "module": "context_graph.retrieval.engine",
+      "path": "src/context_graph/retrieval/engine.py",
+      "sha256": "cc3624555d3f507247795c6eb78d49bb9d1429d078e9695c64c63e34a2c08e2f"
+    },
+    {
+      "module": "context_graph.retrieval.episodes",
+      "path": "src/context_graph/retrieval/episodes.py",
+      "sha256": "c2b563e0c89afaf3b0a2339f8ad45a905412bc693c087a3db135da22da91964c"
+    },
+    {
+      "module": "context_graph.retrieval.memory_state",
+      "path": "src/context_graph/retrieval/memory_state.py",
+      "sha256": "62583bb6143c79df33ff98d00a9352cc344c66ecc39ea67797be4b0d46234208"
+    },
+    {
+      "module": "context_graph.settings",
+      "path": "src/context_graph/settings.py",
+      "sha256": "adb5d164be291ab353f9cbb4c5c1b200d4dd08d1e2041a963fc04663450baadb"
+    },
+    {
+      "module": "context_graph.sources",
+      "path": "src/context_graph/sources/__init__.py",
+      "sha256": "c186086309a48c517888c9c71d383615b9258f7003b40e704f0975abdf53e912"
+    },
+    {
+      "module": "context_graph.sources.events",
+      "path": "src/context_graph/sources/events.py",
+      "sha256": "418ba8a3715acb79740fe183f0c9ab3293bcbc3108be8e54012aa26b37bd52a2"
+    },
+    {
+      "module": "context_graph.sources.github",
+      "path": "src/context_graph/sources/github.py",
+      "sha256": "c15dcf73e0da2ac7673eff2d92eee207bd20f6a318eaca982ba7b1923822ef55"
+    },
+    {
+      "module": "context_graph.sources.jira",
+      "path": "src/context_graph/sources/jira.py",
+      "sha256": "b820bf7f962ec33508d6b94bce5c5893942281f8f6269aa67af6f89267f18276"
+    },
+    {
+      "module": "context_graph.tenancy",
+      "path": "src/context_graph/tenancy.py",
+      "sha256": "aae67ec0d32f3158f96b69fadf598e319913181def30fc505ad0a416a8ece760"
+    },
+    {
+      "module": "context_graph.worker",
+      "path": "src/context_graph/worker/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "context_graph.worker.__main__",
+      "path": "src/context_graph/worker/__main__.py",
+      "sha256": "7f330858d9c97adf48a1b0fcaf43147cb2bcca8f9e160c6d0f8566c0f730458f"
+    },
+    {
+      "module": "context_graph.worker.consolidation",
+      "path": "src/context_graph/worker/consolidation.py",
+      "sha256": "ffe152ad6853f024aa79ed0ad5ba1aa0ddc6595ed1784e0bfd558004bfc33e2d"
+    },
+    {
+      "module": "context_graph.worker.consumer",
+      "path": "src/context_graph/worker/consumer.py",
+      "sha256": "820059aac7ddc82a47efa292f1754931d1678b7b1257a6cf2fc85638506e0189"
+    },
+    {
+      "module": "context_graph.worker.enrichment",
+      "path": "src/context_graph/worker/enrichment.py",
+      "sha256": "552982ff5897920346b55706babcd590a0bc0e934c8669ba8aa53fe25e06099e"
+    },
+    {
+      "module": "context_graph.worker.extraction",
+      "path": "src/context_graph/worker/extraction.py",
+      "sha256": "071e6975756018376f7ed456cacd054c2549453ab993ee78974ed3bf1f13ecd3"
+    },
+    {
+      "module": "context_graph.worker.pack_extraction",
+      "path": "src/context_graph/worker/pack_extraction.py",
+      "sha256": "9a3a1ad1f1950f9da8cf4b75033fea834e6d9fecabe0a3746725aa0007b87ced"
+    },
+    {
+      "module": "context_graph.worker.pack_projection",
+      "path": "src/context_graph/worker/pack_projection.py",
+      "sha256": "4fd6ad5be5f7e9cb227673f6c1ee770c41a822afbc963fccd89d981741bf7af1"
+    },
+    {
+      "module": "context_graph.worker.projection",
+      "path": "src/context_graph/worker/projection.py",
+      "sha256": "780fea85ff9c1ee29023f1b40fbad8c765a3593ded70ec7431a960bcbbe8e300"
+    },
+    {
+      "module": "engram_composition_assessment",
+      "path": "scripts/engram_composition_assessment.py",
+      "sha256": "5d0bc243845c738c93b731772f9eaf4cc77759720535e40974e2899f8415fb52"
+    },
+    {
+      "module": "engram_composition_reuse",
+      "path": "scripts/engram_composition_reuse.py",
+      "sha256": "ab19ab9354deb4683c2717c38d5b51776827d0839cd25ab9e9afd68158276145"
+    },
+    {
+      "module": "engram_experiment_support",
+      "path": "scripts/engram_experiment_support.py",
+      "sha256": "070860e7a4d4d0d076e054b51e89cc0ae0670429171e414cb055a1c41a532207"
+    },
+    {
+      "module": "engram_goal02_fixtures",
+      "path": "scripts/engram_goal02_fixtures.py",
+      "sha256": "8a6455466582fee4c5c34712f81977de49e7ef4a1d13ee4cc0cb16522ab58952"
+    },
+    {
+      "module": "engram_goal03_fixtures",
+      "path": "scripts/engram_goal03_fixtures.py",
+      "sha256": "348e5e47f996455e8de5003c0882ab62a79e12afd3cac836c84f7ee3eeb326f8"
+    },
+    {
+      "module": "engram_goal03_implementation_demo",
+      "path": "scripts/engram_goal03_implementation_demo.py",
+      "sha256": "c74f582158617ea5de3e438e7d48f1c1e82a3bc1d011cc5f1368aaa000fd5365"
+    },
+    {
+      "module": "engram_goal04_fixtures",
+      "path": "scripts/engram_goal04_fixtures.py",
+      "sha256": "2d10379f2eb5a5e2bd7a8b4c782b974ec368d2716175dadcb64a54287b030928"
+    },
+    {
+      "module": "engram_goal05_fixtures",
+      "path": "scripts/engram_goal05_fixtures.py",
+      "sha256": "31d773403171dd0cda9d2e65cc010c94685c4616e45b0be1a9cc8f73529e0d60"
+    },
+    {
+      "module": "engram_goal06_fixtures",
+      "path": "scripts/engram_goal06_fixtures.py",
+      "sha256": "e5281611ac62418775316a11208e53f356cf39af9104166a421b74662d60b562"
+    },
+    {
+      "module": "engram_goal07_deployment_fixtures",
+      "path": "scripts/engram_goal07_deployment_fixtures.py",
+      "sha256": "47e27985f141df343ad55f1970346b9b51110d5f457cd87a2fd0d96a053b3159"
+    },
+    {
+      "module": "engram_goal07_fixtures",
+      "path": "scripts/engram_goal07_fixtures.py",
+      "sha256": "7098d797ec7fc82e3df98fd735fcd92bd1a4a9dde3e75382b355fdcf86cfe613"
+    },
+    {
+      "module": "engram_goal07_lifecycle_fixtures",
+      "path": "scripts/engram_goal07_lifecycle_fixtures.py",
+      "sha256": "8549ded15e80a607db1144fc19f48433ff96ac1c3a17b2e316802fe07c8df887"
+    },
+    {
+      "module": "engram_goal07_requests_fixtures",
+      "path": "scripts/engram_goal07_requests_fixtures.py",
+      "sha256": "15b79143edb33cfed0d65b5ef70ebd658f3fea21edebf5b8689397c0be26b538"
+    },
+    {
+      "module": "engram_goal07_skipped_fixtures",
+      "path": "scripts/engram_goal07_skipped_fixtures.py",
+      "sha256": "8d2b0919afd9da68cd8b6747710273eefabf4ead292b990806fb4d7bc8d99f85"
+    },
+    {
+      "module": "engram_memory_actions_demo",
+      "path": "scripts/engram_memory_actions_demo.py",
+      "sha256": "3a79adeb4394da72c868cb80684cf4fdf9d4c422a77225b66dc69d620f712fbe"
+    },
+    {
+      "module": "engram_memory_episodes_demo",
+      "path": "scripts/engram_memory_episodes_demo.py",
+      "sha256": "698ce11b40203c74c0c993a383563b9bc1118e403885642227060ceef98a9170"
+    },
+    {
+      "module": "engram_pilot_completion_fixtures",
+      "path": "scripts/engram_pilot_completion_fixtures.py",
+      "sha256": "9899b2194d3613df96ec095af7ec8edc9aecb6723076cbf4a69004e962ebe1b3"
+    },
+    {
+      "module": "engram_pilot_first_run",
+      "path": "scripts/engram_pilot_first_run.py",
+      "sha256": "d919d01ad6ef769628a206b1b688b24baf3c0cecadd333187527f6764bea8207"
+    },
+    {
+      "module": "engram_pilot_model_transition",
+      "path": "scripts/engram_pilot_model_transition.py",
+      "sha256": "0f322058a2f76f5b7e1d937ea37a1d8b1bf9be84a19476fb09539b4ac9165ff5"
+    },
+    {
+      "module": "engram_pilot_spectrum",
+      "path": "scripts/engram_pilot_spectrum.py",
+      "sha256": "8ba009275762ec62da3254543f7da001a6ab2ec7fca15710db3418b8b8c80e88"
+    },
+    {
+      "module": "engram_spanner_empty_activation",
+      "path": "scripts/engram_spanner_empty_activation.py",
+      "sha256": "04fb427b3c0402043fa8ca162a3ac645c9cfb49e2be50612c635dd2b1682a811"
+    }
+  ],
+  "packages": [
+    [
+      "Jinja2",
+      "3.1.6"
+    ],
+    [
+      "MarkupSafe",
+      "3.0.3"
+    ],
+    [
+      "PyYAML",
+      "6.0.3"
+    ],
+    [
+      "Pygments",
+      "2.21.0"
+    ],
+    [
+      "aiohappyeyeballs",
+      "2.7.1"
+    ],
+    [
+      "aiohttp",
+      "3.14.3"
+    ],
+    [
+      "aiosignal",
+      "1.4.0"
+    ],
+    [
+      "annotated-doc",
+      "0.0.5"
+    ],
+    [
+      "annotated-types",
+      "0.8.0"
+    ],
+    [
+      "anyio",
+      "4.15.1"
+    ],
+    [
+      "ast_serialize",
+      "0.11.2"
+    ],
+    [
+      "attrs",
+      "26.1.0"
+    ],
+    [
+      "boto3",
+      "1.43.104"
+    ],
+    [
+      "botocore",
+      "1.43.104"
+    ],
+    [
+      "certifi",
+      "2026.7.22"
+    ],
+    [
+      "cffi",
+      "2.1.1"
+    ],
+    [
+      "cfgv",
+      "3.5.0"
+    ],
+    [
+      "charset-normalizer",
+      "3.5.1"
+    ],
+    [
+      "click",
+      "8.5.0"
+    ],
+    [
+      "cloudpickle",
+      "3.1.2"
+    ],
+    [
+      "context-graph",
+      "0.1.0"
+    ],
+    [
+      "coverage",
+      "7.16.2"
+    ],
+    [
+      "cryptography",
+      "50.0.1"
+    ],
+    [
+      "distlib",
+      "0.4.3"
+    ],
+    [
+      "distro",
+      "1.9.0"
+    ],
+    [
+      "fastapi",
+      "0.141.1"
+    ],
+    [
+      "fastuuid",
+      "0.14.0"
+    ],
+    [
+      "filelock",
+      "4.0.6"
+    ],
+    [
+      "frozenlist",
+      "1.8.0"
+    ],
+    [
+      "fsspec",
+      "2026.9.0"
+    ],
+    [
+      "google-api-core",
+      "2.39.0"
+    ],
+    [
+      "google-auth",
+      "2.59.0"
+    ],
+    [
+      "google-cloud-core",
+      "2.7.0"
+    ],
+    [
+      "google-cloud-monitoring",
+      "2.32.0"
+    ],
+    [
+      "google-cloud-spanner",
+      "3.71.0"
+    ],
+    [
+      "google-cloud-storage",
+      "3.15.0"
+    ],
+    [
+      "google-crc32c",
+      "1.9.0"
+    ],
+    [
+      "google-resumable-media",
+      "2.10.2"
+    ],
+    [
+      "googleapis-common-protos",
+      "1.75.4"
+    ],
+    [
+      "grpc-google-iam-v1",
+      "0.14.5"
+    ],
+    [
+      "grpc-interceptor",
+      "0.15.4"
+    ],
+    [
+      "grpcio",
+      "1.84.0"
+    ],
+    [
+      "grpcio-status",
+      "1.84.0"
+    ],
+    [
+      "h11",
+      "0.16.0"
+    ],
+    [
+      "h2",
+      "4.4.1"
+    ],
+    [
+      "hf-xet",
+      "1.6.0"
+    ],
+    [
+      "hpack",
+      "4.2.0"
+    ],
+    [
+      "httpcore",
+      "1.0.9"
+    ],
+    [
+      "httptools",
+      "0.8.0"
+    ],
+    [
+      "httpx",
+      "0.28.1"
+    ],
+    [
+      "huggingface_hub",
+      "1.33.0"
+    ],
+    [
+      "hyperframe",
+      "6.1.0"
+    ],
+    [
+      "identify",
+      "2.6.20"
+    ],
+    [
+      "idna",
+      "3.20"
+    ],
+    [
+      "importlib_metadata",
+      "8.9.0"
+    ],
+    [
+      "iniconfig",
+      "2.3.0"
+    ],
+    [
+      "jiter",
+      "0.17.0"
+    ],
+    [
+      "jmespath",
+      "1.1.0"
+    ],
+    [
+      "joblib",
+      "1.6.0"
+    ],
+    [
+      "jsonschema",
+      "4.26.0"
+    ],
+    [
+      "jsonschema-specifications",
+      "2025.9.1"
+    ],
+    [
+      "librt",
+      "0.16.0"
+    ],
+    [
+      "litellm",
+      "1.103.0"
+    ],
+    [
+      "markdown-it-py",
+      "4.2.0"
+    ],
+    [
+      "mdurl",
+      "0.1.2"
+    ],
+    [
+      "mmh3",
+      "5.3.1"
+    ],
+    [
+      "mpmath",
+      "1.3.0"
+    ],
+    [
+      "multidict",
+      "6.9.1"
+    ],
+    [
+      "mypy",
+      "2.3.1"
+    ],
+    [
+      "mypy_extensions",
+      "1.1.0"
+    ],
+    [
+      "narwhals",
+      "2.26.0"
+    ],
+    [
+      "neo4j",
+      "6.3.1"
+    ],
+    [
+      "networkx",
+      "3.7"
+    ],
+    [
+      "nodeenv",
+      "1.11.0"
+    ],
+    [
+      "numpy",
+      "2.5.3"
+    ],
+    [
+      "openai",
+      "2.54.0"
+    ],
+    [
+      "opentelemetry-api",
+      "1.45.0"
+    ],
+    [
+      "opentelemetry-resourcedetector-gcp",
+      "1.14.0"
+    ],
+    [
+      "opentelemetry-sdk",
+      "1.45.0"
+    ],
+    [
+      "opentelemetry-semantic-conventions",
+      "0.66b0"
+    ],
+    [
+      "orjson",
+      "3.12.0"
+    ],
+    [
+      "packaging",
+      "26.3"
+    ],
+    [
+      "pathspec",
+      "1.1.1"
+    ],
+    [
+      "platformdirs",
+      "4.12.1"
+    ],
+    [
+      "pluggy",
+      "1.6.0"
+    ],
+    [
+      "pre_commit",
+      "4.6.2"
+    ],
+    [
+      "prometheus_client",
+      "0.26.0"
+    ],
+    [
+      "propcache",
+      "0.5.4"
+    ],
+    [
+      "proto-plus",
+      "1.28.4"
+    ],
+    [
+      "protobuf",
+      "7.36.2"
+    ],
+    [
+      "pyasn1",
+      "0.6.4"
+    ],
+    [
+      "pyasn1_modules",
+      "0.4.2"
+    ],
+    [
+      "pycparser",
+      "3.0"
+    ],
+    [
+      "pydantic",
+      "2.13.5"
+    ],
+    [
+      "pydantic-settings",
+      "2.15.0"
+    ],
+    [
+      "pydantic_core",
+      "2.46.5"
+    ],
+    [
+      "pytest",
+      "9.1.1"
+    ],
+    [
+      "pytest-asyncio",
+      "1.4.0"
+    ],
+    [
+      "pytest-cov",
+      "7.1.0"
+    ],
+    [
+      "python-dateutil",
+      "2.9.0.post0"
+    ],
+    [
+      "python-discovery",
+      "1.6.1"
+    ],
+    [
+      "python-dotenv",
+      "1.2.3"
+    ],
+    [
+      "pytz",
+      "2026.4"
+    ],
+    [
+      "redis",
+      "8.1.0"
+    ],
+    [
+      "referencing",
+      "0.37.0"
+    ],
+    [
+      "regex",
+      "2026.9.29"
+    ],
+    [
+      "requests",
+      "2.34.2"
+    ],
+    [
+      "rich",
+      "15.0.0"
+    ],
+    [
+      "rpds-py",
+      "2026.6.3"
+    ],
+    [
+      "ruff",
+      "0.16.9"
+    ],
+    [
+      "s3transfer",
+      "0.19.2"
+    ],
+    [
+      "safetensors",
+      "0.8.0"
+    ],
+    [
+      "scikit-learn",
+      "1.9.1"
+    ],
+    [
+      "scipy",
+      "1.18.1"
+    ],
+    [
+      "sentence-transformers",
+      "6.1.0"
+    ],
+    [
+      "setuptools",
+      "84.0.0"
+    ],
+    [
+      "shellingham",
+      "1.5.4"
+    ],
+    [
+      "six",
+      "1.17.0"
+    ],
+    [
+      "sniffio",
+      "1.3.1"
+    ],
+    [
+      "sqlparse",
+      "0.6.0"
+    ],
+    [
+      "sse-starlette",
+      "3.5.0"
+    ],
+    [
+      "starlette",
+      "1.7.0"
+    ],
+    [
+      "structlog",
+      "26.1.0"
+    ],
+    [
+      "sympy",
+      "1.14.0"
+    ],
+    [
+      "threadpoolctl",
+      "3.7.0"
+    ],
+    [
+      "tiktoken",
+      "0.14.0"
+    ],
+    [
+      "tokenizers",
+      "0.23.2"
+    ],
+    [
+      "torch",
+      "2.14.0"
+    ],
+    [
+      "tqdm",
+      "4.70.1"
+    ],
+    [
+      "transformers",
+      "5.17.0"
+    ],
+    [
+      "typer",
+      "0.27.2"
+    ],
+    [
+      "types-PyYAML",
+      "6.0.12.20260906"
+    ],
+    [
+      "types-protobuf",
+      "7.35.1.20260906"
+    ],
+    [
+      "types-regex",
+      "2026.9.29.20261005"
+    ],
+    [
+      "typing-inspection",
+      "0.4.4"
+    ],
+    [
+      "typing_extensions",
+      "4.16.0"
+    ],
+    [
+      "urllib3",
+      "2.8.0"
+    ],
+    [
+      "uvicorn",
+      "0.54.0"
+    ],
+    [
+      "uvloop",
+      "0.22.1"
+    ],
+    [
+      "virtualenv",
+      "21.13.0"
+    ],
+    [
+      "watchfiles",
+      "1.3.0"
+    ],
+    [
+      "websockets",
+      "17.1"
+    ],
+    [
+      "yarl",
+      "1.25.1"
+    ],
+    [
+      "zipp",
+      "4.1.0"
+    ]
+  ]
+}

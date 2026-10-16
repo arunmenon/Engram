@@ -1,0 +1,168 @@
+{
+  "run_id": "pilot-p11-1017-01",
+  "coverage": "P11 technical checkout reproduction: B source positive then A exclusion; one explicit A Goal and B Change plus optional JSON library story",
+  "extension_included": true,
+  "groups": [
+    {
+      "name": "p11-b-change",
+      "tenant": "b",
+      "steps": [
+        {
+          "scenario": "chain-change",
+          "expected_status": 201,
+          "expected_edges": [],
+          "request": {
+            "event_id": "829ecbd2-be08-51be-8adf-91c9ddd0e585",
+            "event_type": "pdlc.change.created",
+            "occurred_at": "2026-10-16T19:34:09.810721+00:00",
+            "session_id": "pilot-p11-1017-01:b:chain",
+            "agent_id": "pilot-p11-1017-01:b:retrieval-owner",
+            "trace_id": "pilot-p11-1017-01",
+            "payload_ref": "pilot-p08:chain-change",
+            "payload": {
+              "repo": "pilot/pilot-p11-1017-01/vega",
+              "number": 7,
+              "title": "VegaLedger rejects expired reconciliation tokens",
+              "head_sha": "abc123"
+            }
+          },
+          "expected_node": "Change:pilot/pilot-p11-1017-01/vega|7",
+          "expected_props": {
+            "title": "VegaLedger rejects expired reconciliation tokens",
+            "status": "open"
+          },
+          "extra_nodes": {}
+        },
+        {
+          "scenario": "json-extension-library",
+          "expected_status": 201,
+          "expected_edges": [],
+          "request": {
+            "event_id": "ac11e17f-f22f-5c71-b183-8b537c5818ec",
+            "event_type": "pdlc.change.created",
+            "occurred_at": "2026-10-16T19:34:09.810721+00:00",
+            "session_id": "pilot-p11-1017-01:json-extension",
+            "agent_id": "pilot-p11-1017-01:b:retrieval-owner",
+            "trace_id": "pilot-p11-1017-01",
+            "payload_ref": "pilot-p11:json-extension",
+            "payload": {
+              "repo": "pilot/pilot-p11-1017-01/library",
+              "number": 8,
+              "title": "Library metadata export",
+              "head_sha": "def456"
+            }
+          },
+          "expected_node": "Change:pilot/pilot-p11-1017-01/library|8",
+          "expected_props": {
+            "title": "Library metadata export",
+            "status": "open"
+          },
+          "extra_nodes": {}
+        }
+      ],
+      "queries": [],
+      "source_expectations": {
+        "Change:pilot/pilot-p11-1017-01/vega|7": [
+          "829ecbd2-be08-51be-8adf-91c9ddd0e585"
+        ],
+        "829ecbd2-be08-51be-8adf-91c9ddd0e585": [
+          "829ecbd2-be08-51be-8adf-91c9ddd0e585"
+        ],
+        "Change:pilot/pilot-p11-1017-01/library|8": [
+          "ac11e17f-f22f-5c71-b183-8b537c5818ec"
+        ]
+      },
+      "final_queries": [
+        {
+          "query": "Show this accepted source Event",
+          "intent": "what",
+          "session_id": "pilot-p11-1017-01:b:chain",
+          "agent_id": "pilot-p11-1017-01:b:retrieval-owner",
+          "seed_nodes": [
+            "829ecbd2-be08-51be-8adf-91c9ddd0e585"
+          ],
+          "required": [
+            "829ecbd2-be08-51be-8adf-91c9ddd0e585"
+          ],
+          "forbidden": []
+        }
+      ]
+    },
+    {
+      "name": "p11-a-goal",
+      "tenant": "a",
+      "steps": [
+        {
+          "scenario": "agent-goal-created",
+          "request": {
+            "event_id": "668113de-92dc-5a3b-98fe-cb2cdfb98309",
+            "event_type": "memory.goal.created",
+            "occurred_at": "2026-10-16T19:35:21.806248+00:00",
+            "session_id": "pilot-p11-1017-01:scope:first",
+            "agent_id": "pilot-p11-1017-01:a:memory-owner",
+            "trace_id": "pilot-p11-1017-01",
+            "payload_ref": "pilot-p04:agent-goal-created",
+            "payload": {
+              "key": "study",
+              "scope": "agent",
+              "description": "Finish the reliability course"
+            }
+          },
+          "expected_status": 201,
+          "expected_node": "goal-90990a99a90c6c29e690cc37809ec5d85909e9c7fdc786f77791276dd3c23b1c",
+          "expected_props": {
+            "status": "active",
+            "state_revision": 0,
+            "evidence_count": 1,
+            "scope": "agent",
+            "description": "Finish the reliability course"
+          },
+          "expected_edges": [],
+          "extra_nodes": {},
+          "memory_intent": "when",
+          "observes_node": true
+        }
+      ],
+      "queries": [],
+      "retained_negative_proofs": [
+        {
+          "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+          "tenant": "a",
+          "sha256": {
+            "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+            "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+            "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+          }
+        }
+      ],
+      "source_expectations": {
+        "goal-90990a99a90c6c29e690cc37809ec5d85909e9c7fdc786f77791276dd3c23b1c": [
+          "668113de-92dc-5a3b-98fe-cb2cdfb98309"
+        ],
+        "668113de-92dc-5a3b-98fe-cb2cdfb98309": [
+          "668113de-92dc-5a3b-98fe-cb2cdfb98309"
+        ]
+      },
+      "final_queries": [
+        {
+          "query": "Show my explicit Goal and this requested source",
+          "intent": "when",
+          "session_id": "pilot-p11-1017-01:scope:first",
+          "agent_id": "pilot-p11-1017-01:a:memory-owner",
+          "seed_nodes": [
+            "829ecbd2-be08-51be-8adf-91c9ddd0e585",
+            "668113de-92dc-5a3b-98fe-cb2cdfb98309"
+          ],
+          "required": [
+            "goal-90990a99a90c6c29e690cc37809ec5d85909e9c7fdc786f77791276dd3c23b1c",
+            "668113de-92dc-5a3b-98fe-cb2cdfb98309"
+          ],
+          "forbidden": [
+            "829ecbd2-be08-51be-8adf-91c9ddd0e585",
+            "Change:pilot/pilot-p11-1017-01/vega|7"
+          ]
+        }
+      ]
+    }
+  ]
+}
