@@ -1,0 +1,26 @@
+{
+  "node_types": 11,
+  "edge_types": 20,
+  "same_api_key_accepted_tenant_headers": [
+    "tenant-a",
+    "tenant-b"
+  ],
+  "unsigned_cursor_roundtrip": [
+    "2026-01-01T00:00:00Z",
+    "event-1"
+  ],
+  "generic_edge_accepts_invalid_role": "not-a-valid-role",
+  "model_failure_returned_without_exception": true,
+  "model_failure_result": {
+    "session_id": "review-session",
+    "agent_id": "review-agent",
+    "model_id": null,
+    "prompt_version": null,
+    "entities": [],
+    "preferences": [],
+    "skills": [],
+    "interests": [],
+    "persona": null
+  },
+  "limitations": "Local function/model probes only; no Redis, Neo4j, HTTP deployment, or external model services."
+}
