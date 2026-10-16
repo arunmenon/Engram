@@ -1,0 +1,96 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    [
+      "P02 composite completion: read retained actual-model Decision proposal versus explicit accepted Decision; history/coverage/hotfix evidence remains individually satisfied in failedrun02."
+    ]
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "groups": [
+      {
+        "name": "p02-retained-decision-contrast",
+        "tenant": "b",
+        "steps": [],
+        "queries": [
+          {
+            "scenario": "model-proposal-status-and-source",
+            "text": "trace",
+            "intent": "status",
+            "seeds": [
+              "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+            ],
+            "required": [
+              "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+            ],
+            "forbidden": [
+              "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+            ],
+            "exact": false,
+            "max_depth": 1,
+            "expected_states": {
+              "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4": "proposed"
+            },
+            "expected_observation_events": {
+              "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4": "6a2fbf17-1d34-5b97-8de5-b056513faa4c"
+            }
+          },
+          {
+            "scenario": "explicit-accepted-status-and-source",
+            "text": "trace",
+            "intent": "status",
+            "seeds": [
+              "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+            ],
+            "required": [
+              "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+            ],
+            "forbidden": [
+              "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+            ],
+            "exact": false,
+            "max_depth": 1,
+            "expected_states": {
+              "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386": "accepted"
+            },
+            "expected_observation_events": {
+              "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386": "3f507741-f486-597b-b85c-40a696f5b2e6"
+            }
+          }
+        ],
+        "source_expectations": {
+          "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4": [
+            "6a2fbf17-1d34-5b97-8de5-b056513faa4c"
+          ],
+          "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386": [
+            "3f507741-f486-597b-b85c-40a696f5b2e6"
+          ]
+        },
+        "model_proposal_check": {
+          "event_id": "6a2fbf17-1d34-5b97-8de5-b056513faa4c",
+          "required_type": "Decision",
+          "status": "proposed",
+          "accepted_decision": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+        },
+        "source_kind": "Retained actual Luna Decision from failedrun01; accepted producer Decision from failedrun02. No new input or producer simulation."
+      }
+    ],
+    "coverage": [
+      "P02 composite completion: read retained actual-model Decision proposal versus explicit accepted Decision; history/coverage/hotfix evidence remains individually satisfied in failedrun02."
+    ],
+    "limits": [
+      "Both prior runs remain failed; run02 H09 produced Constraint/VERIFIES and not Decision.",
+      "This read checkpoint does not re-execute ingestion/workers or invoke the model; those proofs belong to linked original runs."
+    ]
+  },
+  "execution_mode": "selected-retained-reads"
+}

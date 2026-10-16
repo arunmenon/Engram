@@ -96,11 +96,11 @@ Verify: every pass links exact source revision, inputs, public responses, releva
 
 ## Progress tracking
 
-| Goal | Initial status | Evidence |
+| Goal | Status | Evidence |
 |---|---|---|
 | P01 | Complete: bounded composite verdict; Astra accepted final evidence | [Verification](completion-verification.md); continuation06 remains failed; continuation07 passed243checks |
-| P02 | Active: candidate fix live-proven; retained Decision public contrast pending; both attempts remain failed | pilot-p02-1016-01-journeys.json; #71 live proof pending |
-| P03 | Approved; queued | This inventory |
+| P02 | Complete: Astra accepted composite history/coverage/hotfix/Decision proof; original runs stay failed | [Verification](completion-verification.md); runs02/03; #71/#73 closure reconciliation |
+| P03 | Active: reviewed20-input first phase prepared; explicit correction phase remains required | pilot-p03-1016-01-journeys.json |
 | P04 | Approved; queued | This inventory |
 | P05 | Approved; queued | This inventory |
 | P06 | Approved; queued | This inventory |

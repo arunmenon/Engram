@@ -1,0 +1,30 @@
+{
+  "classification": "Fresh-process audit of saved actual provider input/output and final Spanner evidence",
+  "source_event_id": "a79a7c17-2938-53ac-95bf-45a0aa6df12d",
+  "actual_prompt_has_both_endpoints": true,
+  "actual_returned_links": [
+    {
+      "type": "VERIFIES",
+      "from": "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9",
+      "to": "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+      "confidence": 0.8,
+      "evidence": "coverageprobe8549f84cd9: TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9 checks Requirement:p02/pilot-p02-1016-02/spec|1|proposed."
+    }
+  ],
+  "persisted_edge": [
+    "TestCase",
+    "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9",
+    "VERIFIES",
+    "Requirement",
+    "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+    {
+      "confidence": {
+        "$float": "0.8"
+      },
+      "link_status": "proposed",
+      "method": "inferred",
+      "source_trust": "trusted"
+    }
+  ],
+  "edge_source_pointer_limit": "The inferred edge stores status/trust/confidence, not an Event pointer. Run journal links this invocation to the accepted source; endpoint public provenance is checked separately."
+}

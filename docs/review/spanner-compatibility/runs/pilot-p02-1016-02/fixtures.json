@@ -1,0 +1,980 @@
+{
+  "events": [],
+  "expected_artifacts": {},
+  "queries": {},
+  "forbidden": [
+    "cross-tenant source Events",
+    "cross-owner preferences",
+    "invented deployment",
+    "duplicate source event"
+  ],
+  "scope": [
+    "P02: revision-scoped work, proposed/confirmed/failed coverage, proposed versus accepted Decision and explicit hotfix trace"
+  ],
+  "provider": "actual configured model, no provider replacement",
+  "remaining": "Selected groups only; entry business paths are not executed or certified by this attempt.",
+  "spectrum": {
+    "groups": [
+      {
+        "name": "p02-history",
+        "tenant": "b",
+        "steps": [
+          {
+            "scenario": "H01-spec1",
+            "request": {
+              "event_id": "307ad878-ce70-5504-831c-9026187e884d",
+              "event_type": "pdlc.spec.changed",
+              "occurred_at": "2026-10-16T09:56:17+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H01-spec1",
+              "payload": {
+                "doc_id": "p02/pilot-p02-1016-02/spec",
+                "version": "1",
+                "title": "Password reset hotfix"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Spec:p02/pilot-p02-1016-02/spec|1",
+            "expected_props": {
+              "title": "Password reset hotfix",
+              "status": "draft"
+            },
+            "expected_edges": [],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H02-expiry",
+            "request": {
+              "event_id": "5b149122-338b-596d-ad3e-c3905e1444f3",
+              "event_type": "pdlc.requirement.changed",
+              "occurred_at": "2026-10-16T09:56:18+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H02-expiry",
+              "payload": {
+                "spec_id": "p02/pilot-p02-1016-02/spec",
+                "spec_version": "1",
+                "local_id": "expiry",
+                "statement": "Token expires in fifteen minutes"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Requirement:p02/pilot-p02-1016-02/spec|1|expiry",
+            "expected_props": {
+              "statement": "Token expires in fifteen minutes"
+            },
+            "expected_edges": [
+              [
+                "REFINES",
+                "Requirement:p02/pilot-p02-1016-02/spec|1|expiry",
+                "Spec:p02/pilot-p02-1016-02/spec|1"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H02-missing",
+            "request": {
+              "event_id": "d696a534-d665-5fee-baac-dc1ecc6f247a",
+              "event_type": "pdlc.requirement.changed",
+              "occurred_at": "2026-10-16T09:56:19+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H02-missing",
+              "payload": {
+                "spec_id": "p02/pilot-p02-1016-02/spec",
+                "spec_version": "1",
+                "local_id": "missing",
+                "statement": "No coverage observation supplied for this requirement"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Requirement:p02/pilot-p02-1016-02/spec|1|missing",
+            "expected_props": {
+              "statement": "No coverage observation supplied for this requirement"
+            },
+            "expected_edges": [
+              [
+                "REFINES",
+                "Requirement:p02/pilot-p02-1016-02/spec|1|missing",
+                "Spec:p02/pilot-p02-1016-02/spec|1"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H02-proposed",
+            "request": {
+              "event_id": "bd64ccf6-fe80-5465-9e25-9e461868848b",
+              "event_type": "pdlc.requirement.changed",
+              "occurred_at": "2026-10-16T09:56:20+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H02-proposed",
+              "payload": {
+                "spec_id": "p02/pilot-p02-1016-02/spec",
+                "spec_version": "1",
+                "local_id": "proposed",
+                "statement": "coverageprobe8549f84cd9 selective coverage assertion"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+            "expected_props": {
+              "statement": "coverageprobe8549f84cd9 selective coverage assertion"
+            },
+            "expected_edges": [
+              [
+                "REFINES",
+                "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+                "Spec:p02/pilot-p02-1016-02/spec|1"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H03-ticket",
+            "request": {
+              "event_id": "45a4caae-d584-5b48-9bf6-9f56b078d5f6",
+              "event_type": "pdlc.ticket.created",
+              "occurred_at": "2026-10-16T09:56:21+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H03-ticket",
+              "payload": {
+                "tracker": "jira",
+                "key": "P8549F84CD9-17",
+                "title": "Emergency token expiry repair",
+                "work_type": "production_change",
+                "status": "To Do",
+                "requirements": [
+                  {
+                    "spec_id": "p02/pilot-p02-1016-02/spec",
+                    "spec_version": "1",
+                    "local_id": "expiry"
+                  }
+                ]
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "WorkItem:jira|P8549F84CD9-17",
+            "expected_props": {
+              "title": "Emergency token expiry repair",
+              "status": "open"
+            },
+            "expected_edges": [
+              [
+                "IMPLEMENTS",
+                "WorkItem:jira|P8549F84CD9-17",
+                "Requirement:p02/pilot-p02-1016-02/spec|1|expiry"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H04-pr",
+            "request": {
+              "event_id": "2af5a0ee-1299-5d50-9956-e344d0ff567f",
+              "event_type": "pdlc.change.created",
+              "occurred_at": "2026-10-16T09:56:22+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H04-pr",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "number": 17,
+                "title": "Repair token expiry",
+                "body": "",
+                "files": [],
+                "work_items": [
+                  {
+                    "tracker": "jira",
+                    "external_key": "P8549F84CD9-17"
+                  }
+                ]
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Change:p02/pilot-p02-1016-02/auth|17",
+            "expected_props": {
+              "status": "open",
+              "title": "Repair token expiry"
+            },
+            "expected_edges": [
+              [
+                "IMPLEMENTS",
+                "Change:p02/pilot-p02-1016-02/auth|17",
+                "WorkItem:jira|P8549F84CD9-17"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H05-failed",
+            "request": {
+              "event_id": "01bf8268-ce4b-54c3-8f66-03e0b9010d52",
+              "event_type": "pdlc.testcaserun.finished",
+              "occurred_at": "2026-10-16T09:56:23+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H05-failed",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "test_id": "expiry",
+                "run_id": "p02/pilot-p02-1016-02/failed",
+                "outcome": "failure",
+                "name": "Token expiry regression",
+                "path": "tests/expiry.py",
+                "commit_sha": "broken-sha",
+                "change_number": 17,
+                "requirements": [
+                  {
+                    "spec_id": "p02/pilot-p02-1016-02/spec",
+                    "spec_version": "1",
+                    "local_id": "expiry"
+                  }
+                ]
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "TestRun:p02/pilot-p02-1016-02/failed",
+            "expected_props": {
+              "outcome": "failure",
+              "commit_sha": "broken-sha"
+            },
+            "expected_edges": [
+              [
+                "EXECUTES",
+                "TestRun:p02/pilot-p02-1016-02/failed",
+                "TestCase:p02/pilot-p02-1016-02/auth|expiry"
+              ],
+              [
+                "RAN_AGAINST",
+                "TestRun:p02/pilot-p02-1016-02/failed",
+                "Change:p02/pilot-p02-1016-02/auth|17"
+              ],
+              [
+                "VERIFIES",
+                "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+                "Requirement:p02/pilot-p02-1016-02/spec|1|expiry"
+              ]
+            ],
+            "extra_nodes": {
+              "TestCase:p02/pilot-p02-1016-02/auth|expiry": {
+                "name": "Token expiry regression",
+                "path": "tests/expiry.py"
+              }
+            }
+          },
+          {
+            "scenario": "H06-spec2",
+            "request": {
+              "event_id": "0f30c336-9e14-5a5a-9ed8-4f2e2dfee32d",
+              "event_type": "pdlc.spec.changed",
+              "occurred_at": "2026-10-16T09:56:24+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H06-spec2",
+              "payload": {
+                "doc_id": "p02/pilot-p02-1016-02/spec",
+                "version": "2",
+                "title": "Revised reset policy"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Spec:p02/pilot-p02-1016-02/spec|2",
+            "expected_props": {
+              "title": "Revised reset policy",
+              "status": "draft"
+            },
+            "expected_edges": [],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H07-req2",
+            "request": {
+              "event_id": "0c2be2a0-2cd4-53ea-af81-9d346dd58661",
+              "event_type": "pdlc.requirement.changed",
+              "occurred_at": "2026-10-16T09:56:25+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H07-req2",
+              "payload": {
+                "spec_id": "p02/pilot-p02-1016-02/spec",
+                "spec_version": "2",
+                "local_id": "expiry",
+                "statement": "Token expires in ten minutes"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+            "expected_props": {
+              "statement": "Token expires in ten minutes"
+            },
+            "expected_edges": [
+              [
+                "REFINES",
+                "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+                "Spec:p02/pilot-p02-1016-02/spec|2"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H08-planned-case",
+            "request": {
+              "event_id": "e962aaed-3181-5d62-a769-c03eb65ff070",
+              "event_type": "pdlc.testcaserun.skipped",
+              "occurred_at": "2026-10-16T09:56:26+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H08-planned-case",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "test_id": "coverageprobe8549f84cd9",
+                "run_id": "p02/pilot-p02-1016-02/skipped",
+                "outcome": "skipped",
+                "name": "coverageprobe8549f84cd9",
+                "path": "tests/coverageprobe8549f84cd9.py"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "TestRun:p02/pilot-p02-1016-02/skipped",
+            "expected_props": {
+              "outcome": "skipped"
+            },
+            "expected_edges": [
+              [
+                "EXECUTES",
+                "TestRun:p02/pilot-p02-1016-02/skipped",
+                "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9"
+              ]
+            ],
+            "extra_nodes": {
+              "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9": {
+                "name": "coverageprobe8549f84cd9",
+                "path": "tests/coverageprobe8549f84cd9.py"
+              }
+            }
+          },
+          {
+            "scenario": "H09-proposed-coverage",
+            "request": {
+              "event_id": "a79a7c17-2938-53ac-95bf-45a0aa6df12d",
+              "event_type": "observation.input",
+              "occurred_at": "2026-10-16T09:56:27+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H09-proposed-coverage",
+              "payload": {
+                "content": "coverageprobe8549f84cd9: TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9 checks Requirement:p02/pilot-p02-1016-02/spec|1|proposed. This coverage relationship is a proposal; the execution was skipped. We choose bounded processing because buffering an entire workspace is unsafe. That engineering choice is a proposal, not an accepted decision."
+              }
+            },
+            "expected_status": 201,
+            "expected_node": null,
+            "expected_props": {},
+            "expected_edges": [],
+            "extra_nodes": {},
+            "requires_pack_output": true,
+            "required_proposed_edges": [
+              {
+                "kind": "VERIFIES",
+                "source": "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9",
+                "target": "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+                "method": "inferred",
+                "link_status": "proposed"
+              }
+            ]
+          },
+          {
+            "scenario": "H10-accepted-decision",
+            "request": {
+              "event_id": "3f507741-f486-597b-b85c-40a696f5b2e6",
+              "event_type": "pdlc.decision.recorded",
+              "occurred_at": "2026-10-16T09:56:28+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H10-accepted-decision",
+              "payload": {
+                "statement": "p02/pilot-p02-1016-02: Explicitly accept bounded token-repair processing",
+                "rationale": "Operator-approved engineering policy",
+                "applies_to_node_ids": [
+                  "Requirement:p02/pilot-p02-1016-02/spec|2|expiry"
+                ]
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+            "expected_props": {
+              "statement": "p02/pilot-p02-1016-02: Explicitly accept bounded token-repair processing",
+              "status": "accepted"
+            },
+            "expected_edges": [
+              [
+                "APPLIES_TO",
+                "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+                "Requirement:p02/pilot-p02-1016-02/spec|2|expiry"
+              ]
+            ],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H11-review",
+            "request": {
+              "event_id": "702761c8-511d-599b-847f-7f5f3fadd297",
+              "event_type": "pdlc.change.reviewed",
+              "occurred_at": "2026-10-16T09:56:29+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H11-review",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "number": 17,
+                "review_id": "review-1",
+                "reviewer": "Robin",
+                "verdict": "approved"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Review:p02/pilot-p02-1016-02/auth|17|review-1",
+            "expected_props": {
+              "reviewer": "Robin",
+              "verdict": "approved"
+            },
+            "expected_edges": [
+              [
+                "REVIEWS",
+                "Review:p02/pilot-p02-1016-02/auth|17|review-1",
+                "Change:p02/pilot-p02-1016-02/auth|17"
+              ]
+            ],
+            "extra_nodes": {},
+            "node_assertions": {
+              "Change:p02/pilot-p02-1016-02/auth|17": {
+                "status": "reviewed"
+              }
+            }
+          },
+          {
+            "scenario": "H12-passed",
+            "request": {
+              "event_id": "36bf260f-0e4c-5032-a91e-206c37b6c3fe",
+              "event_type": "pdlc.testcaserun.finished",
+              "occurred_at": "2026-10-16T09:56:30+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H12-passed",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "test_id": "expiry",
+                "run_id": "p02/pilot-p02-1016-02/passed",
+                "outcome": "success",
+                "name": "Token expiry regression",
+                "path": "tests/expiry.py",
+                "commit_sha": "fixed-sha",
+                "change_number": 17,
+                "requirements": [
+                  {
+                    "spec_id": "p02/pilot-p02-1016-02/spec",
+                    "spec_version": "1",
+                    "local_id": "expiry"
+                  }
+                ]
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "TestRun:p02/pilot-p02-1016-02/passed",
+            "expected_props": {
+              "outcome": "success",
+              "commit_sha": "fixed-sha"
+            },
+            "expected_edges": [
+              [
+                "EXECUTES",
+                "TestRun:p02/pilot-p02-1016-02/passed",
+                "TestCase:p02/pilot-p02-1016-02/auth|expiry"
+              ],
+              [
+                "RAN_AGAINST",
+                "TestRun:p02/pilot-p02-1016-02/passed",
+                "Change:p02/pilot-p02-1016-02/auth|17"
+              ],
+              [
+                "VERIFIES",
+                "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+                "Requirement:p02/pilot-p02-1016-02/spec|1|expiry"
+              ]
+            ],
+            "extra_nodes": {
+              "TestCase:p02/pilot-p02-1016-02/auth|expiry": {
+                "name": "Token expiry regression",
+                "path": "tests/expiry.py"
+              }
+            }
+          },
+          {
+            "scenario": "H13-merge",
+            "request": {
+              "event_id": "333fe73e-0dae-5cad-bb1d-456cefc18a7b",
+              "event_type": "pdlc.change.merged",
+              "occurred_at": "2026-10-16T09:56:31+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H13-merge",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "number": 17,
+                "title": "Repair token expiry",
+                "body": "",
+                "files": [],
+                "merge_sha": "fixed-sha"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Change:p02/pilot-p02-1016-02/auth|17",
+            "expected_props": {
+              "status": "merged",
+              "merge_sha": "fixed-sha"
+            },
+            "expected_edges": [],
+            "extra_nodes": {}
+          },
+          {
+            "scenario": "H14-incident",
+            "request": {
+              "event_id": "e0c685df-2104-5d83-81df-0588509e765c",
+              "event_type": "pdlc.incident.detected",
+              "occurred_at": "2026-10-16T09:56:32+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H14-incident",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "service": "p02/pilot-p02-1016-02/tokens",
+                "incident_id": "INC-17",
+                "description": "Expired tokens were accepted",
+                "severity": "high"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17",
+            "expected_props": {
+              "status": "detected"
+            },
+            "expected_edges": [
+              [
+                "AFFECTS",
+                "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17",
+                "Component:p02/pilot-p02-1016-02/tokens"
+              ]
+            ],
+            "extra_nodes": {
+              "Component:p02/pilot-p02-1016-02/tokens": {}
+            }
+          },
+          {
+            "scenario": "H15-remediation",
+            "request": {
+              "event_id": "4424c8d0-16eb-545d-86c9-0d928cc8dc44",
+              "event_type": "pdlc.incident.remediation_recorded",
+              "occurred_at": "2026-10-16T09:56:33+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H15-remediation",
+              "payload": {
+                "change": {
+                  "repo": "p02/pilot-p02-1016-02/auth",
+                  "number": 17
+                },
+                "incident": {
+                  "repo": "p02/pilot-p02-1016-02/auth",
+                  "service": "p02/pilot-p02-1016-02/tokens",
+                  "incident_id": "INC-17"
+                }
+              }
+            },
+            "expected_status": 201,
+            "expected_node": null,
+            "expected_props": {},
+            "expected_edges": [
+              [
+                "REMEDIATES",
+                "Change:p02/pilot-p02-1016-02/auth|17",
+                "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17"
+              ]
+            ],
+            "extra_nodes": {},
+            "expected_observed_node_ids": [],
+            "expected_edge_properties": [
+              [
+                "REMEDIATES",
+                "Change:p02/pilot-p02-1016-02/auth|17",
+                "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17",
+                {
+                  "source_event_id": "4424c8d0-16eb-545d-86c9-0d928cc8dc44",
+                  "pinned_position": "$receipt"
+                }
+              ]
+            ]
+          },
+          {
+            "scenario": "H16-deploy",
+            "request": {
+              "event_id": "3acae150-e01d-5a2c-b64a-7c82694ece14",
+              "event_type": "pdlc.service.deployed",
+              "occurred_at": "2026-10-16T09:56:34+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H16-deploy",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "service": "p02/pilot-p02-1016-02/tokens",
+                "environment": "production",
+                "artifact_id": "fixed-sha",
+                "change_numbers": [
+                  17
+                ]
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00",
+            "expected_props": {
+              "status": "succeeded"
+            },
+            "expected_edges": [
+              [
+                "DEPLOYS",
+                "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00",
+                "Change:p02/pilot-p02-1016-02/auth|17"
+              ],
+              [
+                "DEPLOYED_TO",
+                "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00",
+                "Component:p02/pilot-p02-1016-02/tokens"
+              ]
+            ],
+            "extra_nodes": {
+              "Component:p02/pilot-p02-1016-02/tokens": {}
+            }
+          },
+          {
+            "scenario": "H17-resolved",
+            "request": {
+              "event_id": "3e973edb-0f02-56a5-9ac1-de47f301948c",
+              "event_type": "pdlc.incident.resolved",
+              "occurred_at": "2026-10-16T09:56:35+00:00",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02",
+              "payload_ref": "pilot-completion:H17-resolved",
+              "payload": {
+                "repo": "p02/pilot-p02-1016-02/auth",
+                "service": "p02/pilot-p02-1016-02/tokens",
+                "incident_id": "INC-17"
+              }
+            },
+            "expected_status": 201,
+            "expected_node": "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17",
+            "expected_props": {
+              "status": "resolved"
+            },
+            "expected_edges": [],
+            "extra_nodes": {}
+          }
+        ],
+        "queries": [
+          {
+            "scenario": "HQ1-new-revision-does-not-inherit-work",
+            "intent": "trace",
+            "text": "trace",
+            "seeds": [
+              "Requirement:p02/pilot-p02-1016-02/spec|2|expiry"
+            ],
+            "required": [
+              "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+              "Spec:p02/pilot-p02-1016-02/spec|2"
+            ],
+            "forbidden": [
+              "WorkItem:jira|P8549F84CD9-17",
+              "Change:p02/pilot-p02-1016-02/auth|17",
+              "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+              "TestRun:p02/pilot-p02-1016-02/failed",
+              "TestRun:p02/pilot-p02-1016-02/passed"
+            ],
+            "max_depth": 5,
+            "exact": true,
+            "after_scenario": "H07-req2",
+            "expected_edges": [
+              [
+                "REFINES",
+                "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+                "Spec:p02/pilot-p02-1016-02/spec|2"
+              ]
+            ]
+          },
+          {
+            "scenario": "HQ2-old-revision-retains-work-and-outcomes",
+            "intent": "trace",
+            "text": "trace",
+            "seeds": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|expiry"
+            ],
+            "required": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|expiry",
+              "Spec:p02/pilot-p02-1016-02/spec|1",
+              "WorkItem:jira|P8549F84CD9-17",
+              "Change:p02/pilot-p02-1016-02/auth|17",
+              "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+              "TestRun:p02/pilot-p02-1016-02/failed"
+            ],
+            "forbidden": [
+              "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+              "Spec:p02/pilot-p02-1016-02/spec|2"
+            ],
+            "max_depth": 6,
+            "exact": true,
+            "after_scenario": "H07-req2"
+          },
+          {
+            "scenario": "HQ3-no-coverage",
+            "intent": "trace",
+            "text": "trace",
+            "seeds": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|missing"
+            ],
+            "required": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|missing"
+            ],
+            "forbidden": [
+              "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+              "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9",
+              "TestRun:p02/pilot-p02-1016-02/failed",
+              "TestRun:p02/pilot-p02-1016-02/passed",
+              "TestRun:p02/pilot-p02-1016-02/skipped"
+            ],
+            "max_depth": 4,
+            "exact": false
+          },
+          {
+            "scenario": "HQ4-proposed-is-not-a-passing-run",
+            "intent": "trace",
+            "text": "trace",
+            "seeds": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|proposed"
+            ],
+            "required": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|proposed"
+            ],
+            "forbidden": [
+              "TestRun:p02/pilot-p02-1016-02/passed",
+              "TestRun:p02/pilot-p02-1016-02/failed"
+            ],
+            "max_depth": 4,
+            "exact": false
+          },
+          {
+            "scenario": "HQ5-hotfix-work-verification-production",
+            "intent": "trace",
+            "text": "trace",
+            "seeds": [
+              "WorkItem:jira|P8549F84CD9-17"
+            ],
+            "required": [
+              "WorkItem:jira|P8549F84CD9-17",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|expiry",
+              "Spec:p02/pilot-p02-1016-02/spec|1",
+              "Change:p02/pilot-p02-1016-02/auth|17",
+              "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+              "TestRun:p02/pilot-p02-1016-02/failed",
+              "TestRun:p02/pilot-p02-1016-02/passed",
+              "Review:p02/pilot-p02-1016-02/auth|17|review-1",
+              "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00",
+              "Component:p02/pilot-p02-1016-02/tokens"
+            ],
+            "forbidden": [
+              "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+              "Spec:p02/pilot-p02-1016-02/spec|2",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|missing",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|proposed"
+            ],
+            "max_depth": 6,
+            "exact": true,
+            "expected_states": {
+              "Change:p02/pilot-p02-1016-02/auth|17": "merged",
+              "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00": "succeeded"
+            }
+          },
+          {
+            "scenario": "HQ6-explicit-remediation-resolution",
+            "intent": "incident",
+            "text": "trace",
+            "seeds": [
+              "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17"
+            ],
+            "required": [
+              "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17",
+              "Change:p02/pilot-p02-1016-02/auth|17",
+              "Component:p02/pilot-p02-1016-02/tokens"
+            ],
+            "forbidden": [
+              "Requirement:p02/pilot-p02-1016-02/spec|2|expiry"
+            ],
+            "max_depth": 3,
+            "exact": false,
+            "expected_states": {
+              "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17": "resolved"
+            },
+            "expected_edges": [
+              [
+                "REMEDIATES",
+                "Change:p02/pilot-p02-1016-02/auth|17",
+                "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17"
+              ]
+            ]
+          },
+          {
+            "scenario": "HQ7-missing-proposed-confirmed-coverage",
+            "intent": "completeness",
+            "text": "Which requirements have no tests?",
+            "seeds": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|missing",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|expiry"
+            ],
+            "required": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|missing",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|proposed"
+            ],
+            "forbidden": [
+              "Requirement:p02/pilot-p02-1016-02/spec|1|expiry"
+            ],
+            "exact": true,
+            "max_depth": 3,
+            "expected_retrieval_reasons": {
+              "Requirement:p02/pilot-p02-1016-02/spec|1|missing": "no_link",
+              "Requirement:p02/pilot-p02-1016-02/spec|1|proposed": "proposed_only"
+            },
+            "expected_channels": {
+              "completeness.VERIFIES.no_link": 1,
+              "completeness.VERIFIES.proposed_only": 1,
+              "completeness.VERIFIES.confirmed": 1
+            }
+          }
+        ],
+        "source_expectations": {
+          "Spec:p02/pilot-p02-1016-02/spec|1": [
+            "307ad878-ce70-5504-831c-9026187e884d"
+          ],
+          "Requirement:p02/pilot-p02-1016-02/spec|1|expiry": [
+            "5b149122-338b-596d-ad3e-c3905e1444f3"
+          ],
+          "Requirement:p02/pilot-p02-1016-02/spec|1|missing": [
+            "d696a534-d665-5fee-baac-dc1ecc6f247a"
+          ],
+          "Requirement:p02/pilot-p02-1016-02/spec|1|proposed": [
+            "bd64ccf6-fe80-5465-9e25-9e461868848b"
+          ],
+          "WorkItem:jira|P8549F84CD9-17": [
+            "45a4caae-d584-5b48-9bf6-9f56b078d5f6"
+          ],
+          "Change:p02/pilot-p02-1016-02/auth|17": [
+            "2af5a0ee-1299-5d50-9956-e344d0ff567f",
+            "333fe73e-0dae-5cad-bb1d-456cefc18a7b"
+          ],
+          "TestRun:p02/pilot-p02-1016-02/failed": [
+            "01bf8268-ce4b-54c3-8f66-03e0b9010d52"
+          ],
+          "TestCase:p02/pilot-p02-1016-02/auth|expiry": [
+            "01bf8268-ce4b-54c3-8f66-03e0b9010d52",
+            "36bf260f-0e4c-5032-a91e-206c37b6c3fe"
+          ],
+          "Spec:p02/pilot-p02-1016-02/spec|2": [
+            "0f30c336-9e14-5a5a-9ed8-4f2e2dfee32d"
+          ],
+          "Requirement:p02/pilot-p02-1016-02/spec|2|expiry": [
+            "0c2be2a0-2cd4-53ea-af81-9d346dd58661"
+          ],
+          "TestRun:p02/pilot-p02-1016-02/skipped": [
+            "e962aaed-3181-5d62-a769-c03eb65ff070"
+          ],
+          "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9": [
+            "e962aaed-3181-5d62-a769-c03eb65ff070"
+          ],
+          "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386": [
+            "3f507741-f486-597b-b85c-40a696f5b2e6"
+          ],
+          "Review:p02/pilot-p02-1016-02/auth|17|review-1": [
+            "702761c8-511d-599b-847f-7f5f3fadd297"
+          ],
+          "TestRun:p02/pilot-p02-1016-02/passed": [
+            "36bf260f-0e4c-5032-a91e-206c37b6c3fe"
+          ],
+          "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17": [
+            "e0c685df-2104-5d83-81df-0588509e765c",
+            "3e973edb-0f02-56a5-9ac1-de47f301948c"
+          ],
+          "Component:p02/pilot-p02-1016-02/tokens": [
+            "e0c685df-2104-5d83-81df-0588509e765c",
+            "3acae150-e01d-5a2c-b64a-7c82694ece14"
+          ],
+          "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00": [
+            "3acae150-e01d-5a2c-b64a-7c82694ece14"
+          ]
+        },
+        "model_proposal_check": {
+          "event_id": "a79a7c17-2938-53ac-95bf-45a0aa6df12d",
+          "required_type": "Decision",
+          "status": "proposed",
+          "accepted_decision": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+        },
+        "ids": {
+          "spec1": "Spec:p02/pilot-p02-1016-02/spec|1",
+          "spec2": "Spec:p02/pilot-p02-1016-02/spec|2",
+          "req1": "Requirement:p02/pilot-p02-1016-02/spec|1|expiry",
+          "req2": "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+          "missing": "Requirement:p02/pilot-p02-1016-02/spec|1|missing",
+          "proposed": "Requirement:p02/pilot-p02-1016-02/spec|1|proposed",
+          "ticket": "WorkItem:jira|P8549F84CD9-17",
+          "change": "Change:p02/pilot-p02-1016-02/auth|17",
+          "case": "TestCase:p02/pilot-p02-1016-02/auth|expiry",
+          "failed": "TestRun:p02/pilot-p02-1016-02/failed",
+          "passed": "TestRun:p02/pilot-p02-1016-02/passed",
+          "planned_case": "TestCase:p02/pilot-p02-1016-02/auth|coverageprobe8549f84cd9",
+          "skipped": "TestRun:p02/pilot-p02-1016-02/skipped",
+          "review": "Review:p02/pilot-p02-1016-02/auth|17|review-1",
+          "component": "Component:p02/pilot-p02-1016-02/tokens",
+          "incident": "Incident:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|INC-17",
+          "decision": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+          "deployment": "Deployment:p02/pilot-p02-1016-02/auth|p02/pilot-p02-1016-02/tokens|production|fixed-sha|2026-10-16T09:56:34+00:00"
+        },
+        "source_kind": "Synthetic explicit completion producers"
+      }
+    ],
+    "coverage": "P02: revision-scoped work, proposed/confirmed/failed coverage, proposed versus accepted Decision and explicit hotfix trace",
+    "limits": [
+      "Local preflight is not live provider proof",
+      "Explicit-seed traversal checks; wording discovery belongs to P08",
+      "No migration, hierarchy, forced crash or ANN load claims"
+    ]
+  },
+  "execution_mode": "selected-journeys"
+}

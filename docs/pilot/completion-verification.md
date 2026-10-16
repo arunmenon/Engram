@@ -46,7 +46,7 @@ Use a clean checkout of the recorded source and satisfy the credentials, model a
 This establishes a technical verification record. A stakeholder walkthrough and an independent human reproduction remain separate deliverables.
 
 
-## P02 — PDLC history: first attempt failed; corrected rerun prepared
+## P02 — PDLC history: complete, with a composite evidence verdict
 
 The first attempt sent eleven accepted inputs through the real flows. At H09, extraction applied but the expected proposed VERIFIES edge was absent. The [failed result](../review/spanner-compatibility/runs/pilot-p02-1016-01/results.json) stays failed; later hotfix inputs and final queries were not reached. All171observed provider invocations returned, shutdown was clean and final source/owner/material graph/oldEpisode preservation checks passed, with empty pending/DLQ. Those operational results do not repair the missing business relationship.
 
@@ -55,3 +55,23 @@ The candidate list is capped at30. The worker filled it by searching artifact ty
 Issue[#73](https://github.com/arunmenon/Engram/issues/73), under#63, tracks candidate starvation. The fix offers existing registry-valid endpoint IDs explicitly named in the source before lexical fill. It keeps the same30candidate ceiling, type/key eligibility, persistence checks, trust and model-output validation. It creates no relationship by itself. The exact proposed-VERIFIES expectation remains unchanged.
 
 Astra accepted the bounded implementation;38targetedtests,ruff andmypy passed. The regression uses35historical matchingDesignElements and checks the actual worker prompt, both fresh endpoints, the candidate bound and rejection of a nonexistent endpoint. The [corrected reconstruction](../review/spanner-compatibility/runs/pilot-p02-1016-01/candidate-reconstruction-corrected.json) now offers both endpoints. The new live run must still demonstrate an actual model proposal, saved edge/source evidence and public retrieval. Full fresh pack prompts are captured for that run. #71and#73 remain open.
+
+
+### P02 final walkthrough
+
+| Scenario | Verified behavior | Evidence |
+|---|---|---|
+| Requirement revision | Existing work/tests remain linked to the original revision; the new revision does not inherit them. | Run02 individual input and read checks. |
+| Coverage versus execution | Missing coverage, model-proposed coverage and confirmed coverage are distinguished. A failed test remains a failure; structural coverage does not become a pass. | Run02 captured real model prompt/output, stored proposed edge and completeness/public reads. |
+| Hotfix traceability | Explicit work, review, test, merge, incident/remediation and deployment records have the declared identities and directed links. | Run02 individual input/read/source checks. |
+| Proposal versus acceptance | Run01's actual model-produced Decision remains proposed; run02's explicit producer-recorded Decision is accepted. Public reads show each status and correct source position. | Run01 producer output/hash/membership, then run03 public contrast. |
+
+[Run02](../review/spanner-compatibility/runs/pilot-p02-1016-02/results.json) matched all19individualinputs and26reads, then failed its final requirement that H09 also produce a Decision. Luna produced a Constraint and the exact coverage link, not a Decision. Its253checks include that onefailure. All173providerinvocations returned; shutdown and final conservation passed. This run stays failed.
+
+[Run03](../review/spanner-compatibility/runs/pilot-p02-1016-03/results.json) passed33checks. It submitted no new Events and ran no workers or provider calls: it used the real authenticated public API to read already processed records. It verifies the retained run01 Decision and the run02 accepted Decision without chasing another model output. The original recorded statement hashes exactly to the proposed Decision identity and has DERIVED_FROM its exact admitted Event.
+
+Run02 appended exactly19BEvents and none inA. Run03 appended none in either tenant. Both retained owners, source rows, material graph and exact prior Episode membership, with empty pending/DLQ and clean shutdown. Each executed source set has176hash checks matching its recorded commit: run02 `55dd7cb`, run03 `43fff58`. The [coverage audit](../review/spanner-compatibility/runs/pilot-p02-1016-02/proposed-coverage-audit.json) links the actual source invocation, returned relationship and saved edge.
+
+Astra accepted the four bounded scenarios as composite proof, with no remaining blocker. #71and#73 meet bounded closure criteria; broader umbrellas remain open. Neither original run passed unchanged. “Accepted” here is a producer-recorded decision, not authenticated human approval. Inferred relationship rows store status/trust/confidence but no direct source Event pointer; the run journal supplies invocation provenance, while artifact source provenance is checked through public reads. This limitation is retained.
+
+Replay requires the common credentials/binding prerequisites, a pinned clean source checkout, fresh baseline and fresh fixture identities for write journeys. `--journeys-only` selects the frozen plan. A plan containing only retained reads produces the distinct `passed-retained-read-checkpoint` verdict and does not repeat original ingestion/model proof. See each run's manifest and frozen fixtures; do not rerun old Event identities and call that fresh creation.

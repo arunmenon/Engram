@@ -1,0 +1,787 @@
+{
+  "state": "passed-retained-read-checkpoint",
+  "execution_mode": "selected-retained-reads",
+  "scope": [
+    [
+      "P02 composite completion: read retained actual-model Decision proposal versus explicit accepted Decision; history/coverage/hotfix evidence remains individually satisfied in failedrun02."
+    ]
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast:model-proposal-status-and-source",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast:model-proposal-status-and-source directed links",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast exact public source Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast:explicit-accepted-status-and-source",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast:explicit-accepted-status-and-source directed links",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast exact public source Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast model proposals distinct from accepted decision",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast proposed choices publicly retrievable",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "p02-retained-decision-contrast public proposal accepted-source membership Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "retained reads leave pending/DLQ empty",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "retained-read checkpoint submits no inputs or background model work",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": true
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final pending/DLQ empty",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final pending/DLQ empty",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "tenant": "b",
+      "path": "/v1/query/artifacts",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "query": "trace",
+        "intent": "status",
+        "seed_node_ids": [
+          "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+        ],
+        "max_nodes": 100,
+        "max_depth": 1
+      },
+      "status": 200,
+      "output": {
+        "nodes": {
+          "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4": {
+            "node_id": "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+            "node_type": "Decision",
+            "attributes": {
+              "alternatives": "Buffering an entire workspace.",
+              "confidence": 0.7,
+              "content_hash": "f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+              "method": "extracted",
+              "node_id": "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+              "node_type": "Decision",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "rationale": "Buffering an entire workspace is unsafe.",
+              "source_trust": "trusted",
+              "statement": "Propose bounded processing instead of buffering an entire workspace.",
+              "status": "proposed",
+              "status_changed_at": "2026-10-16T09:11:42+00:00",
+              "updated_at": "2026-10-16T09:11:42+00:00"
+            },
+            "provenance": {
+              "event_id": "6a2fbf17-1d34-5b97-8de5-b056513faa4c",
+              "global_position": "2026-10-16T09:53:24.931903000Z/000000/6a2fbf17-1d34-5b97-8de5-b056513faa4c",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T09:11:42Z",
+              "session_id": "p02/pilot-p02-1016-01",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-01"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 1.0,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          },
+          "DesignElement:pilot-1016-entry-03-hld|streaming|1": {
+            "node_id": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+            "node_type": "DesignElement",
+            "attributes": {
+              "body": "We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory. Constraint: never buffer an entire workspace.",
+              "doc_id": "pilot-1016-entry-03-hld",
+              "kind": "hld",
+              "node_id": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+              "node_type": "DesignElement",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "section_path": "streaming",
+              "source_trust": "trusted",
+              "status": "draft",
+              "status_changed_at": "2026-10-16T02:35:47.246438+00:00",
+              "title": "Bounded export streaming",
+              "updated_at": "2026-10-16T02:35:47.246438+00:00",
+              "version": "1"
+            },
+            "provenance": {
+              "event_id": "9a703bc4-8cf7-5fa7-b304-111aa58aeded",
+              "global_position": "2026-10-16T02:39:47.372495000Z/000000/9a703bc4-8cf7-5fa7-b304-111aa58aeded",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T02:35:47.246438Z",
+              "session_id": "pilot-1016-entry-03:work",
+              "agent_id": "pilot-1016-entry-03:publisher",
+              "trace_id": "pilot-1016-entry-03"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 0.6,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "proactive",
+            "proactive_signal": null
+          }
+        },
+        "edges": [
+          {
+            "source": "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+            "target": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+            "edge_type": "APPLIES_TO",
+            "properties": {
+              "confidence": 0.4,
+              "link_status": "proposed",
+              "method": "inferred",
+              "source_trust": "trusted"
+            }
+          }
+        ],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 1365,
+          "nodes_returned": 2,
+          "truncated": false,
+          "inferred_intents": {
+            "status": 1.0
+          },
+          "intent_override": "status",
+          "seed_nodes": [
+            "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+          ],
+          "seed_strategy": "artifact_seeds",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {},
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 2,
+            "max_depth": 1
+          },
+          "eval_pending": []
+        }
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/query/artifacts",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "query": "trace",
+        "intent": "status",
+        "seed_node_ids": [
+          "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+        ],
+        "max_nodes": 100,
+        "max_depth": 1
+      },
+      "status": 200,
+      "output": {
+        "nodes": {
+          "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386": {
+            "node_id": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+            "node_type": "Decision",
+            "attributes": {
+              "content_hash": "5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+              "node_id": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+              "node_type": "Decision",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "rationale": "Operator-approved engineering policy",
+              "source_trust": "trusted",
+              "statement": "p02/pilot-p02-1016-02: Explicitly accept bounded token-repair processing",
+              "status": "accepted",
+              "status_changed_at": "2026-10-16T09:56:28+00:00",
+              "updated_at": "2026-10-16T09:56:28+00:00"
+            },
+            "provenance": {
+              "event_id": "3f507741-f486-597b-b85c-40a696f5b2e6",
+              "global_position": "2026-10-16T10:03:43.110255000Z/000000/3f507741-f486-597b-b85c-40a696f5b2e6",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T09:56:28Z",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 1.0,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          },
+          "Requirement:p02/pilot-p02-1016-02/spec|2|expiry": {
+            "node_id": "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+            "node_type": "Requirement",
+            "attributes": {
+              "local_id": "expiry",
+              "node_id": "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+              "node_type": "Requirement",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "source_trust": "trusted",
+              "spec_id": "p02/pilot-p02-1016-02/spec",
+              "spec_version": "2",
+              "statement": "Token expires in ten minutes",
+              "status": "proposed",
+              "status_changed_at": "2026-10-16T09:56:25+00:00",
+              "updated_at": "2026-10-16T09:56:25+00:00"
+            },
+            "provenance": {
+              "event_id": "0c2be2a0-2cd4-53ea-af81-9d346dd58661",
+              "global_position": "2026-10-16T10:02:57.720703000Z/000000/0c2be2a0-2cd4-53ea-af81-9d346dd58661",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T09:56:25Z",
+              "session_id": "p02/pilot-p02-1016-02",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-02"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 0.6,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "proactive",
+            "proactive_signal": null
+          }
+        },
+        "edges": [
+          {
+            "source": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386",
+            "target": "Requirement:p02/pilot-p02-1016-02/spec|2|expiry",
+            "edge_type": "APPLIES_TO",
+            "properties": {
+              "confidence": 1.0,
+              "link_status": "confirmed",
+              "method": "declared",
+              "source_trust": "trusted"
+            }
+          }
+        ],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 982,
+          "nodes_returned": 2,
+          "truncated": false,
+          "inferred_intents": {
+            "status": 1.0
+          },
+          "intent_override": "status",
+          "seed_nodes": [
+            "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+          ],
+          "seed_strategy": "artifact_seeds",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {},
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 2,
+            "max_depth": 1
+          },
+          "eval_pending": []
+        }
+      }
+    },
+    {
+      "tenant": "b",
+      "path": "/v1/query/artifacts",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "query": "status",
+        "intent": "status",
+        "seed_node_ids": [
+          "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+        ],
+        "max_nodes": 100
+      },
+      "status": 200,
+      "output": {
+        "nodes": {
+          "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4": {
+            "node_id": "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+            "node_type": "Decision",
+            "attributes": {
+              "alternatives": "Buffering an entire workspace.",
+              "confidence": 0.7,
+              "content_hash": "f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+              "method": "extracted",
+              "node_id": "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+              "node_type": "Decision",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "rationale": "Buffering an entire workspace is unsafe.",
+              "source_trust": "trusted",
+              "statement": "Propose bounded processing instead of buffering an entire workspace.",
+              "status": "proposed",
+              "status_changed_at": "2026-10-16T09:11:42+00:00",
+              "updated_at": "2026-10-16T09:11:42+00:00"
+            },
+            "provenance": {
+              "event_id": "6a2fbf17-1d34-5b97-8de5-b056513faa4c",
+              "global_position": "2026-10-16T09:53:24.931903000Z/000000/6a2fbf17-1d34-5b97-8de5-b056513faa4c",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T09:11:42Z",
+              "session_id": "p02/pilot-p02-1016-01",
+              "agent_id": "completion.publisher",
+              "trace_id": "pilot-p02-1016-01"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 1.0,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "direct",
+            "proactive_signal": null
+          },
+          "DesignElement:pilot-1016-entry-03-hld|streaming|1": {
+            "node_id": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+            "node_type": "DesignElement",
+            "attributes": {
+              "body": "We decide to stream authorized rows in bounded batches because workspace exports must not exhaust memory. Constraint: never buffer an entire workspace.",
+              "doc_id": "pilot-1016-entry-03-hld",
+              "kind": "hld",
+              "node_id": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+              "node_type": "DesignElement",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "section_path": "streaming",
+              "source_trust": "trusted",
+              "status": "draft",
+              "status_changed_at": "2026-10-16T02:35:47.246438+00:00",
+              "title": "Bounded export streaming",
+              "updated_at": "2026-10-16T02:35:47.246438+00:00",
+              "version": "1"
+            },
+            "provenance": {
+              "event_id": "9a703bc4-8cf7-5fa7-b304-111aa58aeded",
+              "global_position": "2026-10-16T02:39:47.372495000Z/000000/9a703bc4-8cf7-5fa7-b304-111aa58aeded",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T02:35:47.246438Z",
+              "session_id": "pilot-1016-entry-03:work",
+              "agent_id": "pilot-1016-entry-03:publisher",
+              "trace_id": "pilot-1016-entry-03"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 0.6,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "proactive",
+            "proactive_signal": null
+          },
+          "Requirement:pilot-1016-entry-03-export|1|authorization": {
+            "node_id": "Requirement:pilot-1016-entry-03-export|1|authorization",
+            "node_type": "Requirement",
+            "attributes": {
+              "local_id": "authorization",
+              "node_id": "Requirement:pilot-1016-entry-03-export|1|authorization",
+              "node_type": "Requirement",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "source_trust": "trusted",
+              "spec_id": "pilot-1016-entry-03-export",
+              "spec_version": "1",
+              "statement": "Export only workspace-authorized rows",
+              "status": "proposed",
+              "status_changed_at": "2026-10-16T02:35:46.246438+00:00",
+              "updated_at": "2026-10-16T02:35:46.246438+00:00"
+            },
+            "provenance": {
+              "event_id": "a38c73ab-97f9-5ef7-be95-c4c592ae5b1a",
+              "global_position": "2026-10-16T02:39:46.847119000Z/000000/a38c73ab-97f9-5ef7-be95-c4c592ae5b1a",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T02:35:46.246438Z",
+              "session_id": "pilot-1016-entry-03:work",
+              "agent_id": "pilot-1016-entry-03:publisher",
+              "trace_id": "pilot-1016-entry-03"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 0.36,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "proactive",
+            "proactive_signal": null
+          },
+          "Decision:fecae66df7526cbe03fbe065b6bc4b08263d997a13b081ce666f1f16145596a6": {
+            "node_id": "Decision:fecae66df7526cbe03fbe065b6bc4b08263d997a13b081ce666f1f16145596a6",
+            "node_type": "Decision",
+            "attributes": {
+              "alternatives": "Buffer an entire workspace export in memory.",
+              "confidence": 0.8,
+              "content_hash": "fecae66df7526cbe03fbe065b6bc4b08263d997a13b081ce666f1f16145596a6",
+              "method": "extracted",
+              "node_id": "Decision:fecae66df7526cbe03fbe065b6bc4b08263d997a13b081ce666f1f16145596a6",
+              "node_type": "Decision",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "rationale": "Workspace exports must not exhaust memory.",
+              "source_trust": "trusted",
+              "statement": "Stream authorized rows in bounded batches for workspace exports.",
+              "status": "proposed",
+              "status_changed_at": "2026-10-15T06:45:00.265026+00:00",
+              "updated_at": "2026-10-15T06:45:00.265026+00:00"
+            },
+            "provenance": {
+              "event_id": "0e5717fb-d989-53dc-8f7e-f01cdc362628",
+              "global_position": "2026-10-16T08:55:08.442975000Z/000000/0e5717fb-d989-53dc-8f7e-f01cdc362628",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T08:51:13.198346Z",
+              "session_id": "pilot-1016-continuation-06:work",
+              "agent_id": "pilot-1016-continuation-06:publisher",
+              "trace_id": "pilot-1016-continuation-06"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 0.216,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "proactive",
+            "proactive_signal": null
+          },
+          "Spec:pilot-1016-entry-03-export|1": {
+            "node_id": "Spec:pilot-1016-entry-03-export|1",
+            "node_type": "Spec",
+            "attributes": {
+              "acceptance_criteria": "Only workspace-authorized rows",
+              "doc_id": "pilot-1016-entry-03-export",
+              "node_id": "Spec:pilot-1016-entry-03-export|1",
+              "node_type": "Spec",
+              "ontology_version": "sha256:b5b9857af719ffe2",
+              "scope": "Export authorized workspace rows",
+              "source_trust": "trusted",
+              "status": "draft",
+              "status_changed_at": "2026-10-16T02:35:45.246438+00:00",
+              "title": "Audit CSV export",
+              "updated_at": "2026-10-16T02:35:45.246438+00:00",
+              "version": "1"
+            },
+            "provenance": {
+              "event_id": "91d46df9-75bd-592a-9c71-d703de575ba1",
+              "global_position": "2026-10-16T02:39:46.398399000Z/000000/91d46df9-75bd-592a-9c71-d703de575ba1",
+              "source": "spanner",
+              "occurred_at": "2026-10-16T02:35:45.246438Z",
+              "session_id": "pilot-1016-entry-03:work",
+              "agent_id": "pilot-1016-entry-03:publisher",
+              "trace_id": "pilot-1016-entry-03"
+            },
+            "scores": {
+              "decay_score": 0.0,
+              "relevance_score": 0.216,
+              "importance_score": 0,
+              "ppr_score": 0.0
+            },
+            "retrieval_reason": "proactive",
+            "proactive_signal": null
+          }
+        },
+        "edges": [
+          {
+            "source": "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4",
+            "target": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+            "edge_type": "APPLIES_TO",
+            "properties": {
+              "confidence": 0.4,
+              "link_status": "proposed",
+              "method": "inferred",
+              "source_trust": "trusted"
+            }
+          },
+          {
+            "source": "Decision:fecae66df7526cbe03fbe065b6bc4b08263d997a13b081ce666f1f16145596a6",
+            "target": "Requirement:pilot-1016-entry-03-export|1|authorization",
+            "edge_type": "APPLIES_TO",
+            "properties": {
+              "confidence": 0.72,
+              "link_status": "proposed",
+              "method": "inferred",
+              "source_trust": "trusted"
+            }
+          },
+          {
+            "source": "DesignElement:pilot-1016-entry-03-hld|streaming|1",
+            "target": "Requirement:pilot-1016-entry-03-export|1|authorization",
+            "edge_type": "REFINES",
+            "properties": {
+              "confidence": 1.0,
+              "link_status": "confirmed",
+              "method": "declared",
+              "source_trust": "trusted"
+            }
+          },
+          {
+            "source": "Requirement:pilot-1016-entry-03-export|1|authorization",
+            "target": "Spec:pilot-1016-entry-03-export|1",
+            "edge_type": "REFINES",
+            "properties": {
+              "confidence": 1.0,
+              "link_status": "confirmed",
+              "method": "declared",
+              "source_trust": "trusted"
+            }
+          }
+        ],
+        "pagination": {
+          "cursor": null,
+          "has_more": false
+        },
+        "meta": {
+          "query_ms": 1872,
+          "nodes_returned": 5,
+          "truncated": false,
+          "inferred_intents": {
+            "status": 1.0
+          },
+          "intent_override": "status",
+          "seed_nodes": [
+            "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+          ],
+          "seed_strategy": "artifact_seeds",
+          "proactive_nodes_count": 0,
+          "scoring_weights": {
+            "recency": 1.0,
+            "importance": 1.0,
+            "relevance": 1.0
+          },
+          "retrieval_channels": {},
+          "capacity": {
+            "max_nodes": 100,
+            "used_nodes": 5,
+            "max_depth": 3
+          },
+          "eval_pending": []
+        }
+      }
+    }
+  ],
+  "provider_calls": [],
+  "worker_outcomes": [],
+  "workers": [],
+  "limitations": [
+    "Selected groups only; entry business paths are not executed or certified by this attempt.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "Episode/summary/vector claims require corresponding selected-scenario evidence",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 53,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 7,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "spectrum": [
+    {
+      "group": "p02-retained-decision-contrast",
+      "tenant": "b",
+      "steps": [],
+      "queries": [
+        {
+          "scenario": "model-proposal-status-and-source",
+          "required": [
+            "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+          ]
+        },
+        {
+          "scenario": "explicit-accepted-status-and-source",
+          "required": [
+            "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+          ]
+        }
+      ],
+      "model_proposal_contrast": {
+        "proposed": [
+          "Decision:f2ce754572855ce5a92504eaf265af89dbdcb2a2fbbb9f45bee96cd93486cce4"
+        ],
+        "accepted": "Decision:5d02211353943986538bc5250191f2662bdb90a0064b67d47434730627550386"
+      },
+      "state": "passed selected scenarios"
+    }
+  ],
+  "final_worker_lags": [],
+  "shutdown_errors": []
+}
