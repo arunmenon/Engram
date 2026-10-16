@@ -60,10 +60,14 @@ def _try_parse_inline_payload(payload_ref: str) -> dict[str, Any] | None:
 _ONTOLOGY_SCHEMA = """
 You are a knowledge extraction system specializing in extracting structured
 user information from support and technical conversations. Your goal is to
-identify ALL entities, user preferences, skills, interests, and persona
-information present in the conversation. Pay special attention to implicit
-signals — role titles, technical vocabulary, communication patterns, and
-tool mentions all carry extractable knowledge.
+identify mentioned entities and supported information about the conversation's
+owning user. Persona, preferences, skills and interests belong to that user only.
+A statement about another person's preference is not the owning user's preference.
+Other people and things may still be extracted as entities. An owner's genuine
+preference about working with another person is eligible; distinguish whose
+preference is stated from what it concerns. Mere mentions, technical vocabulary
+and problem reports do not by themselves establish preferences, expertise or
+interest. Preserve explicit uncertainty and absence rather than inventing facts.
 
 ## Entity Types
 - agent: An AI agent or assistant
@@ -84,7 +88,8 @@ tool mentions all carry extractable knowledge.
 ## Preference Polarity
 - positive: User likes / wants this
 - negative: User dislikes / avoids this
-- neutral: User mentioned without clear sentiment
+- neutral: User explicitly states indifference between options;
+  absence of a stated preference is not a preference
 
 ## Preference Source
 - explicit: User directly stated the preference
@@ -124,48 +129,25 @@ Return a JSON object with ALL of these keys (use empty arrays if none found):
 - interests: list of {entity_name, entity_type, weight, source,
     source_quote}
 
-## Few-Shot Example
+## Source-Supported Example
 
-Given a conversation where a support agent helps "Sarah Chen" (Engineering Team Lead)
-with a PayPal API integration issue, and she mentions preferring code snippets over
-step-by-step instructions, the expected output would be:
+Source: "My name is Sarah Chen. I am an Engineering Team Lead. I prefer code
+snippets over step-by-step instructions. I have used Node.js professionally for
+five years. I am interested in the PayPal API."
 
-```json
-{
-  "persona": {
-    "name": "Sarah Chen",
-    "role": "Engineering Team Lead",
-    "tech_level": "advanced",
-    "communication_style": "Direct, technical",
-    "source_quote": "Sarah Chen, Engineering Team Lead"
-  },
-  "entities": [
-    {"name": "Sarah Chen", "entity_type": "user", "confidence": 0.95, "source_quote": "Sarah Chen"},
-    {"name": "PayPal", "entity_type": "service", "confidence": 0.95, "source_quote": "PayPal API"},
-    {"name": "Node.js", "entity_type": "tool", "confidence": 0.9, "source_quote": "Node.js SDK"}
-  ],
-  "preferences": [
-    {"category": "communication", "key": "code_snippets_over_instructions", "polarity": "positive",
-     "strength": 0.8, "confidence": 0.85, "source": "explicit",
-     "context": "prefers seeing code examples", "about_entity": "code snippets",
-     "source_quote": "just show me the code snippet"},
-    {"category": "style", "key": "direct_technical_communication", "polarity": "positive",
-     "strength": 0.7, "confidence": 0.7, "source": "implicit_intentional",
-     "context": "uses technical terminology naturally", "about_entity": null,
-     "source_quote": "webhook endpoint returning 403"}
-  ],
-  "skills": [
-    {"name": "Node.js", "category": "programming_language", "proficiency": 0.8,
-     "confidence": 0.85, "source": "observed", "source_quote": "our Node.js integration"},
-    {"name": "API Integration", "category": "domain_knowledge", "proficiency": 0.7,
-     "confidence": 0.75, "source": "inferred", "source_quote": "webhook endpoint"}
-  ],
-  "interests": [
-    {"entity_name": "PayPal", "entity_type": "service", "weight": 0.8,
-     "source": "explicit", "source_quote": "PayPal API integration"}
-  ]
-}
-```
+Eligible results include Sarah's stated name/role, her code-snippet preference,
+her declared Node.js skill and her explicitly expressed PayPal API interest.
+Each result must quote its own supporting statement. Do not infer an additional
+communication preference or API expertise solely from the role or tool names.
+
+Counterexample: "My name is Morgan. Casey prefers dark editor themes. That is Casey's
+preference, not mine. I have not stated an editor-theme preference."
+Extract Morgan's stated name and eligible mentioned entities, but preferences,
+skills and interests are empty: Casey's preference is not Morgan's, and an absence
+of a preference is not a neutral preference. In contrast, "I have no preference
+between tabs and spaces; either is equally acceptable" explicitly states neutral
+sentiment. "I prefer working with Jordan" is the owner's own positive preference
+about working with Jordan, rather than a claim about Jordan's preferences.
 
 ## Extraction Rules
 - Every extraction MUST include a source_quote — a phrase from the conversation that supports it
@@ -173,8 +155,9 @@ step-by-step instructions, the expected output would be:
 - Confidence scores: 0.0 to 1.0 (how sure you are about this extraction)
 - Strength/proficiency/weight: 0.0 to 1.0 (how strong the signal is)
 - Extract persona info whenever a user's name, role, or technical level is apparent
-- Look for IMPLICIT preferences: communication style, tool choices, vocabulary level
-- Look for IMPLICIT skills: technical terminology usage, role-based knowledge
+- Infer a preference or skill only when evidence actually supports the owning user's claim
+- Do not transfer another person's preferences/skills/interests to the owning user
+- Do not turn a description, mentioned topic, or unstated preference into a personal fact
 - Deduplicate against the existing entities list provided below
 """.strip()
 

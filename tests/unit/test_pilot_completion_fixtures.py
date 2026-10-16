@@ -265,3 +265,177 @@ def test_recovery_validates_decoded_spanner_receipt_and_rejects_tampering():
     state["nodes"][-1][2] = json_param(changed)
     with pytest.raises(ValueError, match="frozen source window"):
         verified_recovered_user_receipt(state, group)
+
+
+def test_explicit_correction_has_exact_identity_and_receipt_derived_profile_changes():
+    from copy import deepcopy
+    from datetime import UTC, datetime
+    from uuid import UUID
+
+    from engram_pilot_completion_fixtures import correction_expected_updates
+
+    from context_graph.domain.user_extraction import artifact_identity, prepare_extraction_receipt
+
+    owner = "ishan-correction-unit"
+    negative = "I no longer prefer short bullet-point actions during incident response"
+    fields = dict(
+        category="communication",
+        key="incident-short",
+        context="incident",
+        polarity="negative",
+        about_entity="incident communication",
+        scope="global",
+        scope_id=None,
+    )
+    new_id = artifact_identity("Preference", "user:" + owner, fields)
+    events = [
+        Event(
+            event_id=UUID(int=i),
+            event_type=kind,
+            occurred_at=datetime(2026, 10, 16, 10, tzinfo=UTC),
+            session_id="correction-test",
+            agent_id=owner,
+            trace_id="test",
+            payload_ref="test",
+        )
+        for i, kind in ((201, "observation.input"), (202, "system.session_end"))
+    ]
+    requests = [e.model_dump(mode="json") for e in events]
+    requests[0]["payload"] = dict(
+        content=negative,
+        preference_corrections=[
+            dict(
+                previous_preference_id="preference:old",
+                replacement_key=fields["key"],
+                replacement_polarity="negative",
+                context="incident",
+            )
+        ],
+    )
+    requests[1]["payload"] = {}
+    documents = [{**r, "global_position": f"{i + 1}-0"} for i, r in enumerate(requests)]
+    events = [Event.model_validate(d, strict=False) for d in documents]
+    receipt = prepare_extraction_receipt(
+        events[-1],
+        events,
+        documents,
+        dict(
+            model_id="gpt-6-luna",
+            preferences=[
+                dict(
+                    **fields,
+                    strength=0.9,
+                    confidence=0.95,
+                    source="explicit",
+                    source_quote=negative,
+                )
+            ],
+            persona=dict(name="Ishan", source_quote=negative, communication_style="updated"),
+        ),
+    )
+    receipt["status"] = "applied"
+    profile_id = "profile:user:" + owner
+    before = dict(
+        nodes=[
+            ["Preference", "preference:old", dict(user_id="user:" + owner, polarity="positive")],
+            [
+                "UserProfile",
+                profile_id,
+                dict(
+                    user_id="user:" + owner,
+                    created_at="original",
+                    support_event_ids=["original-source"],
+                    display_name="Ishan",
+                    communication_style="original",
+                    technical_level=None,
+                ),
+            ],
+        ]
+    )
+    after = deepcopy(before)
+    after["events"] = [[r["event_id"], r] for r in requests]
+    for d in documents:
+        after["nodes"].append(["Event", d["event_id"], deepcopy(d)])
+    after["nodes"][-1][2].update(
+        user_extraction_receipt=receipt,
+        user_extraction_owner="user:" + owner,
+        user_extraction_status="applied",
+    )
+    source = requests[0]["event_id"]
+    after["nodes"][0][2]["superseded_by"] = new_id
+    after["nodes"].append(
+        [
+            "Preference",
+            new_id,
+            dict(
+                user_id="user:" + owner,
+                support_event_ids=[source],
+                observation_count=1,
+                **{
+                    k: receipt["result"]["preferences"][0][k]
+                    for k in (
+                        "category",
+                        "key",
+                        "polarity",
+                        "context",
+                        "scope",
+                        "scope_id",
+                        "strength",
+                        "confidence",
+                        "source",
+                    )
+                },
+            ),
+        ]
+    )
+    after["edges"] = [
+        [
+            "Preference",
+            new_id,
+            "SUPERSEDES",
+            "Preference",
+            "preference:old",
+            dict(source_event_id=source),
+        ],
+        [
+            "Preference",
+            new_id,
+            "DERIVED_FROM",
+            "Event",
+            source,
+            dict(evidence_quote=negative, extraction_event_id=requests[-1]["event_id"]),
+        ],
+        ["Preference", new_id, "ABOUT", "Entity", "entity:" + fields["about_entity"], {}],
+        ["Preference", "preference:old", "DERIVED_FROM", "Event", source, {}],
+    ]
+    group = dict(
+        steps=[dict(request=r) for r in requests],
+        owner=owner,
+        expected_previous="preference:old",
+        expected_replacement=new_id,
+        identity_fields=fields,
+        required_negative_quote=negative,
+    )
+    updates, actual = correction_expected_updates(before, after, group)
+    assert actual == receipt
+    assert updates[("Preference", "preference:old")] == {
+        **before["nodes"][0][2],
+        "superseded_by": new_id,
+    }
+    expected_profile = updates[("UserProfile", profile_id)]
+    assert expected_profile["support_event_ids"] == sorted(["original-source", source])
+    assert expected_profile["created_at"] == "original"
+    assert expected_profile["communication_style"] == "updated"
+    assert expected_profile["updated_at"] == receipt["effective_at"]
+    for bad in (
+        {**group, "expected_replacement": "preference:invented"},
+        {**group, "identity_fields": {**fields, "about_entity": "other-context"}},
+        {**group, "required_negative_quote": "invented unsupported evidence"},
+    ):
+        with pytest.raises(ValueError):
+            correction_expected_updates(before, after, bad)
+
+    changed = deepcopy(after)
+    changed["nodes"][-1][2]["polarity"] = "positive"
+    with pytest.raises(ValueError, match="owner/source/count differs"):
+        correction_expected_updates(before, changed, group)

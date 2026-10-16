@@ -256,6 +256,14 @@ def build_plan(args):
         names.add(group["name"])
         if not isinstance(group["steps"], list) or not isinstance(group["queries"], list):
             raise ValueError("Journey steps and queries must be lists")
+        if group.get("user_correction") and (
+            len(group["steps"]) != 2
+            or [s["request"]["event_type"] for s in group["steps"]]
+            != ["observation.input", "system.session_end"]
+            or any(s["request"]["agent_id"] != group["owner"] for s in group["steps"])
+            or any(s["request"]["session_id"] != group["session"] for s in group["steps"])
+        ):
+            raise ValueError("Correction requires the declared two-input owner/session window")
         recovery = group.get("recover_user_inputs") or group.get("verify_user_inputs", [])
         if group.get("recover_user_inputs") and group.get("verify_user_inputs"):
             raise ValueError("A User group cannot both recover and verify a prior receipt")
@@ -442,7 +450,16 @@ async def execute(args):
                     )
                 )
             ]
-            if row["input_event_candidates"] and "Known items:" in prompt:
+            user_input_ids = {
+                step["request"]["event_id"]
+                for group in selected_groups
+                if group.get("user_story") or group.get("user_correction")
+                for step in group["steps"]
+            }
+            if row["input_event_candidates"] and (
+                "Known items:" in prompt
+                or user_input_ids.intersection(row["input_event_candidates"])
+            ):
                 row["input_messages"] = kw.get("messages", [])
             save()
         except Exception as exc:
@@ -1049,6 +1066,15 @@ async def execute(args):
                             ),
                         }
                     )
+                    correction_updates = {}
+                    for group in selected_groups:
+                        if group["tenant"] == t and group.get("user_correction"):
+                            from engram_pilot_completion_fixtures import correction_expected_updates
+
+                            expected, _receipt = correction_expected_updates(
+                                before["snapshot"], final["snapshot"], group
+                            )
+                            correction_updates.update(expected)
                     tenant_recovery_triggers = {
                         g["recover_user_inputs"][-1]["event_id"]
                         for g in recovery_groups
@@ -1098,7 +1124,10 @@ async def execute(args):
                         {
                             "name": t + " prior graph preserved except approved derived refresh",
                             "passed": all(
-                                after_nodes.get((r[0], r[1])) == material(r)
+                                after_nodes.get((r[0], r[1]))
+                                == material(
+                                    [r[0], r[1], correction_updates.get((r[0], r[1]), r[2])]
+                                )
                                 for r in before["snapshot"]["nodes"]
                             )
                             and all(

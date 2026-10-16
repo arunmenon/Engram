@@ -576,3 +576,101 @@ def p02_history(run_id):
         ids=ids,
         source_kind="Synthetic explicit completion producers",
     )
+
+
+def correction_expected_updates(before, after, group):
+    """Exact permitted prior-node changes for one frozen producer correction."""
+    inputs = [s["request"] for s in group["steps"]]
+    receipt = verified_recovered_user_receipt(
+        after,
+        {
+            "verify_user_inputs": inputs,
+            "recovery_input_hash": recovery_input_hash(after, inputs),
+        },
+    )
+    source = inputs[0]["event_id"]
+    old_id, new_id = group["expected_previous"], group["expected_replacement"]
+    preferences = receipt["result"]["preferences"]
+    if len(preferences) != 1:
+        raise ValueError("Correction must produce its single declared replacement")
+    replacement = preferences[0]
+    if (
+        receipt["result"]["model_id"] != "gpt-6-luna"
+        or replacement["preference_id"] != new_id
+        or any(replacement.get(k) != v for k, v in group["identity_fields"].items())
+        or group["required_negative_quote"].lower() not in replacement["source_quote"].lower()
+        or replacement["support_event_ids"] != [source]
+        or receipt["result"]["skills"]
+        or receipt["result"]["interests"]
+        or receipt["corrections"]
+        != [dict(previous_preference_id=old_id, replacement_id=new_id, source_event_id=source)]
+    ):
+        raise ValueError("Correction output differs from its frozen identity/negative evidence")
+    nodes = {(r[0], r[1]): decoded_snapshot_cell(r[2]) for r in after["nodes"]}
+    old_nodes = {(r[0], r[1]): dict(r[2]) for r in before["nodes"]}
+    old_ref = ("Preference", old_id)
+    if old_nodes[old_ref].get("superseded_by") or ("Preference", new_id) in old_nodes:
+        raise ValueError("Correction predecessor must be active and replacement fresh")
+    expected_old = {**old_nodes[old_ref], "superseded_by": new_id}
+    if nodes[old_ref].get("superseded_by") != new_id:
+        raise ValueError("Correction did not supersede its exact predecessor")
+    new_props = nodes[("Preference", new_id)]
+    if (
+        new_props.get("user_id") != "user:" + group["owner"]
+        or new_props.get("support_event_ids") != [source]
+        or new_props.get("observation_count") != 1
+        or any(
+            new_props.get(k) != replacement.get(k)
+            for k in (
+                "category",
+                "key",
+                "polarity",
+                "context",
+                "scope",
+                "scope_id",
+                "strength",
+                "confidence",
+                "source",
+            )
+        )
+    ):
+        raise ValueError("Replacement owner/source/count differs")
+    expected_edges = {
+        ("Preference", new_id, "ABOUT", "Entity", "entity:" + replacement["about_entity"]),
+        ("Preference", new_id, "SUPERSEDES", "Preference", old_id),
+        ("Preference", new_id, "DERIVED_FROM", "Event", source),
+        ("Preference", old_id, "DERIVED_FROM", "Event", source),
+    }
+    edges = {tuple(e[:5]): decoded_snapshot_cell(e[5]) for e in after["edges"]}
+    if (
+        not expected_edges <= edges.keys()
+        or edges[("Preference", new_id, "SUPERSEDES", "Preference", old_id)].get("source_event_id")
+        != source
+    ):
+        raise ValueError("Correction lifecycle/source links differ")
+    evidence = edges[("Preference", new_id, "DERIVED_FROM", "Event", source)]
+    if (
+        evidence.get("evidence_quote") != replacement["source_quote"]
+        or evidence.get("extraction_event_id") != inputs[-1]["event_id"]
+    ):
+        raise ValueError("Persisted correction evidence differs from validated replacement")
+    updates = {old_ref: expected_old}
+    profile_ref = ("UserProfile", "profile:user:" + group["owner"])
+    profile = dict(old_nodes[profile_ref])
+    persona = receipt["result"]["persona"]
+    if persona:
+        supports = set(persona["support_event_ids"])
+        known = set(profile.get("support_event_ids", []))
+        profile["support_event_ids"] = sorted(known | supports)
+        if supports - known:
+            name = persona.get("name") or group["owner"]
+            if persona.get("role") and persona.get("name"):
+                name += " (" + persona["role"] + ")"
+            profile.update(
+                display_name=name,
+                communication_style=persona.get("communication_style"),
+                technical_level=persona.get("tech_level"),
+                updated_at=receipt["effective_at"],
+            )
+    updates[profile_ref] = profile
+    return updates, receipt

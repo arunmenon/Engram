@@ -894,7 +894,111 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
             )
             save()
             continue
+        if group.get("user_correction"):
+            from engram_pilot_completion_fixtures import correction_expected_updates
+
+            before = (await settle())[tenant]
+            for step in group["steps"]:
+                code, _ = await request(tenant, "/v1/events", step["request"])
+                check(group["name"] + ":" + step["scenario"] + " admission", code == 201)
+            trigger = group["steps"][-1]["request"]["event_id"]
+            deadline = time.monotonic() + 180
+            while time.monotonic() < deadline:
+                after = await asyncio.to_thread(snapshot, databases[tenant])
+                props = next(
+                    (json_value(n[2]) for n in after["nodes"] if n[:2] == ["Event", trigger]), {}
+                )
+                if props.get("user_extraction_status") == "applied":
+                    break
+                await asyncio.sleep(0.3)
+            updates, receipt = correction_expected_updates(before, after, group)
+            actual_nodes = {(n[0], n[1]): json_value(n[2]) for n in after["nodes"]}
+            check(
+                group["name"] + " exact permitted predecessor/profile changes",
+                all(actual_nodes[k] == json_value(json.dumps(v)) for k, v in updates.items()),
+            )
+            old_id, new_id = group["expected_previous"], group["expected_replacement"]
+            other = group["unrelated_preference"]
+            expected_active = {new_id, other}
+            base = "/v1/users/user:" + group["owner"]
+            code, active = await request(tenant, base + "/preferences", method="GET")
+            check(
+                group["name"] + " active public preferences exclude predecessor",
+                code == 200 and {p["preference_id"] for p in active} == expected_active,
+            )
+            current_replacement = next(p for p in active if p["preference_id"] == new_id)
+            check(
+                group["name"] + " public negative identity fields",
+                all(
+                    current_replacement.get(k) == v
+                    for k, v in group["identity_fields"].items()
+                    if k != "about_entity"
+                ),
+            )
+            code, history = await request(tenant, base + "/data-export", method="GET", role="admin")
+            check(
+                group["name"] + " public historical export retains revisions",
+                code == 200
+                and {p["preference_id"] for p in history["preferences"]} == {old_id, new_id, other},
+            )
+            source = group["steps"][0]["request"]["event_id"]
+            check(
+                group["name"] + " public correction provenance and exact receipt",
+                receipt in history["extraction_receipts"]
+                and all(
+                    any(
+                        p["source_id"] == nid and p["event_id"] == source
+                        for p in history["provenance_chains"]
+                    )
+                    for nid in (old_id, new_id)
+                ),
+            )
+            code, answer = await request(
+                tenant,
+                "/v1/query/subgraph",
+                dict(
+                    query=group["question"],
+                    intent="personalize",
+                    agent_id=group["owner"],
+                    session_id=group["session"],
+                    max_nodes=100,
+                    timeout_ms=30000,
+                ),
+            )
+            check(
+                group["name"] + " composed current read and unchanged design context",
+                code == 200
+                and expected_active <= answer.get("nodes", {}).keys()
+                and old_id not in answer["nodes"]
+                and not answer.get("meta", {}).get("truncated"),
+            )
+            source_props = next(json_value(n[2]) for n in after["nodes"] if n[1] == source)
+            check(
+                group["name"] + " exact public correction source position",
+                answer["nodes"].get(source, {}).get("provenance", {}).get("global_position")
+                == source_props["global_position"],
+            )
+            check(
+                group["name"] + " public owner evidence exclusion",
+                all(
+                    n["provenance"]["agent_id"] == group["owner"]
+                    for n in answer["nodes"].values()
+                    if n.get("provenance")
+                ),
+            )
+            entry.update(
+                state="passed explicit correction checks",
+                receipt=receipt,
+                active_preferences=active,
+                history_export=history,
+                composed_read=answer,
+            )
+            save()
+            continue
         if group.get("user_story"):
+            entity_baseline = None
+            if group.get("preserve_entity_origins"):
+                entity_baseline = await asyncio.to_thread(snapshot, databases[tenant])
             for step in group["steps"]:
                 status, _ = await request(tenant, "/v1/events", step["request"])
                 check(group["name"] + ":" + step["scenario"] + " admission", status == 201)
@@ -932,6 +1036,23 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                 and receipt["owner"] == "user:" + group["owner"],
             )
             prefs, skills = extracted["preferences"], extracted["skills"]
+            for nid in group.get("preserve_entity_origins", []):
+                original = next(
+                    json_value(n[2]) for n in entity_baseline["nodes"] if n[:2] == ["Entity", nid]
+                )
+                current = next(json_value(n[2]) for n in state["nodes"] if n[:2] == ["Entity", nid])
+                check(
+                    group["name"] + " reobserved Entity origin and stored count preserved",
+                    all(
+                        original.get(k) == current.get(k)
+                        for k in ("name", "entity_type", "first_seen", "mention_count")
+                    )
+                    and any(e["name"] == original["name"] for e in extracted["entities"])
+                    and any(
+                        e[:5] == ["Event", source, "REFERENCES", "Entity", nid]
+                        for e in state["edges"]
+                    ),
+                )
             for polarity, expressions in group["preference_semantics"]:
                 check(
                     group["name"] + " stated preference meaning " + str(expressions),
@@ -965,8 +1086,9 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                     check(group["name"] + " useful preference", bool(prefs))
                 else:
                     check(
-                        group["name"] + " no preference/skill attributed from descriptive prose",
-                        not prefs and not skills,
+                        group["name"]
+                        + " no preference/skill/interest attributed from descriptive prose",
+                        not prefs and not skills and not extracted["interests"],
                     )
                 if group["name"] == "user-contexts":
                     contexts = [p.get("context", "").lower() for p in prefs]
@@ -977,7 +1099,7 @@ async def execute(plan, *, request, check, databases, record, save, consumers):
                         and any("design" in c for c in contexts),
                     )
             else:
-                check("absence is not a preference or skill", not prefs and not skills)
+                check("absence is not a preference, skill or interest", not prefs and not skills)
             check(
                 group["name"] + " exact quote-supported membership",
                 all(item["support_event_ids"] == [source] for item in [*prefs, *skills]),
