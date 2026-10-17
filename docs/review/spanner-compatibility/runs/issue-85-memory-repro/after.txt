@@ -1,0 +1,156 @@
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-17 14:50:12 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-17 14:50:12 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:50:12 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:50:12 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:50:12 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+Graph state before any read:
+  DesignElement:export-hld|overview|1        stored=True status=draft
+  DesignElement:export-hld|overview|2        stored=True status=draft
+  Requirement:export-spec|1|REQ-1            stored=True status=proposed
+  SUPERSEDES edge: DesignElement:export-hld|overview|2 -> DesignElement:export-hld|overview|1
+
+--- A. trace, given seed = v1, explicit intent
+  inferred_intents: {'trace': 1.0}
+  seed_nodes      : ['DesignElement:export-hld|overview|1']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|1        reason=superseded  status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+    DesignApproval:approval-v1                 reason=proactive   status=None
+    DesignElement:export-hld|overview|2        reason=proactive   status=draft
+  edges:
+    DesignApproval:approval-v1 -[APPROVES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|1 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    DesignElement:export-hld|overview|2 -[SUPERSEDES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: True
+
+--- B. trace, given seed = v1, intent classified from text
+  inferred_intents: {'trace': 1.0}
+  seed_nodes      : ['DesignElement:export-hld|overview|1']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|1        reason=superseded  status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+    DesignApproval:approval-v1                 reason=proactive   status=None
+    DesignElement:export-hld|overview|2        reason=proactive   status=draft
+  edges:
+    DesignApproval:approval-v1 -[APPROVES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|1 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    DesignElement:export-hld|overview|2 -[SUPERSEDES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: True
+
+--- C. trace, word-seeded ('Trace the export HLD overview')
+  inferred_intents: {'trace': 1.0}
+  seed_nodes      : ['DesignElement:export-hld|overview|1', 'DesignElement:export-hld|overview|2']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|2        reason=direct      status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+  edges:
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: False
+
+--- D. trace, given seed = v2 (SUPERSEDES edge reaches v1)
+  inferred_intents: {'trace': 1.0}
+  seed_nodes      : ['DesignElement:export-hld|overview|2']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|2        reason=direct      status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+  edges:
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: False
+
+--- E. trace, given seed = requirement (REFINES reaches v1 and v2)
+  inferred_intents: {'trace': 1.0}
+  seed_nodes      : ['Requirement:export-spec|1|REQ-1']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    Requirement:export-spec|1|REQ-1            reason=direct      status=proposed
+    DesignElement:export-hld|overview|2        reason=proactive   status=draft
+    Spec:export-spec|1                         reason=proactive   status=None
+  edges:
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: False
+
+--- F. status, given seed = v1 (control: kept and labelled)
+  inferred_intents: {'status': 1.0}
+  seed_nodes      : ['DesignElement:export-hld|overview|1']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|1        reason=superseded  status=draft
+    DesignApproval:approval-v1                 reason=proactive   status=None
+    DesignElement:export-hld|overview|2        reason=proactive   status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+  edges:
+    DesignApproval:approval-v1 -[APPROVES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|1 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    DesignElement:export-hld|overview|2 -[SUPERSEDES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: True
+
+--- G. why, given seed = v1 (control: kept and labelled)
+  inferred_intents: {'why': 1.0}
+  seed_nodes      : ['DesignElement:export-hld|overview|1']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|1        reason=superseded  status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+  edges:
+    DesignElement:export-hld|overview|1 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: True
+
+--- H. no intent keyword, given seed = v1
+  inferred_intents: {}
+  seed_nodes      : ['DesignElement:export-hld|overview|1']
+  truncated       : False
+  retrieval_channels (completeness block): {}
+  nodes:
+    DesignElement:export-hld|overview|1        reason=superseded  status=draft
+    Requirement:export-spec|1|REQ-1            reason=proactive   status=proposed
+    Spec:export-spec|1                         reason=proactive   status=None
+    DesignApproval:approval-v1                 reason=proactive   status=None
+    DesignElement:export-hld|overview|2        reason=proactive   status=draft
+  edges:
+    DesignApproval:approval-v1 -[APPROVES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|1 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    DesignElement:export-hld|overview|2 -[SUPERSEDES]-> DesignElement:export-hld|overview|1
+    DesignElement:export-hld|overview|2 -[REFINES]-> Requirement:export-spec|1|REQ-1
+    Requirement:export-spec|1|REQ-1 -[REFINES]-> Spec:export-spec|1
+  v1 present: True
+

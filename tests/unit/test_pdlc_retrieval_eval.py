@@ -46,6 +46,10 @@ from context_graph.worker.pack_projection import apply_plan
 REGISTRY = load_registry(["pdlc"])
 START = datetime(2026, 9, 1, 9, 0, tzinfo=UTC)
 BASELINE_TOP_K = 5
+OLD_DESIGN = "DesignElement:export-hld|overview|1"
+NEW_DESIGN = "DesignElement:export-hld|overview|2"
+VERSION_REQUIREMENT = "Requirement:export-spec|1|REQ-1"
+DESIGN_APPROVAL = "DesignApproval:approval-v1"
 
 
 def _decision(statement: str) -> str:
@@ -660,6 +664,72 @@ class TestRetrievalBehaviour:
             ArtifactQuery("Trace the refund retry design", intent="trace")
         )
         assert "DesignElement:refunds-hld|retry-v1|1" not in trace.nodes
+        assert trace.meta.excluded_nodes["DesignElement:refunds-hld|retry-v1|1"] == "superseded"
+
+    @pytest.mark.parametrize("intent", ["trace", "impact", "preflight", "incident", None])
+    async def test_explicit_superseded_design_survives_admission(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+        assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+        assert OLD_DESIGN not in response.meta.excluded_nodes
+
+    @pytest.mark.parametrize("seed", [NEW_DESIGN, VERSION_REQUIREMENT])
+    async def test_filtered_design_does_not_leave_its_approval(self, seed):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("trace", seed_node_ids=(seed,), intent="trace")
+        )
+        assert OLD_DESIGN not in response.nodes
+        assert DESIGN_APPROVAL not in response.nodes
+        assert response.meta.excluded_nodes[OLD_DESIGN] == "superseded"
+        assert response.meta.excluded_nodes[DESIGN_APPROVAL] == "filtered_path"
+        assert not response.meta.truncated
+        assert any(
+            e.source == DESIGN_APPROVAL and e.target == OLD_DESIGN and e.edge_type == "APPROVES"
+            for e in response.meta.excluded_edges
+        )
+        assert all(
+            e.source in response.nodes and e.target in response.nodes for e in response.edges
+        )
+
+    @pytest.mark.parametrize("intent", ["status", "why"])
+    async def test_historical_design_keeps_its_exact_approval_target(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+        assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+        if intent == "status":
+            assert any(
+                e.source == DESIGN_APPROVAL and e.target == OLD_DESIGN and e.edge_type == "APPROVES"
+                for e in response.edges
+            )
+        else:
+            assert DESIGN_APPROVAL not in response.nodes  # why has no APPROVES weight
+        assert not any(
+            e.source == DESIGN_APPROVAL and e.target == NEW_DESIGN and e.edge_type == "APPROVES"
+            for e in response.edges
+        )
+
+    async def test_independent_approval_seed_reports_its_excluded_relationship(self):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("trace", seed_node_ids=(NEW_DESIGN, DESIGN_APPROVAL), intent="trace")
+        )
+        assert DESIGN_APPROVAL in response.nodes
+        assert OLD_DESIGN not in response.nodes
+        assert any(
+            e.source == DESIGN_APPROVAL
+            and e.target == OLD_DESIGN
+            and e.edge_type == "APPROVES"
+            and e.reason == "endpoint_excluded"
+            for e in response.meta.excluded_edges
+        )
+        assert not any(
+            e.source == DESIGN_APPROVAL and e.target == NEW_DESIGN for e in response.edges
+        )
 
     async def test_given_seeds_and_bounds(
         self, setup: tuple[MemoryGraphStore, ArtifactRetriever]
@@ -1031,3 +1101,50 @@ def test_reference_stub_rejects_business_properties_and_noninitial_status():
     assert not is_reference_stub(kind, {**props, "title": "Real business content"})
     assert not is_reference_stub(kind, {**props, "status": "approved"})
     assert not is_reference_stub(kind, {**props, "node_id": "Request:jira|OTHER"})
+
+
+async def _approval_history():
+    """All business artifacts come from the same real rules as issue #85."""
+    graph = MemoryGraphStore()
+    await _project(
+        graph,
+        "pdlc.requirement.changed",
+        dict(
+            spec_id="export-spec",
+            spec_version="1",
+            local_id="REQ-1",
+            statement="Users can export reports as CSV",
+        ),
+        "webhook:github",
+    )
+    common = dict(
+        doc_id="export-hld",
+        section_path="overview",
+        kind="hld",
+        title="Export HLD overview",
+        body="CSV export architecture",
+        requirements=[dict(spec_id="export-spec", spec_version="1", local_id="REQ-1")],
+    )
+    await _project(
+        graph, "pdlc.design.section_changed", common | dict(version="1"), "webhook:github"
+    )
+    await _project(
+        graph,
+        "pdlc.design.approval_recorded",
+        dict(
+            approval_id="approval-v1",
+            reviewer="Priya",
+            verdict="approved",
+            doc_id="export-hld",
+            section_path="overview",
+            version="1",
+        ),
+        "webhook:github",
+    )
+    await _project(
+        graph,
+        "pdlc.design.section_changed",
+        common | dict(version="2", supersedes_version="1"),
+        "webhook:github",
+    )
+    return graph

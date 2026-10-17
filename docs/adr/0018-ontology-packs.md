@@ -446,3 +446,12 @@ The graph built is identical, every node and edge property compared, to one buil
 - **Batch sizes are settings (3.10).** `CG_CONSUMER_PROJECTION_BATCH_SIZE` (50) and `CG_CONSUMER_PROJECTION_BATCH_TIMEOUT_MS` (100). The subscription now reads a whole flush per poll, where it used to read 10.
 
 Not done: Redis Stack is not available in the test environment, so the Redis paths (pipelined documents, `previous_in_session`) are covered by unit tests over a mocked client, not by the conformance suite.
+
+
+### Issue #85 — explicit historical identities and admission diagnostics
+
+Admission must not erase a superseded artifact the caller explicitly names. In artifact graph answers, a caller-given seed remains present with `retrieval_reason: superseded`; this exception does not bypass trust policy. Status/why retain their existing historical behavior. Other intents, including trace, keep the pack's current filtered view for discovered versions. We deliberately do not add trace to `include_for_intents`: tracing a current artifact does not universally request all superseded siblings. To inspect a particular historical version, seed that exact identity; to include history under the existing pack policy, use status/why. A future history option would be a separate contract, not an undocumented change to every trace.
+
+`meta.excluded_nodes` reports admission-removed identities and reasons (`superseded`, `untrusted`, or `filtered_path`). It is distinct from unknown IDs and capacity truncation. After node admission, traversal-only nodes disconnected from every surviving seed are removed before provenance attachment; a shared source Event cannot reconnect a filtered branch. Thus an approval discovered only through a removed design is not returned beside a different version. An independently seeded approval remains an independently requested result, with its omitted relationship explicitly reported in `meta.excluded_edges` (source, edge type, target and reason). This preserves the fact that it approved the removed v1, never v2. Exclusion diagnostics describe only discovered relationships; they do not promise exhaustive graph history.
+
+The regression graph projects the requirement, v1 design, its approval and superseding v2 through real PDLC rules in memory. Controls preserve status/why, word-seeded filtering, trust behavior and exact approval targets. That component proof is separate from authenticated API/worker/Spanner verification.

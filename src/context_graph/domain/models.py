@@ -624,6 +624,15 @@ class QueryCapacity(BaseModel):
     max_depth: int
 
 
+class ExcludedEdge(BaseModel):
+    """A discovered relationship omitted by admission, not a returned graph edge."""
+
+    source: str
+    target: str
+    edge_type: str
+    reason: str
+
+
 class QueryMeta(BaseModel):
     """Response metadata with retrieval reasoning (ADR-0006 + ADR-0009 amendment)."""
 
@@ -639,6 +648,9 @@ class QueryMeta(BaseModel):
         default_factory=lambda: {"recency": 1.0, "importance": 1.0, "relevance": 1.0}
     )
     retrieval_channels: dict[str, int] = Field(default_factory=dict)
+    # Admission exclusions are distinct from missing IDs and capacity truncation.
+    excluded_nodes: dict[str, str] = Field(default_factory=dict)
+    excluded_edges: list[ExcludedEdge] = Field(default_factory=list)
     capacity: QueryCapacity | None = None
     # Packs whose evaluation set has not passed: their intents and edge
     # weights were not used for this answer (ADR-0018 decision 10)

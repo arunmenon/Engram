@@ -1,0 +1,243 @@
+FFFFFFF.FF                                                               [100%]
+=================================== FAILURES ===================================
+_ TestRetrievalBehaviour.test_explicit_superseded_design_survives_admission[trace] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f0a210>
+intent = 'trace'
+
+    @pytest.mark.parametrize("intent", ["trace", "impact", "preflight", "incident", None])
+    async def test_explicit_superseded_design_survives_admission(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+>       assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'DesignElement:export-hld|overview|1'
+
+tests/unit/test_pdlc_retrieval_eval.py:675: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_explicit_superseded_design_survives_admission[impact] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f0a060>
+intent = 'impact'
+
+    @pytest.mark.parametrize("intent", ["trace", "impact", "preflight", "incident", None])
+    async def test_explicit_superseded_design_survives_admission(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+>       assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'DesignElement:export-hld|overview|1'
+
+tests/unit/test_pdlc_retrieval_eval.py:675: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_explicit_superseded_design_survives_admission[preflight] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f09c40>
+intent = 'preflight'
+
+    @pytest.mark.parametrize("intent", ["trace", "impact", "preflight", "incident", None])
+    async def test_explicit_superseded_design_survives_admission(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+>       assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'DesignElement:export-hld|overview|1'
+
+tests/unit/test_pdlc_retrieval_eval.py:675: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_explicit_superseded_design_survives_admission[incident] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f09640>
+intent = 'incident'
+
+    @pytest.mark.parametrize("intent", ["trace", "impact", "preflight", "incident", None])
+    async def test_explicit_superseded_design_survives_admission(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+>       assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'DesignElement:export-hld|overview|1'
+
+tests/unit/test_pdlc_retrieval_eval.py:675: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_explicit_superseded_design_survives_admission[None] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f09790>
+intent = None
+
+    @pytest.mark.parametrize("intent", ["trace", "impact", "preflight", "incident", None])
+    async def test_explicit_superseded_design_survives_admission(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+>       assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'DesignElement:export-hld|overview|1'
+
+tests/unit/test_pdlc_retrieval_eval.py:675: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_filtered_design_does_not_leave_its_approval[DesignElement:export-hld|overview|2] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f08500>
+seed = 'DesignElement:export-hld|overview|2'
+
+    @pytest.mark.parametrize("seed", [NEW_DESIGN, VERSION_REQUIREMENT])
+    async def test_filtered_design_does_not_leave_its_approval(self, seed):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("trace", seed_node_ids=(seed,), intent="trace")
+        )
+        assert OLD_DESIGN not in response.nodes
+>       assert DESIGN_APPROVAL not in response.nodes
+E       AssertionError: assert 'DesignApproval:approval-v1' not in {'DesignElement:export-hld|overview|2': AtlasNode(node_id='DesignElement:export-hld|overview|2', node_type='DesignElem...re=0.0, relevance_score=0.64, importance_score=0, ppr_score=0.0), retrieval_reason='proactive', proactive_signal=None)}
+E        +  where {'DesignElement:export-hld|overview|2': AtlasNode(node_id='DesignElement:export-hld|overview|2', node_type='DesignElem...re=0.0, relevance_score=0.64, importance_score=0, ppr_score=0.0), retrieval_reason='proactive', proactive_signal=None)} = AtlasResponse(nodes={'DesignElement:export-hld|overview|2': AtlasNode(node_id='DesignElement:export-hld|overview|2', n...ance': 1.0}, retrieval_channels={}, capacity=QueryCapacity(max_nodes=100, used_nodes=4, max_depth=5), eval_pending=[])).nodes
+
+tests/unit/test_pdlc_retrieval_eval.py:685: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_filtered_design_does_not_leave_its_approval[Requirement:export-spec|1|REQ-1] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f087a0>
+seed = 'Requirement:export-spec|1|REQ-1'
+
+    @pytest.mark.parametrize("seed", [NEW_DESIGN, VERSION_REQUIREMENT])
+    async def test_filtered_design_does_not_leave_its_approval(self, seed):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("trace", seed_node_ids=(seed,), intent="trace")
+        )
+        assert OLD_DESIGN not in response.nodes
+>       assert DESIGN_APPROVAL not in response.nodes
+E       AssertionError: assert 'DesignApproval:approval-v1' not in {'Requirement:export-spec|1|REQ-1': AtlasNode(node_id='Requirement:export-spec|1|REQ-1', node_type='Requirement', attr...ore=0.0, relevance_score=0.8, importance_score=0, ppr_score=0.0), retrieval_reason='proactive', proactive_signal=None)}
+E        +  where {'Requirement:export-spec|1|REQ-1': AtlasNode(node_id='Requirement:export-spec|1|REQ-1', node_type='Requirement', attr...ore=0.0, relevance_score=0.8, importance_score=0, ppr_score=0.0), retrieval_reason='proactive', proactive_signal=None)} = AtlasResponse(nodes={'Requirement:export-spec|1|REQ-1': AtlasNode(node_id='Requirement:export-spec|1|REQ-1', node_type...ance': 1.0}, retrieval_channels={}, capacity=QueryCapacity(max_nodes=100, used_nodes=4, max_depth=5), eval_pending=[])).nodes
+
+tests/unit/test_pdlc_retrieval_eval.py:685: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_historical_design_keeps_its_exact_approval_target[why] _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103f09d00>
+intent = 'why'
+
+    @pytest.mark.parametrize("intent", ["status", "why"])
+    async def test_historical_design_keeps_its_exact_approval_target(self, intent):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("export overview", seed_node_ids=(OLD_DESIGN,), intent=intent)
+        )
+        assert response.nodes[OLD_DESIGN].retrieval_reason == "superseded"
+>       assert any(e.source == DESIGN_APPROVAL and e.target == OLD_DESIGN
+                   and e.edge_type == "APPROVES" for e in response.edges)
+E       assert False
+E        +  where False = any(<generator object TestRetrievalBehaviour.test_historical_design_keeps_its_exact_approval_target.<locals>.<genexpr> at 0x104b2e330>)
+
+tests/unit/test_pdlc_retrieval_eval.py:701: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+_ TestRetrievalBehaviour.test_independent_approval_seed_reports_its_excluded_relationship _
+
+self = <tests.unit.test_pdlc_retrieval_eval.TestRetrievalBehaviour object at 0x103effc80>
+
+    async def test_independent_approval_seed_reports_its_excluded_relationship(self):
+        graph = await _approval_history()
+        response = await _retriever(graph).retrieve(
+            ArtifactQuery("trace", seed_node_ids=(NEW_DESIGN, DESIGN_APPROVAL), intent="trace")
+        )
+        assert DESIGN_APPROVAL in response.nodes
+        assert OLD_DESIGN not in response.nodes
+        assert any(e.source == DESIGN_APPROVAL and e.target == OLD_DESIGN
+                   and e.edge_type == "APPROVES" and e.reason == "endpoint_excluded"
+>                  for e in response.meta.excluded_edges)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_pdlc_retrieval_eval.py:715: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = QueryMeta(query_ms=0, nodes_returned=4, truncated=False, inferred_intents={'trace': 1.0}, intent_override='trace', see...vance': 1.0}, retrieval_channels={}, capacity=QueryCapacity(max_nodes=100, used_nodes=4, max_depth=5), eval_pending=[])
+item = 'excluded_edges'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'QueryMeta' object has no attribute 'excluded_edges'
+
+../Engram-foundation-gate/.venv/lib/python3.12/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=4 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=2 events=1 nodes=3 states=0
+2026-10-17 14:47:55 [debug    ] pack_plans_applied             edges=3 events=1 nodes=6 states=0
+=========================== short test summary info ============================
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_explicit_superseded_design_survives_admission[trace]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_explicit_superseded_design_survives_admission[impact]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_explicit_superseded_design_survives_admission[preflight]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_explicit_superseded_design_survives_admission[incident]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_explicit_superseded_design_survives_admission[None]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_filtered_design_does_not_leave_its_approval[DesignElement:export-hld|overview|2]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_filtered_design_does_not_leave_its_approval[Requirement:export-spec|1|REQ-1]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_historical_design_keeps_its_exact_approval_target[why]
+FAILED tests/unit/test_pdlc_retrieval_eval.py::TestRetrievalBehaviour::test_independent_approval_seed_reports_its_excluded_relationship
+9 failed, 1 passed, 28 deselected in 0.50s

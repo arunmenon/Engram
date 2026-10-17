@@ -41,8 +41,10 @@ packs add (PDLC: changes, tickets, requirements, decisions, incidents):
 4. **Admission** (the packs' ``retrieval.admission`` rules):
    - superseded items (in a state their type's lifecycle lists in
      ``superseded_states``, or the target of a ``SUPERSEDES`` edge) are
-     left out, except for the intents a rule lists, where they are kept
-     and marked ``superseded``;
+     left out, except caller-given identities and intents a rule lists,
+     where they are kept and marked ``superseded``. Removed nodes/relationships
+     are reported in metadata; traversal branches disconnected by admission
+     are removed before attaching provenance;
    - untrusted items are left out unless a trusted source linked a trusted
      item in the answer to them with a confirmed link, or the caller asks
      for untrusted items (they are then marked ``untrusted``);
@@ -88,6 +90,7 @@ from context_graph.domain.models import (
     AtlasEdge,
     AtlasNode,
     AtlasResponse,
+    ExcludedEdge,
     NodeScores,
     Provenance,
     QueryCapacity,
@@ -166,6 +169,8 @@ class _Result:
     truncated: bool = False
     # Graph calls made for this request (bounded by the call budget)
     calls: int = 0
+    excluded_nodes: dict[str, str] = field(default_factory=dict)
+    excluded_edges: list[ExcludedEdge] = field(default_factory=list)
 
 
 # Suffixes stripped so "retrying", "retried" and "retries" match "retry"
@@ -835,9 +840,10 @@ class ArtifactRetriever:
             superseded = await self._superseded(result, result.nodes.values())
             for key, found in list(result.nodes.items()):
                 if key in superseded:
-                    if intent in keep_for:
+                    if intent in keep_for or found.origin == "given":
                         found.reason = label
                     else:
+                        result.excluded_nodes[key] = "superseded"
                         del result.nodes[key]
         if "untrusted_uncorroborated" in rules:
             trusted = {k for k, f in result.nodes.items() if not self._untrusted(f.props)}
@@ -854,7 +860,34 @@ class ArtifactRetriever:
                 if include_untrusted:
                     found.reason = "untrusted"
                 elif found.origin != "given":
+                    result.excluded_nodes[key] = "untrusted"
                     del result.nodes[key]
+        # Admission must not strand a traversal-only branch (e.g. an approval
+        # whose design was removed). Independent surviving seeds remain roots.
+        # Use artifact edges before provenance attachment: a common source Event
+        # must not reconnect a branch that admission deliberately excluded.
+        if result.excluded_nodes:
+            adjacent: dict[str, set[str]] = {key: set() for key in result.nodes}
+            for source, target, _ in result.edges:
+                if source in adjacent and target in adjacent:
+                    adjacent[source].add(target)
+                    adjacent[target].add(source)
+            reachable = {key for key, found in result.nodes.items() if found.origin != "traversal"}
+            pending = list(reachable)
+            while pending:
+                for neighbor in adjacent[pending.pop()] - reachable:
+                    reachable.add(neighbor)
+                    pending.append(neighbor)
+            for key in set(result.nodes) - reachable:
+                result.excluded_nodes[key] = "filtered_path"
+                del result.nodes[key]
+            result.excluded_edges = [
+                ExcludedEdge(
+                    source=source, target=target, edge_type=edge_type, reason="endpoint_excluded"
+                )
+                for source, target, edge_type in sorted(result.edges)
+                if source not in result.nodes or target not in result.nodes
+            ]
         result.edges = {
             k: v for k, v in result.edges.items() if k[0] in result.nodes and k[1] in result.nodes
         }
@@ -1153,6 +1186,8 @@ class ArtifactRetriever:
                 seed_nodes=[self._node_key(s.ref) for s in seeds],
                 seed_strategy="artifact_seeds",
                 retrieval_channels=reports,
+                excluded_nodes=result.excluded_nodes,
+                excluded_edges=result.excluded_edges,
                 capacity=QueryCapacity(
                     max_nodes=query.max_nodes, used_nodes=len(nodes), max_depth=depth
                 ),
