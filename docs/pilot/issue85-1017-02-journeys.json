@@ -1,0 +1,307 @@
+{
+  "run_id": "issue85-1017-02",
+  "coverage": "Issue85 exact historical seed, filtered approval branch, exclusions and unchanged status/why; normalized public HTTP flow",
+  "groups": [
+    {
+      "name": "issue85-design-history",
+      "tenant": "b",
+      "steps": [
+        {
+          "scenario": "requirement",
+          "expected_status": 201,
+          "expected_edges": [],
+          "request": {
+            "event_id": "0f6dba69-e151-5cc7-99b5-f88634fe6248",
+            "event_type": "pdlc.requirement.changed",
+            "occurred_at": "2026-10-17T09:10:11.708102+00:00",
+            "session_id": "issue85-1017-02:design",
+            "agent_id": "issue85-1017-02:producer",
+            "trace_id": "issue85-1017-02",
+            "payload_ref": "issue85:requirement",
+            "payload": {
+              "spec_id": "export-spec-issue85-1017-02",
+              "spec_version": "1",
+              "local_id": "REQ-1",
+              "statement": "Users can export reports as CSV"
+            }
+          },
+          "expected_node": "Requirement:export-spec-issue85-1017-02|1|REQ-1",
+          "expected_props": {
+            "statement": "Users can export reports as CSV"
+          },
+          "extra_nodes": {}
+        },
+        {
+          "scenario": "design-v1",
+          "expected_status": 201,
+          "expected_edges": [
+            [
+              "REFINES",
+              "DesignElement:export-hld-issue85-1017-02|overview|1",
+              "Requirement:export-spec-issue85-1017-02|1|REQ-1"
+            ]
+          ],
+          "request": {
+            "event_id": "8158ca87-a5c3-5570-af81-8d9b3bad4433",
+            "event_type": "pdlc.design.section_changed",
+            "occurred_at": "2026-10-17T09:11:11.708102+00:00",
+            "session_id": "issue85-1017-02:design",
+            "agent_id": "issue85-1017-02:producer",
+            "trace_id": "issue85-1017-02",
+            "payload_ref": "issue85:design-v1",
+            "payload": {
+              "doc_id": "export-hld-issue85-1017-02",
+              "section_path": "overview",
+              "kind": "hld",
+              "title": "Orchidline8549986039 architecture",
+              "body": "CSV export uses a synchronous API",
+              "requirements": [
+                {
+                  "spec_id": "export-spec-issue85-1017-02",
+                  "spec_version": "1",
+                  "local_id": "REQ-1"
+                }
+              ],
+              "version": "1"
+            }
+          },
+          "expected_node": "DesignElement:export-hld-issue85-1017-02|overview|1",
+          "expected_props": {
+            "version": "1"
+          },
+          "extra_nodes": {}
+        },
+        {
+          "scenario": "approval-v1",
+          "expected_status": 201,
+          "expected_edges": [
+            [
+              "APPROVES",
+              "DesignApproval:approval-v1-issue85-1017-02",
+              "DesignElement:export-hld-issue85-1017-02|overview|1"
+            ]
+          ],
+          "request": {
+            "event_id": "882194c4-b132-5e7d-8f2e-938988ca6726",
+            "event_type": "pdlc.design.approval_recorded",
+            "occurred_at": "2026-10-17T09:12:11.708102+00:00",
+            "session_id": "issue85-1017-02:design",
+            "agent_id": "issue85-1017-02:producer",
+            "trace_id": "issue85-1017-02",
+            "payload_ref": "issue85:approval-v1",
+            "payload": {
+              "approval_id": "approval-v1-issue85-1017-02",
+              "reviewer": "Priya",
+              "verdict": "approved",
+              "doc_id": "export-hld-issue85-1017-02",
+              "section_path": "overview",
+              "version": "1"
+            }
+          },
+          "expected_node": "DesignApproval:approval-v1-issue85-1017-02",
+          "expected_props": {
+            "reviewer": "Priya",
+            "verdict": "approved"
+          },
+          "extra_nodes": {}
+        },
+        {
+          "scenario": "design-v2",
+          "expected_status": 201,
+          "expected_edges": [
+            [
+              "SUPERSEDES",
+              "DesignElement:export-hld-issue85-1017-02|overview|2",
+              "DesignElement:export-hld-issue85-1017-02|overview|1"
+            ],
+            [
+              "REFINES",
+              "DesignElement:export-hld-issue85-1017-02|overview|2",
+              "Requirement:export-spec-issue85-1017-02|1|REQ-1"
+            ]
+          ],
+          "request": {
+            "event_id": "a33a4fb0-4239-5aaa-9c48-405d0ba7fd24",
+            "event_type": "pdlc.design.section_changed",
+            "occurred_at": "2026-10-17T09:13:11.708102+00:00",
+            "session_id": "issue85-1017-02:design",
+            "agent_id": "issue85-1017-02:producer",
+            "trace_id": "issue85-1017-02",
+            "payload_ref": "issue85:design-v2",
+            "payload": {
+              "doc_id": "export-hld-issue85-1017-02",
+              "section_path": "overview",
+              "kind": "hld",
+              "title": "Orchidline8549986039 architecture",
+              "body": "CSV export uses an asynchronous queue",
+              "requirements": [
+                {
+                  "spec_id": "export-spec-issue85-1017-02",
+                  "spec_version": "1",
+                  "local_id": "REQ-1"
+                }
+              ],
+              "version": "2",
+              "supersedes_version": "1"
+            }
+          },
+          "expected_node": "DesignElement:export-hld-issue85-1017-02|overview|2",
+          "expected_props": {
+            "version": "2"
+          },
+          "extra_nodes": {}
+        }
+      ],
+      "queries": [
+        {
+          "scenario": "given-old-trace",
+          "intent": "trace",
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "forbidden": [],
+          "expected_edges": []
+        },
+        {
+          "scenario": "given-new-trace",
+          "intent": "trace",
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "DesignElement:export-hld-issue85-1017-02|overview|2"
+          ],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|2"
+          ],
+          "forbidden": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1",
+            "DesignApproval:approval-v1-issue85-1017-02"
+          ],
+          "expected_edges": []
+        },
+        {
+          "scenario": "requirement-trace",
+          "intent": "trace",
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "Requirement:export-spec-issue85-1017-02|1|REQ-1"
+          ],
+          "required": [
+            "Requirement:export-spec-issue85-1017-02|1|REQ-1",
+            "DesignElement:export-hld-issue85-1017-02|overview|2"
+          ],
+          "forbidden": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1",
+            "DesignApproval:approval-v1-issue85-1017-02"
+          ],
+          "expected_edges": []
+        },
+        {
+          "scenario": "word-trace",
+          "intent": "trace",
+          "text": "Trace Orchidline8549986039 architecture",
+          "seeds": [],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|2"
+          ],
+          "forbidden": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1",
+            "DesignApproval:approval-v1-issue85-1017-02"
+          ],
+          "expected_edges": []
+        },
+        {
+          "scenario": "status-old",
+          "intent": "status",
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1",
+            "DesignApproval:approval-v1-issue85-1017-02"
+          ],
+          "forbidden": [],
+          "expected_edges": [
+            [
+              "APPROVES",
+              "DesignApproval:approval-v1-issue85-1017-02",
+              "DesignElement:export-hld-issue85-1017-02|overview|1"
+            ]
+          ]
+        },
+        {
+          "scenario": "why-old",
+          "intent": "why",
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "forbidden": [],
+          "expected_edges": []
+        },
+        {
+          "scenario": "keyword-free-old",
+          "intent": null,
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "forbidden": [],
+          "expected_edges": []
+        },
+        {
+          "scenario": "explicit-approval-trace",
+          "intent": "trace",
+          "text": "Orchidline8549986039",
+          "seeds": [
+            "DesignElement:export-hld-issue85-1017-02|overview|2",
+            "DesignApproval:approval-v1-issue85-1017-02"
+          ],
+          "required": [
+            "DesignElement:export-hld-issue85-1017-02|overview|2",
+            "DesignApproval:approval-v1-issue85-1017-02"
+          ],
+          "forbidden": [
+            "DesignElement:export-hld-issue85-1017-02|overview|1"
+          ],
+          "expected_edges": []
+        }
+      ],
+      "source_expectations": {
+        "Requirement:export-spec-issue85-1017-02|1|REQ-1": [
+          "0f6dba69-e151-5cc7-99b5-f88634fe6248"
+        ],
+        "DesignElement:export-hld-issue85-1017-02|overview|1": [
+          "8158ca87-a5c3-5570-af81-8d9b3bad4433"
+        ],
+        "DesignApproval:approval-v1-issue85-1017-02": [
+          "882194c4-b132-5e7d-8f2e-938988ca6726"
+        ],
+        "DesignElement:export-hld-issue85-1017-02|overview|2": [
+          "a33a4fb0-4239-5aaa-9c48-405d0ba7fd24"
+        ]
+      },
+      "retained_negative_proofs": [
+        {
+          "directory": "docs/review/spanner-compatibility/runs/pilot-p04-1016-01",
+          "tenant": "a",
+          "sha256": {
+            "results.json": "ad21dfaec6633bcab9f76adb4f073a0d3fa59065d9fe9dd40c502aa33e209a4e",
+            "recorded-source-audit.json": "8c1f399be8787720a4b45eca46a54be9bb75270f947a8cdef32493ad36f92a52",
+            "stale-action-audit.json": "336e4dd95def6f1f7c11be5a63f0664826e79968986d5e89b0493b1e8bd20aa9"
+          }
+        }
+      ]
+    }
+  ]
+}
