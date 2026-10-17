@@ -1,0 +1,167 @@
+{
+  "queries": [
+    {
+      "scenario": "given-old-trace",
+      "status": 200,
+      "old_version_present": true,
+      "approval_present": true,
+      "excluded_nodes": {},
+      "excluded_edges": [],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "given-new-trace",
+      "status": 200,
+      "old_version_present": false,
+      "approval_present": false,
+      "excluded_nodes": {
+        "DesignElement:export-hld-issue85-1017-03|overview|1": "superseded",
+        "DesignApproval:approval-v1-issue85-1017-03": "filtered_path"
+      },
+      "excluded_edges": [
+        {
+          "source": "DesignApproval:approval-v1-issue85-1017-03",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "APPROVES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "target": "Requirement:export-spec-issue85-1017-03|1|REQ-1",
+          "edge_type": "REFINES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|2",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "SUPERSEDES",
+          "reason": "endpoint_excluded"
+        }
+      ],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "requirement-trace",
+      "status": 200,
+      "old_version_present": false,
+      "approval_present": false,
+      "excluded_nodes": {
+        "DesignElement:export-hld-issue85-1017-03|overview|1": "superseded",
+        "DesignApproval:approval-v1-issue85-1017-03": "filtered_path"
+      },
+      "excluded_edges": [
+        {
+          "source": "DesignApproval:approval-v1-issue85-1017-03",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "APPROVES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "target": "Requirement:export-spec-issue85-1017-03|1|REQ-1",
+          "edge_type": "REFINES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|2",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "SUPERSEDES",
+          "reason": "endpoint_excluded"
+        }
+      ],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "word-trace",
+      "status": 200,
+      "old_version_present": false,
+      "approval_present": false,
+      "excluded_nodes": {
+        "DesignElement:export-hld-issue85-1017-03|overview|1": "superseded",
+        "DesignApproval:approval-v1-issue85-1017-03": "filtered_path"
+      },
+      "excluded_edges": [
+        {
+          "source": "DesignApproval:approval-v1-issue85-1017-03",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "APPROVES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "target": "Requirement:export-spec-issue85-1017-03|1|REQ-1",
+          "edge_type": "REFINES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|2",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "SUPERSEDES",
+          "reason": "endpoint_excluded"
+        }
+      ],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "status-old",
+      "status": 200,
+      "old_version_present": true,
+      "approval_present": true,
+      "excluded_nodes": {},
+      "excluded_edges": [],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "why-old",
+      "status": 200,
+      "old_version_present": true,
+      "approval_present": false,
+      "excluded_nodes": {},
+      "excluded_edges": [],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "keyword-free-old",
+      "status": 200,
+      "old_version_present": true,
+      "approval_present": true,
+      "excluded_nodes": {},
+      "excluded_edges": [],
+      "no_v2_approval": true
+    },
+    {
+      "scenario": "explicit-approval-trace",
+      "status": 200,
+      "old_version_present": false,
+      "approval_present": true,
+      "excluded_nodes": {
+        "DesignElement:export-hld-issue85-1017-03|overview|1": "superseded"
+      },
+      "excluded_edges": [
+        {
+          "source": "DesignApproval:approval-v1-issue85-1017-03",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "APPROVES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "target": "Requirement:export-spec-issue85-1017-03|1|REQ-1",
+          "edge_type": "REFINES",
+          "reason": "endpoint_excluded"
+        },
+        {
+          "source": "DesignElement:export-hld-issue85-1017-03|overview|2",
+          "target": "DesignElement:export-hld-issue85-1017-03|overview|1",
+          "edge_type": "SUPERSEDES",
+          "reason": "endpoint_excluded"
+        }
+      ],
+      "no_v2_approval": true
+    }
+  ],
+  "source_revision": "9ab90e47c0028f36ced08ede49d3d1f9c3b5347f",
+  "created": 4,
+  "final_checks": 95,
+  "provider_calls": 22
+}

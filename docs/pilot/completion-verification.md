@@ -486,3 +486,9 @@ GitHub reconciliation found stale open bug records #64/#66/#68. Astra compared e
 **Separate verdicts:** engineering milestones complete with retained failures and known limits; stakeholder demo walkthrough delivered as a versioned artifact, synchronous attendance/acceptance not claimed; agent technical reproduction passed, independent human/team repetition not performed; external cohort deployment not performed. Data was retained, with the exact P04 negative delivery and historical failed-run evidence preserved. No migration, direct graph repair, arbitrary reset or broader forced-crash guarantee was introduced.
 
 Everything lands on the one canonical branch `feature/engram-memory-episodes`. P10 executed 9f0a337; P11 executed d9db077. Final documentation changes introduce no new runtime behavior. Publication is verified against the remote branch after commit.
+
+### Post-pilot issue85 — historical trace and approval integrity
+
+An independent test exposed a gap beyond the prior bounded B03 checks: admission removed an explicitly requested old design and stranded its approval context. The [issue85 verification](issue85-verification.md) records the cause, deliberate trace/history decision, retained failures, 165 affected local tests and 95 final live checks across eight fixed public queries. Astra accepted the correction; no v2 approval is invented. These additional checks extend the recorded evidence rather than retroactively changing the earlier pilot coverage into a universal pass.
+
+Customer-owned deployment portability is separately tracked in [the deployment brief](spanner-deployment-portability.md), issue86 under #34. Current settings/SDK selection are configurable; pilot operators remain deliberately Portiq-bound, and an actual non-Portiq customer-project proof is pending.

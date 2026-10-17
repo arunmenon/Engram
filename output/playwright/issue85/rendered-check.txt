@@ -1,0 +1,6 @@
+### Result
+{"page":17,"explanation_visible":true}
+### Ran Playwright code
+```js
+await (async (page) => {await page.goto('http://127.0.0.1:8765/docs/guide/engram-architecture.html');await page.setViewportSize({width:1440,height:1000});await page.getByRole('combobox',{name:'Choose a walkthrough page',exact:true}).selectOption('16');const section=page.locator('section.page:visible');if(!(await section.innerText()).includes('meta.excluded_edges'))throw Error('missing exclusion explanation');await page.screenshot({path:'output/playwright/issue85/artifact-history.png',fullPage:true});return {page:17,explanation_visible:true};})(page);
+```

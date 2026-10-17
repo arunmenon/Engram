@@ -1,0 +1,446 @@
+{
+  "state": "failed",
+  "execution_mode": "selected-journeys",
+  "scope": [
+    "Issue85 exact historical seed, filtered approval branch, exclusions and unchanged status/why; normalized public HTTP flow"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a baseline has no undeclared retained dead letters",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a inactive tenant has no pending work",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b baseline has no undeclared retained dead letters",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b inactive tenant has no pending work",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b all fixture Event identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "all fixture artifacts fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b spectrum artifact identities fresh",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b retained worker groups match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "b selected bundle matches retained owner",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "public dispatcher ready",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "issue85-design-history:requirement admission",
+      "passed": true,
+      "actual": 201
+    },
+    {
+      "name": "issue85-design-history:requirement exact source evidence",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "issue85-design-history:requirement cumulative properties",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "issue85-design-history:requirement no unexpected declared artifacts",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "issue85-design-history:requirement proposals retain accepted sources",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "issue85-design-history:requirement cumulative declared links",
+      "passed": false,
+      "actual": null
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": true
+    },
+    {
+      "name": "a final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "a prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "a exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "a final zero pending and exactly declared DLQ",
+      "passed": true
+    },
+    {
+      "name": "b final exact ledger append and retained owner",
+      "passed": true
+    },
+    {
+      "name": "b prior graph preserved except approved derived refresh",
+      "passed": true
+    },
+    {
+      "name": "b exact prior Episode membership retained",
+      "passed": true
+    },
+    {
+      "name": "b final zero pending and exactly declared DLQ",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "tenant": "b",
+      "path": "/v1/events",
+      "method": "POST",
+      "role": "api",
+      "input": {
+        "event_id": "0f6dba69-e151-5cc7-99b5-f88634fe6248",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-17T09:10:11.708102+00:00",
+        "session_id": "issue85-1017-02:design",
+        "agent_id": "issue85-1017-02:producer",
+        "trace_id": "issue85-1017-02",
+        "payload_ref": "issue85:requirement",
+        "payload": {
+          "spec_id": "export-spec-issue85-1017-02",
+          "spec_version": "1",
+          "local_id": "REQ-1",
+          "statement": "Users can export reports as CSV"
+        }
+      },
+      "auth_mode": "normal",
+      "tenant_hints": [],
+      "status": 201,
+      "output": {
+        "event_id": "0f6dba69-e151-5cc7-99b5-f88634fe6248",
+        "global_position": "2026-10-17T09:22:58.916079000Z/000000/0f6dba69-e151-5cc7-99b5-f88634fe6248",
+        "status": "created"
+      }
+    }
+  ],
+  "provider_calls": [
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-17T09:23:14.562793+00:00",
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "summary_request_id": "summary-0",
+      "usage": {
+        "completion_tokens": 134,
+        "prompt_tokens": 3217,
+        "total_tokens": 3351,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 3214,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 3214
+        }
+      },
+      "output": "A high-severity production incident was reported for expired password-reset tokens being accepted. Several deployments of the same artifact were recorded across different repositories and services, so the deployment trail was ambiguous. Changes #8 and #9 were created with the same fix title; #8 was linked to the incident, merged as `reset-fix-sha`, and a lesson was recorded with a confirmed link. Other lesson records included a confirmed link for a different repository/service and a rejected link for the incident\u2019s auth service. Specifications were approved, but their relevance to the fix was not established. The incident was ultimately marked resolved with the summary \u201cVerified server-side expiry enforcement.\u201d",
+      "state": "returned",
+      "input_event_candidates": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "started_at": "2026-10-17T09:23:21.292251+00:00",
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "summary_request_id": "summary-1",
+      "usage": {
+        "completion_tokens": 132,
+        "prompt_tokens": 3217,
+        "total_tokens": 3349,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cache_write_tokens": 0,
+          "cached_tokens": 3214,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_creation_tokens": 0
+        }
+      },
+      "output": "A high-severity production incident involving expired password-reset tokens being accepted was detected in the auth reset service. Several deployments of the implicated artifact were recorded across services and repositories, but those events do not establish that a fix was deployed. Changes #8 and #9 were created with the same title; #8 was linked to the incident, merged, and associated with a confirmed lesson. A separate remediation record referenced a future incident and change #88, but the events do not show that change being merged. Some lesson and specification records were confirmed, rejected, or unrelated. The incident was ultimately marked resolved with the summary \u201cVerified server-side expiry enforcement.\u201d",
+      "state": "returned",
+      "input_event_candidates": []
+    }
+  ],
+  "worker_outcomes": [
+    {
+      "event_id": "0f6dba69-e151-5cc7-99b5-f88634fe6248",
+      "keywords": [
+        "pdlc",
+        "requirement",
+        "changed"
+      ],
+      "importance_score": 5,
+      "event": "event_enriched"
+    },
+    {
+      "source": "timer",
+      "event": "consolidation_cycle_stopped"
+    }
+  ],
+  "workers": [
+    {
+      "tenant": "b",
+      "type": "projection",
+      "group": "assessment-projection"
+    },
+    {
+      "tenant": "b",
+      "type": "enrichment",
+      "group": "assessment-enrichment"
+    },
+    {
+      "tenant": "b",
+      "type": "extraction",
+      "group": "assessment-extraction"
+    },
+    {
+      "tenant": "b",
+      "type": "consolidation",
+      "group": "assessment-consolidation"
+    },
+    {
+      "tenant": "b",
+      "type": "pack_extraction",
+      "group": "assessment-pack_extraction"
+    }
+  ],
+  "limitations": [
+    "Selected groups only; entry business paths are not executed or certified by this attempt.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "Episode/summary/vector claims require corresponding selected-scenario evidence",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "settings": {
+    "a": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "user",
+          "1.2.0"
+        ]
+      ],
+      "epoch": 53,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    },
+    "b": {
+      "model": "gpt-6-luna",
+      "packs": [
+        [
+          "core",
+          "1.1.0"
+        ],
+        [
+          "memory",
+          "1.2.0"
+        ],
+        [
+          "pdlc",
+          "5.0.0"
+        ]
+      ],
+      "epoch": 7,
+      "consolidation_hours": 0.005555555555555556,
+      "reflection_threshold": 5
+    }
+  },
+  "spectrum": [
+    {
+      "group": "issue85-design-history",
+      "tenant": "b",
+      "steps": [
+        {
+          "scenario": "requirement",
+          "status": 201,
+          "event_id": "0f6dba69-e151-5cc7-99b5-f88634fe6248"
+        }
+      ],
+      "queries": [],
+      "model_proposals": {
+        "requirement": []
+      }
+    }
+  ],
+  "summary_cache_observations": [
+    {
+      "id": "summary-0",
+      "tenant": "b",
+      "scope": "episode",
+      "scope_id": "episode-cd7142c4c3e0fafb7d4ea43728aa0bfd1e6db3a36bf256c331ddd5a8b570bb32",
+      "source_event_ids": [
+        "03269414-326c-5f17-a05d-38f372a38580",
+        "17f0f65b-5bd4-59ad-8a7f-80ca82bc1d82",
+        "2079605c-b099-551d-bf7f-c03daaaf7143",
+        "227913aa-42c3-58f0-8a79-5bf6b02ab357",
+        "254436d3-07ff-5cdf-9d29-9804ae389dd7",
+        "424f1ecc-e45f-5bb9-8564-dc3062c3aa05",
+        "453e429f-7d21-578f-a875-2ffb9db15a86",
+        "46de3ce5-28e4-511a-9f23-8f09d9b8c534",
+        "5354c4f9-4a4d-5805-9da1-4067e19b3565",
+        "635394b2-526e-5791-b13a-5d02e5797264",
+        "89a6d3ae-c797-5647-98b6-ef31e78b14ad",
+        "8ab75ba4-d1b1-5c53-889a-c10275714784",
+        "8b10c5c6-7ddb-52f8-b0af-245278eca6c7",
+        "b088a4b6-04dc-51ee-b70a-d203ec40c1d7",
+        "b4804a33-0177-5024-bdc0-7ae832d8577d",
+        "b6a3de65-6452-5e3c-bcda-2a0cfe0e33dd",
+        "c28860ef-43f8-5bd6-9557-c33dc5397b2f",
+        "c5a02d03-f975-520a-8a48-73fcae777dc5",
+        "cb2396dc-78a8-5e9a-b6cd-fd97df82fb48",
+        "dc60607d-011f-5bde-a74d-8149d9a4bef0",
+        "e1df1cea-5094-51cc-b7ac-7401049dbbd5",
+        "eb7dc1e2-b5ca-5532-8b69-19f30a29b1c6",
+        "f857e972-76c2-520a-a416-2edf9a0ba104",
+        "ffc94518-5b21-5406-a502-7909e3cb611e"
+      ],
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": "6ee3bef4c793b32b4d6e010dc4a39b8d266b43db46344f84b66616a3af56ecb9",
+      "cache_present_after": true
+    },
+    {
+      "id": "summary-1",
+      "tenant": "b",
+      "scope": "session",
+      "scope_id": "g06/pilot-1016-continuation-03-incident",
+      "source_event_ids": [
+        "03269414-326c-5f17-a05d-38f372a38580",
+        "17f0f65b-5bd4-59ad-8a7f-80ca82bc1d82",
+        "2079605c-b099-551d-bf7f-c03daaaf7143",
+        "227913aa-42c3-58f0-8a79-5bf6b02ab357",
+        "254436d3-07ff-5cdf-9d29-9804ae389dd7",
+        "424f1ecc-e45f-5bb9-8564-dc3062c3aa05",
+        "453e429f-7d21-578f-a875-2ffb9db15a86",
+        "46de3ce5-28e4-511a-9f23-8f09d9b8c534",
+        "5354c4f9-4a4d-5805-9da1-4067e19b3565",
+        "635394b2-526e-5791-b13a-5d02e5797264",
+        "89a6d3ae-c797-5647-98b6-ef31e78b14ad",
+        "8ab75ba4-d1b1-5c53-889a-c10275714784",
+        "8b10c5c6-7ddb-52f8-b0af-245278eca6c7",
+        "b088a4b6-04dc-51ee-b70a-d203ec40c1d7",
+        "b4804a33-0177-5024-bdc0-7ae832d8577d",
+        "b6a3de65-6452-5e3c-bcda-2a0cfe0e33dd",
+        "c28860ef-43f8-5bd6-9557-c33dc5397b2f",
+        "c5a02d03-f975-520a-8a48-73fcae777dc5",
+        "cb2396dc-78a8-5e9a-b6cd-fd97df82fb48",
+        "dc60607d-011f-5bde-a74d-8149d9a4bef0",
+        "e1df1cea-5094-51cc-b7ac-7401049dbbd5",
+        "eb7dc1e2-b5ca-5532-8b69-19f30a29b1c6",
+        "f857e972-76c2-520a-a416-2edf9a0ba104",
+        "ffc94518-5b21-5406-a502-7909e3cb611e"
+      ],
+      "prompt_sha256": "d67b12e9c3fb58051dcf9899a0877c73a5caa9bbcd0248d158cd1aceebf039ec",
+      "cache_present_before": false,
+      "state": "returned",
+      "output_sha256": "ca373df81b9824275aa2dfb6960e1379f9433965bd1e77d62b3d9378a0aa159c",
+      "cache_present_after": true
+    }
+  ],
+  "error": {
+    "type": "AssertionError",
+    "message": "issue85-design-history:requirement cumulative declared links"
+  },
+  "shutdown_errors": []
+}

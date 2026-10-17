@@ -1,0 +1,23 @@
+{
+  "scope": "Local settings parsing and source inspection only",
+  "runtime_source": "9ab90e4",
+  "configured_project": "customer-example-project",
+  "configured_instance": "customer-example-instance",
+  "configured_database": "engram-customer",
+  "ports": {
+    "event_log": "spanner",
+    "subscription": "spanner",
+    "graph": "spanner",
+    "keyword_index": "spanner",
+    "vector_index": "spanner"
+  },
+  "runtime_portiq_literal_matches": 0,
+  "source_sha256": {
+    "src/context_graph/settings.py": "adb5d164be291ab353f9cbb4c5c1b200d4dd08d1e2041a963fc04663450baadb",
+    "src/context_graph/adapters/spanner/schema.py": "e93d6ef5873088884a4806c74bbc7ae2349ff96fadf281d3f292af27f894bf93",
+    "src/context_graph/adapters/registry.py": "8d6bcc08abcb986de8a6f7f83dd79dc3722fe581aa7cba534428895e4420529e",
+    "src/context_graph/tenancy.py": "aae67ec0d32f3158f96b69fadf598e319913181def30fc505ad0a416a8ece760"
+  },
+  "actual_non_portiq_cloud_proof": false,
+  "operator_entrypoint_assessment": "pending issue86"
+}

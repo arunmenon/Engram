@@ -1,0 +1,43 @@
+{
+  "state": "failed",
+  "execution_mode": "selected-journeys",
+  "scope": [
+    "Issue85 exact historical seed, filtered approval branch, exclusions and unchanged status/why; normalized public HTTP flow"
+  ],
+  "checks": [
+    {
+      "name": "real provider credential present",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a exact retained owner and dataset",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "a baseline has no undeclared retained dead letters",
+      "passed": false,
+      "actual": null
+    },
+    {
+      "name": "actual provider calls returned after cooperative shutdown",
+      "passed": true
+    }
+  ],
+  "requests": [],
+  "provider_calls": [],
+  "worker_outcomes": [],
+  "workers": [],
+  "limitations": [
+    "Selected groups only; entry business paths are not executed or certified by this attempt.",
+    "Local loopback public-dispatcher path; no external cohort onboarding or TLS/remote access proof",
+    "Episode/summary/vector claims require corresponding selected-scenario evidence",
+    "Unevaluated-pack development gate retained; no full-pack evaluation claim"
+  ],
+  "error": {
+    "type": "AssertionError",
+    "message": "a baseline has no undeclared retained dead letters"
+  },
+  "shutdown_errors": []
+}
