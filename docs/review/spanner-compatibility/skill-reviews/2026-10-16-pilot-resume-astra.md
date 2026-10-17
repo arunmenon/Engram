@@ -278,3 +278,21 @@ P12 claim-level gate passes for the inspected candidate map and pilot chapter af
 Accepted; #85 is eligible for closure. Inspected `runs/issue85-1017-03/results.json`, approval-exclusion audit and source audit: source `9ab90e47c0028f36ced08ede49d3d1f9c3b5347f`, 183 matching source hashes, 95 passing checks, four created inputs, 16 HTTP requests, 22 returned provider calls, five zero final lags and clean shutdown. Both tenant final source/owner/prior graph/Episode/pending/declared-DLQ conservation checks pass. Eight unchanged query cases distinguish explicitly requested old versions from discovered historical versions: old-seed/status/why/keyword-free controls retain the old identity; new/requirement/word trace omit it and its traversal-only approval with reasons; independently seeded approval remains with metadata naming its original omitted APPROVES target. No case fabricates approval of v2. Local regression/source review plus this real authenticated Spanner proof closes the reported defect, not universal history traversal. Attempts01/02 remain failed with their distinct admission/oracle failures preserved.
 
 Also reviewed `docs/pilot/spanner-deployment-portability.md` for claim scope: it separates current configurable SDK/binding construction from guarded retained-pilot operators and an unperformed second-project deployment. No customer deployment, fresh environment, or portable onboarding completion is claimed. Its proposed work remains a separate bounded portability slice with an authorized customer target as an external prerequisite.
+
+## 2026-10-17 — #86 customer Spanner deployment checkpoint
+
+Astra low independently reviewed the uncommitted deployment CLI, smoke verifier,
+tests, operator guide and manifest against the bounded #86 design. Initial findings:
+require five distinct nonempty consumer groups; prove enrichment via its keywords
+rather than the projection's importance hint; compare the HTTP receipt position
+with the inspected ledger position. All were corrected with regressions.
+
+Final recheck: "All three blockers are resolved in source and covered by targeted
+regressions: distinct nonempty worker groups, actual enrichment keywords, and
+ledger position matching the HTTP receipt. Ready to publish the local implementation
+checkpoint. #86's authorized non-Portiq deployment proof remains outstanding;
+no customer acceptance or issue closure yet."
+
+154 targeted/adjacent local tests pass; Ruff and Mypy pass. See
+`docs/pilot/issue86-verification.md`. No runtime customer proof or broad deployment
+approval is inferred from this review.

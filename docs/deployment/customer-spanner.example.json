@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "tenants": [
+    {
+      "tenant_id": "customer-a",
+      "binding_id": "customer-a-v1",
+      "epoch": 1,
+      "settings": {
+        "spanner": {
+          "project": "customer-project",
+          "instance": "customer-instance",
+          "database": "customer-a"
+        },
+        "storage": {
+          "event_log": "spanner",
+          "subscription": "spanner",
+          "graph": "spanner",
+          "keyword_index": "spanner",
+          "vector_index": "spanner"
+        },
+        "ontology": {"packs": [], "builtin_packs": []},
+        "llm": {"model_id": "gpt-6-luna"},
+        "embedding": {"model_name": "all-MiniLM-L6-v2", "dimensions": 384},
+        "archive": {"enabled": false}
+      }
+    }
+  ],
+  "credentials": [
+    {
+      "credential_id": "producer-a",
+      "tenant_id": "customer-a",
+      "roles": ["api"],
+      "source_id": "customer-producer",
+      "token_env": "CUSTOMER_A_TOKEN"
+    }
+  ]
+}

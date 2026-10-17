@@ -49,7 +49,7 @@ Done means an operator can follow the published launch/setup instructions withou
 | Retrieve PDLC artifacts and relationships | `POST /v1/query/artifacts`, when the bound packs support it |
 | Retrieve User information | `/v1/users/{user_id}/...`, when User is enabled and the required role permits the operation |
 | Inspect service/ontology state | `/v1/health`, `/v1/ontology`, within the deployed authentication/tenant contract |
-| Configure tenant/database ownership and workers | Existing binding/catalog/control and worker interfaces; a documented reusable launch/setup surface still needs assessment |
+| Configure tenant/database ownership and workers | Existing binding/catalog/control and worker interfaces; packaged `context_graph.deployment` manifest/CLI; see operator guide |
 
 These are service APIs. Google's Spanner SDK remains behind Engram's storage ports; integrating applications should not insert graph rows or manipulate worker delivery tables directly.
 
@@ -58,3 +58,29 @@ These are service APIs. Google's Spanner SDK remains behind Engram's storage por
 The operator supplies an authorized target, the current GoogleSQL schema and required Spanner Graph/search/index capabilities, a dedicated schema/database arrangement, credentials and required database permissions, and network access from the API/workers. Provisioning authority and steady-state runtime permissions must be stated separately. Existing nonempty databases must pass schema/ownership checks; “any instance” does not mean silently using arbitrary tables or unsupported features.
 
 The hosting organization must also select permitted model/embedding providers, secret delivery and network access. The pilot's OpenAI/Luna account and impersonated Portiq service account are not customer deployment requirements. Enterprise identity integration, remote service exposure and independent human onboarding must be verified for that deployment rather than inferred from the local pilot. No customer resources are created by this assessment, and no historical-data migration enters the slice.
+
+## Implementation checkpoint — 2026-10-17
+
+The reusable setup/launch surface is now implemented in
+`src/context_graph/deployment.py`, with a real-service proof runner in
+`src/context_graph/deployment_verify.py`. Follow the
+[customer operator guide](../deployment/customer-spanner.md) and its versioned
+example manifest. It reuses the existing tenant factory, storage adapters, schema,
+ownership fence and workers. Pilot guard scripts remain unchanged.
+
+Preparation freezes private settings once and pins actual shipped Python/YAML
+source plus pack/configuration digests. Setup requires explicit full-resource
+confirmation and refuses unowned populated databases, schema/owner mismatch,
+emulators and implicit creation. No historical migration or privileged
+provisioning API was added. All setup/API/worker processes use the same artifact.
+
+Local tests establish configured target selection, ADC client construction, five
+storage ports sharing the binding, API/worker owner refusal, private configuration,
+secret-safe failures and the proof runner's rejection of false-pass conditions.
+These tests use doubles and are not cross-project deployment proof. Independent
+review and final test evidence are recorded in `issue86-verification.md`.
+
+**Open acceptance prerequisite:** an authorized non-Portiq project/instance/database
+and credential method have not been supplied. No customer resources were created
+or modified. #86 stays open until the documented real HTTP/worker/Spanner proof
+runs there and its retained evidence is reviewed.
